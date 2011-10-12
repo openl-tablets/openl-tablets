@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <link href="#{contextPath}/css/tree.css" rel="stylesheet" type="text/css"></link>
+
+    <p /><p />
+
+    <h:panelGroup>
+        <!-- Menu BEGIN -->
+        <table class="treeMenu">
+            <tr>
+                <td>
+                    <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/explain/explain.xhtml?rootID=${param.rootID}"
+                        title="Table View"><img src="webresource/images/tableview.gif"/></h:outputLink>
+                </td>
+            </tr>
+        </table>
+        <!-- Menu END -->
+    </h:panelGroup>
+
+    <p />
+
+    <!-- Tree BEGIN -->
+    <rich:tree styleClass="tree" value="#{explainTreeBean.tree}" toggleType="client"
+        var="node" nodeType="#{node.type}">
+        <rich:treeNode type="value"
+            iconExpanded="webresource/images/value.gif"
+            iconCollapsed="webresource/images/value.gif"
+            iconLeaf="webresource/images/value.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+        <rich:treeNode type="formula.+"
+            iconExpanded="webresource/images/operator-plus.gif"
+            iconCollapsed="webresource/images/operator-plus.gif"
+            iconLeaf="webresource/images/operator-plus.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+        <rich:treeNode type="formula.*"
+            iconExpanded="webresource/images/operator-mul.gif"
+            iconCollapsed="webresource/images/operator-mul.gif"
+            iconLeaf="webresource/images/operator-mul.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+        <rich:treeNode type="formula./"
+            iconExpanded="webresource/images/operator-div.gif"
+            iconCollapsed="webresource/images/operator-div.gif"
+            iconLeaf="webresource/images/operator-div.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+        <rich:treeNode type="formula.-"
+            iconExpanded="webresource/images/operator-min.gif"
+            iconCollapsed="webresource/images/operator-min.gif"
+            iconLeaf="webresource/images/operator-min.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+        <rich:treeNode type="formula"
+            iconExpanded="webresource/images/operator.gif"
+            iconCollapsed="webresource/images/operator.gif"
+            iconLeaf="webresource/images/operator.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+        <rich:treeNode type="function"
+            iconExpanded="webresource/images/method.gif"
+            iconCollapsed="webresource/images/method.gif"
+            iconLeaf="webresource/images/method.gif">
+            <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                <h:outputText value="#{node.name}" />
+            </h:outputLink>
+        </rich:treeNode>
+    </rich:tree>
+    <!-- Tree END -->
+
+</ui:composition>

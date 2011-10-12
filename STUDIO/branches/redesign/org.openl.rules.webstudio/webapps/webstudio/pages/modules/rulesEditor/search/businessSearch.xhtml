@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <h:head>
+        <link href="webresource/css/multiselect.css" rel="stylesheet" type="text/css"></link>
+        <script src="webresource/js/AjaxHelper.js"></script>
+        <script src="webresource/js/BaseEditor.js"></script>
+        <script src="webresource/js/BaseTextEditor.js"></script>
+        <script src="webresource/js/MultiselectEditor.js"></script>
+        <script src="webresource/js/DropdownEditor.js"></script>
+        <script src="webresource/js/validation.js"></script>
+    </h:head>
+
+    <br />
+
+    <table class="search-table">
+	<tr><td>
+	<h:form id="businessSearchForm">
+	<fieldset>
+        <legend>Properties</legend>
+        <h:dataTable value="#{bussinessSearch.propForSearch}" var="prop">
+            <h:column>
+                <h:outputText value="#{prop.displayName}"/>
+            </h:column>
+            <h:column>
+	            <rich:calendar value="#{prop.value}" datePattern="#{systemConfig['data.format.date']}"
+                    defaultTime="00:00" rendered="#{prop.dateType}" />
+
+                <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
+                    value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enumType}">
+                    <f:attribute name="property" value="#{prop}"/>
+                </h:outputText>
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType}" />
+
+                <h:outputText binding="#{bussinessSearch.enumHelper.enumArrayOutput}" escape="false" 
+                    value="#{bussinessSearch.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
+                    <f:attribute name="property" value="#{prop}"/>
+                </h:outputText>
+                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+
+                <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
+
+  		    	<h:inputText value="#{prop.value}"
+                    rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
+
+                <input type="hidden" name="id" value="#{prop.name}" />
+            </h:column>
+		</h:dataTable>
+	</fieldset>
+	<br/>
+	<fieldset>
+		<h:panelGrid columns="2" cellspacing="5" >
+			<h:outputLabel for="content" value="Table Contains" />
+			<h:inputText id="content" value="#{bussinessSearch.tableContain}" />
+		</h:panelGrid>
+	</fieldset>
+	<br />
+	<a4j:commandButton value="Search" action="#{bussinessSearchRequest.search}" render="" />
+	</h:form></td></tr>
+	</table>
+
+	<h:panelGroup id="searchResults" rendered="#{bussinessSearchRequest.searching}">
+    	<c:forEach items="#{bussinessSearchRequest.searchResults}" var="table">
+        <br />
+        <h:panelGroup>
+            <img src="#{contextPath}/webresource/images/viewTable.gif" />
+            <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                <f:param name="uri" value="#{table.uri}" />
+                <h:outputText value="View Table" />
+            </h:outputLink>
+        </h:panelGroup>
+        <br />
+        <h:panelGroup rendered="#{studio.model.editable}">
+            <h:graphicImage url="#{contextPath}/webresource/images/excel.png" />
+            <h:outputLink value="#{contextPath}/action/launch" target="hidden">
+                <f:param name="uri" value="#{table.uri}" />
+                <h:outputText value="View Table in Excel" />
+            </h:outputLink>
+        </h:panelGroup>
+        <br /><br />
+        <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
+            showLinksBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
+            collapseProps="true" />
+        <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
+     </c:forEach>
+
+  </h:panelGroup>
+
+</ui:composition>

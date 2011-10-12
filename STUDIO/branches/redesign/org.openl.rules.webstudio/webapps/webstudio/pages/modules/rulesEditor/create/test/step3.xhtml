@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Input technical name</ui:define>
+
+    <ui:define name="data">
+        <h:form>
+            <h:panelGrid columns="3">
+                <h:outputText value="Technical Name" />
+                <h:inputText id="technicalName" value="#{wizard.technicalName}">
+                    <rich:validator />
+                </h:inputText>
+                <h:message for="technicalName" styleClass="error" />
+            </h:panelGrid> 
+
+            <hr />
+            <br />
+
+            <a4j:commandButton value="Prev" rendered="#{wizard.step > 1}"
+                action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('test/step2.xhtml')" />
+            <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
+                oncomplete="go('test/step4.xhtml')" />
+            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+        </h:form>
+    </ui:define>
+
+</ui:composition>

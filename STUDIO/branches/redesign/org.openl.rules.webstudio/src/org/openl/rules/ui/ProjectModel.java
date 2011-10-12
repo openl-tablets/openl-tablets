@@ -606,7 +606,7 @@ public class ProjectModel {
     }
 
     public String getTableView(String view) {
-        return view == null ? studio.getMode().getTableMode() : view;
+        return view == null ? studio.getTableView().getTableMode() : view;
     }
 
     public RanTestsResults getTestsRunner(IOpenMethod[] testMethods) {
@@ -784,7 +784,7 @@ public class ProjectModel {
 
         TreeBuilder<Object> treeBuilder = new TreeBuilder<Object>();
 
-        TreeNodeBuilder<Object>[] treeSorters = studio.getMode().getBuilders();
+        TreeNodeBuilder<Object>[] treeSorters = studio.getTreeView().getBuilders();
 
         // Find all group sorters defined for current subtree.
         // Group sorter should have additional information for grouping
@@ -807,7 +807,7 @@ public class ProjectModel {
         boolean treeEnlarged = false;
 
         for (int i = 0; i < tableSyntaxNodes.length; i++) {                
-            if (studio.getMode().select(tableSyntaxNodes[i])) {
+            if (studio.getTreeView().select(tableSyntaxNodes[i])) {
 
                 treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
                 treeEnlarged = true;
@@ -907,7 +907,7 @@ public class ProjectModel {
 
     private ProjectTreeNode makeProjectTreeRoot() {
 
-        String name = studio.getMode().getDisplayName(moduleInfo);
+        String name = studio.getTreeView().getDisplayName(moduleInfo);
 
         return new ProjectTreeNode(new String[] { name, name, name }, "root", null, null, 0, null);
     }

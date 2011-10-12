@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <br />
+
+    <h:form>
+        <h:inputText size="50" value="#{simpleSearchBean.searchQuery}"
+            style="width: 300px; margin-right: 3px;" />
+        <h:commandButton value="Search" action="#{simpleSearchBean.search}" />
+    </h:form>
+
+    <br />
+
+    <h:outputText value="No results found" rendered="#{empty simpleSearchBean.searchResults}"
+        style="font-weight: bold" />
+    <h:panelGroup rendered="#{not empty simpleSearchBean.searchResults}">
+        <ui:include src="searchResults.xhtml">
+            <ui:param name="searchResults" value="#{simpleSearchBean.searchResults}" />
+        </ui:include>
+    </h:panelGroup>
+
+</ui:composition>

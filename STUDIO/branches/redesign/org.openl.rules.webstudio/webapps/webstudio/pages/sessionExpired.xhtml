@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
+
+  <!--<rich:popupPanel id="modalSessionExpired" width="300" minWidth="300" height="130" minHeight="110">
+    <f:facet name="header">
+      <h:outputText value="Session Expired" />
+    </f:facet>
+
+    <f:facet name="controls">
+        <h:graphicImage value="/webresource/images/modal/wait.gif" />
+    </f:facet>
+
+      <h:outputText value="While you were absent, your session has expired." />
+      <br />
+      <br />
+      <h:outputText value="Relogin in " />
+      <span id="sessionExpiredCountDown">?</span>
+      <h:outputText value=" seconds..." />
+      <br />
+      <br />
+
+      <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <input type="button" id="sessionExpiredBtn" value="Login Now" onclick="return relogin();" />
+      </h:panelGrid>
+  </rich:popupPanel>
+  -->
+
+    <script>
+        function relogin() {
+            top.location.href = "#{facesContext.externalContext.request.contextPath}";
+            return false;
+        }
+//<!--
+        /*function reloginCountDown(countDown) {
+            if (countDown == null) {
+                countDown = window._countDown;
+            }
+            if (countDown <= 0) {
+                relogin();
+            } else {
+                var txt = document.getElementById('sessionExpiredCountDown');
+                txt.innerHTML = countDown;
+                window._countDown = countDown - 1;
+                setTimeout(reloginCountDown, 1000, countDown - 1);
+            }
+        }*/
+
+        //RichFaces.$('modalSessionExpired').show();
+
+        // reloginCountDown(15);
+        relogin();
+//-->
+    </script>
+</ui:composition>

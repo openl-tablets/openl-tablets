@@ -170,8 +170,9 @@ public class Explanation {
         if (name == null) {
             name = "";
         } else if (url != null) {
-            name = HTMLHelper.urlLink(WebContext.getContextPath()+ "/faces/facelets/explain/showExplainTable.xhtml?uri="
-                    + StringTool.encodeURL(url) + "&text=" + name, "show", name, "mainFrame");
+            name = HTMLHelper.urlLink(
+                    WebContext.getContextPath()+ "/faces/pages/modules/rulesEditor/explain/showExplainTable.xhtml?uri="
+                        + StringTool.encodeURL(url) + "&text=" + name, "show", name, "mainFrame");
         }
 
         return new String[] { value, name, htmlString(explanationValue) };

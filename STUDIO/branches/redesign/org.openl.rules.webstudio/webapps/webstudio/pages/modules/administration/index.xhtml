@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/pages/layout/adminLayout.xhtml">
+
+    <ui:define name="content">
+        <rich:tabPanel switchType="client">
+            <rich:tab header="System Settings">
+                <ui:include src="/pages/modules/administration/systemSettings.xhtml" />
+            </rich:tab>
+            <rich:tab header="Users" disabled="true">
+            </rich:tab>
+        </rich:tabPanel>
+    </ui:define>
+
+</ui:composition>

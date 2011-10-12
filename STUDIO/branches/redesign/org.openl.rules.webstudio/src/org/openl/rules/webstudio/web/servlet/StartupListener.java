@@ -74,7 +74,6 @@ public class StartupListener implements ServletContextListener {
         initHomeDirectory(context);
     }
 
-
     private void initHomeDirectory(ServletContext context) {
         String webstudioHome = System.getProperty(PROP_WEBSTUDIO_HOME);
         if (webstudioHome == null) {

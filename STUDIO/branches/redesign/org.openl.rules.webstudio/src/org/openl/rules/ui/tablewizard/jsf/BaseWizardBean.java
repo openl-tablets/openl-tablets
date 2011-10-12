@@ -97,5 +97,5 @@ public abstract class BaseWizardBean {
         onFinish();
         return null;
     }
-
+    
 }

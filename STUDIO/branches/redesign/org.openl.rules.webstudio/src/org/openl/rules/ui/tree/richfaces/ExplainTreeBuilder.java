@@ -10,7 +10,7 @@ import org.openl.util.tree.ITreeElement;
 
 public class ExplainTreeBuilder extends TreeBuilder {
 
-    private static final String showTablePage = "/faces/facelets/explain/showExplainTable.xhtml?";
+    private static final String showTablePage = "/faces/pages/modules/rulesEditor/explain/showExplainTable.xhtml?";
 
     public ExplainTreeBuilder(ITreeElement<?> root) {
         super(root);

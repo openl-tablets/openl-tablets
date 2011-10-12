@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Select Properties</ui:define>
+
+	<ui:define name="data">
+		<link href="webresource/css/multiselect.css" rel="stylesheet" type="text/css"></link>
+        <script src="webresource/js/AjaxHelper.js"></script>
+        <script src="webresource/js/BaseEditor.js"></script>
+        <script src="webresource/js/BaseTextEditor.js"></script>
+        <script src="webresource/js/MultiselectEditor.js"></script>
+        <script src="webresource/js/DropdownEditor.js"></script>
+        <script src="webresource/js/validation.js"></script>
+
+		<h:form>
+			<h:outputLabel value="Table Name: " for="techName" />
+			<ui:insert name="tableTitle" />
+		    <br />
+            <br />
+			<h:outputText value="Properties:" />
+            <br />
+            <br />
+			<h:panelGroup id="propertiesTable">
+				<table cellpadding="2">
+					<a4j:repeat value="#{propertiesManager.properties}" var="prop">
+						<tr>
+							<td>
+								<h:outputText value="#{prop.displayName}" />
+							</td>
+							<td style="width: 156px">
+								<rich:calendar value="#{prop.value}"
+									datePattern="#{prop.format}" defaultTime="00:00"
+									rendered="#{prop.dateType}" />
+
+								<h:panelGroup id="editVersionPanel"
+									rendered="#{prop.name == 'version'}">
+									<h:inputText value="#{prop.value}"
+										readonly="#{prop.name == 'version'}" />
+									<input type="button" value="Edit"
+										onclick="#{rich:component('modalVersionChange')}.show();" />
+								</h:panelGroup>
+
+								<h:selectBooleanCheckbox value="#{prop.value}"
+									rendered="#{prop.booleanType}" />
+
+								<h:outputText
+									binding="#{propertiesManager.enumHelper.enumOutput}"
+									escape="false"
+									value="#{propertiesManager.enumHelper.enumValue}"
+									rendered="#{prop.enumType}">
+									<f:attribute name="property" value="#{prop}" />
+								</h:outputText>
+								<h:inputHidden value="#{prop.stringValue}"
+									rendered="#{prop.enumType}" />
+
+								<h:outputText
+									binding="#{propertiesManager.enumHelper.enumArrayOutput}"
+									escape="false"
+									value="#{propertiesManager.enumHelper.enumArrayValue}"
+									rendered="#{prop.enumArray}">
+									<f:attribute name="property" value="#{prop}" />
+								</h:outputText>
+								<h:inputHidden value="#{prop.stringValue}"
+									rendered="#{prop.enumArray}" />
+
+								<h:inputText value="#{prop.value}"
+									rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
+							</td>
+							<td>
+								<a4j:commandLink action="#{propertiesManager.removeProperty}"
+									render="propertiesTable newPropertySelect">
+									<h:graphicImage value="/images/delete.gif"
+										alt="Remove property" title="Remove property" />
+									<f:setPropertyActionListener value="#{prop}"
+										target="#{propertiesManager.propToRemove}" />
+								</a4j:commandLink>
+							</td>
+						</tr>
+					</a4j:repeat>
+				</table>
+			</h:panelGroup>
+
+			<a4j:commandLink oncomplete="#{rich:component('newPropertyDlg')}.show();">
+				<h:graphicImage value="/images/add_obj.gif" alt="Add property" title="Add property" />
+			</a4j:commandLink>
+		    <br />
+            <br />
+            <hr />
+			<ui:insert name="commandButtons" />
+		</h:form>
+
+		<rich:popupPanel id="modalVersionChange" width="400" autosized="true">
+			<f:facet name="header">
+				<h:outputText value="Version" />
+			</f:facet>
+
+			<f:facet name="controls">
+				<h:graphicImage value="/images/modal/close.png"
+					style="cursor:pointer" alt="Close" title="Close"
+					onclick="#{rich:component('modalVersionChange')}.hide();" />
+			</f:facet>
+
+			<h:form id="changeVersionForm">
+				<ui:include src="/pages/modules/rulesEditor/create/selectVersionForm.xhtml" />
+
+				<br />
+				<hr />
+				<br />
+
+				<h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px" cellspacing="0px">
+					<a4j:commandButton value="Ok" render="editVersionPanel"
+						oncomplete="#{rich:component('modalVersionChange')}.hide();" />
+					<input type="button" value="Cancel"
+						onclick="#{rich:component('modalVersionChange')}.hide();" />
+				</h:panelGrid>
+			</h:form>
+		</rich:popupPanel>
+
+
+		<rich:popupPanel id="newPropertyDlg" width="290" top="100" left="200" autosized="true">
+			<f:facet name="header">
+				<h:outputText value="Add Property" />
+			</f:facet>
+			<f:facet name="controls">
+				<h:graphicImage value="/images/modal/close.png"
+					style="cursor:pointer"
+					onclick="#{rich:component('newPropertyDlg')}.hide();" />
+			</f:facet>
+
+            <h:form rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}">
+				<h:panelGrid columns="2">
+					<h:outputText value="Select Property" />
+					<h:selectOneMenu id="newPropertySelect" value="#{propertiesManager.propNameToAdd}">
+						<f:selectItems value="#{propertiesManager.propertiesThatCanBeAdded}" />
+					</h:selectOneMenu>
+				</h:panelGrid>
+				<h:panelGroup style="text-align: center; margin-top: 10px;" layout="block">
+					<a4j:commandButton value="Add"
+						action="#{propertiesManager.addProperty}"
+						render="propertiesTable newPropertySelect modalVersionChange"
+						oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
+					<h:commandButton value="Cancel" style="margin-left: 5px;"
+						onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+				</h:panelGroup>
+			</h:form>
+
+            <h:panelGroup rendered="#{empty propertiesManager.propertiesThatCanBeAdded}">
+                <h:panelGrid style="text-align: center; width: 100%">
+                    <h:outputText value="There are no properties to add" />
+                    <div style="margin-top: 5px">
+                        <input type="button" value="Ok"
+                            onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+                    </div>
+                </h:panelGrid>
+            </h:panelGroup>
+		</rich:popupPanel>
+
+	</ui:define>
+
+</ui:composition>

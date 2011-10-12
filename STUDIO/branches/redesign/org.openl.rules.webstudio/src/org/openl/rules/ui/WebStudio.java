@@ -1,9 +1,6 @@
-/**
- *  OpenL Tablets,  2006
- *  https://sourceforge.net/projects/openl-tablets/
- */
 package org.openl.rules.ui;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -19,8 +16,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.RulesFileDependencyLoader;
-import org.openl.rules.ui.view.BaseBusinessViewMode;
-import org.openl.rules.ui.view.BaseDeveloperViewMode;
 import org.openl.rules.ui.view.BusinessViewMode1;
 import org.openl.rules.ui.view.BusinessViewMode2;
 import org.openl.rules.ui.view.BusinessViewMode3;
@@ -75,15 +70,13 @@ public class WebStudio {
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
 
-    private WebStudioViewMode mode = BUSINESS1_VIEW;
+    private WebStudioViewMode tableView = BUSINESS1_VIEW;
+    private WebStudioViewMode treeView = BUSINESS1_VIEW;
     private Module currentModule;
     private boolean showFormulas;
     private boolean collapseProperties = true;
 
     private WebStudioProperties properties = new WebStudioProperties();
-
-    private int businessModeIdx = 0;
-    private int developerModeIdx = 0;
 
     private RulesProjectDependencyManager dependencyManager;
 
@@ -144,14 +137,8 @@ public class WebStudio {
         return true;
     }
 
-    public WebStudioViewMode[] getViewSubModes(String modeType) {
-        WebStudioViewMode[] modes = null;
-        if (BaseDeveloperViewMode.TYPE.equals(modeType)) {
-            modes = developerModes;
-        } else if (BaseBusinessViewMode.TYPE.equals(modeType)) {
-            modes = businessModes;
-        }
-        return modes;
+    public WebStudioViewMode[] getTreeViews() {
+        return (WebStudioViewMode[]) ArrayUtils.addAll(businessModes, developerModes);
     }
 
     public void addBenchmark(BenchmarkInfo bi) {
@@ -174,7 +161,7 @@ public class WebStudio {
             } catch (Exception e) {
                 LOG.error("Can not check in!", e);
                 try {
-                    String redirectLink = String.format("%s/faces/main.xhtml?error=%s", FacesUtils.getContextPath(),
+                    String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
                             e.getMessage());
                     FacesUtils.redirect(redirectLink);
                 } catch (IOException e1) {
@@ -193,7 +180,7 @@ public class WebStudio {
             } catch (Exception e) {
                 LOG.error("Can not check out!", e);
                 try {
-                    String redirectLink = String.format("%s/faces/main.xhtml?error=%s", FacesUtils.getContextPath(),
+                    String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
                             e.getMessage());
                     FacesUtils.redirect(redirectLink);
                 } catch (IOException e1) {
@@ -201,24 +188,6 @@ public class WebStudio {
                 }
             }
         }
-    }
-
-    /**
-     * DOCUMENT ME!
-     * 
-     * @param modes
-     * @param modeIdx
-     * @param sameType
-     * 
-     * @return
-     */
-    private int findMode(WebStudioViewMode[] modes, int modeIdx, boolean sameType) {
-        if (sameType) {
-            modeIdx = (modeIdx + 1) % modes.length;
-        }
-
-        mode = modes[modeIdx];
-        return modeIdx;
     }
 
     public BenchmarkInfo[] getBenchmarks() {
@@ -264,8 +233,12 @@ public class WebStudio {
         return projectResolver;
     }
 
-    public WebStudioViewMode getMode() {
-        return mode;
+    public WebStudioViewMode getTableView() {
+        return tableView;
+    }
+
+    public WebStudioViewMode getTreeView() {
+        return treeView;
     }
 
     /**
@@ -378,28 +351,26 @@ public class WebStudio {
         }
     }
 
-    public void switchMode(String type) throws Exception {
-        boolean sameType = type.equals(mode.getType());
-
-        if ("business".equals(type)) {
-            businessModeIdx = findMode(businessModes, businessModeIdx, sameType);
-        } else if ("developer".equals(type)) {
-            developerModeIdx = findMode(developerModes, developerModeIdx, sameType);
-        } else {
-            throw new RuntimeException("Invalid Mode: " + type);
+    public void switchTableView(String view) {
+        if (tableView.getType().equals(view)) {
+            return;
         }
 
+        if ("developer".equals(view)) {
+            tableView = developerModes[0];
+        } else {
+            tableView = businessModes[0];
+        }
+    }
+
+    public void setTreeView(WebStudioViewMode treeView) throws Exception {
+        this.treeView = treeView;
         model.redraw();
     }
 
-    public void setMode(WebStudioViewMode mode) throws Exception {
-        this.mode = mode;
-        model.redraw();
-    }
-
-    public void setMode(String name) throws Exception {
+    public void setTreeView(String name) throws Exception {
         WebStudioViewMode mode = getViewMode(name);
-        setMode(mode);
+        setTreeView(mode);
     }
 
     public WebStudioViewMode getViewMode(String name) {
@@ -428,16 +399,16 @@ public class WebStudio {
         return showFormulas;
     }
 
-    public void setShowFormulas(String showFormulas) {
-        this.showFormulas = Boolean.parseBoolean(showFormulas);
+    public void setShowFormulas(boolean showFormulas) {
+        this.showFormulas = showFormulas;
     }
 
     public boolean isCollapseProperties() {
         return collapseProperties;
     }
 
-    public void setCollapseProperties(String collapseProperties) {
-        this.collapseProperties = Boolean.parseBoolean(collapseProperties);
+    public void setCollapseProperties(boolean collapseProperties) {
+        this.collapseProperties = collapseProperties;
     }
 
     public String getModuleId(Module module) {

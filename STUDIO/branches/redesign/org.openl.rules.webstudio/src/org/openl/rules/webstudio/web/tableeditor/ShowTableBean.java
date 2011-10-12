@@ -89,7 +89,7 @@ public class ShowTableBean {
         if (table == null) {
             try {
                 String infoLink = 
-                    String.format("%s/faces/facelets/tableeditor/showMessage.xhtml?summary=%s", 
+                    String.format("%s/faces/pages/common/message.xhtml?summary=%s", 
                         FacesUtils.getContextPath(), INFO_MESSAGE);
 
                 FacesUtils.redirect(infoLink);
@@ -281,11 +281,6 @@ public class ShowTableBean {
         return targetTables;
     }
 
-    public String getView() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        return studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));
-    }
-
     public boolean isCopyable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
         return projectModel.isEditable() && !isServiceTable()  && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType()) 
@@ -379,16 +374,6 @@ public class ShowTableBean {
             return webStudio != null && webStudio.isShowFormulas();
         }
     }
-    
-    public boolean isCollapseProperties() {
-        String collapseProperties = FacesUtils.getRequestParameter("collapseProperties");
-        if (collapseProperties != null) {
-            return Boolean.parseBoolean(collapseProperties);
-        } else {
-            WebStudio webStudio = WebStudioUtils.getWebStudio();
-            return webStudio != null && webStudio.isCollapseProperties();
-        }
-    }
 
     public String removeTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
@@ -441,6 +426,22 @@ public class ShowTableBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         String id = studio.getModel().getTreeNodeId(getUri());
         return id;
+    }
+    
+    public void switchView() {
+        String view = FacesUtils.getRequestParameter("view");
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.switchTableView(view);
+    }
+
+    public void setShowFormulas() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.setShowFormulas(!studio.isShowFormulas());
+    }
+
+    public void setCollapseProperties() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.setCollapseProperties(!studio.isCollapseProperties());
     }
 
     public static class TestRunsResultBean {

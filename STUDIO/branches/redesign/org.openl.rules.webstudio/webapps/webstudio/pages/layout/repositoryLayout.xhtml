@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="node" value="#{repositoryTreeState.selectedNode}" />
+    <c:set var="artefact" value="#{node.data}" />
+
+    <h:head>
+        <link href="#{contextPath}/css/common.css" rel="stylesheet" type="text/css"></link>
+        <link href="#{contextPath}/css/layout.css" rel="stylesheet" type="text/css"></link>
+        <script src="#{contextPath}/javascript/common.js"></script>
+        <h:outputScript name="jquery.js" />
+        <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
+        <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
+
+        <script>
+            var $j = $.noConflict();
+
+            $j(document).ready(function () {
+                $j('body').layout({
+                    closable: false,
+                    resizable: false,
+                    spacing_open: 1
+                });
+                $j('#center').layout({
+                    useStateCookie: true,
+                    spacing_open: 3
+                });
+            });
+        </script>
+
+        <style>
+            table.standard {
+                border-bottom: 1px solid #{richSkin.headerBackgroundColor};
+            }
+            table.standard td {
+                border-right-color: #{richSkin.generalBackgroundColor};
+            }
+            table.standard thead td {
+                border-top-color: #{richSkin.headerBackgroundColor};
+                color: #{richSkin.headerTextColor};
+                border-right-color: #{richSkin.generalBackgroundColor};
+            }
+        </style>
+
+        <title>
+            <ui:insert name="title">OpenL Tablets WebStudio</ui:insert>
+        </title>
+    </h:head>
+
+    <h:body>
+        <div id="header" class="ui-layout-north">
+            <ui:insert name="header">
+                <ui:include src="/pages/common/header.xhtml">
+                    <ui:param name="menu" value="repository" />
+                </ui:include>
+            </ui:insert>
+        </div>
+        <div id="center" class="ui-layout-center">
+            <h:form id="mainForm" prependId="false">
+                <div id="top" class="ui-layout-north">
+                    <ui:insert name="top">
+                        <ui:include src="/pages/modules/repository/topPanel.xhtml" />
+                    </ui:insert>
+                </div>
+                <div id="left" class="ui-layout-west">
+                    <ui:insert name="left" />
+                </div>
+                <div id="content" class="ui-layout-center">
+                    <ui:insert name="content" />
+                </div>
+            </h:form>
+        </div>
+        <div id="footer" class="ui-layout-south">
+            <ui:insert name="footer">
+                <ui:include src="/pages/common/footer.xhtml" />
+            </ui:insert>
+        </div>
+        <ui:insert name="special" />
+    </h:body>
+</html>

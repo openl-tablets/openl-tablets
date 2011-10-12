@@ -12,7 +12,7 @@
 
   <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
     <security:filter-chain-map path-type="ant">
-      <security:filter-chain pattern="/faces/facelets/login.xhtml" filters="none" />
+      <security:filter-chain pattern="/faces/pages/login.xhtml" filters="none" />
       <security:filter-chain pattern="/css/**" filters="none" />
       <security:filter-chain pattern="/**"
         filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,localUserFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
@@ -25,7 +25,7 @@
     class="org.springframework.security.web.context.SecurityContextPersistenceFilter" />
 
   <bean id="loginUrl" class="java.lang.String">
-    <constructor-arg value="/faces/facelets/login.xhtml" />
+    <constructor-arg value="/faces/pages/login.xhtml" />
   </bean>
   <bean id="loginCheckUrl" class="java.lang.String">
     <constructor-arg value="/security_login_check" />

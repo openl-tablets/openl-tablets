@@ -35,20 +35,15 @@ public abstract class BaseBusinessViewMode extends WebStudioViewMode {
 
     @Override
     public boolean select(TableSyntaxNode tsn) {
-
-        String view = null;
         String name = null;
         if (!XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType())) {
             ITableProperties tableProperties = tsn.getTableProperties();
     
             if (tableProperties != null) {
-                // FIXME: there is no such property 'view'!!
-                // author: DLiauchuk
-                view = tableProperties.getPropertyValueAsString("view");
                 name = tableProperties.getName();
             }
         }
-        return name != null && (view == null || view.indexOf(IXlsTableNames.VIEW_BUSINESS) >= 0);
+        return name != null;
     }
 
 }
