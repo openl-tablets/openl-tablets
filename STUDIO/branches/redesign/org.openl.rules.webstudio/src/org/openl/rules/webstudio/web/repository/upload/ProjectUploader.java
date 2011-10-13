@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.zip.ZipException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -69,17 +70,18 @@ public class ProjectUploader {
         return problem;
     }
 
-    private AProjectCreator getProjectCreator(UploadedFile uploadedFile) throws ZipException, IOException, FileNotFoundException {
+    private AProjectCreator getProjectCreator(UploadedFile uploadedFile) throws ZipException,
+        IOException, FileNotFoundException {
         AProjectCreator projectCreator = null;
 
         if (uploadedFile != null) {
-            if (FileTypeHelper.isZipFile(uploadedFile.getName())) {
-                File projectFile = FileTool.toFile(
-                        uploadedFile.getInputStream(), uploadedFile.getName());
+            String fileName = FilenameUtils.getName(uploadedFile.getName());
+            if (FileTypeHelper.isZipFile(fileName)) {
+                File projectFile = FileTool.toTempFile(uploadedFile.getInputStream(), fileName);
                 projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
-            } else if (FileTypeHelper.isExcelFile(uploadedFile.getName())) {
+            } else if (FileTypeHelper.isExcelFile(fileName)) {
                 projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
-                        uploadedFile.getInputStream(), uploadedFile.getName());
+                        uploadedFile.getInputStream(), fileName);
             }
         }        
         return projectCreator;
