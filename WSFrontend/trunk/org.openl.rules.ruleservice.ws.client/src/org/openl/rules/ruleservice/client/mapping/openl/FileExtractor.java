@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.client.mapping.openl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +15,7 @@ import org.apache.commons.logging.LogFactory;
  * Copies specified resource file to temp file, temp file is deleted when
  * virtual machine terminates.
  * 
- * @author Ivan Holub
+ * @author Ivan Holub, Marat Kamalov
  */
 public class FileExtractor {
 
@@ -54,6 +55,24 @@ public class FileExtractor {
             closeQuietly(out);
         }
     }
+    
+    public static File extractFile(File inFile)
+            throws IOException {
+        InputStream is = null;
+        FileOutputStream out = null;
+        try {
+            File tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            tempFile.deleteOnExit();
+            is = new FileInputStream(inFile);
+            out = new FileOutputStream(tempFile);
+            IOUtils.copy(is, out);
+            return tempFile;
+        } finally {
+            closeQuietly(is);
+            closeQuietly(out);
+        }
+    }
+
 
     private static void closeQuietly(InputStream input) {
         try {

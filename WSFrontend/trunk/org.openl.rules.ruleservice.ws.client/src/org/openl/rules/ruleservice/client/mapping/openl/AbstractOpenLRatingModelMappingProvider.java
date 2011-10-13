@@ -13,7 +13,6 @@ import org.openl.rules.ruleservice.client.mapping.OpenLClientMappingException;
 import org.openl.rules.ruleservice.client.mapping.RatingModelMappingProvider;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.sdicons.json.mapper.MapperException;
 
 public abstract class AbstractOpenLRatingModelMappingProvider implements RatingModelMappingProvider, InitializingBean {
 
@@ -47,6 +46,15 @@ public abstract class AbstractOpenLRatingModelMappingProvider implements RatingM
     protected void map(MappingContext context, Object source, Object destination) throws MapperException {
         try {
             mapper.map(source, destination, context);
+        } catch (Exception ex) {
+            String message = ExceptionUtils.getRootCauseMessage(ex);
+            throw new MapperException(message, ex);
+        }
+    }
+
+    protected void map(Object source, Object destination) throws MapperException {
+        try {
+            mapper.map(source, destination);
         } catch (Exception ex) {
             String message = ExceptionUtils.getRootCauseMessage(ex);
             throw new MapperException(message, ex);
