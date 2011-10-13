@@ -102,6 +102,7 @@
 		<mojarra.version>2.1.2</mojarra.version>
 		<org.richfaces.version>4.0.0.Final</org.richfaces.version>
 		<org.apache.cxf.version>2.4.2</org.apache.cxf.version>
+		<openl.mapping.version>1.1.0</openl.mapping.version>
 	</properties>
 
 	<distributionManagement>
@@ -1247,6 +1248,11 @@
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-all</artifactId>
 				<version>1.8.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.mapping.dev</artifactId>
+				<version>${openl.mapping.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
