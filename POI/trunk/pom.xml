@@ -5,13 +5,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-poi-lib-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.8.1-SNAPSHOT</version>
+  <version>5.8.1</version>
   <name>OpenL POI LIB SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.1</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.1</developerConnection>
   </scm>
 
   <distributionManagement>
