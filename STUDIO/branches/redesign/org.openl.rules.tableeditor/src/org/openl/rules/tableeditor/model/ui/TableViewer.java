@@ -127,21 +127,26 @@ public class TableViewer {
     private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
         int nextSymbolIndex = 0;
         StringBuffer buff = new StringBuffer();
-        for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
-            int pstart = methodUsage.getStart();
-            int pend = methodUsage.getEnd();
-            String tableUri = methodUsage.getTableUri();
-//            add link to used table with signature in tooltip
-            buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
-            if (isShowLinks() && tableUri != null) {
-                String encodedURL = StringTool.encodeURL(tableUri);
-                buff.append("<a href=\"" + showLinksBase + "?uri=").append(encodedURL).append("\">")
-                        .append(formattedValue.substring(pstart, pend + 1)).append("</a>");
-            } else {
-                buff.append(formattedValue.substring(pstart, pend + 1));
+        if (isShowLinks()) {
+            for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
+                int pstart = methodUsage.getStart();
+                int pend = methodUsage.getEnd();
+                String tableUri = methodUsage.getTableUri();
+                // add link to used table with signature in tooltip
+                buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
+                if (tableUri != null) {
+                    String encodedURL = StringTool.encodeURL(tableUri);
+                    buff.append("<a href=\"" + showLinksBase + "?uri=")
+                        .append(encodedURL)
+                        .append("\">")
+                        .append(formattedValue.substring(pstart, pend + 1))
+                        .append("</a>");
+                } else {
+                    buff.append(formattedValue.substring(pstart, pend + 1));
+                }
+                buff.append("<em>").append(methodUsage.getMethodSignature()).append("</em></span>");
+                nextSymbolIndex = pend + 1;
             }
-            buff.append("<em>").append(methodUsage.getMethodSignature()).append("</em></span>");
-            nextSymbolIndex = pend + 1;
         }
         buff.append(formattedValue.substring(nextSymbolIndex));
         return buff.toString();
