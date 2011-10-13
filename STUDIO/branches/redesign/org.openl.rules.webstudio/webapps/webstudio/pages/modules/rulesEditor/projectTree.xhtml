@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/pages/layout/view.xhtml">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <ui:define name="toolbar">
+        <h:panelGroup layout="block" styleClass="treeMenu">
+            Filters Filters Filters Filters Filters
+        </h:panelGroup>
+    </ui:define>
+
+    <ui:define name="workspace">
+        <!--link href="#{contextPath}/css/tree/style.css" rel="stylesheet" type="text/css"></link>
+        <script src="#{contextPath}/javascript/jquery.jstree.js"></script-->
+
+        <style>
+            #projects ul {
+                list-style: none;
+                margin: 0;
+                padding: 2px;
+            }
+            #projects a {
+                color: #111111;
+                text-decoration: none;
+            }
+            #projects a:hover {
+                background: #EAF0F8;
+            }
+            #projects .selected {
+                background: #EAF0F8;
+                font-weight: bold;
+            }
+        </style>
+
+        <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
+            <ul>
+                <c:forEach items="#{studio.allProjects}" var="project">
+                <li style="margin-bottom: 4px">
+                    <a style="color: #337AB6" href="#">#{project.name}</a>
+                    <ul style="margin-left: 9px">
+                        <c:forEach items="#{project.modules}" var="module">
+                        <li>
+                            <a4j:commandLink action="#{mainBean.selectModule}"
+                                onclick="selectModule(this)" render="rulesTab toolbar problemsTab content"
+                                execute="@this" oncomplete="RichFaces.$('leftTabPanel').switchToItem('rulesTab');">
+                                #{module.name}
+                                <f:param name="project" value="#{module.project.id}" />
+                                <f:param name="module" value="#{module.name}" />
+                            </a4j:commandLink>
+                        </li>
+                        </c:forEach>
+                    </ul>
+                </li>
+                </c:forEach>
+            </ul>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{empty studio.allProjects}">
+            <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
+            <br />
+            <c:if test="true">
+                Please go to the
+                <a href="#{contextPath}/pages/modules/repository/index.xhtml"
+                    title="Repository"><h:outputText value="Repository" /></a>
+                to create (upload) a new project
+            </c:if>
+        </h:panelGroup>
+
+        <script>
+            //$j("#projects").jstree({themes:{dots: false, icons: false}});
+            var selected;
+
+            function selectModule(link) {
+                if (selected) {
+                    selected.removeClass('selected');
+                }
+                $j(link).addClass('selected');
+                selected = $j(link);
+            }
+        </script>
+    </ui:define>
+
+</ui:composition>

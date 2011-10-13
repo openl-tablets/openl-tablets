@@ -40,9 +40,13 @@ public class MainBean {
         if (operation != null) {
             studio.executeOperation(operation, FacesUtils.getSession());
         }
+    }
 
-        String selectedModuleId = FacesUtils.getRequestParameter("selectedModule");
-        studio.selectModule(selectedModuleId);
+    public void selectModule() throws Exception {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        String projectId = FacesUtils.getRequestParameter("project");
+        String moduleName = FacesUtils.getRequestParameter("module");
+        studio.selectModule(projectId, moduleName);
     }
 
 }
