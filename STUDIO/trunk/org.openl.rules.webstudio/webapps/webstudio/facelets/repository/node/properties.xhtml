@@ -164,6 +164,9 @@
             rendered="#{artefact.project.checkedOut}"/>
         <h:outputText value="#{repositoryTreeController.attribute15}" rendered="#{!artefact.project.checkedOut}"/>
     </h:panelGroup>
-
   </h:panelGrid>
+
+  <br />
+  <h:commandButton value="Save" rendered="#{artefact.project.checkedOut}" />
+
 </ui:composition>
