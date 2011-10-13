@@ -4,7 +4,7 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.base-pom</artifactId>
-	<version>5.8.1</version>
+	<version>5.8.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenL - Base</name>
 	<description>Base project with all configurations</description>
@@ -88,9 +88,9 @@
 	</developers>
 
 	<scm>
-		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags/release-5.8.1/trunk</connection>
-		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags/release-5.8.1/trunk</developerConnection>
-		<url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.8.1/openl-tablets</url>
+		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/trunk</connection>
+		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/trunk</developerConnection>
+		<url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
 	</scm>
 
 	<properties>
