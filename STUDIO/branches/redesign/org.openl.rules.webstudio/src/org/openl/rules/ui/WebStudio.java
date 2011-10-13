@@ -1,6 +1,9 @@
 package org.openl.rules.ui;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -307,8 +310,8 @@ public class WebStudio {
         model.buildProjectTree();
     }
 
-    public void selectModule(String moduleId) throws Exception {
-        if (moduleId == null) {
+    public void selectModule(String projectId, String moduleName) throws Exception {
+        if (StringUtils.isBlank(projectId) || StringUtils.isBlank(moduleName)) {
             if (currentModule != null) {
                 return;
             }
@@ -318,18 +321,28 @@ public class WebStudio {
             }
             return;
         }
-        for (ProjectDescriptor project : getAllProjects()) {
+
+        ProjectDescriptor project = getProject(projectId);
+        if (project != null) {
             for (Module module : project.getModules()) {
-                String curModuleId = getModuleId(module);
-                if (curModuleId.equals(moduleId)) {
+                if (module.getName().equals(moduleName)) {
                     setCurrentModule(module);
                     return;
                 }
             }
         }
+
         if (getAllProjects().size() > 0) {
             setCurrentModule(getAllProjects().get(0).getModules().get(0));
         }
+    }
+
+    public ProjectDescriptor getProject(final String id) {
+        return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
+            public boolean evaluate(Object project) {
+                return ((ProjectDescriptor) project).getId().equals(id);
+            }
+        });
     }
 
     /**

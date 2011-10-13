@@ -4,100 +4,45 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <c:set var="rProject" value="#{studio.currentProject}" />
 
-    <style>
-        .projectItem {
-            margin-top: 3px;
-            color: #337AB6;
-        }
-        .moduleItem {
-            padding-left: 10px;
-        }
-    </style>
-
-    <script>
-        function selectModule(moduleList) {
-            moduleList.disabled = true;
-            top.location.href = '#{contextPath}/faces/pages/modules/rulesEditor/index.xhtml?selectedModule='
-                + encodeURIComponent(moduleList.value);
-        }
-    </script>
-
-    <!--rich:popupPanel id="projectsPopup" autosized="true" style="background: #fefefe">
-        <h:dataTable value="#{studio.allProjects}" var="project">
-            <h:column>
-                #{project.name}
-                <h:dataTable value="#{project.modules}" var="module">
-                    <h:column>
-                        #{module.name}
-                    </h:column>
-                </h:dataTable>
-            </h:column>
-        </h:dataTable>
-        <div>
-            <button onclick="RichFaces.$('projectsPopup').hide(); return false;">Cancel</button>
-        </div>
-    </rich:popupPanel-->
-
-    <div>
+    <h:panelGroup id="toolbar" style="margin-left: 10px" layout="block">
         <h:form id="headerForm">
-            <h:panelGroup rendered="#{not empty headerBean.modules}">
-                <span style="font-size:12px; font-weight:bold; color:black;">Module: </span>
-                    <h:selectOneMenu value="#{headerBean.selectedModule}" onchange="selectModule(this)"
-                        id="selectedModule" enabledClass="moduleItem" disabledClass="projectItem">
-                        <f:selectItems value="#{headerBean.modules}" />
-                    </h:selectOneMenu>
-            </h:panelGroup>
-
-            <h:panelGroup rendered="#{empty headerBean.modules}">
-                <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
-                <br />
-                <c:if test="#{not headerBean.repositoryFailed}">
-                    Please go to the
-                    <a href="#{contextPath}/pages/modules/repository/index.xhtml"
-                        title="Repository"><h:outputText value="Repository" /></a>
-                    to create (upload) a new project
-                </c:if>
-            </h:panelGroup>
-
             <span class="buttonPanel">
               <a href="#{rulesEditor}/index.xhtml?reload=forced&amp;selectedModule=#{headerBean.selectedModule}"
                   title="Refresh Projects"><img
                   src="#{contextPath}/webresource/images/refresh.png" alt="Refresh Projects"/></a>
 
               <h:outputLink value="#{rulesEditor}/index.xhtml?operation=checkIn"
-                  title="Check in Project" rendered="#{rProject.checkedOut}"><img
+                  title="Check in Project" rendered="#{not empty studio.allProjects and rProject.checkedOut}"><img
                   src="webresource/images/repository/checkin.gif" /></h:outputLink>
               <h:outputLink value="#{rulesEditor}/index.xhtml?operation=checkOut"
-                  title="Check out Project" rendered="#{!rProject.localOnly and !rProject.locked}"><img
+                  title="Check out Project" rendered="#{not empty studio.allProjects and !rProject.localOnly and !rProject.locked}"><img
                   src="webresource/images/repository/checkout.gif" /></h:outputLink>
 
               <h:outputLink value="#{rulesEditor}/test/runAllTests.xhtml" target="content"
                   title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
                   src="webresource/images/test_ok.gif" /></h:outputLink>
 
-              <span style="margin:0 21px">|</span>
+              <span style="margin:0 21px"></span>
 
               <h:outputLink rendered="#{studio.model.editable}" value="#{rulesEditor}/create/index.xhtml"
                   target="content" title="Create new table" styleClass="button">Create New</h:outputLink>
 
-              <h:outputLink rendered="#{not empty headerBean.modules and studio.model.editable}"
+              <h:outputLink rendered="#{not empty studio.allProjects and studio.model.editable}"
                   value="#{rulesEditor}/revertModuleChanges.xhtml" target="content" title="Revert Changes"
                   styleClass="button2">Revert</h:outputLink>
 
-              <h:panelGroup rendered="#{not empty headerBean.modules and studio.model.projectCompiledSuccessfully}">
+              <h:panelGroup rendered="#{not empty studio.allProjects and studio.model.projectCompiledSuccessfully}">
                   <a href="#{rulesEditor}/rulesDependencies.xhtml" title="Rules Dependencies"
                       target="content">Dependencies</a>
               </h:panelGroup>
             </span>
         </h:form>
         <h:panelGroup style="position: absolute; right: 21px; top: 3px">
-            <h:panelGroup rendered="#{not empty headerBean.modules and studio.model.projectCompiledSuccessfully}">
+            <h:panelGroup rendered="#{not empty studio.allProjects and studio.model.projectCompiledSuccessfully}">
                 <span style="font-size: 90%">
                     <h:outputLink value="#{rulesEditor}/search/advancedSearch.xhtml"
                         target="content">Advanced</h:outputLink>
@@ -125,6 +70,6 @@
                 src="webresource/images/compare.gif" /></a>
             
         </h:panelGroup>
-    </div>
+    </h:panelGroup>
 
 </ui:composition>
