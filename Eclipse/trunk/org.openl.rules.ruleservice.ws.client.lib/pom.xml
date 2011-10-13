@@ -72,28 +72,25 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.mapping.dev</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.exigen.ipb.policy</groupId>
-			<artifactId>ipb-policy-domain</artifactId>
-			<version>${ipb.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.exigen.ipb</groupId>
-					<artifactId>ipb-aspects</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.exigen.ipb.product</groupId>
-					<artifactId>ipb-product</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.exigen.ipb</groupId>
-					<artifactId>ipb-docgen</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.exigen.ipb.crm</groupId>
-					<artifactId>ipb-crm</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>  -->
+		
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>org.openl.core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.mapping.dev</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
 	</dependencies>
 </project>

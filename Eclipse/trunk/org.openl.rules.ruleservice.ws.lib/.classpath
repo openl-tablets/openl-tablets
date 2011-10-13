@@ -32,7 +32,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-asm-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-beans-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-context-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-core-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-core-3.0.5.RELEASE.jar" sourcepath="C:/Users/mkamalov/.m2/repository/org/springframework/spring-core/3.0.5.RELEASE/spring-core-3.0.5.RELEASE-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-expression-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0-2.jar"/>
