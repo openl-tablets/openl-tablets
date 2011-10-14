@@ -5,13 +5,13 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-dev-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.8.1</version>
+  <version>5.8.2-SNAPSHOT</version>
   <name>OpenL DEV SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags/release-5.8.1</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags/release-5.8.1</developerConnection>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/trunk</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/trunk</developerConnection>
   </scm>
 
   <modules>
