@@ -1,0 +1,24 @@
+<project default="copy_examples" basedir="..">
+
+<property name="src_root" value="d:\projects\OpenL\TUT\trunk\"/>
+<property name="dst_root" value="templates"/>
+	
+	
+<target name = "copy_examples">
+	<antcall target="copy_project" ><param name="plugin_name" value="org.openl.tablets.tutorial6"/></antcall>
+</target>	
+	
+	
+<target name = "copy_project">
+	
+	<copy preservelastmodified="true" todir="${dst_root}/${plugin_name}">
+		<fileset dir="${src_root}/${plugin_name}">
+			<exclude name="**/CVS/**" />
+			<exclude name="**/bin/**" />
+		</fileset>
+	</copy>
+	
+</target>	
+	
+	
+</project>
