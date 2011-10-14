@@ -1,0 +1,95 @@
+	// MAX
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) max($tool.getTypeName($type)[] values) {
+        return ($tool.getTypeName($type)) MathUtils.max(values);
+    }
+    
+#end
+
+	// MIN
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) min($tool.getTypeName($type)[] values) {
+        return ($tool.getTypeName($type)) MathUtils.min(values);
+    }
+#end
+
+	// SUM
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) sum($tool.getTypeName($type)[] values) {
+        return ($tool.getTypeName($type)) MathUtils.sum(values);
+    }
+    
+#end
+
+	// AVERAGE
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) avg($tool.getTypeName($type)[] values) {
+        return MathUtils.avg(values);
+    }
+    
+#end
+
+	// SMALL
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) small($tool.getTypeName($type)[] values, int position) {
+        return MathUtils.small(values, position);
+    }
+    
+#end
+
+	// BIG
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) big($tool.getTypeName($type)[] values, int position) {
+        return MathUtils.big(values, position);
+    }
+    
+#end
+
+	// MEDIAN
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type) median($tool.getTypeName($type)[] values) {
+        return MathUtils.median(values);
+    } 
+    
+#end
+
+	// QUAOTIENT
+#foreach ($type in $allTypes)
+	public static long quotient($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        return MathUtils.quotient(number, divisor);
+    }
+    
+#end
+
+	//MOD as in Excel
+#foreach ($type in $allTypes)
+    public static $tool.getTypeName($type) mod($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        return MathUtils.mod(number, divisor);
+    }	
+    
+#end	
+
+	// SLICE
+#foreach ($type in $allTypes)
+    public static $tool.getTypeName($type)[] slice($tool.getTypeName($type)[] values, int startIndexInclusive) {
+        return MathUtils.slice(values, startIndexInclusive);
+    }	
+    
+    public static $tool.getTypeName($type)[] slice($tool.getTypeName($type)[] values, int startIndexInclusive, int endIndexExclusive) {
+    	return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
+    }	
+    
+#end	
+
+	// SORT
+#foreach ($type in $allTypes)
+	public static $tool.getTypeName($type)[] sort($tool.getTypeName($type)[] values) {
+        return MathUtils.sort(values);
+    }
+    
+#end
+    
+	
+    
+    
+	
