@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <id>jar</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>conf</directory>
+    </fileSet>
+    <fileSet>
+      <directory>webapps</directory>
+    </fileSet>
+    <fileSet>
+      <directory>META-INF</directory>
+    </fileSet>
+    <fileSet>
+        <directory>target/classes</directory>
+        <outputDirectory>webapps/webstudio/WEB-INF/classes</outputDirectory>
+    </fileSet>
+  </fileSets>
+
+</assembly>

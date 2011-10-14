@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/view.xhtml">
+
+    <ui:define name="workspace">
+        <link href="#{contextPath}/css/tree.css" rel="stylesheet" type="text/css"></link>
+
+        <!-- Tree BEGIN -->
+        <rich:tree styleClass="tree" value="#{problemsBean.tree}" var="node"
+            nodeType="#{node.type}" toggleType="client">
+            <rich:treeNode type="errors"
+                iconCollapsed="webresource/images/error16.png"
+                iconExpanded="webresource/images/error16.png">
+                <h:outputText value="#{node.name}" />
+            </rich:treeNode>
+            <rich:treeNode type="error" iconLeaf="webresource/images/error16.png">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="warnings"
+                iconCollapsed="webresource/images/warning16.png"
+                iconExpanded="webresource/images/warning16.png">
+                <h:outputText value="#{node.name}" />
+            </rich:treeNode>
+            <rich:treeNode type="warning" iconLeaf="webresource/images/warning16.png">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+        </rich:tree>
+        <!-- Tree END -->
+    </ui:define>
+
+</ui:composition>

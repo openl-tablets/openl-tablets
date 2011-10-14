@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+
+        <script type="text/javascript">
+            function open_explain_win(url) {
+               window.open('#{contextPath}/faces/treeview.xhtml' + url
+                   + '&amp;title=Explanation&amp;treePage=faces/facelets/explain/explain.xhtml&amp;mainPage=faces/facelets/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+            }
+        </script>
+
+        <h:panelGrid columns="2">
+            <h:outputText value="Tests:" />
+            <h:panelGroup>
+                <h:outputText value="#{runAllTestsBean.numberOfTests}" />
+                <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests})"
+                    rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
+                    style="color: red" />
+            </h:panelGroup>
+            <h:outputText value="Units:" />
+            <h:panelGroup>
+                <h:outputText value="#{runAllTestsBean.numberOfUnits}" />
+                <h:outputText value=" (#{runAllTestsBean.numberOfFailedUnits})"
+                    rendered="#{runAllTestsBean.numberOfFailedUnits > 0}"
+                    style="color: red" />
+            </h:panelGroup>
+        </h:panelGrid>
+
+        <a4j:repeat value="#{runAllTestsBean.ranTests}" var="test">
+            <c:set value="#{test.testUnitsResults}" var="testUnitsResults" />
+            <h1>
+                <h:outputLink value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
+                    style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
+                	<f:param name="uri" value="#{test.uri}" />
+                	<h:outputText value="#{test.testName}" />
+            	</h:outputLink>
+            </h1>
+
+            <table class="testtable">
+                <tr>
+                    <a4j:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="testDataColumnDisplayName">
+                        <th>
+                            <h:outputText value="#{testDataColumnDisplayName}" />
+                        </th>
+                    </a4j:repeat>
+                    <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                    <th>
+                        <h:outputText value="Description" />
+                    </th>
+                    </h:panelGroup>
+                    <th>Expected</th>
+                    <th>Result</th>
+
+                </tr>
+                
+                <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
+                    <tr>
+                        <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}"
+                            binding="#{runAllTestsBean.testDataColumnHeaders}">
+                            <td>
+                                <h:outputText value="#{runAllTestsBean.formattedTestValue}" />
+                            </td>
+                        </a4j:repeat>
+                        <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                        <td>
+                        	<h:outputText value="#{runAllTestsBean.unitDescription}" />
+                        </td>
+                        </h:panelGroup>
+
+                        <td>
+                            <h:outputText value="#{runAllTestsBean.formattedExpected}"
+                                rendered="#{empty runAllTestsBean.explanationValueExpected}" />
+                            <h:outputLink
+                                value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
+                                rendered="#{not empty runAllTestsBean.explanationValueExpected}">
+                                <h:outputText value="#{runAllTestsBean.formattedExplanationValueExpected}" />
+                            </h:outputLink>
+                        </td>
+                        <td>
+                            <h:panelGroup
+                                rendered="#{runAllTestsBean.compareResult == 0 or runAllTestsBean.compareResult == 1}">
+                                <h:graphicImage value="webresource/images/ok.png"
+                                    rendered="#{runAllTestsBean.compareResult == 0}" />
+                                <h:graphicImage value="webresource/images/error.png"
+                                    rendered="#{runAllTestsBean.compareResult == 1}" />
+                                <h:outputText value=" " />
+                                <h:outputText value="#{runAllTestsBean.formattedActualResult}"
+                                    rendered="#{empty runAllTestsBean.explanationValueActual}" />
+                                <h:outputLink
+                                    value="javascript: open_explain_win('?rootID=#{runAllTestsBean.actualExplanatorId}&amp;header=Explanation')"
+                                    rendered="#{not empty runAllTestsBean.explanationValueActual}">
+                                    <h:outputText value="#{runAllTestsBean.formattedExplanationValueActual}" />
+                                </h:outputLink>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
+                                <ui:include src="/facelets/messages.xhtml">
+                                    <ui:param name="messages" value="#{runAllTestsBean.errors}" />
+                                    <ui:param name="editable" value="#{studio.model.editable}" />
+                                </ui:include>
+                            </h:panelGroup>
+                        </td>
+                    </tr>
+                </a4j:repeat>
+            </table>
+        </a4j:repeat>
+
+    </ui:define>
+
+</ui:composition>
