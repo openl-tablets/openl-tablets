@@ -1,0 +1,115 @@
+package org.openl.rules.ruleservice.publish.cache;
+
+import static junit.framework.Assert.assertEquals;
+
+import java.io.File;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Statistics;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.openl.rules.ruleservice.publish.RulesInstantiationFactory;
+import org.openl.rules.ruleservice.publish.RulesPublisher;
+import org.openl.rules.ruleservice.simple.IRulesFrontend;
+import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
+public class EhcacheTestModulesCacheTest {
+    private static RulesPublisher publisher;
+    
+    private static IRulesFrontend frontend;
+    
+    private static RulesProjectResolver resolver;
+    
+    private static OpenLService service1;
+    
+    private static OpenLService service2;
+    
+    private Cache cache;
+
+    private ModulesCache modulesCache;
+    
+    private static List<Module> resolveAllModules(File root) {
+        List<Module> modules = new ArrayList<Module>();
+        resolver.setWorkspace(root.getAbsolutePath());
+        List<ProjectDescriptor> projects = resolver.listOpenLProjects();
+        for (ProjectDescriptor project : projects) {
+            for (Module module : project.getModules()) {
+                modules.add(module);
+            }
+        }
+        return modules;
+    }
+
+    @BeforeClass
+    public static void init() throws ServiceDeployException{
+        resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        frontend = new RulesFrontend();
+        JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
+        deploymentAdmin.setFrontend(frontend);
+        publisher = new RulesPublisher();
+        publisher.setDeploymentAdmin(deploymentAdmin);
+        publisher.setInstantiationFactory(new RulesInstantiationFactory());
+
+        List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
+        service1 = new OpenLService("multiModule", "no_url", modules1, null, false);
+        List<Module> modules2 = resolveAllModules(new File("./test-resources/multi-module-2"));
+        service2 = new OpenLService("multiModule2", "no_url", modules2, null, false);
+    }
+    
+    @Before
+    public void before() throws ServiceDeployException, NoSuchFieldException, IllegalAccessException {
+        modulesCache = ModulesCache.getInstance();
+        modulesCache.reset();
+        Class<?> clazz = ModulesCache.class;
+        Field field = clazz.getDeclaredField("cache");
+        field.setAccessible(true);
+        cache = (Cache)field.get(modulesCache);
+        cache.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_GUARANTEED);
+        cache.setStatisticsEnabled(true);
+        publisher.undeploy(service1.getName());
+        publisher.undeploy(service2.getName());
+        publisher.deploy(service1);
+        publisher.deploy(service2);
+    }
+    
+    //Correct usage ehcache in ModulesCache test
+    @Test
+    public void testModulesCache() throws Exception{
+        assertEquals(0, cache.getStatistics().getObjectCount());
+        assertEquals(0, cache.getStatistics().getCacheHits());
+        assertEquals(0, cache.getStatistics().getCacheMisses());
+        assertEquals(2, publisher.getRunningServices().size());
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
+        assertEquals(1, cache.getStatistics().getObjectCount());
+        assertEquals(0, cache.getStatistics().getCacheHits());
+        assertEquals(1, cache.getStatistics().getCacheMisses());
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule2", "data1")));
+        assertEquals(1, cache.getStatistics().getObjectCount());
+        assertEquals(0, cache.getStatistics().getCacheHits());
+        assertEquals(2, cache.getStatistics().getCacheMisses());
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
+        assertEquals(1, cache.getStatistics().getObjectCount());
+        assertEquals(0, cache.getStatistics().getCacheHits());
+        assertEquals(3, cache.getStatistics().getCacheMisses());
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule2", "data1")));
+        assertEquals(1, cache.getStatistics().getObjectCount());
+        assertEquals(0, cache.getStatistics().getCacheHits());
+        assertEquals(4, cache.getStatistics().getCacheMisses());
+        assertEquals(2, Array.getLength(frontend.getValues("multiModule2", "data1")));
+        assertEquals(1, cache.getStatistics().getObjectCount());
+        assertEquals(1, cache.getStatistics().getCacheHits());
+        assertEquals(4, cache.getStatistics().getCacheMisses());
+    }
+}    

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Ruleservice Plug-in
+Bundle-SymbolicName: org.openl.rules.ruleservice.ws.test;singleton:=true
+Bundle-Version: 5.8.1
+Bundle-Vendor: OpenL Tablets
+Bundle-Localization: plugin
+Require-Bundle: 
+ org.openl.rules.ruleservice.ws.lib;bundle-version="5.8.1"
+Export-Package: org.openl.rules.ruleservice

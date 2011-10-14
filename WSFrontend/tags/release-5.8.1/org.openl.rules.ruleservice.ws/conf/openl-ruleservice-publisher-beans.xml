@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd" >
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
+
+	<!--
+		Data binding type in WebServices(set it to the "serverPrototype" bean)
+	-->
+	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
+	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding">
+        <property name="contextProperties">
+    		<map>
+   			<entry>
+      			<key><util:constant
+								static-field="com.sun.xml.bind.api.JAXBRIContext.ANNOTATION_READER" /></key>
+      			<bean class="org.jvnet.annox.xml.bind.AnnoxAnnotationReader"/>
+   			</entry>
+      		</map>
+        </property>
+	</bean -->
+
+	<!-- Main description for the one WebService.-->
+	<!--
+		All configurations for server (like a data binding type and
+		interceptors) are represented there. ServerFactoryBean configuration
+		is similar to a CXF simple frontend configuration(see
+		http://cxf.apache.org/docs/simple-frontend-configuration.html) but
+		without namespace "simple".
+	-->
+	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
+		scope="prototype">
+		<property name="dataBinding" ref="binding" />
+	</bean>
+	
+	<!--
+		Prototypes factory. It will create new server prototype for each new
+		WebService.
+	-->
+	<bean id="serverPrototypeFactory"
+		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+		<property name="targetBeanName">
+			<idref local="serverPrototype" />
+		</property>
+	</bean>
+
+	<!-- Deploymen admin defines the way to expose services. -->
+	<bean id="deploymentAdmin" class="org.openl.ruleservice.publish.WebServicesDeploymentAdmin">
+		<property name="serverFactory" ref="serverPrototypeFactory" />
+		<property name="baseAddress" value="http://localhost:9000/" />
+	</bean>
+
+	<!-- Provide information about modules that can be used as dependencies. -->
+	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
+	
+	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
+	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>
+	
+	<!-- Initializes OpenL Engine instances according to web services configuration description 
+	and calls DeploymentAdmin to expose corresponding web service -->
+	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
+		<property name="deploymentAdmin" ref="deploymentAdmin"/>
+		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
+		<property name="instantiationFactory" ref="instantiationFactory"/>
+	</bean>
+</beans>
