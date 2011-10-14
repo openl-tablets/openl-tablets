@@ -11,16 +11,16 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.lib.poi.dev-pom</artifactId>
-  <version>5.8.1</version>
+  <version>5.8.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>OpenL - POI 3.7 - Dev POM</name>
   <description>POI for OpenL</description>
   <url>http://openl-tablets.sf.net/</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.1/trunk</connection>
-<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.1/trunk</developerConnection>
-    <url>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.1/openl-tablets</url>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</connection>
+<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
   </scm>
 
   <modules>
