@@ -16,13 +16,8 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>build</directory>
-    </fileSet>
-    <fileSet>
-      <directory>conf</directory>
-    </fileSet>
-    <fileSet>
-      <directory>webapps</directory>
+      <directory>web</directory>
+      <outputDirectory>webapps/webstudio</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>META-INF</directory>
