@@ -31,10 +31,6 @@
       <!-- No actual security -->
       <!--/WEB-INF/spring/security/security-beans.xml-->
       <!--/WEB-INF/spring/security/security-none-beans.xml-->
-
-      <!-- IPB security -->
-      <!--classpath*:META-INF/spring/*-beans.xml-->
-      <!--classpath:META-INF/integration/ipb-security/spring/security-*-beans.xml-->
     </param-value>
   </context-param>
 
