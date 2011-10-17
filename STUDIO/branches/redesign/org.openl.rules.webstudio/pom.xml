@@ -19,7 +19,7 @@
   <properties>
     <war.name>${project.artifactId}-${project.version}</war.name>
     <sonar.language>web</sonar.language>
-    <sonar.web.sourceDirectory>webapps/webstudio</sonar.web.sourceDirectory>
+    <sonar.web.sourceDirectory>web</sonar.web.sourceDirectory>
     <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
   </properties>
 
@@ -30,16 +30,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
-          <warSourceDirectory>webapps/webstudio</warSourceDirectory>
+          <warSourceDirectory>web</warSourceDirectory>
           <warName>${war.name}</warName>
-          <webResources>
-            <resource>
-              <directory>webapps</directory>
-              <includes>
-                <include>project-resolver-beans.xml</include>
-              </includes>
-            </resource>
-          </webResources>
         </configuration>
       </plugin>
 
@@ -59,8 +51,7 @@
               </archive>
               <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
               <descriptors>
-                <descriptor>src/main/assembly/assembly-jar.xml</descriptor>
-                <!-- <descriptor>src/main/assembly/assembly-ipb-jar.xml</descriptor> -->
+                <descriptor>assembly/assembly-jar.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
@@ -74,35 +65,12 @@
               <appendAssemblyId>true</appendAssemblyId>
               <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
               <descriptors>
-                <descriptor>src/main/assembly/assembly-template.xml</descriptor>
+                <descriptor>assembly/assembly-template.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
         </executions>
       </plugin>
-
-      <!--plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>assembly-ipb-jar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-              <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly-ipb-jar.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin-->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
