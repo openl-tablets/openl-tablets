@@ -1,5 +1,5 @@
 package org.openl.rules.ruleservice.client;
 
-public interface RatingServiceIntegration<R, K, T extends RatingServiceInvoker<K>> {
-	public R invoke(T ratingServiceInvoker, Object... args) throws Exception;
+public interface RatingServiceIntegration<R> {
+	public R invoke(Object... args) throws Exception;
 }
