@@ -26,7 +26,7 @@
 	<modules>
 		<module>../org.openl.rules.ruleservice</module>
 		<module>../org.openl.rules.ruleservice.ws</module>
-		<!--<module>../org.openl.rules.ruleservice.ws.client</module>-->
+		<module>../org.openl.rules.ruleservice.ws.client</module>
 	</modules>
 
 	<repositories>

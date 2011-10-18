@@ -24,4 +24,12 @@ public abstract class AbstractRatingServiceInvokerImpl<S, T> implements RatingSe
     protected boolean isNeedValidate() {
         return needValidate;
     }
+
+    public void setNeedValidate(boolean needValidate) {
+        this.needValidate = needValidate;
+    }
+
+    public void setRatingService(S ratingService) {
+        this.ratingService = ratingService;
+    }
 }

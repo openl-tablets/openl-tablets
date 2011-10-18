@@ -15,4 +15,20 @@ public abstract class AbstractRatingServiceIntegrationImpl<R, T, K extends Ratin
         T result = ratingServiceInvoker.invoke(ratingModelArgs);
         return resultMappingProvider.mapToResult(result);
     }
+
+    public void setRatingModelMappingProvider(RatingModelMappingProvider ratingModelMappingProvider) {
+        this.ratingModelMappingProvider = ratingModelMappingProvider;
+    }
+
+    public void setResultMappingProvider(ResultMappingProvider<T, R> resultMappingProvider) {
+        this.resultMappingProvider = resultMappingProvider;
+    }
+
+    public RatingModelMappingProvider getRatingModelMappingProvider() {
+        return ratingModelMappingProvider;
+    }
+
+    public ResultMappingProvider<T, R> getResultMappingProvider() {
+        return resultMappingProvider;
+    }
 }

@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.client.mapping.openl;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -12,7 +13,6 @@ import org.openl.rules.mapping.RulesBeanMapperFactory;
 import org.openl.rules.ruleservice.client.mapping.OpenLClientMappingException;
 import org.openl.rules.ruleservice.client.mapping.RatingModelMappingProvider;
 import org.springframework.beans.factory.InitializingBean;
-
 
 public abstract class AbstractOpenLRatingModelMappingProvider implements RatingModelMappingProvider, InitializingBean {
 
@@ -26,9 +26,16 @@ public abstract class AbstractOpenLRatingModelMappingProvider implements RatingM
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        File file = FileExtractor.extractFile(getClass(), mappingDefinitionFilePath);
-
-        mapper = RulesBeanMapperFactory.createMapperInstance(file, converters, conditions);
+        if (converters == null)
+            converters = new HashMap<String, CustomConverter>();
+        
+        if (conditions == null)
+            conditions = new HashMap<String, FieldMappingCondition>();
+        
+        if (mapper == null) {
+            File file = FileExtractor.extractFile(getClass(), mappingDefinitionFilePath);
+            mapper = RulesBeanMapperFactory.createMapperInstance(file, converters, conditions);
+        }
     }
 
     public Object[] mapArgsToRatingModel(Object... args) throws OpenLClientMappingException {
@@ -64,10 +71,20 @@ public abstract class AbstractOpenLRatingModelMappingProvider implements RatingM
     protected abstract Object[] mapToRatingModel(Object... args) throws MapperException;
 
     public void setMapper(Mapper mapper) {
+        if (mapper == null)
+            throw new IllegalArgumentException("mapper argument can't be null");
         this.mapper = mapper;
     }
 
     public Mapper getMapper() {
         return mapper;
+    }
+    
+    public String getMappingDefinitionFilePath() {
+        return mappingDefinitionFilePath;
+    }
+    
+    public void setMappingDefinitionFilePath(String mappingDefinitionFilePath) {
+        this.mappingDefinitionFilePath = mappingDefinitionFilePath;
     }
 }
