@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.jsf;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.Cookie;
 
@@ -10,6 +12,8 @@ import org.openl.commons.web.jsf.FacesUtils;
  *
  * @author Andrey Naumenko
  */
+@ManagedBean
+@SessionScoped
 public class SkinBean {
     private static final String[] skinsArray = { "DEFAULT", "blueSky", "classic", "deepMarine", "emeraldTown",
             "japanCherry", "ruby", "wine" };

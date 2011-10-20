@@ -1,10 +1,15 @@
 package org.openl.rules.ui.tablewizard;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.
  */
+@ManagedBean(name="tableCreatorWizardManager")
+@SessionScoped
 public class TableWizardManager extends TableWizard{
 
     static enum TableType {

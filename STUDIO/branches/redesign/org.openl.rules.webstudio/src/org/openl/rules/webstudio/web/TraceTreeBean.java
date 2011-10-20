@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectModel;
@@ -17,6 +20,8 @@ import org.openl.vm.trace.Tracer;
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL Studio.
  */
+@ManagedBean
+@RequestScoped
 public class TraceTreeBean {
 
     public TraceTreeBean() {

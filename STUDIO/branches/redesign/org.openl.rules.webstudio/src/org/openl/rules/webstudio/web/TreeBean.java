@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.base.INamedThing;
@@ -22,6 +24,8 @@ import org.richfaces.model.TreeNodeImpl;
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.
  */
+@ManagedBean
+@RequestScoped
 public class TreeBean {
 
     //private TreeStateManager stateManager;

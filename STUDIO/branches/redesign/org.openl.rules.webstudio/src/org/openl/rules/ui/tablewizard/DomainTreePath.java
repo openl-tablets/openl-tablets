@@ -4,6 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.domaintree.DomainTreeContext;
 import org.apache.commons.lang.StringUtils;
@@ -11,9 +15,18 @@ import org.apache.commons.lang.StringUtils;
 /**
  * @author Aliaksandr Antonik.
  */
+@ManagedBean
+@RequestScoped
 public class DomainTreePath {
+
     private String dotExpression;
+
+    @ManagedProperty(value="#{tableCreatorWizardManager.wizard.domainTree}")
     private DomainTree domainTree;
+
+    @ManagedProperty(value="#{tableCreatorWizardManager.wizard.parameters}")
+    private List<TypeNamePair> parameters;
+
     private DomainTreeContext context;
     private Collection<String> rootObjects;
 

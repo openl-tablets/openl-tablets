@@ -4,6 +4,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -23,16 +27,20 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  * @author Aleh Bykhavets
  *
  */
+@ManagedBean
+@RequestScoped
 public class SmartRedeployController {
 
     private static final Log LOG = LogFactory.getLog(SmartRedeployController.class);
 
     /** A controller which contains pre-built UI object tree. */
+    @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
-    private List<DeploymentProjectItem> items;
-
+    @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
+
+    private List<DeploymentProjectItem> items;
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();

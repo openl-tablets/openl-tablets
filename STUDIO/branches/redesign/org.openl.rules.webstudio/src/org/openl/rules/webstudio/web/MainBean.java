@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -11,6 +14,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 /**
  * Request scope managed bean providing logic for Main page.
  */
+@ManagedBean
+@RequestScoped
 public class MainBean {
 
     public MainBean() throws Exception {

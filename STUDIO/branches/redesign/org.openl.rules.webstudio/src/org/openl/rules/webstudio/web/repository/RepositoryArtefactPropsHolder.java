@@ -7,6 +7,9 @@ import org.openl.config.SysConfigManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.NoneScoped;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -15,6 +18,8 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Andrei Astrouski
  */
+@ManagedBean
+@NoneScoped
 public class RepositoryArtefactPropsHolder {
 
     /** Properties file name. */

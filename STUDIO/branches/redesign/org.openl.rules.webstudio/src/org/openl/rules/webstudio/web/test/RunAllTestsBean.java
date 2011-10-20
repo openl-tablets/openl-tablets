@@ -2,6 +2,9 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -20,6 +23,8 @@ import org.richfaces.component.UIRepeat;
 /**
  * Request scope managed bean providing logic for 'Run All Tests' page of OpenL Studio.
  */
+@ManagedBean
+@RequestScoped
 public class RunAllTestsBean {
 
     private RanTestsResults testsResult;

@@ -3,13 +3,18 @@ package org.openl.rules.ui.copy;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
+@ManagedBean(name="tableCopier")
+@SessionScoped
 public class TableNamesCopier extends TableCopier {
-    
+
     public TableNamesCopier() {
         start();
         initUri();

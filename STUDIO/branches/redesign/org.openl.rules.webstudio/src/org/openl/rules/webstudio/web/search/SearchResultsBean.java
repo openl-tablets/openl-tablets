@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.search;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.search.FileIndexer;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -8,6 +11,8 @@ import org.richfaces.component.UIRepeat;
 /**
  * Request scope managed bean providing logic for Search Results include page of OpenL Studio.
  */
+@ManagedBean
+@RequestScoped
 public class SearchResultsBean {
 
     private UIRepeat searchResults;

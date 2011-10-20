@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.project.model.Module;
@@ -15,6 +17,8 @@ import static org.openl.rules.webstudio.web.util.WebStudioUtils.getWebStudio;
 /**
  * Request scope managed bean providing logic for header page of OpenL Studio.
  */
+@ManagedBean
+@RequestScoped
 public class HeaderBean {
 
     public List<SelectItem> getModules() {

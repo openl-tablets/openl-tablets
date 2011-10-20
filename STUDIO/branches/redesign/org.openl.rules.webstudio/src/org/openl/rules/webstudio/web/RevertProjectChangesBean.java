@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -20,6 +23,8 @@ import org.openl.source.SourceHistoryManager;
 /**
  * @author Andrei Astrouski
  */
+@ManagedBean
+@RequestScoped
 public class RevertProjectChangesBean {
 
     private static final Log LOG = LogFactory.getLog(RevertProjectChangesBean.class);

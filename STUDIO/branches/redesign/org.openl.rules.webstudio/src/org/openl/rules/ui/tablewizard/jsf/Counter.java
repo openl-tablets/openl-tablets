@@ -1,10 +1,15 @@
 package org.openl.rules.ui.tablewizard.jsf;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 /**
  * Managed bean class that allows JSF pages use a counter object.
  *
  * @author Aliaksandr Antonik.
  */
+@ManagedBean
+@RequestScoped
 public class Counter {
     private int count;
 

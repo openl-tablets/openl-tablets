@@ -4,6 +4,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +31,8 @@ import org.openl.util.AStringBoolOperator;
 /**
  * JSF managed bean, session scope.
  */
+@ManagedBean(name="advancedSearch")
+@SessionScoped
 public class OpenLAdvancedSearchBean {
 
     private static final Log LOG = LogFactory.getLog(OpenLAdvancedSearchBean.class);
@@ -319,9 +326,14 @@ public class OpenLAdvancedSearchBean {
     /**
      * Request scope bean, holding flag if search run is required.
      */
+    @ManagedBean(name="advancedSearchRequest")
+    @RequestScoped
     public static class SearchRequest {
         private boolean needSearch;
+
+        @ManagedProperty(value="#{advancedSearch}")
         private OpenLAdvancedSearchBean advancedSearchBean;
+
         private List<IOpenLTable> tableSearchList;
 
         public OpenLAdvancedSearchBean getAdvancedSearchBean() {

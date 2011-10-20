@@ -48,6 +48,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
@@ -59,13 +62,25 @@ import javax.servlet.http.HttpServletResponse;
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
+@ManagedBean
+@ViewScoped
 public class RepositoryTreeController {
     
     private static final Date SPECIAL_DATE = new Date(0);
     private static final Log LOG = LogFactory.getLog(RepositoryTreeController.class);
+
+    @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+
+    @ManagedProperty(value="#{rulesUserSession.userWorkspace}")
     private UserWorkspace userWorkspace;
+
+    @ManagedProperty(value="#{repositoryArtefactPropsHolder}")
     private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
+
+    @ManagedProperty(value="#{zipFilter}")
+    private PathFilter zipFilter;
+
     private String projectName;
     private String newProjectTemplate;
     private String[] projectTemplates = { "SampleTemplate.xls" };
@@ -81,8 +96,6 @@ public class RepositoryTreeController {
     private String filterString;
     private boolean hideDeleted;
 
-    private PathFilter zipFilter;
-    
     public PathFilter getZipFilter() {
         return zipFilter;
     }

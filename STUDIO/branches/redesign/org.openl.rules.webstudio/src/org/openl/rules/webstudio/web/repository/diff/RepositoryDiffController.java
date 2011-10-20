@@ -30,6 +30,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 /**
@@ -37,10 +40,17 @@ import javax.faces.model.SelectItem;
  *
  * @author Andrey Naumenko
  */
+@ManagedBean
+@SessionScoped
 public class RepositoryDiffController extends AbstractDiffController {
     private static Log log = LogFactory.getLog(RepositoryDiffController.class);
-    private DesignTimeRepository designTimeRepository;
+
+    @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+
+    @ManagedProperty(value="#{designTimeRepository}")
+    private DesignTimeRepository designTimeRepository;
+
     private AProject projectUW; // User Workspace project
     private AProject projectRepo; // Repository project
     private List<AProjectArtefact> excelArtefactsUW;
