@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,6 +49,8 @@ import org.openl.util.StringTool;
 /**
  * Request scope managed bean for showTable page.
  */
+@ManagedBean
+@RequestScoped
 public class ShowTableBean {
 
     private static final Log LOG = LogFactory.getLog(ShowTableBean.class);

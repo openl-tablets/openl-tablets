@@ -3,16 +3,21 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.openl.rules.webstudio.ConfigManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
- * TODO Remove property getters/setters when migrating to JSF 2.0
+ * TODO Remove property getters/setters when migrating to EL 2.2
  * 
  * @author Andrei Astrouski
  */
+@ManagedBean
+@RequestScoped
 public class SystemSettingsBean {
 
     private static final String WORKSPACES_ROOT = "workspace.root";

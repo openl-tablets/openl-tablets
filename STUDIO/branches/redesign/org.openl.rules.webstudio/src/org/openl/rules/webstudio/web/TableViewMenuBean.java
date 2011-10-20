@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.rules.ui.ColorFilterHolder;
@@ -9,6 +12,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 /**
  * Request scope managed bean for tableViewMenu page.
  */
+@ManagedBean
+@RequestScoped
 public class TableViewMenuBean {
 
     private ColorFilterHolder filterHolder;

@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.Explanation;
 import org.openl.rules.ui.Explanator;
@@ -12,6 +15,8 @@ import org.openl.util.tree.ITreeElement;
 /**
  * Request scope managed bean providing logic for explain tree page of OpenL Studio.
  */
+@ManagedBean
+@RequestScoped
 public class ExplainTreeBean {
 
     public ExplainTreeBean() {

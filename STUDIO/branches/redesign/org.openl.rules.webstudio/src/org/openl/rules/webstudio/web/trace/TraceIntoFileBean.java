@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,6 +27,8 @@ import org.openl.vm.trace.Tracer;
 /**
  * Request scope managed bean for Trace into File functionality.
  */
+@ManagedBean
+@RequestScoped
 public class TraceIntoFileBean {
 
     private final Log LOG = LogFactory.getLog(TraceIntoFileBean.class);

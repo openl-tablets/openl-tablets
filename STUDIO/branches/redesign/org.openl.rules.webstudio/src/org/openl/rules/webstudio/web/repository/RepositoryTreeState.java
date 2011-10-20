@@ -35,11 +35,17 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+
 /**
  * Used for holding information about rulesRepository tree.
  *
  * @author Andrey Naumenko
  */
+@ManagedBean
+@SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     private static final Log LOG = LogFactory.getLog(RepositoryTreeState.class);
@@ -50,7 +56,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private TreeNode selectedNode;
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
+
+    @ManagedProperty(value="#{rulesUserSession.userWorkspace}")
     private UserWorkspace userWorkspace;
+
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
 

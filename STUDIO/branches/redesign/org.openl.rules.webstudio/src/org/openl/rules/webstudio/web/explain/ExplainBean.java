@@ -3,6 +3,9 @@ package org.openl.rules.webstudio.web.explain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.ui.Explanation;
@@ -12,6 +15,8 @@ import org.openl.rules.webstudio.web.util.Constants;
 /**
  * Request scope managed bean for Explain page.
  */
+@ManagedBean
+@RequestScoped
 public class ExplainBean {
 
     private boolean showNames;

@@ -3,6 +3,8 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.html.HtmlDataTable;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +15,8 @@ import org.openl.util.StringTool;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkOrder;
 
+@ManagedBean
+@SessionScoped
 public class BenchmarkMethodBean {
     private WebStudio studio;
     private ArrayList<BenchmarkInfo> benchmarkResults = new ArrayList<BenchmarkInfo>();

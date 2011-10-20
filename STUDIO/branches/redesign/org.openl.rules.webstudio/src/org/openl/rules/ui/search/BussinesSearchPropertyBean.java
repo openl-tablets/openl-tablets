@@ -5,6 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.search.OpenLBussinessSearch;
 import org.openl.rules.table.IOpenLTable;
@@ -13,7 +17,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.EnumValuesUIHelper;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -22,6 +25,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author DLiauchuk
  *
  */
+@ManagedBean(name="bussinesSearch")
+@RequestScoped
 public class BussinesSearchPropertyBean {
 
     private List<TableProperty> propForSearch = new ArrayList<TableProperty>();
@@ -143,10 +148,15 @@ public class BussinesSearchPropertyBean {
 
     /**
      * Request scope bean, holding flag if search run is required.
-     */    
+     */
+    @ManagedBean
+    @RequestScoped
     public static class BussinessSearchRequest {
         private boolean needSearch;
+
+        @ManagedProperty(value="#{bussinessSearch}")
         private BussinesSearchPropertyBean bussinessSearchBean;
+
         private List<IOpenLTable> tableSearchList;
                 
         public BussinesSearchPropertyBean getBussinessSearchBean() {

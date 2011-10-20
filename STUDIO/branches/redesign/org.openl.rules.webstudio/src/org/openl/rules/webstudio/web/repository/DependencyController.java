@@ -15,16 +15,22 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@ManagedBean
+@ViewScoped
 public class DependencyController {
     private static final Log LOG = LogFactory.getLog(DependencyController.class);
 
     /** A controller which contains pre-built UI object tree. */
+    @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
     private String projectName;
     private String lowerVersion;

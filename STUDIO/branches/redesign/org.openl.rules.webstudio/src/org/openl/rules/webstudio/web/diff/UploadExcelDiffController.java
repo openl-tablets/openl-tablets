@@ -4,11 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.io.FilenameUtils;
 import org.openl.util.FileTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
 
+@ManagedBean
+@SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
 
     private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();

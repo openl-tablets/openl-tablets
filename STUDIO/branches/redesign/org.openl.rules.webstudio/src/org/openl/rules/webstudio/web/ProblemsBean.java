@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -22,6 +25,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  * 
  * @author Andrei Astrouski
  */
+@ManagedBean
+@RequestScoped
 public class ProblemsBean {
 
     public static final String ERRORS_ROOT_NAME = "Errors";

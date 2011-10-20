@@ -1,10 +1,14 @@
 package org.openl.rules.ui.tablewizard;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.openl.rules.ui.copy.NewVersionTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
 import org.openl.rules.ui.copy.TablePropertyCopier;
 
-
+@ManagedBean
+@SessionScoped
 public class TableCopierWizardManager extends TableWizard {    
 
     static enum CopyType {

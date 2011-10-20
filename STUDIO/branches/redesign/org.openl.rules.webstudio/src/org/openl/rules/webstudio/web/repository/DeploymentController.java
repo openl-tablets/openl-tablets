@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 /**
@@ -30,13 +33,19 @@ import javax.faces.model.SelectItem;
  *
  * @author Andrey Naumenko
  */
+@ManagedBean
+@ViewScoped
 public class DeploymentController {
     private static final Log LOG = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
     private String version;
-    private RepositoryTreeState repositoryTreeState;
     private String cachedForProject;
+
+    @ManagedProperty(value="#{repositoryTreeState}")
+    private RepositoryTreeState repositoryTreeState;
+
+    @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
     public synchronized String addItem() {
