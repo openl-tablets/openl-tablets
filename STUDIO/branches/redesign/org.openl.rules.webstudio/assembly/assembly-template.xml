@@ -14,10 +14,15 @@
       <includes>
         <include>*.*</include>
       </includes>
+      <excludes>
+        <exclude>Start WebStudio.launch</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
-      <directory>web</directory>
-      <outputDirectory>webapps/webstudio</outputDirectory>
+      <directory>conf</directory>
+    </fileSet>
+    <fileSet>
+      <directory>webapps/webstudio</directory>
     </fileSet>
     <fileSet>
       <directory>META-INF</directory>
