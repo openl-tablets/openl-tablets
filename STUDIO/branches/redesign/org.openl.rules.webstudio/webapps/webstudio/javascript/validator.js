@@ -4,8 +4,10 @@ function validateRequired(elementId, showErrorMessage) {
     var value = $j("#" + elementId).val();
     if (showErrorMessage) {
         var messageId = elementId + '_Message_';
-        var message = $(messageId);
-        if (message) { message.remove(); }
+        var message = $j("#" + messageId);
+        if (message) {
+            message.remove();
+        }
     }
     if (!value) {
         if (showErrorMessage) {
