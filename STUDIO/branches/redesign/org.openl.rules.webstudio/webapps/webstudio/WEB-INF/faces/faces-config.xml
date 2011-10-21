@@ -10,7 +10,6 @@
 
     <locale-config>
       <default-locale>en</default-locale>
-      <supported-locale>en</supported-locale>
     </locale-config>
   </application>
 
@@ -18,15 +17,6 @@
     <component-type>org.openl.commons.web.jsf.facelets.acegi.Authentication</component-type>
     <component-class>org.openl.commons.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
   </component>
-
-  <navigation-rule>
-    <from-view-id>/pages/modules/repository/index.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>webstudio</from-outcome>
-      <to-view-id>/index.xhtml</to-view-id>
-      <redirect/>
-    </navigation-case>
-  </navigation-rule>
 
   <navigation-rule>
     <navigation-case>
