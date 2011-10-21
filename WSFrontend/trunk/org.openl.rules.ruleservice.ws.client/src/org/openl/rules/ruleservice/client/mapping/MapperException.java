@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.client.mapping.openl;
+package org.openl.rules.ruleservice.client.mapping;
 
 import org.openl.rules.ruleservice.client.OpenLClientException;
 

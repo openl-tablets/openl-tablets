@@ -15,7 +15,7 @@ public abstract class AbstractRatingServiceIntegrationImpl<R, T, K extends Ratin
     public R invoke(Object... args) throws Exception {
         Object[] ratingModelArgs = getRatingModelMappingProvider().mapArgsToRatingModel(args);
         T result = getRatingServiceInvoker().invoke(ratingModelArgs);
-        return getResultMappingProvider().mapToResult(result);
+        return getResultMappingProvider().mapToResult(result, args);
     }
 
     public void setRatingModelMappingProvider(RatingModelMappingProvider ratingModelMappingProvider) {

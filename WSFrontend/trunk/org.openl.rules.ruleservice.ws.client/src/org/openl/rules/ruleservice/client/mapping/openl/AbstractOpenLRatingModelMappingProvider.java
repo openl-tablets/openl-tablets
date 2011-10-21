@@ -10,6 +10,7 @@ import org.dozer.FieldMappingCondition;
 import org.dozer.MappingContext;
 import org.openl.rules.mapping.Mapper;
 import org.openl.rules.mapping.RulesBeanMapperFactory;
+import org.openl.rules.ruleservice.client.mapping.MapperException;
 import org.openl.rules.ruleservice.client.mapping.OpenLClientMappingException;
 import org.openl.rules.ruleservice.client.mapping.RatingModelMappingProvider;
 import org.springframework.beans.factory.InitializingBean;
