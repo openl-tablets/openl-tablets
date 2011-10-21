@@ -22,7 +22,19 @@ public abstract class AbstractOpenLRatingModelMappingProvider implements RatingM
 
     private Map<String, FieldMappingCondition> conditions;
 
-    private Mapper mapper;
+    public Map<String, CustomConverter> getConverters() {
+		return converters;
+	}
+
+	public void setConverters(Map<String, CustomConverter> converters) {
+		this.converters = converters;
+	}
+
+	public Map<String, FieldMappingCondition> getConditions() {
+		return conditions;
+	}
+
+	private Mapper mapper;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -87,4 +99,10 @@ public abstract class AbstractOpenLRatingModelMappingProvider implements RatingM
     public void setMappingDefinitionFilePath(String mappingDefinitionFilePath) {
         this.mappingDefinitionFilePath = mappingDefinitionFilePath;
     }
+    
+    public void setConditions(Map<String, FieldMappingCondition> conditions) {
+		this.conditions = conditions;
+	}
+    
+    
 }
