@@ -1,4 +1,4 @@
-package org.openl.rules.ui.view;
+package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
 import org.openl.rules.ui.tree.CategoryNTreeNodeBuilder;
@@ -9,7 +9,7 @@ import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
-public class BusinessViewMode2 implements WebStudioViewMode {
+public class CategoryDetailedView implements RulesTreeView {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
         new ModulePropertiesTableNodeBuilder(), 
@@ -23,12 +23,12 @@ public class BusinessViewMode2 implements WebStudioViewMode {
 
     @Override
     public String getName() {
-    	return "byCategoryDetailed";
+    	return "categoryDetailed";
     }
     
     @Override
     public String getDisplayName() {
-    	return "By Category Detailed";
+    	return "Category Detailed";
     }
 
     @Override

@@ -1,20 +1,18 @@
-package org.openl.rules.ui.view;
+package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
-import org.openl.rules.ui.tree.CategoryPropertiesTableNodeBuilder;
-import org.openl.rules.ui.tree.CategoryTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
-import org.openl.rules.ui.tree.ModulePropertiesTableNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.WorkbookTreeNodeBuilder;
+import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
-public class BusinessViewMode1 implements WebStudioViewMode {
+public class FileView implements RulesTreeView {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
-        new ModulePropertiesTableNodeBuilder(), 
-        new CategoryTreeNodeBuilder(),
-        new CategoryPropertiesTableNodeBuilder(),
+        new WorkbookTreeNodeBuilder(),
+        new WorksheetTreeNodeBuilder(),
         new OpenMethodInstancesGroupTreeNodeBuilder(),
         new TableInstanceTreeNodeBuilder(),
         new TableVersionTreeNodeBuilder()
@@ -22,21 +20,21 @@ public class BusinessViewMode1 implements WebStudioViewMode {
 
     @Override
     public String getName() {
-    	return "byCategory";
+    	return "file";
     }
     
     @Override
     public String getDisplayName() {
-    	return "By Category";
+    	return "File";
     }
 
     @Override
     public String getDescription() {
-    	return "Provides categorized view";
+    	return "Organize projects by physical location";
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public TreeNodeBuilder[] getBuilders() {
         return sorters;
     }

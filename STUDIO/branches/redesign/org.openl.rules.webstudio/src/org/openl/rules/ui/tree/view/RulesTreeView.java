@@ -1,11 +1,11 @@
-package org.openl.rules.ui.view;
+package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 /**
  * Interface that describes rules tree view mode.
  */
-public interface WebStudioViewMode {
+public interface RulesTreeView {
 
     String getName();
 

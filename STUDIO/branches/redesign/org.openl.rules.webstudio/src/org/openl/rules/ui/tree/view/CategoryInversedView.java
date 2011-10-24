@@ -1,16 +1,21 @@
-package org.openl.rules.ui.view;
+package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
+import org.openl.rules.ui.tree.CategoryNTreeNodeBuilder;
+import org.openl.rules.ui.tree.CategoryPropertiesTableNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
+import org.openl.rules.ui.tree.ModulePropertiesTableNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
-import org.openl.rules.ui.tree.TableTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
-public class DeveloperByTypeViewMode implements WebStudioViewMode {
+public class CategoryInversedView implements RulesTreeView {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
-        new TableTreeNodeBuilder(),
+        new ModulePropertiesTableNodeBuilder(),
+        new CategoryNTreeNodeBuilder(1, "-"),
+        new CategoryNTreeNodeBuilder(0, "-"),
+        new CategoryPropertiesTableNodeBuilder(),
         new OpenMethodInstancesGroupTreeNodeBuilder(),
         new TableInstanceTreeNodeBuilder(),
         new TableVersionTreeNodeBuilder()
@@ -18,17 +23,17 @@ public class DeveloperByTypeViewMode implements WebStudioViewMode {
 
     @Override
     public String getName() {
-    	return "byType";
+    	return "categoryInversed";
     }
     
     @Override
     public String getDisplayName() {
-    	return "By Type";
+    	return "Category Inversed";
     }
 
     @Override
     public String getDescription() {
-    	return "Organize projects by component type";
+    	return "Provides inversed categorized view";
     }
 
     @SuppressWarnings("unchecked")
