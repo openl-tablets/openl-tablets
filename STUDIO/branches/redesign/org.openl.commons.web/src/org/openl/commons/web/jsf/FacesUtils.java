@@ -172,8 +172,12 @@ public abstract class FacesUtils {
         return (ServletResponse) getExternalContext().getResponse();
     }
 
+    public static HttpSession getSession(boolean create) {
+        return (HttpSession) getExternalContext().getSession(create);
+    }
+
     public static HttpSession getSession() {
-        return (HttpSession) getExternalContext().getSession(false);
+        return getSession(false);
     }
 
     public static String getContextPath() {
