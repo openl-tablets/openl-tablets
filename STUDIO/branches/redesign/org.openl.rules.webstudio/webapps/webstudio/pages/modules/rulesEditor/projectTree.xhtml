@@ -42,11 +42,11 @@
 
         <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
             <ul>
-                <c:forEach items="#{studio.allProjects}" var="project">
+                <a4j:repeat value="#{studio.allProjects}" var="project">
                 <li style="margin-bottom: 4px">
                     <a style="color: #337AB6" href="#">#{project.name}</a>
                     <ul style="margin-left: 9px">
-                        <c:forEach items="#{project.modules}" var="module">
+                        <a4j:repeat value="#{project.modules}" var="module">
                         <li>
                             <a4j:commandLink action="#{mainBean.selectModule}"
                                 onclick="selectModule(this)" render="rulesTab toolbar problemsTab content"
@@ -56,10 +56,10 @@
                                 <f:param name="module" value="#{module.name}" />
                             </a4j:commandLink>
                         </li>
-                        </c:forEach>
+                        </a4j:repeat>
                     </ul>
                 </li>
-                </c:forEach>
+                </a4j:repeat>
             </ul>
         </h:panelGroup>
 
