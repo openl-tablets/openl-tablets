@@ -18,8 +18,10 @@ public class TableViewer {
     private IGrid grid;
 
     private IGridRegion reg;
-    
-    private String showLinksBase;
+
+    private String linkBase;
+
+    private String linkTarget;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -84,13 +86,14 @@ public class TableViewer {
      * @param grid
      * @param reg
      */
-    public TableViewer(IGrid grid, IGridRegion reg, String showLinksBase) {
+    public TableViewer(IGrid grid, IGridRegion reg, String linkBase, String linkTarget) {
         super();
         this.grid = grid;
         this.reg = reg;
-        this.showLinksBase = showLinksBase;
+        this.linkBase = linkBase;
+        this.linkTarget = linkTarget;
     }
-    
+
     CellModel buildCell(ICell cell, CellModel cm) {
         cm.setColspan(getColSpan(cell));
         cm.setRowspan(getRowSpan(cell));
@@ -136,9 +139,12 @@ public class TableViewer {
                 buff.append(formattedValue.substring(nextSymbolIndex, pstart)).append("<span class=\"title\">");
                 if (tableUri != null) {
                     String encodedURL = StringTool.encodeURL(tableUri);
-                    buff.append("<a href=\"" + showLinksBase + "?uri=")
-                        .append(encodedURL)
-                        .append("\">")
+                    buff.append("<a href=\"" + linkBase + "?uri=")
+                        .append(encodedURL).append("\"");
+                    if (StringUtils.isNotBlank(linkTarget)) {
+                        buff.append(" target=\"").append(linkTarget).append("\"");
+                    }
+                    buff.append(">")
                         .append(formattedValue.substring(pstart, pend + 1))
                         .append("</a>");
                 } else {
@@ -153,7 +159,7 @@ public class TableViewer {
     }
 
     private boolean isShowLinks() {
-        return showLinksBase != null;
+        return linkBase != null;
     }
 
     public TableModel buildModel(IGridTable gt) {

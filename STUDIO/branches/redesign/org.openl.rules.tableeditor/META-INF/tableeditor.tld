@@ -203,7 +203,13 @@
             </deferred-value>
         </attribute>
         <attribute>
-            <name>showLinksBase</name>
+            <name>linkBase</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <name>linkTarget</name>
             <deferred-value>
                 <type>String</type>
             </deferred-value>

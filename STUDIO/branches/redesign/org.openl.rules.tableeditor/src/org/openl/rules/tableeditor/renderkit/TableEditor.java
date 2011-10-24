@@ -31,7 +31,8 @@ public class TableEditor {
     private String onAfterSave;
     private String onSaveFailure;
     private String excludeScripts;
-    private String showLinksBase;
+    private String linkBase;
+    private String linkTarget;
 
     public TableEditor() {
     }
@@ -48,7 +49,8 @@ public class TableEditor {
         }
         mode = (String) attributes.get(Constants.ATTRIBUTE_MODE);
         view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
-        showLinksBase = (String) attributes.get(Constants.ATTRIBUTE_SHOW_LINKS_BASE);
+        linkBase = (String) attributes.get(Constants.ATTRIBUTE_LINK_BASE);
+        linkTarget = (String) attributes.get(Constants.ATTRIBUTE_LINK_TARGET);
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
@@ -181,16 +183,25 @@ public class TableEditor {
         this.onSaveFailure = onSaveFailure;
     }
 
-    public String getShowLinksBase() {
-        return showLinksBase;
+    public String getLinkBase() {
+        return linkBase;
     }
 
-    public void setShowLinksBase(String showLinksBase) {
-        this.showLinksBase = showLinksBase;
+    public void setLinkBase(String linkBase) {
+        this.linkBase = linkBase;
     }
-    
+
+    public String getLinkTarget() {
+        return linkTarget;
+    }
+
+    public void setLinkTarget(String linkTarget) {
+        this.linkTarget = linkTarget;
+    }
+
     public boolean isShowLinks(){
-        return showLinksBase != null;
+        return linkBase != null;
     }
+
 }
 
