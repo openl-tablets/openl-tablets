@@ -8,7 +8,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 
-import org.openl.base.INamedThing;
 //import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tests.results.RanTestsResults;
@@ -52,10 +51,10 @@ public class TreeBean {
     public List<SelectItem> getViews() {
         List<SelectItem> views = new ArrayList<SelectItem>();
         WebStudio studio = WebStudioUtils.getWebStudio();
-        WebStudioViewMode[] modes = studio.getTreeViews();
-        if (modes != null) {
-            for (WebStudioViewMode viewMode : modes) {
-                views.add(new SelectItem(viewMode.getName(), viewMode.getDisplayName(INamedThing.REGULAR)));
+        WebStudioViewMode[] treeViews = studio.getTreeViews();
+        if (treeViews != null) {
+            for (WebStudioViewMode viewMode : treeViews) {
+                views.add(new SelectItem(viewMode.getName(), viewMode.getDisplayName()));
             }
         }
         return views;

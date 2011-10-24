@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,7 +17,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -48,8 +46,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.OpenLTable;
 import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsSheetGridHelper;
-import org.openl.rules.table.xls.XlsSheetGridImporter;
-import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -64,7 +60,6 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
@@ -78,6 +73,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringTool;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
@@ -104,7 +100,7 @@ public class ProjectModel {
 
     private ColorFilterHolder filterHolder = new ColorFilterHolder();
 
-    private OpenLSavedSearch[] savedSearches;
+    private OpenLSavedSearch[] savedSearches = new OpenLSavedSearch[0];
 
     private ProjectTreeNode projectRoot = null;
 
@@ -525,25 +521,8 @@ public class ProjectModel {
 
     }
 
+    // TODO Implement with User Settings
     public OpenLSavedSearch[] getSavedSearches() {
-        if (savedSearches == null && isReady()) {
-            TableSyntaxNode[] nodes = getTableSyntaxNodes();
-
-            List<OpenLSavedSearch> savedSearches = new ArrayList<OpenLSavedSearch>();
-
-            for (TableSyntaxNode node : nodes) {
-                if (node.getType().equals(XlsNodeTypes.XLS_PERSISTENT.toString())) {
-                    String code = node.getHeader().getModule().getCode();
-                    if ((IXlsTableNames.PERSISTENCE_TABLE + " " + OpenLSavedSearch.class.getName()).equals(code)) {
-                        OpenLSavedSearch savedSearch = new OpenLSavedSearch().restore(new XlsSheetGridImporter(
-                                (XlsSheetGridModel) node.getGridTable().getGrid(), node));
-                        savedSearches.add(savedSearch);
-                    }
-                }
-            }
-
-            this.savedSearches = savedSearches.toArray(new OpenLSavedSearch[savedSearches.size()]);
-        }
         return savedSearches;
     }
 
@@ -606,7 +585,7 @@ public class ProjectModel {
     }
 
     public String getTableView(String view) {
-        return view == null ? studio.getTableView().getTableMode() : view;
+        return view == null ? studio.getTableView() : view;
     }
 
     public RanTestsResults getTestsRunner(IOpenMethod[] testMethods) {
@@ -802,33 +781,8 @@ public class ProjectModel {
             }
         }
 
-        HashSet<TableSyntaxNode> nodesWithErrors = new HashSet<TableSyntaxNode>();
-
-        boolean treeEnlarged = false;
-
         for (int i = 0; i < tableSyntaxNodes.length; i++) {                
-            if (studio.getTreeView().select(tableSyntaxNodes[i])) {
-
-                treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-                treeEnlarged = true;
-            } else if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNodes[i].getType())) {
-                treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-            } else if (tableSyntaxNodes[i].getErrors() != null
-                    && !DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNodes[i])) {
-                treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-                nodesWithErrors.add(tableSyntaxNodes[i]);
-            }
-        }
-
-        if (!treeEnlarged) {
-            // No selection have been made (usually in a business mode)
-            for (int i = 0; i < tableSyntaxNodes.length; i++) {                    
-                if (!XlsNodeTypes.XLS_OTHER.toString().equals(tableSyntaxNodes[i].getType())
-                        && !XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNodes[i].getType())
-                        && !nodesWithErrors.contains(tableSyntaxNodes[i])) {
-                    treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
-                }
-            }
+        	treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
         }
 
         projectRoot = root;
@@ -906,10 +860,23 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
+        String moduleName = getModuleDisplayName(moduleInfo);
+        return new ProjectTreeNode(new String[] { moduleName, moduleName, moduleName }, "root", null, null, 0, null);
+    }
 
-        String name = studio.getTreeView().getDisplayName(moduleInfo);
+    /**
+     * Gets module display name.
+     * 
+     * @param module OpenL project module
+     * @return display name
+     */
+    public String getModuleDisplayName(Module module) {
+        String displayName = module.getName();
 
-        return new ProjectTreeNode(new String[] { name, name, name }, "root", null, null, 0, null);
+        if (displayName.equals(module.getClassname())) {
+            displayName = StringTool.lastToken(displayName, ".");
+        }
+        return displayName + " (" + module.getClassname() + ")";
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {

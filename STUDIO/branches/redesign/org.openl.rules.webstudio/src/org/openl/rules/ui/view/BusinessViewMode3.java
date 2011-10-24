@@ -9,7 +9,7 @@ import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
-public class BusinessViewMode3 extends BaseBusinessViewMode {
+public class BusinessViewMode3 implements WebStudioViewMode {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
         new ModulePropertiesTableNodeBuilder(),
@@ -21,10 +21,19 @@ public class BusinessViewMode3 extends BaseBusinessViewMode {
         new TableVersionTreeNodeBuilder()
     };
 
-    public BusinessViewMode3() {
-        setName(getType() + ".3");
-        displayName = "By Category Inversed";
-        description = "Business View 3. Provides inversed categorized view";
+    @Override
+    public String getName() {
+    	return "byCategoryInversed";
+    }
+    
+    @Override
+    public String getDisplayName() {
+    	return "By Category Inversed";
+    }
+
+    @Override
+    public String getDescription() {
+    	return "Provides inversed categorized view";
     }
 
     @SuppressWarnings("unchecked")
