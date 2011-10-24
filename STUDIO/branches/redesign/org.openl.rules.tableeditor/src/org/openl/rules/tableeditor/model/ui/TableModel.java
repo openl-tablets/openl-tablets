@@ -22,14 +22,15 @@ public class TableModel {
     }
 
     public static TableModel initializeTableModel(IGridTable table, int numRows) {
-        return initializeTableModel(table, null, numRows, null);
+        return initializeTableModel(table, null, numRows, null, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
-        return initializeTableModel(table, filters, -1, null);
+        return initializeTableModel(table, filters, -1, null, null);
     }
 
-    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows, String showLinksBase) {
+    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows,
+            String linkBase, String linkTarget) {
         if (table == null) {
             return null;
         }
@@ -50,7 +51,7 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, showLinksBase).buildModel(table, numRows);
+        return new TableViewer(grid, region, linkBase, linkTarget).buildModel(table, numRows);
     }
 
     public TableModel(int width, int height, IGridTable gridTable) {

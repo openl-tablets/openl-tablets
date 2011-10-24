@@ -90,7 +90,7 @@
         </h:panelGroup>
         <br /><br />
         <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
-            showLinksBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml"
+            linkBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml" linkTarget="content"
             collapseProps="true" />
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>

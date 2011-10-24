@@ -18,7 +18,8 @@ public final class Constants {
     public static final String ATTRIBUTE_ON_AFTER_SAVE = "onAfterSave";
     public static final String ATTRIBUTE_ON_SAVE_FAILURE = "onSaveFailure";
     public static final String ATTRIBUTE_EXCLUDE_SCRIPTS = "excludeScripts";
-    public static final String ATTRIBUTE_SHOW_LINKS_BASE = "showLinksBase";
+    public static final String ATTRIBUTE_LINK_BASE = "linkBase";
+    public static final String ATTRIBUTE_LINK_TARGET = "linkTarget";
 
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
     public static final String REQUEST_PARAM_MODE = "mode";

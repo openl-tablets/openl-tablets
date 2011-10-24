@@ -119,7 +119,8 @@ public class HTMLRenderer {
             IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
-            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getShowLinksBase());
+            TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows,
+                    editor.getLinkBase(), editor.getLinkTarget());
 
             if (tableModel != null) {
                 
@@ -710,8 +711,8 @@ public class HTMLRenderer {
         private String getProprtiesTablePageUrl(TableProperty prop, String mode) {
             String url = null;
             ILogicalTable propertiesTable = null;
-            
-            String linkBase = tableEditor.getShowLinksBase();
+
+            String linkBase = tableEditor.getLinkBase();
             if (StringUtils.isNotBlank(linkBase)) {
                 if (prop.isModuleLevelProperty()) {
                     propertiesTable = props.getModulePropertiesTable();

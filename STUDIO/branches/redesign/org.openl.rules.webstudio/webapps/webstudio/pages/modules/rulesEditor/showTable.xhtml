@@ -233,7 +233,7 @@
 
     <h:panelGroup id="tePanel">
     <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
-        showLinksBase="#{rulesEditor}/showTable.xhtml"
+        linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
         mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
         showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
         beforeSaveAction="#{showTableBean.beforeSaveAction}"
