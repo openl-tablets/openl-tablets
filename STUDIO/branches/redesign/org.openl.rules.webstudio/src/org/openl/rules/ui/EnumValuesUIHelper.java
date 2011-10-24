@@ -83,11 +83,11 @@ public class EnumValuesUIHelper {
     private String getEditorHTMLCode(String id, String editorCode) {
         return String.format(
                   "<div id='%1$s'></div>"
-                + "<script type='text/javascript'>"
+                + "<script>"
                 + "var editor = %2$s;"
                 // editor value setter code
                 + "editor.input.onblur=function(){var newValue = this.getValue();"
-                + "$('%1$s').next('input[type=hidden][name!=id]').value=newValue;return false;};"
+                + "$j('#%1$s').next('input[type=hidden][name!=id]').val(newValue);return false;};"
                 + "</script>", id, editorCode);
     }
 

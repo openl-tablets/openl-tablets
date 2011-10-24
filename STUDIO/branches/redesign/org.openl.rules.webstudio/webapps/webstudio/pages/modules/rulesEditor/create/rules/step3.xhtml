@@ -174,7 +174,9 @@
     <script>
       var wiz_ids = ['pname', 'tname','type']
       var baseId = "newTableWiz3:paramTable:";
+      
       function wiz_swap(e1, e2) {var tmp = e1.value;e1.value = e2.value;e2.value = tmp;}
+      
       function wiz_moveup(el, pos) {
         if (pos &lt;= 0) return;
         var base1 = baseId+pos+":", base2 = baseId+(pos-1)+":"
@@ -182,29 +184,30 @@
       }
 
       var destInputElement;
+
       function showDomainTree(anchorElement) {
-        destInputElement  = $(anchorElement).up().down('INPUT');
-        $('dtForm:currentExpression').value = destInputElement.value.gsub(' ', '').sub(/\.+$/, '');
-        $('dtForm:newDotPart').value = '';
-        $('dtForm:dtLink2').onclick();
+        destInputElement = $j("#" + anchorElement).parent().find('INPUT:first');
+        $j('#dtForm\\:currentExpression').val(destInputElement.val().replace(/ +(?= )/g,'').replace(/\.+$/, ''));
+        $j('#dtForm\\:newDotPart').val('');
+        $j('#dtForm\\:dtLink2').click();
       }
 
       function addDotPart(text) {
-        $('dtForm:newDotPart').value = text;
-        $('dtForm:dtLink').onclick();
+        $j('#dtForm\\:newDotPart').val(text);
+        $j('#dtForm\\:dtLink').click();
       }
 
       function removeLastDotPart() {
-        var parts = $('dtForm:currentExpression').value.split('.');
+        var parts = $j('#dtForm\\:currentExpression').val().split('.');
         parts.pop();
-        $('dtForm:currentExpression').value = parts.join('.');
-        $('dtForm:newDotPart').value = '';
-        $('dtForm:dtLink').onclick();
+        $j('#dtForm\\:currentExpression').val(parts.join('.'));
+        $j('#dtForm\\:newDotPart').val('');
+        $j('#dtForm\\:dtLink').click();
       }
 
       function hideDomainTree() {
         RichFaces.$('modalDomainTreePanel').hide();
-        destInputElement.value = $('dtForm:currentExpression').value; 
+        destInputElement.val($j('#dtForm\\:currentExpression').val()); 
       }
 
     </script>

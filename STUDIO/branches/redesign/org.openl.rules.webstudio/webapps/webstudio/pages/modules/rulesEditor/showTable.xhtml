@@ -42,30 +42,7 @@
 
     <br />
 
-    <h:panelGroup rendered="#{not empty showTableBean.targetTables}" layout="block"
-        style="margin-bottom: 15px;">
-        <h:panelGroup style="font-weight: bold;">
-            <h:outputText value="Target Table" />
-            <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
-            <h:outputText value=": " />
-        </h:panelGroup>
-
-        <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content"
-            rendered="#{fn:length(showTableBean.targetTables) == 1}">
-            <f:param name="uri" value="#{showTableBean.targetTables[0].uri}" />
-            <h:outputText value="#{showTableBean.targetTables[0].name}" />
-        </h:outputLink>
-
-        <rich:list value="#{showTableBean.targetTables}" var="targetTable"
-            rendered="#{fn:length(showTableBean.targetTables) > 1}" style="margin: 3px 0px 0px;">
-            <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-                <f:param name="uri" value="#{targetTable.uri}" />
-                <h:outputText value="#{targetTable.name}" />
-            </h:outputLink>
-        </rich:list>
-    </h:panelGroup>
-
-    <h:form>
+    <h:form style="float:left; margin-right: 50px">
         <div>
             <table class="editToolbar"><tr><td>
             <h:outputLink rendered="#{showTableBean.editable}"
@@ -177,11 +154,28 @@
         </div>
     </h:form>
 
+	<h:panelGroup rendered="#{not empty showTableBean.targetTables}" layout="block">
+		<h:panelGroup style="font-weight: bold;">
+		    <h:outputText value="Target Table" />
+		    <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
+		    <h:outputText value=": " />
+		</h:panelGroup>
+
+		<rich:list value="#{showTableBean.targetTables}" var="targetTable" style="margin: 2px 0 0; list-style:none">
+		    <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+		        <f:param name="uri" value="#{targetTable.uri}" />
+		            <h:outputText value="#{targetTable.name}" />
+		     </h:outputLink>
+		 </rich:list>
+	</h:panelGroup>
+
+	<div style="clear:both"></div>
+
     <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
         <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
             <span style="margin-right: 4px">Problems</span>
             <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Problems"
-                onclick="$('problemsPanel').toggle();this.src=(this.title == 'Hide Problems' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Hide Problems' : 'Hide Problems');" />
+                onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Hide Problems' : 'Hide Problems');" />
         </div>
         <div id="problemsPanel">
             <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
@@ -203,14 +197,8 @@
          }
 
         function search(f) {
-           	f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes)
-           	    .find(function(s) {
-                    return s.nodeName == "#text"
-                }).nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "")
-                  .split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
-                  .reject(function(s) {
-                      return !s;
-                  }).join(" ");
+           	f.searchQuery.value = $j(PopupMenu.lastTarget).html()
+                .replace(/(&lt;br?>)/ig," ").replace(/(&lt;.*?>)/ig,"");
             f.submit();
         }
 
@@ -244,7 +232,7 @@
     </form>
 
     <h:panelGroup id="tePanel">
-    <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView.tableMode}"
+    <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
         showLinksBase="#{rulesEditor}/showTable.xhtml"
         mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
         showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
