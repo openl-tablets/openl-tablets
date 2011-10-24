@@ -14,6 +14,8 @@
     <security:filter-chain-map path-type="ant">
       <security:filter-chain pattern="/faces/pages/login.xhtml" filters="none" />
       <security:filter-chain pattern="/css/**" filters="none" />
+      <security:filter-chain pattern="/javascript/**" filters="none" />
+      <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
       <security:filter-chain pattern="/**"
         filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,localUserFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
     </security:filter-chain-map>
