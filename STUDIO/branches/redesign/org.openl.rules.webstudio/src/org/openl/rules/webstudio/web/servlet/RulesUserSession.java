@@ -1,9 +1,5 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.security.AccessManager;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -18,16 +14,12 @@ import org.openl.util.Log;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-@ManagedBean
-@SessionScoped
 public class RulesUserSession {
 
-    @ManagedProperty(value="#{currentUserInfo.user}")
     private UserDetails user;
 
     private UserWorkspace userWorkspace;
 
-    @ManagedProperty(value="#{workspaceManager}")
     private MultiUserWorkspaceManager workspaceManager;
 
     private ProductionDeployer deployer;

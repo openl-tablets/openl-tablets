@@ -85,6 +85,7 @@ public class OpenLAdvancedSearchBean {
         return null;
     }
 
+    // TODO Reimplement with User Settings
     public String applySearch() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         if (webStudio != null) {
@@ -103,6 +104,7 @@ public class OpenLAdvancedSearchBean {
         return null;
     }
 
+    // TODO Reimplement with User Settings
     private void applySearch(OpenLSavedSearch savedSearch) {
         search.setTableElements(savedSearch.getTableElements());
         search.setColumnElements(savedSearch.getColumnElements());
@@ -148,6 +150,7 @@ public class OpenLAdvancedSearchBean {
         return opTypeValues;
     }
 
+    // TODO Reimplement with User Settings
     public OpenLSavedSearch[] getSavedSearches() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         if (webStudio != null) {
@@ -183,9 +186,10 @@ public class OpenLAdvancedSearchBean {
 
     public boolean isShowSearches() {
         OpenLSavedSearch[] savedSearches = getSavedSearches();
-        return savedSearches != null && savedSearches.length > 0;
+        return savedSearches.length > 0;
     }
 
+    // TODO Reimplement with User Settings
     public String save() {
         WebStudio webStudio = WebStudioUtils.getWebStudio();
         if (webStudio != null) {

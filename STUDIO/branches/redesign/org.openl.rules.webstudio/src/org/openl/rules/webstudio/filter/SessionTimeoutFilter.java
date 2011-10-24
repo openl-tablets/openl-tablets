@@ -29,7 +29,7 @@ public class SessionTimeoutFilter implements Filter {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        /*HttpServletRequest request = (HttpServletRequest) servletRequest;
         if (excludePages != null && excludePages.length > 0) {
             for (String excludePage : excludePages) {
                 if (!excludePage.equals("") && request.getRequestURL().indexOf(excludePage) > -1) {
@@ -50,9 +50,9 @@ public class SessionTimeoutFilter implements Filter {
             } else {
                 response.sendRedirect(redirect);
             }
-        } else {
+        } else {*/
             filterChain.doFilter(servletRequest, servletResponse);
-        }
+        //}
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
