@@ -140,8 +140,8 @@ public class TablePropertyCopier extends TableCopier {
     }
 
     private String getInputIdJS(String propName) {
-        return "$('" + propsTable.getParent().getId() + "').down('input[type=hidden][name=id][value="
-            + propName + "]').up().down('input').id";
+        return "$j('#" + propsTable.getParent().getId() + "').find('input[type=hidden][name=id][value="
+            + propName + "]').parent().find('input:first').id";
     }
 
     private TableProperty getCurrentProp() {

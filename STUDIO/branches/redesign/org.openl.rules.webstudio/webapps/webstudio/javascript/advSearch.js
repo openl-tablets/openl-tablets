@@ -1,33 +1,25 @@
-function init() 
-{
-	$$('input[id^="advSearchForm:typeValue_"]').each(function(elem) {		
-		var pair = elem.id.split("_");
-		var index = pair[1];		
-		makeValue1Visible(document.getElementById("advSearchForm:type1_" + index),index);		
+function init() {
+	$j('input[id^="advSearchForm\\:typeValue_"]').each(function() {
+	    var pair = this.id.split("_");
+	    var index = pair[1];
+	    makeValue1Visible(document.getElementById("advSearchForm:type1_" + index), index);
     });
 }
 
-window.onload = init;
-
-function body_load()
-{
-	document.getElementById('img_action').value = ''	
+function body_load() {
+	document.getElementById('img_action').value = '';
 }
 
-function img_action_click(action)
-{
+function img_action_click(action) {
 	document.getElementById('img_action').value = action;
 	document.getElementById('adv_search_form').submit();
 }
 
-
 function makeValue1Visible(el, index) {
-    document.getElementById("advSearchForm:typeValue_" + index).disabled = el.value == 'header'
+    document.getElementById("advSearchForm:typeValue_" + index).disabled = el.value == 'header';
 }
 
-
-function jsclean(id,def_value)
-{
+function jsclean(id,def_value) {
  el=document.getElementById(id)
  if (el.value == def_value)
  {
@@ -49,19 +41,7 @@ function jsSetTableTypes(checked) {
             elements[i].checked = value;
 }
 
-function inputSearchName() {
-    var name = prompt("Enter saved search name", "");
-    if (name == null) return false;
-    name = name.replace(/\s+/g, "");
-    if (name == '') return false;
-
-    document.getElementById('saveAdvSearchForm:searchName').value = name;
-    
-    return true;
-}
-
-function alignGop(el)
-{
+function alignGop(el) {
     var tdel = el;
     while (tdel && tdel.tagName != 'TD') tdel = tdel.parentNode;
     var value = el.value
@@ -79,8 +59,9 @@ function alignGop(el)
     }
 }
 
-function jsclearType(id)
-{
+function jsclearType(id) {
  el=document.getElementById(id);
  el.checked='';
 }
+
+init();
