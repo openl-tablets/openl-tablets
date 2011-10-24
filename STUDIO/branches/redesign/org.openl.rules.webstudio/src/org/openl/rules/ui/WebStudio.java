@@ -18,12 +18,12 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.RulesFileDependencyLoader;
-import org.openl.rules.ui.view.BusinessViewMode1;
-import org.openl.rules.ui.view.BusinessViewMode2;
-import org.openl.rules.ui.view.BusinessViewMode3;
-import org.openl.rules.ui.view.DeveloperByFileViewMode;
-import org.openl.rules.ui.view.DeveloperByTypeViewMode;
-import org.openl.rules.ui.view.WebStudioViewMode;
+import org.openl.rules.ui.tree.view.CategoryView;
+import org.openl.rules.ui.tree.view.CategoryDetailedView;
+import org.openl.rules.ui.tree.view.CategoryInversedView;
+import org.openl.rules.ui.tree.view.FileView;
+import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.webstudio.ConfigManager;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -55,13 +55,14 @@ public class WebStudio {
 
     public static final String TRACER_NAME = "tracer";
 
-    private WebStudioViewMode DEVELOPER_BYTYPE_VIEW = new DeveloperByTypeViewMode();
-    private WebStudioViewMode DEVELOPER_BYFILE_VIEW = new DeveloperByFileViewMode();
-    private WebStudioViewMode BUSINESS1_VIEW = new BusinessViewMode1();
-    private WebStudioViewMode BUSINESS2_VIEW = new BusinessViewMode2();
-    private WebStudioViewMode BUSINESS3_VIEW = new BusinessViewMode3();
+    private static final RulesTreeView TYPE_VIEW = new TypeView();
+    private static final RulesTreeView FILE_VIEW = new FileView();
+    private static final RulesTreeView CATEGORY_VIEW = new CategoryView();
+    private static final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
+    private static final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
 
-    private WebStudioViewMode[] viewModes = { DEVELOPER_BYTYPE_VIEW, DEVELOPER_BYFILE_VIEW, BUSINESS1_VIEW, BUSINESS2_VIEW, BUSINESS3_VIEW };
+    private static final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW,
+        CATEGORY_DETAILED_VIEW, CATEGORY_INVERSED_VIEW };
 
     private String workspacePath;
     private ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
@@ -71,7 +72,7 @@ public class WebStudio {
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
 
-    private WebStudioViewMode treeView = DEVELOPER_BYTYPE_VIEW;
+    private RulesTreeView treeView = TYPE_VIEW;
     // TODO Use constant from IXlsTableNames
     private String tableView = "developer";
 
@@ -140,8 +141,8 @@ public class WebStudio {
         return true;
     }
 
-    public WebStudioViewMode[] getTreeViews() {
-        return viewModes;
+    public RulesTreeView[] getTreeViews() {
+        return treeViews;
     }
 
     public void addBenchmark(BenchmarkInfo bi) {
@@ -236,7 +237,7 @@ public class WebStudio {
         return projectResolver;
     }
 
-    public WebStudioViewMode getTreeView() {
+    public RulesTreeView getTreeView() {
         return treeView;
     }
 
@@ -334,6 +335,7 @@ public class WebStudio {
 
     public ProjectDescriptor getProject(final String id) {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
+            @Override
             public boolean evaluate(Object project) {
                 return ((ProjectDescriptor) project).getId().equals(id);
             }
@@ -371,18 +373,18 @@ public class WebStudio {
         }
     }
 
-    public void setTreeView(WebStudioViewMode treeView) throws Exception {
+    public void setTreeView(RulesTreeView treeView) throws Exception {
         this.treeView = treeView;
         model.redraw();
     }
 
     public void setTreeView(String name) throws Exception {
-        WebStudioViewMode mode = getTreeView(name);
+        RulesTreeView mode = getTreeView(name);
         setTreeView(mode);
     }
 
-    public WebStudioViewMode getTreeView(String name) {
-        for (WebStudioViewMode mode : viewModes) {
+    public RulesTreeView getTreeView(String name) {
+        for (RulesTreeView mode : treeViews) {
             if (name.equals(mode.getName())) {
                 return mode;
             }

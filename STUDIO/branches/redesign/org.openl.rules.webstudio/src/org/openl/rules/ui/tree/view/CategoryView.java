@@ -1,20 +1,19 @@
-package org.openl.rules.ui.view;
+package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
-import org.openl.rules.ui.tree.CategoryNTreeNodeBuilder;
 import org.openl.rules.ui.tree.CategoryPropertiesTableNodeBuilder;
+import org.openl.rules.ui.tree.CategoryTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ModulePropertiesTableNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
-public class BusinessViewMode3 implements WebStudioViewMode {
+public class CategoryView implements RulesTreeView {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
-        new ModulePropertiesTableNodeBuilder(),
-        new CategoryNTreeNodeBuilder(1, "-"),
-        new CategoryNTreeNodeBuilder(0, "-"),
+        new ModulePropertiesTableNodeBuilder(), 
+        new CategoryTreeNodeBuilder(),
         new CategoryPropertiesTableNodeBuilder(),
         new OpenMethodInstancesGroupTreeNodeBuilder(),
         new TableInstanceTreeNodeBuilder(),
@@ -23,21 +22,21 @@ public class BusinessViewMode3 implements WebStudioViewMode {
 
     @Override
     public String getName() {
-    	return "byCategoryInversed";
+    	return "category";
     }
     
     @Override
     public String getDisplayName() {
-    	return "By Category Inversed";
+    	return "Category";
     }
 
     @Override
     public String getDescription() {
-    	return "Provides inversed categorized view";
+    	return "Provides categorized view";
     }
 
     @SuppressWarnings("unchecked")
-    @Override
+	@Override
     public TreeNodeBuilder[] getBuilders() {
         return sorters;
     }

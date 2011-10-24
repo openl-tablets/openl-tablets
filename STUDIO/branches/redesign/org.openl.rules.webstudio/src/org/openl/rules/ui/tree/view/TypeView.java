@@ -1,18 +1,16 @@
-package org.openl.rules.ui.view;
+package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
 import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
+import org.openl.rules.ui.tree.TableTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.ui.tree.WorkbookTreeNodeBuilder;
-import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
-public class DeveloperByFileViewMode implements WebStudioViewMode {
+public class TypeView implements RulesTreeView {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
-        new WorkbookTreeNodeBuilder(),
-        new WorksheetTreeNodeBuilder(),
+        new TableTreeNodeBuilder(),
         new OpenMethodInstancesGroupTreeNodeBuilder(),
         new TableInstanceTreeNodeBuilder(),
         new TableVersionTreeNodeBuilder()
@@ -20,17 +18,17 @@ public class DeveloperByFileViewMode implements WebStudioViewMode {
 
     @Override
     public String getName() {
-    	return "byFile";
+    	return "type";
     }
-    
+
     @Override
     public String getDisplayName() {
-    	return "By File";
+    	return "Type";
     }
 
     @Override
     public String getDescription() {
-    	return "Organize projects by physical location";
+    	return "Organize projects by component type";
     }
 
     @SuppressWarnings("unchecked")

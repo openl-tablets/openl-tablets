@@ -13,7 +13,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 //import org.openl.rules.ui.tree.richfaces.TreeStateManager;
-import org.openl.rules.ui.view.WebStudioViewMode;
+import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.SequenceRowKey;
@@ -51,10 +51,10 @@ public class TreeBean {
     public List<SelectItem> getViews() {
         List<SelectItem> views = new ArrayList<SelectItem>();
         WebStudio studio = WebStudioUtils.getWebStudio();
-        WebStudioViewMode[] treeViews = studio.getTreeViews();
+        RulesTreeView[] treeViews = studio.getTreeViews();
         if (treeViews != null) {
-            for (WebStudioViewMode viewMode : treeViews) {
-                views.add(new SelectItem(viewMode.getName(), viewMode.getDisplayName()));
+            for (RulesTreeView viewMode : treeViews) {
+                views.add(new SelectItem(viewMode.getName(), "By " + viewMode.getDisplayName()));
             }
         }
         return views;
