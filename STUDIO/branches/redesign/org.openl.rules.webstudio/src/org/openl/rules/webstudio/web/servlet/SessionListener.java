@@ -3,14 +3,11 @@ package org.openl.rules.webstudio.web.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 import javax.servlet.http.*;
 
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
     private static final Log LOG = LogFactory.getLog(SessionListener.class);
-
-    // Session Attribute
 
     private RulesUserSession getUserRules(HttpSession session) {
         return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
@@ -48,8 +45,6 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         } else {
             LOG.debug("has rulesUserSession (why?)");
         }
-
-        WebStudioUtils.getWebStudio(event.getSession(), true);
     }
 
     public void sessionDestroyed(HttpSessionEvent event) {
