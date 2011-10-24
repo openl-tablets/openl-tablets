@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,8 +61,7 @@ public class WebStudio {
     private WebStudioViewMode BUSINESS2_VIEW = new BusinessViewMode2();
     private WebStudioViewMode BUSINESS3_VIEW = new BusinessViewMode3();
 
-    private WebStudioViewMode[] businessModes = { BUSINESS1_VIEW, BUSINESS2_VIEW, BUSINESS3_VIEW };
-    private WebStudioViewMode[] developerModes = { DEVELOPER_BYTYPE_VIEW, DEVELOPER_BYFILE_VIEW };
+    private WebStudioViewMode[] viewModes = { DEVELOPER_BYTYPE_VIEW, DEVELOPER_BYFILE_VIEW, BUSINESS1_VIEW, BUSINESS2_VIEW, BUSINESS3_VIEW };
 
     private String workspacePath;
     private ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
@@ -73,8 +71,10 @@ public class WebStudio {
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
 
-    private WebStudioViewMode tableView = BUSINESS1_VIEW;
-    private WebStudioViewMode treeView = BUSINESS1_VIEW;
+    private WebStudioViewMode treeView = DEVELOPER_BYTYPE_VIEW;
+    // TODO Use constant from IXlsTableNames
+    private String tableView = "developer";
+
     private Module currentModule;
     private boolean showFormulas;
     private boolean collapseProperties = true;
@@ -141,7 +141,7 @@ public class WebStudio {
     }
 
     public WebStudioViewMode[] getTreeViews() {
-        return (WebStudioViewMode[]) ArrayUtils.addAll(businessModes, developerModes);
+        return viewModes;
     }
 
     public void addBenchmark(BenchmarkInfo bi) {
@@ -236,19 +236,14 @@ public class WebStudio {
         return projectResolver;
     }
 
-    public WebStudioViewMode getTableView() {
-        return tableView;
-    }
-
     public WebStudioViewMode getTreeView() {
         return treeView;
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return Returns the model.
-     */
+    public String getTableView() {
+        return tableView;
+    }
+
     public ProjectModel getModel() {
         return model;
     }
@@ -365,14 +360,14 @@ public class WebStudio {
     }
 
     public void switchTableView(String view) {
-        if (tableView.getType().equals(view)) {
+        if (tableView.equals(view)) {
             return;
         }
 
         if ("developer".equals(view)) {
-            tableView = developerModes[0];
+            tableView = view;
         } else {
-            tableView = businessModes[0];
+            tableView = "business";
         }
     }
 
@@ -382,17 +377,12 @@ public class WebStudio {
     }
 
     public void setTreeView(String name) throws Exception {
-        WebStudioViewMode mode = getViewMode(name);
+        WebStudioViewMode mode = getTreeView(name);
         setTreeView(mode);
     }
 
-    public WebStudioViewMode getViewMode(String name) {
-        for (WebStudioViewMode mode : businessModes) {
-            if (name.equals(mode.getName())) {
-                return mode;
-            }
-        }
-        for (WebStudioViewMode mode : developerModes) {
+    public WebStudioViewMode getTreeView(String name) {
+        for (WebStudioViewMode mode : viewModes) {
             if (name.equals(mode.getName())) {
                 return mode;
             }

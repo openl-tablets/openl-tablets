@@ -7,7 +7,7 @@ import org.openl.rules.ui.tree.TableTreeNodeBuilder;
 import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 
-public class DeveloperByTypeViewMode extends BaseDeveloperViewMode {
+public class DeveloperByTypeViewMode implements WebStudioViewMode {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
         new TableTreeNodeBuilder(),
@@ -16,10 +16,19 @@ public class DeveloperByTypeViewMode extends BaseDeveloperViewMode {
         new TableVersionTreeNodeBuilder()
     };
 
-    public DeveloperByTypeViewMode() {
-        setName(getType() + ".byType");
-        displayName = "By Type";
-        description = "Developer Mode 1. Organize Project by component type";
+    @Override
+    public String getName() {
+    	return "byType";
+    }
+    
+    @Override
+    public String getDisplayName() {
+    	return "By Type";
+    }
+
+    @Override
+    public String getDescription() {
+    	return "Organize projects by component type";
     }
 
     @SuppressWarnings("unchecked")

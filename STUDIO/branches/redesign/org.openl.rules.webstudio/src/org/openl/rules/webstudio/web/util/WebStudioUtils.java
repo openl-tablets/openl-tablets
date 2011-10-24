@@ -55,7 +55,7 @@ public abstract class WebStudioUtils {
     }
 
     public static WebStudio getWebStudio(boolean create) {
-        return getWebStudio(FacesUtils.getSession(), create);
+        return getWebStudio(FacesUtils.getSession(create), create);
     }
 
     public static WebStudio getWebStudio(HttpSession session, boolean create) {

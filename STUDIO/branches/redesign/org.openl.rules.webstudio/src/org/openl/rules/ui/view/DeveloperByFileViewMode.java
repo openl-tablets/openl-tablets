@@ -8,7 +8,7 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.WorkbookTreeNodeBuilder;
 import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
-public class DeveloperByFileViewMode extends BaseDeveloperViewMode {
+public class DeveloperByFileViewMode implements WebStudioViewMode {
 
     private static final BaseTableTreeNodeBuilder[] sorters = {
         new WorkbookTreeNodeBuilder(),
@@ -18,10 +18,19 @@ public class DeveloperByFileViewMode extends BaseDeveloperViewMode {
         new TableVersionTreeNodeBuilder()
     };
 
-    public DeveloperByFileViewMode() {
-        setName(getType() + ".byFile");
-        displayName = "By File";
-        description = "Developer Mode 2. Organize project by physical location";
+    @Override
+    public String getName() {
+    	return "byFile";
+    }
+    
+    @Override
+    public String getDisplayName() {
+    	return "By File";
+    }
+
+    @Override
+    public String getDescription() {
+    	return "Organize projects by physical location";
     }
 
     @SuppressWarnings("unchecked")
