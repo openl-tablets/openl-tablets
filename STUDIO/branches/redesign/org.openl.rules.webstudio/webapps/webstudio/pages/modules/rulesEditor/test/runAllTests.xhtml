@@ -33,7 +33,7 @@
             </h:panelGroup>
         </h:panelGrid>
     
-        <a4j:repeat value="#{runAllTestsBean.ranTests}" var="test">
+        <a4j:repeat value="#{runAllTestsBean.ranTests}" var="test" binding="#{runAllTestsBean.currentTest}">
             <c:set value="#{test.testUnitsResults}" var="testUnitsResults" />
             <h1>
                 <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content"
@@ -61,13 +61,10 @@
                 </tr>
                 
                 <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
-                    <tr>
-                        <a4j:repeat value="#{testUnitsResults.testDataColumnHeaders}"
-                            binding="#{runAllTestsBean.testDataColumnHeaders}">
-                            <td>
-                                <h:outputText value="#{runAllTestsBean.formattedTestValue}" />
-                            </td>
-                        </a4j:repeat>
+                    <tr style="vertical-align: top">
+                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                            <ui:param name="args" value="#{runAllTestsBean.paramDescriptions}" />
+                        </ui:include>
                         <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                         <td>
                         	<h:outputText value="#{runAllTestsBean.unitDescription}" />

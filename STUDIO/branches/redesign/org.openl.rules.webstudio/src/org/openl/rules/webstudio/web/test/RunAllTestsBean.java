@@ -11,6 +11,8 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 
+import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tests.results.RanTestsResults;
@@ -30,7 +32,7 @@ public class RunAllTestsBean {
     private RanTestsResults testsResult;
 
     private UIRepeat testUnits;
-    private UIRepeat testDataColumnHeaders;
+    private UIRepeat currentTest;
 
     public RunAllTestsBean() {
         String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
@@ -84,12 +86,12 @@ public class RunAllTestsBean {
         this.testUnits = testItems;
     }
 
-    public UIRepeat getTestDataColumnHeaders() {
-        return testDataColumnHeaders;
+    public UIRepeat getCurrentTest() {
+        return currentTest;
     }
 
-    public void setTestDataColumnHeaders(UIRepeat testDataColumnHeaders) {
-        this.testDataColumnHeaders = testDataColumnHeaders;
+    public void setCurrentTest(UIRepeat currentTest) {
+        this.currentTest = currentTest;
     }
     
     /**     
@@ -185,15 +187,11 @@ public class RunAllTestsBean {
         return testUnit.compareResult();
     }
 
-    public Object getTestValue() {
+    public ExecutionParamDescription[] getParamDescriptions(){
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
-        String header = (String) testDataColumnHeaders.getRowData();
-        return testUnit.getFieldValue(header);
-    }
-
-    public String getFormattedTestValue(){
-        Object testValue = getTestValue();
-        return TestResultsHelper.format(testValue);
+        Test test = (Test)currentTest.getRowData();
+        TestDescription testDescription = new TestDescription(test.getMethod().getTestedMethod(), testUnit.getTestObj());
+        return testDescription.getExecutionParams();
     }
     
     public String getUnitDescription() {

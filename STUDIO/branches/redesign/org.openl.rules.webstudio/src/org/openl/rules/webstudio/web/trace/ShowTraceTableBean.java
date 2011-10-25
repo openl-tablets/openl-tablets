@@ -5,12 +5,15 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.rules.testmethod.ExecutionParamDescription;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
@@ -64,6 +67,34 @@ public class ShowTraceTableBean {
     public String getTraceTableView() {
         ProjectModel model = WebStudioUtils.getProjectModel();
         return model.getTableView(FacesUtils.getRequestParameter("view"));
+    }
+    
+    public ExecutionParamDescription[] getExecutionParams() {
+        ITableTracerObject tto = traceHelper.getTableTracer(traceElementId);
+        if (tto != null) {
+            if (tto instanceof ATableTracerNode) {
+                return getExecutionParams((ATableTracerNode) tto);
+            } else if (tto.getParent() instanceof ATableTracerNode) {
+                // ATableTracerLeaf
+                return getExecutionParams((ATableTracerNode) tto.getParent());
+            }
+        }
+        return null;
+    }
+    
+    public ExecutionParamDescription[] getExecutionParams(ATableTracerNode tracerNode){
+        Object[] parameters = tracerNode.getParameters();
+        if (tracerNode.getTraceObject() instanceof ExecutableRulesMethod) {
+            ExecutableRulesMethod tracedMethod = (ExecutableRulesMethod) tracerNode.getTraceObject();
+            ExecutionParamDescription[] paramDescriptions = new ExecutionParamDescription[parameters.length];
+            for (int i = 0; i < paramDescriptions.length; i++) {
+                paramDescriptions[i] = new ExecutionParamDescription(tracedMethod.getSignature().getParameterName(i),
+                    parameters[i]);
+            }
+            return paramDescriptions;
+        } else {
+            return null;
+        }
     }
 
     public List<OpenLMessage> getErrors() {
