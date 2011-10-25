@@ -25,7 +25,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author DLiauchuk
  *
  */
-@ManagedBean(name="bussinesSearch")
+@ManagedBean(name="bussinessSearch")
 @RequestScoped
 public class BussinesSearchPropertyBean {
 
