@@ -335,7 +335,6 @@ public class WebStudio {
 
     public ProjectDescriptor getProject(final String id) {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
-            @Override
             public boolean evaluate(Object project) {
                 return ((ProjectDescriptor) project).getId().equals(id);
             }

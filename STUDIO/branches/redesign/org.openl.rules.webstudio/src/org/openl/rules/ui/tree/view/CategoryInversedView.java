@@ -21,23 +21,19 @@ public class CategoryInversedView implements RulesTreeView {
         new TableVersionTreeNodeBuilder()
     };
 
-    @Override
     public String getName() {
     	return "categoryInversed";
     }
     
-    @Override
     public String getDisplayName() {
     	return "Category Inversed";
     }
 
-    @Override
     public String getDescription() {
     	return "Provides inversed categorized view";
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public TreeNodeBuilder[] getBuilders() {
         return sorters;
     }

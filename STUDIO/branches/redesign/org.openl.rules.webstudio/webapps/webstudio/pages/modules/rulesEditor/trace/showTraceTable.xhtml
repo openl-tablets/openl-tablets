@@ -13,13 +13,12 @@
     </h:panelGroup>
 
     <h:panelGroup rendered="#{empty param.first}">
-        <table>
-            <tr>
-                <td>
-                    <h:outputText value=" #{showTraceTableBean.tracerName}" />
-                </td>
-                <td>
-                    <ui:include src="/pages/common/tableViewMenu.xhtml" />
+        <table style="vertical-align:top">
+            <tr style="vertical-align: top">
+                <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                    <ui:param name="args" value="#{showTraceTableBean.executionParams}" />
+                </ui:include>
+                <td><ui:include src="/pages/common/tableViewMenu.xhtml" />
                 </td>
             </tr>
         </table>

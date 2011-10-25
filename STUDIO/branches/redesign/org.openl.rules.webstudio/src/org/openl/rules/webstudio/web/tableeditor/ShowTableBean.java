@@ -34,6 +34,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
@@ -475,7 +476,7 @@ public class ShowTableBean {
         public boolean isNotEmpty() {
             if (ArrayUtils.isNotEmpty(tests)) {
                 for (TestProxy testProxy : getTests()) {
-                    String[] descriptions = testProxy.getDescriptions();
+                    TestDescription[] descriptions = testProxy.getDescriptions();
                     if (ArrayUtils.isNotEmpty(descriptions)) {
                         return true;
                     }
@@ -483,7 +484,7 @@ public class ShowTableBean {
             }
             return false;
         }
-
+        
         public class TestProxy {
 
             int index;
@@ -492,13 +493,8 @@ public class ShowTableBean {
                 this.index = index;
             }
 
-            public String[] getDescriptions() {
-                Test test = getTest();
-                String[] descriptions = new String[test.ntests()];
-                for (int i = 0; i < descriptions.length; i++) {
-                    descriptions[i] = test.getTestDescription(i);
-                }
-                return descriptions;
+            public TestDescription[] getDescriptions() {
+                return getTest().getTestDescriptions();
             }
 
             private Test getTest() {

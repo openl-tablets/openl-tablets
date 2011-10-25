@@ -1,0 +1,15 @@
+<ui:composition xmlns:f="http://java.sun.com/jsf/core" xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:h="http://java.sun.com/jsf/html" xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <a4j:repeat var="param" value="#{args}" binding="#{testTreeBuilder.executionParam}">
+        <td>
+            <rich:tree toggleType="client" selectionType="client" value="#{testTreeBuilder.root}" var="item">
+                <rich:treeNode>
+                    <h:outputText value="#{item.treeText}" />
+                </rich:treeNode>
+            </rich:tree>
+        </td>
+    </a4j:repeat>
+
+</ui:composition>

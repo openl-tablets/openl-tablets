@@ -16,23 +16,19 @@ public class TypeView implements RulesTreeView {
         new TableVersionTreeNodeBuilder()
     };
 
-    @Override
     public String getName() {
     	return "type";
     }
 
-    @Override
     public String getDisplayName() {
     	return "Type";
     }
 
-    @Override
     public String getDescription() {
     	return "Organize projects by component type";
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public TreeNodeBuilder[] getBuilders() {
         return sorters;
     }

@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tests.results;
 
+import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -37,8 +38,12 @@ public class Test {
         return testUnitsResults;
     }
 
-    public String getTestDescription(int i) {
+    public TestDescription getTestDescription(int i) {
         return method.getTestDescriptions()[i];
+    }
+
+    public TestDescription[] getTestDescriptions() {
+        return method.getTestDescriptions();
     }
 
     public String getUri() {

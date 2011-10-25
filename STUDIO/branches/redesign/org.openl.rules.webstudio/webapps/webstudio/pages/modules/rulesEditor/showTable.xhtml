@@ -265,51 +265,46 @@
     <c:if test="#{testResult.notEmpty and !showTableBean.hasErrors}">
         <h3>Available Runs:</h3>
         <c:forEach var="test" items="#{testResult.tests}">
-            <c:forEach var="description"
-                items="#{test.descriptions}" varStatus="status">
-                <p>
-                    <h:panelGroup rendered="#{showTableBean.testable}">
-                        <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-                        <h:outputLink value="#{rulesEditor}/test/runAllTests.xhtml" title="Test" target="content">
-                            <f:param value="#{showTableBean.uri}" name="uri" />
-                            <f:param value="#{test.testName}" name="testName" />
-                            <f:param value="#{status.index}" name="testID" />
-                            <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
-                        </h:outputLink>
-                     </h:panelGroup>
-
-                    <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml" title="Run" target="content">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <f:param value="#{test.testName}" name="testName" />
-                        <f:param value="#{status.index}" name="testID" />
-                        <f:param value="#{description}" name="testDescr" />
-                        <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
-                    </h:outputLink>
-                    <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <c:set var="traceUrl"
-                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{status.index}" />
-                    <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
-                        <img src="webresource/images/trace.gif"
-                            title="Trace" alt="Trace" /></a>
-                    <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <h:outputLink value="#{rulesEditor}/test/benchmarkMethod.xhtml" title="Benchmark" target="content">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <f:param value="#{test.testName}" name="testName" />
-                        <f:param value="#{status.index}" name="testID" />
-                        <f:param value="#{description}" name="testDescr" />
-                        <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
-                    </h:outputLink>
-                    <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <f:param value="#{test.testName}" name="testName" />
-                        <f:param value="#{status.index}" name="testID" />
-                        <f:param value="#{description}" name="testDescr" />
-                        <h:outputText value="#{description}" />
-                    </h:outputLink>
-                </p>
-            </c:forEach>
+            <table>
+                <a4j:repeat var="description" value="#{test.descriptions}" rowKeyVar="rowIndex">
+                    <tr style="vertical-align: top">
+                        <td><h:panelGroup rendered="#{showTableBean.testable}">
+                                <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                <h:outputLink value="#{rulesEditor}/test/runAllTests.xhtml" title="Test"
+                                    target="content">
+                                    <f:param value="#{showTableBean.uri}" name="uri" />
+                                    <f:param value="#{test.testName}" name="testName" />
+                                    <f:param value="#{rowIndex}" name="testID" />
+                                    <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
+                                </h:outputLink>
+                            </h:panelGroup></td>
+                        <td><h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml" title="Run"
+                                target="content">
+                                <f:param value="#{showTableBean.uri}" name="uri" />
+                                <f:param value="#{test.testName}" name="testName" />
+                                <f:param value="#{rowIndex}" name="testID" />
+                                <f:param value="#{description}" name="testDescr" />
+                                <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
+                            </h:outputLink></td>
+                        <td><c:set var="traceUrl"
+                                value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testName=#{test.testName}&amp;testID=#{rowIndex}" />
+                            <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#"> <img
+                                src="webresource/images/trace.gif" title="Trace" alt="Trace" />
+                        </a></td>
+                        <td><h:outputLink value="#{rulesEditor}/test/benchmarkMethod.xhtml" title="Benchmark"
+                                target="content">
+                                <f:param value="#{showTableBean.uri}" name="uri" />
+                                <f:param value="#{test.testName}" name="testName" />
+                                <f:param value="#{rowIndex}" name="testID" />
+                                <f:param value="#{description}" name="testDescr" />
+                                <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
+                            </h:outputLink></td>
+                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                            <ui:param name="args" value="#{description.executionParams}" />
+                        </ui:include>
+                    </tr>
+                </a4j:repeat>
+            </table>
         </c:forEach>
     </c:if>
 
