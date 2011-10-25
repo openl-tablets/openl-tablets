@@ -40,39 +40,41 @@
             }
         </style>
 
-        <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
-            <ul>
-                <a4j:repeat value="#{studio.allProjects}" var="project">
-                <li style="margin-bottom: 4px">
-                    <a style="color: #337AB6" href="#">#{project.name}</a>
-                    <ul style="margin-left: 9px">
-                        <a4j:repeat value="#{project.modules}" var="module">
-                        <li>
-                            <a4j:commandLink action="#{mainBean.selectModule}"
-                                onclick="selectModule(this)" render="rulesTab toolbar problemsTab content"
-                                execute="@this" oncomplete="RichFaces.$('leftTabPanel').switchToItem('rulesTab');">
-                                #{module.name}
-                                <f:param name="project" value="#{module.project.id}" />
-                                <f:param name="module" value="#{module.name}" />
-                            </a4j:commandLink>
-                        </li>
-                        </a4j:repeat>
-                    </ul>
-                </li>
-                </a4j:repeat>
-            </ul>
-        </h:panelGroup>
-
-        <h:panelGroup rendered="#{empty studio.allProjects}">
-            <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
-            <br />
-            <c:if test="true">
-                Please go to the
-                <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
-                    title="Repository"><h:outputText value="Repository" /></a>
-                to create (upload) a new project
-            </c:if>
-        </h:panelGroup>
+        <h:form prependId="false">
+            <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
+                <ul>
+                    <a4j:repeat value="#{studio.allProjects}" var="project">
+                    <li style="margin-bottom: 4px">
+                        <a style="color: #337AB6" href="#">#{project.name}</a>
+                        <ul style="margin-left: 9px">
+                            <a4j:repeat value="#{project.modules}" var="module">
+                            <li>
+                                <a4j:commandLink action="#{mainBean.selectModule}"
+                                    onclick="selectModule(this)" render="rulesTab toolbar problemsTab content"
+                                    execute="@this" oncomplete="RichFaces.$('leftTabPanel').switchToItem('rulesTab');">
+                                    #{module.name}
+                                    <f:param name="project" value="#{module.project.id}" />
+                                    <f:param name="module" value="#{module.name}" />
+                                </a4j:commandLink>
+                            </li>
+                            </a4j:repeat>
+                        </ul>
+                    </li>
+                    </a4j:repeat>
+                </ul>
+            </h:panelGroup>
+    
+            <h:panelGroup rendered="#{empty studio.allProjects}">
+                <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
+                <br />
+                <c:if test="true">
+                    Please go to the
+                    <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
+                        title="Repository"><h:outputText value="Repository" /></a>
+                    to create (upload) a new project
+                </c:if>
+            </h:panelGroup>
+        </h:form>
 
         <script>
             //$j("#projects").jstree({themes:{dots: false, icons: false}});

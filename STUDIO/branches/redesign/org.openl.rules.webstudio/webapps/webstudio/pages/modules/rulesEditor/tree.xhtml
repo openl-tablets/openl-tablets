@@ -5,21 +5,23 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
     template="/pages/layout/view.xhtml">
 
     <ui:define name="toolbar">
-        <c:set var="project" value="#{studio.currentProject}" />
-        <h:panelGroup rendered="#{project != null}" layout="block" styleClass="treeMenu">
-            <h:selectOneMenu value="#{treeBean.currentView}">
-                <f:selectItems value="#{treeBean.views}" />
-                <f:ajax event="change" render="projectTree" />
-            </h:selectOneMenu>
-        </h:panelGroup>
+        <h:form>
+            <h:panelGroup id="rulesTreeView">
+                <h:panelGroup rendered="#{studio.currentProject != null}" layout="block" styleClass="treeMenu">
+                    <h:selectOneMenu value="#{treeBean.currentView}">
+                        <f:selectItems value="#{treeBean.views}" />
+                        <f:ajax event="change" render=":rulesTree" />
+                    </h:selectOneMenu>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
     </ui:define>
 
     <ui:define name="workspace">
-        <rich:tree id="projectTree" styleClass="tree" value="#{treeBean.tree}" var="node" nodeType="#{node.type}"
+        <rich:tree id="rulesTree" styleClass="tree" value="#{treeBean.tree}" var="node" nodeType="#{node.type}"
             toggleType="client" nodeClass="#{node.active ? '' : 'treeNodeInactive'}" selection="#{treeBean.selected}">
             <rich:treeNode type="folder"
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/tree/folder-error.png' : 'webresource/images/tree/folder.png'}"
