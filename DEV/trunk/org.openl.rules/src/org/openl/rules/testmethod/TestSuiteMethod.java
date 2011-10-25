@@ -5,7 +5,6 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMethodSignature;
@@ -16,7 +15,6 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.util.Log;
-import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
@@ -73,30 +71,16 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return getSyntaxNode().getUri();
     }
 
-    public String[] getTestDescriptions() {
+    public TestDescription[] getTestDescriptions() {
         
         Object testArray = getBoundNode().getField().getData();
 
         DynamicObject[] dd = (DynamicObject[]) testArray;
 
-        String[] descriptions = new String[dd.length];
+        TestDescription[] descriptions = new TestDescription[dd.length];
 
         for (int i = 0; i < descriptions.length; i++) {
-            
-            String description = (String) dd[i].getFieldValue(TestMethodHelper.DESCRIPTION_NAME);
-            
-            if (description == null) {
-                if (testedMethod.getSignature().getNumberOfParameters() > 0) {
-                    String name = testedMethod.getSignature().getParameterName(0);
-                    Object value = dd[i].getFieldValue(name);
-                    IFormatter formatter = FormattersManager.getFormatter(value);
-                    description = formatter.format(value);
-                } else {
-                    description = "Run with no parameters";
-                }
-            }
-            
-            descriptions[i] = description;
+            descriptions[i] = new TestDescription(testedMethod, dd[i]);
         }
 
         return descriptions;
@@ -228,6 +212,17 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         Object testArray = getBoundNode().getField().get(target, env);
 
         DynamicObject[] dd = (DynamicObject[]) testArray;
+//        Class<? extends Object> class1 = dd[0].getFieldValue("policy").getClass();
+//        try {
+//            Method method = class1.getMethod("getVehicles");
+//            Object[] arr = (Object[])method.invoke(dd[0].getFieldValue("policy"), new Object[]{});
+//            for(Object object: arr){
+//                ClassLoader classLoader = object.getClass().getClassLoader();
+//                System.out.println(classLoader);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         IOpenClass dclass = getMethodBasedClass();
         IMethodSignature msign = testedMethod.getSignature();

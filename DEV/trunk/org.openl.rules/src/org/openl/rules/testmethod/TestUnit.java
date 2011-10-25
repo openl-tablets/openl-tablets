@@ -133,4 +133,7 @@ public class TestUnit {
 		return testObj.getFieldValue(fieldName);
 	}
 
+    public DynamicObject getTestObj() {
+        return testObj;
+    }
 }
