@@ -6,7 +6,7 @@ import org.openl.types.IOpenSchema;
 public class JavaOpenEnum extends JavaOpenClass {
 
     protected JavaOpenEnum(Class<?> instanceClass, IOpenSchema schema) {
-        super(instanceClass, schema);
+        super(instanceClass, schema, true);
         domain = new JavaEnumDomain(this);
     }
 
