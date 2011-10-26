@@ -61,6 +61,25 @@ form {
     margin: 0px;
 }
 
+#blockPopup {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background: #BBBBBB;
+	opacity: 0.1;
+	filter: alpha(opacity = 10);
+	z-index: 10000;
+}
+
+#ajaxLoader {
+	position: fixed;
+	top: 17px;
+	left: 49%;
+	z-index: 10001;
+}
+
 .info_box {
     padding: 12px 7px 13px 43px;
     background: url(webresource/images/info32.png) no-repeat 5px #D8E3F8;
