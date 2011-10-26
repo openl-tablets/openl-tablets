@@ -31,6 +31,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * TODO Remove JSF dependency
+ * TODO Separate user session from app session
  * 
  * @author snshor
  */
@@ -64,6 +66,8 @@ public class WebStudio {
     private static final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW,
         CATEGORY_DETAILED_VIEW, CATEGORY_INVERSED_VIEW };
 
+    private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
+
     private String workspacePath;
     private ArrayList<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
     private List<StudioListener> listeners = new ArrayList<StudioListener>();
@@ -80,11 +84,11 @@ public class WebStudio {
     private boolean showFormulas;
     private boolean collapseProperties = true;
 
-    private WebStudioProperties properties = new WebStudioProperties();
-
     private RulesProjectDependencyManager dependencyManager;
 
     private ConfigManager systemConfigManager;
+    private ConfigManager userSettingsManager;
+
     private boolean needRestart = false;
 
     public WebStudio(HttpSession session) {
@@ -103,13 +107,20 @@ public class WebStudio {
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
         }
+
+        userSettingsManager = new ConfigManager(false,
+                systemConfigManager.getStringProperty("user.settings.home") + File.separator
+                    + WebStudioUtils.getRulesUserSession(session).getUserName() + File.separator
+                    + USER_SETTINGS_FILENAME,
+                session.getServletContext().getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME));
+
         initDependencyManager();
     }
 
     public WebStudio() {
         this(FacesUtils.getSession());
     }
-    
+
     private void initDependencyManager() {
         this.dependencyManager = new RulesProjectDependencyManager();
         
@@ -124,6 +135,10 @@ public class WebStudio {
 
     public ConfigManager getSystemConfigManager() {
         return systemConfigManager;
+    }
+
+    public ConfigManager getUserSettingsManager() {
+        return userSettingsManager;
     }
 
     public boolean init(HttpSession session) {
@@ -247,10 +262,6 @@ public class WebStudio {
 
     public ProjectModel getModel() {
         return model;
-    }
-
-    public WebStudioProperties getProperties() {
-        return properties;
     }
 
     public String getTableUri() {
@@ -389,10 +400,6 @@ public class WebStudio {
             }
         }
         return null;
-    }
-
-    public void setProperties(WebStudioProperties properties) {
-        this.properties = properties;
     }
 
     public void setTableUri(String tableUri) {
