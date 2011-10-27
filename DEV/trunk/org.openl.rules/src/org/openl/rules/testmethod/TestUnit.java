@@ -1,5 +1,7 @@
 package org.openl.rules.testmethod;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.openl.types.impl.DynamicObject;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.NumberUtils;
@@ -21,13 +23,24 @@ public class TestUnit {
 	private Object expectedResult;
 
 	private Object actualResult;
+	
+	private String nameOfExpectedResult;
 
 	public static final String DEFAULT_DESCRIPTION = "No Description";
-
+	
 	public TestUnit(DynamicObject obj, Object res, Throwable exception) {
+	    this(obj, res, exception, null);
+	}
+	
+	public TestUnit(DynamicObject obj, Object res, Throwable exception, String nameOfExpectedResult) {
 		this.exception = exception;
 		this.runningResult = res;
 		this.testObj = obj;
+		if (StringUtils.isNotBlank(nameOfExpectedResult)) {
+		    this.nameOfExpectedResult = nameOfExpectedResult;
+		} else {
+		    this.nameOfExpectedResult = TestMethodHelper.EXPECTED_RESULT_NAME;
+		}
 	}
 
 	private void initExpectedResult() {
@@ -38,7 +51,19 @@ public class TestUnit {
 		        return;
 		    }
 		}
-		expectedResult = getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME);		
+		expectedResult = getFieldValue(nameOfExpectedResult);		
+	}
+	
+	protected DynamicObject getTestObject() {
+	    return testObj;
+	}
+	
+	protected Object getRunningResult() {
+	    return runningResult;
+	}
+	
+	protected Throwable getException() {
+	    return exception;
 	}
 	
 	/**

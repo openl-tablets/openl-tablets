@@ -53,7 +53,7 @@ public class ByteCodeGeneratorHelper {
         if (fieldClass != null) {
             return ByteCodeGeneratorHelper.getJavaType(fieldClass);
         } else {
-            return JavaClassGeneratorHelper.getJavaType(fieldType.getTypeName());
+            return JavaClassGeneratorHelper.getJavaType(fieldType.getCanonicalTypeName());
         }
     }
 

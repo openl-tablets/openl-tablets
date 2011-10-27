@@ -4,8 +4,10 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.types.IMethodSignature;
 import org.openl.types.impl.DynamicObject;
 
@@ -37,10 +39,9 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public void addTestUnit(DynamicObject testObj, Object res, Throwable ex) {
-        
-        TestUnit testUnit = new TestUnit(testObj, res, ex);
-        testUnits.add(testUnit);
-    }
+        List<TestUnit> testUnits = TestMethodFactory.createTestUnits(testSuite.getTestedMethod(), testObj, res, ex);
+        this.testUnits.addAll(testUnits);
+    }    
     
     @Deprecated
     public Object getExpected(int i) {

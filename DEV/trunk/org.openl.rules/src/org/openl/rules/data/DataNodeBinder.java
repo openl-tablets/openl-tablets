@@ -50,7 +50,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext,
             XlsModuleOpenClass module,
             DataTableBoundNode dataNode,
-            String tableName) {
+            String tableName, TableSyntaxNode tsn) {
 
         return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
     }
@@ -80,7 +80,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
 
-        IOpenClass tableType = getTableType(typeName, bindingContext, module, dataNode, tableName);
+        IOpenClass tableType = getTableType(typeName, bindingContext, module, dataNode, tableName, tableSyntaxNode);
 
         if (tableType == null) {
             String message = String.format("Type not found: '%s'", typeName);
