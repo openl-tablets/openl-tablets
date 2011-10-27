@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -198,11 +199,20 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
         for (int i = 0; i < testArrayDynamicObj.length; i++) {
             if (testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_RESULT_NAME) || 
-                    testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_ERROR)) {
+                    testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_ERROR) || containsFieldsForSprCellTests(testArrayDynamicObj[i].getFieldValues().keySet())) {
                 return true;
             }
         }
 
+        return false;
+    }
+    
+    private boolean containsFieldsForSprCellTests(Set<String> fieldNames) {
+        for (String fieldName : fieldNames) {
+            if (fieldName.startsWith("$")) {
+                return true;
+            }
+        }
         return false;
     }
 
