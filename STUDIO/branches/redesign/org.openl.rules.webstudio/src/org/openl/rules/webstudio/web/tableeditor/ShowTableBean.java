@@ -437,7 +437,7 @@ public class ShowTableBean {
     public void switchView() {
         String view = FacesUtils.getRequestParameter("view");
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.switchTableView(view);
+        studio.setTableView(view);
     }
 
     public void setShowFormulas() {

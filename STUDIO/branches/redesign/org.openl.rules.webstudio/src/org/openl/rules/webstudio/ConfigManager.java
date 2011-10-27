@@ -28,6 +28,7 @@ public class ConfigManager {
     private boolean useSystemProperties;
     private String propsLocation;
     private String defaultPropsLocation;
+    private boolean autoSave;
 
     private Configuration systemConfiguration;
     private FileConfiguration configurationToSave;
@@ -36,9 +37,15 @@ public class ConfigManager {
 
     public ConfigManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation) {
+        this(useSystemProperties, propsLocation, defaultPropsLocation, false);
+    }
+
+    public ConfigManager(boolean useSystemProperties,
+            String propsLocation, String defaultPropsLocation, boolean autoSave) {
         this.useSystemProperties = useSystemProperties;
         this.propsLocation = propsLocation;
         this.defaultPropsLocation = defaultPropsLocation;
+        this.autoSave = autoSave;
 
         init();
     }
@@ -54,6 +61,9 @@ public class ConfigManager {
         configurationToSave = createFileConfiguration(propsLocation, true);
         if (configurationToSave != null) {
             compositeConfiguration.addConfiguration(configurationToSave);
+            if (autoSave) {
+                configurationToSave.setAutoSave(autoSave);
+            }
         }
 
         defaultConfiguration = createFileConfiguration(defaultPropsLocation);

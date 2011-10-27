@@ -76,12 +76,12 @@ public class WebStudio {
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
 
-    private RulesTreeView treeView = TYPE_VIEW;
-    // TODO Use constant from IXlsTableNames
-    private String tableView = "developer";
+    private RulesTreeView treeView;
+    private String tableView;
+    private boolean showFormulas;
 
     private Module currentModule;
-    private boolean showFormulas;
+
     private boolean collapseProperties = true;
 
     private RulesProjectDependencyManager dependencyManager;
@@ -112,9 +112,17 @@ public class WebStudio {
                 systemConfigManager.getStringProperty("user.settings.home") + File.separator
                     + WebStudioUtils.getRulesUserSession(session).getUserName() + File.separator
                     + USER_SETTINGS_FILENAME,
-                session.getServletContext().getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME));
+                session.getServletContext().getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME), true);
+
+        initUserSettings();
 
         initDependencyManager();
+    }
+
+    private void initUserSettings() {
+        treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
+        tableView = userSettingsManager.getStringProperty("table.view");
+        showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
     }
 
     public WebStudio() {
@@ -260,6 +268,11 @@ public class WebStudio {
         return tableView;
     }
 
+    public void setTableView(String tableView) {
+        this.tableView = tableView;
+        userSettingsManager.setProperty("table.view", tableView);
+    }
+
     public ProjectModel getModel() {
         return model;
     }
@@ -371,21 +384,10 @@ public class WebStudio {
         }
     }
 
-    public void switchTableView(String view) {
-        if (tableView.equals(view)) {
-            return;
-        }
-
-        if ("developer".equals(view)) {
-            tableView = view;
-        } else {
-            tableView = "business";
-        }
-    }
-
     public void setTreeView(RulesTreeView treeView) throws Exception {
         this.treeView = treeView;
         model.redraw();
+        userSettingsManager.setProperty("rules.tree.view", treeView.getName());
     }
 
     public void setTreeView(String name) throws Exception {
@@ -412,6 +414,7 @@ public class WebStudio {
 
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
+        userSettingsManager.setProperty("table.formulas.show", showFormulas);
     }
 
     public boolean isCollapseProperties() {
