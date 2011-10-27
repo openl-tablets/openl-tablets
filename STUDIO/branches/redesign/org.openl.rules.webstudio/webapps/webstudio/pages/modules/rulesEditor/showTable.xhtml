@@ -208,18 +208,18 @@
         }
 
         function onBeforeSave() {
-            RichFaces.$('saveWindow').show();
+            showLoader();
         }
 
         function onAfterSave() {
-            RichFaces.$('saveWindow').hide();
+            hideLoader();
 
             top.main.leftFrame.location.href =
                 "#{contextPath}/faces/openTable.xhtml?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
         }
 
         function onSaveFailure() {
-            RichFaces.$('saveWindow').hide();
+            hideLoader();
         }
     </script>
 

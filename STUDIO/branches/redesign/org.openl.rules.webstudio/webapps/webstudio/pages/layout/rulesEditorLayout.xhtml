@@ -7,8 +7,7 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:a4j="http://richfaces.org/a4j">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
@@ -43,7 +42,9 @@
                 });
 
                 $j("a[target='content']").live("click", function() {
+                    showLoader();
                     $j("#content").load($j(this).attr("href"));
+                    hideLoader();
                     return false;
                 });
 
@@ -104,22 +105,23 @@
             </ui:insert>
         </div>
 
-        <rich:popupPanel id="saveWindow" height="43" width="105" top="200" left="220"
-            style="text-align:center; background:#fff; border-color:#B4C8FF; color:#323232">
-            <h:panelGrid columns="2">
-                <h:outputText value="Saving... " />
-                <img src="webresource/images/ajax-loader.gif" />
-            </h:panelGrid>
-        </rich:popupPanel>
+        <div id="blockPopup" style="display: none"></div>
+        <div id="ajaxLoader" style="display: none">
+            <img src="webresource/images/ajax-loader.gif" />
+        </div>
 
-        <a4j:status>
-            <f:facet name="start">
-                <div id="blockPopup"></div>
-                <div id="ajaxLoader">
-                    <img src="webresource/images/ajax-loader.gif" />
-                </div>
-            </f:facet>
-        </a4j:status>
+        <script>
+            function showLoader() {
+                $j('#blockPopup').fadeIn(500);
+                $j('#ajaxLoader').show();
+            }
+            function hideLoader() {
+                $j('#blockPopup').hide();
+                $j('#ajaxLoader').slideUp();
+            }
+        </script>
+
+        <a4j:status onstart="showLoader()" onstop="hideLoader()" />
 
         <iframe src="#{contextPath}/pages/modules/rulesEditor/sourceModified.xhtml"
             style="visibility: hidden" width="0" height="0" />

@@ -87,13 +87,22 @@
         </div>
         <ui:insert name="special" />
 
-        <a4j:status>
-            <f:facet name="start">
-                <div id="blockPopup"></div>
-                <div id="ajaxLoader">
-                    <img src="webresource/images/ajax-loader.gif" />
-                </div>
-            </f:facet>
-        </a4j:status>
+        <div id="blockPopup" style="display: none"></div>
+        <div id="ajaxLoader" style="display: none">
+            <img src="webresource/images/ajax-loader.gif" />
+        </div>
+
+        <script>
+            function showLoader() {
+                $j('#blockPopup').fadeIn(900);
+                $j('#ajaxLoader').show();
+            }
+            function hideLoader() {
+                $j('#blockPopup').hide();
+                $j('#ajaxLoader').slideUp();
+            }
+        </script>
+
+        <a4j:status onstart="showLoader()" onstop="hideLoader()" />
     </h:body>
 </html>
