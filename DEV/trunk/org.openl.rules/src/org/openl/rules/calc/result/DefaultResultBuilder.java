@@ -1,8 +1,8 @@
 package org.openl.rules.calc.result;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.element.SpreadsheetCellField;
@@ -27,7 +27,20 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result);
         
-        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, fieldsCoordinates);
+
+        Constructor<?> constructor = null;
+        try {
+            constructor = result.getSpreadsheet().getType().getInstanceClass().getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+        } catch (Exception e1) {
+            //TODO: add logger
+        }
+        
+        SpreadsheetResult spreadsheetBean = null;
+        try {
+            spreadsheetBean = (SpreadsheetResult)constructor.newInstance(resultArray, rowNames, columnNames, fieldsCoordinates);
+        } catch (Exception e) {
+            //TODO: add logger
+        } 
         
         ILogicalTable table = getSpreadsheetTable(result);        
         spreadsheetBean.setLogicalTable(table);

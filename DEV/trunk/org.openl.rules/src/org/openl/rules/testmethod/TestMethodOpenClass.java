@@ -23,8 +23,20 @@ public class TestMethodOpenClass extends ADynamicClass {
         return new DynamicObject(this);
     }
 
-    private void init(IOpenMethod testedMethod) {
 
+    protected void init(IOpenMethod testedMethod) {
+        addParameterFields(testedMethod);
+
+        addExpectedResult(testedMethod);
+
+        addDescription();
+
+        addContext();
+        
+        addExpectedError();
+    }
+
+    protected void addParameterFields(IOpenMethod testedMethod) {
         IOpenClass[] parameterTypes = testedMethod.getSignature().getParameterTypes();
 
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -33,27 +45,34 @@ public class TestMethodOpenClass extends ADynamicClass {
 
             addField(parameterField);
         }
+    }
 
-        IOpenField resultField = new DynamicObjectField(this,
-            TestMethodHelper.EXPECTED_RESULT_NAME,
-            testedMethod.getType());
-        addField(resultField);
-
-        IOpenField descriptionField = new DynamicObjectField(this,
-            TestMethodHelper.DESCRIPTION_NAME,
-            JavaOpenClass.STRING);
-        addField(descriptionField);
-
-        IOpenField contextField = new DynamicObjectField(this,
-            TestMethodHelper.CONTEXT_NAME,
-            JavaOpenClass.getOpenClass(DefaultRulesRuntimeContext.class));
-        addField(contextField);
-        
+    protected void addExpectedError() {
         IOpenField errorField = new DynamicObjectField(this,
             TestMethodHelper.EXPECTED_ERROR,
             JavaOpenClass.STRING);
         addField(errorField);
-
     }
+
+    protected void addContext() {
+        IOpenField contextField = new DynamicObjectField(this,
+            TestMethodHelper.CONTEXT_NAME,
+            JavaOpenClass.getOpenClass(DefaultRulesRuntimeContext.class));
+        addField(contextField);
+    }
+
+    protected void addDescription() {
+        IOpenField descriptionField = new DynamicObjectField(this,
+            TestMethodHelper.DESCRIPTION_NAME,
+            JavaOpenClass.STRING);
+        addField(descriptionField);
+    }
+
+    protected void addExpectedResult(IOpenMethod testedMethod) {
+        IOpenField resultField = new DynamicObjectField(this,
+            TestMethodHelper.EXPECTED_RESULT_NAME,
+            testedMethod.getType());
+        addField(resultField);
+    }    
 
 }

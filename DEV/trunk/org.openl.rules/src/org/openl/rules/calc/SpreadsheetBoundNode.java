@@ -11,12 +11,15 @@ import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
-
+    
+    private SpreadsheetBuilder builder;
+    
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
             IOpenMethodHeader header,
@@ -27,14 +30,32 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     @Override
     protected ExecutableRulesMethod createMethodShell() {
-        return new Spreadsheet(getHeader(), this);
+        Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this);
+        spreadsheet.setSpreadsheetType(builder.getSpreadsheetOpenClass(spreadsheet.getName()));
+        return spreadsheet;
     }
-
-    public void finalizeBind(IBindingContext bindingContext) throws Exception {
-
-        SpreadsheetBuilder builder = new SpreadsheetBuilder(bindingContext, getSpreadsheet(), getTableSyntaxNode());
+    
+    private void initSpreadsheetBuilder(IBindingContext bindingContext) throws Exception {
+        validateTableBody(getTableSyntaxNode().getTableBody());
+        this.builder = new SpreadsheetBuilder(bindingContext, getTableSyntaxNode());
+    }
+     
+    public void preBind(IBindingContext bindingContext) throws Exception {
+        initSpreadsheetBuilder(bindingContext);
+        builder.firstBuildPhase(getHeader());
+    }
+    
+    public void finalizeBind(IBindingContext bindingContext) throws Exception {        
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
 
+        
+
+        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
+        
+        builder.secondBuildPhase(getSpreadsheet());
+    }
+
+    private void validateTableBody(ILogicalTable tableBody) throws SyntaxNodeException {
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Table has no body! Try to merge header cell horizontally to identify table.",
                 getTableSyntaxNode());
@@ -50,14 +71,14 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
             throw SyntaxNodeExceptionUtils.createError(message, getTableSyntaxNode());
         }
-
-        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
-
-        builder.build(tableBody);
     }
 
     public Spreadsheet getSpreadsheet() {
         return (Spreadsheet) getMethod();
+    }
+    
+    public SpreadsheetBuilder getSpreadsheetBuilder() {
+        return builder;
     }
     
     @Override

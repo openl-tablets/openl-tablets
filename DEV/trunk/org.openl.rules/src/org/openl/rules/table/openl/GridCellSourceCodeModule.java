@@ -51,9 +51,17 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
         this.column = column;
         this.row = row;
 //         this.parent = parent;
+        update(bindingContext);        
+    }
+
+    public void update(IBindingContext bindingContext) {
         if (bindingContext != null && bindingContext.isExecutionMode()) {
-            getCode();
-            getUri();
+            // init code with value, as table will be turned to null
+            //
+            initCode();
+            // init uri with value, as table will be turned to null
+            //
+            initUri();
             this.table = null;
         }
     }
@@ -78,13 +86,17 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public String getCode() {
         if (code == null) {
-            code = table.getCell(column, row).getStringValue();
-
-            if (code == null) {
-                code = "";
-            }
+            initCode();
         }
         return code;
+    }
+
+    private void initCode() {
+        code = table.getCell(column, row).getStringValue();
+
+        if (code == null) {
+            code = "";
+        }
     }
 
     public String getDisplayName() {
@@ -109,9 +121,13 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public String getUri() {
         if (uri == null) {
-            uri = table.getUri(column, row);
+            initUri();
         }
         return uri;
+    }
+
+    private void initUri() {
+        uri = table.getUri(column, row);
     }
 
     public String getUri(int textpos) {

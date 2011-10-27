@@ -1,5 +1,7 @@
 package org.openl.rules.testmethod;
 
+import java.util.List;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -7,6 +9,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -95,10 +98,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         }
     }
 
-    public synchronized IOpenClass getMethodBasedClass() {
+    public synchronized IOpenClass getMethodBasedClass(List<IdentifierNode[]> columnIdentifiers) {
 
         if (methodBasedClass == null) {
-            methodBasedClass = new TestMethodOpenClass(tableName, testedMethod);
+            methodBasedClass = TestMethodFactory.getTestMethodOpenClass(testedMethod, tableName, columnIdentifiers);
         }
 
         return methodBasedClass;
@@ -127,7 +130,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
         DynamicObject[] testInstances = (DynamicObject[]) testArray;
 
-        IOpenClass dclass = getMethodBasedClass();
+        IOpenClass dclass = getMethodBasedClass(null);
         IMethodSignature msign = testedMethod.getSignature();
         IOpenClass[] mpars = msign.getParameterTypes();
 
@@ -224,7 +227,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 //            e.printStackTrace();
 //        }
 
-        IOpenClass dclass = getMethodBasedClass();
+        IOpenClass dclass = getMethodBasedClass(null);
         IMethodSignature msign = testedMethod.getSignature();
         IOpenClass[] mpars = msign.getParameterTypes();
 

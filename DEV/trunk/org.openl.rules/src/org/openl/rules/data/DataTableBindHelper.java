@@ -302,6 +302,7 @@ public class DataTableBindHelper {
      *            index row, see {@link #hasForeignKeysRow(ILogicalTable)}).<br>
      *            This part of table may consists from optional first title row
      *            and followed data rows.
+     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.           
      * @param column Number of column in data table.
      * @param hasColumnTitleRow Flag shows if data table has column tytle row.
      * @return Column title (aka Display name).
@@ -325,7 +326,20 @@ public class DataTableBindHelper {
 
         return new StringValue(value, value, value, null);
     }
-
+    
+    /**
+     * 
+     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
+     * @param table
+     * @param type
+     * @param openl
+     * @param descriptorRows
+     * @param dataWithTitleRows
+     * @param hasForeignKeysRow
+     * @param hasColumnTytleRow
+     * @return
+     * @throws Exception
+     */
     public static ColumnDescriptor[] makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
             OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
             boolean hasColumnTytleRow) throws Exception {
@@ -333,27 +347,35 @@ public class DataTableBindHelper {
         int width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
-        List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>(width);
-
-        for (int columnNum = 0; columnNum < width; columnNum++) {
-
-            GridCellSourceCodeModule cellSourceModule = getCellSourceModule(bindingContext, descriptorRows, columnNum);
-
-            String code = cellSourceModule.getCode();
-
-            if (code.length() != 0) {
-                
-                // fields names nodes 
-                IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
-                
-                if (contains(identifiers, fieldAccessorChainTokens)) {                    
-                    String message = String.format("Found duplicate of field \"%s\"", code);
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                    processError(table, error);
-                } else {
-                    identifiers.add(fieldAccessorChainTokens);
-                }
-                
+//        List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>(width);
+        
+        List<IdentifierNode[]> columnIdentifiers = getColumnIdentifiers(bindingContext, table, descriptorRows);
+        
+//        for (int columnNum = 0; columnNum < width; columnNum++) {
+//
+//            GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
+//            // binding context is used for optimization in execution mode
+//            //            
+//            cellSourceModule.update(bindingContext);
+//
+//            String code = cellSourceModule.getCode();
+//
+//            if (code.length() != 0) {
+//                
+//                // fields names nodes 
+//                IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
+//                
+//                if (contains(identifiers, fieldAccessorChainTokens)) {                    
+//                    String message = String.format("Found duplicate of field \"%s\"", code);
+//                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+//                    processError(table, error);
+//                } else {
+//                    identifiers.add(fieldAccessorChainTokens);
+//                }
+        for (int columnNum = 0; columnNum < columnIdentifiers.size(); columnNum++)   {
+            IdentifierNode[] fieldAccessorChainTokens = columnIdentifiers.get(columnNum);
+            if (fieldAccessorChainTokens != null) {
+            
                 IOpenField descriptorField = null;
                 
                 // indicates if field is a constructor.
@@ -394,17 +416,55 @@ public class DataTableBindHelper {
                     header);
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
-            }            
+//            }      
+            }
         }
 
         return columnDescriptors;
     }
+    
+    /**
+     * 
+     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
+     * @param table is needed only for error processing. Can be <code>null</code>. 
+     * @param descriptorRows
+     * @return
+     * @throws OpenLCompilationException
+     */
+    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext, ITable table, ILogicalTable descriptorRows) 
+            throws OpenLCompilationException {        
+        int width = descriptorRows.getWidth();
+        List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>();
+        for (int columnNum = 0; columnNum < width; columnNum++) {
 
-    private static GridCellSourceCodeModule getCellSourceModule(IBindingContext bindingContext,
-            ILogicalTable descriptorRows,
+            GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
+            cellSourceModule.update(bindingContext);
+            
+            String code = cellSourceModule.getCode();
+
+            if (code.length() != 0) {
+
+                // fields names nodes
+                IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
+
+                if (contains(identifiers, fieldAccessorChainTokens)) {
+                    String message = String.format("Found duplicate of field \"%s\"", code);
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+                    processError(table, error);
+                } else {
+                    identifiers.add(fieldAccessorChainTokens);
+                }
+            } else {
+                identifiers.add(null);
+            }
+        }
+        return identifiers;
+    }
+
+    private static GridCellSourceCodeModule getCellSourceModule(ILogicalTable descriptorRows,
             int columnNum) {
         IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
-        GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable, bindingContext);
+        GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable);
         return cellSourceModule;
     }
 
@@ -462,16 +522,19 @@ public class DataTableBindHelper {
     }
 
     private static void processError(ITable table, SyntaxNodeException error) {
-        if(table.getTableSyntaxNode() != null){
-            table.getTableSyntaxNode().addError(error);
+        if (table != null) {
+            if(table.getTableSyntaxNode() != null){
+                table.getTableSyntaxNode().addError(error);
+            }
+            BindHelper.processError(error);
         }
-        BindHelper.processError(error);
     }
     
 
     /**
      * Returns foreign_key_tokens from the current column.
      * 
+     * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
      * @param descriptorRows
      * @param columnNum
      * @return

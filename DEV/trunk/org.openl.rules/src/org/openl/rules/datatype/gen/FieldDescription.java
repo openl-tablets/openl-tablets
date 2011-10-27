@@ -10,48 +10,52 @@ import org.openl.types.impl.ArrayOpenClass;
 
 public class FieldDescription {
     
-    private String typeName;
+    private String canonicalTypeName;
     private Class<?> type;
     
     private String defaultValueAsString;
     private Object defaultValue;
     
-    public FieldDescription(String typeName, Class<?> type) {
-        this(typeName, type, null);
+    public FieldDescription(Class<?> type) {
+        this(type, null);
     }
     
-    public FieldDescription(String typeName, Class<?> type, String defaultValue) {
-        this.typeName = typeName;
+    public FieldDescription(Class<?> type, String defaultValue) {
         this.type = type;
+        this.canonicalTypeName = type.getCanonicalName();        
         this.defaultValueAsString = defaultValue;
     }
-
+    
     public FieldDescription(IOpenField field) {
-        this(field, null);
+       this(field, null);
     }
     
     public FieldDescription(IOpenField field, String defaultValue) {
-        this.typeName = getTypeName(field);        
+        this.canonicalTypeName = processTypeName(field);        
         this.type = field.getType().getInstanceClass();
         this.defaultValueAsString = defaultValue;
     }
-        
-    private String getTypeName(IOpenField field) {        
-        String fieldName = field.getType().getName();
+    
+    private String processTypeName(IOpenField field) {
+//        String typeName = null;
         IOpenClass typeDeclaration = getTypeDeclaration(field);
-        if (fieldName.indexOf(".") < 0 && typeDeclaration instanceof DatatypeOpenClass) {
-            // it means that name of the field has no package. Just datatype can have empty package, in this place.
-            // so we need to add it, to the name of type.
-            
-            String packageName = ((DatatypeOpenClass)typeDeclaration).getPackageName();    
-            if (StringUtils.isBlank(packageName)) {
-                return fieldName;
+        if (typeDeclaration instanceof DatatypeOpenClass) {
+            if (field.getType().getInstanceClass() == null) {
+              /** it means that name of the field has no package. Just datatype can have empty package, in this place.
+                  so we need to add it, to the name of type.
+                  Gets the name of the Datatype, e.g. Driver*/
+                String datatypeName = field.getType().getName();
+                String packageName = ((DatatypeOpenClass) typeDeclaration).getPackageName();
+                if (StringUtils.isBlank(packageName)) {
+                    return datatypeName;
+                }
+                return String.format("%s.%s", packageName, datatypeName);
             }
-            return String.format("%s.%s", packageName, fieldName);
-        } else {
-            return fieldName;
-        }
-    }
+        } 
+        return field.getType().getInstanceClass().getCanonicalName();
+        
+//        return typeName;
+  }
 
     private IOpenClass getTypeDeclaration(IOpenField field) {
         IOpenClass fieldType = field.getType();
@@ -64,12 +68,12 @@ public class FieldDescription {
         return typeDeclaration;
     }    
 
-    public String getTypeName() {
-        return typeName;
+    public String getCanonicalTypeName() {
+        return canonicalTypeName;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
+    public void setCanonicalTypeName(String canonicalTypeName) {
+        this.canonicalTypeName = canonicalTypeName;
     }
 
     public Class<?> getType() {
@@ -83,15 +87,15 @@ public class FieldDescription {
     public boolean isArray() {
         if (type != null && type.isArray()) {
             return true;
-        } else if (typeName.endsWith("]")){
+        } else if (canonicalTypeName.endsWith("]")){
             return true;
         }
         return false;
     }
     
     public String toString() {
-        if (StringUtils.isNotBlank(typeName)) {
-            return typeName;
+        if (StringUtils.isNotBlank(canonicalTypeName)) {
+            return canonicalTypeName;
         }
         return super.toString();
     }

@@ -2,15 +2,22 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.IResultBuilder;
+import org.openl.rules.calc.result.gen.CustomSpreadsheetResultByteCodeGenerator;
+import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
+import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
@@ -28,10 +35,38 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * Invoker for current method.
      */
     private Invokable invoker;
+    
+    /** Custom return type of the spreadsheet method*/
+    private IOpenClass spreadsheetCustomType;
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
+    }
+    
+    @Override
+    public IOpenClass getType() {
+        if (super.getType().getInstanceClass().equals(SpreadsheetResult.class)) {
+            return getCustomSpreadsheetResultType();
+        } else {
+            return super.getType();
+        }
+    }
+
+    private IOpenClass getCustomSpreadsheetResultType() {
+        if (spreadsheetCustomType == null) {
+            initCustomSpreadsheetResultType();
+        }
+        return spreadsheetCustomType;
+    }
+
+    private void initCustomSpreadsheetResultType() {
+        Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
+        spreadsheetOpenClassFields.remove("this");
+        Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator("SpreadsheetResult" + getName(), beanFields);
+        Class<?> customSPR = gen.generateAndLoadBeanClass();
+        spreadsheetCustomType = JavaOpenClass.getOpenClass(customSPR);
     }
 
     public SpreadsheetCell[][] getCells() {
