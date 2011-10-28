@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang.ClassUtils;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetCellsBuilder;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetRowColumnExtractor;
+import org.openl.rules.calc.SpreadsheetSourceExtractor;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -23,9 +23,9 @@ import org.openl.vm.IRuntimeEnv;
  * Open class for test that is testing {@link Spreadsheet}.<br><br>
  * 
  * In case spreadsheet returns {@link SpreadsheetResult} in its signature, it is possible to access<br>
- * any cell of spreadsheet for testing. By convention see {@link SpreadsheetCellsBuilder}.<br><br>
+ * any cell of spreadsheet for testing. By convention see {@link SpreadsheetStructureBuilder}.<br><br>
  * 
- * In case spreadsheet returns any specific cell by {@link SpreadsheetRowColumnExtractor#RETURN_NAME},<br>
+ * In case spreadsheet returns any specific cell by {@link SpreadsheetSourceExtractor#RETURN_NAME},<br>
  * only value can be tested by using {@link TestMethodHelper#EXPECTED_RESULT_NAME} field.
  * 
  * @author DLiauchuk
@@ -67,7 +67,7 @@ public class TestSpreadsheetOpenClass extends ADynamicClass {
         
         /** add the fields from tested spreadsheet cells to give access to the cells from test table*/
         for (IOpenField field : testedSpreadsheet.getType().getFields().values()) {
-            if (field.getName().startsWith("$")) {
+            if (field.getName().startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
                 IOpenField resultField = new DynamicObjectField(this, field.getName(), field.getType());
                 addField(resultField);
             }
