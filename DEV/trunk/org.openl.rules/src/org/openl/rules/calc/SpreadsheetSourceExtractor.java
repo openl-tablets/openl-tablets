@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
@@ -8,6 +9,11 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.result.ArrayResultBuilder;
+import org.openl.rules.calc.result.DefaultResultBuilder;
+import org.openl.rules.calc.result.IResultBuilder;
+import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -21,14 +27,10 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
-/**
- * TODO: refactor, document
- * @author DLiauchuk
- *
- */
-public class SpreadsheetRowColumnExtractor {
+public class SpreadsheetSourceExtractor {
     
     /** cell name indicating return statement*/
     public static final String RETURN_NAME = "RETURN";
@@ -37,7 +39,6 @@ public class SpreadsheetRowColumnExtractor {
     private TableSyntaxNode tableSyntaxNode;
     
     /** binding context for indicating execution mode**/
-    //TODO: remove
     private IBindingContext bindingContext;
     
     /** table representing column section in the spreadsheet**/
@@ -48,7 +49,14 @@ public class SpreadsheetRowColumnExtractor {
     
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     
-    public SpreadsheetRowColumnExtractor(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {        
+    private String[] rowNames;
+    private String[] columnNames;
+    
+    private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
+    private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
+    private Map<String, SpreadsheetHeaderDefinition> headerDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>();
+    
+    public SpreadsheetSourceExtractor(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {        
         this.tableSyntaxNode = tableSyntaxNode;
         this.bindingContext = bindingContext;
         initRowColumnTables();
@@ -59,23 +67,12 @@ public class SpreadsheetRowColumnExtractor {
         columnNamesTable = tableSyntaxNode.getTableBody().getRow(0).getColumns(1);
     }
     
-    private String[] rowNames;
-    private String[] columnNames;
-    
-    private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
-    private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
-    private Map<String, SpreadsheetHeaderDefinition> varDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>();
-    
     public String[] getRowNames() {        
         return rowNames.clone();
     }
     
     public String[] getColumnNames() {        
         return columnNames.clone();
-    }
-    
-    public Map<String, SpreadsheetHeaderDefinition> getVarDefinitions() {        
-        return new HashMap<String, SpreadsheetHeaderDefinition>(varDefinitions);
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {        
@@ -86,6 +83,12 @@ public class SpreadsheetRowColumnExtractor {
         return new HashMap<Integer, SpreadsheetHeaderDefinition>(columnHeaders);
     }
     
+    /**
+     * Extract following data form the spreadsheet source table:
+     * row names, column names, header definitions, return cell.
+     * 
+     * @param spreadsheetHeaderType
+     */
     public void extractDataFromSource(IOpenClass spreadsheetHeaderType) {
         extractRowNames();
         extractColumnNames();
@@ -115,11 +118,18 @@ public class SpreadsheetRowColumnExtractor {
         return tableSyntaxNode;
     }
     
-    public SpreadsheetHeaderDefinition getReturnHeaderDefinition() {
-        return returnHeaderDefinition;
+    public IResultBuilder getResultBuilder(Spreadsheet spreadsheet) {
+        IResultBuilder resultBuilder = null;
+        try {
+            resultBuilder = getResultBuilderInternal(spreadsheet);
+        } catch (SyntaxNodeException e) {
+            tableSyntaxNode.addError(e);
+            BindHelper.processError(e, bindingContext); 
+        }
+        return resultBuilder;
     }
     
-    public String[] extractRowNames() {   
+    private String[] extractRowNames() {   
         int height = rowNamesTable.getHeight();
         rowNames = new String[height];
         for (int row = 0; row < height; row++) {
@@ -128,7 +138,7 @@ public class SpreadsheetRowColumnExtractor {
         return rowNames;        
     }
     
-    public String[] extractColumnNames() {        
+    private String[] extractColumnNames() {        
         int width = columnNamesTable.getWidth();  
         columnNames = new String[width];
         for (int col = 0; col < width; col++) {
@@ -167,45 +177,38 @@ public class SpreadsheetRowColumnExtractor {
     }
     
     private void addColumnHeader(int column, StringValue value) {
-
         SpreadsheetHeaderDefinition header = columnHeaders.get(column);
 
         if (header == null) {
             header = new SpreadsheetHeaderDefinition(-1, column);
             columnHeaders.put(column, header);
         }
-
         parseHeader(header, value);
     }
 
     private void addRowHeader(int row, StringValue value) {
-
         SpreadsheetHeaderDefinition header = rowHeaders.get(row);
 
         if (header == null) {
             header = new SpreadsheetHeaderDefinition(row, -1);
             rowHeaders.put(row, header);
         }
-
         parseHeader(header, value);
     }
     
     private void parseHeader(SpreadsheetHeaderDefinition header, StringValue value) {
-
         try {
             SymbolicTypeDefinition parsed = parseHeaderElement(value);
             String headerName = parsed.getName().getIdentifier();
 
-            SpreadsheetHeaderDefinition h1 = varDefinitions.get(headerName);
+            SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
 
             if (h1 != null) {
                 throw new DuplicatedVarException(null, headerName);
             } else {
-                varDefinitions.put(headerName, header);
+                headerDefinitions.put(headerName, header);
             }
-
             header.addVarHeader(parsed);
-
         } catch (Throwable t) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
                     "Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
@@ -216,7 +219,6 @@ public class SpreadsheetRowColumnExtractor {
     }
     
     private SymbolicTypeDefinition parseHeaderElement(StringValue value) throws SyntaxNodeException {
-
         IOpenSourceCodeModule source = value.asSourceCodeModule();
         IdentifierNode[] nodes;
 
@@ -237,7 +239,7 @@ public class SpreadsheetRowColumnExtractor {
     }
     
     public void buildHeaderDefinitionsTypes() {
-        for (SpreadsheetHeaderDefinition headerDefinition : varDefinitions.values()) {
+        for (SpreadsheetHeaderDefinition headerDefinition : headerDefinitions.values()) {
 
             IOpenClass headerType = null;
 
@@ -302,7 +304,7 @@ public class SpreadsheetRowColumnExtractor {
     
     public void processReturnCells(IOpenClass spreadsheetHeaderType) throws SyntaxNodeException {
 
-        SpreadsheetHeaderDefinition headerDefinition = varDefinitions.get(RETURN_NAME);
+        SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(RETURN_NAME);
 
         if (headerDefinition == null) {
             return;
@@ -357,7 +359,6 @@ public class SpreadsheetRowColumnExtractor {
                 }
             }
         }
-
         return nonEmptyCellsCount;
     }
     
@@ -372,7 +373,6 @@ public class SpreadsheetRowColumnExtractor {
      * Right now we allow only to return types = scalars or arrays.
      * @throws BoundError
      */
-
     private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition, IOpenClass spreadsheetHeaderType)
             throws SyntaxNodeException {
 
@@ -393,5 +393,53 @@ public class SpreadsheetRowColumnExtractor {
         }
 
         return returnType;
+    }
+    
+    private boolean isExistsReturnHeader() {
+        return returnHeaderDefinition != null;
+    }
+    
+    private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
+        IResultBuilder resultBuilder = null;
+        
+        SymbolicTypeDefinition symbolicTypeDefinition = null;
+        
+        if (isExistsReturnHeader()) {
+            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(SpreadsheetSourceExtractor.RETURN_NAME);
+        }
+        
+        if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
+            throw SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tableSyntaxNode);
+        }
+        
+        if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
+            if (isExistsReturnHeader()) {
+                throw SyntaxNodeExceptionUtils.createError(
+                        "If Spreadsheet return type is SpreadsheetResult, no return type is allowed",
+                        symbolicTypeDefinition.getName());
+            }
+
+            resultBuilder = new DefaultResultBuilder();
+        } else {
+            // real return type
+            //
+            if (!isExistsReturnHeader()) {
+                throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
+                    tableSyntaxNode);
+            }            
+            List<SpreadsheetCell> notEmptyReturnDefinitions = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
+
+            switch (notEmptyReturnDefinitions.size()) {
+                case 0:
+                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
+                            symbolicTypeDefinition.getName());
+                case 1:
+                    resultBuilder = new ScalarResultBuilder(notEmptyReturnDefinitions);
+                    break;
+                default:
+                    resultBuilder = new ArrayResultBuilder(notEmptyReturnDefinitions, returnHeaderDefinition.getType());
+            }
+        }
+        return resultBuilder;
     }
 }

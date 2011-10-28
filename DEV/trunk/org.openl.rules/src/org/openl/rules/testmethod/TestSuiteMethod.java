@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -209,7 +210,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     
     private boolean containsFieldsForSprCellTests(Set<String> fieldNames) {
         for (String fieldName : fieldNames) {
-            if (fieldName.startsWith("$")) {
+            if (fieldName.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
                 return true;
             }
         }

@@ -37,12 +37,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     
     private void initSpreadsheetBuilder(IBindingContext bindingContext) throws Exception {
         validateTableBody(getTableSyntaxNode().getTableBody());
-        this.builder = new SpreadsheetBuilder(bindingContext, getTableSyntaxNode());
+        this.builder = SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode());
     }
      
     public void preBind(IBindingContext bindingContext) throws Exception {
         initSpreadsheetBuilder(bindingContext);
-        builder.firstBuildPhase(getHeader());
+        builder.populateSpreadsheetOpenClass(getHeader());
     }
     
     public void finalizeBind(IBindingContext bindingContext) throws Exception {        
@@ -52,7 +52,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         
-        builder.secondBuildPhase(getSpreadsheet());
+        builder.build(getSpreadsheet());
     }
 
     private void validateTableBody(ILogicalTable tableBody) throws SyntaxNodeException {

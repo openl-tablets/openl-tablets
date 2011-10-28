@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerLeaf;
@@ -57,8 +58,8 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         StringBuilder buf = new StringBuilder(64);
         buf.append("Spreadsheet cell [");
         Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
-        buf.append(String.format("$%s", spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
-        buf.append(String.format("$%s", spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
+        buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
+        buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
         buf.append("]");
         buf.append(" = ").append(String.valueOf(result));
         return buf.toString();

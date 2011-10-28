@@ -70,4 +70,45 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         generatedClass.getDeclaredFields();
         
     }
+    
+    @Test
+    public void testInt() {
+        Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
+        cells.put("$Formula$Final_Value", new FieldDescription(int.class));        
+        
+        String className = "my.test.CustomSpreadsheetIntRes";
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        gen.generateAndLoadBeanClass();
+        
+        Class<?> generatedClass = null;
+        try {
+            generatedClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            fail();            
+        }
+        assertNotNull(generatedClass);
+        generatedClass.getDeclaredFields();
+        
+    }
+    
+    @Test
+    public void testDouble() {
+        Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
+        cells.put("$Formula$Final_Value", new FieldDescription(double.class));        
+        
+        String className = "my.test.CustomSpreadsheetDoubleRes";
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        gen.generateAndLoadBeanClass();
+        
+        Class<?> generatedClass = null;
+        try {
+            generatedClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            fail();            
+        }
+        assertNotNull(generatedClass);
+        generatedClass.getDeclaredFields();        
+    }
+    
+    
 }
