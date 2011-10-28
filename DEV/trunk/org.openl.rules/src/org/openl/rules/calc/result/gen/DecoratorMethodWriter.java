@@ -6,10 +6,12 @@ import java.util.Map.Entry;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.MethodWriter;
+import org.openl.util.NumberUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 /**
@@ -77,25 +79,35 @@ public class DecoratorMethodWriter extends MethodWriter {
         /** call method **/
         ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, SpreadsheetResult.class, nameOfTheMethodToCall, new Class[]{String.class});
         
-        String typeName = null;
+        String typeNameForCast = null;
         
         /** need to perform special processing for type name for cast operation*/
-        typeName = getTypeName(fieldType.getCanonicalTypeName());
+        typeNameForCast = getTypeNameForCast(fieldType);
         
         /** perform cast to the field type*/
-        methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, typeName);
+        methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, typeNameForCast);        
         
-        methodVisitor.visitInsn(Opcodes.ARETURN);        
+        /** if the field is primitive, the cast to wrapper type should be performed, and call for instance intValue() for return*/
+        if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
+            String nameOftheWrapperMethod = String.format("%sValue", fieldType.getCanonicalTypeName());
+            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(NumberUtils.getWrapperType(fieldType.getCanonicalTypeName())), 
+                nameOftheWrapperMethod, String.format("()%s", ByteCodeGeneratorHelper.getJavaType(fieldType)));            
+        }
+        
+        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType.getType()));        
         methodVisitor.visitMaxs(2, 1);
         methodVisitor.visitEnd();
     }
     
-    /**
-     * 
-     * @param fieldType representation of the type name in canonical view (See java specification), e.g. my.test.JavaClass, my.test.JavaClass[]
-     * @return
-     */
-    private String getTypeName(String fieldCanonicalTypeName) {
+    private String getTypeNameForCast(FieldDescription fieldType) {
+        /** representation of the type name in canonical view (See java specification), e.g. my.test.JavaClass, my.test.JavaClass[]*/
+        String fieldCanonicalTypeName = fieldType.getCanonicalTypeName();
+        
+        if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
+            Class<?> wrapperType = NumberUtils.getWrapperType(fieldType.getCanonicalTypeName());
+            fieldCanonicalTypeName = wrapperType.getCanonicalName();
+        }
+        
         String typeName;
         if (JavaClassGeneratorHelper.isArray(fieldCanonicalTypeName)) {
             /** when the type is array, should be returned <code>[Lmy/test/JavaClass;</code>*/
