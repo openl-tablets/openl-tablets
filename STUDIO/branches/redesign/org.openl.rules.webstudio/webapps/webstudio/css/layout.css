@@ -19,7 +19,12 @@
 }
 
 #bottom {
-    background: #fefefe;*/
+    /*background: #fefefe;*/
+}
+
+#footer {
+	border-top: 1px solid #dddddd;
+    background: #eeeeee;
 }
 
 /*
