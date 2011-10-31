@@ -7,7 +7,8 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
@@ -127,5 +128,7 @@
             style="visibility: hidden" width="0" height="0" />
 
         <iframe name="hidden" style="visibility: hidden" width="0" height="0" />
+
+        <rich:popupPanel style="display: none" /> <!-- Init RichFaces Popup js objects -->
     </h:body>
 </html>
