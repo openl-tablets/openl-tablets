@@ -13,8 +13,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.Log;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
  * Bean to unpack jar with rule.xml to defined folder. This bean is used by
@@ -74,12 +74,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     private static void unpack(File jarFile, String destDir) throws IOException {
-        FolderHelper.clearFolder(new File(destDir));
         File newProjectDir = new File(destDir, FilenameUtils.getBaseName(jarFile.getCanonicalPath()));
         newProjectDir.mkdirs();
 
         JarFile jar = new JarFile(jarFile);
-        
+
         Enumeration<JarEntry> e = jar.entries();
         while (e.hasMoreElements()) {
             JarEntry file = e.nextElement();
@@ -99,7 +98,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
 
     }
-    
+
     private static boolean checkOrCreateFolder(File location) {
         if (location.exists()) {
             return true;
@@ -107,7 +106,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             return location.mkdirs();
         }
     }
-    
+
     public void afterPropertiesSet() throws IOException {
         if (getDestinationDirectory() == null) {
             throw new IllegalStateException("Distination directory is null. Check bean configuration.");
@@ -125,25 +124,29 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                         + getDestinationDirectory());
             }
         } else {
-            if (checkOrCreateFolder(desFile)){
-                if (Log.isInfoEnabled()){
+            if (checkOrCreateFolder(desFile)) {
+                if (Log.isInfoEnabled()) {
                     Log.info("Destination folder is already exist");
                 }
-            }else{
-                if (Log.isInfoEnabled()){
+            } else {
+                if (Log.isInfoEnabled()) {
                     Log.info("Destination folder was created");
                 }
             }
         }
 
-        Resource rulesXmlResource = new ClassPathResource(RULES_FILE_NAME);
-        String path = getPathJar(rulesXmlResource);
-        File file = new File(path);
+        PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + RULES_FILE_NAME);
+        FolderHelper.clearFolder(new File(getDestinationDirectory()));
+        for (Resource rulesXmlResource : resources) {
+            String path = getPathJar(rulesXmlResource);
+            File file = new File(path);
 
-        if (!file.exists()) {
-            throw new IOException("File not found. File path: " + path);
+            if (!file.exists()) {
+                throw new IOException("File not found. File path: " + path);
+            }
+
+            unpack(file, getDestinationDirectory());
         }
-
-        unpack(file, getDestinationDirectory());
     }
 }
