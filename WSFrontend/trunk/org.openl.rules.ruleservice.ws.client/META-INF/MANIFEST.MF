@@ -9,4 +9,5 @@ Export-Package:
  org.openl.rules.ruleservice.client,
  org.openl.rules.ruleservice.client.mapping,
  org.openl.rules.ruleservice.client.mapping.openl
-Require-Bundle: org.openl.rules.ruleservice.ws.client.lib;bundle-version="5.8.1"
+Require-Bundle: org.openl.rules.ruleservice.ws.client.lib,
+ org.openl.rules.mapping.dev
