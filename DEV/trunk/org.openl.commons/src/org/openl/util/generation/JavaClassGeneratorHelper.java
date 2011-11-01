@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 
 public class JavaClassGeneratorHelper {
@@ -207,36 +208,65 @@ public class JavaClassGeneratorHelper {
     }
     
     /**
-     * Generate the Java type corresponding to the given type name.
+     * Generate the Java type corresponding to the given canonical type name.
      * Support array types.<br> 
      * (e.g. <code>my.test.Vehicle[][]</code>)
      * 
-     * @param typeName name of the type (e.g. <code>my.test.TestClass</code>) 
+     * @param canonicalTypeName name of the type (e.g. <code>my.test.TestClass</code>) 
      * @return Java type corresponding to the given type name. (e.g. <code>Lmy/test/TestClass;</code>)
      */
-    public static String getJavaType(String typeName) {        
-        boolean isArray = isArray(typeName);
-        if (isArray) {
-            return getJavaArrayType(typeName);
+    public static String getJavaType(String canonicalTypeName) {
+        if (isArray(canonicalTypeName)) {
+            return getJavaArrayType(canonicalTypeName);
         } else {
-            return String.format("L%s;", replaceDots(typeName));
+            return getJavaTypeWithPrefix(canonicalTypeName);
         }
+    }
+    
+    /**
+     * Gets the corresponding java type name by the given canonical type name(without array brackets).<br>
+     * Supports primitives.
+     * 
+     * @param canonicalTypeName name of the type (e.g. <code>my.test.TestClass</code>) 
+     * @return Java type corresponding to the given type name. (e.g. <code>Lmy/test/TestClass;</code>)
+     */
+    public static String getJavaTypeWithPrefix(String canonicalTypeName) {   
+        if (NumberUtils.isPrimitive(canonicalTypeName)) {
+            if ("byte".equals(canonicalTypeName)) {
+                return "B";
+            } else if ("short".equals(canonicalTypeName)) {
+                return "S";
+            } else if ("int".equals(canonicalTypeName)) {
+                return "I";
+            } else if ("long".equals(canonicalTypeName)) {
+                return "J";
+            } else if ("float".equals(canonicalTypeName)) {
+                return "F";
+            } else if ("double".equals(canonicalTypeName)) {
+                return "D";
+            } else if ("boolean".equals(canonicalTypeName)) {
+                return "Z";
+            } else if ("char".equals(canonicalTypeName)) {
+                return "C";
+            }
+        }
+        return String.format("L%s;", replaceDots(canonicalTypeName));
     }
     
     /**
      * Gets the Java array type corresponding to income array type name.
      * 
-     * @param arrayTypeName e.g. <code>my.test.TestClass[][]</code>
+     * @param canonicalArrayTypeName e.g. <code>my.test.TestClass[][]</code>
      * @return e.g. <code>[[Lmy/test/TestClass;</code>
      */
-    public static String getJavaArrayType(String arrayTypeName) {
-        if (StringUtils.isNotBlank(arrayTypeName)) {
-            String[] tokens = arrayTypeName.split("\\[");
+    public static String getJavaArrayType(String canonicalArrayTypeName) {
+        if (StringUtils.isNotBlank(canonicalArrayTypeName)) {
+            String[] tokens = canonicalArrayTypeName.split("\\[");
             StringBuffer strBuf = new StringBuffer();
             for (int i = 0; i< tokens.length - 1; i++) {
                 strBuf.append("[");
             }
-            return String.format("%sL%s;", strBuf.toString(), replaceDots(tokens[0]));
+            return String.format("%s%s", strBuf.toString(), getJavaTypeWithPrefix(tokens[0]));
         } 
         return null;
     }
@@ -257,8 +287,8 @@ public class JavaClassGeneratorHelper {
         return StringUtils.contains(arrayTypeName, "[");
     }
     
-    public static String replaceDots(String typeWithNamespace) {
-        return typeWithNamespace.replace('.', '/');
+    public static String replaceDots(String canonicalTypeName) {
+        return canonicalTypeName.replace('.', '/');
     }
     
     /**

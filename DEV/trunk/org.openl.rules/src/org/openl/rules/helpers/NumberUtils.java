@@ -3,6 +3,7 @@ package org.openl.rules.helpers;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
@@ -142,6 +143,28 @@ public class NumberUtils {
             return double.class;
         }
         return null;
+    }
+    
+    public static Class<?> getWrapperType(String primitiveName) {
+        Class<?> wrapperType = null;
+        if (primitiveName.equals("byte")) {
+            wrapperType = Byte.class;
+        } else if (primitiveName.equals("short")) {
+            wrapperType = Short.class;
+        } else if (primitiveName.equals("int")) {
+            wrapperType = Integer.class;
+        } else if (primitiveName.equals("long")) {
+            wrapperType = Long.class;
+        } else if (primitiveName.equals("float")) {
+            wrapperType = Float.class;
+        } else if (primitiveName.equals("double")) {
+            wrapperType = Double.class;
+        } else if (primitiveName.equals("boolean")) {
+            wrapperType = Boolean.class;
+        } else if (primitiveName.equals("char")) {
+            wrapperType = Character.class;
+        }
+        return wrapperType;
     }
     
 }

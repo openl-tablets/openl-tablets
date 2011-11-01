@@ -11,13 +11,13 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.MethodWriter;
-import org.openl.util.NumberUtils;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 /**
  * Writes byte code to the given classWriter.<br> 
  * Adds the decorator functions for the given fields. Call the provided method with the field name as the String argument.<br>
- * Casts the result to the type of the field.<br><br>
+ * Consider that the provided method will return <code>Object</code>. Casts the result to the type of the field.<br><br>
  * 
  * Example: fieldForDecorating: key = <code>myField</code>, value = <code>DoubleValue.class</code>. prefixForDecorator = <code>get</code><br>
  * nameOfTheMethodToCall = <code>getFieldValue</code>
@@ -99,7 +99,17 @@ public class DecoratorMethodWriter extends MethodWriter {
         methodVisitor.visitEnd();
     }
     
-    private String getTypeNameForCast(FieldDescription fieldType) {
+    /**
+     * Gets the type name for the cast. Not general helper method because contains custom logic for
+     * current implementation.<br>
+     * 
+     * Algorithm:<br>
+     * 1) If the name of the field type is a single primitive (not an array), use wrapper type name for return.<br>
+     * 2) If the name of the field is an array, return type name for cast using next pattern: <code>[Lmy/test/JavaClass;</code> <br>
+     * 3) If the name of the field is a single, return type name for cast will be <code>my/test/JavaClass</code><br>
+     *  
+     */
+    protected static String getTypeNameForCast(FieldDescription fieldType) {
         /** representation of the type name in canonical view (See java specification), e.g. my.test.JavaClass, my.test.JavaClass[]*/
         String fieldCanonicalTypeName = fieldType.getCanonicalTypeName();
         
