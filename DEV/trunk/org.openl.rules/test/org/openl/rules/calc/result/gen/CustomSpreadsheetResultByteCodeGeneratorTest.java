@@ -20,15 +20,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        Class<?> generatedClass = null;
-        try {
-            generatedClass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            fail();            
-        }
-        assertNotNull(generatedClass);
-        generatedClass.getDeclaredFields();
-        
+        checkLoadingClass(className);          
     }
     
     @Test
@@ -40,15 +32,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        Class<?> generatedClass = null;
-        try {
-            generatedClass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            fail();            
-        }
-        assertNotNull(generatedClass);
-        generatedClass.getDeclaredFields();
-        
+        checkLoadingClass(className);          
     }
     
     @Test
@@ -60,15 +44,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        Class<?> generatedClass = null;
-        try {
-            generatedClass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            fail();            
-        }
-        assertNotNull(generatedClass);
-        generatedClass.getDeclaredFields();
-        
+        checkLoadingClass(className);  
     }
     
     @Test
@@ -80,14 +56,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        Class<?> generatedClass = null;
-        try {
-            generatedClass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            fail();            
-        }
-        assertNotNull(generatedClass);
-        generatedClass.getDeclaredFields();
+        checkLoadingClass(className);  
         
     }
     
@@ -100,6 +69,22 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
+        checkLoadingClass(className);          
+    }
+    
+    @Test
+    public void testPrimitiveAray() {
+        Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
+        cells.put("$Formula$Final_Value", new FieldDescription(int[].class));        
+        
+        String className = "my.test.CustomSpreadsheetPrimitiveArray";
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        gen.generateAndLoadBeanClass();
+        
+        checkLoadingClass(className);        
+    }
+
+    private void checkLoadingClass(String className) {
         Class<?> generatedClass = null;
         try {
             generatedClass = Class.forName(className);
@@ -107,7 +92,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
             fail();            
         }
         assertNotNull(generatedClass);
-        generatedClass.getDeclaredFields();        
+        generatedClass.getDeclaredFields();
     }
     
     

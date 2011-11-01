@@ -43,7 +43,9 @@ public class ByteCodeGeneratorHelper {
     private ByteCodeGeneratorHelper() {}
 
     /**
-     * Gets Java type corresponding to the given field type.
+     * Gets Java type corresponding to the given field type.<br>
+     * The algorithm depends on the existence of a class object for given field. If no, 
+     * it means we are working with datatype (there is no already generated java class).
      * 
      * @param fieldType
      * @return Java type corresponding to the given field type. (e.g. <code>Lmy/test/TestClass;</code>)
@@ -51,8 +53,10 @@ public class ByteCodeGeneratorHelper {
     public static String getJavaType(FieldDescription fieldType) {
         Class<?> fieldClass = fieldType.getType();
         if (fieldClass != null) {
+            /** gets the type by its class*/
             return ByteCodeGeneratorHelper.getJavaType(fieldClass);
         } else {
+            /** gets the type by the canonical name of the class*/
             return JavaClassGeneratorHelper.getJavaType(fieldType.getCanonicalTypeName());
         }
     }
@@ -66,7 +70,6 @@ public class ByteCodeGeneratorHelper {
     public static String getJavaType(Class<?> fieldClass) {
         return String.valueOf(Type.getType(fieldClass));
     }
-    
     
     public static TypeWriter getTypeWriter(FieldDescription fieldType) {
         Class<?> javaFieldClass = FieldDescription.getJavaClass(fieldType);
