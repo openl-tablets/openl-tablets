@@ -112,7 +112,7 @@ public class SpreadsheetStructureBuilder {
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
                 /** build spreadsheet cell*/
-                SpreadsheetCell spreadsheetCell = buildCell(spreadsheetType, rowIndex, columnIndex);
+                SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex);
                 
                 /** init cells array with appropriate cell*/
                 cells[rowIndex][columnIndex] = spreadsheetCell;
@@ -223,7 +223,7 @@ public class SpreadsheetStructureBuilder {
         return String.format("%s%s%s%s", DOLLAR_SIGN, columnName, DOLLAR_SIGN, rowName);
     }
 
-    private SpreadsheetCell buildCell(SpreadsheetOpenClass spreadsheetType, int rowIndex, int columnIndex) {        
+    private SpreadsheetCell buildCell(int rowIndex, int columnIndex) {        
         Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = sourceExtractor.getColumnHeaders();
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = sourceExtractor.getRowHeaders();
         
@@ -238,14 +238,14 @@ public class SpreadsheetStructureBuilder {
         }
 
         String cellCode = sourceCell.getStringValue();
-        IOpenClass cellType = deriveCellType(spreadsheetCell, cell, columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
+        IOpenClass cellType = deriveCellType(cell, columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
         spreadsheetCell.setType(cellType);
         
         return spreadsheetCell;
     }   
     
-    private IOpenClass deriveCellType(SpreadsheetCell spreadsheetCell, ILogicalTable cell,
-            SpreadsheetHeaderDefinition columnHeader, SpreadsheetHeaderDefinition rowHeader, String cellValue) {
+    private IOpenClass deriveCellType(ILogicalTable cell, SpreadsheetHeaderDefinition columnHeader, 
+            SpreadsheetHeaderDefinition rowHeader, String cellValue) {
         if (columnHeader != null && columnHeader.getType() != null) {
             return columnHeader.getType();
         } else if (rowHeader != null && rowHeader.getType() != null) {
