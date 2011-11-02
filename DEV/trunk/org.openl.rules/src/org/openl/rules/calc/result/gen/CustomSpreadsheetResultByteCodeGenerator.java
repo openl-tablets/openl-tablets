@@ -1,38 +1,26 @@
 package org.openl.rules.calc.result.gen;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import net.sf.cglib.core.ReflectUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.objectweb.asm.ClassWriter;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.datatype.gen.BeanByteCodeGenerator;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
-import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
 import org.openl.rules.datatype.gen.bean.writers.ClassDescriptionWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 
 /**
+ * Byte code generator for custom spreadsheet results.<br>
  * 
+ * Generates class that is child of {@link SpreadsheetResult} with decorator typed getter methods <br>
+ * for each spreadsheet cell.
  * 
  * @author DLiauchuk
- * TODO: refactor together with {@link SimpleBeanByteCodeGenerator}, extract common functionality.
  */
-public class CustomSpreadsheetResultByteCodeGenerator {
+public class CustomSpreadsheetResultByteCodeGenerator extends BeanByteCodeGenerator {
     
-    private final Log LOG = LogFactory.getLog(CustomSpreadsheetResultByteCodeGenerator.class);
-    
-    /** fields of the {@link SpreadsheetResult} that will be used for in constructor of generating class */
+    /** fields of the {@link SpreadsheetResult} that will be used in constructor of generating class */
     private static final Map<String, FieldDescription> spreadsheetResultFields;
     
     static {
@@ -43,19 +31,12 @@ public class CustomSpreadsheetResultByteCodeGenerator {
         spreadsheetResultFields.put("columnNames", new FieldDescription(String[].class));
         spreadsheetResultFields.put("fieldsCoordinates", new FieldDescription(Map.class));
     }
-    
-    private String canonicalBeanName;
-    private String beanNameWithPackage;
-    
-    private byte[] generatedByteCode;
-    
-    private List<BeanByteCodeWriter> writers = new ArrayList<BeanByteCodeWriter>();
 
     private Map<String, FieldDescription> cellFieldsDescription;
     
     public CustomSpreadsheetResultByteCodeGenerator(String canonicalBeanName, Map<String, FieldDescription> cellFieldsDescription) {
-        this.canonicalBeanName = canonicalBeanName;
-        this.beanNameWithPackage = JavaClassGeneratorHelper.replaceDots(canonicalBeanName);
+        super(canonicalBeanName);
+        
         this.cellFieldsDescription = new HashMap<String, FieldDescription>(cellFieldsDescription);
         
         initWriters();
@@ -63,91 +44,13 @@ public class CustomSpreadsheetResultByteCodeGenerator {
 
     private void initWriters() {  
         /** writer for the class description*/
-        writers.add(new ClassDescriptionWriter(beanNameWithPackage, SpreadsheetResult.class));
+        addWriter(new ClassDescriptionWriter(getBeanNameWithPackage(), SpreadsheetResult.class));
         
         /** writer for the constructor with parent parameters*/
-        writers.add(new ConstructorWithParametersWriter(beanNameWithPackage, SpreadsheetResult.class, 
+        addWriter(new ConstructorWithParametersWriter(getBeanNameWithPackage(), SpreadsheetResult.class, 
             new HashMap<String, FieldDescription>(), spreadsheetResultFields, spreadsheetResultFields));
         
         /** writer for generating decorator getter methods for spreadsheet cells*/
-        writers.add(new DecoratorMethodWriter(beanNameWithPackage, cellFieldsDescription, "getFieldValue", "get"));
+        addWriter(new DecoratorMethodWriter(getBeanNameWithPackage(), cellFieldsDescription, "getFieldValue", "get"));
     }
-    
-    public byte[] generateClassByteCode() {
-        ClassWriter classWriter = new ClassWriter(0);
-
-        for (BeanByteCodeWriter writer : writers) {
-            writer.write(classWriter);
-        }        
-
-        generatedByteCode = classWriter.toByteArray();
-
-//        writeBytesToFile(generatedByteCode);
-
-        return generatedByteCode;
-    }
-    
-    @SuppressWarnings("unused")
-    private void writeBytesToFile(byte[] byteArray) {
-        String strFilePath = String.format("D://gen//%s.class", JavaClassGeneratorHelper.getShortClassName(canonicalBeanName));
-        try {
-            FileOutputStream fos = new FileOutputStream(strFilePath);
-            fos.write(byteArray);
-            fos.close();
-        } catch(FileNotFoundException ex) {
-            LOG.error(this, ex);
-        } catch(IOException ioe){
-            LOG.error(this, ioe);
-        }
-    }
-    
-    /**
-     * 
-     * @return <code>Class<?></code> object of the generated bean class.
-     */
-    public Class<?> generateAndLoadBeanClass() {
-        if (generatedByteCode != null) {
-            return loadClass(generatedByteCode);
-        } else {
-            return loadClass(generateClassByteCode());
-        }
-    }
-    
-    private boolean isClassLoaderContainsClass(ClassLoader classLoader, String className){
-        try {
-            return classLoader.loadClass(className) != null;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-    
-    /**
-     * Return loaded to classpath class object
-     * 
-     * @param byteCode generated byteCode
-     * 
-     * @return <code>Class<?></code> descriptor for given byteCode
-     */
-    private Class<?> loadClass(byte[] byteCode) {
-        Class<?> result = null;
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            // try to load bean class from current classloader.
-            // if fails define it to this classloader.
-            if (isClassLoaderContainsClass(classLoader, canonicalBeanName)) {
-                result = classLoader.loadClass(canonicalBeanName);
-                LOG.debug(String.format("Datatype %s is using previously loaded", canonicalBeanName));
-                return result;
-            } else {
-                result = ReflectUtils.defineClass(canonicalBeanName, byteCode, classLoader);
-                LOG.debug(String.format("Datatype %s is using generated at runtime", canonicalBeanName));
-                    return result;
-            }
-        } catch (Exception ex) {
-            LOG.error(this, ex);
-        }
-
-        return null;
-    }
-
 }
