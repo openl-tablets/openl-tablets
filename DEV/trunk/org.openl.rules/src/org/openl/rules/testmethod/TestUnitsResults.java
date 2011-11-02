@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.calc.Spreadsheet;
 import org.openl.types.IMethodSignature;
-import org.openl.types.impl.DynamicObject;
 
 /**
  * Test units results for the test table.
@@ -19,11 +17,15 @@ import org.openl.types.impl.DynamicObject;
  */
 public class TestUnitsResults implements INamedThing {
     
-    private TestSuiteMethod testSuite;
+    private TestSuite testSuite;
     private ArrayList<TestUnit> testUnits = new ArrayList<TestUnit>();
 
-    public TestUnitsResults(TestSuiteMethod testSuite) {
+    public TestUnitsResults(TestSuite testSuite) {
         this.testSuite = testSuite;
+    }
+
+    public TestSuite getTestSuite() {
+        return testSuite;
     }
 
     public String getName() {
@@ -38,10 +40,17 @@ public class TestUnitsResults implements INamedThing {
         return testUnits;
     }
 
-    public void addTestUnit(DynamicObject testObj, Object res, Throwable ex) {
-        List<TestUnit> testUnits = TestMethodFactory.createTestUnits(testSuite.getTestedMethod(), testObj, res, ex);
-        this.testUnits.addAll(testUnits);
-    }    
+    public void addTestUnit(TestUnit testUnit) {
+        if (TestMethodFactory.shouldBeConverted(testUnit)) {
+            testUnits.addAll(TestMethodFactory.convertTestUnit(testUnit));
+        } else {
+            testUnits.add(testUnit);
+        }
+    }
+    
+    public void addTestUnits(List<TestUnit> testUnits) {
+        testUnits.addAll(testUnits);
+    }
     
     @Deprecated
     public Object getExpected(int i) {
@@ -49,15 +58,12 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public int getNumberOfFailures() {
-
         int cnt = 0;
-
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).compareResult() != TestUnitResultComparator.TR_OK) {
                 ++cnt;
             }
         }
-
         return cnt;
     }
 
@@ -88,7 +94,7 @@ public class TestUnitsResults implements INamedThing {
         String[] columnTechnicalNames = getTestDataColumnHeaders();
         String[] columnDisplayNames = new String[columnTechnicalNames.length];
         for(int i = 0; i < columnDisplayNames.length; i ++){
-            columnDisplayNames[i] = testSuite.getColumnDisplayName(columnTechnicalNames[i]);
+            columnDisplayNames[i] = testSuite.getTestSuiteMethod().getColumnDisplayName(columnTechnicalNames[i]);
         }
         return columnDisplayNames;
     }

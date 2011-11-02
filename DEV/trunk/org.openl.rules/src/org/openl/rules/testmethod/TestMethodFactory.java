@@ -9,7 +9,6 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DynamicObject;
 
 public class TestMethodFactory {
     private TestMethodFactory(){};
@@ -30,7 +29,14 @@ public class TestMethodFactory {
         }
         /** For all other cases, use common one*/
         return new TestMethodOpenClass(tableName, testedMethod);
-    }    
+    }
+    
+    public static boolean shouldBeConverted(TestUnit result) {
+        return result.getTest().getTestedMethod() instanceof Spreadsheet && ClassUtils.isAssignable(result.getRunningResult()
+            .getClass(),
+            SpreadsheetResult.class,
+            true);
+    }
     
     /**
      * Creates the list of test unit results. 
@@ -41,32 +47,25 @@ public class TestMethodFactory {
      * @param ex exception during test running
      * @return list of test unit results
      */
-    public static List<TestUnit> createTestUnits(IOpenMethod testedMethod, DynamicObject testObj, Object runningResult, Throwable ex) {
+    public static List<TestUnit> convertTestUnit(TestUnit result) {
         List<TestUnit> testUnits = null;
-        if (testedMethod instanceof Spreadsheet && ClassUtils.isAssignable(runningResult.getClass(), SpreadsheetResult.class, true)) {
-            /** If the tested method is spreadsheet and running result is the child of SpreadsheetResult, create a list of test units.
-             * Each test unit is testing one cell value. 
-             */            
-            SpreadsheetResult runningResultLocal = (SpreadsheetResult) runningResult;
-            if (runningResultLocal != null) {
-                TestSpreadsheetOpenClass openClass = (TestSpreadsheetOpenClass) testObj.getType();
+        SpreadsheetResult runningResultLocal = (SpreadsheetResult) result.getRunningResult();
+        if (runningResultLocal != null) {
+            TestSpreadsheetOpenClass openClass = (TestSpreadsheetOpenClass) result.getTest().getTestObject().getType();
 
-                /**
-                 * Creates a number of test units according to the testing cells
-                 */
-                testUnits = new ArrayList<TestUnit>(openClass.getSpreadsheetCellsForTest().size());
+            /**
+             * Creates a number of test units according to the testing cells
+             */
+            testUnits = new ArrayList<TestUnit>(openClass.getSpreadsheetCellsForTest().size());
 
-                for (int i = 0; i < openClass.getSpreadsheetCellsForTest().size(); i++) {
-                    String spreadsheetCellName = openClass.getSpreadsheetCellsForTest().get(i)[0].getIdentifier();
-                    TestUnit testUnit = new TestUnit(testObj, runningResultLocal.getFieldValue(spreadsheetCellName),
-                        ex, spreadsheetCellName);
-                    testUnits.add(testUnit);
-                }
+            for (int i = 0; i < openClass.getSpreadsheetCellsForTest().size(); i++) {
+                String spreadsheetCellName = openClass.getSpreadsheetCellsForTest().get(i)[0].getIdentifier();
+                TestUnit testUnit = new TestUnit(result.getTest(),
+                    runningResultLocal.getFieldValue(spreadsheetCellName),
+                    result.getException(),
+                    spreadsheetCellName);
+                testUnits.add(testUnit);
             }
-        } else {
-            /** For common case the will be only one test unit,testing result*/
-            testUnits = new ArrayList<TestUnit>(1);
-            testUnits.add(new TestUnit(testObj, runningResult, ex));
         }
         return testUnits;
     }
