@@ -69,6 +69,11 @@ public abstract class WizardBase extends BaseWizardBean {
         return workbook;
     }
 
+    public String getWorkbookName() {
+        String[] parts = workbook.split("/");
+        return parts[parts.length - 1];
+    }
+
     public List<SelectItem> getWorkbooks() {
         List<SelectItem> items = new ArrayList<SelectItem>(workbooks.size());
         for (String wbURI : workbooks.keySet()) {
@@ -81,6 +86,11 @@ public abstract class WizardBase extends BaseWizardBean {
 
     public Integer getWorksheetIndex() {
         return worksheetIndex;
+    }
+
+    public String getWorksheetName() {
+        Workbook currentWorkbook = workbooks.get(workbook).getWorkbook();
+        return currentWorkbook.getSheetName(worksheetIndex);
     }
 
     public List<SelectItem> getWorksheets() {

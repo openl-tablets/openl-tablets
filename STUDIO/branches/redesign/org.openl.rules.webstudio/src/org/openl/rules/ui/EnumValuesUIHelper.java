@@ -34,7 +34,6 @@ public class EnumValuesUIHelper {
     }
     
     public String getEnumValue() {
-        
         String componentId = enumOutput.getId();
         TableProperty property = (TableProperty)enumOutput.getAttributes().get("property");
         
@@ -42,15 +41,13 @@ public class EnumValuesUIHelper {
     }
     
     public String getEnumArrayValue() {
-
         String componentId = enumArrayOutput.getId();
         TableProperty property = (TableProperty)enumArrayOutput.getAttributes().get("property");
-        
+
         return getEnumMultiSelectComponentCode(componentId, property);
     }
     
     private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
-
         Class<?> instanceClass = tableProperty.getType();
         String value = tableProperty.getStringValue();
 
@@ -65,16 +62,16 @@ public class EnumValuesUIHelper {
     }
     
     private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
-        
+
         Class<?> instanceClass = tableProperty.getType().getComponentType();
 
         String valueString = tableProperty.getStringValue();
 
         String[] values = EnumUtils.getNames(instanceClass);
         String[] displayValues = EnumUtils.getValues(instanceClass);
-        
+
         String id = String.format("%s:%s:enumArraySelect", componentId, tableProperty.getName());
-        
+
         String componentCode = new HTMLRenderer().getMultiSelectComponentCode(id, values, displayValues, valueString);
 
         return getEditorHTMLCode(id, componentCode);
@@ -87,8 +84,8 @@ public class EnumValuesUIHelper {
                 + "var editor = %2$s;"
                 // editor value setter code
                 + "editor.input.onblur=function(){var newValue = this.getValue();"
-                + "$j('#%1$s').next('input[type=hidden][name!=id]').val(newValue);return false;};"
-                + "</script>", id, editorCode);
+                + "$j('#%3$s').next('input[type=hidden][name!=id]').val(newValue);return false;};"
+                + "</script>", id, editorCode, id.replaceAll(":", "\\\\\\\\:"));
     }
 
 }

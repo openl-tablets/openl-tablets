@@ -316,10 +316,6 @@ public class ShowTableBean {
         return projectModel.isEditable() && !isDispatcherValidationNode();
     }
 
-    public boolean isEditableAsNewVersion() {
-        return isEditable() && table.isVersionable();
-    }
-
     public boolean isHasErrors() {
         return CollectionUtils.isNotEmpty(errors);
     }
