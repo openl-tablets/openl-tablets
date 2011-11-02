@@ -43,10 +43,10 @@
     <h:form>
         <h:outputText value="Copy as " />
         <h:selectOneMenu value="#{tableCopierWizardManager.copyType}">
-            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:propertiesTable :modalVersionChange"
+            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:propertiesTable"
                 immediate="true" />
             <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
-            <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" itemDisabled="true" />
+            <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" />
             <f:selectItem itemLabel="New Business Dimension Version" itemValue="CHANGE_DIMENSION" itemDisabled="true" />
         </h:selectOneMenu>
     </h:form>
@@ -77,7 +77,7 @@
                                     <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
                                         defaultTime="00:00" rendered="#{prop.dateType}" />
 
-                                    <h:inputText value="#{prop.value}" readonly="true" rendered="#{prop.name == 'version'}"
+                                    <h:inputText id="aaa" value="#{prop.value}" readonly="true" rendered="#{prop.name == 'version'}"
                                         onclick="#{rich:component('modalVersionChange')}.show();" />
 
                                     <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />

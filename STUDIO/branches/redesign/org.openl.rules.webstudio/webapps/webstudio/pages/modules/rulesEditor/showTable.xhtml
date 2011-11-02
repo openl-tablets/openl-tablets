@@ -62,10 +62,10 @@
                     alt="Edit Table In Excel - #{showTableBean.uri}" />
             </h:outputLink>
 
-            <h:outputLink rendered="#{showTableBean.copyable}" target="content"
-                value="#{rulesEditor}/copyTable.xhtml">
+            <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
+                oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')">
                 <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
-            </h:outputLink>
+            </a4j:commandLink>
 
             <a4j:commandLink rendered="#{showTableBean.editable}" action="#{showTableBean.removeTable}"
                 onclick="if(!confirm('Do you really want to remove this table?'))return false;">

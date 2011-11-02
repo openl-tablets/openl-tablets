@@ -43,14 +43,19 @@
                 });
 
                 $j("a[target='content']").live("click", function() {
+                    var page = $j(this).attr("href");
                     showLoader();
-                    $j("#content").load($j(this).attr("href"));
+                    goTo(page);
                     hideLoader();
                     return false;
                 });
 
                 //setViewDimensions();
             });
+
+            function goTo(page) {
+                $j("#content").load(page);
+            }
 
             /*function setViewDimensions() {
                 $j(".view_workspace").each(function() {

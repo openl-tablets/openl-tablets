@@ -1,7 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.ui.EnumValuesUIHelper;
 import org.openl.rules.ui.copy.NewDimensionalVersionTableCopier;
@@ -9,8 +9,8 @@ import org.openl.rules.ui.copy.NewVersionTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
 
 @ManagedBean
-@ViewScoped
-public class TableCopierWizardManager extends TableWizard {    
+@SessionScoped
+public class TableCopierWizardManager extends TableWizard {
 
     static enum CopyType {
         CHANGE_NAMES,
@@ -18,12 +18,11 @@ public class TableCopierWizardManager extends TableWizard {
         CHANGE_VERSION
     }
 
-    private CopyType copyType = CopyType.CHANGE_NAMES;
+    private CopyType copyType;
 
     private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
 
     public TableCopierWizardManager () {
-        startWizard();
     }
 
     public String getCopyType() {
@@ -65,6 +64,8 @@ public class TableCopierWizardManager extends TableWizard {
 
     @Override
     public String start() {
+        copyType = CopyType.CHANGE_NAMES;
+        startWizard();
         return null;
     }
 
