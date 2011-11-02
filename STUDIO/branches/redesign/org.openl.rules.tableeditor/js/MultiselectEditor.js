@@ -86,9 +86,9 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        var pos = Element.cumulativeOffset(this.input);
+        var pos = Element.viewportOffset(this.input);
         pos[1] += this.input.getHeight();
-        this.multiselectPanel.style.left = pos[0] + "px";
+        this.multiselectPanel.style.left = pos[0] - (Prototype.Browser.Gecko ? 1 : 0) + "px";
         this.multiselectPanel.style.top = pos[1] + "px";
 
         document.body.appendChild(this.multiselectPanel);
