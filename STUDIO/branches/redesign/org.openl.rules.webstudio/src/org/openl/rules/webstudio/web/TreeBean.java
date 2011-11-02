@@ -9,8 +9,9 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 
 //import org.openl.commons.web.jsf.FacesUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tests.results.RanTestsResults;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 //import org.openl.rules.ui.tree.richfaces.TreeStateManager;
 import org.openl.rules.ui.tree.view.RulesTreeView;
@@ -62,11 +63,8 @@ public class TreeBean {
 
     public boolean isProjectHasTests() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        RanTestsResults allTestMethods = studio.getModel().getAllTestMethods();
-        if (allTestMethods != null) {
-            return allTestMethods.getTests().length > 0;
-        }
-        return false;
+        TestSuiteMethod[] allTestMethods = studio.getModel().getAllTestMethods();
+        return ArrayUtils.isNotEmpty(allTestMethods);
     }
 
     public TreeNode getTree() {

@@ -24,14 +24,32 @@
                 <f:param name="uri" value="#{runTestMethodBean.uri}" />
                 <h:outputText value="#{runTestMethodBean.tableName}" />
             </h:outputLink>
-            <h:outputText value=" (#{runTestMethodBean.testDescription})"
-                rendered="#{not empty runTestMethodBean.testDescription}" />            
         </h3>
 
         <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
 
+        <table class="testtable">    
+            <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+              <tr>
+                  <a4j:repeat value="#{runTestMethodBean.testDescription.executionParams}" var="parameter">
+                      <th>
+                          <h:outputText value="#{parameter.paramName}" />
+                      </th>
+                  </a4j:repeat>
+                  <th>
+                      <h:outputText value="Result" />
+                  </th>
+              </tr>
+            </h:panelGroup>
         <a4j:repeat value="#{runTestMethodBean.results}" var="result"
             binding="#{runTestMethodBean.resultItems}">
+            <tr style="vertical-align: top">
+            <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+               <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                 <ui:param name="args" value="#{runTestMethodBean.testDescription.executionParams}" />
+               </ui:include>
+            </h:panelGroup>
+            <td>
             <c:set var="errors" value="#{runTestMethodBean.errors}" />
             <h:panelGroup rendered="#{empty errors}">
                 <h:outputText value="#{runTestMethodBean.stringResult}"
@@ -52,8 +70,10 @@
                     <ui:param name="editable" value="#{studio.model.editable}" />
                 </ui:include>
             </h:panelGroup>
-            <br />
+            </td>
+            </tr>
         </a4j:repeat>
+        </table>
 
     </ui:define>
 

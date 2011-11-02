@@ -33,8 +33,14 @@
             }
         </style>
 
-        <h3>Results of benchmarking #{benchmarkMethodBean.testName} (#{benchmarkMethodBean.testDescr})</h3>
-
+        <h3>Results of benchmarking #{benchmarkMethodBean.testName}</h3>
+        <table>
+            <tr style="vertical-align: top">
+                <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                    <ui:param name="args" value="#{benchmarkMethodBean.executionParams}" />
+                </ui:include>
+            </tr>
+        </table>
         <h:form id="BMForm">
             <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
                 binding="#{benchmarkMethodBean.htmlDataTableBM}" styleClass="matrix"

@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -10,31 +11,31 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringTool;
+import org.openl.types.IOpenMethod;
 import org.richfaces.component.UIRepeat;
 
 /**
- * Request scope managed bean providing logic for 'Run TestMethod' page of OpenL Studio.
+ * Request scope managed bean providing logic for 'Run TestMethod' page of OpenL
+ * Studio.
  */
 @ManagedBean
 @RequestScoped
 public class RunTestMethodBean {
 
     private String tableName;
-    
-    private String testName;
-    
+
     private String testId;
-    
-    private String testDescription;
-    
+
     private String tableUri;
 
-    private Object[] results;
+    private TestUnit[] results;
 
     private UIRepeat resultItems;
 
@@ -51,56 +52,47 @@ public class RunTestMethodBean {
         TestResultsHelper.initExplanator();
 
         tableName = studio.getModel().getTable(tableUri).getName();
-        testName = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_NAME);
-        if (testName != null) {
-            testName = StringTool.decodeURL(testName);
-        }
         testId = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_ID);
-        testDescription = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_DESCRIPTION);
 
-        runTestMethod(tableUri, testId, testName);
+        runTestMethod(tableUri, testId);
     }
 
-    private void runTestMethod(String tableUri, String testId, String testName) {
+    private void runTestMethod(String tableUri, String testId) {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        Object result =  studio.getModel().runElement(tableUri, testName, testId);
-
-        setResults(result);
+        if (StringUtils.isNotBlank(testId)) {
+            results = new TestUnit[] { studio.getModel().runSingleTestUnit(tableUri, testId) };
+        } else {
+            IOpenMethod method = studio.getModel().getMethod(tableUri);
+            if (method instanceof TestSuiteMethod) {
+                ArrayList<TestUnit> testUnits = studio.getModel().runTestSuite(tableUri).getTestUnits();
+                results = new TestUnit[testUnits.size()];
+                results = testUnits.toArray(results);
+            } else {
+                TestDescription test = new TestDescription(method, new Object[] {});
+                results = new TestUnit[] { studio.getModel().runSingleTestUnit(test) };
+            }
+        }
     }
 
     public String getTableName() {
         return tableName;
     }
-        
-    public String getTestName() {
-        return testName;
-    }
-        
+
     public String getTestId() {
         return testId;
     }
-        
-    public String getTestDescription() {
-        return testDescription;
+
+    public TestDescription getTestDescription() {
+        return getCurrentTest().getTest();
     }
 
     public Object[] getResults() {
         return results;
     }
-    
+
     public String getUri() {
         return tableUri;
-    }
-
-    private void setResults(Object results) {
-        if (results == null) {
-            this.results = new Object[0];
-        } else if (results.getClass().isArray()) {
-            this.results = (Object[]) results;
-        } else {
-            this.results = new Object[] { results };
-        }
     }
 
     public UIRepeat getResultItems() {
@@ -110,15 +102,21 @@ public class RunTestMethodBean {
     public void setResultItems(UIRepeat resultItems) {
         this.resultItems = resultItems;
     }
-    
+
+    public TestUnit getCurrentTest() {
+        return (TestUnit) resultItems.getRowData();
+    }
+
+    public Object getCurrentTestResult() {
+        return getCurrentTest().getActualResult();
+    }
+
     public String getStringResult() {
-        Object result = resultItems.getRowData();
-        return TestResultsHelper.format(result);        
+        return TestResultsHelper.format(getCurrentTestResult());
     }
 
     public SpreadsheetResult getSpreadsheetResult() {
-        Object result = resultItems.getRowData();
-        return TestResultsHelper.getSpreadsheetResult(result);
+        return TestResultsHelper.getSpreadsheetResult(getCurrentTestResult());
     }
 
     public String getFormattedSpreadsheetResult() {
@@ -130,10 +128,9 @@ public class RunTestMethodBean {
     }
 
     public ExplanationNumberValue<?> getExplanationValueResult() {
-        Object result = resultItems.getRowData();
-        return TestResultsHelper.getExplanationValueResult(result);
+        return TestResultsHelper.getExplanationValueResult(getCurrentTestResult());
     }
-    
+
     public String getFormattedExplanationValueResult() {
         return TestResultsHelper.format(getExplanationValueResult());
     }
@@ -143,9 +140,7 @@ public class RunTestMethodBean {
     }
 
     public List<OpenLMessage> getErrors() {
-        Object result = resultItems.getRowData();
-
-        return TestResultsHelper.getErrors(result);
+        return TestResultsHelper.getErrors(getCurrentTestResult());
     }
 
 }

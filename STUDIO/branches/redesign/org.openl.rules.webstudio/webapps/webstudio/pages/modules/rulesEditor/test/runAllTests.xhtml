@@ -33,13 +33,12 @@
             </h:panelGroup>
         </h:panelGrid>
     
-        <a4j:repeat value="#{runAllTestsBean.ranTests}" var="test" binding="#{runAllTestsBean.currentTest}">
-            <c:set value="#{test.testUnitsResults}" var="testUnitsResults" />
+        <a4j:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
             <h1>
                 <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content"
                     style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
-                	<f:param name="uri" value="#{test.uri}" />
-                	<h:outputText value="#{test.testName}" />
+                	<f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
+                	<h:outputText value="#{testUnitsResults.testSuite.name}" />
             	</h:outputLink>
             </h1>
     
