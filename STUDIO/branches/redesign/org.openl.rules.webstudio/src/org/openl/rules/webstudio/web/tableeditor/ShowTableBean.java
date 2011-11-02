@@ -35,16 +35,17 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tests.results.RanTestsResults;
-import org.openl.rules.ui.tests.results.Test;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IOpenMethod;
 import org.openl.util.StringTool;
 
 /**
@@ -58,11 +59,11 @@ public class ShowTableBean {
     
     private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
-    // Filled and runnable tests(this group of tests is more tight than allTests).
-    private Test[] runnableTestMethods = {};
+    // Test in current table(only for test tables)
+    private TestDescription[] runnableTestMethods = {};//test units
     
     // All checks and tests for current table (including tests with no cases, run methods).
-    private Test[] allTests = {};
+    private IOpenMethod[] allTests = {};
     
     private boolean runnable;    
     private List<IOpenLTable> targetTables;
@@ -103,18 +104,18 @@ public class ShowTableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {
+            initProblems();
+            initTests(model);        
+            initParams();
+
             runnable = !model.isMethodHasParams(uri)
-                && (getTestRunResults().isNotEmpty() || table.isExecutable());
+                && (ArrayUtils.isNotEmpty(runnableTestMethods) || table.isExecutable());
 
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
                     || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
                 targetTables = model.getTargetTables(uri);
             }
-
-            initProblems();
-            initTests(model);        
-            initParams();
 
             storeTable();
         }
@@ -145,16 +146,12 @@ public class ShowTableBean {
     }
 
     private void initAllTests(final ProjectModel model) {
-        RanTestsResults allTestRunner = model.getAllTestMethods(uri);
-        if (allTestRunner != null) {
-            allTests = allTestRunner.getTests();
-        }
+        allTests = model.getAllTestMethods(uri);
     }
 
     private void initRunnableTestMethods(final ProjectModel model) {
-        RanTestsResults testsRunner = model.getTestMethods(uri);
-        if (testsRunner != null) {
-            runnableTestMethods =  testsRunner.getTests();
+        if (model.getMethod(uri) instanceof TestSuiteMethod) {
+            runnableTestMethods = ((TestSuiteMethod) model.getMethod(uri)).getTests();
         }
     }
     
@@ -256,26 +253,13 @@ public class ShowTableBean {
         return problems;
     }    
     
-    /**
-     * Gets the results for run methods.
-     * 
-     * @return results of run methods.
-     */
-    public TestRunsResultBean getTestRunResults() {
-        RanTestsResults atr = WebStudioUtils.getProjectModel().getRunMethods(uri);
-        Test[] tests = null;
-        if (atr != null) {
-            tests = atr.getTests();
-        }
-        return new TestRunsResultBean(tests);
-    }
     
     /**
-     * Return test methods for current table. Test methods are methods with test cases. 
+     * Return test cases for current table.
      * 
      * @return array of tests for current table. 
      */
-    public Test[] getTests() {
+    public TestDescription[] getTests() {
         return runnableTestMethods;
     }
 
@@ -352,19 +336,14 @@ public class ShowTableBean {
      * runs without any parameters and tests without cases and runs.
      */
     public boolean isHasAnyTests() {
-        return allTests.length > 0;
+        return ArrayUtils.isNotEmpty(allTests);
     }
     
     /**
-     * Gets all tests, including tests with test cases, runs with filled runs, tests without cases(empty),
-     * runs without any parameters and tests without cases and runs.
+     * Gets all tests for current table.
      */
-    public Test[] getAllTests() {
+    public IOpenMethod[] getAllTests() {
         return allTests;
-    }
-
-    public void setAllTests(Test[] allTests) {
-        this.allTests = allTests;
     }
 
     public boolean isShowFormulas() {
@@ -448,32 +427,20 @@ public class ShowTableBean {
 
     public static class TestRunsResultBean {
 
-        private Test[] tests;
+        private TestSuite[] tests;
 
-        private TestProxy[] proxies;
-
-        public TestRunsResultBean(Test[] tests) {
+        public TestRunsResultBean(TestSuite[] tests) {
             this.tests = tests;
-            if (tests == null) {
-                proxies = new TestProxy[0];
-            } else {
-                proxies = new TestProxy[tests.length];
-            }
-
-            for (int i = 0; i < proxies.length; i++) {
-                proxies[i] = new TestProxy(i);
-            }
         }
 
-        public TestProxy[] getTests() {
-            return proxies;
+        public TestSuite[] getTests() {
+            return tests;
         }
 
         public boolean isNotEmpty() {
             if (ArrayUtils.isNotEmpty(tests)) {
-                for (TestProxy testProxy : getTests()) {
-                    TestDescription[] descriptions = testProxy.getDescriptions();
-                    if (ArrayUtils.isNotEmpty(descriptions)) {
+                for (TestSuite test : getTests()) {
+                    if (ArrayUtils.isNotEmpty(test.getTests())) {
                         return true;
                     }
                 }
@@ -481,26 +448,5 @@ public class ShowTableBean {
             return false;
         }
         
-        public class TestProxy {
-
-            int index;
-
-            public TestProxy(int index) {
-                this.index = index;
-            }
-
-            public TestDescription[] getDescriptions() {
-                return getTest().getTestDescriptions();
-            }
-
-            private Test getTest() {
-                return tests[index];
-            }
-
-            public String getTestName() {
-                return StringTool.encodeURL(getTest().getTestName());
-            }
-        }
-
     }
 }

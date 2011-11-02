@@ -75,7 +75,9 @@ public class TestTreeBuilder {
         ExecutionParamDescription parameter = (ExecutionParamDescription) executionParam.getRowData();
         TreeNodeImpl root = new TreeNodeImpl();
 
-        FieldDescriptionTreeNode treeNode = new FieldDescriptionTreeNode(parameter);
+        FieldDescriptionTreeNode treeNode = new FieldDescriptionTreeNode(null,
+            parameter.getValue(),
+            parameter.getParamType());
         processNode(treeNode, parameter.getParamType(), parameter.getValue());
         root.addChild(parameter.getParamName(), treeNode);
 

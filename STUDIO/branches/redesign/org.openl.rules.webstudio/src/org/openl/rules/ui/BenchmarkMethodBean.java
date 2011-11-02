@@ -9,9 +9,12 @@ import javax.faces.component.html.HtmlDataTable;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringTool;
+import org.openl.types.IOpenMethod;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkOrder;
 
@@ -28,11 +31,9 @@ public class BenchmarkMethodBean {
 
     public void addLastBenchmark() {
         String elementUri = getElementUri();
-        String testName = getTestName();
         String testID = getTestID();
-        String testDescr = getTestDescr();
         try {
-            BenchmarkInfo buLast = studio.getModel().benchmarkElement(elementUri, testName, testID, testDescr, 3000);
+            BenchmarkInfo buLast = studio.getModel().benchmarkElement(elementUri, testID, 3000);
             studio.addBenchmark(buLast);
             benchmarkResults.add(buLast);
         } catch (Exception e) {
@@ -178,12 +179,19 @@ public class BenchmarkMethodBean {
         return "color: black;";
     }
 
-    public String getTestDescr() {
-        String testDescr = FacesUtils.getRequestParameter("testDescr");
-        if (testDescr == null) {
-            testDescr = StringUtils.EMPTY;
+    public TestDescription getTestDescr() {
+        studio = WebStudioUtils.getWebStudio();
+        studio = WebStudioUtils.getWebStudio();
+        TestSuiteMethod testSuiteMethod = (TestSuiteMethod) studio.getModel().getMethod(getElementUri());
+        return testSuiteMethod.getTest(Integer.valueOf(getTestID()));
+    }
+    
+    public ExecutionParamDescription[] getExecutionParams() {
+        if (StringUtils.isNotEmpty(getTestID())) {
+            return getTestDescr().getExecutionParams();
+        } else {
+            return new ExecutionParamDescription[0];
         }
-        return testDescr;
     }
 
     private String getTestID() {
@@ -191,11 +199,14 @@ public class BenchmarkMethodBean {
     }
 
     public String getTestName() {
-        String testName = FacesUtils.getRequestParameter("testName");
-        if (testName != null) {
-            return StringTool.decodeURL(testName);
+        studio = WebStudioUtils.getWebStudio();
+        String testID = getTestID();
+        IOpenMethod benchMarkedMethod = studio.getModel().getMethod(getElementUri());
+        if (StringUtils.isNotBlank(testID)) {
+            return benchMarkedMethod.getName() + " : " + testID;
+        } else {
+            return benchMarkedMethod.getName();
         }
-        return StringUtils.EMPTY;
     }
 
     public String getUnitName() {

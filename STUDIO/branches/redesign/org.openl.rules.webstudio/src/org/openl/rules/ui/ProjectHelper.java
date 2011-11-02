@@ -22,15 +22,16 @@ public class ProjectHelper {
     private static final String NO = "No";
     private static final String RUNS = "runs";    
     
-    public static IOpenMethod[] allTesters(IOpenClass openClass) {
-        List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+    public static TestSuiteMethod[] allTesters(IOpenClass openClass) {
+        List<TestSuiteMethod> res = new ArrayList<TestSuiteMethod>();
         for (IOpenMethod tester : openClass.getMethods()) {
             if (isTester(tester)) {
-                res.add(tester);
+                res.add((TestSuiteMethod)tester);
             }
         }
 
-        return (IOpenMethod[]) res.toArray(new IOpenMethod[0]);
+        TestSuiteMethod[] testSuiteMethods = new TestSuiteMethod[res.size()];
+        return res.toArray(testSuiteMethods);
     }
 
     public static boolean isMethodRunnedBy(IOpenMethod tested, IOpenMethod runner) {

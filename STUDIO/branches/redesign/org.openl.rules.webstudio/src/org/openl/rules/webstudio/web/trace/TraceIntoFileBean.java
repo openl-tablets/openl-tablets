@@ -77,7 +77,7 @@ public class TraceIntoFileBean {
 
     private Tracer trace(String tableUri) {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.traceElement(tableUri, null, null);
+        return model.traceElement(tableUri, null);
     }
 
     private TracePrinter getTracePrinter(String fileFormat) {
