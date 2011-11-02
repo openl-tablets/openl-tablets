@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
+    <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
+
+    <script src="#{contextPath}/javascript/validator.js"></script>
+    <link href="webresource/css/multiselect.css" rel="stylesheet" type="text/css"></link>
+    <script src="webresource/js/AjaxHelper.js"></script>
+    <script src="webresource/js/BaseEditor.js"></script>
+    <script src="webresource/js/BaseTextEditor.js"></script>
+    <script src="webresource/js/MultiselectEditor.js"></script>
+    <script src="webresource/js/DropdownEditor.js"></script>
+    <script src="webresource/js/validation.js"></script>
+
+    <style>
+        .section h3 {
+            margin: 30px 0 15px;
+            font-size: 110%;
+            font-weight: bold;
+            border-bottom: 1px solid #EBCF89;
+            color: #EC9D0F;
+            padding-bottom: 3px;
+        }
+        .section div {
+            margin-left: 10px;
+        }
+    </style>
+
+    <h:messages errorClass="error" />
+
+    <h2>Copy Table</h2>
+    <br />
+
+    <h:form>
+        <h:outputText value="Copy as " />
+        <h:selectOneMenu value="#{tableCopierWizardManager.copyType}">
+            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:propertiesTable :modalVersionChange"
+                immediate="true" />
+            <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
+            <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" itemDisabled="true" />
+            <f:selectItem itemLabel="New Business Dimension Version" itemValue="CHANGE_DIMENSION" itemDisabled="true" />
+        </h:selectOneMenu>
+    </h:form>
+
+    <h:form id="copyTableForm" prependId="false">
+        <div class="section">
+            <h3>Name and Properties</h3>
+            <div>
+                <h:panelGroup id="technicalNamePanel">
+                    <h:panelGrid columns="3" style="background: #F1F1F1; padding: 3px 0; margin-bottom: 5px">
+                        <h:outputText value="Technical name" />
+                        <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
+                            disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}">
+                            <rich:validator />
+                        </h:inputText>
+                        <h:message for="technicalName" styleClass="error" />
+                    </h:panelGrid>
+                </h:panelGroup>
+
+                <h:panelGroup id="propertiesTable">
+                    <table>
+                        <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop">
+                            <tr>
+                                <td style="min-width: 88px">
+                                    <h:outputText value="#{prop.displayName}" />
+                                </td>
+                                <td style="width: 156px">
+                                    <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                                        defaultTime="00:00" rendered="#{prop.dateType}" />
+
+                                    <h:inputText value="#{prop.value}" readonly="true" rendered="#{prop.name == 'version'}"
+                                        onclick="#{rich:component('modalVersionChange')}.show();" />
+
+                                    <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+
+                                    <h:outputText binding="#{tableCopierWizardManager.enumHelper.enumOutput}" escape="false"
+                                        value="#{tableCopierWizardManager.enumHelper.enumValue}" rendered="#{prop.enumType}">
+                                        <f:attribute name="property" value="#{prop}" />
+                                    </h:outputText>
+                                    <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType}" />
+
+                                    <h:outputText binding="#{tableCopierWizardManager.enumHelper.enumArrayOutput}" escape="false"
+                                        value="#{tableCopierWizardManager.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
+                                        <f:attribute name="property" value="#{prop}" />
+                                    </h:outputText>
+                                    <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+
+                                    <h:inputText value="#{prop.value}"
+                                        rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{propertiesManager.removeProperty}"
+                                        render="propertiesTable newPropertySelect"
+                                        rendered="{(tableCopierWizardManager.copyType == 'CHANGE_NAMES' and prop.name != 'name') or (tableCopierWizardManager.copyType != 'CHANGE_VERSION' and prop.name == 'version') or (tableCopierWizardManager.copyType != 'CHANGE_DIMENSION' and !prop.dimensional)}">
+                                        <h:graphicImage value="/images/delete.gif"
+                                            alt="Remove property" title="Remove property" />
+                                        <f:setPropertyActionListener value="#{prop}"
+                                            target="#{propertiesManager.propToRemove}" />
+                                    </a4j:commandLink>
+                                </td>
+                            </tr>
+                        </a4j:repeat>
+                    </table>
+                </h:panelGroup>
+        
+                <a4j:commandButton value="Edit Properties" oncomplete="#{rich:component('newPropertyDlg')}.show();"
+                    style="margin-top: 8px" rendered="false" />
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Save To</h3>
+            <div>
+                <span style="cursor: pointer;"
+                    onclick="$j('#savePanel').slideDown();$j(this).hide()">#{wizard.workbookName} -> #{wizard.worksheetName}</span>
+                <h:panelGrid id="savePanel" columns="2" style="display: none">
+                    <h:outputText value="Workbook" />
+                    <h:selectOneMenu value="#{wizard.workbook}">
+                        <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
+                        <f:selectItems value="#{wizard.workbooks}"/>
+                    </h:selectOneMenu>
+                    <h:outputText value="Worksheet" />
+                    <h:panelGrid columns="2">
+                        <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{wizard.newWorksheet}"
+                            layout="pageDirection">
+                            <f:selectItem itemValue="existing" itemLabel="Existing"/>
+                            <f:selectItem itemValue="new" itemLabel="New"/>
+                        </h:selectOneRadio>
+                        <h:panelGrid columns="1">
+                            <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet">
+                                <f:selectItems value="#{wizard.worksheets}" />
+                            </h:selectOneMenu>
+                            <h:inputText value="#{wizard.newWorksheetName}" id="newSheetName" />
+                        </h:panelGrid>
+                    </h:panelGrid>
+                </h:panelGrid>
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+        <h:commandButton value="Copy" action="#{wizard.finish}" />
+    </h:form>
+
+    <rich:popupPanel id="modalVersionChange" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Version" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/modal/close.png"
+                style="cursor:pointer" alt="Close" title="Close"
+                    onclick="#{rich:component('modalVersionChange')}.hide();" />
+        </f:facet>
+
+        <h:form id="changeVersionForm">
+            <h:panelGroup id="changeVersionPanel">
+                <ui:include src="/pages/common/selectVersion.xhtml" />
+            </h:panelGroup>
+
+            <br />
+            <hr />
+            <br />
+
+            <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px" cellspacing="0px">
+                <a4j:commandButton value="Ok" render="propertiesTable"
+                    oncomplete="#{rich:component('modalVersionChange')}.hide();" />
+                <input type="button" value="Cancel"
+                    onclick="#{rich:component('modalVersionChange')}.hide();" />
+            </h:panelGrid>
+        </h:form>
+    </rich:popupPanel>
+
+    <rich:popupPanel id="newPropertyDlg" width="290" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Add Property" />
+        </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/modal/close.png"
+                style="cursor:pointer"
+            onclick="#{rich:component('newPropertyDlg')}.hide();" />
+        </f:facet>
+    
+        <h:form rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}">
+            <h:panelGrid columns="2">
+                <h:outputText value="Select Property" />
+                <h:selectOneMenu id="newPropertySelect" value="#{propertiesManager.propNameToAdd}">
+                    <f:selectItems value="#{propertiesManager.propertiesThatCanBeAdded}" />
+                </h:selectOneMenu>
+            </h:panelGrid>
+            <h:panelGroup style="text-align: center; margin-top: 10px;" layout="block">
+                <a4j:commandButton value="Add"
+                    action="#{propertiesManager.addProperty}"
+                    render="propertiesTable newPropertySelect changeVersionPanel"
+                    oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
+                <h:commandButton value="Cancel" style="margin-left: 5px;"
+                    onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+            </h:panelGroup>
+        </h:form>
+    
+        <h:panelGroup rendered="#{empty propertiesManager.propertiesThatCanBeAdded}">
+            <h:panelGrid style="text-align: center; width: 100%">
+                <h:outputText value="There are no properties to add" />
+                <div style="margin-top: 5px">
+                    <input type="button" value="Ok"
+                        onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
+                </div>
+            </h:panelGrid>
+        </h:panelGroup>
+    </rich:popupPanel>
+
+    <script>
+      function validateForm() {
+        return validateNewSheetName();
+      }
+            
+      function validateNewSheetName() {
+        var e = document.forms['copyTableForm']['newSheet'][0];
+        var newSheet = e.value == 'new' ? e.checked : !e.checked;
+        if (newSheet) {
+          return validateRequired('newSheetName', true);
+        }
+        return true;
+      }
+
+      function updateControls() {
+        var e = document.forms['copyTableForm']['newSheet'][0];
+        var newSheet = e.value == 'new' ? e.checked : !e.checked;
+        $j('#sheet').attr("disabled", newSheet);
+        $j('#newSheetName').attr("disabled", !newSheet);
+      }
+
+      function enableControls() {
+        $j('#sheet').attr("disabled", false);
+        $j('#newSheetName').attr("disabled", false);
+      }
+
+      updateControls();
+
+    </script>
+
+</ui:composition>

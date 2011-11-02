@@ -7,13 +7,15 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-    <c:set var="minVersion" value="#{tableCopierWizard.minNextVersion}" />
+    <c:set var="minVersion" value="#{wizard.minNextVersion}" />
 
-    <h:panelGroup rendered="#{not empty tableCopierWizard.version}">
+    <h:head></h:head>
+
+    <h:panelGroup rendered="#{not empty wizard.version}">
         <fieldset>
             <legend>
                 <h:outputText value="Current Version: " />
-                <h:outputText id="currentVersionText" value="#{tableCopierWizard.version.value}" />
+                <h:outputText id="currentVersionText" value="#{wizard.version.value}" />
                 <br/>
                 <h:outputText value="New Version: " />
                 <h:outputText id="newVersionText" value="#{minVersion}" />
@@ -31,7 +33,7 @@
                 <rich:inputNumberSpinner id="variant" value="#{minVersion.variant}"
                     maxValue="32000" cycled="false" inputSize="4" onchange="adjustNextVersion()"
                     enableManualInput="false" />
-                <h:inputHidden id="newVersion" value="#{tableCopierWizard.version.value}" />
+                <h:inputHidden id="newVersion" value="#{wizard.version.value}" />
             </h:panelGrid>
         </fieldset>
 
@@ -67,7 +69,7 @@
             }
 
             function restoreVersion(){
-                var version = $("changeVersionForm:newVersion").value;
+                var version = $j("#changeVersionForm\\:newVersion").val();
                 var sv = version.split('.');
                 RichFaces.$('changeVersionForm:major').setValue(sv[0]);
                 RichFaces.$('changeVersionForm:minor').setValue(sv[1]);
@@ -79,8 +81,8 @@
                 var minor = RichFaces.$('changeVersionForm:minor').getValue();
                 var variant = RichFaces.$('changeVersionForm:variant').getValue();
                 var version = major + "." + minor + "." + variant;
-                $("changeVersionForm:newVersionText").innerHTML = version;
-                $("changeVersionForm:newVersion").value = version;
+                $j("#changeVersionForm\\:newVersionText").html(version);
+                $j("#changeVersionForm\\:newVersion").val(version);
             }
             applyVersion();
         </script>

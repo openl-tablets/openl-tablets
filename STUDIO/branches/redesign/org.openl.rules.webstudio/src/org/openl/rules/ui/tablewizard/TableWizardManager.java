@@ -71,7 +71,7 @@ public class TableWizardManager extends TableWizard{
                 wizard.setStepsCount(4);
                 break;
             case TEST_DIRECT:
-                wizard = new TestTableCreationWizardDirect(getElementUri());
+                wizard = new TestTableCreationWizardDirect(getTableUri());
                 wizard.setStepsCount(3);
                 break;
             case PROPERTY:

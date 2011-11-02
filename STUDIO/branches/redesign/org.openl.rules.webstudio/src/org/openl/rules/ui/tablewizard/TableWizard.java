@@ -8,7 +8,7 @@ public abstract class TableWizard {
     
     public static final String ERROR = "error";
     
-    private String elementUri;
+    private String tableUri;
     
     protected BaseWizardBean wizard;
 
@@ -29,23 +29,23 @@ public abstract class TableWizard {
     public String prev() {
         return wizard.prev();
     }
-    
-    public String getElementUri() {
-        return elementUri;
+
+    public String getTableUri() {
+        return tableUri;
     }
 
-    public void setElementUri(String elementUri) {
-        this.elementUri = elementUri;
+    public void setTableUri(String tableUri) {
+        this.tableUri = tableUri;
     }
-    
+
     protected void reload() {
-        elementUri = null;
+        tableUri = null;
         init();        
     }
 
     protected void init() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        elementUri = studio.getTableUri();
+        tableUri = studio.getTableUri();
     }
 
 }

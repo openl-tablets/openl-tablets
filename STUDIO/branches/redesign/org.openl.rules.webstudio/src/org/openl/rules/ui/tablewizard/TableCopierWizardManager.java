@@ -1,38 +1,38 @@
 package org.openl.rules.ui.tablewizard;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
+import org.openl.rules.ui.EnumValuesUIHelper;
+import org.openl.rules.ui.copy.NewDimensionalVersionTableCopier;
 import org.openl.rules.ui.copy.NewVersionTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
-import org.openl.rules.ui.copy.TablePropertyCopier;
 
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class TableCopierWizardManager extends TableWizard {    
 
     static enum CopyType {
         CHANGE_NAMES,
-        CHANGE_PROPERTIES,
+        CHANGE_DIMENSION,
         CHANGE_VERSION
-    }    
-    
+    }
+
     private CopyType copyType = CopyType.CHANGE_NAMES;
-    
+
+    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
+
     public TableCopierWizardManager () {
-        init();
-    }    
-    
+        startWizard();
+    }
+
     public String getCopyType() {
         return copyType.name();
     }
-    
+
     public void setCopyType(String copyType) {
-        try {
-            this.copyType = CopyType.valueOf(copyType);
-        } catch (IllegalArgumentException e) {
-            this.copyType = CopyType.CHANGE_NAMES;
-        }
+        this.copyType = CopyType.valueOf(copyType);
+        startWizard();
     }
 
     @Override
@@ -40,13 +40,13 @@ public class TableCopierWizardManager extends TableWizard {
         reload();
         switch (copyType) {
             case CHANGE_NAMES:
-                wizard = new TableNamesCopier(getElementUri()); 
-                break;
-            case CHANGE_PROPERTIES:
-                wizard = new TablePropertyCopier(getElementUri());
+                wizard = new TableNamesCopier(getTableUri()); 
                 break;
             case CHANGE_VERSION:
-                wizard = new NewVersionTableCopier(getElementUri());
+                wizard = new NewVersionTableCopier(getTableUri());
+                break;
+            case CHANGE_DIMENSION:
+                wizard = new NewDimensionalVersionTableCopier(getTableUri());
                 break;
             default:
                 return null;
@@ -60,13 +60,16 @@ public class TableCopierWizardManager extends TableWizard {
         if (wizard != null) {
             wizard.cancel();
         }
-        return "newTableCancel";
+        return null;
     }
-    
+
     @Override
     public String start() {
-        copyType = CopyType.CHANGE_NAMES;
-        return "wizardSelect";       
+        return null;
+    }
+
+    public EnumValuesUIHelper getEnumHelper() {
+        return enumHelper;
     }
 
 }

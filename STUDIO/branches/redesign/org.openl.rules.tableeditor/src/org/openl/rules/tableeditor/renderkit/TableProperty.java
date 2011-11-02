@@ -26,6 +26,7 @@ public class TableProperty {
     private Constraints constraints;
     private String description;
     private boolean system;
+    private boolean dimensional;
     private InheritanceLevel inheritanceLevel;
 
     private TableProperty(TablePropertyBuilder builder) {
@@ -38,6 +39,7 @@ public class TableProperty {
         this.constraints = builder.constraints;
         this.description = builder.description;
         this.system = builder.system;
+        this.dimensional = builder.dimensional;
         this.inheritanceLevel = builder.inheritanceLevel;
     }
 
@@ -216,6 +218,14 @@ public class TableProperty {
         return system;
     }
 
+    public boolean isDimensional() {
+        return dimensional;
+    }
+
+    public void setDimensional(boolean dimensional) {
+        this.dimensional = dimensional;
+    }
+
     public InheritanceLevel getInheritanceLevel() {
         return inheritanceLevel;
     }
@@ -243,6 +253,7 @@ public class TableProperty {
         private Constraints constraints;
         private String description;
         private boolean system;
+        private boolean dimensional;
         private InheritanceLevel inheritanceLevel;
 
         public TablePropertyBuilder(String name, Class<?> type) {
@@ -282,6 +293,11 @@ public class TableProperty {
 
         public TablePropertyBuilder system(boolean val) {
             system = val;
+            return this;
+        }
+
+        public TablePropertyBuilder dimensional(boolean val) {
+            dimensional = val;
             return this;
         }
 

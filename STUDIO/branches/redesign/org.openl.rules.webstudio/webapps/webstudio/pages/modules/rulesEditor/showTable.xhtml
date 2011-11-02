@@ -53,14 +53,6 @@
                 <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
             </h:outputLink>
 
-            <h:commandLink rendered="#{showTableBean.editableAsNewVersion}"
-                action="#{tableCopierWizardManager.startWizard}">
-                <a4j:param assignTo="#{tableCopierWizardManager.copyType}" value="CHANGE_VERSION" />
-                <f:param name="uri" value="#{showTableBean.uri}" />
-                <h:graphicImage url="/webresource/images/editTableNewVersion.gif"
-                    alt="Edit Table as New Version" title="Edit Table as New Version" />
-            </h:commandLink>
-
             <h:outputLink rendered="#{showTableBean.editable}"
                 value="#{contextPath}/action/launch" target="hidden">
                 <f:param name="uri" value="#{showTableBean.uri}" />
@@ -70,9 +62,8 @@
                     alt="Edit Table In Excel - #{showTableBean.uri}" />
             </h:outputLink>
 
-            <h:outputLink rendered="#{showTableBean.copyable}" target="_self"
-                value="#{rulesEditor}/tableCopier/copyTableSelectOptions.xhtml">
-                <f:param name="uri" value="#{showTableBean.uri}" />
+            <h:outputLink rendered="#{showTableBean.copyable}" target="content"
+                value="#{rulesEditor}/copyTable.xhtml">
                 <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
             </h:outputLink>
 

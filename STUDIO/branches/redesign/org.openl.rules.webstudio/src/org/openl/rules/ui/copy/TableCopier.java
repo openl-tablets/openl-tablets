@@ -1,55 +1,161 @@
 package org.openl.rules.ui.copy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.constraints.Constraint;
+import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.constraints.LessThanConstraint;
+import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.WizardBase;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.conf.Version;
+import org.richfaces.component.UIRepeat;
 
 /**
- * Backing bean for table coping.
+ * Bean for table coping.
  *
  * @author Andrei Astrouski.
  */
-public abstract class TableCopier extends WizardBase {
-    
+public class TableCopier extends WizardBase {
+
+    private static final Log LOG = LogFactory.getLog(TableCopier.class);
+
+    public static final String INIT_VERSION = "0.0.1";
+
     /** Table identifier */
-    private String elementUri = null;
+    private String tableUri = null;
 
     /** Table technical name */
     @NotEmpty(message="Technical name can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
     private String tableTechnicalName;
 
-    /** Table business name */
-    private String tableBusinessName;
+    /**
+     * Bean - container of all properties for new copy of the original table.
+     */
+    private PropertiesBean propertiesManager; 
 
-    /** <code>true</code> when copied table have to be displayed in edit mode
-     * <code>false</code> when copied table have to be displayed in view mode*/
-    private boolean edit = false;
+    private UIRepeat propsTable;
+
+    public PropertiesBean getPropertiesManager() {
+        return propertiesManager;
+    }
+
+    public TableCopier(String tableUri) {
+        start();
+        this.tableUri = tableUri;
+        propertiesManager = new PropertiesBean(getAllPossibleProperties(getCopyingTable().getType()));
+        initTableName();
+        initProperties();
+    }
+
+    private void initProperties() {
+        List<TableProperty> definedProperties = new ArrayList<TableProperty>();        
+        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        TableSyntaxNode node = getCopyingTable();
+
+        for (TablePropertyDefinition propDefinition : propDefinitions) {
+            if (!propDefinition.isSystem()) {
+                ITableProperties tableProperties = node.getTableProperties();
+
+                String name = propDefinition.getName();
+                Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
+                        tableProperties.getPropertyValue(name) : null;
+
+                if (tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
+                    Class<?> propertyType = null;
+
+                    if (propDefinition.getType() != null) {
+                        propertyType = propDefinition.getType().getInstanceClass();
+                    }
+
+                    String displayName = propDefinition.getDisplayName();
+                    String format = propDefinition.getFormat();
+                    boolean dimensional = propDefinition.isDimensional();
+
+                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, propertyType).value(
+                                propertyValue).displayName(displayName).format(format).dimensional(dimensional).build();
+
+                    definedProperties.add(tableProperty);
+                }
+            }
+        }
+        propertiesManager.setProperties(definedProperties);
+    }
+
+    public String getValidationJS() {
+        StringBuilder validation = new StringBuilder();
+        TableProperty prop = getCurrentProp();
+        Constraints constraints = prop.getConstraints();
+        if (constraints != null) {
+            String inputId = getInputIdJS(prop.getName());
+            for (Constraint constraint : constraints.getAll()) {
+                if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
+                    String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
+                    String compareToField = (String) constraint.getParams()[0];
+                    String compareToFieldId = getInputIdJS(compareToField);
+                    TableProperty compareToProperty = getProperty(prop.getName());
+                    String compareToPropertyDisplayName = compareToProperty == null ? ""
+                            : compareToProperty.getDisplayName();
+                    validation.append("new Validation(" + inputId + ", '"
+                            + validator + "', '', {compareToFieldId:" + compareToFieldId
+                            + ",messageParams:'" + compareToPropertyDisplayName + "'})");
+                }
+            }
+        }
+        return validation.toString();
+    }
+
+    private List<String> getAllPossibleProperties(String tableType) {
+        List<String> possibleProperties = new ArrayList<String>();
+        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        for (TablePropertyDefinition propDefinition : propDefinitions) {
+            if (!propDefinition.isSystem()) {
+                String propertyName = propDefinition.getName();
+
+                // check if the property can be defined in current type of table 
+                // and if property can be defined on TABLE level.
+                if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tableType) 
+                        && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName)) {
+                    possibleProperties.add(propDefinition.getName());
+                }
+            }
+        }
+        return possibleProperties;
+    }
 
     /**
      * Copies table.
@@ -75,8 +181,8 @@ public abstract class TableCopier extends WizardBase {
      */   
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
         throws CreateTableException {
-        IGridTable originalTable = model.getGridTable(elementUri);
-        TableSyntaxNode baseNode = model.getNode(elementUri);
+        IGridTable originalTable = model.getGridTable(tableUri);
+        TableSyntaxNode baseNode = model.getNode(tableUri);
         String baseTableType = baseNode.getType();
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
 
@@ -145,13 +251,6 @@ public abstract class TableCopier extends WizardBase {
     }
 
     /**
-     * Creates new properties.
-     *     
-     * @return new properties
-     */
-    protected abstract Map<String, Object> buildProperties();
-
-    /**
      * Creates system properties for new table.
      * 
      * @return
@@ -184,25 +283,21 @@ public abstract class TableCopier extends WizardBase {
         String repl = "\\b" + tableOldTechnicalName + "(?=\\s*(\\(.*\\))?$)";
         return header.trim().replaceFirst(repl, tableTechnicalName.trim());
     }
-    
-    protected void initTableNames() {
+
+    protected void initTableName() {
         TableSyntaxNode node = getCopyingTable();                
         if (node != null) {
             tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
-            ITableProperties tableProperties = node.getTableProperties();
-            if (tableProperties != null) {
-                tableBusinessName = node.getTableProperties().getName();
-            }
         }        
     }
-    
+
     protected TableSyntaxNode getCopyingTable() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setTableUri(elementUri);
+        studio.setTableUri(tableUri);
         ProjectModel model = studio.getModel();        
-        return  model.getNode(elementUri);
+        return model.getNode(tableUri);
     }
-    
+
     /**
      * Parses table header for technical name
      *
@@ -221,58 +316,32 @@ public abstract class TableCopier extends WizardBase {
         }              
         return result;
     }
-    
+
     /**
      * Cleans table information.
      */
     @Override
     protected void reset() {
         super.reset();
-        elementUri = null;
+        tableUri = null;
         tableTechnicalName = null;
-        tableBusinessName = null;        
-    }
-    
-    protected String getElementUri() {
-        return elementUri;
     }
 
-    protected void setElementUri(String elementUri) {
-        this.elementUri = elementUri;
+    protected String getTableUri() {
+        return tableUri;
     }
 
-    public boolean isEdit() {
-        return edit;
-    }
-
-    protected void setEdit(boolean edit) {
-        this.edit = edit;
-    }
-
-    /**
-     * Initializes table information.
-     */
-    protected void initUri() {
-        elementUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        if (StringUtils.isNotBlank(elementUri)) {
-            initTableNames();
-        } else {
-            elementUri = studio.getTableUri();
-        }
-    }
-    
     @Override
     protected void onCancel() {
         reset();
     }
-    
+
     @Override
     protected void onStart() {
         reset();
         initWorkbooks();
     }
-    
+
     /**
      * 
      * @param tableProperties properties of the table that is going to be copied.  
@@ -287,17 +356,8 @@ public abstract class TableCopier extends WizardBase {
         return propertiesStyle;
     }
 
-    public String getTableBusinessName() {
-        return tableBusinessName;
-    }
-
     public String getTableTechnicalName() {
         return tableTechnicalName;
-    }
-    
-    
-    public void setTableBusinessName(String tableBusinessName) {
-        this.tableBusinessName = tableBusinessName;
     }
 
     public void setTableTechnicalName(String tableTechnicalName) {
@@ -312,7 +372,101 @@ public abstract class TableCopier extends WizardBase {
 
     @Override
     protected String makeUrlForNewTable() {
-        return super.makeUrlForNewTable() + "&mode=" + (edit ? "edit" : "view");
+        return super.makeUrlForNewTable() + "&mode=edit";
+    }
+    
+    private String getInputIdJS(String propName) {
+        return "$j('#" + propsTable.getParent().getId() + "').find('input[type=hidden][name=id][value="
+            + propName + "]').parent().find('input:first').id";
+    }
+
+    private TableProperty getCurrentProp() {
+        return (TableProperty) propsTable.getRowData();
+    }
+
+    public TableProperty getProperty(String name) {
+        for (TableProperty property : propertiesManager.getProperties()) {
+            if (property.getName().equals(name)) {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates new properties.
+     *     
+     * @return new properties
+     */
+    protected Map<String, Object> buildProperties() {
+        Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
+        newProperties.putAll(buildSystemProperties());
+
+        // TODO validateIfNecessaryPropertiesWereChanged(tableProperties);
+
+        for (TableProperty property : propertiesManager.getProperties()) {
+            String name = property.getName();
+            Object value = property.getValue();
+            if (value == null || (value instanceof String && StringUtils.isEmpty((String)value))) {
+                continue;
+            } else {
+                newProperties.put(name.trim(), value);
+            }
+        }        
+        return newProperties;        
+    }
+    
+
+    public void setPropsTable(UIRepeat propsTable) {
+        this.propsTable = propsTable;
+    }
+
+    public UIRepeat getPropsTable() {
+        return propsTable;
+    }
+
+    /**
+     * It is only necessary for version editor.
+     * 
+     * @return "Version" TableProperty.
+     */
+    public TableProperty getVersion() {
+        return getProperty("version");
+    }
+
+    /**
+     * @return Min version that can be set into new copy of original table.
+     */
+    public Version getMinNextVersion() {
+        TableProperty originalVersion = getVersion();
+        if (originalVersion != null && StringUtils.isNotEmpty((String) originalVersion.getValue())) {
+            return Version.parseVersion((String) originalVersion.getValue(), 0, "..");
+        } else {
+            return Version.parseVersion(INIT_VERSION, 0, "..");
+        }
+    }
+
+    protected void updatePropertiesForOriginalTable(Map<String, String> properties) {
+        if (properties.size() > 0) {
+            WebStudio studio = WebStudioUtils.getWebStudio();
+            ProjectModel model = studio.getModel();
+            TableEditorModel tableEditorModel = model.getTableEditorModel(getTableUri());
+
+            Set<String> propNames = properties.keySet();
+            try {
+                for (String propName : propNames) {
+                    String propValue = properties.get(propName);
+                    tableEditorModel.setProperty(propName, propValue);
+                }
+                getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());
+            } catch (Exception e) {
+                LOG.error("Can not update table properties for original table", e);
+            }
+        }
+    }
+
+    public List<TableProperty> getPropertiesToDisplay() {
+        return propertiesManager.getProperties();
     }
 
 }

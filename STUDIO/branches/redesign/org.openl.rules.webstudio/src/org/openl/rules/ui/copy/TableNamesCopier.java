@@ -1,75 +1,47 @@
 package org.openl.rules.ui.copy;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-
-import org.apache.commons.lang.StringUtils;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 
-@ManagedBean(name="tableCopier")
-@SessionScoped
 public class TableNamesCopier extends TableCopier {
 
-    public TableNamesCopier() {
-        start();
-        initUri();
+    public TableNamesCopier(String tableUri) {
+        super(tableUri);
+        checkPropertiesExistance();
     }
 
-    public TableNamesCopier(String elementUri) {        
-        start();
-        setElementUri(elementUri);
-        initTableNames();        
-    }  
-   
-    @Override
-    protected Map<String, Object> buildProperties() {
-        Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
-        newProperties.putAll(buildSystemProperties());
-        TableSyntaxNode node = getCopyingTable();
-        if (node != null) {
-            ITableProperties tableProperties = node.getTableProperties();
-            if (tableProperties != null) {
-                Map<String, Object> properties = tableProperties.getPropertiesDefinedInTableIgnoreSystem();
-                if (properties != null) {
-                    for (Map.Entry<String, Object> property : properties.entrySet()) {
-                        String propertyName = property.getKey();
-                        Object propertyValue = property.getValue();
-                        newProperties.put(propertyName.trim(), propertyValue);
-                    }   
-                }
+    private void checkPropertiesExistance() {
+        TableProperty nameProperty = getProperty(TableBuilder.TABLE_PROPERTIES_NAME);
+        if (nameProperty == null) {
+            // Property "name" is absent in base table
+            nameProperty = new TablePropertyBuilder(TableBuilder.TABLE_PROPERTIES_NAME, 
+                    TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(TableBuilder.TABLE_PROPERTIES_NAME))
+                    .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(TableBuilder.TABLE_PROPERTIES_NAME))
+                    .build();
+            getPropertiesManager().addProperty(nameProperty);
+        }
+    }
+
+    /*private void validateTechnicalName(TableSyntaxNode node) throws CreateTableException {
+        String[] headerStr = node.getHeaderLineValue().getValue().split(" ");
+        if (headerStr.length >=3) {
+            String existingTechnicalName = headerStr[2].substring(0, headerStr[2].indexOf("("));
+            if (tableTechnicalName.equalsIgnoreCase(existingTechnicalName)) {
+                throw new CreateTableException("Table with the same technical name already exists");
             }
         }
-        if (StringUtils.isBlank(getTableBusinessName()) && newProperties.containsKey(TableBuilder.TABLE_PROPERTIES_NAME)) {
-            newProperties.remove(TableBuilder.TABLE_PROPERTIES_NAME);
-        } else if (StringUtils.isNotBlank(getTableBusinessName())) {
-            newProperties.put(TableBuilder.TABLE_PROPERTIES_NAME, getTableBusinessName());
-        }
-        return newProperties;
-    }
-    
-        
+    }*/
 
-
-
-//    private void validateTechnicalName(TableSyntaxNode node) throws CreateTableException {
-//        String[] headerStr = node.getHeaderLineValue().getValue().split(" ");
-//        if (headerStr.length >=3) {
-//            String existingTechnicalName = headerStr[2].substring(0, headerStr[2].indexOf("("));
-//            if (tableTechnicalName.equalsIgnoreCase(existingTechnicalName)) {
-//                throw new CreateTableException("Table with the same technical name already exists");
-//            }
-//        }
-//        
-//    }
-    
     @Override
-    public String getName() {
-        return "changeName";
+    public List<TableProperty> getPropertiesToDisplay() {
+        List<TableProperty> properties = new ArrayList<TableProperty>();
+        properties.add(getProperty(TableBuilder.TABLE_PROPERTIES_NAME));
+        return properties;
     }
 
 }

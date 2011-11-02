@@ -1,6 +1,8 @@
 package org.openl.rules.ui.copy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,24 +16,24 @@ import org.openl.util.conf.Version;
 /**
  * @author Andrei Astrouski
  */
-public class NewVersionTableCopier extends TablePropertyCopier {
-    
+public class NewVersionTableCopier extends TableCopier {
+
     private static final String VERSION_PROP_NAME = "version";
     private static final String ACTIVE_PROP_NAME = "active";
-    
+
     public NewVersionTableCopier(String tableUri) {
-        super(tableUri, true);
-        checkVersionPropertyExistance();
+        super(tableUri);
+        checkPropertiesExistance();
     }
-    
-    private void checkVersionPropertyExistance(){
-        TableProperty versionProperty =  super.getVersion();
-        if(versionProperty == null){
-            //property "version" is absent in base table            
-            versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME, 
+
+    private void checkPropertiesExistance() {
+        TableProperty versionProperty = super.getVersion();
+        if (versionProperty == null) {
+            // Property "version" is absent in base table
+            versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME,
                     TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME))
                     .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME))
-                    .value(INIT_VERSION).build();            
+                    .value(INIT_VERSION).build();
             getPropertiesManager().addProperty(versionProperty);
         }
     }
@@ -59,11 +61,6 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         return properties;
     }
 
-    @Override
-    public String getName() {
-        return "changeVersion";
-    }
-
     public Version getOriginalVersion() {
         TableSyntaxNode originalNode = getCopyingTable();
         if (originalNode != null) {
@@ -80,6 +77,7 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         
     }
 
+    @Override
     public Version getMinNextVersion() {
         Version originalVersion = getOriginalVersion();
         if (originalVersion == null) {
@@ -87,6 +85,13 @@ public class NewVersionTableCopier extends TablePropertyCopier {
         }
         originalVersion.setVariant(originalVersion.getVariant() + 1);
         return originalVersion;
+    }
+
+    @Override
+    public List<TableProperty> getPropertiesToDisplay() {
+        List<TableProperty> properties = new ArrayList<TableProperty>();
+        properties.add(getProperty(VERSION_PROP_NAME));
+        return properties;
     }
 
 }
