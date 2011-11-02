@@ -117,7 +117,7 @@ var ColorPicker = Class.create({
     },
 
     getInitPosition: function() {
-        var pos = Element.cumulativeOffset(this.actionElement);
+        var pos = Element.viewportOffset(this.actionElement);
         pos[1] += this.actionElement.getHeight();
         return pos;
     },

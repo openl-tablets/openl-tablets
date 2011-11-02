@@ -75,7 +75,7 @@ var Tooltip = Class.create({
     },
 
     calculateInitPosition: function(tooltip, position) {
-        var initPos = Element.cumulativeOffset(this.element);
+        var initPos = Element.viewportOffset(this.element);
 
         switch (position) {
             case 'top_right':
