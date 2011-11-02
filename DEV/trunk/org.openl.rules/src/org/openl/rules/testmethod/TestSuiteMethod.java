@@ -10,16 +10,12 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.IBenchmarkableMethod;
-import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmarkableMethod {
@@ -27,6 +23,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     private String tableName;
     private IOpenMethod testedMethod;
     private IOpenClass methodBasedClass;
+    private TestDescription[] tests;
     
     public TestSuiteMethod(String tableName, IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
@@ -34,6 +31,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         this.tableName = tableName;
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
+    }
+    
+    protected TestDescription[] initTests() {
+        DynamicObject[] testObjects = getTestObejcts();
+        TestDescription[] tests = new TestDescription[testObjects.length];
+        for (int i = 0; i < tests.length; i++) {
+            tests[i] = new TestDescription(getTestedMethod(), testObjects[i]);
+        }
+        return tests;
     }
     
     @Override
@@ -65,30 +71,27 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     }
 
     public int getNumberOfTests() {
-
-        Object testArray = getBoundNode().getField().getData();
-        DynamicObject[] dd = (DynamicObject[]) testArray;
-        
-        return dd.length;
+        return getTests().length;
     }
 
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
-
-    public TestDescription[] getTestDescriptions() {
-        
+    
+    public DynamicObject[] getTestObejcts() {
         Object testArray = getBoundNode().getField().getData();
+        return (DynamicObject[])testArray;
+    }
 
-        DynamicObject[] dd = (DynamicObject[]) testArray;
-
-        TestDescription[] descriptions = new TestDescription[dd.length];
-
-        for (int i = 0; i < descriptions.length; i++) {
-            descriptions[i] = new TestDescription(testedMethod, dd[i]);
+    public TestDescription[] getTests() {
+        if (tests == null) {
+            this.tests = initTests();
         }
+        return tests;
+    }
 
-        return descriptions;
+    public TestDescription getTest(int numberOfTest) {
+        return getTests()[numberOfTest];
     }
 
     public String getColumnDisplayName(String columnTechnicalName) {
@@ -113,69 +116,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return testedMethod;
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return invoke(target, params, env, -1);
+    public TestUnitsResults invoke(Object target, Object[] params, IRuntimeEnv env) {
+        return invokeBenchmark(target, params, env, 1);
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env, int unitId) {
-        return invokeBenchmark(target, params, env, 1, unitId);
-    }
-
-    public Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, int ntimes) {
-        return invokeBenchmark(target, params, env, ntimes, -1);
-    }
-
-    public Object invokeBenchmark(Object target, Object[] params, IRuntimeEnv env,
-            int ntimes, int unitId) {
-
-        Object testArray = getBoundNode().getField().get(target, env);
-
-        DynamicObject[] testInstances = (DynamicObject[]) testArray;
-
-        IOpenClass dclass = getMethodBasedClass(null);
-        IMethodSignature msign = testedMethod.getSignature();
-        IOpenClass[] mpars = msign.getParameterTypes();
-
-        TestUnitsResults testUnitResults = new TestUnitsResults(this);
-
-        int unitStart = unitId > -1 ? unitId : 0;
-        int unitStop = unitId > -1 ? (unitStart + 1) : testInstances.length;
-
-        for (int i = unitStart; i < unitStop; i++) {
-
-            Object[] mpvals = new Object[mpars.length];
-
-            DynamicObject currentTest = testInstances[i];
-
-            for (int j = 0; j < mpars.length; j++) {
-                IOpenField f = dclass.getField(msign.getParameterName(j), true);
-                mpvals[j] = f.get(currentTest, env);
-            }
-
-            try {
-                Object res = null;
-
-                for (int j = 0; j < ntimes; j++) {
-                    IOpenField contextField = dclass.getField(TestMethodHelper.CONTEXT_NAME);
-                    IRuntimeContext context = (IRuntimeContext) contextField.get(currentTest, env);
-
-                    IRuntimeContext oldContext = env.getContext();
-                    env.setContext(context);
-
-                    res = testedMethod.invoke(target, mpvals, env);
-
-                    env.setContext(oldContext);
-                }
-
-                testUnitResults.addTestUnit(currentTest, res, null);
-            } catch (Throwable t) {
-                Log.error("Testing " + currentTest, t);
-                testUnitResults.addTestUnit(currentTest, null, t);
-            }
-
-        }
-
-        return testUnitResults;
+    public TestUnitsResults invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, int ntimes) {
+        return new TestSuite(this).invoke(target, env, ntimes);
     }
 
     public boolean isRunmethod() {
@@ -193,20 +139,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
      * TODO: rename it. it is difficult to understand what is it doing 
      */
     public boolean isRunmethodTestable() {
-        // gets the data from rows that have test parameters.
-        Object testArray = getBoundNode().getField().getData();
-
-        DynamicObject[] testArrayDynamicObj = (DynamicObject[]) testArray;
-
-        for (int i = 0; i < testArrayDynamicObj.length; i++) {
-            if (testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_RESULT_NAME) || 
-                    testArrayDynamicObj[i].containsField(TestMethodHelper.EXPECTED_ERROR) || containsFieldsForSprCellTests(testArrayDynamicObj[i].getFieldValues().keySet())) {
+        for (int i = 0; i < getNumberOfTests(); i++) {
+            if (getTest(i).isExpectedResultDefined() || getTest(i).isExpectedErrorDefined() ||containsFieldsForSprCellTests(getTest(i).getTestObject().getFieldValues().keySet())) {
                 return true;
             }
         }
 
         return false;
     }
+
     
     private boolean containsFieldsForSprCellTests(Set<String> fieldNames) {
         for (String fieldName : fieldNames) {
@@ -220,51 +161,4 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     public int nUnitRuns() {
         return getNumberOfTests();
     }
-
-    public Object run(int tid, Object target, IRuntimeEnv env, int ntimes) {
-
-        Object testArray = getBoundNode().getField().get(target, env);
-
-        DynamicObject[] dd = (DynamicObject[]) testArray;
-//        Class<? extends Object> class1 = dd[0].getFieldValue("policy").getClass();
-//        try {
-//            Method method = class1.getMethod("getVehicles");
-//            Object[] arr = (Object[])method.invoke(dd[0].getFieldValue("policy"), new Object[]{});
-//            for(Object object: arr){
-//                ClassLoader classLoader = object.getClass().getClassLoader();
-//                System.out.println(classLoader);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-        IOpenClass dclass = getMethodBasedClass(null);
-        IMethodSignature msign = testedMethod.getSignature();
-        IOpenClass[] mpars = msign.getParameterTypes();
-
-        DynamicObject currentTest = dd[tid];
-        Object[] mpvals = new Object[mpars.length];
-
-        for (int j = 0; j < mpars.length; j++) {
-            IOpenField f = dclass.getField(msign.getParameterName(j), true);
-            mpvals[j] = f.get(currentTest, env);
-        }
-
-        Object res = null;
-
-        for (int i = 0; i < ntimes; i++) {
-            IOpenField contextField = dclass.getField(TestMethodHelper.CONTEXT_NAME);
-            IRuntimeContext context = (IRuntimeContext) contextField.get(currentTest, env);
-
-            IRuntimeContext oldContext = env.getContext();
-            env.setContext(context);
-
-            res = testedMethod.invoke(target, mpvals, env);
-
-            env.setContext(oldContext);
-        }
-
-        return res;
-    }
-
 }
