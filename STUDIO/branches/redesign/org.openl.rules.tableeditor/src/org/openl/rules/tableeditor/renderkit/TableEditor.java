@@ -39,7 +39,7 @@ public class TableEditor {
 
     public TableEditor(FacesContext context, UIComponent component) {
         Map<String, Object> attributes = component.getAttributes();
-        id = component.getClientId(context);
+        id = component.getClientId(context) + Constants.TABLE_EDITOR_PREFIX;
         table = (IOpenLTable) attributes.get(Constants.ATTRIBUTE_TABLE);
         Boolean editableObj = BooleanUtils.toBooleanObject(attributes.get(Constants.ATTRIBUTE_EDITABLE));
         if (editableObj == null) {
