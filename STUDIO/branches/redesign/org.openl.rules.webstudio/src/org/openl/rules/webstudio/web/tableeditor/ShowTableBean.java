@@ -346,16 +346,6 @@ public class ShowTableBean {
         return allTests;
     }
 
-    public boolean isShowFormulas() {
-        String showFormulas = FacesUtils.getRequestParameter("showFormulas");
-        if (showFormulas != null) {
-            return Boolean.parseBoolean(showFormulas);
-        } else {
-            WebStudio webStudio = WebStudioUtils.getWebStudio();
-            return webStudio != null && webStudio.isShowFormulas();
-        }
-    }
-
     public String removeTable() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
