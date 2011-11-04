@@ -41,12 +41,7 @@ public class TableEditor {
         Map<String, Object> attributes = component.getAttributes();
         id = component.getClientId(context) + Constants.TABLE_EDITOR_PREFIX;
         table = (IOpenLTable) attributes.get(Constants.ATTRIBUTE_TABLE);
-        Boolean editableObj = BooleanUtils.toBooleanObject(attributes.get(Constants.ATTRIBUTE_EDITABLE));
-        if (editableObj == null) {
-            editable = true; // The default is 'true'
-        } else {
-            editable = editableObj;
-        }
+        editable = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_EDITABLE), true);
         mode = (String) attributes.get(Constants.ATTRIBUTE_MODE);
         view = (String) attributes.get(Constants.ATTRIBUTE_VIEW);
         linkBase = (String) attributes.get(Constants.ATTRIBUTE_LINK_BASE);

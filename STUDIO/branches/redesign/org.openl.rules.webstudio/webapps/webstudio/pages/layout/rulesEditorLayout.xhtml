@@ -45,7 +45,7 @@
                 $j("a[target='content']").live("click", function() {
                     var page = $j(this).attr("href");
                     showLoader();
-                    goTo(page);
+                    goTo(page, "content");
                     hideLoader();
                     return false;
                 });
@@ -53,8 +53,8 @@
                 //setViewDimensions();
             });
 
-            function goTo(page) {
-                $j("#content").load(page);
+            function goTo(page, target) {
+                $j("#" + target).load(page);
             }
 
             /*function setViewDimensions() {

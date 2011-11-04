@@ -49,7 +49,6 @@
                 value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
                 <f:param name="uri" value="#{showTableBean.uri}" />
                 <f:param name="mode" value="edit" />
-                <f:param name="showFormulas" value="#{showTableBean.showFormulas}" />
                 <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
             </h:outputLink>
 
@@ -63,7 +62,7 @@
             </h:outputLink>
 
             <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')">
+                oncomplete="goTo('#{rulesEditor}/copyTable.xhtml', 'content')">
                 <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
             </a4j:commandLink>
 
@@ -122,8 +121,7 @@
                         title="Developer View" alt="Developer View" />
                 </a4j:commandLink>
 
-                <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this"
-                    render="tePanel">
+                <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this" render="tePanel">
                     <h:graphicImage url="/webresource/images/formula.png"
                         title="Show Formulas" alt="Show Formulas" />
                 </a4j:commandLink>
@@ -203,10 +201,8 @@
         }
 
         function onAfterSave() {
+            goTo('#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml', 'content');
             hideLoader();
-
-            top.main.leftFrame.location.href =
-                "#{contextPath}/faces/openTable.xhtml?reopen=true&amp;#{showTableBean.paramsWithoutUri}";
         }
 
         function onSaveFailure() {

@@ -20,12 +20,10 @@ public class BooleanFormatter implements IFormatter {
 
     public Object parse(String value) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
-        if (boolValue != null) {
-            return boolValue;
-        } else {
+        if (boolValue == null) {
             LOG.debug("Could not parse Boolean: " + value);
-            return null;
         }
+        return boolValue;
     }
     
 }
