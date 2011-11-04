@@ -7,15 +7,18 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.ModuleConfiguration;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.IRulesLoader;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -72,7 +75,11 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
             IOpenField servicesField = rulesOpenClass.getField(SERVICES_FIELD_NAME);
             Object[] services = (Object[]) servicesField.get(rulesInstance, runtimeEnv);
             for (Object service : services) {
-                serviceDescriptions.add(createServiceDescription(service));
+                try {
+                    serviceDescriptions.add(createServiceDescription(service));
+                } catch (Exception e) {
+                    LOG.error("Failed to load service description.", e);
+                }
             }
         } catch (Exception e) {
             LOG.error("Failed to get services from rules.", e);
@@ -86,7 +93,6 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
     public static String RUNTIME_CONTEXT_FIELD = "provideRuntimeContext";
     public static String MODULES_GETTER_FIELD = "modulesGetter";
 
-    @SuppressWarnings("unchecked")
     public ServiceDescription createServiceDescription(Object service) {
         ServiceDescription serviceDescription = new ServiceDescription();
         serviceDescription.setName(getFieldValue(service, SERVICE_NAME_FIELD, String.class));
@@ -94,11 +100,54 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
         serviceDescription.setServiceClassName(getFieldValue(service, SERVICE_CLASS_NAME_FIELD, String.class));
         serviceDescription.setProvideRuntimeContext(getFieldValue(service, RUNTIME_CONTEXT_FIELD, boolean.class));
         String modulesGetterName = getFieldValue(service, MODULES_GETTER_FIELD, String.class);
-        IOpenMethod modulesGetter = rulesOpenClass.getMethod(modulesGetterName, new IOpenClass[] {});
-        serviceDescription.setModulesToLoad((List<ModuleConfiguration>) modulesGetter.invoke(rulesInstance,
-            new Object[] {},
-            runtimeEnv));
+        IOpenMethod modulesGetter = rulesOpenClass.getMethod(modulesGetterName,
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
+                    JavaOpenClass.getOpenClass(AProject.class),
+                    JavaOpenClass.getOpenClass(Module.class) });
+        checkModulesGetter(serviceDescription.getName(), modulesGetter);
+        List<ModuleConfiguration> modulesForService = gatherModules(modulesGetter);
+        serviceDescription.setModulesToLoad(modulesForService);
         return serviceDescription;
+    }
+
+    private List<ModuleConfiguration> gatherModules(IOpenMethod modulesGetter) {
+        List<ModuleConfiguration> modulesForService = new ArrayList<ModuleConfiguration>();
+        for (Deployment deployment : getDeployments()) {
+            for (AProject project : deployment.getProjects()) {
+                for (Module module : loader.get().resolveModulesForProject(deployment.getDeploymentName(),
+                    deployment.getCommonVersion(),
+                    project.getName())) {
+                    Object isSuitable = modulesGetter.invoke(rulesInstance,
+                            new Object[] { deployment, project, module },
+                            runtimeEnv);
+                    if (isSuitable != null && (Boolean) isSuitable) {
+                        modulesForService.add(new ModuleConfiguration(deployment.getDeploymentName(),
+                            deployment.getCommonVersion(),
+                            project.getName(),
+                            module.getName()));
+                    }
+
+                }
+            }
+        }
+        return modulesForService;
+    }
+
+    private void checkModulesGetter(String serviceName, IOpenMethod modulesGetter) {
+        if (modulesGetter == null) {
+            throw new RuntimeException(String.format("Modules getter for service \"%s\" was not found. Make sure that your getter name specified and there are exists rule with params [%s,%s,%s]",
+                serviceName,
+                Deployment.class.getSimpleName(),
+                AProject.class.getSimpleName(),
+                Module.class.getSimpleName()));
+        } else if (modulesGetter.getType() != JavaOpenClass.BOOLEAN && modulesGetter.getType() != JavaOpenClass.getOpenClass(Boolean.class)) {
+            throw new RuntimeException(String.format("Modules getter for service \"%s\" has a wrong return type. Return type should be \"boolean\"",
+                serviceName,
+                Deployment.class.getSimpleName(),
+                AProject.class.getSimpleName(),
+                Module.class.getSimpleName()));
+
+        }
     }
 
     @SuppressWarnings("unchecked")
