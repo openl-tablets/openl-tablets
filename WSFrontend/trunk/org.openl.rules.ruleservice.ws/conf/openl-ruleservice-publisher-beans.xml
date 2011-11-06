@@ -7,13 +7,13 @@
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
 	<!--
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
 	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
-	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding">
+	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding" scope="prototype">
         <property name="contextProperties">
     		<map>
    			<entry>
@@ -23,7 +23,7 @@
    			</entry>
       		</map>
         </property>
-	</bean -->
+	</bean-->
 
 	<!-- Main description for the one WebService.-->
 	<!--
@@ -49,16 +49,16 @@
 		</property>
 	</bean>
 
-	<!-- Deploymen admin defines the way to expose services. -->
+	<!-- Exposes web services. -->	
 	<bean id="deploymentAdmin" class="org.openl.ruleservice.publish.WebServicesDeploymentAdmin">
 		<property name="serverFactory" ref="serverPrototypeFactory" />
-		<property name="baseAddress" value="http://localhost:9000/" />
+		<property name="baseAddress" value="/" />
 	</bean>
 
-	<!-- Provide information about modules that can be used as dependencies. -->
+	<!--  -->
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
 	
-	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
+	<!--  -->
 	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>
 	
 	<!-- Initializes OpenL Engine instances according to web services configuration description 
@@ -66,6 +66,6 @@
 	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
 		<property name="deploymentAdmin" ref="deploymentAdmin"/>
 		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
-		<property name="instantiationFactory" ref="instantiationFactory"/>
+		<property name="instantiationFactory" ref="instantiationFactory"/> 
 	</bean>
 </beans>

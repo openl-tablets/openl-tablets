@@ -26,7 +26,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<warSourceDirectory>webapps/ws</warSourceDirectory>
+					<warSourceDirectory>webapps</warSourceDirectory>
 					<warName>${war.name}-${project.version}</warName>
 					<packagingExcludes>
 						WEB-INF/lib/geronimo-servlet*.jar,
@@ -39,9 +39,9 @@
 					<webResources>
 						<resource>
 							<directory>conf</directory>
-							<excludes>
-								<exclude>openl-ruleservice-publisher-beans.xml</exclude>
-							</excludes>
+							<includes>
+								<exclude>openl-ruleservice-beans.xml</exclude>
+							</includes>
 						</resource>
 					</webResources>
 				</configuration>

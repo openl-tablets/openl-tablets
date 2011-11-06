@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<import resource="project-resolver-beans.xml"/>
+	<import resource="classpath:project-resolver-beans.xml"/>
 	
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
 	<!-- This implementation based on JCR repository -->
