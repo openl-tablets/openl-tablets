@@ -130,8 +130,8 @@
         <h:panelGroup rendered="#{showTableBean.canCreateTest}">
         <td class="toolbarDelimeter"></td>
         <td>
-            <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                styleClass="newTestLink" oncomplete="$j('#content').load('#{contextPath}/faces/pages/modules/rulesEditor/create/index.xhtml')">
+            <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="newTestLink"
+                oncomplete="goTo('#{rulesEditor}/create/index.xhtml', 'content')">
                 <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
                 <f:param name="uri" value="#{showTableBean.uri}" />
                 <h:outputText value="Create Test" />
