@@ -74,16 +74,18 @@
         </td>
 
         <td>
-          <h:commandLink title="Add Condition" action="#{advancedSearch.addCondition}">
+          <a4j:commandLink title="Add Condition" action="#{advancedSearch.addCondition}"
+            render="@form">
             <f:param name="index" value="#{status.index}" />
             <h:graphicImage url="/webresource/images/add_obj.gif" />
-          </h:commandLink>
+          </a4j:commandLink>
 
           <c:if test="#{status.index > 0}">
-            <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteCondition}">
+            <a4j:commandLink title="Remove Condition" action="#{advancedSearch.deleteCondition}"
+              render="@form">
               <f:param name="index" value="#{status.index}" />
               <h:graphicImage url="/webresource/images/delete.gif"/>
-            </h:commandLink>
+            </a4j:commandLink>
           </c:if>
         </td>
 
@@ -150,16 +152,18 @@
     </td>
 
      <td>
-        <h:commandLink title="Add Condition" action="#{advancedSearch.addColCondition}">
+        <a4j:commandLink title="Add Condition" action="#{advancedSearch.addColCondition}"
+          render="@form">
           <f:param name="index" value="#{status.index}" />
           <h:graphicImage url="/webresource/images/add_obj.gif" />
-        </h:commandLink>
+        </a4j:commandLink>
 
         <c:if test="#{status.index > 0}">
-            <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteColCondition}">
+            <a4j:commandLink title="Remove Condition" action="#{advancedSearch.deleteColCondition}"
+              render="@form">
               <f:param name="index" value="#{status.index}" />
               <h:graphicImage url="/webresource/images/delete.gif"/>
-            </h:commandLink>
+            </a4j:commandLink>
         </c:if>
       </td>
   </tr>
@@ -178,7 +182,7 @@
 
 <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
 
-<h:panelGroup id="searchResults" rendered="#{advancedSearchRequest.searching}">
+<h:panelGroup id="searchResults">
     <c:forEach items="#{advancedSearchRequest.searchResults}" var="table">
         <br />
         <h:panelGroup>
