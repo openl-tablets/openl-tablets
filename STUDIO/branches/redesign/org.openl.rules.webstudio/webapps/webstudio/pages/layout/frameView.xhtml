@@ -10,9 +10,7 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <h:head>
-        <title>
-            <h:outputText value="#{param.title}" />
-        </title>
+        <title><h:outputText value="#{param.title}" /></title>
     </h:head>
 
     <frameset cols="#{treeViewBean.pagesWidth}">
