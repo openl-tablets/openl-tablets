@@ -64,11 +64,11 @@
 		</h:panelGrid>
 	</fieldset>
 	<br />
-	<a4j:commandButton value="Search" action="#{bussinessSearchRequest.search}" render="" />
+	<a4j:commandButton value="Search" action="#{bussinessSearchRequest.search}" render="searchResults" />
 	</h:form></td></tr>
 	</table>
 
-	<h:panelGroup id="searchResults" rendered="#{bussinessSearchRequest.searching}">
+	<h:panelGroup id="searchResults">
     	<c:forEach items="#{bussinessSearchRequest.searchResults}" var="table">
         <br />
         <h:panelGroup>
