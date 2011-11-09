@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -719,6 +721,13 @@ public class JavaWrapperGenerator {
     }
     
     private String getScalarClassName(Class<?> instanceClass) {
+        /** Filter Custom Spreadsheet results.
+         * These classes are dinamically generated on runtime and are children of SpreadsheetResult.
+         * For the wrapper use its parent.
+         */
+        if (ClassUtils.isAssignable(instanceClass, SpreadsheetResult.class, false)) {
+            return SpreadsheetResult.class.getName();
+        }
         return instanceClass.getName();
     }
 
