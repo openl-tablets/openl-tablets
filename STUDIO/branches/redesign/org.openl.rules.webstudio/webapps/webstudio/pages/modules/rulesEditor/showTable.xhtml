@@ -107,19 +107,23 @@
         </div>
     </h:form>
 
-	<h:panelGroup rendered="#{not empty showTableBean.targetTables}" layout="block">
-		<h:panelGroup style="font-weight: bold;">
-		    <h:outputText value="Target Table" />
-		    <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
-		    <h:outputText value=": " />
-		</h:panelGroup>
+	<h:panelGroup rendered="#{not empty showTableBean.targetTables}">
+        <div>
+    		<div style="font-weight: bold;">
+    		    <h:outputText value="Target Table" />
+    		    <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
+    		    <h:outputText value=": " />
+    		</div>
 
-		<rich:list value="#{showTableBean.targetTables}" var="targetTable" style="margin: 2px 0 0; list-style:none">
-		    <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-		        <f:param name="uri" value="#{targetTable.uri}" />
-		            <h:outputText value="#{targetTable.name}" />
-		     </h:outputLink>
-		 </rich:list>
+    		<ui:repeat value="#{showTableBean.targetTables}" var="targetTable">
+            <div>
+		        <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+		            <f:param name="uri" value="#{targetTable.uri}" />
+    	            <h:outputText value="#{targetTable.name}" />
+                </h:outputLink>
+            </div>
+    		</ui:repeat>
+        </div>
 	</h:panelGroup>
 
 	<div style="clear:both"></div>
