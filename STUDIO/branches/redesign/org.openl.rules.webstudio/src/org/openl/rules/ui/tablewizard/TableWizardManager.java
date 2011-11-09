@@ -22,7 +22,7 @@ public class TableWizardManager extends TableWizard{
         PROPERTY
     }
 
-    private TableType tableType = TableType.DECISION;
+    private TableType tableType = TableType.DATATYPE;
 
     @Override
     public String cancel() {
@@ -40,13 +40,13 @@ public class TableWizardManager extends TableWizard{
         try {
             this.tableType = TableType.valueOf(tableType);
         } catch (IllegalArgumentException e) {
-            this.tableType = TableType.DECISION;
+            this.tableType = TableType.DATATYPE;
         }
     }
     
     @Override
     public String start() {
-        tableType = TableType.DECISION;
+        tableType = TableType.DATATYPE;
         return "wizardSelect";
     }
     

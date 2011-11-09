@@ -96,9 +96,8 @@
         <td class="toolbarDelimeter"></td>
         <td>
             <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="newTestLink"
-                oncomplete="goTo('#{rulesEditor}/create/index.xhtml', 'content')">
+                oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
                 <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
-                <f:param name="uri" value="#{showTableBean.uri}" />
                 <h:outputText value="Create Test" />
             </a4j:commandLink>
         </td>
