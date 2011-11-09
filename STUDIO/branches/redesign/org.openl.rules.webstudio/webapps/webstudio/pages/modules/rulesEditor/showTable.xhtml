@@ -72,41 +72,6 @@
             </a4j:commandLink>
 
             <c:if test="#{!showTableBean.serviceTable}">
-                <h:outputLink rendered="#{showTableBean.testable and !showTableBean.hasErrors}"
-                     target="content" value="#{rulesEditor}/test/runAllTests.xhtml">
-                    <f:param value="#{showTableBean.uri}" name="uri" />
-                    <h:graphicImage url="/webresource/images/test_ok.gif"
-                        title="Test" alt="Test" />
-                </h:outputLink>
-
-                <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
-                    <h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml" target="content">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/test.gif" alt="Run" title="Run" />
-                    </h:outputLink>
-
-                    <c:set var="traceUrl"
-                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;uri=#{showTableBean.encodedUri}&amp;first=true" />
-                    <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#">
-                        <img src="webresource/images/trace.gif" title="Trace" alt="Trace" /></a>
-                    <h:commandLink id="traceIntoFile">
-                        <h:graphicImage url="/webresource/images/traceIntoFile.gif"
-                            title="Trace into File" alt="Trace into File" />
-                        <rich:componentControl target="traceIntoFileDlg" operation="show">
-                            <a4j:param noEscape="true" value="event" />
-                            <rich:hashParam>
-                                <a4j:param noEscape="true" name="left" value="traceIntoFileDlgLeft" />
-                                <a4j:param noEscape="true" name="top" value="traceIntoFileDlgTop" />
-                            </rich:hashParam>
-                        </rich:componentControl>
-                    </h:commandLink>
-                    <h:outputLink value="#{rulesEditor}/test/benchmarkMethod.xhtml" target="content">
-                        <f:param value="#{showTableBean.uri}" name="uri" />
-                        <h:graphicImage url="/webresource/images/clock-icon.png"
-                            title="Benchmark" alt="Benchmark" />
-                    </h:outputLink>
-                </c:if>
-
                 <a4j:commandLink action="#{showTableBean.switchView}" execute="@this"
                     render="tePanel">
                     <f:param name="view" value="business" />
@@ -208,6 +173,40 @@
         function onSaveFailure() {
             hideLoader();
         }
+
+        //<![CDATA[
+        function isAnyTestSelected() {
+    	    var testTable = document.getElementById("testTable");
+    	    for(i = 1; i < testTable.rows.length; i++) {
+    	    	var firstColumnCell = testTable.rows[i].cells[0]
+    	    	for(j = 0; j < firstColumnCell.childNodes.length; j ++){
+    	    		if(firstColumnCell.childNodes[j].type == 'checkbox'){
+    	                if (firstColumnCell.childNodes[j].checked) {
+    	                	return true;
+    	                }else{
+    	                	break;
+    	                }
+    	    		}
+    	    	}
+            }
+    	    alert('No tests selected');
+    	    return false;
+    	}
+
+        function selectAllTests() {
+    	    var selectAllCheckBox = document.getElementById("testForm:selectAll");
+    	    var testTable = document.getElementById("testTable");
+    	    for(i = 1; i < testTable.rows.length; i++) {
+    	    	var firstColumnCell = testTable.rows[i].cells[0]
+    	    	for(j = 0; j < firstColumnCell.childNodes.length; j ++){
+    	    		if(firstColumnCell.childNodes[j].type == 'checkbox'){
+    	    			firstColumnCell.childNodes[j].checked = selectAllCheckBox.checked;
+    	    			break;
+    	    		}
+    	    	}
+            }
+    	}
+        //]]>
     </script>
 
     <form name="searchForm" method="post" action="#{rulesEditor}/search/simpleSearch.xhtml">
@@ -250,42 +249,60 @@
 
     <c:if test="#{not empty showTableBean.tests and !showTableBean.hasErrors}">
         <h3>Available Runs:</h3>
-        <a4j:repeat var="test" value="#{showTableBean.tests}" rowKeyVar="rowIndex">
-            <table>
-                <tr style="vertical-align: top">
-                    <td><h:panelGroup rendered="#{showTableBean.testable}">
-                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-                            <h:outputLink value="#{rulesEditor}/test/runAllTests.xhtml" title="Test" target="content">
-                                <f:param value="#{showTableBean.uri}" name="uri" />
-                                <f:param value="#{rowIndex}" name="testID" />
-                                <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
-                            </h:outputLink>
-                        </h:panelGroup>
-                    </td>
-                    <td><h:outputLink value="#{rulesEditor}/test/runTestMethod.xhtml" title="Run" target="content">
-                            <f:param value="#{showTableBean.uri}" name="uri" />
-                            <f:param value="#{rowIndex}" name="testID" />
-                            <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
-                        </h:outputLink>
-                    </td>
-                    <td><c:set var="traceUrl"
-                            value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}&amp;testID=#{rowIndex}" />
-                        <a onclick="open_win('#{traceUrl}', 'trace_win')" href="#"> <img
-                            src="webresource/images/trace.gif" title="Trace" alt="Trace" /> </a>
-                    </td>
-                    <td><h:outputLink value="#{rulesEditor}/test/benchmarkMethod.xhtml" title="Benchmark"
-                            target="content">
-                            <f:param value="#{showTableBean.uri}" name="uri" />
-                            <f:param value="#{rowIndex}" name="testID" />
-                            <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
-                        </h:outputLink>
-                    </td>
-                    <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                        <ui:param name="args" value="#{test.executionParams}" />
-                    </ui:include>
+        <h:form id="testForm">
+            <table class="testtable" id="testTable">
+                <tr>
+                    <th><h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" /></th>
+                    <th colspan="#{fn:length(showTableBean.tests[0].executionParams)}">Arguments</th>
                 </tr>
+                <ui:repeat var="test" value="#{showTableBean.tests}">
+                    <tr style="vertical-align: top">
+                        <td><h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}"
+                                name="testCheckbox" /></td>
+                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                            <ui:param name="args" value="#{test.executionParams}" />
+                        </ui:include>
+                    </tr>
+                </ui:repeat>
             </table>
-        </a4j:repeat>
+            <br/>
+            <h:panelGroup id="runTestsPanel">
+                <c:set var="testIndices" value="#{showTableBean.selectedIndices}" />
+                <h:panelGroup rendered="#{showTableBean.testable}">
+                    <f:verbatim>&amp;nbsp;</f:verbatim>
+                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Test"
+                        onclick="return isAnyTestSelected();"
+                        oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
+                        <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
+                    </a4j:commandLink>
+                </h:panelGroup>
+                <f:verbatim>&amp;nbsp;</f:verbatim>
+                <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run"
+                    onclick="return isAnyTestSelected();"
+                    oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
+                    <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
+                </a4j:commandLink>
+                <f:verbatim>&amp;nbsp;</f:verbatim>
+                <c:set var="traceUrl"
+                    value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
+                <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace"
+                    onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win')">
+                    <img src="webresource/images/trace.gif" title="Trace" alt="Trace" />
+                </a4j:commandLink>
+                <f:verbatim>&amp;nbsp;</f:verbatim>
+                <a4j:commandLink id="traceIntoFile" onclick="return isAnyTestSelected();"
+                    action="#{showTableBean.makeTestSuite}" oncomplete="RichFaces.$('traceIntoFileDlg').show();">
+                    <h:graphicImage url="/webresource/images/traceIntoFile.gif" title="Trace into File"
+                        alt="Trace into File" />
+                </a4j:commandLink>
+                <f:verbatim>&amp;nbsp;</f:verbatim>
+                <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark"
+                    onclick="return isAnyTestSelected();"
+                    oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')">
+                    <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
+                </a4j:commandLink>
+            </h:panelGroup>
+        </h:form>
     </c:if>
 
     <rich:popupPanel id="traceIntoFileDlg" width="134" modal="false" autosized="true">
@@ -300,7 +317,6 @@
             </h:panelGrid>
             <h:commandButton id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
                 onclick="RichFaces.$('traceIntoFileDlg').hide();">
-                <a4j:param assignTo="#{traceIntoFileBean.tableUri}" value="#{showTableBean.uri}" />
             </h:commandButton>
             <h:commandButton id="cancelBtn" value="Cancel"
                 onclick="RichFaces.$('traceIntoFileDlg').hide(); return false;" />

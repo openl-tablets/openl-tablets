@@ -42,6 +42,7 @@ import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
@@ -61,7 +62,7 @@ public class ShowTableBean {
 
     // Test in current table(only for test tables)
     private TestDescription[] runnableTestMethods = {};//test units
-    
+    private Map<TestDescription, Boolean> selectedTests;
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
     
@@ -152,6 +153,10 @@ public class ShowTableBean {
     private void initRunnableTestMethods(final ProjectModel model) {
         if (model.getMethod(uri) instanceof TestSuiteMethod) {
             runnableTestMethods = ((TestSuiteMethod) model.getMethod(uri)).getTests();
+            selectedTests = new HashMap<TestDescription, Boolean>();
+            for(TestDescription test : runnableTestMethods){
+                selectedTests.put(test, false);
+            }
         }
     }
     
@@ -263,6 +268,34 @@ public class ShowTableBean {
         return runnableTestMethods;
     }
 
+    public Map<TestDescription, Boolean> getSelectedTests() {
+        return selectedTests;
+    }
+    
+    public String makeTestSuite(){
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) studio.getModel().getMethod(uri);
+        TestSuite testSuite = new TestSuite(testSuiteMethodSelected, getSelectedIndices());
+        studio.getModel().setLastTest(testSuite);
+        return null;
+    }
+
+    public String traceIntoFile(){
+        makeTestSuite();
+        return ((TraceIntoFileBean)FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
+    }
+
+    public int[] getSelectedIndices() {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for(int i = 0; i < runnableTestMethods.length; i++){
+            if(selectedTests.get(runnableTestMethods[i])){
+                list.add(i);
+            }
+        }
+        Integer[] indices = new Integer[list.size()];
+        return ArrayUtils.toPrimitive(list.toArray(indices));
+    }
+
     public String getUri() {
         return uri;
     }
@@ -344,6 +377,16 @@ public class ShowTableBean {
      */
     public IOpenMethod[] getAllTests() {
         return allTests;
+    }
+
+    public boolean isShowFormulas() {
+        String showFormulas = FacesUtils.getRequestParameter("showFormulas");
+        if (showFormulas != null) {
+            return Boolean.parseBoolean(showFormulas);
+        } else {
+            WebStudio webStudio = WebStudioUtils.getWebStudio();
+            return webStudio != null && webStudio.isShowFormulas();
+        }
     }
 
     public String removeTable() {

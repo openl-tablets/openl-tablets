@@ -7,14 +7,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.html.HtmlDataTable;
 
-import org.apache.commons.lang.StringUtils;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.testmethod.ExecutionParamDescription;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IOpenMethod;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkOrder;
 
@@ -29,15 +23,38 @@ public class BenchmarkMethodBean {
     private HtmlDataTable htmlDataTableBM;
     private HtmlDataTable htmlDataTableBMCompared;
 
+    
+    private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
+        if (testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
+            .getNumberOfTests()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void addLastBenchmark() {
-        String elementUri = getElementUri();
-        String testID = getTestID();
-        try {
-            BenchmarkInfo buLast = studio.getModel().benchmarkElement(elementUri, testID, 3000);
-            studio.addBenchmark(buLast);
-            benchmarkResults.add(buLast);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
+        studio = WebStudioUtils.getWebStudio();
+        TestSuite testSuite = studio.getModel().popLastTest();
+        if (isTestForOverallTestSuiteMethod(testSuite)) {
+            try {
+                BenchmarkInfo buLast = studio.getModel().benchmarkTestsSuite(testSuite, 3000);
+                studio.addBenchmark(buLast);
+                benchmarkResults.add(buLast);
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
+            }
+        } else {
+            for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
+                try {
+                    BenchmarkInfo buLast = studio.getModel().benchmarkSingleTest(testSuite, i, 3000);
+                    studio.addBenchmark(buLast);
+                    benchmarkResults.add(buLast);
+                } catch (Exception e) {
+                    e.printStackTrace(System.out);
+                }
+
+            }
         }
         comparedBenchmarks = new BenchmarkInfo[0];
     }
@@ -81,7 +98,7 @@ public class BenchmarkMethodBean {
 
     public List<BenchmarkInfo> getBenchmarks() {
         studio = WebStudioUtils.getWebStudio();
-        if (FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI) != null) {
+        if (studio.getModel().hasLastTest()) {
             addLastBenchmark();
         }
         BenchmarkInfo[] benchmarks = studio.getBenchmarks();
@@ -129,10 +146,6 @@ public class BenchmarkMethodBean {
         return bi.runsunitsec();
     }
 
-    private String getElementUri() {
-        return FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
-    }
-
     public HtmlDataTable getHtmlDataTableBM() {
         return htmlDataTableBM;
     }
@@ -177,36 +190,6 @@ public class BenchmarkMethodBean {
                 return "color: blue;font-size: medium;";
         }
         return "color: black;";
-    }
-
-    public TestDescription getTestDescr() {
-        studio = WebStudioUtils.getWebStudio();
-        studio = WebStudioUtils.getWebStudio();
-        TestSuiteMethod testSuiteMethod = (TestSuiteMethod) studio.getModel().getMethod(getElementUri());
-        return testSuiteMethod.getTest(Integer.valueOf(getTestID()));
-    }
-    
-    public ExecutionParamDescription[] getExecutionParams() {
-        if (StringUtils.isNotEmpty(getTestID())) {
-            return getTestDescr().getExecutionParams();
-        } else {
-            return new ExecutionParamDescription[0];
-        }
-    }
-
-    private String getTestID() {
-        return FacesUtils.getRequestParameter("testID");
-    }
-
-    public String getTestName() {
-        studio = WebStudioUtils.getWebStudio();
-        String testID = getTestID();
-        IOpenMethod benchMarkedMethod = studio.getModel().getMethod(getElementUri());
-        if (StringUtils.isNotBlank(testID)) {
-            return benchMarkedMethod.getName() + " : " + testID;
-        } else {
-            return benchMarkedMethod.getName();
-        }
     }
 
     public String getUnitName() {
