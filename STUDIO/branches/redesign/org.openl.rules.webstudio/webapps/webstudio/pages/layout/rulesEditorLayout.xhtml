@@ -26,6 +26,10 @@
         <script>
             var $j = $.noConflict();
 
+            $j.ajaxSetup ({
+                cache: false
+            });
+
             $j(document).ready(function () {
                 $j('body').layout({
                     closable: false,
