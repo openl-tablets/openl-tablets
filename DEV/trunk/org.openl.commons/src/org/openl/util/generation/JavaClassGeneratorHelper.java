@@ -4,9 +4,11 @@ import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.util.ArrayTool;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 
@@ -15,21 +17,33 @@ public class JavaClassGeneratorHelper {
     private JavaClassGeneratorHelper(){}
     
     public static String filterTypeName(Class<?> type) {
-        if (!type.isPrimitive() && !(type.isArray() && type.getComponentType().isPrimitive())) {
-            return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
-        } else {
-            return ClassUtils.getShortClassName(type);
+        if (type != null) {
+            if (!type.isPrimitive() && !(type.isArray() && ArrayTool.getLowerComponentType(type).isPrimitive())) {
+                // for not primitives
+                //
+                return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
+            } else {            
+                return ClassUtils.getShortClassName(type);
+            }
         }
+        return StringUtils.EMPTY;
     }
     
+    /**
+     * TODO: check the income package for valid value.
+     */
     public static String getPackageText(String packageStr) {
+        
         if (packageStr != null) {
             return String.format("package %s;\n\n", packageStr);            
         } else {
-            return null;
+            return StringUtils.EMPTY;
         }
     }
     
+    /**
+     * TODO: check comment string for valid symbols(escape special comment symbols inside)
+     */
     public static String getCommentText(String comment) {
         return String.format("/*\n * %s \n*/\n\n", comment);
     }
@@ -123,6 +137,51 @@ public class JavaClassGeneratorHelper {
         return String.format("  public %s %s() {\n   return %s;\n}\n", fieldType, StringTool.getGetterName(fieldName), fieldName);
     }
     
+    /**
+     * Gets the type name for cast from Object to given class.
+     * Support cast to wrapper type of the primitive
+     * 
+     * @param clazz
+     * @return canonical type name for cast to given class
+     */
+    public static String getTypeNameForCastFromObject(Class<?> clazz) {        
+        String canonicalClassName = filterTypeName(clazz);
+        if (clazz != null && clazz.isPrimitive()) {
+            Class<?> wrapperType = NumberUtils.getWrapperType(canonicalClassName);
+            canonicalClassName = filterTypeName(wrapperType);
+        }
+        
+        return canonicalClassName;
+    }
+    
+    public static String getGetterWithCastMethod(Class<?> methodType, String methodToDecorate, String fieldName) {
+        return String.format("  public %s %s() {\n   %s\n}\n", filterTypeName(methodType), 
+            StringTool.getGetterName(fieldName), getDecoratorBody(methodType, methodToDecorate, fieldName));
+    }
+    
+    public static String getDecoratorBody(Class<?> methodType, String methodToDecorate, String fieldName) {
+        StringBuffer buf = new StringBuffer(300);
+        buf.append("return ");
+        if (methodType.isPrimitive()) {
+            buf.append("(");
+        }
+        buf.append(String.format("(%s)%s(\"%s\")", getTypeNameForCastFromObject(methodType), methodToDecorate, fieldName));
+        
+        if (methodType.isPrimitive()) {
+            buf.append(String.format(").%s", getWrapperMethod(methodType)));
+        }
+        
+        buf.append(";");
+        return buf.toString();        
+    }
+    
+    public static Object getWrapperMethod(Class<?> primitiveMethodType) {
+        if (primitiveMethodType != null && primitiveMethodType.isPrimitive()) {
+            return String.format("%sValue()", primitiveMethodType.getCanonicalName());
+        }
+        return StringUtils.EMPTY;
+    }
+
     public static String getPublicSetterMethod(String fieldType, String fieldName) {
         return String.format("  public void %s(%s %s) {\n   this.%s = %s;\n}\n", StringTool.getSetterName(fieldName), 
             fieldType, fieldName, fieldName, fieldName);
@@ -230,7 +289,7 @@ public class JavaClassGeneratorHelper {
      * @param canonicalTypeName name of the type (e.g. <code>my.test.TestClass</code>) 
      * @return Java type corresponding to the given type name. (e.g. <code>Lmy/test/TestClass;</code>)
      */
-    public static String getJavaTypeWithPrefix(String canonicalTypeName) {   
+    public static String getJavaTypeWithPrefix(String canonicalTypeName) {        
         if (NumberUtils.isPrimitive(canonicalTypeName)) {
             if ("byte".equals(canonicalTypeName)) {
                 return "B";
@@ -250,7 +309,10 @@ public class JavaClassGeneratorHelper {
                 return "C";
             }
         }
-        return String.format("L%s;", replaceDots(canonicalTypeName));
+        if (StringUtils.isNotBlank(canonicalTypeName)) {
+            return String.format("L%s;", replaceDots(canonicalTypeName));
+        }
+        return StringUtils.EMPTY;
     }
     
     /**
@@ -316,5 +378,14 @@ public class JavaClassGeneratorHelper {
             }
         }
         return null;
+    }
+    
+    public static String getUUID() {
+        /** The most significant half of UUID contains 58 bits of randomness, which means in average we
+           need to generate 2^29 UUIDs to get a collision (compared to 2^61 for the full UUID).
+           It is rather safe.*/
+        long uuid = UUID.randomUUID().getMostSignificantBits();
+        
+        return String.format("private static final long serialVersionUID = %sL;", String.valueOf(uuid));        
     }
 }

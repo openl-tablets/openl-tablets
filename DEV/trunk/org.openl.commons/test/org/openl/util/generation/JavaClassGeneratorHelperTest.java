@@ -2,9 +2,27 @@ package org.openl.util.generation;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 public class JavaClassGeneratorHelperTest {
+    
+    @Test
+    public void testFilterTypeName() {
+        assertEquals("java.lang.String", JavaClassGeneratorHelper.filterTypeName(String.class));
+        assertEquals("java.lang.String[]", JavaClassGeneratorHelper.filterTypeName(String[].class));
+        assertEquals("java.lang.String[][]", JavaClassGeneratorHelper.filterTypeName(String[][].class));
+        assertEquals("int", JavaClassGeneratorHelper.filterTypeName(int.class));
+        assertEquals("int[][]", JavaClassGeneratorHelper.filterTypeName(int[][].class));
+        
+        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.filterTypeName(null));
+    }
+    
+    @Test
+    public void testGetPackageText() {
+        assertEquals("package org.openl.commons;\n\n", JavaClassGeneratorHelper.getPackageText("org.openl.commons"));
+        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getPackageText(null));
+    }
     
     @Test
     public void testCleanTypeName() {
@@ -25,12 +43,40 @@ public class JavaClassGeneratorHelperTest {
     }
     
     @Test
+    public void testGetTypeNameForCast() {
+        assertEquals("java.lang.String", JavaClassGeneratorHelper.getTypeNameForCastFromObject(String.class));
+        
+        assertEquals("java.lang.String[]", JavaClassGeneratorHelper.getTypeNameForCastFromObject(String[].class));
+        
+        assertEquals("For primitives wrapper type should be used", "java.lang.Integer", JavaClassGeneratorHelper.getTypeNameForCastFromObject(int.class));
+        
+        assertEquals("int[]", JavaClassGeneratorHelper.getTypeNameForCastFromObject(int[].class));
+        
+        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getTypeNameForCastFromObject(null));
+    }
+    
+    @Test
+    public void testGetterWithCastMethod() {
+        assertEquals("  public java.lang.String getMyField() {\n   return (java.lang.String)getFieldValue(\"myField\");\n}\n", 
+            JavaClassGeneratorHelper.getGetterWithCastMethod(String.class, "getFieldValue", "myField"));
+        
+        assertEquals("  public int getMyField() {\n   return ((java.lang.Integer)getFieldValue(\"myField\")).intValue();\n}\n", 
+            JavaClassGeneratorHelper.getGetterWithCastMethod(int.class, "getFieldValue", "myField"));
+        
+        assertEquals("  public double getMyField() {\n   return ((java.lang.Double)getFieldValue(\"myField\")).doubleValue();\n}\n", 
+            JavaClassGeneratorHelper.getGetterWithCastMethod(double.class, "getFieldValue", "myField"));
+        
+    }
+    
+    @Test
     public void testGetJavaType() {
         assertEquals("Ljava/lang/String;", JavaClassGeneratorHelper.getJavaType(String.class.getCanonicalName()));
         assertEquals("[Ljava/lang/String;", JavaClassGeneratorHelper.getJavaType(String[].class.getCanonicalName()));
         assertEquals("I", JavaClassGeneratorHelper.getJavaType(int.class.getCanonicalName()));
         assertEquals("[[I", JavaClassGeneratorHelper.getJavaType(int[][].class.getCanonicalName()));
         assertEquals("D", JavaClassGeneratorHelper.getJavaType(double.class.getCanonicalName()));
+        
+        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getJavaType(null));
     }
     
     @Test
@@ -44,18 +90,17 @@ public class JavaClassGeneratorHelperTest {
         assertEquals("D", JavaClassGeneratorHelper.getJavaTypeWithPrefix(double.class.getCanonicalName()));
         assertEquals("Z", JavaClassGeneratorHelper.getJavaTypeWithPrefix(boolean.class.getCanonicalName()));
         assertEquals("C", JavaClassGeneratorHelper.getJavaTypeWithPrefix(char.class.getCanonicalName()));
+        
+        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getJavaTypeWithPrefix(null));
     }
     
     @Test
-    public void testGetJavaArrayType() {
-        String res = JavaClassGeneratorHelper.getJavaArrayType(null);
-        assertNull(res);
+    public void testGetJavaArrayType() {        
+        assertNull(JavaClassGeneratorHelper.getJavaArrayType(null));
         
-        String res1 = JavaClassGeneratorHelper.getJavaArrayType("org.test.MyType[][]");
-        assertEquals("[[Lorg/test/MyType;", res1);
+        assertEquals("[[Lorg/test/MyType;", JavaClassGeneratorHelper.getJavaArrayType("org.test.MyType[][]"));
         
-        String res2 = JavaClassGeneratorHelper.getJavaArrayType("org.test.MyType");
-        assertEquals("Lorg/test/MyType;", res2);
+        assertEquals("Lorg/test/MyType;", JavaClassGeneratorHelper.getJavaArrayType("org.test.MyType"));
     }
     
     @Test

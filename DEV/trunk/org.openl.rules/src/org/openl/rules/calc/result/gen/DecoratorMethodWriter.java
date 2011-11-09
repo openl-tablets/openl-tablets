@@ -11,7 +11,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.MethodWriter;
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 /**
@@ -115,12 +115,12 @@ public class DecoratorMethodWriter extends MethodWriter {
      * 3) If the name of the field is a single, return type name for cast will be <code>my/test/JavaClass</code><br>
      *  
      */
-    protected static String getTypeNameForCast(FieldDescription fieldType) {
+    public static String getTypeNameForCast(FieldDescription fieldType) {
         /** representation of the type name in canonical view (See java specification), e.g. my.test.JavaClass, my.test.JavaClass[]*/
         String fieldCanonicalTypeName = fieldType.getCanonicalTypeName();
         
         if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
-            Class<?> wrapperType = NumberUtils.getWrapperType(fieldType.getCanonicalTypeName());
+            Class<?> wrapperType = NumberUtils.getWrapperType(fieldCanonicalTypeName);
             fieldCanonicalTypeName = wrapperType.getCanonicalName();
         }
         
@@ -133,5 +133,5 @@ public class DecoratorMethodWriter extends MethodWriter {
             typeName = JavaClassGeneratorHelper.replaceDots(fieldCanonicalTypeName);
         }
         return typeName;
-    }
+    }    
 }
