@@ -9,6 +9,7 @@ import org.openl.rules.datatype.gen.BeanByteCodeGenerator;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.ClassDescriptionWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
+import org.openl.util.generation.CustomSpreadsheetResultJavaGenerator;
 
 /**
  * Byte code generator for custom spreadsheet results.<br>
@@ -51,6 +52,7 @@ public class CustomSpreadsheetResultByteCodeGenerator extends BeanByteCodeGenera
             new HashMap<String, FieldDescription>(), spreadsheetResultFields, spreadsheetResultFields));
         
         /** writer for generating decorator getter methods for spreadsheet cells*/
-        addWriter(new DecoratorMethodWriter(getBeanNameWithPackage(), cellFieldsDescription, "getFieldValue", "get"));
+        addWriter(new DecoratorMethodWriter(getBeanNameWithPackage(), cellFieldsDescription, 
+            CustomSpreadsheetResultJavaGenerator.SPREADSHEET_METHOD, "get"));
     }
 }

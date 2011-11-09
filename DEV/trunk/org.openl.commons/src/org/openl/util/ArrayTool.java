@@ -831,5 +831,13 @@ public class ArrayTool {
     public static Object[] sort(Object[] values) {
         Arrays.sort(values);
         return values;
+    }   
+ 
+    public static Class<?> getLowerComponentType(Class<?> clazz) {
+        if (clazz.isArray()) {
+            return getLowerComponentType(clazz.getComponentType());
+        } 
+        return clazz;
     }
+
 }
