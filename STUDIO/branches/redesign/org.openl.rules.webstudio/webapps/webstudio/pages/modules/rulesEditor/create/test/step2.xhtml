@@ -8,7 +8,7 @@
 
     <ui:define name="controlButtons">
         <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
-            oncomplete="go('test/step1.xhtml')" />
+            oncomplete="go('test/step1.xhtml')" rendered="#{tableCreatorWizardManager.tableType != 'TEST_DIRECT'}" />
         <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}" onclick="return validate();"
             oncomplete="go('test/step3.xhtml')" />
         <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />

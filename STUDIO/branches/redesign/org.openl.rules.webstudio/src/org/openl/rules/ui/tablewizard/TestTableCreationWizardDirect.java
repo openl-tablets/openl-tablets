@@ -10,7 +10,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  *
  */
 public class TestTableCreationWizardDirect extends TestTableCreationWizard {
-    
+
     public TestTableCreationWizardDirect(String uri) {
         TableSyntaxNode node = WebStudioUtils.getProjectModel().getNode(uri);
         if (node == null) {

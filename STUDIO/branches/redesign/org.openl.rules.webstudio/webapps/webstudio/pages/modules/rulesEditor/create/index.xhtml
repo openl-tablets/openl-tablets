@@ -7,6 +7,7 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <c:set var="wizard" value="#{tableCreatorWizardManager.wizard}" />
+    <c:set var="initStep" value="#{empty param.initStep ? 'step0.xhtml' : param.initStep}" />
 
     <style>
         .wz_selected_list_item { background-color: yellow; }
@@ -14,7 +15,7 @@
     </style>
 
     <h:panelGroup id="wizardData">
-        <ui:include src="/pages/modules/rulesEditor/create/step0.xhtml" />
+        <ui:include src="/pages/modules/rulesEditor/create/#{initStep}" />
     </h:panelGroup>
 
     <script>

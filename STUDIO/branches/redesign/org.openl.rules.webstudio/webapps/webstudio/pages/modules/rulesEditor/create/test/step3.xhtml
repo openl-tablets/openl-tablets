@@ -22,8 +22,7 @@
             <hr />
             <br />
 
-            <a4j:commandButton value="Prev" rendered="#{wizard.step > 1}"
-                action="#{tableCreatorWizardManager.prev}" immediate="true"
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
                 oncomplete="go('test/step2.xhtml')" />
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
                 oncomplete="go('test/step4.xhtml')" />
