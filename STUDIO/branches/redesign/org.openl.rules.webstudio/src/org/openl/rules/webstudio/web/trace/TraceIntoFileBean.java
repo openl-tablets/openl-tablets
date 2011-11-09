@@ -36,11 +36,6 @@ public class TraceIntoFileBean {
     public static final String EXTENSION_SEPARATOR = ".";
 
     /**
-     * Uri of table to trace.
-     */
-    private String tableUri;
-
-    /**
      * Output file name without extension. By default 'trace'.
      */
     private String fileBaseName = "trace";
@@ -51,7 +46,7 @@ public class TraceIntoFileBean {
     private String fileFormat;
 
     public String traceIntoFile() {
-        Tracer tracer = trace(tableUri);
+        Tracer tracer = trace();
 
         TracePrinter tracePrinter = getTracePrinter(fileFormat);
 
@@ -75,9 +70,9 @@ public class TraceIntoFileBean {
         return null;
     }
 
-    private Tracer trace(String tableUri) {
+    private Tracer trace() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.traceElement(tableUri, null);
+        return model.traceElement(model.popLastTest());
     }
 
     private TracePrinter getTracePrinter(String fileFormat) {
@@ -94,14 +89,6 @@ public class TraceIntoFileBean {
 
         String contentType = new MimetypesFileTypeMap().getContentType(outputFileName);
         response.setContentType(contentType);
-    }
-
-    public String getTableUri() {
-        return tableUri;
-    }
-
-    public void setTableUri(String tableUri) {
-        this.tableUri = tableUri;
     }
 
     public String getFileBaseName() {

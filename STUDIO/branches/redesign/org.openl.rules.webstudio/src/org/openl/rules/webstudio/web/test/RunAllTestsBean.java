@@ -7,20 +7,17 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 
 import org.openl.rules.testmethod.ExecutionParamDescription;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UIRepeat;
 
@@ -36,28 +33,18 @@ public class RunAllTestsBean {
     private UIRepeat testUnits;
 
     public RunAllTestsBean() {
-        String tableUri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
-
-        String unitId = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_ID);
-
         TestResultsHelper.initExplanator();
 
-        testAll(tableUri, unitId);
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        testAll(studio.getModel().popLastTest());
     }
 
-    // TODO Multiple indexes in future
-    private void testAll(String tableUri, String unitId) {
+    private void testAll(TestSuite testSuite) {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (StringUtils.isBlank(tableUri)) {
+        if (testSuite == null) {
             ranResults = model.runAllTests();
         } else {
-            if (StringUtils.isBlank(unitId)) {
-                ranResults = new TestUnitsResults[] { model.runTestSuite(tableUri) };
-            } else {
-                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) model.getMethod(tableUri);
-                TestSuite testSuite = new TestSuite(testSuiteMethod, Integer.valueOf(unitId));
-                ranResults = new TestUnitsResults[] { model.runTestSuite(testSuite) };
-            }
+            ranResults = new TestUnitsResults[] { model.runTestSuite(testSuite) };
         }
     }
 

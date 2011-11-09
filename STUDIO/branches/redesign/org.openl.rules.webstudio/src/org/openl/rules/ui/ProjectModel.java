@@ -113,6 +113,25 @@ public class ProjectModel {
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
 
+    // FIXME last test suite should have temporary location(such as Flash scope)
+    // but now it placed to session bean due to WebStudio navigation specific
+    // TODO move this object to the correctplace
+    private TestSuite lastTest;
+
+    public boolean hasLastTest() {
+        return lastTest != null;
+    }
+
+    public TestSuite popLastTest() {
+        TestSuite result = lastTest;
+        lastTest = null;
+        return result;
+    }
+
+    public void setLastTest(TestSuite lastTest) {
+        this.lastTest = lastTest;
+    }
+
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
     }    
@@ -121,20 +140,62 @@ public class ProjectModel {
         return studio.getCurrentProject();
     }
 
+    public BenchmarkInfo benchmarkTestsSuite(final TestSuite testSuite, int ms) throws Exception {
+        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
+
+        ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
+
+            // Object res = null;
+            BenchmarkUnit bu = null;
+
+            try {
+
+                    bu = new BenchmarkUnit() {
+                        @Override
+                        public String getName() {
+                            return testSuite.getName();
+                        }
+
+                        @Override
+                        public int nUnitRuns() {
+                            return testSuite.getNumberOfTests();
+                        }
+
+                        @Override
+                        protected void run() throws Exception {
+                            throw new RuntimeException();
+                        }
+
+                        @Override
+                        public void runNtimes(int times) throws Exception {
+                            testSuite.invoke(target, env, times);
+                        }
+
+                        @Override
+                        public String[] unitName() {
+                            //FIXME
+                            return testSuite.getTestSuiteMethod().unitName();
+                        }
+
+                    };
+                BenchmarkUnit[] buu = { bu };
+                return new Benchmark(buu).runUnit(bu, ms, false);
+
+            } catch (Throwable t) {
+                Log.error("Run Error:", t);
+                return new BenchmarkInfo(t, bu, bu.getName());
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(currentContextClassLoader);
+        }
+    }
     
-    
-    public BenchmarkInfo benchmarkElement(String elementUri, String testID, int ms) throws Exception {
+    public BenchmarkInfo benchmarkSingleTest(final TestSuite testSuite, final int testIndex, int ms) throws Exception {
 
         BenchmarkUnit bu = null;
-
-        if (StringUtils.isBlank(testID)) {
-            IOpenMethod m = getMethod(elementUri);
-            return benchmarkMethod(m, ms);
-        }
-        final TestSuiteMethod testSuite = (TestSuiteMethod)getMethod(elementUri);
-
-        final int tid = Integer.parseInt(testID);
-        final TestDescription test = testSuite.getTest(tid);
 
         final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
@@ -143,7 +204,7 @@ public class ProjectModel {
 
             @Override
             public String getName() {
-                return testSuite.getName() + ":" + tid;
+                return testSuite.getName() + ":" + testIndex;
             }
 
             @Override
@@ -154,7 +215,7 @@ public class ProjectModel {
             @Override
             public void runNtimes(int times) throws Exception {
                 try {
-                    test.runTest(target, env, times);
+                    testSuite.getTest(testIndex).runTest(target, env, times);
                 } catch (Throwable t) {
                     Log.error("Error during Method run: ", t);
                     throw RuntimeExceptionWrapper.wrap(t);
@@ -163,7 +224,7 @@ public class ProjectModel {
 
             @Override
             public String[] unitName() {
-                return new String[] { testSuite.getName() + ":" + tid };
+                return new String[] { testSuite.getName() + ":" + testIndex };
             }
 
         };
@@ -951,7 +1012,7 @@ public class ProjectModel {
         previousUsedMessages = OpenLMessages.getCurrentInstance();
     }
 
-    public Tracer traceElement(String elementUri, String testID) {
+    public Tracer traceElement(TestSuite testSuite) {
         Tracer t = new Tracer();
         Tracer.setTracer(t);
 
@@ -959,18 +1020,7 @@ public class ProjectModel {
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
-                if (StringUtils.isBlank(testID)) {
-                    if (getMethod(elementUri) instanceof TestSuiteMethod) {
-                        runTestSuite(elementUri);
-                    } else {
-                        //executable method with no params
-                        IOpenMethod method = getMethod(elementUri);
-                        TestDescription test = new TestDescription(method, new Object[]{});
-                        runSingleTestUnit(test);
-                    }
-                } else {
-                    runSingleTestUnit(elementUri, testID);
-                }
+                runTestSuite(testSuite);
             } finally {
                 Tracer.setTracer(null);
             }
