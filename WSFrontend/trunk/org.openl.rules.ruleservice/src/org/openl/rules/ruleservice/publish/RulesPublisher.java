@@ -83,9 +83,9 @@ public class RulesPublisher implements IRulesPublisher {
             } else {
                 factory.setProxyTargetClass(false);
             }
-        }
-        Thread.currentThread().setContextClassLoader(serviceBean.getClass().getClassLoader());
+        }        
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(serviceBean.getClass().getClassLoader());
         Object proxyServiceBean = null;
         try {
             proxyServiceBean = factory.getProxy();
