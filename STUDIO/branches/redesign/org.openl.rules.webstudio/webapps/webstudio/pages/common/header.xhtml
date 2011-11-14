@@ -20,12 +20,13 @@
             text-decoration: none;
             padding: 6px 15px;
             font-size: 110%;
-            color: #444444;
+            color: #1199ee;
         }
         #ll .active {
-            color: #1199ee;
+            color: #222222;
             border-left: 1px dashed #e5e5e5;
             border-right: 1px dashed #e5e5e5;
+            cursor: default;
         }
     </style>
 
@@ -47,9 +48,9 @@
         </div>
 
         <div id="ll" style="position: absolute; top: 22px; right: 255px;">
-            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}">Rules Editor</a><a
-                href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}">Repository</a><a
-                href="#{contextPath}/faces/pages/modules/administration/index.xhtml" class="#{menu=='admin' ? 'active' : ''}">Administration</a>
+            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a><a
+                href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : ''}">Repository</a><a
+                href="#{contextPath}/faces/pages/modules/administration/index.xhtml" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
 
         </div>
     </div>
