@@ -6,7 +6,7 @@
 	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 
-	<import resource="classpath:openl-ruleservice-loader-beans.xml"/>
+	<import resource="classpath:test-ruleservice-loader-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
 	
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
