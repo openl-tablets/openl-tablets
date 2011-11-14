@@ -7,6 +7,8 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j">
 
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
     <a4j:repeat var="sr" value="#{searchResults}" binding="#{searchResultsBean.searchResults}">
         <c:set var="uri" value="#{sr[0]}" />
         <c:set var="result" value="#{sr[1]}" />
@@ -18,8 +20,7 @@
                     <h:graphicImage url="/webresource/images/viewTable.gif" />
                 </td>
                 <td style="vertical-align: top">
-                    <h:outputLink title="View Table in Table Editor"
-                        value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                    <h:outputLink title="View Table" value="showTable.xhtml" target="content">
                         <f:param name="uri" value="#{uri}" />
                         <h:outputText value="View Table" />
                     </h:outputLink>
