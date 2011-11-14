@@ -49,18 +49,11 @@
                     <h:outputLink value="#{rulesEditor}/search/businessSearch.xhtml"
                         target="content">Business</h:outputLink>
                 </span>
-                <input id="searchQuery" />
-                <script>
-                    $j("#searchQuery").keypress(function(e) {
-                        if (e.which == 13) {
-                            alert('a');
-                        }
-                    });
-                </script>
-                <a href="#{rulesEditor}/search/simpleSearch.xhtml"
-                    onclick="this.href = this.href.split('?')[0] + '?searchQuery=' + $j('#searchQuery').val()"
-                    title="Search" target="content"><img src="#{contextPath}/webresource/images/search.png"
-                    alt="Search" /></a>
+                <form style="display: inline;"
+                    onsubmit="goTo('#{rulesEditor}/search/simpleSearch.xhtml?searchQuery=' + $j('#searchQuery').val()); return false;">
+                    <input id="searchQuery" />
+                    <input type="image" src="#{contextPath}/webresource/images/search.png" />
+                </form>
             </h:panelGroup>
 
             <a target="_blank" style="margin-left: 15px"
