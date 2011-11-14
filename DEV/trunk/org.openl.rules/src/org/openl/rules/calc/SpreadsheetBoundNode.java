@@ -46,15 +46,18 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     }
     
     public void finalizeBind(IBindingContext bindingContext) throws Exception {        
-        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
-
-        
+        ILogicalTable tableBody = getTableSyntaxNode().getTableBody();       
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         
         builder.build(getSpreadsheet());
+        
+        // As custom spreadsheet result is being generated at runtime,
+        // call this method to ensure that CSR will be generated during the compilation.
+        // 
+        getSpreadsheet().getType();
     }
-
+    
     private void validateTableBody(ILogicalTable tableBody) throws SyntaxNodeException {
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Table has no body! Try to merge header cell horizontally to identify table.",

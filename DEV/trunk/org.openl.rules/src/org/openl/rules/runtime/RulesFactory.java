@@ -138,11 +138,7 @@ public class RulesFactory {
         String methodName = method.getName();
         IOpenClass[] paramClasses = method.getSignature().getParameterTypes();
         Class<?> returnType = method.getType().getInstanceClass();
-        /**Temporary fix for the ACE team*/
-        // TODO: delete this when resolve the issue with classloaders
-        if (ClassUtils.isAssignable(returnType, SpreadsheetResult.class, false)) {
-            returnType = SpreadsheetResult.class;
-        }
+        
         Class<?>[] paramTypes = OpenClassHelper.getInstanceClasses(paramClasses);
 
         RuleInfo ruleInfo = createRuleInfo(methodName, paramTypes, returnType);
