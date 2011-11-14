@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.core.IRuleService;
@@ -86,18 +87,29 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
     }
 
     private void processServices() {
-        List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRulesLoader());
-        Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
-        for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-            newServices.put(serviceDescription.getName(), serviceDescription);
-        }
+        Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
 
         undeployUnnecessary(newServices);
         redeployExisitng(newServices);
         deployNewServices(newServices);
     }
 
-    private void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
+    @SuppressWarnings("unchecked")
+    public Map<String, ServiceDescription> gatherServicesToBeDeployed() {
+        try{
+        List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRulesLoader());
+        Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
+        for (ServiceDescription serviceDescription : servicesToBeDeployed) {
+            newServices.put(serviceDescription.getName(), serviceDescription);
+        }
+        return newServices;
+        }catch (Exception e) {
+            log.error("Failed to gather services to be deployed", e);
+            return MapUtils.EMPTY_MAP;
+        }
+    }
+
+    protected void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
         for (OpenLService runningService : ruleService.getRunningServices()) {
             String serviceName = runningService.getName();
             if (!newServices.containsKey(serviceName)) {
@@ -114,7 +126,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         return ruleService.findServiceByName(serviceName) != null;
     }
 
-    private void redeployExisitng(Map<String, ServiceDescription> newServices) {
+    protected void redeployExisitng(Map<String, ServiceDescription> newServices) {
         for (ServiceDescription serviceDescription : newServices.values()) {
             if (isServiceExists(serviceDescription.getName())) {
                 try {
@@ -126,7 +138,7 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
         }
     }
 
-    private void deployNewServices(Map<String, ServiceDescription> newServices) {
+    protected void deployNewServices(Map<String, ServiceDescription> newServices) {
         for (ServiceDescription serviceDescription : newServices.values()) {
             if (!isServiceExists(serviceDescription.getName())) {
                 try {
