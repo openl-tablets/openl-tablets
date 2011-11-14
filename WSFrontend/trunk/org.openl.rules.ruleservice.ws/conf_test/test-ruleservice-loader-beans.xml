@@ -7,11 +7,8 @@
 	<import resource="classpath:project-resolver-beans.xml"/>
 	
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
-	<bean id="datasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource">
-		<constructor-arg name="loadDeploymentsFromDirectory" value="/openl/datasource"/>
-		<property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
-		<property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
-	</bean>
+	<!-- This implementation based on JCR repository -->
+	<bean id="datasource" class="org.openl.rules.ruleservice.loader.JcrDataSource" />
 
 	<!-- Folders exclude definition bean-->
 	<bean id="excludedFolders" class="java.util.LinkedHashSet">
