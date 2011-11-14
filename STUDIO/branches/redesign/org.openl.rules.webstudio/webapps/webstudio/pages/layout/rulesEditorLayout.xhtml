@@ -26,9 +26,15 @@
         <script>
             var $j = $.noConflict();
 
-            $j.ajaxSetup ({
+            $j.ajaxSetup({
                 cache: false
             });
+
+            var urlRewrite = {
+                prefix: "#{rulesEditor}/"
+            }
+
+            $j(window).bind("hashchange", hashchange);
 
             $j(document).ready(function () {
                 $j('body').layout({
@@ -58,7 +64,20 @@
             });
 
             function goTo(page, target) {
-                $j("#" + target).load(page);
+                if (page) {
+                    page = page.replace(urlRewrite.prefix, "");
+                    location.hash = page;
+                }
+            }
+
+            function hashchange() {
+                if (location.hash) {
+                    var page = location.href.split("#")[1];
+                    if (page.indexOf(urlRewrite.prefix) &lt; 0) {
+                        page = urlRewrite.prefix + page;
+                    }
+                    $j("#content").load(page);
+                }
             }
 
             /*function setViewDimensions() {
@@ -146,5 +165,9 @@
                 <rich:componentControl />
             </h:outputLink>
         </div>
+
+        <script>
+            hashchange();
+        </script>
     </h:body>
 </html>
