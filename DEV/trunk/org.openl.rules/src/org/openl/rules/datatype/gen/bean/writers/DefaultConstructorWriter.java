@@ -1,6 +1,5 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
@@ -11,13 +10,7 @@ import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.types.writers.TypeWriter;
 
-public class DefaultConstructorWriter implements BeanByteCodeWriter {
-    
-    private String beanNameWithPackage;
-    
-    private Class<?> parentClass;
-    
-    private Map<String, FieldDescription> beanFields;
+public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     
     /**
      * 
@@ -27,26 +20,18 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
      * @param beanFields fields of generating class.
      */
     public DefaultConstructorWriter(String beanNameWithPackage, Class<?> parentClass, Map<String, FieldDescription> beanFields) {
-        this.beanNameWithPackage = beanNameWithPackage;
-        this.parentClass = parentClass;
-        this.beanFields = new HashMap<String, FieldDescription>(beanFields);
+        super(beanNameWithPackage, parentClass, beanFields);
     }
     
     public void write(ClassWriter classWriter) {
-
         MethodVisitor methodVisitor;
-        // creates a MethodWriter for the (implicit) constructor
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-        // pushes the 'this' variable
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        
+        methodVisitor = writeDefaultConstructorDefinition(classWriter);
         // invokes the super class constructor
-        if (parentClass == null) {
+        if (getParentClass() == null) {
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, "<init>", "()V");
         } else {
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                Type.getInternalName(parentClass),
-                "<init>",
-                "()V");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()), "<init>", "()V");
         }
 
         int stackVariable = writeDefaultFieldValues(methodVisitor);
@@ -54,6 +39,15 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
         methodVisitor.visitInsn(Opcodes.RETURN);
 
         methodVisitor.visitMaxs(stackVariable, 1);
+    }
+
+    protected MethodVisitor writeDefaultConstructorDefinition(ClassWriter classWriter) {
+        MethodVisitor methodVisitor;
+        // creates a MethodWriter for the (implicit) constructor
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        // pushes the 'this' variable
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        return methodVisitor;
     }
     
     private int writeDefaultFieldValues(MethodVisitor methodVisitor) {
@@ -68,7 +62,7 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
     private int processWritingDefaultValues(MethodVisitor methodVisitor) {
         int stackVariable = 2; // if there is any default value, stack trace variable value will be 2.
         
-        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             FieldDescription fieldType = field.getValue();
             Object defaultValue = fieldType.getDefaultValue();
             
@@ -92,7 +86,7 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
                     stackVariable = typeWriter.writeFieldValue(methodVisitor, fieldType);
                 }
                 String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldType);                
-                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, beanNameWithPackage, field.getKey(), fieldTypeName);
+                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
             }
         }
         return stackVariable;
@@ -103,7 +97,7 @@ public class DefaultConstructorWriter implements BeanByteCodeWriter {
      * @return true if there is any default value for any field.
      */
     private boolean isAnyDefaultvalue() {
-        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             Object defaultValue = field.getValue().getDefaultValue();
             if (defaultValue != null) {
                 return true;

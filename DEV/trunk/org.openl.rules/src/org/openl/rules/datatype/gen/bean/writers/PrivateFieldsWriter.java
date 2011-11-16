@@ -1,8 +1,8 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
@@ -14,20 +14,18 @@ import org.openl.rules.datatype.gen.FieldDescription;
  * @author DLiauchuk
  *
  */
-public class PrivateFieldsWriter implements BeanByteCodeWriter {
-    
-    private Map<String, FieldDescription> beanFields;
+public class PrivateFieldsWriter extends DefaultBeanByteCodeWriter {
     
     /**
      * 
      * @param beanFields fields of generating class.
      */
     public PrivateFieldsWriter(Map<String, FieldDescription> beanFields) {
-        this.beanFields = new HashMap<String, FieldDescription>(beanFields);
+        super(StringUtils.EMPTY, null, beanFields);        
     }
     
     public void write(ClassWriter classWriter) {
-        for (Map.Entry<String,  FieldDescription> field : beanFields.entrySet()) {
+        for (Map.Entry<String,  FieldDescription> field : getBeanFields().entrySet()) {
           String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(field.getValue());          
           classWriter.visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
         }

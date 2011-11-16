@@ -1,19 +1,20 @@
 package org.openl.rules.testmethod;
 
-import java.lang.reflect.Array;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.openl.rules.helpers.NumberUtils;
-import org.openl.util.math.MathUtils;
+import org.openl.rules.testmethod.result.TestResultComparator;
 
 public class TestUnitResultComparator {
     
-    private TestUnitResultComparator () {}
-        
     public static final int TR_EXCEPTION = 2;
     public static final int TR_NEQ = 1;
     public static final int TR_OK = 0;
+    
+    private TestResultComparator resultComparator;
+    
+    public TestUnitResultComparator(TestResultComparator resultComparator) {
+        this.resultComparator = resultComparator;
+    }
     
     /**
      * Return the comparasion of the expected result and actual one for the test unit. 
@@ -23,7 +24,7 @@ public class TestUnitResultComparator {
      * <b>1</b> if the expected result is not equal to the actual one.<br>
      * <b>2</b> if the was an exception, during running, that we didn`t expect.
      */
-    public static int getCompareResult(TestUnit testUnit) {
+    public int getCompareResult(TestUnit testUnit) {
         if (testUnit.getActualResult() instanceof Throwable) {
             return compareExceptionResult(testUnit);
         }
@@ -35,8 +36,22 @@ public class TestUnitResultComparator {
         return TR_NEQ;
         
     }
+    
+    @SuppressWarnings("unchecked")
+    public boolean compareResult(Object actualResult, Object expectedResult) {
 
-    private static int compareExceptionResult(TestUnit testUnit) {
+        if (actualResult == expectedResult) {
+            return true;
+        }
+
+        if (actualResult == null || expectedResult == null) {
+            return false;
+        }
+        
+        return resultComparator.compareResult(actualResult, expectedResult);
+    }
+    
+    private int compareExceptionResult(TestUnit testUnit) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
             String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
@@ -65,54 +80,4 @@ public class TestUnitResultComparator {
 
         return TR_EXCEPTION;
     }
-    
-    @SuppressWarnings("unchecked")
-    public static boolean compareResult(Object res, Object expected) {
-
-        if (res == expected) {
-            return true;
-        }
-
-        if (res == null || expected == null) {
-            return false;
-        }
-        
-        if (NumberUtils.isFloatPointNumber(res)) {
-        	Double result = NumberUtils.convertToDouble(res);
-        	Double expectedResult = NumberUtils.convertToDouble(expected);
-        	
-        	return MathUtils.eq(result.doubleValue(), expectedResult.doubleValue());
-        }
-
-        if (res instanceof Comparable) {
-            return ((Comparable<Object>) res).compareTo(expected) == 0;
-        }
-
-        if (res.equals(expected)) {
-            return true;
-        }
-
-        if (res.getClass().isArray() && expected.getClass().isArray()) {
-            return compareArrays(res, expected);
-        }
-
-        return false;
-    }
-
-    private static boolean compareArrays(Object res, Object expected) {
-
-        int len = Array.getLength(res);
-        if (len != Array.getLength(expected)) {
-            return false;
-        }
-
-        for (int i = 0; i < len; i++) {
-            if (!compareResult(Array.get(res, i), Array.get(expected, i))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-       
 }

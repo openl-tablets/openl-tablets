@@ -3,7 +3,6 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ClassUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -63,20 +62,9 @@ public class TestSpreadsheetOpenClass extends ADynamicClass {
     
     private void init(Spreadsheet testedSpreadsheet) {
         /** add the fields from the signature of the testing method*/
-        addParameterFields(testedSpreadsheet);
-        
-        /** add the fields from tested spreadsheet cells to give access to the cells from test table*/
-        for (IOpenField field : testedSpreadsheet.getType().getFields().values()) {
-            if (field.getName().startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
-                IOpenField resultField = new DynamicObjectField(this, field.getName(), field.getType());
-                addField(resultField);
-            }
-        }
-        
-        /** add expected result field if the return type of the spreadsheet is not a SpreadsheetResult*/
-        if (!ClassUtils.isAssignable(testedSpreadsheet.getHeader().getType().getInstanceClass(), SpreadsheetResult.class, true)) {
-            addExpectedResult(testedSpreadsheet);
-        }
+        addParameterFields(testedSpreadsheet);       
+ 
+        addExpectedResult(testedSpreadsheet);
         
         /** add description field*/
         addDescription();

@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.commons.lang.ClassUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -47,26 +49,24 @@ public class TestMethodFactory {
      * @param ex exception during test running
      * @return list of test unit results
      */
-    public static List<TestUnit> convertTestUnit(TestUnit result) {
-        List<TestUnit> testUnits = null;
-        SpreadsheetResult runningResultLocal = (SpreadsheetResult) result.getRunningResult();
+    public static TestUnit updateTestUnit(TestUnit testUnit) {        
+        SpreadsheetResult runningResultLocal = (SpreadsheetResult) testUnit.getRunningResult();
         if (runningResultLocal != null) {
-            TestSpreadsheetOpenClass openClass = (TestSpreadsheetOpenClass) result.getTest().getTestObject().getType();
-
-            /**
-             * Creates a number of test units according to the testing cells
-             */
-            testUnits = new ArrayList<TestUnit>(openClass.getSpreadsheetCellsForTest().size());
-
+            TestSpreadsheetOpenClass openClass = (TestSpreadsheetOpenClass) testUnit.getTest().getTestObject().getType();
+            
+            List<String> fieldsToTest = new ArrayList<String>(openClass.getSpreadsheetCellsForTest().size());
             for (int i = 0; i < openClass.getSpreadsheetCellsForTest().size(); i++) {
-                String spreadsheetCellName = openClass.getSpreadsheetCellsForTest().get(i)[0].getIdentifier();
-                TestUnit testUnit = new TestUnit(result.getTest(),
-                    runningResultLocal.getFieldValue(spreadsheetCellName),
-                    result.getException(),
-                    spreadsheetCellName);
-                testUnits.add(testUnit);
+                String fieldNameToTest = openClass.getSpreadsheetCellsForTest().get(i)[1].getIdentifier();
+                fieldsToTest.add(fieldNameToTest);
             }
+            
+            
+            
+            TestResultComparator resultComparator = TestResultComparatorFactory.getBeanComparator(testUnit.getActualResult(), testUnit.getExpectedResult(), fieldsToTest);
+            testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
+            
+            
         }
-        return testUnits;
+        return testUnit;
     }
 }

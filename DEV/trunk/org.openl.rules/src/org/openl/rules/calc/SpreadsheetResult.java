@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.helpers.ITableAdaptor;
 import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.table.ILogicalTable;
@@ -29,6 +30,13 @@ public class SpreadsheetResult implements Serializable {
      * it is needed for web studio to display results
      */
     private transient ILogicalTable logicalTable;
+    
+    public SpreadsheetResult(int height, int width) {
+        this.height = height;
+        this.width = width;
+        this.results = new Object[height][width];        
+        this.fieldsCoordinates = new HashMap<String, Point>();  
+    }
     
     public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames, 
             Map<String, Point> fieldsCoordinates) {
@@ -104,16 +112,30 @@ public class SpreadsheetResult implements Serializable {
         return results[row][column];
     }
     
+    protected void setValue(int row, int column, Object value) {
+        results[row][column] = value;
+    }
+    
     public String getColumnName(int column) {
-        return columnNames[column];                
+        if (columnNames != null) {
+            return columnNames[column];
+        }
+        return "DefaultColumnName" + column;
     }    
     
     public String getRowName(int row) {
-        return rowNames[row];        
+        if (rowNames != null) {
+            return rowNames[row];
+        }           
+        return "DefaultRowName" + row;
     }
     
     public Map<String, Point> getFieldsCoordinates() {
         return new HashMap<String, Point>(fieldsCoordinates);
+    }
+    
+    protected void addFieldCoordinates(String field, Point coord) {
+        fieldsCoordinates.put(field, coord);
     }
 
     public void setFieldsCoordinates(Map<String, Point> fieldsCoordinates) {
