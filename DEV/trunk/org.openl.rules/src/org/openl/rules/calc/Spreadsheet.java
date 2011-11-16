@@ -8,11 +8,13 @@ import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.gen.CustomSpreadsheetResultByteCodeGenerator;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -63,8 +65,12 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private void initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
+        
+        /** get fields coordinates */
+        Map<String, Point> fieldCoordinates = DefaultResultBuilder.getFieldsCoordinates(spreadsheetOpenClassFields);
+        
         Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
-        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator("SpreadsheetResult" + getName(), beanFields);
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator("org.openl.rules.calc.SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
         Class<?> customSPR = gen.generateAndLoadBeanClass();
         spreadsheetCustomType = JavaOpenClass.getOpenClass(customSPR);
     }

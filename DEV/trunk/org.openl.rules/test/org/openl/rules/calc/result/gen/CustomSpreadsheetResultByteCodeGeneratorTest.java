@@ -8,19 +8,36 @@ import java.util.Map;
 import org.junit.Test;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.table.Point;
 
 public class CustomSpreadsheetResultByteCodeGeneratorTest {
     @Test
     public void test1() {
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula$Final_Value", new FieldDescription(org.openl.meta.StringValue.class));
-        cells.put("$Value$Abra", new FieldDescription(org.openl.meta.DoubleValue.class));
+        String field1 = "$Formula$Final_Value";
+        String field2 = "$Value$Abra";
+        
+        cells.put(field1, new FieldDescription(org.openl.meta.StringValue.class));        
+        cells.put(field2, new FieldDescription(org.openl.meta.DoubleValue.class));
+        
+        Map<String, Point> fieldCoordinates = new HashMap<String, Point>();
+        fieldCoordinates.put(field1, new Point(0, 0));
+        fieldCoordinates.put(field2, new Point(0, 1));        
         
         String className = "my.test.CustomSpreadsheetRes";
-        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells, fieldCoordinates);
         gen.generateAndLoadBeanClass();
         
-        checkLoadingClass(className);          
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        Object instance = null;
+        try {
+            instance = clazz.newInstance();
+        } catch (Exception e) {            
+            fail();
+        } 
+        assertNotNull(instance);
+        
     }
     
     @Test
@@ -84,7 +101,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         checkLoadingClass(className);        
     }
 
-    private void checkLoadingClass(String className) {
+    private Class<?> checkLoadingClass(String className) {
         Class<?> generatedClass = null;
         try {
             generatedClass = Class.forName(className);
@@ -93,6 +110,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         }
         assertNotNull(generatedClass);
         generatedClass.getDeclaredFields();
+        return generatedClass;
     }
     
     

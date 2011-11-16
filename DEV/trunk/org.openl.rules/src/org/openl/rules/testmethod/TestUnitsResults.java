@@ -42,7 +42,7 @@ public class TestUnitsResults implements INamedThing {
 
     public void addTestUnit(TestUnit testUnit) {
         if (TestMethodFactory.shouldBeConverted(testUnit)) {
-            testUnits.addAll(TestMethodFactory.convertTestUnit(testUnit));
+            testUnits.add(TestMethodFactory.updateTestUnit(testUnit));
         } else {
             testUnits.add(testUnit);
         }

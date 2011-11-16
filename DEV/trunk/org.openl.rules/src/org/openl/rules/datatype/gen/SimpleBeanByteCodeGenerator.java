@@ -7,9 +7,10 @@ import org.openl.rules.datatype.gen.bean.writers.ClassDescriptionWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
 import org.openl.rules.datatype.gen.bean.writers.DefaultConstructorWriter;
 import org.openl.rules.datatype.gen.bean.writers.EqualsWriter;
-import org.openl.rules.datatype.gen.bean.writers.GettersAndSettersWriter;
+import org.openl.rules.datatype.gen.bean.writers.GettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.HashCodeWriter;
 import org.openl.rules.datatype.gen.bean.writers.PrivateFieldsWriter;
+import org.openl.rules.datatype.gen.bean.writers.SettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.ToStringWriter;
 
 /**
@@ -60,7 +61,8 @@ public class SimpleBeanByteCodeGenerator extends BeanByteCodeGenerator {
         addWriter(new PrivateFieldsWriter(beanFields));
         addWriter(new DefaultConstructorWriter(getBeanNameWithPackage(), parentClass, beanFields));
         addWriter(new ConstructorWithParametersWriter(getBeanNameWithPackage(), parentClass, beanFields, parentFields, allFields));
-        addWriter(new GettersAndSettersWriter(getBeanNameWithPackage(), beanFields));
+        addWriter(new GettersWriter(getBeanNameWithPackage(), beanFields));
+        addWriter(new SettersWriter(getBeanNameWithPackage(), beanFields));
         addWriter(new ToStringWriter(getBeanNameWithPackage(), allFields));
         addWriter(new EqualsWriter(getBeanNameWithPackage(), allFields));
         addWriter(new HashCodeWriter(getBeanNameWithPackage(), allFields));

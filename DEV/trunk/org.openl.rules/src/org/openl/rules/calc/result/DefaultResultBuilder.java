@@ -25,7 +25,7 @@ public class DefaultResultBuilder implements IResultBuilder {
          
         String[] columnNames = getColumnNames(result);
         
-        Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result);
+        Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result.getSpreadsheet().getSpreadsheetType().getFields());
         
 
         Constructor<?> constructor = null;
@@ -78,11 +78,9 @@ public class DefaultResultBuilder implements IResultBuilder {
         return rowNames;
     }
     
-    private Map<String, Point> getFieldsCoordinates(SpreadsheetResultCalculator result) {
-        Map<String, IOpenField> fields = result.getSpreadsheet().getSpreadsheetType().getFields();
-        
+    public static Map<String, Point> getFieldsCoordinates(Map<String, IOpenField> spreadsheetfields) {
         Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
-        for (Map.Entry<String, IOpenField> fieldEntry : fields.entrySet()) {     
+        for (Map.Entry<String, IOpenField> fieldEntry : spreadsheetfields.entrySet()) {     
             if (fieldEntry.getValue() instanceof SpreadsheetCellField) {
                 SpreadsheetCellField cellField = (SpreadsheetCellField) fieldEntry.getValue();
                 int row = cellField.getCell().getRowIndex();

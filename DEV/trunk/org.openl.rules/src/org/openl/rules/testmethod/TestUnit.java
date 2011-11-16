@@ -1,8 +1,8 @@
 package org.openl.rules.testmethod;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.NumberUtils;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 
 /**
  * Representation of the single test unit in the test.
@@ -23,22 +23,13 @@ public class TestUnit {
     private Object actualResult;
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
-
-    private String nameOfExpectedResult;
+    
+    private TestUnitResultComparator testUnitComparator;
 
     public TestUnit(TestDescription test, Object res, Throwable exception) {
-        this(test, res, exception, null);
-    }
-
-    public TestUnit(TestDescription test, Object res, Throwable exception, String nameOfExpectedResult) {
         this.exception = exception;
         this.runningResult = res;
         this.test = test;
-        if (StringUtils.isNotBlank(nameOfExpectedResult)) {
-            this.nameOfExpectedResult = nameOfExpectedResult;
-        } else {
-            this.nameOfExpectedResult = TestMethodHelper.EXPECTED_RESULT_NAME;
-        }
     }
 
     private void initExpectedResult() {
@@ -49,7 +40,7 @@ public class TestUnit {
                 return;
             }
         }
-        expectedResult = test.getArgumentValue(nameOfExpectedResult);      
+        expectedResult = test.getArgumentValue(TestMethodHelper.EXPECTED_RESULT_NAME);      
     }
     
     /**
@@ -68,7 +59,7 @@ public class TestUnit {
             return;
         } 
 
-        if (NumberUtils.isFloatPointNumber(runningResult) && TestUnitResultComparator.compareResult(runningResult, getExpectedResult())) {
+        if (NumberUtils.isFloatPointNumber(runningResult) /*&& getTestUnitResultComparator().compareResult(runningResult, getExpectedResult())*/) {
             Double result = NumberUtils.convertToDouble(runningResult);
             Double expectedResult = NumberUtils.convertToDouble(getExpectedResult());
 
@@ -123,6 +114,17 @@ public class TestUnit {
         String descr = test.getDescription();
         return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
+    
+    public void setTestUnitResultComparator(TestUnitResultComparator testUnitComparator) {
+        this.testUnitComparator = testUnitComparator;
+    }
+    
+    public TestUnitResultComparator getTestUnitResultComparator() {
+        if (testUnitComparator == null) {
+            testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(getActualResult(), getExpectedResult()));
+        }
+        return testUnitComparator;
+    }
 
     /**
      * Return the comparasion of the expected result and actual.
@@ -130,7 +132,7 @@ public class TestUnit {
      * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit)}
      */
     public int compareResult() {
-        return TestUnitResultComparator.getCompareResult(this);
+        return getTestUnitResultComparator().getCompareResult(this);
     }
 
     /**

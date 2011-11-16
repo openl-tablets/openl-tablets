@@ -17,7 +17,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
     public void testingSpreadsheet() throws ClassNotFoundException {
         assertNotNull(getJavaWrapper().getOpenClass());
         TestUnitsResults res = (TestUnitsResults)invokeMethod("TestSprTestAll");
-        assertEquals(2, res.getNumberOfTestUnits());
+        assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
     
