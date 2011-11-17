@@ -30,7 +30,10 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private SpreadsheetCell[][] cells;
     private String[] rowNames;
     private String[] columnNames;
-
+    
+    /** Type of the Spreadsheet with all its fields
+     * Is some type of internal. Is used on calculating the results of the cells.
+     */
     private SpreadsheetOpenClass spreadsheetType;
     
     /**
@@ -38,7 +41,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private Invokable invoker;
     
-    /** Custom return type of the spreadsheet method*/
+    /** Custom return type of the spreadsheet method. Is a public type of the spreadsheet*/
     private IOpenClass spreadsheetCustomType;
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
