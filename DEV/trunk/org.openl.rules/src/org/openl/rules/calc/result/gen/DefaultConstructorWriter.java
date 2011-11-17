@@ -7,10 +7,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.table.Point;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 
 /**
  * Creates default constructor for Custom Spreadsheet Result with constants for parent with height and width. <br>
@@ -47,21 +45,5 @@ public class DefaultConstructorWriter extends org.openl.rules.datatype.gen.bean.
         methodVisitor.visitMaxs(3, 1);
         methodVisitor.visitEnd();
     }
-    
-//    mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-//    mv.visitCode();
-//    Label l0 = new Label();
-//    mv.visitLabel(l0);
-//    mv.visitLineNumber(10, l0);
-//    mv.visitVarInsn(ALOAD, 0);
-//    mv.visitIntInsn(BIPUSH, 10);
-//    mv.visitIntInsn(BIPUSH, 12);
-//    mv.visitMethodInsn(INVOKESPECIAL, "org/openl/rules/calc/SpreadsheetResult", "<init>", "(II)V");
-//    mv.visitInsn(RETURN);
-//    Label l1 = new Label();
-//    mv.visitLabel(l1);
-//    mv.visitLocalVariable("this", "Lorg/openl/rules/calc/result/gen/Spreadsh;", null, l0, l1, 0);
-//    mv.visitMaxs(3, 1);
-//    mv.visitEnd();
 
 }
