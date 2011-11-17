@@ -2,6 +2,7 @@ package org.openl.rules.calc.result.gen;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +50,9 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        checkLoadingClass(className);          
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        instantiate(clazz);          
     }
     
     @Test
@@ -61,7 +64,9 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        checkLoadingClass(className);  
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        instantiate(clazz); 
     }
     
     @Test
@@ -73,8 +78,9 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        checkLoadingClass(className);  
+        Class<?> clazz = checkLoadingClass(className);    
         
+        instantiate(clazz); 
     }
     
     @Test
@@ -86,7 +92,39 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        checkLoadingClass(className);          
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        instantiate(clazz);        
+    }
+    
+    @Test
+    public void testRestrictedFieldName1() {
+        Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
+        cells.put("$Formula$Final Value", new FieldDescription(double.class)); // not allowed name of field, should be skipped in result class
+        cells.put("$Formula$Final_Value", new FieldDescription(String.class));
+        
+        String className = "my.test.CustomSpreadsheetRestricted1";
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        gen.generateAndLoadBeanClass();
+        
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        instantiate(clazz);           
+    }
+    
+    @Test
+    public void testRestrictedFieldName2() {
+        Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
+        cells.put("$Formula//$FinalValue", new FieldDescription(double.class)); // not allowed name of field, should be skipped in result class
+        cells.put("$Formula$Final_Value", new FieldDescription(String.class));
+        
+        String className = "my.test.CustomSpreadsheetRestricted2";
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        gen.generateAndLoadBeanClass();
+        
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        instantiate(clazz);          
     }
     
     @Test
@@ -98,7 +136,25 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
         gen.generateAndLoadBeanClass();
         
-        checkLoadingClass(className);        
+        Class<?> clazz = checkLoadingClass(className);    
+        
+        instantiate(clazz);        
+    }
+
+    private void instantiate(Class<?> clazz) {
+        Object instance = null;
+        Constructor<?> constructor = null;
+        try {
+            constructor = clazz.getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+        } catch (Exception e1) {
+            fail();
+        }       
+        try {
+            instance = constructor.newInstance(new Object[][]{}, new String[]{}, new String[]{}, new HashMap<String, Point>());
+        } catch (Exception e) {
+            fail();
+        } 
+        assertNotNull(instance);
     }
 
     private Class<?> checkLoadingClass(String className) {

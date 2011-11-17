@@ -32,6 +32,9 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
  */
 public class DecoratorMethodWriter extends MethodWriter {
     
+    private static final String COMMENT_SYMBOLS = "//";
+    private static final String SPACE_SYMBOL = " ";
+
     /**
      * Constructor for the DecoratorMethodWriter
      * 
@@ -65,9 +68,9 @@ public class DecoratorMethodWriter extends MethodWriter {
         MethodVisitor methodVisitor;
         String fieldName = field.getKey();
         
-        /** Generate methods only for fields without dashes.
+        /** Generate methods only for fields without restricted symbols.
             In future should be updated to use this fields too somehow*/
-        if (!fieldName.contains(" ")) {
+        if (!containRestrictedSymbols(fieldName)) {
             FieldDescription fieldType = field.getValue();
             
             /** create method name for decorator*/
@@ -102,7 +105,13 @@ public class DecoratorMethodWriter extends MethodWriter {
             methodVisitor.visitMaxs(2, 1);
             methodVisitor.visitEnd();
         }
-        
+    }
+    
+    private boolean containRestrictedSymbols(String fieldName) {
+        if (fieldName.contains(SPACE_SYMBOL) || fieldName.contains(COMMENT_SYMBOLS)) {
+            return true;
+        }
+        return false;
     }
     
     /**
