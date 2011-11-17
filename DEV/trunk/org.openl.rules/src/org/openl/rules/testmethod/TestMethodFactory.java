@@ -28,7 +28,9 @@ public class TestMethodFactory {
         if (testedMethod instanceof Spreadsheet) {
             List<IdentifierNode[]> spreadsheetCellsForTest = new ArrayList<IdentifierNode[]>();
             if (columnIdentifiers != null) {
-                /** from column identifiers in test table, take only those that follows after the parameters of the tested method*/
+                /** From column identifiers in test table, take only those that follows after the parameters of the tested method.
+                 *  It will be the names of the fields for testing.
+                 * */
                 for (int j = testedMethod.getSignature().getParameterTypes().length; j < columnIdentifiers.size(); j++) {
                     spreadsheetCellsForTest.add(columnIdentifiers.get(j));
                 }
