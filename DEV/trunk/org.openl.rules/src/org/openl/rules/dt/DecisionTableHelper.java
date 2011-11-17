@@ -1,10 +1,9 @@
 package org.openl.rules.dt;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.RulesCommons;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
@@ -105,7 +104,7 @@ public class DecisionTableHelper {
     }
 
     public static boolean isValidCommentHeader(String s) {
-        return s.startsWith("//");
+        return s.startsWith(RulesCommons.COMMENT_SYMBOLS.toString());
     }
 
     public static boolean isActionHeader(String s) {
