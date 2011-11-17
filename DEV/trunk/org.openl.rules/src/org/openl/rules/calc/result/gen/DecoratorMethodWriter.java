@@ -7,6 +7,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.openl.rules.RulesCommons;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -31,8 +32,7 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
  *
  */
 public class DecoratorMethodWriter extends MethodWriter {
-    
-    private static final String COMMENT_SYMBOLS = "//";
+        
     private static final String SPACE_SYMBOL = " ";
 
     /**
@@ -108,7 +108,7 @@ public class DecoratorMethodWriter extends MethodWriter {
     }
     
     private boolean containRestrictedSymbols(String fieldName) {
-        if (fieldName.contains(SPACE_SYMBOL) || fieldName.contains(COMMENT_SYMBOLS)) {
+        if (fieldName.contains(SPACE_SYMBOL) || fieldName.contains(RulesCommons.COMMENT_SYMBOLS.toString())) {
             return true;
         }
         return false;
