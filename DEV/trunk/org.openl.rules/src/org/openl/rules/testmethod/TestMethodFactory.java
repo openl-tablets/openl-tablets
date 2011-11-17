@@ -26,8 +26,15 @@ public class TestMethodFactory {
      */
     public static IOpenClass getTestMethodOpenClass(IOpenMethod testedMethod, String tableName, List<IdentifierNode[]> columnIdentifiers) {        
         if (testedMethod instanceof Spreadsheet) {
+            List<IdentifierNode[]> spreadsheetCellsForTest = new ArrayList<IdentifierNode[]>();
+            if (columnIdentifiers != null) {
+                /** from column identifiers in test table, take only those that follows after the parameters of the tested method*/
+                for (int j = testedMethod.getSignature().getParameterTypes().length; j < columnIdentifiers.size(); j++) {
+                    spreadsheetCellsForTest.add(columnIdentifiers.get(j));
+                }
+            }            
             /** Return special open class for the test method that is testing spreadsheet*/
-            return new TestSpreadsheetOpenClass(tableName, (Spreadsheet)testedMethod, columnIdentifiers);
+            return new TestSpreadsheetOpenClass(tableName, (Spreadsheet)testedMethod, spreadsheetCellsForTest);
         }
         /** For all other cases, use common one*/
         return new TestMethodOpenClass(tableName, testedMethod);
@@ -60,12 +67,8 @@ public class TestMethodFactory {
                 fieldsToTest.add(fieldNameToTest);
             }
             
-            
-            
             TestResultComparator resultComparator = TestResultComparatorFactory.getBeanComparator(testUnit.getActualResult(), testUnit.getExpectedResult(), fieldsToTest);
             testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
-            
-            
         }
         return testUnit;
     }
