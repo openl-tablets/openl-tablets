@@ -45,7 +45,7 @@ public abstract class BeanByteCodeGenerator {
 
             generatedByteCode = classWriter.toByteArray();
 
-            writeBytesToFile(generatedByteCode);
+//            writeBytesToFile(generatedByteCode);
         }
         return generatedByteCode;
     }
