@@ -41,7 +41,7 @@ public class SettersWriter extends org.openl.rules.datatype.gen.bean.writers.Set
     }
 
     @Override
-    protected void generateSetter(String beanNameWithPackage, ClassWriter classWriter,  Entry<String, FieldDescription> field) {
+    protected void generateSetter(ClassWriter classWriter,  Entry<String, FieldDescription> field) {
         String fieldName = field.getKey();
         FieldDescription fieldType = field.getValue(); 
         
@@ -68,7 +68,7 @@ public class SettersWriter extends org.openl.rules.datatype.gen.bean.writers.Set
         methodVisitor.visitLdcInsn(fieldName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 2);
         
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, beanNameWithPackage, ADD_FIELD_COORDINATES_METHOD, 
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, getBeanNameWithPackage(), ADD_FIELD_COORDINATES_METHOD, 
             "(Ljava/lang/String;Lorg/openl/rules/table/Point;)V");
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 2);
@@ -79,7 +79,7 @@ public class SettersWriter extends org.openl.rules.datatype.gen.bean.writers.Set
         methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, JavaClassGeneratorHelper.replaceDots(Point.class.getCanonicalName()), 
             "getColumn", "()I");
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 1);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, beanNameWithPackage, SUPER_CLASS_SETTER_METHOD, "(IILjava/lang/Object;)V");
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, getBeanNameWithPackage(), SUPER_CLASS_SETTER_METHOD, "(IILjava/lang/Object;)V");
         
         methodVisitor.visitInsn(Opcodes.RETURN);
         

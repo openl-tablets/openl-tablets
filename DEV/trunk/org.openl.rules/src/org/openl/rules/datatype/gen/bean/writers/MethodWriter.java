@@ -9,6 +9,8 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
     
+    public static final String VOID_CLASS_NAME = "void";
+    
     /**
      * Number of fields that will take 2 stack elements(like a double and long)
      */

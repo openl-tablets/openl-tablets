@@ -11,7 +11,7 @@ import org.openl.rules.RulesCommons;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.bean.writers.MethodWriter;
+import org.openl.rules.datatype.gen.bean.writers.GettersWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -31,7 +31,7 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
  * @author DLiauchuk
  *
  */
-public class DecoratorMethodWriter extends MethodWriter {
+public class DecoratorMethodWriter extends GettersWriter {
         
     private static final String SPACE_SYMBOL = " ";
 
@@ -54,17 +54,7 @@ public class DecoratorMethodWriter extends MethodWriter {
     private String prefixForDecorator;
 
     @Override
-    public void write(ClassWriter classWriter) {
-        for(Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            /** ignore those fields that are of void type. In java it is impossible
-                but possible in Openl, e.g. spreadsheet cell with void type.*/
-            if (!field.getValue().getCanonicalTypeName().equals("void")) {
-                generateDecorator(classWriter, getBeanNameWithPackage(), field);
-            }          
-        }
-    }
-
-    private void generateDecorator(ClassWriter classWriter, String beanNameWithPackage, Entry<String, FieldDescription> field) {
+    protected void generateGetter(ClassWriter classWriter, Entry<String, FieldDescription> field) {
         MethodVisitor methodVisitor;
         String fieldName = field.getKey();
         
