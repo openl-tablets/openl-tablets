@@ -32,7 +32,9 @@ public class TestMethodFactory {
                  *  It will be the names of the fields for testing.
                  * */
                 for (int j = testedMethod.getSignature().getParameterTypes().length; j < columnIdentifiers.size(); j++) {
-                    spreadsheetCellsForTest.add(columnIdentifiers.get(j));
+                    if (columnIdentifiers.get(j) != null) {
+                        spreadsheetCellsForTest.add(columnIdentifiers.get(j));
+                    }                    
                 }
             }            
             /** Return special open class for the test method that is testing spreadsheet*/
