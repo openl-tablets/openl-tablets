@@ -272,7 +272,7 @@ public class ShowTableBean {
         return selectedTests;
     }
     
-    public String makeTestSuite(){
+    public String makeTestSuite() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) studio.getModel().getMethod(uri);
         TestSuite testSuite = new TestSuite(testSuiteMethodSelected, getSelectedIndices());
@@ -280,15 +280,15 @@ public class ShowTableBean {
         return null;
     }
 
-    public String traceIntoFile(){
+    public String traceIntoFile() {
         makeTestSuite();
-        return ((TraceIntoFileBean)FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
+        return ((TraceIntoFileBean) FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
     }
 
     public int[] getSelectedIndices() {
         ArrayList<Integer> list = new ArrayList<Integer>();
-        for(int i = 0; i < runnableTestMethods.length; i++){
-            if(selectedTests.get(runnableTestMethods[i])){
+        for (int i = 0; i < runnableTestMethods.length; i++) {
+            if (selectedTests.get(runnableTestMethods[i])) {
                 list.add(i);
             }
         }
@@ -306,8 +306,8 @@ public class ShowTableBean {
 
     public boolean isCopyable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && !isServiceTable()  && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType()) 
-            && !isDispatcherValidationNode();
+        return projectModel.isEditable() && !isServiceTable()
+                && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType()); 
     }
 
     public boolean isServiceTable() {

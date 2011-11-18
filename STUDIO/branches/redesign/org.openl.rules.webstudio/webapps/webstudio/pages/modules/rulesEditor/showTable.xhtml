@@ -7,30 +7,73 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
 
     <style>
+        /* TODO Create Button plugin */
         .editToolbar {
-            border-top: 1px dotted rgb(140,140,140);
-            border-bottom: 1px dotted rgb(140,140,140);
-            padding: 3px 5px 1px 0px;
+            float: left;
+            margin-right: 50px;
+            border-bottom: 1px solid rgb(170,170,170);
+            background: -moz-linear-gradient(top, #FEFEFE, #F7F7F7);
+            background: -webkit-linear-gradient(top, #FEFEFE, #F7F7F7);
+            background: -ms-linear-gradient(top, #FEFEFE, #F7F7F7);
+            background: linear-gradient(top, #FEFEFE, #F7F7F7);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=0);
         }
-        .editToolbar a {
-            margin-left: 7px;
-        }
-        .editToolbar .toolbarDelimeter {
-            border-right: 1px dotted rgb(140,140,140);
-            padding-left: 5px;
-        }
-        .editToolbar .newTestLink {
-            background: url(#{contextPath}/webresource/images/test_new.gif) no-repeat left;
-            padding-left: 19px;
+        .editToolbar a, .checkboxButton {
+            position: relative;
+            display: inline-block;
             text-decoration: none;
-            vertical-align: middle;
+            color: #313131;
+            padding: 3px 7px 3px 23px;
+        }
+        .checkboxButton {
+            cursor: pointer;
+        }
+        .editToolbar a:hover, .checkboxButton:hover {
+            box-shadow: 0 0 1px orange;
+        }
+        .editToolbar a img, .checkboxButton input {
+            position: absolute;
+            left: 3px;
+            top: 1px;
+        }
+        .checkboxButton input {
+            left: 1px;
+            top: 0;
+        }
+        .editToolbar a .arrow, .checkboxButton .arrow {
+            background: url('webresource/images/arrow_down.png') no-repeat center;
+            padding: 2px 2px;
+        }
+        .editToolbar a .arrow:hover {
+            background-color: rgba(255,150,0, 0.4);
+        }
+        .buttonMenu {
+            position: absolute;
+            background: white;
+            border: 1px solid rgb(210,210,210);
+            z-index: 1;
+        }
+        .editToolbar .bigButton {
+            padding: 3px 7px;
+            text-align: center;
+        }
+        .editToolbar .bigButton img {
+            position: static;
+        }
+        .editToolbar .bigButton span {
+            display: block;
+            margin-top: 3px;
+        }
+        .editToolbar .delimeter {
+            border-left: 1px solid white;
+            border-right: 1px solid rgba(215,215,215,0.7);
+            padding: 0;
         }
      </style>
 
@@ -38,93 +81,231 @@
         function open_win(url, name) {
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
         }
+
+        function showButtonMenu(event, id, buttonElem) {
+            var button = $j(event.target).parent(buttonElem);
+            var buttonPos = button.position();
+
+            var menu = $j("#" + id);
+            menu.css({
+                'top' : buttonPos.top + button.outerHeight(),
+                'left' : buttonPos.left
+            });
+            menu.addClass("buttonMenu");
+            menu.show();
+
+            $j(document).click(function(e) {
+                var target = e.target;
+                var bMenu = $j(target).closest(".buttonMenu");
+                if (!bMenu.length) {
+                    menu.hide();
+                }
+            });
+
+            event.stopPropagation();
+        }
     </script>
 
-    <br />
+    <div class="editToolbar">
+        <table>
+            <tr>
 
-    <h:form style="float:left; margin-right: 50px">
-        <div>
-            <table class="editToolbar"><tr><td>
-            <h:outputLink rendered="#{showTableBean.editable}"
-                value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-                <f:param name="uri" value="#{showTableBean.uri}" />
-                <f:param name="mode" value="edit" />
-                <h:graphicImage url="/webresource/images/editTable.gif" alt="Edit Table" title="Edit Table" />
-            </h:outputLink>
+                <!-- First Block -->
+                <c:if test="#{showTableBean.editable}">
+                <td>
+                    <h:form prependId="false">
+                        <table>
+                            <tr>
+                                <td>
+                                    <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml"
+                                        title="Edit Table" target="content">
+                                        <f:param name="uri" value="#{showTableBean.uri}" />
+                                        <f:param name="mode" value="edit" />
+                                        <img src="webresource/images/editTable.gif" />
+                                        <span>Edit</span>
+                                    </h:outputLink>
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
+                                        oncomplete="goTo('#{rulesEditor}/copyTable.xhtml', 'content')" title="Copy Table">
+                                        <img src="webresource/images/copyTable.gif" />
+                                        <span>Copy</span>
+                                    </a4j:commandLink>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h:outputLink value="#{contextPath}/action/launch"
+                                        title="Open Table In Excel - #{showTableBean.uri}" target="hidden" >
+                                        <f:param name="uri" value="#{showTableBean.uri}" />
+                                        <img src="webresource/images/excel.png" />
+                                        <span>Open in Excel</span>
+                                    </h:outputLink>
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
+                                        onclick="if(!confirm('Do you really want to remove this table?'))return false;">
+                                        <img src="webresource/images/delete.gif" />
+                                        <span>Remove</span>
+                                    </a4j:commandLink>
+                                </td>
+                            </tr>
+                        </table>
+                    </h:form>
+                </td>
+                </c:if>
 
-            <h:outputLink rendered="#{showTableBean.editable}"
-                value="#{contextPath}/action/launch" target="hidden">
-                <f:param name="uri" value="#{showTableBean.uri}" />
-                <h:graphicImage
-                    url="/webresource/images/excel.png"
-                    title="Edit Table In Excel - #{showTableBean.uri}"
-                    alt="Edit Table In Excel - #{showTableBean.uri}" />
-            </h:outputLink>
+                <!-- Delimeter -->
+                <td class="delimeter"></td>
 
-            <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                oncomplete="goTo('#{rulesEditor}/copyTable.xhtml', 'content')">
-                <h:graphicImage url="/webresource/images/copyTable.gif" alt="Copy Table" title="Copy Table" />
-            </a4j:commandLink>
+                <c:if test="#{not empty showTableBean.tests and !showTableBean.hasErrors}">
 
-            <a4j:commandLink rendered="#{showTableBean.editable}" action="#{showTableBean.removeTable}"
-                onclick="if(!confirm('Do you really want to remove this table?'))return false;">
-                <h:graphicImage url="/webresource/images/delete.gif" alt="Remove Table" title="Remove Table" />
-            </a4j:commandLink>
+                <!-- Second Block -->
+                <td>
+                    <c:set var="testIndices" value="#{showTableBean.selectedIndices}" />
+                    <c:set var="traceUrl"
+                        value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
+                    <h:form prependId="false">
+                        <table>
+                            <tr>
+                                <td colspan="4">
+                                    <span class="checkboxButton" style="padding-right: 1px">
+                                        <h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" />
+                                        <span onclick="showButtonMenu(event, 'runsMenu', 'span')">Available Runs</span>
+                                        <span onclick="showButtonMenu(event, 'runsMenu', 'span')" class="arrow" >
+                                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                        </span>
+                                    </span>
+                                    <div id="runsMenu" style="display: none">
+                                        <table id="testTable" class="testtable" style="border: 1px solid white">
+                                            <ui:repeat var="test" value="#{showTableBean.tests}">
+                                            <tr style="vertical-align: top">
+                                                <td>
+                                                    <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" />
+                                                </td>
+                                                <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                                                    <ui:param name="args" value="#{test.executionParams}" />
+                                                </ui:include>
+                                            </tr>
+                                            </ui:repeat>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Test"
+                                        rendered="#{showTableBean.testable}" onclick="return isAnyTestSelected();"
+                                        oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
+                                        <img src="webresource/images/test_ok.gif" />
+                                        <span>Test</span>
+                                    </a4j:commandLink>
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run"
+                                        onclick="return isAnyTestSelected();"
+                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
+                                        <img src="webresource/images/test.gif" />
+                                        <span>Run</span>
+                                    </a4j:commandLink>
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace"
+                                        onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win')"
+                                        style="padding-right: 1px">
+                                        <img src="webresource/images/trace.gif" />
+                                        <span>Trace</span>
+                                        <span class="arrow" onclick="showButtonMenu(event, 'traceMenu', 'a')">
+                                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                        </span>
+                                    </a4j:commandLink>
+                                    <div id="traceMenu" style="display: none">
+    	                                <h:commandLink onclick="return isAnyTestSelected();"
+    	                                    action="#{showTableBean.traceIntoFile}" title="Trace into File">
+    	                                    <img src="webresource/images/traceIntoFile.gif" />
+    	                                    <span>Into File</span>
+    	                                </h:commandLink>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark"
+                                        onclick="return isAnyTestSelected();"
+                                        oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')">
+                                        <img src="webresource/images/clock-icon.png" />
+                                        <span>Benchmark</span>
+                                    </a4j:commandLink>
+                                </td>
+                            </tr>
+                        </table>
+                    </h:form>
+                </td>
+                </c:if>
 
-            <c:if test="#{!showTableBean.serviceTable}">
-                <a4j:commandLink action="#{showTableBean.switchView}" execute="@this"
-                    render="tePanel">
-                    <f:param name="view" value="business" />
-                    <h:graphicImage url="/webresource/images/business-view.png"
-                        title="Business View" alt="Business View" />
-                </a4j:commandLink>
+                <c:if test="#{showTableBean.canCreateTest}">
+                    <td>
+                        <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="bigButton"
+                            oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
+                            <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
+                            <img src="webresource/images/test_new.gif" />
+                            <span>Create Test</span>
+                        </a4j:commandLink>
+                    </td>
+                </c:if>
 
-                <a4j:commandLink action="#{showTableBean.switchView}" execute="@this"
-                    render="tePanel">
-                    <f:param name="view" value="developer" />
-                    <h:graphicImage url="/webresource/images/developer-view.png"
-                        title="Developer View" alt="Developer View" />
-                </a4j:commandLink>
-
-                <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this" render="tePanel">
-                    <h:graphicImage url="/webresource/images/formula.png"
-                        title="Show Formulas" alt="Show Formulas" />
-                </a4j:commandLink>
-            </c:if>
-        </td>
-        <h:panelGroup rendered="#{showTableBean.canCreateTest}">
-        <td class="toolbarDelimeter"></td>
-        <td>
-            <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="newTestLink"
-                oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
-                <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />                    
-                <h:outputText value="Create Test" />
-            </a4j:commandLink>
-        </td>
-        </h:panelGroup>
-        </tr>
+            </tr>
         </table>
-        </div>
-    </h:form>
+    </div>
 
-	<h:panelGroup rendered="#{not empty showTableBean.targetTables}">
+    <c:if test="#{!showTableBean.serviceTable}">
+    <div style="position: absolute; right: 20px; top: 7px">
+        <h:form>
+            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
+                <f:param name="view" value="business" />
+                <h:graphicImage url="/webresource/images/business-view.png" title="Business View" alt="Business View" />
+            </a4j:commandLink>
+
+            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
+                <f:param name="view" value="developer" />
+                <h:graphicImage url="/webresource/images/developer-view.png" title="Developer View" alt="Developer View" />
+            </a4j:commandLink>
+
+            <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this" render="tePanel">
+                <h:graphicImage url="/webresource/images/formula.png" title="Show Formulas" alt="Show Formulas" />
+            </a4j:commandLink>
+        </h:form>
+    </div>
+    </c:if>
+
+    <h:panelGroup rendered="#{not empty showTableBean.targetTables}">
         <div>
-    		<div style="font-weight: bold;">
-    		    <h:outputText value="Target Table" />
-    		    <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
-    		    <h:outputText value=": " />
-    		</div>
-
-    		<ui:repeat value="#{showTableBean.targetTables}" var="targetTable">
+            <div style="font-weight: bold;">
+                <h:outputText value="Target Table" />
+                <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
+                <h:outputText value=":" />
+            </div>
+            <ui:repeat value="#{showTableBean.targetTables}" var="targetTable">
             <div>
-		        <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-		            <f:param name="uri" value="#{targetTable.uri}" />
-    	            <h:outputText value="#{targetTable.name}" />
+                <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                    <f:param name="uri" value="#{targetTable.uri}" />
+                    <h:outputText value="#{targetTable.name}" />
                 </h:outputLink>
             </div>
-    		</ui:repeat>
+            </ui:repeat>
         </div>
-	</h:panelGroup>
+    </h:panelGroup>
+
+    <!-- If table has any type of tests, including tests with test cases, run methods -->
+    <h:panelGroup rendered="#{showTableBean.hasAnyTests}">
+        <div style="font-weight: bold;">Available Tests:</div>
+        <ui:repeat value="#{showTableBean.allTests}" var="test">
+            <div>
+                <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
+                    <f:param name="uri" value="#{test.info.sourceUrl}" />
+                    <h:outputText value="#{test.name}" />
+                </h:outputLink>
+            </div>
+        </ui:repeat>
+    </h:panelGroup>
 
 	<div style="clear:both"></div>
 
@@ -146,13 +327,6 @@
     <br />
 
     <script>
-        var traceIntoFileLink = $j(#{rich:element('traceIntoFile')});
-        if (traceIntoFileLink.length) {
-            var traceIntoFileLinkPosition = traceIntoFileLink.offset();
-            var traceIntoFileDlgLeft = traceIntoFileLinkPosition.left;
-            var traceIntoFileDlgTop = traceIntoFileLinkPosition.top + traceIntoFileLink.height() - 2;
-         }
-
         function search(f) {
            	f.searchQuery.value = $j(PopupMenu.lastTarget).html()
                 .replace(/(&lt;br?>)/ig," ").replace(/(&lt;.*?>)/ig,"");
@@ -180,15 +354,14 @@
         //<![CDATA[
         function isAnyTestSelected() {
     	    var testTable = document.getElementById("testTable");
-    	    for(i = 1; i < testTable.rows.length; i++) {
+    	    for (i = 0; i < testTable.rows.length; i++) {
     	    	var firstColumnCell = testTable.rows[i].cells[0]
-    	    	for(j = 0; j < firstColumnCell.childNodes.length; j ++){
-    	    		if(firstColumnCell.childNodes[j].type == 'checkbox'){
+    	    	for (j = 0; j < firstColumnCell.childNodes.length; j ++){
+    	    		if (firstColumnCell.childNodes[j].type == 'checkbox'){
     	                if (firstColumnCell.childNodes[j].checked) {
     	                	return true;
-    	                }else{
-    	                	break;
     	                }
+    	                break;
     	    		}
     	    	}
             }
@@ -197,12 +370,12 @@
     	}
 
         function selectAllTests() {
-    	    var selectAllCheckBox = document.getElementById("testForm:selectAll");
+    	    var selectAllCheckBox = document.getElementById("selectAll");
     	    var testTable = document.getElementById("testTable");
-    	    for(i = 1; i < testTable.rows.length; i++) {
+    	    for (i = 0; i < testTable.rows.length; i++) {
     	    	var firstColumnCell = testTable.rows[i].cells[0]
-    	    	for(j = 0; j < firstColumnCell.childNodes.length; j ++){
-    	    		if(firstColumnCell.childNodes[j].type == 'checkbox'){
+    	    	for (j = 0; j < firstColumnCell.childNodes.length; j ++){
+    	    		if (firstColumnCell.childNodes[j].type == 'checkbox'){
     	    			firstColumnCell.childNodes[j].checked = selectAllCheckBox.checked;
     	    			break;
     	    		}
@@ -220,110 +393,21 @@
         <input type="hidden" name="uri" value="" />
     </form>
 
-    <h:panelGroup id="tePanel">
-    <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
-        linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
-        mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-        showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
-        beforeSaveAction="#{showTableBean.beforeSaveAction}"
-        afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
-        onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
-        excludeScripts="prototype">
+    <h:panelGroup id="tePanel" layout="block">
+        <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
+            linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
+            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+            showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
+            beforeSaveAction="#{showTableBean.beforeSaveAction}"
+            afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
+            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
+            excludeScripts="prototype">
 
-        <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
-            rendered="#{showTableBean.editable}" >Edit in Excel</h:outputLink>
-        <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
+            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
+                rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
+            <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
 
-    </rules:tableEditor>
+        </rules:tableEditor>
     </h:panelGroup>
-
-    <h:panelGroup rendered="#{showTableBean.hasAnyTests}"> <!-- If table has any type of tests, including tests with 
-    test cases, run methods -->
-        <h3>Available Checks and Tests:</h3>
-        <ui:repeat value="#{showTableBean.allTests}" var="test">
-            <p style="margin-left: 10px">
-                <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-                    <f:param name="uri" value="#{test.info.sourceUrl}" />
-                    <h:outputText value="#{test.name}" />
-                </h:outputLink>
-            </p>
-        </ui:repeat>
-    </h:panelGroup>
-
-    <c:if test="#{not empty showTableBean.tests and !showTableBean.hasErrors}">
-        <h3>Available Runs:</h3>
-        <h:form id="testForm">
-            <table class="testtable" id="testTable">
-                <tr>
-                    <th><h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" /></th>
-                    <th colspan="#{fn:length(showTableBean.tests[0].executionParams)}">Arguments</th>
-                </tr>
-                <ui:repeat var="test" value="#{showTableBean.tests}">
-                    <tr style="vertical-align: top">
-                        <td><h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}"
-                                name="testCheckbox" /></td>
-                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                            <ui:param name="args" value="#{test.executionParams}" />
-                        </ui:include>
-                    </tr>
-                </ui:repeat>
-            </table>
-            <br/>
-            <h:panelGroup id="runTestsPanel">
-                <c:set var="testIndices" value="#{showTableBean.selectedIndices}" />
-                <h:panelGroup rendered="#{showTableBean.testable}">
-                    <f:verbatim>&amp;nbsp;</f:verbatim>
-                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Test"
-                        onclick="return isAnyTestSelected();"
-                        oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
-                        <h:graphicImage url="/webresource/images/test_ok.gif" alt="Test" />
-                    </a4j:commandLink>
-                </h:panelGroup>
-                <f:verbatim>&amp;nbsp;</f:verbatim>
-                <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run"
-                    onclick="return isAnyTestSelected();"
-                    oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
-                    <h:graphicImage url="/webresource/images/test.gif" alt="Run" />
-                </a4j:commandLink>
-                <f:verbatim>&amp;nbsp;</f:verbatim>
-                <c:set var="traceUrl"
-                    value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
-                <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace"
-                    onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win')">
-                    <img src="webresource/images/trace.gif" title="Trace" alt="Trace" />
-                </a4j:commandLink>
-                <f:verbatim>&amp;nbsp;</f:verbatim>
-                <a4j:commandLink id="traceIntoFile" onclick="return isAnyTestSelected();"
-                    action="#{showTableBean.makeTestSuite}" oncomplete="RichFaces.$('traceIntoFileDlg').show();">
-                    <h:graphicImage url="/webresource/images/traceIntoFile.gif" title="Trace into File"
-                        alt="Trace into File" />
-                </a4j:commandLink>
-                <f:verbatim>&amp;nbsp;</f:verbatim>
-                <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark"
-                    onclick="return isAnyTestSelected();"
-                    oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')">
-                    <h:graphicImage url="/webresource/images/clock-icon.png" alt="Benchmark" />
-                </a4j:commandLink>
-            </h:panelGroup>
-        </h:form>
-    </c:if>
-
-    <rich:popupPanel id="traceIntoFileDlg" width="134" modal="false" autosized="true">
-        <h:form style="text-align: center">
-            <h:panelGrid columns="2">
-                <h:outputText value="Format" />
-                <h:selectOneMenu value="#{traceIntoFileBean.fileFormat}">
-                    <f:selectItems value="#{traceIntoFileBean.fileFormats}" />
-                </h:selectOneMenu>
-                <h:outputText value="" />
-                <h:outputText value="" />
-            </h:panelGrid>
-            <h:commandButton id="traceBtn" value="Trace" action="#{traceIntoFileBean.traceIntoFile}"
-                onclick="RichFaces.$('traceIntoFileDlg').hide();">
-            </h:commandButton>
-            <h:commandButton id="cancelBtn" value="Cancel"
-                onclick="RichFaces.$('traceIntoFileDlg').hide(); return false;" />
-        </h:form>
-    </rich:popupPanel>
 
 </ui:composition>
