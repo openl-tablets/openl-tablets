@@ -18,7 +18,9 @@ public class SettersWriter extends MethodWriter {
     @Override
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            generateSetter(getBeanNameWithPackage(), classWriter, field);
+            if (!field.getValue().getCanonicalTypeName().equals(MethodWriter.VOID_CLASS_NAME)) {
+                generateSetter(classWriter, field);
+            }
         }
     }
     
@@ -29,7 +31,7 @@ public class SettersWriter extends MethodWriter {
      * @param classWriter
      * @param field
      */
-    protected void generateSetter(String beanNameWithPackage, ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {        
+    protected void generateSetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {        
         String fieldName = field.getKey();
         FieldDescription fieldType = field.getValue(); 
         
@@ -39,7 +41,7 @@ public class SettersWriter extends MethodWriter {
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), 1);
         
-        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
         methodVisitor.visitInsn(Opcodes.RETURN);
         
         // long and double types are the biggest ones, so they use a maximum of three stack  

@@ -27,10 +27,13 @@ public class GettersWriter extends MethodWriter {
     }
     
     public void write(ClassWriter classWriter) {
+        /** ignore those fields that are of void type. In java it is impossible
+        but possible in Openl, e.g. spreadsheet cell with void type.*/
         for(Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            generateGetter(getBeanNameWithPackage(), classWriter, field);
+            if (!field.getValue().getCanonicalTypeName().equals(MethodWriter.VOID_CLASS_NAME)) {
+                generateGetter(classWriter, field);
+            }
         }
-
     }
     
     /**
@@ -40,7 +43,7 @@ public class GettersWriter extends MethodWriter {
      * @param classWriter
      * @param field
      */
-    private void generateGetter(String beanNameWithPackage, ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {
+    protected void generateGetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> field) {
         MethodVisitor methodVisitor;
         String fieldName = field.getKey();
         FieldDescription fieldType = field.getValue();
@@ -49,7 +52,7 @@ public class GettersWriter extends MethodWriter {
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, String.format("()%s",
             ByteCodeGeneratorHelper.getJavaType(fieldType)), null, null);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, beanNameWithPackage, fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
+        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(fieldType));
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType));
         
         // long and double types are the biggest ones, so they use a maximum of two stack  
