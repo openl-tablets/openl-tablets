@@ -2,13 +2,10 @@ package org.openl.rules.webstudio.web.trace;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
-import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
@@ -41,9 +38,9 @@ public class TraceIntoFileBean {
     private String fileBaseName = "trace";
 
     /**
-     * Output file format (extension).
+     * Output file format.
      */
-    private String fileFormat;
+    private String fileFormat = TraceFormatterFactory.FORMAT_TEXT;
 
     public String traceIntoFile() {
         Tracer tracer = trace();
@@ -117,12 +114,6 @@ public class TraceIntoFileBean {
         }
 
         return result.toString();
-    }
-
-    public List<SelectItem> getFileFormats() {
-        List<SelectItem> fileTypes = new ArrayList<SelectItem>();
-        fileTypes.add(new SelectItem(TraceFormatterFactory.FORMAT_TEXT, "Text"));
-        return fileTypes;
     }
 
 }
