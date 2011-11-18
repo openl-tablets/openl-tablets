@@ -37,7 +37,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     
     private void initSpreadsheetBuilder(IBindingContext bindingContext) throws Exception {
         validateTableBody(getTableSyntaxNode().getTableBody());
-        this.builder = SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode());
+        setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode()));
     }
      
     public void preBind(IBindingContext bindingContext) throws Exception {
@@ -84,6 +84,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return builder;
     }
     
+    public void setSpreadsheetBuilder(SpreadsheetBuilder spreadsheetBuilder) {
+        this.builder = spreadsheetBuilder;
+    }
+    
     @Override
     public void updateDependency(BindingDependencies dependencies) {   
         if (getSpreadsheet().getCells() != null) {
@@ -101,5 +105,14 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             }
         }
     }
-
+    
+    @Override
+    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        if (cxt.isExecutionMode()) {
+            super.removeDebugInformation(cxt);
+            // clean the builder, that was used for creating spreadsheet
+            //
+            setSpreadsheetBuilder(null);
+        }
+    }
 }
