@@ -60,13 +60,13 @@ public class ShowTableBean {
     
     private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
-    // Test in current table(only for test tables)
-    private TestDescription[] runnableTestMethods = {};//test units
+    // Test in current table (only for test tables)
+    private TestDescription[] runnableTestMethods = {}; //test units
     private Map<TestDescription, Boolean> selectedTests;
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
-    
-    private boolean runnable;    
+    private IOpenMethod[] tests = {};
+
     private List<IOpenLTable> targetTables;
 
     private String uri;
@@ -109,9 +109,6 @@ public class ShowTableBean {
             initTests(model);        
             initParams();
 
-            runnable = !model.isMethodHasParams(uri)
-                && (ArrayUtils.isNotEmpty(runnableTestMethods) || table.isExecutable());
-
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
                     || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
@@ -143,19 +140,16 @@ public class ShowTableBean {
     private void initTests(final ProjectModel model) {
         initRunnableTestMethods(model);
         
-        initAllTests(model);
-    }
-
-    private void initAllTests(final ProjectModel model) {
-        allTests = model.getAllTestMethods(uri);
+        allTests = model.getTestAndRunMethods(uri);
+        tests = model.getTestMethods(uri);
     }
 
     private void initRunnableTestMethods(final ProjectModel model) {
         if (model.getMethod(uri) instanceof TestSuiteMethod) {
             runnableTestMethods = ((TestSuiteMethod) model.getMethod(uri)).getTests();
             selectedTests = new HashMap<TestDescription, Boolean>();
-            for(TestDescription test : runnableTestMethods){
-                selectedTests.put(test, false);
+            for (TestDescription test : runnableTestMethods) {
+                selectedTests.put(test, true);
             }
         }
     }
@@ -205,7 +199,7 @@ public class ShowTableBean {
         }
     }
     
-    private boolean isDispatcherValidationNode() {
+    public boolean isDispatcherValidationNode() {
         return ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
                 DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
@@ -346,16 +340,6 @@ public class ShowTableBean {
     }
 
     /**
-     * Checks if table can be run.
-     * Runnable tables:
-     *   - Test and Run tables;
-     *   - Executable tables without parameters.
-     */
-    public boolean isRunnable() {
-        return runnable;
-    }
-
-    /**
      * Checks if there are runnable tests for current table.
      * 
      * @return true if there are runnable tests for current table.
@@ -371,7 +355,11 @@ public class ShowTableBean {
     public boolean isHasAnyTests() {
         return ArrayUtils.isNotEmpty(allTests);
     }
-    
+
+    public boolean isHasTests() {
+        return ArrayUtils.isNotEmpty(tests);
+    }
+
     /**
      * Gets all tests for current table.
      */

@@ -1,21 +1,3 @@
-var labelType, useGradients, nativeTextSupport, animate;
-
-(function() {
-    var ua = navigator.userAgent;
-    var iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i);
-    var typeOfCanvas = typeof HTMLCanvasElement;
-    var nativeCanvasSupport = (typeOfCanvas == 'object' || typeOfCanvas == 'function');
-    var textSupport = nativeCanvasSupport 
-        && (typeof document.createElement('canvas').getContext('2d').fillText == 'function');
-
-    // I'm setting this based on the fact that ExCanvas provides text support for IE
-    // and that as of today iPhone/iPad current text support is lame
-    labelType = (!nativeCanvasSupport || (textSupport && !iStuff))? 'Native' : 'HTML';
-    nativeTextSupport = labelType == 'Native';
-    useGradients = nativeCanvasSupport;
-    animate = !(iStuff || !nativeCanvasSupport);
-})();
-
 function init(data) {
     var rgraph = new $jit.ForceDirected({
         injectInto: 'rulesDepsPanel',
@@ -99,7 +81,7 @@ function init(data) {
         //Add node click handler and some styles.
         //This method is called only once for each node/label crated.
         onCreateLabel: function(domElement, node) {
-            domElement.innerHTML = "<a href='../facelets/tableeditor/showTable.xhtml?uri=" + node.id + "'>" + node.name + "</a>";
+            domElement.innerHTML = "<a href='showTable.xhtml?uri=" + node.id + "' target='content'>" + node.name + "</a>";
             var style = domElement.style;
             style.cursor = 'pointer';
             style.fontSize = "0.8em";

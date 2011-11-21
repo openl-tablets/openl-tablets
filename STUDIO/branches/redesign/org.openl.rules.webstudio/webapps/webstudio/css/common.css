@@ -12,8 +12,8 @@ table, input, textarea {
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px !important;
     border-style: solid !important;
-    border-left-color: rgb(150,150,150) !important;
-    border-top-color: rgb(150,150,150) !important;
+    border-left-color: #888888 !important;
+    border-top-color: #888888 !important;
     border-right-color: rgb(230,230,230) !important;
     border-bottom-color: rgb(230,230,230) !important;
     border-radius: 1px;
@@ -22,10 +22,6 @@ input[type='text'], input[type='password'], textarea, select {
 
 input[type='text'], input[type='password'], textarea {
     padding: 2px 3px;
-}
-
-select {
-    padding: 1px 0;
 }
 
 img {
