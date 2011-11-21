@@ -81,7 +81,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
                 }
             }
         } else {
-            LOG.warn(String.format("There is no any array argument in signature for %s method", methodName));
+            LOG.debug(String.format("There is no any array argument in signature for %s method", methodName));
         }
         return null;
     }    
