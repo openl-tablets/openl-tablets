@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -107,12 +108,32 @@ public abstract class JavaGenerator {
         buf.append(JavaClassGeneratorHelper.getOpenBracket());
     }
     
-    public void addGetter(StringBuffer buf, Method method) {
-        String fieldName = getFieldName(method.getName());
-        buf.append(JavaClassGeneratorHelper.getPublicGetterMethod(JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName));
+    public void addGetter(StringBuffer buf, Method method, Set<String> allDatatypeFieldNames) {
+        String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
+        if (StringUtils.isNotBlank(fieldName)) {
+                buf.append(JavaClassGeneratorHelper.getPublicGetterMethod(JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName));    
+        }        
     }
     
-    public String getFieldName(String methodName) {
-        return String.format("%s%s", methodName.substring(3,4).toLowerCase(), methodName.substring(4));
+    public void addSetter(StringBuffer buf, Method method, Set<String> allDatatypeFieldNames) {
+        String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
+        if (StringUtils.isNotBlank(fieldName)) {
+            buf.append(JavaClassGeneratorHelper.getPublicSetterMethod(JavaClassGeneratorHelper.filterTypeName(method.getParameterTypes()[0]), fieldName));
+        }
+        
+    }
+    
+    public String getFieldName(String methodName, Set<String> allDatatypeFieldNames) {
+        if (methodName != null && allDatatypeFieldNames != null) {
+            String fieldNameFromMethod = methodName.substring(3);
+            for (String datatypeField : allDatatypeFieldNames) {
+                if (fieldNameFromMethod.equalsIgnoreCase(datatypeField)) {
+                    /** return the name of the field from the set, that has a getter for itself*/
+                    return datatypeField;
+                }
+            }
+        }
+        /** Works when it is not possible to associate methodName with any field name from the bean*/
+        return StringUtils.EMPTY;
     }
 }

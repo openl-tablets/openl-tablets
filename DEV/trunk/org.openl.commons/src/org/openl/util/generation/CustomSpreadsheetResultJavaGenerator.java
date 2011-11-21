@@ -58,6 +58,11 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
         buf.append(JavaClassGeneratorHelper.getGetterWithCastMethod(method.getReturnType(), SPREADSHEET_METHOD,  fieldName));
     }
         
+    public String getFieldName(String methodName) {
+        /** skip first 3 letters ('get')*/
+        return methodName.substring(3);        
+    }
+        
     private void addConstructors(StringBuffer buf) {
         for (Constructor<?> constructor : getClassForGeneration().getSuperclass().getConstructors()) {
             Map<String, Class<?>> superClassFields = new LinkedHashMap<String, Class<?>>();
