@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.ClassUtils;
@@ -187,7 +188,7 @@ public class JavaClassGeneratorHelper {
             fieldType, fieldName, fieldName, fieldName);
     }
 
-    public static String getEqualsMethod(String simpleClassName, Map<String, Class<?>> fields) {
+    public static String getEqualsMethod(String simpleClassName, Set<String> fields) {
         StringBuilder buf = new StringBuilder();
         buf.append("\npublic boolean equals(Object obj) {\n");
         buf.append("    EqualsBuilder builder = new EqualsBuilder();\n");
@@ -195,8 +196,8 @@ public class JavaClassGeneratorHelper {
         buf.append("        return false;\n");
         buf.append("    }\n");
         buf.append(String.format("    %s another = (%s)obj;\n", simpleClassName, simpleClassName));
-        for (Entry<String, Class<?>> field : fields.entrySet()) {
-            String getter = StringTool.getGetterName(field.getKey()) + "()";
+        for (String field : fields) {
+            String getter = StringTool.getGetterName(field) + "()";
             buf.append(String.format("    builder.append(another.%s,%s);\n", getter, getter));
         }
         buf.append("    return builder.isEquals();\n");
@@ -204,12 +205,12 @@ public class JavaClassGeneratorHelper {
         return buf.toString();
     }
 
-    public static String getHashCodeMethod(Map<String, Class<?>> fields) {
+    public static String getHashCodeMethod(Set<String> fields) {
         StringBuilder buf = new StringBuilder();
         buf.append("\npublic int hashCode() {\n");
         buf.append("    HashCodeBuilder builder = new HashCodeBuilder();\n");
-        for (Entry<String, Class<?>> field : fields.entrySet()) {
-            String getter = StringTool.getGetterName(field.getKey()) + "()";
+        for (String field : fields) {
+            String getter = StringTool.getGetterName(field) + "()";
             buf.append(String.format("    builder.append(%s);\n", getter));
         }
         buf.append("    return builder.toHashCode();\n");
