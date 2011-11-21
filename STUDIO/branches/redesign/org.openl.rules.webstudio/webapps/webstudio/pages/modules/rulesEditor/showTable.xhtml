@@ -35,7 +35,9 @@
             cursor: pointer;
         }
         .editToolbar a:hover, .checkboxButton:hover {
-            box-shadow: 0 0 1px orange;
+            color: #000000;
+            box-shadow: 0 0 1px #99BBFF;
+            background: #E8EFF7;
         }
         .editToolbar a img, .checkboxButton input {
             position: absolute;
@@ -51,7 +53,7 @@
             padding: 2px 2px;
         }
         .editToolbar a .arrow:hover {
-            background-color: rgba(255,150,0, 0.4);
+            background-color: #BBCCDD;
         }
         .buttonMenu {
             position: absolute;
@@ -74,6 +76,11 @@
             border-left: 1px solid white;
             border-right: 1px solid rgba(215,215,215,0.7);
             padding: 0;
+        }
+        .editToolbar .blockHeader {
+            text-align: center;
+            color: #888888;
+            font-size: 90%;
         }
      </style>
 
@@ -106,6 +113,7 @@
         }
     </script>
 
+    <c:if test="#{!showTableBean.dispatcherValidationNode}">
     <div class="editToolbar">
         <table>
             <tr>
@@ -158,7 +166,7 @@
                 <!-- Delimeter -->
                 <td class="delimeter"></td>
 
-                <c:if test="#{not empty showTableBean.tests and !showTableBean.hasErrors}">
+                <c:if test="#{showTableBean.testable and !showTableBean.hasErrors}">
 
                 <!-- Second Block -->
                 <td>
@@ -168,15 +176,15 @@
                     <h:form prependId="false">
                         <table>
                             <tr>
-                                <td colspan="4">
+                                <td colspan="3">
                                     <span class="checkboxButton" style="padding-right: 1px">
-                                        <h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" />
-                                        <span onclick="showButtonMenu(event, 'runsMenu', 'span')">Available Runs</span>
-                                        <span onclick="showButtonMenu(event, 'runsMenu', 'span')" class="arrow" >
+                                        <h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" value="true" />
+                                        <span onclick="showButtonMenu(event, 'unitsMenu', 'span')">Available Units</span>
+                                        <span onclick="showButtonMenu(event, 'unitsMenu', 'span')" class="arrow" >
                                             <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                         </span>
                                     </span>
-                                    <div id="runsMenu" style="display: none">
+                                    <div id="unitsMenu" style="display: none">
                                         <table id="testTable" class="testtable" style="border: 1px solid white">
                                             <ui:repeat var="test" value="#{showTableBean.tests}">
                                             <tr style="vertical-align: top">
@@ -194,18 +202,11 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Test"
-                                        rendered="#{showTableBean.testable}" onclick="return isAnyTestSelected();"
-                                        oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
-                                        <img src="webresource/images/test_ok.gif" />
-                                        <span>Test</span>
-                                    </a4j:commandLink>
-                                </td>
-                                <td>
+                                    <c:set var="runLink"
+                                        value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
                                     <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run"
-                                        onclick="return isAnyTestSelected();"
-                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
-                                        <img src="webresource/images/test.gif" />
+                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}', 'content')">
+                                        <img src="webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a4j:commandLink>
                                 </td>
@@ -241,40 +242,38 @@
                 </td>
                 </c:if>
 
+                <c:if test="#{showTableBean.table.executable}">
+                <td>
+                    <h:outputLink value="javascript:alert('oops')" title="Run Table" styleClass="bigButton">
+                        <img src="webresource/images/run.gif" />
+                        <span>Run</span>
+                    </h:outputLink>
+                </td>
+                </c:if>
+
+                <c:if test="#{showTableBean.hasTests}">
+                <td>
+                    <h:outputLink value="javascript:alert('oops')" title="Test Table" styleClass="bigButton">
+                        <img src="webresource/images/test_ok.gif" />
+                        <span>Test</span>
+                    </h:outputLink>
+                </td>
+                </c:if>
+
                 <c:if test="#{showTableBean.canCreateTest}">
-                    <td>
-                        <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="bigButton"
-                            oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
-                            <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
-                            <img src="webresource/images/test_new.gif" />
-                            <span>Create Test</span>
-                        </a4j:commandLink>
-                    </td>
+                 <td>
+                     <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="bigButton"
+                         oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
+                         <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
+                         <img src="webresource/images/test_new.gif" />
+                         <span>Create Test</span>
+                     </a4j:commandLink>
+                 </td>
                 </c:if>
 
             </tr>
         </table>
     </div>
-
-    <c:if test="#{!showTableBean.serviceTable}">
-    <div style="position: absolute; right: 20px; top: 7px">
-        <h:form>
-            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
-                <f:param name="view" value="business" />
-                <h:graphicImage url="/webresource/images/business-view.png" title="Business View" alt="Business View" />
-            </a4j:commandLink>
-
-            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
-                <f:param name="view" value="developer" />
-                <h:graphicImage url="/webresource/images/developer-view.png" title="Developer View" alt="Developer View" />
-            </a4j:commandLink>
-
-            <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this" render="tePanel">
-                <h:graphicImage url="/webresource/images/formula.png" title="Show Formulas" alt="Show Formulas" />
-            </a4j:commandLink>
-        </h:form>
-    </div>
-    </c:if>
 
     <h:panelGroup rendered="#{not empty showTableBean.targetTables}">
         <div>
@@ -308,6 +307,28 @@
     </h:panelGroup>
 
 	<div style="clear:both"></div>
+	</c:if>
+
+    <c:if test="#{!showTableBean.serviceTable}">
+    <div style="position: absolute; right: 20px; top: 7px">
+        <h:form>
+            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
+                <f:param name="view" value="business" />
+                <h:graphicImage url="/webresource/images/business-view.png" title="Business View" alt="Business View" />
+            </a4j:commandLink>
+
+            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
+                <f:param name="view" value="developer" />
+                <h:graphicImage url="/webresource/images/developer-view.png" title="Developer View" alt="Developer View" />
+            </a4j:commandLink>
+
+            <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this" render="tePanel">
+                <h:graphicImage url="/webresource/images/formula.png" title="Show Formulas" alt="Show Formulas" />
+            </a4j:commandLink>
+        </h:form>
+    </div>
+    </c:if>
+	
 
     <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
         <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
@@ -326,11 +347,32 @@
 
     <br />
 
+    <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
+        <input type="hidden" name="uri" value="" />
+    </form>
+
+    <h:panelGroup id="tePanel" layout="block">
+        <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
+            linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
+            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+            showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
+            beforeSaveAction="#{showTableBean.beforeSaveAction}"
+            afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
+            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
+            excludeScripts="prototype">
+
+            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
+                rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
+            <h:outputLink value="javascript:search()">Search</h:outputLink>
+
+        </rules:tableEditor>
+    </h:panelGroup>
+
     <script>
-        function search(f) {
-           	f.searchQuery.value = $j(PopupMenu.lastTarget).html()
-                .replace(/(&lt;br?>)/ig," ").replace(/(&lt;.*?>)/ig,"");
-            f.submit();
+    //<![CDATA[
+        function search() {
+           	var searchQuery = $j(PopupMenu.lastTarget).text();
+            goTo("search/simpleSearch.xhtml?searchQuery=" + searchQuery);
         }
 
         function editInExcel(f) {
@@ -351,63 +393,32 @@
             hideLoader();
         }
 
-        //<![CDATA[
         function isAnyTestSelected() {
-    	    var testTable = document.getElementById("testTable");
-    	    for (i = 0; i < testTable.rows.length; i++) {
-    	    	var firstColumnCell = testTable.rows[i].cells[0]
-    	    	for (j = 0; j < firstColumnCell.childNodes.length; j ++){
-    	    		if (firstColumnCell.childNodes[j].type == 'checkbox'){
-    	                if (firstColumnCell.childNodes[j].checked) {
-    	                	return true;
-    	                }
-    	                break;
-    	    		}
-    	    	}
+            var numChecked = $j("#testTable :checked").length;
+            if (numChecked > 0) {
+            	return true;
             }
-    	    alert('No tests selected');
+
+            alert('No tests selected');
     	    return false;
     	}
 
+        function isAllTestsSelected() {
+            return $j("#testTable :checkbox").length == $j("#testTable :checked").length;
+        }
+
         function selectAllTests() {
-    	    var selectAllCheckBox = document.getElementById("selectAll");
-    	    var testTable = document.getElementById("testTable");
-    	    for (i = 0; i < testTable.rows.length; i++) {
-    	    	var firstColumnCell = testTable.rows[i].cells[0]
-    	    	for (j = 0; j < firstColumnCell.childNodes.length; j ++){
-    	    		if (firstColumnCell.childNodes[j].type == 'checkbox'){
-    	    			firstColumnCell.childNodes[j].checked = selectAllCheckBox.checked;
-    	    			break;
-    	    		}
-    	    	}
-            }
+    	    var selectAll = $j("#selectAll");
+    	    $j("#testTable :checkbox").attr("checked", selectAll.is(":checked"));
     	}
-        //]]>
+
+        (function() {
+            var selectAll = $j("#selectAll");
+            $j("#testTable :checkbox").click(function() {
+                selectAll.attr("checked", isAllTestsSelected());
+            });
+        })();
+    //]]>
     </script>
-
-    <form name="searchForm" method="post" action="#{rulesEditor}/search/simpleSearch.xhtml">
-        <input type="hidden" name="searchQuery" value="" />
-    </form>
-
-    <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
-        <input type="hidden" name="uri" value="" />
-    </form>
-
-    <h:panelGroup id="tePanel" layout="block">
-        <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
-            linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
-            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-            showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
-            beforeSaveAction="#{showTableBean.beforeSaveAction}"
-            afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
-            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
-            excludeScripts="prototype">
-
-            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
-                rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
-            <h:outputLink value="javascript:search(document.forms.searchForm)">Search</h:outputLink>
-
-        </rules:tableEditor>
-    </h:panelGroup>
 
 </ui:composition>

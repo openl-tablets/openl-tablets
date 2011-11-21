@@ -82,22 +82,6 @@ public class RunAllTestsBean {
         return cnt;
     }
 
-    public int getNumberOfUnits() {
-        int cnt = 0;
-        for (TestUnitsResults result : ranResults) {
-            cnt += result.getNumberOfTestUnits();
-        }
-        return cnt;
-    }
-
-    public int getNumberOfFailedUnits() {
-        int cnt = 0;
-        for (TestUnitsResults result : ranResults) {
-            cnt += result.getNumberOfFailures();
-        }
-        return cnt;
-    }
-
     public UIRepeat getTestItems() {
         return testUnits;
     }

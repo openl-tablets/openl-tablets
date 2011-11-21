@@ -16,23 +16,16 @@
             }
         </script>
     
-        <h:panelGrid columns="2">
-            <h:outputText value="Tests:" />
+        <h:panelGrid columns="2" rendered="#{runAllTestsBean.numberOfTests > 1}">
+            <h:outputText value="Number of Tests:" />
             <h:panelGroup>
                 <h:outputText value="#{runAllTestsBean.numberOfTests}" />
-                <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests})"
+                <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests} failed)"
                     rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
                     style="color: red" />
             </h:panelGroup>
-            <h:outputText value="Units:" />
-            <h:panelGroup>
-                <h:outputText value="#{runAllTestsBean.numberOfUnits}" />
-                <h:outputText value=" (#{runAllTestsBean.numberOfFailedUnits})"
-                    rendered="#{runAllTestsBean.numberOfFailedUnits > 0}"
-                    style="color: red" />
-            </h:panelGroup>
         </h:panelGrid>
-    
+
         <a4j:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
             <h1>
                 <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content"

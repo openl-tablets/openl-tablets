@@ -613,13 +613,27 @@ public class ProjectModel {
     }
 
     /**
+     * Gets test methods for method by uri.
+     * 
+     * @param elementUri
+     * @return test methods
+     */
+    public IOpenMethod[] getTestMethods(String elementUri) {
+        IOpenMethod method = getMethod(elementUri);
+        if (method != null) {
+            return ProjectHelper.testers(method);
+        }
+        return null;
+    }
+
+    /**
      * Gets all test methods for method by uri.
      * 
      * @param elementUri
      * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
      * runs without any parameters and tests without cases and runs.
      */
-    public IOpenMethod[] getAllTestMethods(String elementUri) {
+    public IOpenMethod[] getTestAndRunMethods(String elementUri) {
         IOpenMethod method = getMethod(elementUri);
         if (method != null) {
             return ProjectHelper.allTesters(method);

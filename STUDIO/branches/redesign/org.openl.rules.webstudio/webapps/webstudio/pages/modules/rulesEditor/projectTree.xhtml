@@ -12,9 +12,27 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <ui:define name="toolbar">
-        <h:panelGroup layout="block" styleClass="treeMenu">
-            Filters Filters Filters Filters Filters
-        </h:panelGroup>
+        <style>
+            #nameFilter {
+                position: relative;
+            }
+            #nameFilter input {
+                width: 97%;
+            }
+            #nameFilter img {
+                position: absolute;
+                right: 2px;
+                top: 6px;
+                cursor: pointer;
+                opacity: 0.5;
+            }
+        </style>
+        <div class="treeMenu">
+            <div id="nameFilter">
+                <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
+                <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
+            </div>
+        </div>
     </ui:define>
 
     <ui:define name="workspace">
@@ -78,7 +96,10 @@
 
         <script>
             //$j("#projects").jstree({themes:{dots: false, icons: false}});
+
+            //<![CDATA[
             var selected;
+            var projects = $j("#projects > ul > li");
 
             function selectModule(link) {
                 if (selected) {
@@ -87,6 +108,14 @@
                 $j(link).addClass('selected');
                 selected = $j(link);
             }
+
+            function filterProjects(pattern) {
+                projects.each(function() {
+                    var projectName = $j(this).find(">a").text();
+                    $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+                });
+            }
+          //]]>
         </script>
     </ui:define>
 

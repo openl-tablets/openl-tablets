@@ -51,7 +51,7 @@
                 </span>
                 <form style="display: inline;"
                     onsubmit="goTo('#{rulesEditor}/search/simpleSearch.xhtml?searchQuery=' + $j('#searchQuery').val()); return false;">
-                    <input id="searchQuery" />
+                    <input type="text" id="searchQuery" placeholder="Search..." />
                     <input type="image" src="#{contextPath}/webresource/images/search.png" />
                 </form>
             </h:panelGroup>
