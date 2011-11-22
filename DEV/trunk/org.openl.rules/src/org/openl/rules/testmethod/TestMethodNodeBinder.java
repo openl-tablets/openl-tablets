@@ -8,7 +8,6 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.DataTableBoundNode;
@@ -16,7 +15,6 @@ import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -67,12 +65,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horiztableBody);
         
         List<IdentifierNode[]> columnIdentifiers = null;
-        try {
-            columnIdentifiers = DataTableBindHelper.getColumnIdentifiers(null, null, descriptorRows);
-        } catch (OpenLCompilationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        columnIdentifiers = DataTableBindHelper.getColumnIdentifiers(null, null, descriptorRows);
         
         return testSuite.getMethodBasedClass(columnIdentifiers);
     }
