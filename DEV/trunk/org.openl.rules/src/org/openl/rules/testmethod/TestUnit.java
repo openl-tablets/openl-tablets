@@ -59,7 +59,7 @@ public class TestUnit {
             return;
         } 
 
-        if (NumberUtils.isFloatPointNumber(runningResult) /*&& getTestUnitResultComparator().compareResult(runningResult, getExpectedResult())*/) {
+        if (NumberUtils.isFloatPointNumber(runningResult) && test.isExpectedResultDefined()) {
             Double result = NumberUtils.convertToDouble(runningResult);
             Double expectedResult = NumberUtils.convertToDouble(getExpectedResult());
 
