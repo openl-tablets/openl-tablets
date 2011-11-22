@@ -26,7 +26,7 @@ public class TestTreeBuilder {
             Object value,
             String fieldName,
             FieldDescriptionTreeNode parent) {
-        if (fieldType.getAggregateInfo().isAggregate(fieldType)) {
+        if (fieldType.getAggregateInfo()!= null && fieldType.getAggregateInfo().isAggregate(fieldType)) {
             return new CollectionFieldNode(fieldName, value, fieldType, parent);
         } else if (!fieldType.isSimple()) {
             return new ComplexFieldNode(fieldName, value, fieldType, parent);
