@@ -40,9 +40,11 @@ public class ComplexFieldNode extends FieldDescriptionTreeNode {
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : getFieldType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
-                String fieldName = fieldEntry.getKey();
-                fields.put(fieldName,
-                    TestTreeBuilder.createNode(field.getType(), field.get(getValue(), env), fieldName, this));
+                if (!field.isConst()) {
+                    String fieldName = fieldEntry.getKey();
+                    fields.put(fieldName,
+                        TestTreeBuilder.createNode(field.getType(), field.get(getValue(), env), fieldName, this));
+                }
             }
             return fields;
         }
