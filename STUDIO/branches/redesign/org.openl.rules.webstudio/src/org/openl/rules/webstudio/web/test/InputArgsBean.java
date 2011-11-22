@@ -4,7 +4,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import org.openl.rules.testmethod.ExecutionParamDescription;
-import org.openl.rules.testmethod.ExecutionParamDescriptionWithType;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
@@ -14,6 +13,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UIRepeat;
 import org.richfaces.component.UITree;
@@ -135,10 +135,12 @@ public class InputArgsBean {
     public ExecutionParamDescription[] initArguments() {
         IOpenMethod method = getTestedMethod();
         ExecutionParamDescription[] args = new ExecutionParamDescription[method.getSignature().getNumberOfParameters()];
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (int i = 0; i < args.length; i++) {
-            args[i] = new ExecutionParamDescriptionWithType(method.getSignature().getParameterName(i),
-                null,
-                method.getSignature().getParameterType(i));
+            String parameterName = method.getSignature().getParameterName(i);
+            IOpenClass parameterType = method.getSignature().getParameterType(i);
+            Object parameterValue = parameterType.newInstance(env);
+            args[i] = new ExecutionParamDescription(parameterName, parameterValue);
         }
         return args;
     }
