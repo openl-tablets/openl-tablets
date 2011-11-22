@@ -276,8 +276,17 @@ public class ShowTableBean {
         } else {//method without parameters
             testSuite = new TestSuite(new TestDescription(method, new Object[] {}));
         }
-        studio.getModel().setLastTest(testSuite);
+        studio.getModel().addTestSuiteToRun(testSuite);
         return null;
+    }
+    
+    public void runAllTestsForTable(){
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        List<TestSuite> testSuites = new ArrayList<TestSuite>();
+        for(IOpenMethod testSuiteMethod :  tests){
+            testSuites.add(new TestSuite((TestSuiteMethod)testSuiteMethod));
+        }
+        model.addTestSuitesToRun(testSuites);
     }
 
     public String traceIntoFile() {

@@ -98,7 +98,7 @@ public class BenchmarkMethodBean {
 
     public List<BenchmarkInfo> getBenchmarks() {
         studio = WebStudioUtils.getWebStudio();
-        if (studio.getModel().hasLastTest()) {
+        if (studio.getModel().hasTestSuitesToRun()) {
             addLastBenchmark();
         }
         BenchmarkInfo[] benchmarks = studio.getBenchmarks();
