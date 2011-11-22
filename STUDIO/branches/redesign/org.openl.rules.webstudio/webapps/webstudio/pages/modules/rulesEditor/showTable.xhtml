@@ -29,10 +29,11 @@
             display: inline-block;
             text-decoration: none;
             color: #313131;
-            padding: 3px 7px 3px 23px;
+            padding: 4px 8px 4px 24px;
         }
         .checkboxButton {
             cursor: pointer;
+            padding: 13px 1px 13px 24px;
         }
         .editToolbar a:hover, .checkboxButton:hover {
             color: #000000;
@@ -41,12 +42,12 @@
         }
         .editToolbar a img, .checkboxButton input {
             position: absolute;
-            left: 3px;
-            top: 1px;
+            left: 4px;
+            top: 2px;
         }
         .checkboxButton input {
-            left: 1px;
-            top: 0;
+            left: 2px;
+            top: 10px;
         }
         .editToolbar a .arrow, .checkboxButton .arrow {
             background: url('webresource/images/arrow_down.png') no-repeat center;
@@ -62,13 +63,13 @@
             z-index: 1;
         }
         .editToolbar .bigButton {
-            padding: 3px 7px;
+            padding: 4px 7px;
             text-align: center;
         }
         .editToolbar .bigButton img {
             position: static;
         }
-        .editToolbar .bigButton span {
+        .editToolbar .bigButton > span {
             display: block;
             margin-top: 3px;
         }
@@ -91,6 +92,8 @@
 
         function showButtonMenu(event, id, buttonElem) {
             var button = $j(event.target).parent(buttonElem);
+            if (!button.length)
+                button = $j(event.target).closest(buttonElem);
             var buttonPos = button.position();
 
             var menu = $j("#" + id);
@@ -176,10 +179,10 @@
                     <h:form prependId="false">
                         <table>
                             <tr>
-                                <td colspan="3">
-                                    <span class="checkboxButton" style="padding-right: 1px">
+                                <td>
+                                    <span class="checkboxButton" title="Select Units to Perform">
                                         <h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" value="true" />
-                                        <span onclick="showButtonMenu(event, 'unitsMenu', 'span')">Available Units</span>
+                                        <span onclick="showButtonMenu(event, 'unitsMenu', 'span')">Units</span>
                                         <span onclick="showButtonMenu(event, 'unitsMenu', 'span')" class="arrow" >
                                             <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                         </span>
@@ -199,26 +202,34 @@
                                         </table>
                                     </div>
                                 </td>
-                            </tr>
-                            <tr>
                                 <td>
                                     <c:set var="runLink"
                                         value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run"
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run" styleClass="bigButton"
                                         onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}', 'content')">
                                         <img src="webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace"
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace" styleClass="bigButton"
                                         onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win')"
                                         style="padding-right: 1px">
-                                        <img src="webresource/images/trace.gif" />
-                                        <span>Trace</span>
-                                        <span class="arrow" onclick="showButtonMenu(event, 'traceMenu', 'a')">
-                                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-                                        </span>
+                                        <table style="border-collapse: collapse;">
+                                            <tr>
+                                                <td>
+                                                    <img src="webresource/images/trace.gif" />
+                                                </td>
+                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'traceMenu', 'a')">
+                                                    <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span>Trace</span>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </a4j:commandLink>
                                     <div id="traceMenu" style="display: none">
     	                                <h:commandLink onclick="return isAnyTestSelected();"
@@ -229,7 +240,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark"
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark" styleClass="bigButton"
                                         onclick="return isAnyTestSelected();"
                                         oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')">
                                         <img src="webresource/images/clock-icon.png" />
@@ -242,69 +253,71 @@
                 </td>
                 </c:if>
 
-                    <c:if test="#{showTableBean.table.executable}">
-                        <td><h:form id="inputArgsForm">
-                                <c:set var="traceUrl"
-                                    value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
-                                <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
-                                <c:if test="#{inputArgsBean.methodHasParameters}">
-                                    <a4j:commandLink
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:runButton').show();document.getElementById('inputArgsForm:traceButton').hide();">
-                                        <img src="webresource/images/run.gif" />
-                                        <span>Run</span>
-                                    </a4j:commandLink>
-                                    <a4j:commandLink
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:traceButton').show();document.getElementById('inputArgsForm:runButton').hide();">
-                                        <img src="webresource/images/trace.gif" />
-                                        <span>Trace</span>
-                                    </a4j:commandLink>
-                                    <div id="inputArgsMenu" style="display: none">
-                                        <ui:include src="/pages/modules/rulesEditor/test/inputTestCase.xhtml" />
-                                        <a4j:commandButton id="runButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Run"
-                                            oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')" />
-                                        <a4j:commandButton id="traceButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Trace"
-                                            oncomplete="open_win('#{traceUrl}', 'trace_win')" />
-                                    </div>
-                                </c:if>
-                                <c:if test="#{not inputArgsBean.methodHasParameters}">
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}"
-                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
-                                        <img src="webresource/images/run.gif" />
-                                        <span>Run</span>
-                                    </a4j:commandLink>
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}"
-                                        oncomplete="open_win('#{traceUrl}', 'trace_win')">
-                                        <img src="webresource/images/trace.gif" />
-                                        <span>Trace</span>
-                                    </a4j:commandLink>
-                                </c:if>
-                            </h:form>
-                        </td>
-                    </c:if>
+                <c:if test="#{showTableBean.table.executable}">
+                    <td>
+                        <h:form id="inputArgsForm">
+                            <c:set var="traceUrl"
+                                value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
+                            <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
+                            <c:if test="#{inputArgsBean.methodHasParameters}">
+                                <a4j:commandLink styleClass="bigButton" title="Run"
+                                    onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:runButton').show();document.getElementById('inputArgsForm:traceButton').hide();">
+                                    <img src="webresource/images/run.gif" />
+                                    <span>Run</span>
+                                </a4j:commandLink>
+                                <a4j:commandLink styleClass="bigButton" title="Trace"
+                                    onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:traceButton').show();document.getElementById('inputArgsForm:runButton').hide();">
+                                    <img src="webresource/images/trace.gif" />
+                                    <span>Trace</span>
+                                </a4j:commandLink>
+                                <div id="inputArgsMenu" style="display: none">
+                                    <ui:include src="/pages/modules/rulesEditor/test/inputTestCase.xhtml" />
+                                    <a4j:commandButton id="runButton" style="display: none"
+                                        action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
+                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')" />
+                                    <a4j:commandButton id="traceButton" style="display: none"
+                                        action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
+                                        oncomplete="open_win('#{traceUrl}', 'trace_win')" />
+                                </div>
+                            </c:if>
+                            <c:if test="#{not inputArgsBean.methodHasParameters}">
+                                <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="bigButton" title="Run"
+                                    oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
+                                    <img src="webresource/images/run.gif" />
+                                    <span>Run</span>
+                                </a4j:commandLink>
+                                <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="bigButton"
+                                    oncomplete="open_win('#{traceUrl}', 'trace_win')" title="Trace">
+                                    <img src="webresource/images/trace.gif" />
+                                    <span>Trace</span>
+                                </a4j:commandLink>
+                            </c:if>
+                        </h:form>
+                    </td>
+                </c:if>
 
-                    <c:if test="#{showTableBean.hasTests}">
-                        <td><h:form id="runTestsForm">
-                                <a4j:commandLink styleClass="bigButton"
-                                    action="#{showTableBean.runAllTestsForTable}"
-                                    oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
+                <c:if test="#{showTableBean.hasTests}">
+                    <td>
+                        <h:form>
+                            <a4j:commandLink styleClass="bigButton" title="Run All Tests"
+                                action="#{showTableBean.runAllTestsForTable}"
+                                oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
                                 <img src="webresource/images/test_ok.gif" />
                                 <span>Test</span>
-                                </a4j:commandLink>
-                            </h:form>
-                        </td>
-                    </c:if>
+                            </a4j:commandLink>
+                        </h:form>
+                    </td>
+                </c:if>
 
-                    <c:if test="#{showTableBean.canCreateTest}">
-                 <td>
-                     <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="bigButton"
-                         oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
-                         <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
-                         <img src="webresource/images/test_new.gif" />
-                         <span>Create Test</span>
-                     </a4j:commandLink>
-                 </td>
+                <c:if test="#{showTableBean.canCreateTest}">
+                <td>
+                    <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="bigButton" title="Create new Test"
+                        oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
+                        <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
+                        <img src="webresource/images/test_new.gif" />
+                        <span>Create Test</span>
+                    </a4j:commandLink>
+                </td>
                 </c:if>
 
             </tr>
