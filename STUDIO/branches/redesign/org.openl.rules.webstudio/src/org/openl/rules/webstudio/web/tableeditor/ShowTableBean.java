@@ -31,8 +31,8 @@ import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -268,8 +268,14 @@ public class ShowTableBean {
     
     public String makeTestSuite() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) studio.getModel().getMethod(uri);
-        TestSuite testSuite = new TestSuite(testSuiteMethodSelected, getSelectedIndices());
+        IOpenMethod method = studio.getModel().getMethod(uri);
+        TestSuite testSuite;
+        if (method instanceof TestSuiteMethod) {
+            TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) method;
+            testSuite = new TestSuite(testSuiteMethodSelected, getSelectedIndices());
+        } else {//method without parameters
+            testSuite = new TestSuite(new TestDescription(method, new Object[] {}));
+        }
         studio.getModel().setLastTest(testSuite);
         return null;
     }
