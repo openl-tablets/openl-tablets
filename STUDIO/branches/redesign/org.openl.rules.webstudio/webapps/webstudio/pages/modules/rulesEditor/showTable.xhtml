@@ -242,16 +242,49 @@
                 </td>
                 </c:if>
 
-                <c:if test="#{showTableBean.table.executable}">
-                <td>
-                    <h:outputLink value="javascript:alert('oops')" title="Run Table" styleClass="bigButton">
-                        <img src="webresource/images/run.gif" />
-                        <span>Run</span>
-                    </h:outputLink>
-                </td>
-                </c:if>
+                    <c:if test="#{showTableBean.table.executable}">
+                        <td><h:form id="inputArgsForm">
+                                <c:set var="traceUrl"
+                                    value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
+                                <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
+                                <c:if test="#{inputArgsBean.methodHasParameters}">
+                                    <a4j:commandLink
+                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:runButton').show();document.getElementById('inputArgsForm:traceButton').hide();">
+                                        <img src="webresource/images/run.gif" />
+                                        <span>Run</span>
+                                    </a4j:commandLink>
+                                    <a4j:commandLink
+                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:traceButton').show();document.getElementById('inputArgsForm:runButton').hide();">
+                                        <img src="webresource/images/trace.gif" />
+                                        <span>Trace</span>
+                                    </a4j:commandLink>
+                                    <div id="inputArgsMenu" style="display: none">
+                                        <ui:include src="/pages/modules/rulesEditor/test/inputTestCase.xhtml" />
+                                        <a4j:commandButton id="runButton" style="display: none"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Run"
+                                            oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')" />
+                                        <a4j:commandButton id="traceButton" style="display: none"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Trace"
+                                            oncomplete="open_win('#{traceUrl}', 'trace_win')" />
+                                    </div>
+                                </c:if>
+                                <c:if test="#{not inputArgsBean.methodHasParameters}">
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}"
+                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
+                                        <img src="webresource/images/run.gif" />
+                                        <span>Run</span>
+                                    </a4j:commandLink>
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}"
+                                        oncomplete="open_win('#{traceUrl}', 'trace_win')">
+                                        <img src="webresource/images/trace.gif" />
+                                        <span>Trace</span>
+                                    </a4j:commandLink>
+                                </c:if>
+                            </h:form>
+                        </td>
+                    </c:if>
 
-                <c:if test="#{showTableBean.hasTests}">
+                    <c:if test="#{showTableBean.hasTests}">
                 <td>
                     <h:outputLink value="javascript:alert('oops')" title="Test Table" styleClass="bigButton">
                         <img src="webresource/images/test_ok.gif" />

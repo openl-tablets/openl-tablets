@@ -1,44 +1,42 @@
 package org.openl.rules.webstudio.web.test;
 
-import org.openl.base.INameSpacedThing;
-import org.openl.rules.table.formatters.FormattersManager;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+
 import org.openl.rules.testmethod.ExecutionParamDescription;
 import org.openl.types.IOpenClass;
-import org.richfaces.model.TreeNodeImpl;
+import org.richfaces.model.TreeNode;
 
-public class FieldDescriptionTreeNode extends TreeNodeImpl {
+public abstract class FieldDescriptionTreeNode implements TreeNode {
     private IOpenClass fieldType;
     private String fieldName;
     private Object value;
-    private TreeNodeType nodeType;
 
-    public FieldDescriptionTreeNode(String fieldName, Object value, IOpenClass fieldType) {
+    private FieldDescriptionTreeNode parent;
+    private LinkedHashMap<Object, FieldDescriptionTreeNode> children;
+
+    public FieldDescriptionTreeNode(String fieldName,
+            Object value,
+            IOpenClass fieldType,
+            FieldDescriptionTreeNode parent) {
         this.fieldName = fieldName;
         this.value = value;
         this.fieldType = fieldType;
-        initNodeType();
+        this.parent = parent;
     }
 
-    public FieldDescriptionTreeNode(ExecutionParamDescription paramDescription) {
-        this.fieldName = paramDescription.getParamName();
-        this.value = paramDescription.getValue();
-        this.fieldType = paramDescription.getParamType();
-        initNodeType();
+    public FieldDescriptionTreeNode(ExecutionParamDescription paramDescription, FieldDescriptionTreeNode parent) {
+        this(paramDescription.getParamName(), paramDescription.getValue(), paramDescription.getParamType(), parent);
+    }
+
+    public FieldDescriptionTreeNode getParent() {
+        return parent;
     }
 
     @Override
     public boolean isLeaf() {
-        return fieldType.isSimple() || value == null;
-    }
-
-    public void initNodeType() {
-        if (fieldType.getAggregateInfo().isAggregate(fieldType)) {
-            nodeType = new CollectionNodeType(this);
-        } else if (isLeaf()) {
-            nodeType = new SimpleNodeType(this);
-        } else {
-            nodeType = new ComplexNodeType(this);
-        }
+        return getChildernMap().isEmpty();
     }
 
     public IOpenClass getFieldType() {
@@ -53,95 +51,103 @@ public class FieldDescriptionTreeNode extends TreeNodeImpl {
         return value;
     }
 
-    public String getNodeType() {
-        return nodeType.getType();
+    public abstract String getDisplayedValue();
+
+    public boolean isValueNull() {
+        return value == null;
     }
+
+    public boolean isElementOfCollection() {
+        return parent instanceof CollectionFieldNode;
+    }
+
+    public void setValueForced(Object value) {
+        this.value = value;
+        reset();
+    }
+    
+    public Object getValueForced(){
+        if(isValueNull()){
+            return null;
+        }else{
+            return constructValueInternal();
+        }
+    }
+    
+    protected abstract Object constructValueInternal();
+
+    public abstract String getNodeType();
 
     public String getTreeText() {
-        return nodeType.getNodeText();
-    }
-
-    private abstract class TreeNodeType {
-        private FieldDescriptionTreeNode treeNode;
-
-        public TreeNodeType(FieldDescriptionTreeNode treeNode) {
-            this.treeNode = treeNode;
+        StringBuilder buff = new StringBuilder();
+        if (getFieldName() != null) {
+            buff.append(getFieldName());
+            buff.append(" = ");
         }
-
-        protected FieldDescriptionTreeNode getTreeNode() {
-            return treeNode;
-        }
-
-        public String getNodeText() {
-            StringBuilder buff = new StringBuilder();
-            if (treeNode.getFieldName() != null) {
-                buff.append(treeNode.getFieldName());
-                buff.append(" = ");
-            }
+        if (isValueNull()) {
+            buff.append("null");
+        } else {
             buff.append(getDisplayedValue());
-            return buff.toString();
         }
-
-        public abstract String getType();
-
-        protected abstract String getDisplayedValue();
+        return buff.toString();
+    }
+    
+    public void reset(){
+        children = null;
     }
 
-    private class ComplexNodeType extends TreeNodeType {
-        public static final String COMPLEX_TYPE = "complex";
-
-        public ComplexNodeType(FieldDescriptionTreeNode treeNode) {
-            super(treeNode);
+    protected LinkedHashMap<Object, FieldDescriptionTreeNode> getChildernMap(){
+        if(children == null){
+            children = initChildernMap();
         }
-
-        @Override
-        public String getType() {
-            return COMPLEX_TYPE;
-        }
-
-        @Override
-        protected String getDisplayedValue() {
-            return getTreeNode().getFieldType().getDisplayName(INameSpacedThing.SHORT);
-        }
-
+        return children;
     }
 
-    private class SimpleNodeType extends TreeNodeType {
-        public static final String SIMPLE_TYPE = "simple";
-
-        public SimpleNodeType(FieldDescriptionTreeNode treeNode) {
-            super(treeNode);
-        }
-
-        @Override
-        public String getType() {
-            return SIMPLE_TYPE;
-        }
-
-        @Override
-        protected String getDisplayedValue() {
-            Object value = getTreeNode().getValue();
-            return FormattersManager.getFormatter(value).format(value);
+    protected abstract LinkedHashMap<Object, FieldDescriptionTreeNode> initChildernMap();
+    
+    @Override
+    public void addChild(Object key, TreeNode node) {
+        if(node instanceof FieldDescriptionTreeNode){
+            getChildernMap().put(key, (FieldDescriptionTreeNode)node);
         }
     }
-
-    private class CollectionNodeType extends TreeNodeType {
-        public static final String COLLECTION_TYPE = "collection";
-
-        public CollectionNodeType(FieldDescriptionTreeNode treeNode) {
-            super(treeNode);
-        }
-
-        @Override
-        public String getType() {
-            return COLLECTION_TYPE;
-        }
-
-        @Override
-        protected String getDisplayedValue() {
-            return String.format("Collection of %s",
-                getTreeNode().getFieldType().getComponentClass().getDisplayName(INameSpacedThing.SHORT));
-        }
-
+    
+    @Override
+    public FieldDescriptionTreeNode getChild(Object key) {
+        return getChildernMap().get(key);
     }
+    
+    public Collection<FieldDescriptionTreeNode> getChildren(){
+        return getChildernMap().values();
+    }
+    
+    @Override
+    public Iterator<Object> getChildrenKeysIterator() {
+        return getChildernMap().keySet().iterator();
+    }
+
+    @Override
+    public int indexOf(Object key) {
+        Iterator<Object> keysIterator = getChildrenKeysIterator();
+        int i = 0;
+        while(keysIterator.hasNext()){
+            if(keysIterator.next() == key){
+                return i;
+            }else{
+                i++;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public void insertChild(int index, Object key, TreeNode node) {
+        addChild(key, node);
+    }
+
+    @Override
+    public void removeChild(Object key) {
+        getChildernMap().remove(key);
+    }
+
 }
