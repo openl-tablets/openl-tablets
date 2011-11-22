@@ -346,32 +346,9 @@ public class DataTableBindHelper {
 
         int width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
-
-//        List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>(width);
         
         List<IdentifierNode[]> columnIdentifiers = getColumnIdentifiers(bindingContext, table, descriptorRows);
         
-//        for (int columnNum = 0; columnNum < width; columnNum++) {
-//
-//            GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
-//            // binding context is used for optimization in execution mode
-//            //            
-//            cellSourceModule.update(bindingContext);
-//
-//            String code = cellSourceModule.getCode();
-//
-//            if (code.length() != 0) {
-//                
-//                // fields names nodes 
-//                IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
-//                
-//                if (contains(identifiers, fieldAccessorChainTokens)) {                    
-//                    String message = String.format("Found duplicate of field \"%s\"", code);
-//                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-//                    processError(table, error);
-//                } else {
-//                    identifiers.add(fieldAccessorChainTokens);
-//                }
         for (int columnNum = 0; columnNum < columnIdentifiers.size(); columnNum++)   {
             IdentifierNode[] fieldAccessorChainTokens = columnIdentifiers.get(columnNum);
             if (fieldAccessorChainTokens != null) {
@@ -415,11 +392,9 @@ public class DataTableBindHelper {
                     foreignKey,
                     header);
 
-                columnDescriptors[columnNum] = currentColumnDescriptor;
-//            }      
+                columnDescriptors[columnNum] = currentColumnDescriptor;      
             }
         }
-
         return columnDescriptors;
     }
     

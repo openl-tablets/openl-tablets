@@ -2,8 +2,6 @@ package org.openl.rules.testmethod.result;
 
 import java.util.List;
 
-import org.apache.commons.lang.ClassUtils;
-import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.helpers.NumberUtils;
 
 public class TestResultComparatorFactory {
@@ -22,11 +20,6 @@ public class TestResultComparatorFactory {
         if (actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
             return new ArrayComparator();
         }
-        
-//        if (ClassUtils.isAssignable(actualResult.getClass(), SpreadsheetResult.class, false)) {
-//            return new BeanResultComparator(fieldsToCompare);
-//        }
-        
         return new DefaultComparator();
     }
     
