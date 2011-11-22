@@ -64,15 +64,17 @@ public class TestMethodFactory {
         SpreadsheetResult runningResultLocal = (SpreadsheetResult) testUnit.getRunningResult();
         if (runningResultLocal != null) {
             TestSpreadsheetOpenClass openClass = (TestSpreadsheetOpenClass) testUnit.getTest().getTestObject().getType();
-            
-            List<String> fieldsToTest = new ArrayList<String>(openClass.getSpreadsheetCellsForTest().size());
-            for (int i = 0; i < openClass.getSpreadsheetCellsForTest().size(); i++) {
-                String fieldNameToTest = openClass.getSpreadsheetCellsForTest().get(i)[1].getIdentifier();
-                fieldsToTest.add(fieldNameToTest);
+            /** openClass can be null for run functionality */
+            if (openClass != null) {
+                List<String> fieldsToTest = new ArrayList<String>(openClass.getSpreadsheetCellsForTest().size());
+                for (int i = 0; i < openClass.getSpreadsheetCellsForTest().size(); i++) {
+                    String fieldNameToTest = openClass.getSpreadsheetCellsForTest().get(i)[1].getIdentifier();
+                    fieldsToTest.add(fieldNameToTest);
+                }
+                
+                TestResultComparator resultComparator = TestResultComparatorFactory.getBeanComparator(testUnit.getActualResult(), testUnit.getExpectedResult(), fieldsToTest);
+                testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
             }
-            
-            TestResultComparator resultComparator = TestResultComparatorFactory.getBeanComparator(testUnit.getActualResult(), testUnit.getExpectedResult(), fieldsToTest);
-            testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
         }
         return testUnit;
     }
