@@ -82,7 +82,7 @@ public class TestSuite implements INamedThing {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getSourceUrl();
         } else {
-            return null;
+            return getTestedMethod().getInfo().getSourceUrl();
         }
     }
 }
