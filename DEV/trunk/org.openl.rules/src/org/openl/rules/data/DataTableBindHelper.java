@@ -431,8 +431,7 @@ public class DataTableBindHelper {
      * @return
      * @throws OpenLCompilationException
      */
-    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext, ITable table, ILogicalTable descriptorRows) 
-            throws OpenLCompilationException {        
+    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext, ITable table, ILogicalTable descriptorRows) {        
         int width = descriptorRows.getWidth();
         List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>();
         for (int columnNum = 0; columnNum < width; columnNum++) {
@@ -443,10 +442,17 @@ public class DataTableBindHelper {
             String code = cellSourceModule.getCode();
 
             if (code.length() != 0) {
-
-                // fields names nodes
-                IdentifierNode[] fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
-
+                
+                IdentifierNode[] fieldAccessorChainTokens = null;
+                try {
+                    // fields names nodes
+                    fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
+                } catch (OpenLCompilationException e) {
+                    String message = String.format("Cannot parse field source \"%s\"", code);
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+                    processError(table, error);
+                }
+                
                 if (contains(identifiers, fieldAccessorChainTokens)) {
                     String message = String.format("Found duplicate of field \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
