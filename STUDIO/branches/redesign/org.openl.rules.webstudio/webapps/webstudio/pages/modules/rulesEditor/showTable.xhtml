@@ -285,15 +285,18 @@
                     </c:if>
 
                     <c:if test="#{showTableBean.hasTests}">
-                <td>
-                    <h:outputLink value="javascript:alert('oops')" title="Test Table" styleClass="bigButton">
-                        <img src="webresource/images/test_ok.gif" />
-                        <span>Test</span>
-                    </h:outputLink>
-                </td>
-                </c:if>
+                        <td><h:form id="runTestsForm">
+                                <a4j:commandLink styleClass="bigButton"
+                                    action="#{showTableBean.runAllTestsForTable}"
+                                    oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
+                                <img src="webresource/images/test_ok.gif" />
+                                <span>Test</span>
+                                </a4j:commandLink>
+                            </h:form>
+                        </td>
+                    </c:if>
 
-                <c:if test="#{showTableBean.canCreateTest}">
+                    <c:if test="#{showTableBean.canCreateTest}">
                  <td>
                      <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="bigButton"
                          oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">

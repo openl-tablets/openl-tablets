@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -17,7 +18,6 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UIRepeat;
 
@@ -34,17 +34,21 @@ public class RunAllTestsBean {
 
     public RunAllTestsBean() {
         TestResultsHelper.initExplanator();
-
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        testAll(studio.getModel().popLastTest());
+        testAll();
     }
 
-    private void testAll(TestSuite testSuite) {
+    private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (testSuite == null) {
+        if (!model.hasTestSuitesToRun()) {
             ranResults = model.runAllTests();
         } else {
-            ranResults = new TestUnitsResults[] { model.runTestSuite(testSuite) };
+            List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
+            while(model.hasTestSuitesToRun()){
+                TestSuite testSuite = model.popLastTest();
+                results.add(model.runTestSuite(testSuite));
+            }
+            ranResults = new TestUnitsResults[results.size()];
+            ranResults = results.toArray(ranResults);            
         }
     }
 

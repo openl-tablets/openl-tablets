@@ -26,7 +26,7 @@ public class TraceTreeBean {
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
-        if (model.hasLastTest()) {
+        if (model.hasTestSuitesToRun()) {
 
             Tracer tracer = model.traceElement(model.popLastTest());
 

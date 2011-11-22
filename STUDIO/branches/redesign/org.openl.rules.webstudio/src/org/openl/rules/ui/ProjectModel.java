@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -116,20 +117,22 @@ public class ProjectModel {
     // FIXME last test suite should have temporary location(such as Flash scope)
     // but now it placed to session bean due to WebStudio navigation specific
     // TODO move this object to the correctplace
-    private TestSuite lastTest;
+    private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
 
-    public boolean hasLastTest() {
-        return lastTest != null;
+    public boolean hasTestSuitesToRun() {
+        return testSuitesToRun.size()>0;
     }
 
     public TestSuite popLastTest() {
-        TestSuite result = lastTest;
-        lastTest = null;
-        return result;
+        return testSuitesToRun.pop();
     }
 
-    public void setLastTest(TestSuite lastTest) {
-        this.lastTest = lastTest;
+    public void addTestSuiteToRun(TestSuite singleTestSuite) {
+        this.testSuitesToRun.push(singleTestSuite);
+    }
+
+    public void addTestSuitesToRun(Collection<TestSuite> testSuites) {
+        testSuitesToRun.addAll(testSuites);
     }
 
     public ProjectModel(WebStudio studio) {

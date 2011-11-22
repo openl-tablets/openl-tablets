@@ -65,7 +65,7 @@ public class InputArgsBean {
         }
         TestDescription testDescription = new TestDescription(method, arguments);
         TestSuite testSuite = new TestSuite(testDescription);
-        WebStudioUtils.getProjectModel().setLastTest(testSuite);
+        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
     }
 
     public void initObject() {
