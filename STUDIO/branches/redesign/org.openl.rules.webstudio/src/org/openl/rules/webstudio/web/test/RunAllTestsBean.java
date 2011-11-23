@@ -3,20 +3,31 @@ package org.openl.rules.webstudio.web.test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetOpenClass;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.result.DefaultResultBuilder;
+import org.openl.rules.table.Point;
 import org.openl.rules.testmethod.ExecutionParamDescription;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.BeanResultComparator;
+import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UIRepeat;
@@ -209,5 +220,41 @@ public class RunAllTestsBean {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
         return testUnit.getDescription();
     }
+    
+    public SpreadsheetResult getSpreadsheetResult() {
+        return TestResultsHelper.getSpreadsheetResult(getActualResultInternal());
+    }
+
+    public String getFormattedSpreadsheetResult() {
+        SpreadsheetResult spreadsheetResult = getSpreadsheetResult();
+        
+        if (spreadsheetResult != null) {
+            Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates();
+            
+            return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private Map<Point, ComparedResult> getFieldsCoordinates() {
+        Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
+        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        BeanResultComparator comparator = (BeanResultComparator)testUnit.getTestUnitResultComparator().getComparator();
+        List<ComparedResult> fieldsToTest = comparator.getFieldsToCompare();
+        
+        SpreadsheetOpenClass spreadsheetOpenClass = ((Spreadsheet)testUnit.getTest().getTestedMethod()).getSpreadsheetType();
+        
+        if (fieldsToTest != null) {
+            for (ComparedResult fieldToTest : fieldsToTest) {
+                Point fieldCoordinates = DefaultResultBuilder.getAbsoluteSpreadsheetFieldCoordinates(spreadsheetOpenClass.getField(fieldToTest.getFieldName()));
+                if (fieldCoordinates != null) {
+                    fieldsCoordinates.put(fieldCoordinates, fieldToTest);
+                }
+            }
+        }
+        return fieldsCoordinates;
+    }
+    
+    
 
 }
