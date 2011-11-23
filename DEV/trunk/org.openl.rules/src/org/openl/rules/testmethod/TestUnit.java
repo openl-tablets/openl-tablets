@@ -40,7 +40,7 @@ public class TestUnit {
                 return;
             }
         }
-        expectedResult = test.getArgumentValue(TestMethodHelper.EXPECTED_RESULT_NAME);      
+        expectedResult = test.getExpectedResult();      
     }
     
     /**
