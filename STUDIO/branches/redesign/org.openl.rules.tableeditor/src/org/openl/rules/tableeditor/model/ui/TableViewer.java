@@ -106,12 +106,17 @@ public class TableViewer {
         if (StringUtils.isNotBlank(formattedValue)) {
             String content = null;
             // has Explanation link
-            if (formattedValue.matches("<a href.*</a>")) {
+            //
+            if (link(formattedValue)) {
                 content = formattedValue;
-            // has method call
+                // has method call
+                //
             } else if (CellMetaInfo.isCellContainsMethodUsages(cell)) {
                 content = createFormulaCellWithLinks(cell, formattedValue);
-            } else {
+                // has image
+            } else if (image(formattedValue)) {
+                content = formattedValue;
+            } else {            
                 content = StringEscapeUtils.escapeHtml(formattedValue);
             }
             cm.setContent(content);
@@ -125,6 +130,14 @@ public class TableViewer {
 
         setStyle(cell, cm);
         return cm;
+    }
+
+    private boolean image(String formattedValue) {
+        return formattedValue.matches(".*<img .*>.*");
+    }
+
+    private boolean link(String formattedValue) {
+        return formattedValue.matches(".*<a href.*</a>.*");
     }
 
     private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
