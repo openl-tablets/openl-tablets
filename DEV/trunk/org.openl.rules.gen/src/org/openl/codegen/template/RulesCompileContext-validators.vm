@@ -7,7 +7,7 @@
 #elseif ( ${tool.hasConstructorWithPropertyName($validatorClass)} )
         addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}"));
 #elseif ( ${tool.hasConstructorWithConstraintForProperty($validatorClass)} )
-        addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}", "${validatorsDefinition.PropertyConstraints}"));
+        addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}", "${validatorsDefinition.getPropertyConstraints($validatorClass)}"));
 #else
         //WARNING failed to process "${validatorClass.Name}" validator.
 #end

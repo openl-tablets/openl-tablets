@@ -113,6 +113,8 @@ public interface ITableProperties {
     boolean isPropertyAppliedByDefault(String propertyName);
 	
 	// <<< INSERT >>>
+	java.lang.String getId();
+	void setId(java.lang.String id);
 	java.lang.String getName();
 	void setName(java.lang.String name);
 	java.lang.String getCategory();
