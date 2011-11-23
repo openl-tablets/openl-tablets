@@ -6,7 +6,10 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ClassUtils;
 import org.openl.base.INamedThing;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.types.IMethodSignature;
 
 /**
@@ -60,7 +63,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestUnitResultComparator.TR_OK) {
+            if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
                 ++cnt;
             }
         }
@@ -78,6 +81,10 @@ public class TestUnitsResults implements INamedThing {
             }
         }
         return false;
+    }
+    
+    public boolean isSpreadsheetResultTester() {
+        return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(), SpreadsheetResult.class, false);
     }
     
     @Deprecated
@@ -130,7 +137,7 @@ public class TestUnitsResults implements INamedThing {
                 .append(" FAILED!");
         
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestUnitResultComparator.TR_OK) {
+            if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
                 sb.append('\n').append(i+1).append(". ").append(testUnits.get(i).getDescription()).append("\t").append(testUnits.get(i).getExpectedResult()).append(" / ").append(testUnits.get(i).getActualResult());
             }    
         }

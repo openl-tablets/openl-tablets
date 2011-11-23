@@ -2,6 +2,7 @@ package org.openl.rules.calc.element;
 
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -14,11 +15,6 @@ public class SpreadsheetCellField extends ASpreadsheetField {
         
         this.cell = cell;
     }
-
-//    @Override
-//    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
-//        return cell.calculate(spreadsheetResult, targetModule, params, env);
-//    }
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
@@ -45,6 +41,14 @@ public class SpreadsheetCellField extends ASpreadsheetField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
+    }
+    
+    public Point getRelativeCoordinates() {        
+        return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
+    }
+    
+    public Point getAbsoluteCoordinates() {       
+        return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
     }
 
 }

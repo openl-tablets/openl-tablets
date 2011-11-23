@@ -4,35 +4,52 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.util.StringTool;
 
 public class BeanResultComparator implements TestResultComparator {
-    
-    private List<String> fieldsToCompare;
-    
-    private List<String> failedFields;
+    private List<ComparedResult> fieldsToCompare;
     
     public BeanResultComparator(List<String> fieldsToCompare) {
         if (fieldsToCompare != null) {
-            this.fieldsToCompare = new ArrayList<String>(fieldsToCompare);            
+            this.fieldsToCompare = new ArrayList<ComparedResult>();
+            for (String fieldToCompare : fieldsToCompare) {
+                ComparedResult cr = new ComparedResult();
+                cr.setFieldName(fieldToCompare);
+                this.fieldsToCompare.add(cr);
+            }            
         } else {
             throw new IllegalArgumentException("Fields for comparing cannot be null");
         }
-        this.failedFields = new ArrayList<String>();
     }
     
+    public List<ComparedResult> getFieldsToCompare() {
+        return new ArrayList<ComparedResult>(fieldsToCompare);
+    }
+
     public boolean compareResult(Object actualResult, Object expectedResult) {
-        for (String fieldToCompare : fieldsToCompare) {
-            Object actualFieldValue = getFieldValue(actualResult, fieldToCompare);
-            Object expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
+        boolean success = true;
+        for (ComparedResult fieldToCompare : fieldsToCompare) {
+            String fieldName = fieldToCompare.getFieldName();
+            Object actualFieldValue = getFieldValue(actualResult, fieldName);
+            Object expectedFieldValue = getFieldValue(expectedResult, fieldName);
             
             TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue, expectedFieldValue);
             boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
+            
+            fieldToCompare.setActualValue(actualFieldValue);
+            fieldToCompare.setExpectedValue(expectedFieldValue);
+            
             if (!compare) {
-                failedFields.add(fieldToCompare);
+                fieldToCompare.setStatus(TestStatus.TR_NEQ);
+                success = false;
+            } else {
+                fieldToCompare.setStatus(TestStatus.TR_OK);
             }
         }
-        return failedFields.isEmpty();
+        return success;
     }
     
     private Object getFieldValue(Object target, String fieldName) {
@@ -43,7 +60,8 @@ public class BeanResultComparator implements TestResultComparator {
             method = targetClass.getMethod(StringTool.getGetterName(fieldName), new Class<?>[0]);
             res = method.invoke(target, new Object[0]);
         } catch (Exception e1) {
-            // TODO: log error
+            String message = String.format("Cannot get value for field %s", fieldName);
+            throw new OpenlNotCheckedException(message, e1);
         }
         return res;
     }

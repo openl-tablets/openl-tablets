@@ -2,18 +2,49 @@ package org.openl.rules.testmethod;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.result.TestResultComparator;
 
 public class TestUnitResultComparator {
     
-    public static final int TR_EXCEPTION = 2;
-    public static final int TR_NEQ = 1;
-    public static final int TR_OK = 0;
+    public static enum TestStatus {
+        TR_EXCEPTION(2),
+        TR_NEQ(1),
+        TR_OK(0);
+        
+        private int status;
+        
+        private TestStatus(int status) {
+            this.status = status;
+        }
+        
+       public int getStatus() {
+           return status;
+       }
+       
+       public TestStatus getConstant(int status) {
+            switch (status) {
+                case 0:
+                    return TR_OK;
+                case 1:
+                    return TR_NEQ;
+                case 2:
+                    return TR_EXCEPTION;
+                default:
+                    throw new OpenlNotCheckedException(String.format("Cant get the constant for compare result for status %d",
+                        status));
+            }
+       }
+    }
     
     private TestResultComparator resultComparator;
     
     public TestUnitResultComparator(TestResultComparator resultComparator) {
         this.resultComparator = resultComparator;
+    }
+    
+    public TestResultComparator getComparator() {
+        return resultComparator;
     }
     
     /**
@@ -30,10 +61,10 @@ public class TestUnitResultComparator {
         }
         
         if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult())) {
-            return TR_OK;
+            return TestStatus.TR_OK.getStatus();
         }
         
-        return TR_NEQ;
+        return TestStatus.TR_NEQ.getStatus();
         
     }
     
@@ -58,7 +89,7 @@ public class TestUnitResultComparator {
             Object expectedResult = testUnit.getExpectedResult();
             if (expectedResult != null
                     && !(expectedResult instanceof String)) {
-                return TR_NEQ;
+                return TestStatus.TR_NEQ.getStatus();
             }
             String expectedMessage = (String) expectedResult;
 
@@ -72,12 +103,12 @@ public class TestUnitResultComparator {
             }
             
             if (compareResult(actualMessage, expectedMessage)) {
-                return TR_OK;
+                return TestStatus.TR_OK.getStatus();
             } else {
-                return TR_NEQ;
+                return TestStatus.TR_NEQ.getStatus();
             }
         }
 
-        return TR_EXCEPTION;
+        return TestStatus.TR_EXCEPTION.getStatus();
     }
 }
