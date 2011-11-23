@@ -18,6 +18,10 @@ public class RegexpValueConstraint extends AbstractConstraint {
         regexp = getRegexPattern(value);
     }
 
+    public String getRegexp() {
+        return regexp;
+    }
+
     public static String getRegexPattern(String value) {
         Pattern p = Pattern.compile(CONSTRAINT_MATCH);
         Matcher m = p.matcher(value);

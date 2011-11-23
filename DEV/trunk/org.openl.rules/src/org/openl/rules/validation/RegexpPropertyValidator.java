@@ -2,10 +2,11 @@ package org.openl.rules.validation;
 
 import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
@@ -31,7 +32,8 @@ public class RegexpPropertyValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
+            if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && tsn.getTableProperties()
+                .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     if (validationResult == null) {

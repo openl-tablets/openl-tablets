@@ -55,4 +55,8 @@ public class TablePropertyValidatorsWrapper {
     public String getPropertyConstraints() {
         return tablePropertyDefinition.getConstraints().getConstraintsStr();
     }
+
+    public String getPropertyConstraints(Class<?> validatorClass) {
+        return tablePropertyDefinition.getConstraints().get(validatorClasses.indexOf(validatorClass)).getValue();
+    }
 }

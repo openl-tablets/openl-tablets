@@ -80,6 +80,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     // <<< INSERT >>>
+	public java.lang.String getId() {
+		return (java.lang.String) getPropertyValue("id"); 
+	}
+	public void setId(java.lang.String id) {
+		setFieldValue("id", id);
+	}	
 	public java.lang.String getName() {
 		return (java.lang.String) getPropertyValue("name"); 
 	}

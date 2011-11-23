@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.binding;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -12,7 +13,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
@@ -69,6 +72,54 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             OpenLMessagesUtils.addError(error);
         }
         getTableSyntaxNode().setMember(method);
+        if(hasServiceName()){
+            addServiceMethod(openClass, method);
+        }
+    }
+    
+    /**
+     * Is method has an "id" property that will be used to generate additional
+     * method with name specified in property sutable for direct call of rule
+     * avoiding the method dispatching mechanism.
+     * 
+     * @return <code>true</code> if "id" property is specified.
+     */
+    protected boolean hasServiceName(){
+        return StringUtils.isNotBlank(getTableSyntaxNode().getTableProperties().getId());
+    }
+    
+    protected IOpenMethod getServiceMethod(IOpenMethod originalMethod){
+        final String serviceMethodName = getTableSyntaxNode().getTableProperties().getId();
+        IOpenMethod serviceMethod = new MethodDelegator(originalMethod){
+            @Override
+            public String getName() {
+                return serviceMethodName;
+            }
+            
+            @Override
+            public String getDisplayName(int mode) {
+                return serviceMethodName;
+            }
+        };
+        return serviceMethod;
+    }
+
+    /**
+     * Add auxiliary method with name specified in property "id" for direct call
+     * for this rule.
+     * 
+     * @param openClass Module open class
+     * @param originalMethod original method
+     */
+    protected void addServiceMethod(ModuleOpenClass openClass, IOpenMethod originalMethod){
+        try{
+            openClass.addMethod(getServiceMethod(originalMethod));
+        }catch (DuplicatedMethodException e) {
+            SyntaxNodeException error = new SyntaxNodeException(null, e, getTableSyntaxNode());
+            getTableSyntaxNode().addError(error);
+            OpenLMessagesUtils.addError(error);
+        }
+        
     }
 
     protected abstract ExecutableRulesMethod createMethodShell();
