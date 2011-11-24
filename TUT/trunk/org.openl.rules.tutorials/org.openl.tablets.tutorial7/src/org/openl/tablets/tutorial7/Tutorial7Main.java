@@ -8,6 +8,7 @@ import static java.lang.System.out;
 
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitResultComparator;
+import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 
 /**
@@ -72,7 +73,7 @@ public class Tutorial7Main {
         int i = 1;
         for (TestUnit testUnit : testResult.getTestUnits()) {          
             out.printf(String.format("Test #%s ", i));
-            if (testUnit.compareResult() == TestUnitResultComparator.TR_OK) {
+            if (testUnit.compareResult() == TestStatus.TR_OK.getStatus()) {
                 out.printf("OK, %s\n", testUnit.getActualResult());
             } else {
                 out.printf("FAILED! Expect <%s> but get <%s>!\n", testUnit.getExpectedResult(), testUnit.getActualResult());
