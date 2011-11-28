@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -28,9 +29,9 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     private IOpenClass originalReturnType;
     
     /**
-     * Table name of the member of overloaded tables group.
+     * Table names of the auxiliary methods for each method on overloaded tables group.
      */
-    private String originalTableName;
+    private List<String> auxiliaryMethodNames;
     
     /**
      * Signature of the member of overloaded tables group.
@@ -48,18 +49,26 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     protected DispatcherTableReturnColumn () {        
     }
     
-    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, String originalTableName, 
+    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, List<String> auxiliaryMethodNames, 
             IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
         this.originalReturnType = originalReturnType;
-        this.originalTableName = originalTableName;
+        this.auxiliaryMethodNames = auxiliaryMethodNames;
         this.originalSignature = originalSignature;
         this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);    
     }
     
-    public DispatcherTableReturnColumn(ExecutableRulesMethod originalMethod, 
+    public DispatcherTableReturnColumn(List<ExecutableRulesMethod> groupedMethods, 
             Map<String, IOpenClass> newIncomeParams) {        
-        this(originalMethod.getHeader().getType(), originalMethod.getHeader().getName(), 
-            originalMethod.getHeader().getSignature(), newIncomeParams);        
+        this(groupedMethods.get(0).getHeader().getType(), getAuxiliaryMethodNames(groupedMethods), 
+            groupedMethods.get(0).getSignature(), newIncomeParams);        
+    }
+    
+    private static List<String> getAuxiliaryMethodNames(List<ExecutableRulesMethod> groupedMethods){
+        List<String> methodNames = new ArrayList<String>(groupedMethods.size());
+        for(ExecutableRulesMethod method : groupedMethods){
+            methodNames.add(method.getName());
+        }
+        return methodNames;
     }
 
     public void setOriginalReturnType(IOpenClass originalReturnType) {
@@ -87,7 +96,9 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     }
     
     public String getRuleValue(int ruleIndex, int elementNum) {        
-        return String.format("=%s(%s)", originalTableName, originalParamsThroughComma());
+        return String.format("=%s(%s)",
+            auxiliaryMethodNames.get(ruleIndex) + XlsModuleOpenClass.AUXILIARY_METHOD_DELIMETER + ruleIndex,
+            originalParamsThroughComma());
     }
 
     public IOpenClass getReturnType() {

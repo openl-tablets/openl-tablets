@@ -19,6 +19,7 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 
 /**
@@ -93,16 +94,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			if (existedMethod instanceof OpenMethodDispatcher) {
 				OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
 				decorator.addMethod(method);
+				generateAuxiliaryMethod(method, decorator.getCandidates().size()-1);
 			} else {
 				
 				// Create decorator for existed method.
 				//
 				OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
 				
+                generateAuxiliaryMethod(existedMethod, 0);
 				// Add new method to decorator as candidate.
 				//
 				decorator.addMethod(method);
 				
+                generateAuxiliaryMethod(method, decorator.getCandidates().size()-1);
 				// Replace existed method with decorator using the same key.
 				//
 				methodMap().put(key, decorator);
@@ -115,7 +119,29 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 		}
 	}
 	
-	@Override
+    public static final String AUXILIARY_METHOD_DELIMETER = "$";
+
+    /**
+     * Adds an auxiliary method for all overloaded methods. Such method can be
+     * used internally and has name: <original method name>+prefix:&<index of
+     * method in overloaded methods group>
+     * 
+     * @param originalMethod Method in overloaded group.
+     * @param index Index in overloaded methods group(according to the sequence
+     *            of binding).
+     */
+    private void generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
+        final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
+        IOpenMethod auxiliaryMethod = new MethodDelegator(originalMethod) {
+            @Override
+            public String getName() {
+                return auxiliaryMethodName;
+            }
+        };
+        addMethod(auxiliaryMethod);
+    }
+
+    @Override
 	public void clearOddDataForExecutionMode() {
 	    super.clearOddDataForExecutionMode();
 	    dataBase = null;
