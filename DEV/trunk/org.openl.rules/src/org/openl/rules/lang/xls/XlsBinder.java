@@ -317,6 +317,7 @@ public class XlsBinder implements IOpenBinder {
             DispatcherTablesBuilder dispTableBuilder = 
                 new DispatcherTablesBuilder(openl, (XlsModuleOpenClass) topNode.getType(), moduleContext);
             dispTableBuilder.build();
+            //TODO build dispatcher table even in execution mode
         }
 
         return topNode;

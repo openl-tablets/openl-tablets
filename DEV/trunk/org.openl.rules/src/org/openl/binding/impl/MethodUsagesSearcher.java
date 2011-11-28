@@ -10,6 +10,7 @@ import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
@@ -61,6 +62,8 @@ public class MethodUsagesSearcher {
                     return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
                 } else if (method instanceof MatchingOpenMethodDispatcher) {
                     return ((MatchingOpenMethodDispatcher) method).getDispatcherTable().getUri();
+                } else if (method.getInfo() != null) {
+                    return method.getInfo().getSourceUrl();
                 } else {
                     return null;
                 }
@@ -101,10 +104,15 @@ public class MethodUsagesSearcher {
             ILocation location = methodBoundNode.getSyntaxNode().getSourceLocation();
             IMethodCaller methodCaller = methodBoundNode.getMethodCaller();
             if (methodCaller != null) {
-                IOpenMethod method = methodCaller.getMethod();
+                IOpenMethod method;
+                if(methodCaller instanceof IOpenMethod){
+                    method= (IOpenMethod)methodCaller;
+                }else{
+                    method= methodCaller.getMethod();
+                }
                 int pstart = 0;
                 int pend = 0;
-                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher)
+                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator)
                         && location != null && location.isTextLocation()) {
                     TextInfo info = new TextInfo(sourceString);
                     pstart = location.getStart().getAbsolutePosition(info) + startIndex;

@@ -11,8 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
@@ -22,13 +20,11 @@ import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.dt.element.IAction;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
@@ -107,7 +103,6 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @param methodsGroup group of overloaded tables.
      */
     public TableSyntaxNode build() {
-        
         XlsSheetGridModel sheetGridModel = (XlsSheetGridModel) initSheetGridModel();
         
         // build TableSyntaxNode
@@ -118,34 +113,10 @@ public class TableSyntaxNodeDispatcherBuilder {
         DecisionTable decisionTable = initDTOpenlBuilder().build(tsn, openl, moduleOpenClass);
         
         loadCreatedTable(decisionTable, tsn);
-        addCellMetaInfo(decisionTable, tsn);
         
         return tsn;
     }
     
-    /**
-     * Sets meta info into cells with correct links to overloaded methods.
-     * 
-     * @param decisionTable generated {@link DecisionTable} of the dispatcher
-     *            table.
-     * @param tsn generated {@link TableSyntaxNode} of the dispatcher table.
-     */
-    private void addCellMetaInfo(DecisionTable decisionTable, TableSyntaxNode tsn){
-        IAction action = decisionTable.getActionRows()[0];
-        for (int i = 0; i < methodsGroup.size(); i++) {
-            ILogicalTable valueCell = action.getValueCell(i);
-            List<MethodUsage> usedMethods = new ArrayList<MethodUsage>();
-            ExecutableRulesMethod executableRulesMethod = methodsGroup.get(i);
-            usedMethods.add(new MethodUsage(1, executableRulesMethod.getMethod().getName().length(),
-                    executableRulesMethod));
-            if (valueCell.getSource().getCell(0, 0).getMetaInfo() != null) {
-                valueCell.getSource().getCell(0, 0).getMetaInfo().setUsedMethods(usedMethods);
-            } else {
-                RuleRowHelper.setCellMetaInfo(valueCell, null, getMethodReturnType(), false, usedMethods);
-            }
-        }
-    }
-
     private IWritableGrid initSheetGridModel() {
         // properties values from methods in group that will be used 
         // to build dispatcher table by dimensional properties.
@@ -214,7 +185,7 @@ public class TableSyntaxNodeDispatcherBuilder {
     }
 
     private DispatcherTableReturnColumn getReturnColumn() {         
-        return new DispatcherTableReturnColumn(getMember(), incomeParams);        
+        return new DispatcherTableReturnColumn(methodsGroup, incomeParams);        
     }
     
     /**
