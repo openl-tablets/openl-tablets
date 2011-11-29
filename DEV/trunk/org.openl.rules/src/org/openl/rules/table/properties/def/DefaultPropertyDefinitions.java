@@ -23,7 +23,7 @@ public class DefaultPropertyDefinitions
 		definitions[0].setDescription("Unique service name of the table, that can be used for direct call of rule");
 		definitions[0].setDimensional(false);
 		definitions[0].setDisplayName("ID");
-		definitions[0].setGroup("Info");
+		definitions[0].setGroup("Dev");
 		definitions[0].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[0].setName("id");
 		definitions[0].setPrimaryKey(false);
