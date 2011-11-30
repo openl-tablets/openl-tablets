@@ -554,7 +554,7 @@ public class HTMLRenderer {
                     .description(description).system(system).inheritanceLevel(inheritanceLevel).build();
                     listProp.add(prop);
                 }
-                
+
             }
             return listProp;
         }
@@ -687,7 +687,7 @@ public class HTMLRenderer {
             if ("edit".equals(mode)) {
                 boolean showTooltip = StringUtils.isNotBlank(prop.getDescription());
                 final String propId = getPropId(prop);
-                if (prop.isSystem() || !prop.canBeOverridenInTable() || "version".equalsIgnoreCase(prop.getName())) {
+                if (prop.isSystem() || !prop.isCanBeOverridenInTable() || "version".equalsIgnoreCase(prop.getName())) {
                     insertText(prop, propId, showTooltip);
                 } else {
                     insertInput(prop, propId, showTooltip);

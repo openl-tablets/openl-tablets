@@ -28,6 +28,7 @@ public class TableProperty {
     private boolean system;
     private boolean dimensional;
     private InheritanceLevel inheritanceLevel;
+    private String inheritedTableUri;
 
     private TableProperty(TablePropertyBuilder builder) {
         this.name = builder.name;
@@ -41,6 +42,7 @@ public class TableProperty {
         this.system = builder.system;
         this.dimensional = builder.dimensional;
         this.inheritanceLevel = builder.inheritanceLevel;
+        this.inheritedTableUri = builder.inheritedTableUri;
     }
 
     public String getFormat() {
@@ -64,7 +66,7 @@ public class TableProperty {
      * @return <code>TRUE</code> if property value can be overriden on TABLE
      *         level.
      */
-    public boolean canBeOverridenInTable() {
+    public boolean isCanBeOverridenInTable() {
         boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);        
         return result;
     }
@@ -75,6 +77,10 @@ public class TableProperty {
 
     public boolean isCategoryLevelProperty() {
         return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
+    }
+
+    public boolean isInheritedProperty() {
+        return isModuleLevelProperty() || isCategoryLevelProperty();
     }
 
     public String getDisplayName() {
@@ -143,8 +149,8 @@ public class TableProperty {
      */
     public void setValue(Object value) {         
         if (value instanceof String) {
-            String valueStr = (String)value;
-            if (StringUtils.isNotEmpty(valueStr)) {
+            String valueStr = (String) value;
+            if (StringUtils.isNotBlank(valueStr)) {
                 value = FormattersManager.getFormatter(type, getFormat()).parse(valueStr);
             } else {
                 value = null;
@@ -234,6 +240,14 @@ public class TableProperty {
         this.inheritanceLevel = inheritanceLevel;
     }
 
+    public String getInheritedTableUri() {
+		return inheritedTableUri;
+	}
+
+    public void setInheritedTableUri(String inheritedTableUri) {
+		this.inheritedTableUri = inheritedTableUri;
+	}
+
     /**
      * Builder for TableProperties
      * 
@@ -255,6 +269,7 @@ public class TableProperty {
         private boolean system;
         private boolean dimensional;
         private InheritanceLevel inheritanceLevel;
+        private String inheritedTableUri;
 
         public TablePropertyBuilder(String name, Class<?> type) {
             this.name = name;
@@ -303,6 +318,11 @@ public class TableProperty {
 
         public TablePropertyBuilder inheritanceLevel(InheritanceLevel val) {
             inheritanceLevel = val;
+            return this;
+        }
+
+        public TablePropertyBuilder inheritedTableUri(String val) {
+            inheritedTableUri = val;
             return this;
         }
 

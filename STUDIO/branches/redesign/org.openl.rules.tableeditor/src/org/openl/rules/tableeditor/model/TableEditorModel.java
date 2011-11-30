@@ -33,6 +33,9 @@ import org.openl.rules.table.actions.style.font.SetBoldAction;
 import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.rules.table.actions.style.font.SetColorAction;
+import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.util.formatters.IFormatter;
@@ -196,7 +199,7 @@ public class TableEditorModel {
         setCellValue(row, col, value, null);
     }
 
-    public synchronized void setProperty(String name, String value) throws Exception {
+    public synchronized void setProperty(String name, Object value) throws Exception {
         List<IUndoableGridTableAction> createdActions = new ArrayList<IUndoableGridTableAction>();
         int nRowsToInsert = 0;
         int nColsToInsert = 0;
@@ -207,7 +210,7 @@ public class TableEditorModel {
         CellKey propertyCoordinates = IWritableGrid.Tool.getPropertyCoordinates(fullTableRegion, gridTable, name);
 
         boolean propExists = propertyCoordinates != null;
-        boolean propIsBlank = StringUtils.isBlank(value);
+        boolean propIsBlank = value == null;
 
         if (!propIsBlank && !propExists) {
             int tableWidth = fullTable.getWidth();
@@ -242,6 +245,28 @@ public class TableEditorModel {
         if (!createdActions.isEmpty()) {
             actions.addNewAction(new UndoableCompositeAction(createdActions));
         }
+    }
+
+    public synchronized void setProperty(String name, String value) throws Exception {
+        Object objectValue = null;
+        if (StringUtils.isNotBlank(value)) {
+            IFormatter formatter = getPropertyFormatter(name);
+            objectValue = IWritableGrid.Tool.parseStringValue(formatter, value);
+        }
+        setProperty(name, objectValue);
+    }
+
+    private IFormatter getPropertyFormatter(String propertyName) {
+        IFormatter result = null;
+        TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
+                .getPropertyByName(propertyName);
+
+        if (tablePropeprtyDefinition != null) {
+            Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
+            result = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
+        }
+
+        return result;
     }
 
     public synchronized void setAlignment(int row, int col, int alignment) {

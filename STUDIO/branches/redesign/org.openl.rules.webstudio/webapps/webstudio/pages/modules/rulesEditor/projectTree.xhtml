@@ -43,7 +43,7 @@
             #projects ul {
                 list-style: none;
                 margin: 0;
-                padding: 2px;
+                padding-left: 2px;
             }
             #projects a {
                 color: #111111;
@@ -56,14 +56,18 @@
                 background: #EAF0F8;
                 font-weight: bold;
             }
+            #projects .projectName {
+                color: #1199EE;
+                font-size: 110%;
+            }
         </style>
 
         <h:form prependId="false">
             <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
                 <ul>
                     <a4j:repeat value="#{studio.allProjects}" var="project">
-                    <li style="margin-bottom: 4px">
-                        <a style="color: #337AB6" href="#">#{project.name}</a>
+                    <li style="margin-bottom: 5px">
+                        <a class="projectName" href="#">#{project.name}</a>
                         <ul style="margin-left: 9px">
                             <a4j:repeat value="#{project.modules}" var="module">
                             <li>

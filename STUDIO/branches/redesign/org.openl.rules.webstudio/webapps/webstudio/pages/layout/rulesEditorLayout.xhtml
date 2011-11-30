@@ -36,17 +36,21 @@
 
             $j(window).bind("hashchange", hashchange);
 
+            var mainLayout;
             $j(document).ready(function () {
                 $j('body').layout({
                     closable: false,
                     resizable: false,
                     spacing_open: 1
                 });
-                $j('#center').layout({
-                    useStateCookie: true,
+                mainLayout = $j('#center').layout({
+                    //useStateCookie: true,
                     north__resizable: false,
                     spacing_open: 3,
-                    north__spacing_open: 1
+                    north__spacing_open: 1,
+                    west__size: 230,
+                    east__size: 230,
+                    east__initHidden: true
                 });
                 $j('#center .ui-layout-center').layout({
                     spacing_open: 3
@@ -77,6 +81,15 @@
                         page = urlRewrite.prefix + page;
                     }
                     $j("#content").load(page);
+
+                    if (page.indexOf("showTable.xhtml") > -1) {
+                        mainLayout.show("east");
+                        $j("#tableProperties").load(
+                                urlRewrite.prefix + "tableProperties.xhtml?"
+                                + page.split("?")[1]);
+                    } else {
+                        mainLayout.hide("east");
+                    }
                 }
             }
 
@@ -126,6 +139,11 @@
                         <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
                     </ui:insert>
                 </div>
+            </div>
+            <div id="right" class="ui-layout-east">
+                <ui:insert name="right">
+                    <ui:include src="/pages/modules/rulesEditor/rightPanel.xhtml" />
+                </ui:insert>
             </div>
         </div>
         <div id="footer" class="ui-layout-south">

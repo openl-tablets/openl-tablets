@@ -412,8 +412,8 @@ public class ProjectModel {
         return indexer;
     }
 
-    public IOpenMethod getMethod(String elementUri) {
-        TableSyntaxNode tsn = getNode(elementUri);
+    public IOpenMethod getMethod(String tableUri) {
+        TableSyntaxNode tsn = getNode(tableUri);
         if (tsn == null) {
             return null;
         }
@@ -527,15 +527,15 @@ public class ProjectModel {
         return (metaInfo != null && metaInfo.getSyntaxNode() == syntaxNode);
     }
 
-    public TableSyntaxNode getNode(String elementUri) {
+    public TableSyntaxNode getNode(String tableUri) {
         TableSyntaxNode tsn = null;
-        if (elementUri != null) {
-            ProjectTreeNode pte = getTreeNodeByUri(elementUri);
+        if (tableUri != null) {
+            ProjectTreeNode pte = getTreeNodeByUri(tableUri);
             if (pte != null) {
                 tsn = (TableSyntaxNode) pte.getObject();
             }
             if (tsn == null) {
-                tsn = findNode(elementUri);
+                tsn = findNode(tableUri);
             }
         }
         return tsn;
@@ -598,16 +598,16 @@ public class ProjectModel {
         return studio;
     }
 
-    public IOpenLTable getTable(String elementUri) {
-        TableSyntaxNode tsn = getNode(elementUri);
+    public IOpenLTable getTable(String tableUri) {
+        TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
         return null;
     }
 
-    public IGridTable getGridTable(String elementUri) {
-        TableSyntaxNode tsn = getNode(elementUri);
+    public IGridTable getGridTable(String tableUri) {
+        TableSyntaxNode tsn = getNode(tableUri);
         return tsn == null ? null : tsn.getGridTable();
     }
 
@@ -618,11 +618,11 @@ public class ProjectModel {
     /**
      * Gets test methods for method by uri.
      * 
-     * @param elementUri
+     * @param tableUri
      * @return test methods
      */
-    public IOpenMethod[] getTestMethods(String elementUri) {
-        IOpenMethod method = getMethod(elementUri);
+    public IOpenMethod[] getTestMethods(String tableUri) {
+        IOpenMethod method = getMethod(tableUri);
         if (method != null) {
             return ProjectHelper.testers(method);
         }
@@ -632,12 +632,12 @@ public class ProjectModel {
     /**
      * Gets all test methods for method by uri.
      * 
-     * @param elementUri
+     * @param tableUri
      * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
      * runs without any parameters and tests without cases and runs.
      */
-    public IOpenMethod[] getTestAndRunMethods(String elementUri) {
-        IOpenMethod method = getMethod(elementUri);
+    public IOpenMethod[] getTestAndRunMethods(String tableUri) {
+        IOpenMethod method = getMethod(tableUri);
         if (method != null) {
             return ProjectHelper.allTesters(method);
         }
@@ -720,16 +720,16 @@ public class ProjectModel {
         return compiledOpenClass != null;
     }
 
-    public boolean isMethodHasParams(String elementUri) {
-        IOpenMethod m = getMethod(elementUri);
+    public boolean isMethodHasParams(String tableUri) {
+        IOpenMethod m = getMethod(tableUri);
         if (m == null) {
             return false;
         }
         return ProjectHelper.isMethodHasParams(m);
     }
 
-    public boolean isTestable(String elementUri) {
-        IOpenMethod m = getMethod(elementUri);
+    public boolean isTestable(String tableUri) {
+        IOpenMethod m = getMethod(tableUri);
         if (m == null) {
             return false;
         }
@@ -1049,6 +1049,10 @@ public class ProjectModel {
 
     public TableEditorModel getTableEditorModel(String tableUri) {
         IOpenLTable table = getTable(tableUri);
+        return getTableEditorModel(table);
+    }
+
+    public TableEditorModel getTableEditorModel(IOpenLTable table) {
         String tableView = getTableView(null);
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;

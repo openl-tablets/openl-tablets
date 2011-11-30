@@ -140,8 +140,8 @@ public class TablePropertyDefinitionUtils {
      */
     public static List<TablePropertyDefinition> getSystemProperties() {	    
         List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-            for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-                if(propDefinition.isSystem()){	                
+            for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
+                if (propDefinition.isSystem()){	                
                     result.add(propDefinition);
                 }
             }
