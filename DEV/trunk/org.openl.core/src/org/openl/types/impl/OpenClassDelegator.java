@@ -203,11 +203,6 @@ public class OpenClassDelegator implements IOpenClass {
     public List<IOpenMethod> getDeclaredMethods() {
         return baseClass.getMethods();
     }
-    
-    @Override
-    public boolean isVoid() {
-        return false;
-    }
 
     @Override
     public int hashCode() {

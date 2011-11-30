@@ -204,10 +204,4 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
 	 */
 	Map<String, IOpenClass> getTypes();
 	
-	/**
-	 * Determine if the class is of type void
-	 * 
-	 * @return true if type is void
-	 */
-	boolean isVoid();
 }

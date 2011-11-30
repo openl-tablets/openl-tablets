@@ -8,6 +8,7 @@ import java.util.List;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author User
@@ -27,7 +28,7 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
 
         String returnValue = "";
         IOpenClass returnType = method.getType();
-        if (!returnType.isVoid()) {
+        if (!JavaOpenClass.isVoid(returnType)) {
             returnValue = String.format("%s = %s", returnType.getDisplayName(mode), getResult() != null ? getResult().toString()
                     : "null");
         }

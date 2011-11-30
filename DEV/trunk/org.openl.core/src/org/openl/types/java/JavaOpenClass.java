@@ -225,7 +225,11 @@ public class JavaOpenClass extends AOpenClass {
 
             // System.out.println("Removing " + printClass(c));
         }
-    }    
+    }   
+    
+    public static boolean isVoid(IOpenClass clazz) {
+        return JavaOpenClass.VOID.equals(clazz);
+    }
 
     protected void collectBeanFields() {
         BeanOpenField.collectFields(fields, instanceClass, null, null);
@@ -409,11 +413,6 @@ public class JavaOpenClass extends AOpenClass {
             return AOpenIterator.merge(AOpenIterator.single((IOpenClass) JavaOpenClass.getOpenClass(superClass)),
                     interfaces);
         }
-    }
-    
-    @Override
-    public boolean isVoid() {        
-        return void.class.equals(getInstanceClass());
     }
     
     @SuppressWarnings("unchecked")

@@ -215,9 +215,4 @@ public class NullOpenClass implements IOpenClass {
         // Default implementation
         return null;
     }
-    
-    @Override
-    public boolean isVoid() {        
-        return false;
-    }
 }
