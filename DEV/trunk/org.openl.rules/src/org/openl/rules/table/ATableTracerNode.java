@@ -7,6 +7,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.formatters.IFormatter;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
@@ -81,7 +82,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     protected boolean isVoid(IOpenMethod method) {
-        return (method.getType().isVoid());        
+        return (JavaOpenClass.isVoid(method.getType()));        
     }
 
     public TableSyntaxNode getTableSyntaxNode() {

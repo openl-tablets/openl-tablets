@@ -9,6 +9,7 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.IGridRegion;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * Leaf trace object that represented by one calculation of spreadsheet cell
@@ -59,7 +60,7 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
         
-        if (!spreadsheetCell.getType().isVoid()) {
+        if (!JavaOpenClass.isVoid(spreadsheetCell.getType())) {
             /** write result for all cells, excluding void type*/
             buf.append(" = ").append(getStringResult());
         }
