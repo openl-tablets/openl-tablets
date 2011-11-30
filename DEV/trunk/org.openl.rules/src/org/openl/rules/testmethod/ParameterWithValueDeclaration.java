@@ -5,21 +5,15 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
-/**
- * TODO: rename change name to ParameterWithValueDeclaration
- * @author DLiauchuk
- *
- */
-public class ExecutionParamDescription extends ParameterDeclaration {
+public class ParameterWithValueDeclaration extends ParameterDeclaration {
     private Object value;
     
-    
-    public ExecutionParamDescription(String paramName, Object value, IOpenClass parameterType, int direction) {
+    public ParameterWithValueDeclaration(String paramName, Object value, IOpenClass parameterType, int direction) {
         super(parameterType, paramName, direction);
         this.value = value;
     }
     
-    public ExecutionParamDescription(String paramName, Object value, int direction) {        
+    public ParameterWithValueDeclaration(String paramName, Object value, int direction) {        
         super(getParamType(value), paramName, direction);
         this.value = value;
     }

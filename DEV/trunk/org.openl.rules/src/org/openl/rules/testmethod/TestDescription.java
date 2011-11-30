@@ -11,7 +11,7 @@ import org.openl.util.formatters.IFormatter;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestDescription {
-    private ExecutionParamDescription[] executionParams;
+    private ParameterWithValueDeclaration[] executionParams;
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
 
@@ -86,7 +86,7 @@ public class TestDescription {
         return testObject;
     }
 
-    public ExecutionParamDescription[] getExecutionParams() {
+    public ParameterWithValueDeclaration[] getExecutionParams() {
         return executionParams;
     }
 
@@ -98,13 +98,13 @@ public class TestDescription {
         return args;
     }
 
-    protected ExecutionParamDescription[] initExecutionParams() {
-        ExecutionParamDescription[] executionParams = new ExecutionParamDescription[testedMethod.getSignature()
+    protected ParameterWithValueDeclaration[] initExecutionParams() {
+        ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
             .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
-            executionParams[i] = new ExecutionParamDescription(paramName, paramValue, IParameterDeclaration.IN);
+            executionParams[i] = new ParameterWithValueDeclaration(paramName, paramValue, IParameterDeclaration.IN);
         }
         return executionParams;
     }
