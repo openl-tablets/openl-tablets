@@ -4,20 +4,20 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import org.openl.base.INameSpacedThing;
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class ComplexFieldNode extends FieldDescriptionTreeNode {
+public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COMPLEX_TYPE = "complex";
 
-    public ComplexFieldNode(String fieldName, Object value, IOpenClass fieldType, FieldDescriptionTreeNode parent) {
+    public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
-    public ComplexFieldNode(ExecutionParamDescription paramDescription, FieldDescriptionTreeNode parent) {
+    public ComplexParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
         super(paramDescription, parent);
     }
 
@@ -32,11 +32,11 @@ public class ComplexFieldNode extends FieldDescriptionTreeNode {
     }
 
     @Override
-    protected LinkedHashMap<Object, FieldDescriptionTreeNode> initChildernMap() {
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap() {
         if (isValueNull()) {
-            return new LinkedHashMap<Object, FieldDescriptionTreeNode>();
+            return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
         } else {
-            LinkedHashMap<Object, FieldDescriptionTreeNode> fields = new LinkedHashMap<Object, FieldDescriptionTreeNode>();
+            LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
@@ -55,7 +55,7 @@ public class ComplexFieldNode extends FieldDescriptionTreeNode {
         Object value = getValue();
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        for (Entry<Object, FieldDescriptionTreeNode> fieldEntry : getChildernMap().entrySet()) {
+        for (Entry<Object, ParameterDeclarationTreeNode> fieldEntry : getChildernMap().entrySet()) {
             String fieldName = (String) fieldEntry.getKey();
             IOpenField field = getType().getField(fieldName);
             field.set(value, fieldEntry.getValue().getValueForced(), env);

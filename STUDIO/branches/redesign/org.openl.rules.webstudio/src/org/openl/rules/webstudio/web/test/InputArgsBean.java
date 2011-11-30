@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.ProjectModel;
@@ -26,8 +26,8 @@ import org.richfaces.model.TreeNodeImpl;
 public class InputArgsBean {
     private String uri;
     private UITree currentTreeNode;
-    private ExecutionParamDescription[] arguments;
-    private FieldDescriptionTreeNode[] argumentTreeNodes;
+    private ParameterWithValueDeclaration[] arguments;
+    private ParameterDeclarationTreeNode[] argumentTreeNodes;
 
     public String getUri() {
         return uri;
@@ -54,8 +54,8 @@ public class InputArgsBean {
         return projectModel.getMethod(uri);
     }
 
-    public FieldDescriptionTreeNode getCurrentNode() {
-        return (FieldDescriptionTreeNode) currentTreeNode.getRowData();
+    public ParameterDeclarationTreeNode getCurrentNode() {
+        return (ParameterDeclarationTreeNode) currentTreeNode.getRowData();
     }
 
     public void makeTestSuite() {
@@ -70,13 +70,13 @@ public class InputArgsBean {
     }
 
     public void initObject() {
-        FieldDescriptionTreeNode currentnode = getCurrentNode();
+        ParameterDeclarationTreeNode currentnode = getCurrentNode();
         IOpenClass fieldType = currentnode.getType();
         currentnode.setValueForced(fieldType.newInstance(new SimpleVM().getRuntimeEnv()));
     }
 
     public void initCollection() {
-        FieldDescriptionTreeNode currentnode = getCurrentNode();
+        ParameterDeclarationTreeNode currentnode = getCurrentNode();
         IOpenClass fieldType = currentnode.getType();
 
         IAggregateInfo info = fieldType.getAggregateInfo();
@@ -87,13 +87,13 @@ public class InputArgsBean {
     }
 
     public void disposeObject() {
-        FieldDescriptionTreeNode currentnode = getCurrentNode();
+        ParameterDeclarationTreeNode currentnode = getCurrentNode();
         currentnode.setValueForced(null);
     }
 
     public void deleteFromCollection() {
-        FieldDescriptionTreeNode currentNode = getCurrentNode();
-        FieldDescriptionTreeNode parentNode = currentNode.getParent();
+        ParameterDeclarationTreeNode currentNode = getCurrentNode();
+        ParameterDeclarationTreeNode parentNode = currentNode.getParent();
         IOpenClass arrayType = parentNode.getType();
 
         IAggregateInfo info = arrayType.getAggregateInfo();
@@ -105,7 +105,7 @@ public class InputArgsBean {
         IOpenIndex index = info.getIndex(arrayType, JavaOpenClass.INT);
 
         int i = 0;
-        for (FieldDescriptionTreeNode node : parentNode.getChildren()) {
+        for (ParameterDeclarationTreeNode node : parentNode.getChildren()) {
             if (node != currentNode) {
                 index.setValue(ary, new Integer(i), node.getValue());
                 i++;
@@ -115,7 +115,7 @@ public class InputArgsBean {
     }
 
     public void addToCollection() {
-        FieldDescriptionTreeNode currentnode = getCurrentNode();
+        ParameterDeclarationTreeNode currentnode = getCurrentNode();
         IOpenClass fieldType = currentnode.getType();
 
         IAggregateInfo info = fieldType.getAggregateInfo();
@@ -133,9 +133,9 @@ public class InputArgsBean {
         currentnode.setValueForced(ary);
     }
 
-    public ExecutionParamDescription[] initArguments() {
+    public ParameterWithValueDeclaration[] initArguments() {
         IOpenMethod method = getTestedMethod();
-        ExecutionParamDescription[] args = new ExecutionParamDescription[method.getSignature().getNumberOfParameters()];
+        ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature().getNumberOfParameters()];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (int i = 0; i < args.length; i++) {
             String parameterName = method.getSignature().getParameterName(i);
@@ -146,21 +146,21 @@ public class InputArgsBean {
             } catch (Exception e) {
 
             }
-            args[i] = new ExecutionParamDescription(parameterName, parameterValue, IParameterDeclaration.IN);
+            args[i] = new ParameterWithValueDeclaration(parameterName, parameterValue, IParameterDeclaration.IN);
         }
         return args;
     }
 
-    public ExecutionParamDescription[] getArguments() {
+    public ParameterWithValueDeclaration[] getArguments() {
         if (arguments == null) {
             arguments = initArguments();
         }
         return arguments;
     }
 
-    public FieldDescriptionTreeNode[] initArgumentTreeNodes() {
-        ExecutionParamDescription[] args = getArguments();
-        FieldDescriptionTreeNode[] argTreeNodes = new FieldDescriptionTreeNode[args.length];
+    public ParameterDeclarationTreeNode[] initArgumentTreeNodes() {
+        ParameterWithValueDeclaration[] args = getArguments();
+        ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
             argTreeNodes[i] = TestTreeBuilder.createNode(args[i].getType(),
                 args[i].getValue(),
@@ -170,7 +170,7 @@ public class InputArgsBean {
         return argTreeNodes;
     }
 
-    public FieldDescriptionTreeNode[] getArgumentTreeNodes() {
+    public ParameterDeclarationTreeNode[] getArgumentTreeNodes() {
         if (argumentTreeNodes == null) {
             argumentTreeNodes = initArgumentTreeNodes();
         }
@@ -188,7 +188,7 @@ public class InputArgsBean {
     }
 
     public TreeNode getRoot() {
-        FieldDescriptionTreeNode parameter = (FieldDescriptionTreeNode) currentArgTreeNode.getRowData();
+        ParameterDeclarationTreeNode parameter = (ParameterDeclarationTreeNode) currentArgTreeNode.getRowData();
         TreeNodeImpl root = new TreeNodeImpl();
 
         root.addChild(parameter.getName(), parameter);

@@ -4,20 +4,20 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.openl.base.INameSpacedThing;
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 
-public class CollectionFieldNode extends FieldDescriptionTreeNode {
+public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
 
-    public CollectionFieldNode(String fieldName, Object value, IOpenClass fieldType, FieldDescriptionTreeNode parent) {
+    public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
-    public CollectionFieldNode(ExecutionParamDescription paramDescription, FieldDescriptionTreeNode parent) {
+    public CollectionParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
         super(paramDescription, parent);
     }
 
@@ -38,14 +38,14 @@ public class CollectionFieldNode extends FieldDescriptionTreeNode {
     }
 
     @Override
-    protected LinkedHashMap<Object, FieldDescriptionTreeNode> initChildernMap() {
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap() {
         if (isValueNull()) {
-            return new LinkedHashMap<Object, FieldDescriptionTreeNode>();
+            return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
         } else {
             Iterator<Object> iterator = getType().getAggregateInfo().getIterator(getValue());
             IOpenClass arrayElementType = getType().getComponentClass();
             int index = 0;
-            LinkedHashMap<Object, FieldDescriptionTreeNode> elements = new LinkedHashMap<Object, FieldDescriptionTreeNode>();
+            LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
             while (iterator.hasNext()) {
                 Object arrayElement = iterator.next();
                 elements.put(index, TestTreeBuilder.createNode(arrayElementType, arrayElement, null, this));

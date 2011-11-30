@@ -5,17 +5,17 @@ import java.util.LinkedHashMap;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 
-public class SimpleFieldNode extends FieldDescriptionTreeNode {
+public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String SIMPLE_TYPE = "simple";
 
-    public SimpleFieldNode(String fieldName, Object value, IOpenClass fieldType, FieldDescriptionTreeNode parent) {
+    public SimpleParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
-    public SimpleFieldNode(ExecutionParamDescription paramDescription, FieldDescriptionTreeNode parent) {
+    public SimpleParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
         super(paramDescription, parent);
     }
 
@@ -40,8 +40,8 @@ public class SimpleFieldNode extends FieldDescriptionTreeNode {
     }
 
     @Override
-    protected LinkedHashMap<Object, FieldDescriptionTreeNode> initChildernMap() {
-        return new LinkedHashMap<Object, FieldDescriptionTreeNode>();
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap() {
+        return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
     }
 
     @Override

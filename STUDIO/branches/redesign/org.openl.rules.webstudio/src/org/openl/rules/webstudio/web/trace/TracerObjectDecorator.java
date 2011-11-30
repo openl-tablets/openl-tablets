@@ -11,7 +11,7 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.types.IParameterDeclaration;
 import org.openl.util.formatters.IFormatter;
@@ -136,7 +136,7 @@ public class TracerObjectDecorator implements ITableTracerObject {
         return null;
     }
     
-    public ExecutionParamDescription[] getInputParameters() {
+    public ParameterWithValueDeclaration[] getInputParameters() {
         if (tracerObject != null) {
             if (tracerObject instanceof ATableTracerNode) {
                 return getInputParameters((ATableTracerNode) tracerObject);
@@ -148,13 +148,13 @@ public class TracerObjectDecorator implements ITableTracerObject {
         return null;
     }
 
-    private ExecutionParamDescription[] getInputParameters(ATableTracerNode tracerNode){
+    private ParameterWithValueDeclaration[] getInputParameters(ATableTracerNode tracerNode){
         Object[] parameters = tracerNode.getParameters();
         if (tracerNode.getTraceObject() instanceof ExecutableRulesMethod) {
             ExecutableRulesMethod tracedMethod = (ExecutableRulesMethod) tracerNode.getTraceObject();
-            ExecutionParamDescription[] paramDescriptions = new ExecutionParamDescription[parameters.length];
+            ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
             for (int i = 0; i < paramDescriptions.length; i++) {
-                paramDescriptions[i] = new ExecutionParamDescription(tracedMethod.getSignature().getParameterName(i),
+                paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
                     parameters[i], IParameterDeclaration.IN);
             }
             return paramDescriptions;
@@ -181,11 +181,11 @@ public class TracerObjectDecorator implements ITableTracerObject {
         return str;
     }
 
-    public ExecutionParamDescription getReturnResult() {
-        ExecutionParamDescription returnResult = null;
+    public ParameterWithValueDeclaration getReturnResult() {
+        ParameterWithValueDeclaration returnResult = null;
         Object result = getResult();
         if (result != null) {
-            returnResult = new ExecutionParamDescription("return", result, IParameterDeclaration.OUT); 
+            returnResult = new ParameterWithValueDeclaration("return", result, IParameterDeclaration.OUT); 
         }
         return returnResult;
     }
