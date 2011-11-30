@@ -485,16 +485,16 @@ public class StringToolTest extends TestCase {
         listStrings.add(str3);
         listStrings.add(str4);
         
-        String result = StringTool.listToStringThroughCommas(listStrings);
+        String result = StringTool.listToStringThroughSymbol(listStrings, ",");
         assertEquals(String.format("%s, %s, %s, %s", str1, str2, str3, str4), result);
         
-        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughCommas(null));
-        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughCommas(new ArrayList<String>()));
+        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(null, ","));
+        assertEquals(StringUtils.EMPTY, StringTool.listToStringThroughSymbol(new ArrayList<String>(), ","));
         
         List<String> listToTest = new ArrayList<String>();
         listToTest.add("aaaa");
         listToTest.add(null);
         listToTest.add("bbbb");
-        assertEquals("aaaa, null, bbbb", StringTool.listToStringThroughCommas(listToTest));
+        assertEquals("aaaa, null, bbbb", StringTool.listToStringThroughSymbol(listToTest, ","));
     }
 }

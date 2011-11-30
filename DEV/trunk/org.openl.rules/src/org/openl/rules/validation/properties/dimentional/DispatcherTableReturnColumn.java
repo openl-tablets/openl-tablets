@@ -113,7 +113,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
             values.add(originalSignature.getParameterName(i));            
         }
         if (!values.isEmpty()) {
-            result = StringTool.listToStringThroughCommas(values); 
+            result = StringTool.listToStringThroughSymbol(values, ","); 
         }
         return result; 
     }
@@ -135,7 +135,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
             values.add(newParamsThroughComma);
         }
         
-        return StringTool.listToStringThroughCommas(values);
+        return StringTool.listToStringThroughSymbol(values, ",");
     }
     
     private String originalParamsWithTypesThroughComma() {
@@ -154,7 +154,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
             }           
         }   
         if (values.size() > 0) {
-            result = StringTool.listToStringThroughCommas(values); 
+            result = StringTool.listToStringThroughSymbol(values, ","); 
         }
         return result; 
     }
@@ -166,7 +166,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
             values.add(String.format("%s %s", param.getValue().getInstanceClass().getSimpleName(), param.getKey()));
         }
         if (!values.isEmpty()) {
-            result = StringTool.listToStringThroughCommas(values);; 
+            result = StringTool.listToStringThroughSymbol(values, ",");; 
         }        
         return result; 
     }

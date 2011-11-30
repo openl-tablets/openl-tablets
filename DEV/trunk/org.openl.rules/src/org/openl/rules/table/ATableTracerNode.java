@@ -1,5 +1,6 @@
 package org.openl.rules.table;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.syntax.ISyntaxNode;
@@ -32,21 +33,40 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         super(traceObject);
         this.params = params;
     }
-
+    
     protected String asString(IOpenMethod method, int mode) {
         StringBuffer buf = new StringBuffer(64);
         buf.append(method.getType().getDisplayName(mode)).append(' ');
-        boolean isVoidReturnType = (method.getType() == JavaOpenClass.VOID);
-        if (!isVoidReturnType) {
-            buf.append("= ");
+       
+        buf.append(resultAsString(method));
+//        Temporary commented buf.append(parametersAsString(method, mode));
+        
+        buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
+        
+        // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
+        // false));
+        return buf.toString();
+    }
+
+    protected String resultAsString(IOpenMethod method) {
+        StringBuffer buf = new StringBuffer(64);
+        if (!isVoid(method)) {                        
             if (hasError()) {
+                // append error of any
+                //
                 buf.append(ERROR_RESULT);
             } else {
-                
-                buf.append(getFormattedValue(result));
+                // append formatted result
+                //
+                buf.append(getFormattedValue(result, method));
             }
             buf.append(' ');
         }
+        return buf.toString();
+    }
+
+    protected String parametersAsString(IOpenMethod method, int mode) {
+        StringBuffer buf = new StringBuffer(64);
         buf.append(method.getName()).append('(');
 
         IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
@@ -61,9 +81,11 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
             buf.append(formatter.format(params[i]));
         }
         buf.append(')');
-        // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
-        // false));
         return buf.toString();
+    }
+
+    protected boolean isVoid(IOpenMethod method) {
+        return (method.getType() == JavaOpenClass.VOID);        
     }
 
     /*
@@ -119,15 +141,27 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         return params.clone();
     }
     
-    private String getFormattedValue(Object value) {
+    public String getFormattedResult() {
+        IFormatter formatter = FormattersManager.getFormatter(result);
+        if (formatter != null) {
+            return formatter.format(result);
+        }
+        return StringUtils.EMPTY;        
+    }
+    
+    protected String getFormattedValue(Object value, IOpenMethod method) {
+        StringBuffer buf = new StringBuffer(28);
+        // add '=' symbol if not void
+        //
+        buf.append("= ");
         IFormatter formatter = FormattersManager.getFormatter(value);
         String strValue = null;
         if (formatter != null) {
-            strValue = formatter.format(value);
+            buf.append(formatter.format(value));
         } else {
-            strValue = String.valueOf(value);
+            buf.append(String.valueOf(value));
         }
-        return strValue;
+        return buf.toString();
     }
 
 }

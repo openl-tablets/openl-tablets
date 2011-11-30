@@ -4,6 +4,9 @@ import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 
 public abstract class ATableTracerLeaf extends SimpleTracerObject implements ITableTracerObject {
+    
+    public Object result;
+    
     public ATableTracerLeaf() {
         super();
     }
@@ -22,4 +25,8 @@ public abstract class ATableTracerLeaf extends SimpleTracerObject implements ITa
 
         return temp;
     }
+    
+    public Object getResult() {
+        return result;
+    }    
 }

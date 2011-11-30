@@ -33,4 +33,6 @@ public interface ITracerObject extends ITreeElement<ITracerObject>, INamedThing 
     Object getTraceObject();
 
     String getUri();
+    
+    Object getResult();
 }

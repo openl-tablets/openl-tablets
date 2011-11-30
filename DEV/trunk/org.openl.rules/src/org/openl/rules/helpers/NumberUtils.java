@@ -3,7 +3,6 @@ package org.openl.rules.helpers;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
