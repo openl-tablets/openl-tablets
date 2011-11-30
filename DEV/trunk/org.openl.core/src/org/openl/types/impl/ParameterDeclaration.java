@@ -6,6 +6,7 @@
 
 package org.openl.types.impl;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.types.IOpenClass;
@@ -67,7 +68,7 @@ public class ParameterDeclaration implements IParameterDeclaration {
 
     @Override
     public String toString() {
-        return type + " " +name;
+        return ClassUtils.getShortClassName(type.getInstanceClass()) + " " +name;
     }
 
 }

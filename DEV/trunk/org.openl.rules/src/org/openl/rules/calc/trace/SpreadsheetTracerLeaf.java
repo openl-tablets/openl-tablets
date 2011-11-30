@@ -3,6 +3,7 @@ package org.openl.rules.calc.trace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -19,7 +20,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     private static final String SPREADSHEET_CELL_TYPE = "spreadsheetCell";
     private SpreadsheetTraceObject spreadsheetTraceObject;
     private SpreadsheetCell spreadsheetCell;
-    private Object result;
 
     public SpreadsheetTracerLeaf(SpreadsheetTraceObject spreadsheetTraceObject, SpreadsheetCell spreadsheetCell) {
         super(spreadsheetCell);
@@ -56,13 +56,14 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
 
     public String getDisplayName(int mode) {
         StringBuilder buf = new StringBuilder(64);
-        buf.append("Spreadsheet cell [");
         Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
-        buf.append("]");
-        buf.append(" = ").append(String.valueOf(result));
+        buf.append(" = ").append(getStringResult());
         return buf.toString();
     }
 
+    private String getStringResult() {        
+        return String.valueOf(result);
+    }
 }

@@ -563,18 +563,18 @@ public class StringTool {
         return strBuf.toString();
     }
     
-    public static String arrayToStringThroughCommas(Object[] values) {
+    public static String arrayToStringThroughSymbol(Object[] values, String symbol) {
         if (ArrayUtils.isNotEmpty(values)) {
             List<String> objectStrings = new ArrayList<String>();
             for (Object value : values) {
                 objectStrings.add(value.toString());
             }
-            return listToStringThroughCommas(objectStrings);
+            return listToStringThroughSymbol(objectStrings, symbol);
         }
         return null;
     }
     
-    public static String listToStringThroughCommas(List<String> values) {
+    public static String listToStringThroughSymbol(List<String> values, String symbol) {
         String result = StringUtils.EMPTY;
         if (values != null && !values.isEmpty()) {
             StringBuffer strBuf = new StringBuffer();

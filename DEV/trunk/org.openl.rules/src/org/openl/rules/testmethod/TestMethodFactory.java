@@ -45,10 +45,13 @@ public class TestMethodFactory {
     }
     
     public static boolean shouldBeConverted(TestUnit result) {
-        return result.getTest().getTestedMethod() instanceof Spreadsheet && ClassUtils.isAssignable(result.getRunningResult()
-            .getClass(),
-            SpreadsheetResult.class,
-            true);
+        Object runningResult = result.getRunningResult();
+        if (runningResult != null) {
+            return result.getTest().getTestedMethod() instanceof Spreadsheet && ClassUtils.isAssignable(runningResult.getClass(),
+                SpreadsheetResult.class,
+                true);
+        }
+        return false;
     }
     
     /**

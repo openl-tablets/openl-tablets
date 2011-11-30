@@ -17,7 +17,6 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
  */
 public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
 
-    private Result result;
     private HashMap<String, Object> fieldValues;
 
     public TBasicOperationTraceObject(Object tracedObject) {
@@ -35,8 +34,8 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         String operationName = operation.getSourceCode().getOperationName();
         String stepNameForDebug = (operation.getNameForDebug() != null ? operation.getNameForDebug() : "");
         String resultValue = "";
-        if (result != null && result.getValue() != null) {
-            resultValue = "(" + result.getValue().toString() + ")";
+        if (getResult() != null && getResult().getValue() != null) {
+            resultValue = "(" + getResult().getValue().toString() + ")";
         }
         int operationRow = operation.getSourceCode().getRowNumber();
 
@@ -87,7 +86,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
      * @return the result
      */
     public Result getResult() {
-        return result;
+        return (Result)result;
     }
 
     /*

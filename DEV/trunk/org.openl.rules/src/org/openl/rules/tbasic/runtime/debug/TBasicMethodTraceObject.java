@@ -16,8 +16,6 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
 
-    private Object result;
-
     /**
      * @param traceObject
      */

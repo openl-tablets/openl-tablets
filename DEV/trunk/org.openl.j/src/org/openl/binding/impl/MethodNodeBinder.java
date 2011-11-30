@@ -114,7 +114,7 @@ public class MethodNodeBinder extends ANodeBinder {
     }   
     
     private String getArgumentsAsString(IOpenClass[] argumentTypes) {
-        String result = StringTool.arrayToStringThroughCommas(argumentTypes);
+        String result = StringTool.arrayToStringThroughSymbol(argumentTypes, ",");
         if (StringUtils.isNotBlank(result)) {
             return result;
         }
