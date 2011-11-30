@@ -7,7 +7,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.formatters.IFormatter;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
@@ -39,12 +38,9 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         buf.append(method.getType().getDisplayName(mode)).append(' ');
        
         buf.append(resultAsString(method));
-//        Temporary commented buf.append(parametersAsString(method, mode));
         
         buf.append(method.getName()).append('(').append(method.getSignature().toString()).append(')');
         
-        // buf.append(MethodUtil.printMethod(getDT(), IMetaInfo.REGULAR,
-        // false));
         return buf.toString();
     }
 
@@ -85,14 +81,9 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     protected boolean isVoid(IOpenMethod method) {
-        return (method.getType() == JavaOpenClass.VOID);        
+        return (method.getType().isVoid());        
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.rules.table.ITableTracerObject#getTableSyntaxNode()
-     */
     public TableSyntaxNode getTableSyntaxNode() {
         TableSyntaxNode syntaxNode = null;
 
