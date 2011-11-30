@@ -22,7 +22,11 @@ public class TestMethodOpenClass extends ADynamicClass {
     public Object newInstance(IRuntimeEnv env) {
         return new DynamicObject(this);
     }
-
+    
+    @Override
+    public boolean isVoid() {        
+        return false;
+    }
 
     protected void init(IOpenMethod testedMethod) {
         addParameterFields(testedMethod);

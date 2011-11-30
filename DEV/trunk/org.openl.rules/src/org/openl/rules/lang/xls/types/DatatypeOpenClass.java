@@ -164,6 +164,11 @@ public class DatatypeOpenClass extends ADynamicClass {
 		
 		return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(packageName, other.getPackageName()).isEquals();
 	}
+	
+	@Override
+	public boolean isVoid() {	    
+	    return false;
+	}
 
 	/**
      * Constructor with all parameters initialization.

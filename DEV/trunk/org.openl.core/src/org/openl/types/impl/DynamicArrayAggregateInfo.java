@@ -66,6 +66,11 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             return AOpenIterator.empty();
         }
 
+        @Override
+        public boolean isVoid() {            
+            return false;
+        }
+
     }
 
     static public final DynamicArrayAggregateInfo aggregateInfo = new DynamicArrayAggregateInfo();
