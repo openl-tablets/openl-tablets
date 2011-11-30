@@ -32,21 +32,21 @@ public class EnumValuesUIHelper {
     public HtmlOutputText getEnumArrayOutput() {
         return enumArrayOutput;
     }
-    
+
     public String getEnumValue() {
         String componentId = enumOutput.getId();
-        TableProperty property = (TableProperty)enumOutput.getAttributes().get("property");
-        
+        TableProperty property = (TableProperty) enumOutput.getAttributes().get("property");
+
         return getEnumSelectComponentCode(componentId, property);
     }
-    
+
     public String getEnumArrayValue() {
         String componentId = enumArrayOutput.getId();
-        TableProperty property = (TableProperty)enumArrayOutput.getAttributes().get("property");
+        TableProperty property = (TableProperty) enumArrayOutput.getAttributes().get("property");
 
         return getEnumMultiSelectComponentCode(componentId, property);
     }
-    
+
     private String getEnumSelectComponentCode(String componentId, TableProperty tableProperty) {
         Class<?> instanceClass = tableProperty.getType();
         String value = tableProperty.getStringValue();
@@ -60,7 +60,7 @@ public class EnumValuesUIHelper {
 
         return getEditorHTMLCode(id, componentCode);
     }
-    
+
     private String getEnumMultiSelectComponentCode(String componentId, TableProperty tableProperty) {
 
         Class<?> instanceClass = tableProperty.getType().getComponentType();

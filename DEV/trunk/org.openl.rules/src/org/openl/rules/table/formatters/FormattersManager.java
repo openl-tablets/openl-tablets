@@ -128,7 +128,11 @@ public class FormattersManager {
     public static IFormatter getFormatter(Class<?> clazz, Object value) {
         return getFormatter(clazz, value, null);
     }
-    
+
+    public static IFormatter getFormatter(Class<?> clazz, String format) {
+        return getFormatter(clazz, null, format);
+    }
+
     public static IFormatter getFormatter(Class<?> clazz) {
         return getFormatter(clazz, null, null);
     }

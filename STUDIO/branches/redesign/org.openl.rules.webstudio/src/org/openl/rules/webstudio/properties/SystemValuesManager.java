@@ -2,11 +2,8 @@ package org.openl.rules.webstudio.properties;
 
 import java.util.*;
 
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.webstudio.web.tableeditor.ShowTableBean;
-import org.openl.util.formatters.IFormatter;
 
 /**
  * Manager for system values. Handles implementations for specified system properties.
@@ -56,28 +53,5 @@ public class SystemValuesManager {
         } 
         return result;
     }
-    
-    /**
-     *  
-     * @param descriptor
-     * @return
-     * FIXME: This method is workaround to get system value as string for {@link ShowTableBean#updateSystemProperties()}.
-     */
-    public String getSystemValueString(String descriptor) {
-        String result = null;
-        Object resultValue = null;
-        ISystemValue systemValue = systemValues.get(descriptor);
-        if (systemValue != null) {
-            resultValue = systemValue.getValue();
-            if(resultValue != null) {
-                if (resultValue instanceof Date) {
-                    IFormatter formatter = FormattersManager.getFormatter(Date.class);
-                    result = formatter.format(resultValue);
-                } else {
-                    result = resultValue.toString();
-                }
-            }
-        }        
-        return result;
-    }
+
 }

@@ -19,16 +19,9 @@ import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.actions.UndoableShiftValueAction;
 import org.openl.rules.table.actions.UnmergeByColumnsAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.ui.ICellStyle;
 
-
 import org.openl.util.formatters.IFormatter;
-
-import org.apache.commons.lang.StringUtils;
-
 
 /**
  * @author snshor
@@ -200,8 +193,8 @@ public interface IWritableGrid extends IGrid {
          * @return null if set new property with empty or same value
          */
         public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGridTable table,
-                String newPropName, String newPropValue) {
-            if (StringUtils.isBlank(newPropValue)) {
+                String newPropName, Object newPropValue) {
+            if (newPropValue == null) {
                 return null;
             }
 
@@ -235,7 +228,7 @@ public interface IWritableGrid extends IGrid {
         }
         
         private static IUndoableGridTableAction setExistingPropertyValue(IGridRegion tableRegion, IGridTable table,
-                String newPropName, String newPropValue, int propertyRowIndex) {
+                String newPropName, Object newPropValue, int propertyRowIndex) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
@@ -243,22 +236,19 @@ public interface IWritableGrid extends IGrid {
             int propValueCellOffset = propNameCellOffset
                     + grid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
 
-            String propValueFromTable = grid.getCell(leftCell + propValueCellOffset, propertyRowIndex)
-                    .getStringValue();
+            Object propValueFromTable = grid.getCell(leftCell + propValueCellOffset, propertyRowIndex)
+                    .getObjectValue();
             if (propValueFromTable != null && newPropValue != null
-                    && propValueFromTable.trim().equals(newPropValue.trim())) {
-                // property with such name and value already exists.
+                    && propValueFromTable.equals(newPropValue)) {
+                // Property with such name and value already exists
                 return null;
             }
-            IFormatter formatter = getFormatter(newPropName);
-            Object propObjectValue = parseStringValue(formatter, newPropValue);
-            return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, propObjectValue);
+            return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, newPropValue);
         }
 
         private static IUndoableGridTableAction insertNewProperty(IGridRegion tableRegion,
-                IGridTable table, String newPropName, String newPropValue) {
+                IGridTable table, String newPropName, Object newPropValue) {
             IWritableGrid grid = (IWritableGrid) table.getGrid();
-            IFormatter formatter = getFormatter(newPropName);
             int leftCell = tableRegion.getLeft();
             int topCell = tableRegion.getTop();
             int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
@@ -287,14 +277,13 @@ public interface IWritableGrid extends IGrid {
             actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset, topCell + firstPropertyRow,
                     newPropName));
 
-            Object propObjectValue = parseStringValue(formatter, newPropValue);
             actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset, topCell + firstPropertyRow,
-                    propObjectValue));
+                    newPropValue));
 
             return new UndoableCompositeAction(actions);
         }
 
-        private static Object parseStringValue(IFormatter formatter, String value) {
+        public static Object parseStringValue(IFormatter formatter, String value) {
             Object result = null;
             if (formatter != null) {
                 result = formatter.parse(value);
@@ -365,21 +354,6 @@ public interface IWritableGrid extends IGrid {
                 containsPropSection = true;
             }
             return containsPropSection;
-        }
-
-        private static IFormatter getFormatter(String propertyName) {
-
-            IFormatter result = null;
-            TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils
-                    .getPropertyByName(propertyName);
-
-            if (tablePropeprtyDefinition != null) {
-
-                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                result = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
-            }
-
-            return result;
         }
 
         private static List<IUndoableGridTableAction> clearCells(int startColumn, int nCols, int startRow, int nRows, IGrid grid) {

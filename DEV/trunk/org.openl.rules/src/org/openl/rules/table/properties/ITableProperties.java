@@ -93,6 +93,8 @@ public interface ITableProperties {
     ILogicalTable getCategoryPropertiesTable();
     void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable);
 
+    ILogicalTable getInheritedPropertiesTable(InheritanceLevel inheritanceLevel);
+
     /**
      * Goes through the hierarchy of properties from TABLE to CATEGORY and then to MODULE and returns the level
      * on which property is inherited or defined.  

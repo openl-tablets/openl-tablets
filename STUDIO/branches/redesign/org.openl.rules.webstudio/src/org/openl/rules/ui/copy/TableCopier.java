@@ -446,7 +446,7 @@ public class TableCopier extends WizardBase {
         }
     }
 
-    protected void updatePropertiesForOriginalTable(Map<String, String> properties) {
+    protected void updatePropertiesForOriginalTable(Map<String, Object> properties) {
         if (properties.size() > 0) {
             WebStudio studio = WebStudioUtils.getWebStudio();
             ProjectModel model = studio.getModel();
@@ -455,7 +455,7 @@ public class TableCopier extends WizardBase {
             Set<String> propNames = properties.keySet();
             try {
                 for (String propName : propNames) {
-                    String propValue = properties.get(propName);
+                    Object propValue = properties.get(propName);
                     tableEditorModel.setProperty(propName, propValue);
                 }
                 getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());

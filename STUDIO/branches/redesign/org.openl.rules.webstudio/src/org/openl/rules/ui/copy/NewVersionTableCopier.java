@@ -45,7 +45,7 @@ public class NewVersionTableCopier extends TableCopier {
     }
 
     private void updateOriginalTable() {
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(ACTIVE_PROP_NAME, "false");
         Version version = getOriginalVersion();
         if (version == null) {

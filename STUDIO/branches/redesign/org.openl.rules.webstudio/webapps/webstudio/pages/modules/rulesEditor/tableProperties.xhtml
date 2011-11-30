@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <link href="webresource/css/tooltip.css" rel="stylesheet"></link>
+    <link href="webresource/css/multiselect.css" rel="stylesheet"></link>
+    <script src="webresource/js/tooltip.js"></script>
+    <script src="webresource/js/AjaxHelper.js"></script>
+    <script src="webresource/js/BaseEditor.js"></script>
+    <script src="webresource/js/BaseTextEditor.js"></script>
+    <script src="webresource/js/MultiselectEditor.js"></script>
+    <script src="webresource/js/DropdownEditor.js"></script>
+    <script src="webresource/js/validation.js"></script>
+
+    <style>
+        .propsGroupHeader {
+            color: #1199EE;
+            font-size: 110%;
+            padding: 8px 0 3px 1px;
+        }
+        .editableProp {
+            cursor: pointer;
+        }
+        .inheritedProp {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        .inheritedProp .propData a {
+            margin-left: 30px;
+        }
+        .propName {
+            color: #555555;
+            padding: 3px 0 1px 1px;
+            min-width: 70px;
+        }
+        .propData {
+            padding: 3px 0 1px;
+        }
+        .propValue {
+            margin-left: 5px;
+        }
+        .propEditor {
+            display: none;
+            margin-left: 2px;
+        }
+        .propEditor input[type="text"],
+        .propEditor input[type="password"],
+        .propEditor textarea {
+            padding: 1px;
+        }
+        .editableProp .propValue {
+            border-bottom: 1px dashed #cccccc;
+        }
+        #savePropsButton {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+
+    <div>BlaBla</div>
+
+    <h:panelGroup rendered="#{tablePropertiesBean.showProperties}">
+    <h:form prependId="false">
+        <table>
+            <c:forEach items="#{tablePropertiesBean.groupProps}" var="groupProps">
+
+            <c:if test="#{not empty groupProps.value}">
+            <tr>
+                <td colspan="2" class="propsGroupHeader">
+                    #{groupProps.key}
+                </td>
+            </tr>
+            </c:if>
+
+            <c:set value="#{groupProps.value}" var="props" />
+            <a4j:repeat value="#{props}" var="prop">
+            <c:set var="editable"
+                value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
+            <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
+                onclick="#{editable ? 'editProperty(this)' : ''}">
+                <td class="propName">
+                    #{prop.displayName}
+                </td>
+                <td class="propData">
+                    <span class="propValue">#{prop.displayValue}</span>
+
+                    <h:panelGroup rendered="#{editable}">
+                    <span class="propEditor">
+                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                            defaultTime="00:00" rendered="#{prop.dateType}" inputStyle="width:100px" />
+
+                        <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+
+                        <h:outputText binding="#{tablePropertiesBean.enumHelper.enumOutput}" escape="false"
+                            value="#{tablePropertiesBean.enumHelper.enumValue}" rendered="#{prop.enumType}">
+                            <f:attribute name="property" value="#{prop}" />
+                        </h:outputText>
+                        <h:outputText binding="#{tablePropertiesBean.enumHelper.enumArrayOutput}" escape="false"
+                            value="#{tablePropertiesBean.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
+                            <f:attribute name="property" value="#{prop}" />
+                        </h:outputText>
+                        <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType || prop.enumArray}" />
+
+                        <h:inputText value="#{prop.value}"
+                            rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}" />
+                    </span>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{prop.inheritedProperty}">
+                        <a href="showTable.xhtml?uri=#{prop.inheritedTableUri}" target="content"
+                            title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
+                    </h:panelGroup>
+                </td>
+            </tr>
+            </a4j:repeat>
+            </c:forEach>
+        </table>
+        <a4j:commandButton id="savePropsButton" value="Save" action="#{tablePropertiesBean.save}"
+            data="#{tablePropertiesBean.newTableUri}"
+            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data) + '&amp;' + new Date().getTime())" />
+    </h:form>
+    </h:panelGroup>
+
+    <script>
+        function editProperty(elem) {
+            elem = $j(elem);
+            elem.removeClass("editableProp");
+            elem.find(".propValue").hide();
+            elem.find(".propEditor").show();
+            $j("#savePropsButton").show();
+        }
+    </script>
+
+</ui:composition>

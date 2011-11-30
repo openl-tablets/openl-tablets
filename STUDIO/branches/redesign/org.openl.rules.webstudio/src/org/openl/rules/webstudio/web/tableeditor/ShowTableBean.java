@@ -206,10 +206,10 @@ public class ShowTableBean {
     
     private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
         boolean result = false;
-        String systemValue = null;
+        Object systemValue = null;
 
         if (sysProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-            systemValue = SystemValuesManager.getInstance().getSystemValueString(
+            systemValue = SystemValuesManager.getInstance().getSystemValue(
                     sysProperty.getSystemValueDescriptor());
             if (systemValue != null) {
                 try {
