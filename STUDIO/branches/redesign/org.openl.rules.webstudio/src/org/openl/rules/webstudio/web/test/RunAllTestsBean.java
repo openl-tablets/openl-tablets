@@ -20,7 +20,7 @@ import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.table.Point;
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
@@ -210,7 +210,7 @@ public class RunAllTestsBean {
         return testUnit.compareResult();
     }
 
-    public ExecutionParamDescription[] getParamDescriptions() {
+    public ParameterWithValueDeclaration[] getParamDescriptions() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
         TestDescription testDescription = testUnit.getTest();
         return testDescription.getExecutionParams();

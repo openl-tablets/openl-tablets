@@ -12,7 +12,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
@@ -68,13 +68,13 @@ public class ShowTraceTableBean {
         return model.getTableView(FacesUtils.getRequestParameter("view"));
     }
     
-    public ExecutionParamDescription[] getInputParameters() {
+    public ParameterWithValueDeclaration[] getInputParameters() {
         ITableTracerObject tto = traceHelper.getTableTracer(traceElementId);
         return new TracerObjectDecorator(tto).getInputParameters();
     }
     
-    public ExecutionParamDescription[] getReturnResult() {
-        return new ExecutionParamDescription[]{new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getReturnResult()};
+    public ParameterWithValueDeclaration[] getReturnResult() {
+        return new ParameterWithValueDeclaration[]{new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getReturnResult()};
     }
     
     public String getFormattedResult() {

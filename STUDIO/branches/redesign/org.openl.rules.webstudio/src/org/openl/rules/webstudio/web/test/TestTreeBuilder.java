@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.richfaces.component.UIRepeat;
 import org.richfaces.model.TreeNode;
@@ -31,25 +31,25 @@ public class TestTreeBuilder {
         this.executionParam = parameter;
     }
 
-    public static FieldDescriptionTreeNode createNode(IOpenClass fieldType,
+    public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType,
             Object value,
             String fieldName,
-            FieldDescriptionTreeNode parent) {
+            ParameterDeclarationTreeNode parent) {
         if (fieldType.getAggregateInfo()!= null && fieldType.getAggregateInfo().isAggregate(fieldType)) {
-            return new CollectionFieldNode(fieldName, value, fieldType, parent);
+            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
         } else if (!fieldType.isSimple()) {
-            return new ComplexFieldNode(fieldName, value, fieldType, parent);
+            return new ComplexParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
-            return new SimpleFieldNode(fieldName, value, fieldType, parent);
+            return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         }
 
     }
 
     public TreeNode getRoot() {
-        ExecutionParamDescription parameter = (ExecutionParamDescription) executionParam.getRowData();
+        ParameterWithValueDeclaration parameter = (ParameterWithValueDeclaration) executionParam.getRowData();
         TreeNodeImpl root = new TreeNodeImpl();
 
-        FieldDescriptionTreeNode treeNode = null;
+        ParameterDeclarationTreeNode treeNode = null;
         if (parameter != null) {
             treeNode = createNode(parameter.getType(), parameter.getValue(), null, null);
             root.addChild(parameter.getName(), treeNode);

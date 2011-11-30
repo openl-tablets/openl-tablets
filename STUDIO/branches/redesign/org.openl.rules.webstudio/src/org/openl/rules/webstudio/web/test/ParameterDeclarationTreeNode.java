@@ -4,39 +4,29 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.openl.rules.testmethod.ExecutionParamDescription;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.richfaces.model.TreeNode;
 
-/**
- * 
- * TODO: rename to ParameterDescriptionTreeNode
- */
-public abstract class FieldDescriptionTreeNode extends ExecutionParamDescription implements TreeNode {
-//    private IOpenClass fieldType;
-//    private String fieldName;
-//    private Object value;
+public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDeclaration implements TreeNode {
 
-    private FieldDescriptionTreeNode parent;
-    private LinkedHashMap<Object, FieldDescriptionTreeNode> children;
+    private ParameterDeclarationTreeNode parent;
+    private LinkedHashMap<Object, ParameterDeclarationTreeNode> children;
 
-    public FieldDescriptionTreeNode(String fieldName,
+    public ParameterDeclarationTreeNode(String fieldName,
             Object value,
             IOpenClass fieldType,
-            FieldDescriptionTreeNode parent) {
+            ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, IParameterDeclaration.IN);
-//        this.fieldName = fieldName;
-//        this.value = value;
-//        this.fieldType = fieldType;
         this.parent = parent;
     }
 
-    public FieldDescriptionTreeNode(ExecutionParamDescription paramDescription, FieldDescriptionTreeNode parent) {
+    public ParameterDeclarationTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
         this(paramDescription.getName(), paramDescription.getValue(), paramDescription.getType(), parent);
     }
 
-    public FieldDescriptionTreeNode getParent() {
+    public ParameterDeclarationTreeNode getParent() {
         return parent;
     }
 
@@ -45,18 +35,6 @@ public abstract class FieldDescriptionTreeNode extends ExecutionParamDescription
         return getChildernMap().isEmpty();
     }
 
-//    public IOpenClass getFieldType() {
-//        return fieldType;
-//    }
-
-//    public String getFieldName() {
-//        return fieldName;
-//    }
-
-//    protected Object getValue() {
-//        return value;
-//    }
-
     public abstract String getDisplayedValue();
 
     public boolean isValueNull() {
@@ -64,11 +42,10 @@ public abstract class FieldDescriptionTreeNode extends ExecutionParamDescription
     }
 
     public boolean isElementOfCollection() {
-        return parent instanceof CollectionFieldNode;
+        return parent instanceof CollectionParameterTreeNode;
     }
 
     public void setValueForced(Object value) {
-//        this.value = value;
         setValue(value);
         reset();
     }
@@ -103,28 +80,28 @@ public abstract class FieldDescriptionTreeNode extends ExecutionParamDescription
         children = null;
     }
 
-    protected LinkedHashMap<Object, FieldDescriptionTreeNode> getChildernMap(){
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildernMap(){
         if(children == null){
             children = initChildernMap();
         }
         return children;
     }
 
-    protected abstract LinkedHashMap<Object, FieldDescriptionTreeNode> initChildernMap();
+    protected abstract LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildernMap();
     
     @Override
     public void addChild(Object key, TreeNode node) {
-        if(node instanceof FieldDescriptionTreeNode){
-            getChildernMap().put(key, (FieldDescriptionTreeNode)node);
+        if(node instanceof ParameterDeclarationTreeNode){
+            getChildernMap().put(key, (ParameterDeclarationTreeNode)node);
         }
     }
     
     @Override
-    public FieldDescriptionTreeNode getChild(Object key) {
+    public ParameterDeclarationTreeNode getChild(Object key) {
         return getChildernMap().get(key);
     }
     
-    public Collection<FieldDescriptionTreeNode> getChildren(){
+    public Collection<ParameterDeclarationTreeNode> getChildren(){
         return getChildernMap().values();
     }
     
