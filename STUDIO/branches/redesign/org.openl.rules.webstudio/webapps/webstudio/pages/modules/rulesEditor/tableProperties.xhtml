@@ -55,6 +55,9 @@
         .editableProp .propValue {
             border-bottom: 1px dashed #cccccc;
         }
+        .propDescription {
+            display: none;
+        }
         #savePropsButton {
             display: none;
             margin-top: 10px;
@@ -90,10 +93,10 @@
 
                     <h:panelGroup rendered="#{editable}">
                     <span class="propEditor">
-                        <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                        <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
                             defaultTime="00:00" rendered="#{prop.dateType}" inputStyle="width:100px" />
 
-                        <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+                        <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 
                         <h:outputText binding="#{tablePropertiesBean.enumHelper.enumOutput}" escape="false"
                             value="#{tablePropertiesBean.enumHelper.enumValue}" rendered="#{prop.enumType}">
@@ -105,8 +108,10 @@
                         </h:outputText>
                         <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType || prop.enumArray}" />
 
-                        <h:inputText value="#{prop.value}"
+                        <h:inputText value="#{prop.value}" id="text" 
                             rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}" />
+
+                        <span class="propDescription">#{prop.description}</span>
                     </span>
                     </h:panelGroup>
 
@@ -132,6 +137,10 @@
             elem.find(".propValue").hide();
             elem.find(".propEditor").show();
             $j("#savePropsButton").show();
+
+            var tooltipElemId = elem.find(".propEditor input").attr("id");
+            var tooltipData = elem.find(".propEditor .propDescription").text();
+            new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
         }
     </script>
 
