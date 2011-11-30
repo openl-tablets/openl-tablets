@@ -23,19 +23,14 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         super(tracedObject);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.base.INamedThing#getDisplayName(int)
-     */
     public String getDisplayName(int mode) {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
 
         String operationName = operation.getSourceCode().getOperationName();
         String stepNameForDebug = (operation.getNameForDebug() != null ? operation.getNameForDebug() : "");
         String resultValue = "";
-        if (getResult() != null && getResult().getValue() != null) {
-            resultValue = "(" + getResult().getValue().toString() + ")";
+        if (getResult() != null && getResult() != null) {
+            resultValue = "(" + getResult().toString() + ")";
         }
         int operationRow = operation.getSourceCode().getRowNumber();
 
@@ -82,27 +77,18 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         return regions;
     }
 
-    /**
-     * @return the result
-     */
-    public Result getResult() {
-        return (Result)result;
+    
+    public Object getResult() {
+        /**
+         * Extract the value from the result of the TBasic operation.
+         */
+        return ((Result)super.getResult()).getValue();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.util.ITreeElement#getType()
-     */
     public String getType() {
         return "tbasicOperation";
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.vm.ITracerObject.SimpleTracerObject#getUri()
-     */
     @Override
     public String getUri() {
         RuntimeOperation operation = (RuntimeOperation) getTraceObject();
@@ -115,9 +101,4 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
     public void setFieldValues(HashMap<String, Object> fieldValues) {
         this.fieldValues = (HashMap<String, Object>) fieldValues.clone();
     }
-
-    public void setResult(Result result) {
-        this.result = result;
-    }
-
 }

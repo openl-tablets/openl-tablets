@@ -5,7 +5,7 @@ import org.openl.vm.trace.SimpleTracerObject;
 
 public abstract class ATableTracerLeaf extends SimpleTracerObject implements ITableTracerObject {
     
-    public Object result;
+    private Object result;
     
     public ATableTracerLeaf() {
         super();
@@ -29,4 +29,8 @@ public abstract class ATableTracerLeaf extends SimpleTracerObject implements ITa
     public Object getResult() {
         return result;
     }    
+    
+    public void setResult(Object result) {
+        this.result = result;
+    }
 }

@@ -27,11 +27,11 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     }
 
     public Object getValue() {
-        return result;
+        return getResult();
     }
 
     public void setValue(Object value) {
-        this.result = value;
+        setResult(value);
     }
 
     @Override
@@ -67,6 +67,6 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
     }
 
     private String getStringResult() {        
-        return String.valueOf(result);
+        return String.valueOf(getResult());
     }
 }
