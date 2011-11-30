@@ -36,8 +36,8 @@ public class DecisionTableTraceObject extends ATableTracerNode {
         return getDecisionTable().getSyntaxNode().getUri();
     }
 
-    public RuleTracer traceRule(int i) {
-        return new RuleTracer(this, i);
+    public DTRuleTracerLeaf traceRule(int i) {
+        return new DTRuleTracerLeaf(this, i);
     }
 
     public List<IGridRegion> getGridRegions() {

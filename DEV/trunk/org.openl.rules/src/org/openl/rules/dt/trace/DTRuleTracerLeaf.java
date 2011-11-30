@@ -9,18 +9,26 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 
-public class RuleTracer extends ATableTracerLeaf {
+/**
+ * Tracer leaf for the Decision Table Rule.
+ * 
+ * @author DLiauchuk
+ *
+ */
+public class DTRuleTracerLeaf extends ATableTracerLeaf {
+    
+    private static final String NAME = "Rule"; 
 
     private int ruleIndex;
     private DecisionTableTraceObject decisionTableTraceObject;
 
-    public RuleTracer(DecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
+    public DTRuleTracerLeaf(DecisionTableTraceObject decisionTableTraceObject, int ruleIdx) {
         this.ruleIndex = ruleIdx;
         this.decisionTableTraceObject = decisionTableTraceObject;
     }
 
     public String getDisplayName(int mode) {
-        return "Rule: " + decisionTableTraceObject.getDecisionTable().getRuleName(ruleIndex);
+        return String.format("%s: %s", NAME, getParentTraceObject().getDecisionTable().getRuleName(ruleIndex));
     }
 
     public IGridRegion getGridRegion() {
@@ -32,20 +40,15 @@ public class RuleTracer extends ATableTracerLeaf {
     }
 
     public ILogicalTable getRuleTable() {
-        return decisionTableTraceObject.getDecisionTable().getRuleTable(ruleIndex);
+        return getParentTraceObject().getDecisionTable().getRuleTable(ruleIndex);
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
         return getParentTraceObject().getDecisionTable().getSyntaxNode();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.util.ITreeElement#getType()
-     */
     public String getType() {
-        return "rule";
+        return NAME.toLowerCase();
     }
 
     @Override
@@ -67,5 +70,11 @@ public class RuleTracer extends ATableTracerLeaf {
         }
         
         return regions;
+    }
+    
+    /** Overriden to return the result of the Decision Table on trace**/
+    @Override
+    public Object getResult() {        
+        return getParentTraceObject().getResult();
     }
 }
