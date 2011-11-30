@@ -8,7 +8,6 @@ import java.util.List;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author User
@@ -23,18 +22,13 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
         super(traceObject);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.base.INamedThing#getDisplayName(int)
-     */
     public String getDisplayName(int mode) {
         AlgorithmSubroutineMethod method = (AlgorithmSubroutineMethod) getTraceObject();
 
         String returnValue = "";
         IOpenClass returnType = method.getType();
-        if (returnType != JavaOpenClass.VOID) {
-            returnValue = String.format("%s = %s", returnType.getDisplayName(mode), result != null ? result.toString()
+        if (!returnType.isVoid()) {
+            returnValue = String.format("%s = %s", returnType.getDisplayName(mode), getResult() != null ? getResult().toString()
                     : "null");
         }
 
@@ -47,39 +41,14 @@ public class TBasicMethodTraceObject extends ATBasicTraceObjectLeaf {
         // regions of sub-elements should be combined
         return null;
     }
-
-    /**
-     * @return the result
-     */
-    public Object getResult() {
-        return result;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.util.ITreeElement#getType()
-     */
+    
     public String getType() {
         return "tbasicMethod";
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.vm.ITracerObject.SimpleTracerObject#getUri()
-     */
     @Override
     public String getUri() {
         AlgorithmSubroutineMethod method = (AlgorithmSubroutineMethod) getTraceObject();
         return method.getSourceUrl();
     }
-
-    /**
-     * @param result the result to set
-     */
-    public void setResult(Object result) {
-        this.result = result;
-    }
-
 }
