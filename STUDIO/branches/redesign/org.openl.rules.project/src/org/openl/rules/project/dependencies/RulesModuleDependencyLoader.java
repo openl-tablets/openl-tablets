@@ -35,6 +35,9 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
             try {
                 URL[] urls = dependencyModule.getProject().getClassPathUrls();
                 ClassLoader oldClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
+                
+                // create classloader for the dependency. With the parent for current module.
+                //
                 OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader(oldClassLoader);
                 OpenLClassLoaderHelper.extendClasspath(moduleClassLoader, urls);
                 
