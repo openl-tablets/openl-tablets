@@ -181,7 +181,9 @@ public class ComponentOpenClass extends ADynamicClass {
         }
 
     }
-
     
-
+    @Override
+    public boolean isVoid() {        
+        return false;
+    }
 }

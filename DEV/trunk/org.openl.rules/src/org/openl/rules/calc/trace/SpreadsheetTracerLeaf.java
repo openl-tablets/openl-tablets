@@ -58,7 +58,11 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         Spreadsheet spreadsheet = spreadsheetTraceObject.getSpreadsheet();
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]));
         buf.append(String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]));
-        buf.append(" = ").append(getStringResult());
+        
+        if (!spreadsheetCell.getType().isVoid()) {
+            /** write result for all cells, excluding void type*/
+            buf.append(" = ").append(getStringResult());
+        }
         return buf.toString();
     }
 

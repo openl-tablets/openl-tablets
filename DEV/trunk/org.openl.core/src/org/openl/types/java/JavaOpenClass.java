@@ -411,6 +411,11 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
     
+    @Override
+    public boolean isVoid() {        
+        return void.class.equals(getInstanceClass());
+    }
+    
     @SuppressWarnings("unchecked")
     private static class Class2JavaOpenClassCollector implements IConvertor<Class, IOpenClass> {
         public IOpenClass convert(Class c) {
