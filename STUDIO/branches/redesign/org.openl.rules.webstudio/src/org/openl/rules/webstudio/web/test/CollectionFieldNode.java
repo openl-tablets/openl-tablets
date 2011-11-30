@@ -28,7 +28,7 @@ public class CollectionFieldNode extends FieldDescriptionTreeNode {
             builder.append("Empty ");
         }
         builder.append("Collection of ");
-        builder.append(getFieldType().getComponentClass().getDisplayName(INameSpacedThing.SHORT));
+        builder.append(getType().getComponentClass().getDisplayName(INameSpacedThing.SHORT));
         return builder.toString();
     }
 
@@ -42,8 +42,8 @@ public class CollectionFieldNode extends FieldDescriptionTreeNode {
         if (isValueNull()) {
             return new LinkedHashMap<Object, FieldDescriptionTreeNode>();
         } else {
-            Iterator<Object> iterator = getFieldType().getAggregateInfo().getIterator(getValue());
-            IOpenClass arrayElementType = getFieldType().getComponentClass();
+            Iterator<Object> iterator = getType().getAggregateInfo().getIterator(getValue());
+            IOpenClass arrayElementType = getType().getComponentClass();
             int index = 0;
             LinkedHashMap<Object, FieldDescriptionTreeNode> elements = new LinkedHashMap<Object, FieldDescriptionTreeNode>();
             while (iterator.hasNext()) {
@@ -57,12 +57,12 @@ public class CollectionFieldNode extends FieldDescriptionTreeNode {
 
     @Override
     protected Object constructValueInternal() {
-        IAggregateInfo info = getFieldType().getAggregateInfo();
-        IOpenClass componentType = info.getComponentType(getFieldType());
+        IAggregateInfo info = getType().getAggregateInfo();
+        IOpenClass componentType = info.getComponentType(getType());
         int elementsCount = getChildernMap().size();
         Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount });
 
-        IOpenIndex index = info.getIndex(getFieldType(), JavaOpenClass.INT);
+        IOpenIndex index = info.getIndex(getType(), JavaOpenClass.INT);
 
         for (int i = 0; i < elementsCount; i++) {
             index.setValue(ary, new Integer(i), getChildernMap().get(i).getValueForced());

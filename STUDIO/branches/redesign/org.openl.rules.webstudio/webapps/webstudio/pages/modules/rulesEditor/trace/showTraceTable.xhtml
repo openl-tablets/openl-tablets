@@ -18,9 +18,12 @@
         <h:panelGroup rendered="#{empty param.first}">
             <table>
                 <tr style="vertical-align: top">
-                    <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                        <ui:param name="args" value="#{showTraceTableBean.executionParams}" />
-                    </ui:include>
+                	<td><b>Input parameters: </b></td>
+                	<td>
+	                   <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">	                   		
+	                        <ui:param name="args" value="#{showTraceTableBean.inputParameters}" />
+	                    </ui:include>
+	                </td>
                     <td>
                         <ui:include src="/pages/common/tableViewMenu.xhtml" />
                     </td>
@@ -28,7 +31,22 @@
             </table>
 
             <br />
-
+			<table>
+                <tr>
+    				<td><b>Returned result: </b></td>
+					<td>
+						<h:outputText rendered="#{showTraceTableBean.spreadsheetResultReturn}"
+                    				value="#{showTraceTableBean.formattedResult}"
+                    				escape="false" />
+                    				
+                    	<h:panelGroup rendered="#{!showTraceTableBean.spreadsheetResultReturn}">
+	            			<ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                        		<ui:param name="args" value="#{showTraceTableBean.returnResult}" />
+                   			</ui:include> 
+	            		</h:panelGroup>
+                    </td>    				            
+	            </tr>
+            </table>
             <c:set var="errors" value="#{showTraceTableBean.errors}" />
             <h:panelGroup rendered="#{not empty errors}">
                 <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
