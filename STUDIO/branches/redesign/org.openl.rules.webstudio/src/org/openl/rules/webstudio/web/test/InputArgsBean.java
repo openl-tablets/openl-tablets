@@ -12,6 +12,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -70,13 +71,13 @@ public class InputArgsBean {
 
     public void initObject() {
         FieldDescriptionTreeNode currentnode = getCurrentNode();
-        IOpenClass fieldType = currentnode.getFieldType();
+        IOpenClass fieldType = currentnode.getType();
         currentnode.setValueForced(fieldType.newInstance(new SimpleVM().getRuntimeEnv()));
     }
 
     public void initCollection() {
         FieldDescriptionTreeNode currentnode = getCurrentNode();
-        IOpenClass fieldType = currentnode.getFieldType();
+        IOpenClass fieldType = currentnode.getType();
 
         IAggregateInfo info = fieldType.getAggregateInfo();
 
@@ -93,12 +94,12 @@ public class InputArgsBean {
     public void deleteFromCollection() {
         FieldDescriptionTreeNode currentNode = getCurrentNode();
         FieldDescriptionTreeNode parentNode = currentNode.getParent();
-        IOpenClass arrayType = parentNode.getFieldType();
+        IOpenClass arrayType = parentNode.getType();
 
         IAggregateInfo info = arrayType.getAggregateInfo();
         int elementsCount = parentNode.getChildren().size();
 
-        IOpenClass componentType = currentNode.getFieldType();
+        IOpenClass componentType = currentNode.getType();
         Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount - 1 });
 
         IOpenIndex index = info.getIndex(arrayType, JavaOpenClass.INT);
@@ -115,7 +116,7 @@ public class InputArgsBean {
 
     public void addToCollection() {
         FieldDescriptionTreeNode currentnode = getCurrentNode();
-        IOpenClass fieldType = currentnode.getFieldType();
+        IOpenClass fieldType = currentnode.getType();
 
         IAggregateInfo info = fieldType.getAggregateInfo();
         int elementsCount = currentnode.getChildren().size();
@@ -139,8 +140,13 @@ public class InputArgsBean {
         for (int i = 0; i < args.length; i++) {
             String parameterName = method.getSignature().getParameterName(i);
             IOpenClass parameterType = method.getSignature().getParameterType(i);
-            Object parameterValue = parameterType.newInstance(env);
-            args[i] = new ExecutionParamDescription(parameterName, parameterValue);
+            Object parameterValue = null;
+            try {
+                parameterValue = parameterType.newInstance(env);
+            } catch (Exception e) {
+
+            }
+            args[i] = new ExecutionParamDescription(parameterName, parameterValue, IParameterDeclaration.IN);
         }
         return args;
     }
@@ -156,9 +162,9 @@ public class InputArgsBean {
         ExecutionParamDescription[] args = getArguments();
         FieldDescriptionTreeNode[] argTreeNodes = new FieldDescriptionTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
-            argTreeNodes[i] = TestTreeBuilder.createNode(args[i].getParamType(),
+            argTreeNodes[i] = TestTreeBuilder.createNode(args[i].getType(),
                 args[i].getValue(),
-                args[i].getParamName(),
+                args[i].getName(),
                 null);
         }
         return argTreeNodes;
@@ -185,7 +191,7 @@ public class InputArgsBean {
         FieldDescriptionTreeNode parameter = (FieldDescriptionTreeNode) currentArgTreeNode.getRowData();
         TreeNodeImpl root = new TreeNodeImpl();
 
-        root.addChild(parameter.getFieldName(), parameter);
+        root.addChild(parameter.getName(), parameter);
 
         return root;
     }

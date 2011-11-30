@@ -11,15 +11,24 @@ import org.richfaces.model.TreeNodeImpl;
 
 @ManagedBean
 @RequestScoped
+/**
+ * TODO: refactor, rename to ParameterTreeBuilder
+ * @author DLiauchuk
+ *
+ */
 public class TestTreeBuilder {
+    
+    public TestTreeBuilder() {
+        System.out.println();
+    }
     private UIRepeat executionParam;// ExecutionParamDescription
 
     public UIRepeat getExecutionParam() {
         return executionParam;
     }
 
-    public void setExecutionParam(UIRepeat tests) {
-        this.executionParam = tests;
+    public void setExecutionParam(UIRepeat parameter) {
+        this.executionParam = parameter;
     }
 
     public static FieldDescriptionTreeNode createNode(IOpenClass fieldType,
@@ -41,9 +50,10 @@ public class TestTreeBuilder {
         TreeNodeImpl root = new TreeNodeImpl();
 
         FieldDescriptionTreeNode treeNode = null;
-        treeNode = createNode(parameter.getParamType(), parameter.getValue(), null, null);
-        root.addChild(parameter.getParamName(), treeNode);
-
+        if (parameter != null) {
+            treeNode = createNode(parameter.getType(), parameter.getValue(), null, null);
+            root.addChild(parameter.getName(), treeNode);
+        }
         return root;
     }
 

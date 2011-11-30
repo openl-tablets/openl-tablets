@@ -16,7 +16,7 @@
         <tr>
             <a4j:repeat var="argument" value="#{inputArgsBean.arguments}">
                 <th>
-                    <h:outputText value="#{argument.paramName}" />
+                    <h:outputText value="#{argument.name}" />
                 </th>
             </a4j:repeat>
         </tr>
@@ -70,7 +70,7 @@
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.gif" />
                                 </a4j:commandLink>
-                                <h:outputText value="#{item.fieldName} = " rendered="#{not empty item.fieldName}" />
+                                <h:outputText value="#{item.name} = " rendered="#{not empty item.name}" />
                                 <h:inputText id="nodeValue" value="#{item.displayedValue}" />
                                 <h:message for="nodeValue" />
                             </rich:treeNode>

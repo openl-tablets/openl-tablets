@@ -3,16 +3,29 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:rich="http://richfaces.org/rich">
-
-    <a4j:repeat var="param" value="#{args}" binding="#{testTreeBuilder.executionParam}">
-        <td>
-            <rich:tree toggleType="client" selectionType="client" value="#{testTreeBuilder.root}" var="item">
-                <rich:treeNode>
-                    <h:outputText value="#{item.treeText}" />
-                </rich:treeNode>
-            </rich:tree>
-        </td>
-    </a4j:repeat>
-
+	
+	<table>
+	
+	<h:panelGroup rendered="#{not empty headers}">
+		<tr>
+			<ui:repeat value="#{headers}" var="hq">
+				<th>#{hq}</th>
+			</ui:repeat>
+		</tr>
+	</h:panelGroup>	
+		
+		<tr>
+		    <a4j:repeat var="param" value="#{args}" binding="#{testTreeBuilder.executionParam}">
+		        <td>
+		            <rich:tree toggleType="client" selectionType="client" value="#{testTreeBuilder.root}" var="item">
+		                <rich:treeNode>
+		                    <h:outputText value="#{item.treeText}" />
+		                </rich:treeNode>
+		            </rich:tree>
+		        </td>
+		    </a4j:repeat>
+		</tr>
+	</table>
 </ui:composition>

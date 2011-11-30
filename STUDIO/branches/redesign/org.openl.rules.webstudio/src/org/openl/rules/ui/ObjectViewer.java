@@ -31,15 +31,22 @@ public class ObjectViewer {
     public ObjectViewer() {
     }
     
+    /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/ 
     public static String displaySpreadsheetResult(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest) {
-        return display(res, spreadsheetCellsForTest);
+        return display(res, spreadsheetCellsForTest, true);
     }
     
+    /** Display SpreadsheetResult with filter for links to explanation for values*/
     public static String displaySpreadsheetResult(final SpreadsheetResult res) {
-        return display(res, null);
+        return display(res, null, true);
     }
     
-    private static String display(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest) {
+    /** Display SpreadsheetResult without any filters in the table**/
+    public static String displaySpreadheetResultNoFilters(final SpreadsheetResult res) {
+        return display(res, null, false);
+    }
+    
+    private static String display(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest, boolean filter) {
         ILogicalTable table = res.getLogicalTable();        
 
         final int firstRowHeight = table.getRow(0).getSource().getHeight();
@@ -63,19 +70,22 @@ public class ObjectViewer {
 
         };
         
-        IGridTable gridtable = table.getSource();
-        TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);
+        IGridTable gridtable = table.getSource();        
+        TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);       
         
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(tableValueFilter);
-        filters.add(new LinkMaker(tableValueFilter));
         
-        // Check if the cells for test are initialized,
-        // Means Spreadsheet should be displayed with expected values for tests
-        //
-        if (spreadsheetCellsForTest != null) {
-            ExpectedResultFilter expResFilter = new ExpectedResultFilter(spreadsheetCellsForTest);
-            filters.add(expResFilter);
+        if (filter) {            
+            filters.add(new LinkMaker(tableValueFilter));
+            
+            // Check if the cells for test are initialized,
+            // Means Spreadsheet should be displayed with expected values for tests
+            //
+            if (spreadsheetCellsForTest != null) {
+                ExpectedResultFilter expResFilter = new ExpectedResultFilter(spreadsheetCellsForTest);
+                filters.add(expResFilter);
+            }
         }
 
         TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[filters.size()]));

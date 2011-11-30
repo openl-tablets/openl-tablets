@@ -6,12 +6,17 @@ import java.util.LinkedHashMap;
 
 import org.openl.rules.testmethod.ExecutionParamDescription;
 import org.openl.types.IOpenClass;
+import org.openl.types.IParameterDeclaration;
 import org.richfaces.model.TreeNode;
 
-public abstract class FieldDescriptionTreeNode implements TreeNode {
-    private IOpenClass fieldType;
-    private String fieldName;
-    private Object value;
+/**
+ * 
+ * TODO: rename to ParameterDescriptionTreeNode
+ */
+public abstract class FieldDescriptionTreeNode extends ExecutionParamDescription implements TreeNode {
+//    private IOpenClass fieldType;
+//    private String fieldName;
+//    private Object value;
 
     private FieldDescriptionTreeNode parent;
     private LinkedHashMap<Object, FieldDescriptionTreeNode> children;
@@ -20,14 +25,15 @@ public abstract class FieldDescriptionTreeNode implements TreeNode {
             Object value,
             IOpenClass fieldType,
             FieldDescriptionTreeNode parent) {
-        this.fieldName = fieldName;
-        this.value = value;
-        this.fieldType = fieldType;
+        super(fieldName, value, fieldType, IParameterDeclaration.IN);
+//        this.fieldName = fieldName;
+//        this.value = value;
+//        this.fieldType = fieldType;
         this.parent = parent;
     }
 
     public FieldDescriptionTreeNode(ExecutionParamDescription paramDescription, FieldDescriptionTreeNode parent) {
-        this(paramDescription.getParamName(), paramDescription.getValue(), paramDescription.getParamType(), parent);
+        this(paramDescription.getName(), paramDescription.getValue(), paramDescription.getType(), parent);
     }
 
     public FieldDescriptionTreeNode getParent() {
@@ -39,22 +45,22 @@ public abstract class FieldDescriptionTreeNode implements TreeNode {
         return getChildernMap().isEmpty();
     }
 
-    public IOpenClass getFieldType() {
-        return fieldType;
-    }
+//    public IOpenClass getFieldType() {
+//        return fieldType;
+//    }
 
-    public String getFieldName() {
-        return fieldName;
-    }
+//    public String getFieldName() {
+//        return fieldName;
+//    }
 
-    protected Object getValue() {
-        return value;
-    }
+//    protected Object getValue() {
+//        return value;
+//    }
 
     public abstract String getDisplayedValue();
 
     public boolean isValueNull() {
-        return value == null;
+        return getValue() == null;
     }
 
     public boolean isElementOfCollection() {
@@ -62,7 +68,8 @@ public abstract class FieldDescriptionTreeNode implements TreeNode {
     }
 
     public void setValueForced(Object value) {
-        this.value = value;
+//        this.value = value;
+        setValue(value);
         reset();
     }
     
@@ -80,8 +87,8 @@ public abstract class FieldDescriptionTreeNode implements TreeNode {
 
     public String getTreeText() {
         StringBuilder buff = new StringBuilder();
-        if (getFieldName() != null) {
-            buff.append(getFieldName());
+        if (getName() != null) {
+            buff.append(getName());
             buff.append(" = ");
         }
         if (isValueNull()) {

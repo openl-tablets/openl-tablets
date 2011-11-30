@@ -5,11 +5,10 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITableTracerObject;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -69,32 +68,21 @@ public class ShowTraceTableBean {
         return model.getTableView(FacesUtils.getRequestParameter("view"));
     }
     
-    public ExecutionParamDescription[] getExecutionParams() {
+    public ExecutionParamDescription[] getInputParameters() {
         ITableTracerObject tto = traceHelper.getTableTracer(traceElementId);
-        if (tto != null) {
-            if (tto instanceof ATableTracerNode) {
-                return getExecutionParams((ATableTracerNode) tto);
-            } else if (tto.getParent() instanceof ATableTracerNode) {
-                // ATableTracerLeaf
-                return getExecutionParams((ATableTracerNode) tto.getParent());
-            }
-        }
-        return null;
+        return new TracerObjectDecorator(tto).getInputParameters();
     }
     
-    public ExecutionParamDescription[] getExecutionParams(ATableTracerNode tracerNode){
-        Object[] parameters = tracerNode.getParameters();
-        if (tracerNode.getTraceObject() instanceof ExecutableRulesMethod) {
-            ExecutableRulesMethod tracedMethod = (ExecutableRulesMethod) tracerNode.getTraceObject();
-            ExecutionParamDescription[] paramDescriptions = new ExecutionParamDescription[parameters.length];
-            for (int i = 0; i < paramDescriptions.length; i++) {
-                paramDescriptions[i] = new ExecutionParamDescription(tracedMethod.getSignature().getParameterName(i),
-                    parameters[i]);
-            }
-            return paramDescriptions;
-        } else {
-            return null;
-        }
+    public ExecutionParamDescription[] getReturnResult() {
+        return new ExecutionParamDescription[]{new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getReturnResult()};
+    }
+    
+    public String getFormattedResult() {
+        return new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getFormattedResult();
+    }
+    
+    public boolean getSpreadsheetResultReturn() {        
+        return new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).isSpreadsheetResult();
     }
 
     public List<OpenLMessage> getErrors() {

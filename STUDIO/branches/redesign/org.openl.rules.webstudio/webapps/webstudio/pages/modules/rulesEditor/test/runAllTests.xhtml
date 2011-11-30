@@ -26,22 +26,17 @@
             </h:panelGroup>
         </h:panelGrid>
 
-        <a4j:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
+        <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
             <h1>
                 <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content"
                     style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
                 	<f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
                 	<h:outputText value="#{testUnitsResults.testSuite.name}" />
             	</h:outputLink>
-            </h1>
-    
+            </h1>    		
             <table class="testtable">
-                <tr>
-                    <a4j:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="testDataColumnDisplayName">
-                        <th>
-                            <h:outputText value="#{testDataColumnDisplayName}" />
-                        </th>
-                    </a4j:repeat>
+                <tr>                    
+                    <th>Input Parameters</th>
                     <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                     <th>
                         <h:outputText value="Description" />
@@ -58,9 +53,12 @@
                 
                 <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
                     <tr style="vertical-align: top">
-                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                            <ui:param name="args" value="#{runAllTestsBean.paramDescriptions}" />
-                        </ui:include>
+                    	<td>
+	                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+	                        	<ui:param name="headers" value="#{testUnitsResults.testDataColumnDisplayNames}" />                        	
+	                            <ui:param name="args" value="#{runAllTestsBean.paramDescriptions}" />
+	                        </ui:include>
+	                     </td>
                         <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                         <td>
                         	<h:outputText value="#{runAllTestsBean.unitDescription}" />
@@ -107,7 +105,7 @@
                     </tr>
                 </a4j:repeat>
             </table>
-        </a4j:repeat>
+        </ui:repeat>
     </ui:define>
 
 </ui:composition>

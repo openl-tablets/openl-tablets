@@ -23,7 +23,7 @@ public class ComplexFieldNode extends FieldDescriptionTreeNode {
 
     @Override
     public String getDisplayedValue() {
-        return getFieldType().getDisplayName(INameSpacedThing.SHORT);
+        return getType().getDisplayName(INameSpacedThing.SHORT);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ComplexFieldNode extends FieldDescriptionTreeNode {
         } else {
             LinkedHashMap<Object, FieldDescriptionTreeNode> fields = new LinkedHashMap<Object, FieldDescriptionTreeNode>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-            for (Entry<String, IOpenField> fieldEntry : getFieldType().getFields().entrySet()) {
+            for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
                 if (!field.isConst()) {
                     String fieldName = fieldEntry.getKey();
@@ -57,7 +57,7 @@ public class ComplexFieldNode extends FieldDescriptionTreeNode {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (Entry<Object, FieldDescriptionTreeNode> fieldEntry : getChildernMap().entrySet()) {
             String fieldName = (String) fieldEntry.getKey();
-            IOpenField field = getFieldType().getField(fieldName);
+            IOpenField field = getType().getField(fieldName);
             field.set(value, fieldEntry.getValue().getValueForced(), env);
         }
         return value;

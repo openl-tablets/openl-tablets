@@ -2,10 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.LinkedHashMap;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.validator.ValidatorException;
-
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.formatters.FormattersManager;
@@ -35,7 +31,7 @@ public class SimpleFieldNode extends FieldDescriptionTreeNode {
     }
 
     public void setDisplayedValue(String value) {
-        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getFieldType().getInstanceClass());
+        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType().getInstanceClass());
         try {
             setValueForced(convertor.parse(value, null, null));
         } catch (Exception e) {
