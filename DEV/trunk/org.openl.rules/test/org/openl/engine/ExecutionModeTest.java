@@ -1,6 +1,5 @@
 package org.openl.engine;
 
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -102,16 +101,16 @@ public class ExecutionModeTest {
         context.setCurrentDate(calendar.getTime());
         
         DoubleValue res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue());
+        assertEquals(120.0, res1.doubleValue(), 0);
         
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
         
         DoubleValue res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue());
+        assertEquals(100.0, res2.doubleValue(), 0);
         
         DoubleValue res3 = instance.driverRiskScoreNoOverloadTest("High Risk Driver");
-        assertEquals(200.0, res3.doubleValue());
+        assertEquals(200.0, res3.doubleValue(), 0);
     }
 
     @Test
