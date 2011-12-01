@@ -74,6 +74,10 @@
                 }
             }
 
+            function refreshCurrent() {
+                hashchange();
+            }
+
             function hashchange() {
                 if (location.hash) {
                     var page = location.href.split("#")[1];
@@ -120,31 +124,31 @@
             </ui:insert>
         </div>
         <div id="center" class="ui-layout-center">
-            <div id="top" class="ui-layout-north">
+            <h:panelGroup id="top" class="ui-layout-north" layout="block">
                 <ui:insert name="top">
                     <ui:include src="/pages/modules/rulesEditor/topPanel.xhtml" />
                 </ui:insert>
-            </div>
-            <div id="left" class="ui-layout-west">
+            </h:panelGroup>
+            <h:panelGroup id="left" class="ui-layout-west" layout="block">
                 <ui:insert name="left">
                     <ui:include src="/pages/modules/rulesEditor/leftPanel.xhtml" />
                 </ui:insert>
-            </div>
+            </h:panelGroup>
             <div class="ui-layout-center">
-                <div id="content" class="ui-layout-center">
+                <h:panelGroup id="content" class="ui-layout-center" layout="block">
                     <ui:insert name="content" />
-                </div>
-                <div class="ui-layout-south">
+                </h:panelGroup>
+                <h:panelGroup id="bottom" class="ui-layout-south" layout="block">
                     <ui:insert name="bottom">
                         <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
                     </ui:insert>
-                </div>
+                </h:panelGroup>
             </div>
-            <div id="right" class="ui-layout-east">
+            <h:panelGroup id="right" class="ui-layout-east" layout="block">
                 <ui:insert name="right">
                     <ui:include src="/pages/modules/rulesEditor/rightPanel.xhtml" />
                 </ui:insert>
-            </div>
+            </h:panelGroup>
         </div>
         <div id="footer" class="ui-layout-south">
             <ui:insert name="footer">

@@ -176,43 +176,41 @@ public class WebStudio {
         listeners.add(listener);
     }
 
-    public void executeOperation(String operation, HttpSession session) {
-        
-        if ("checkIn".equals(operation)) {
+    public void checkInProject(HttpSession session) {
+        try {
+            RulesProject project = getCurrentProject(session);
+            if (project == null) {
+                return;
+            }
+            project.checkIn();
+        } catch (Exception e) {
+            LOG.error("Can not check in!", e);
             try {
-                RulesProject project = getCurrentProject(session);
-                if (project == null) {
-                    return;
-                }
-                project.checkIn();
-            } catch (Exception e) {
-                LOG.error("Can not check in!", e);
-                try {
-                    String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
-                            e.getMessage());
-                    FacesUtils.redirect(redirectLink);
-                } catch (IOException e1) {
-                    LOG.error("Can`t redirect to with message page", e);
-                }
+                String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
+                        e.getMessage());
+                FacesUtils.redirect(redirectLink);
+            } catch (IOException e1) {
+                LOG.error("Can`t redirect to with message page", e);
             }
         }
-        if ("checkOut".equals(operation)) {
+    }
+
+    public void checkOutProject(HttpSession session) {
+        try {
+            RulesProject project = getCurrentProject(session);
+            if (project == null) {
+                return;
+            }
+            project.checkOut();
+            reset(ReloadType.FORCED);
+        } catch (Exception e) {
+            LOG.error("Can not check out!", e);
             try {
-                RulesProject project = getCurrentProject(session);
-                if (project == null) {
-                    return;
-                }
-                project.checkOut();
-                reset(ReloadType.FORCED);
-            } catch (Exception e) {
-                LOG.error("Can not check out!", e);
-                try {
-                    String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
-                            e.getMessage());
-                    FacesUtils.redirect(redirectLink);
-                } catch (IOException e1) {
-                    LOG.error("Can`t redirect to with message page", e);
-                }
+                String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
+                        e.getMessage());
+                FacesUtils.redirect(redirectLink);
+            } catch (IOException e1) {
+                LOG.error("Can`t redirect to with message page", e);
             }
         }
     }

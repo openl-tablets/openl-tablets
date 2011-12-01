@@ -22,8 +22,6 @@ public class MainBean {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(FacesUtils.getContextPath());
         }
-
-        handleRequestParams();
     }
 
     /**
@@ -34,18 +32,19 @@ public class MainBean {
         return StringUtils.EMPTY;
     }
 
-    private void handleRequestParams() throws Exception {
+    public void checkInProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.checkInProject(FacesUtils.getSession());
+    }
 
-        String reload = FacesUtils.getRequestParameter("reload");
-        if (reload != null) {
-            studio.reset(ReloadType.valueOf(reload.toUpperCase()));
-        }
+    public void checkOutProject() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.checkOutProject(FacesUtils.getSession());
+    }
 
-        String operation = FacesUtils.getRequestParameter("operation");
-        if (operation != null) {
-            studio.executeOperation(operation, FacesUtils.getSession());
-        }
+    public void reload() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.reset(ReloadType.FORCED);
     }
 
     public void selectModule() throws Exception {
