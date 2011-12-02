@@ -9,6 +9,7 @@ import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IGridTable;
@@ -17,8 +18,6 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.impl.MethodDelegator;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
@@ -66,7 +65,7 @@ public class AuxiliaryMethodsValidator extends TablesValidator {
                 CellMetaInfo cellMetaInfo = gridTable.getCell(column, row).getMetaInfo();
                 if (cellMetaInfo != null && cellMetaInfo.hasMethodUsagesInCell()) {
                     for (MethodUsage usedMethodDescription : cellMetaInfo.getUsedMethods()) {
-                        if (isAuxiliaryMethod(usedMethodDescription.getMethod())) {
+                        if (XlsModuleOpenClass.isAuxiliaryMethod(usedMethodDescription.getMethod())) {
                             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ERROR_MESSAGE,
                                 new GridCellSourceCodeModule(gridTable, column, row, null));
                             tsn.addError(error);
@@ -77,12 +76,6 @@ public class AuxiliaryMethodsValidator extends TablesValidator {
             }
         }
         return messages;
-    }
-
-    private final String AUXILIARY_METHOD_NAME_PATTERN = ".*\\$\\d*";
-
-    private boolean isAuxiliaryMethod(IOpenMethod method) {
-        return method instanceof MethodDelegator && method.getName().matches(AUXILIARY_METHOD_NAME_PATTERN);
     }
 
     /**

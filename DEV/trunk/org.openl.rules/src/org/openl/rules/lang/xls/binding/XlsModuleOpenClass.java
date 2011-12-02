@@ -31,8 +31,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
     private IDataBase dataBase = new DataBase();
 	
 	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl) {
-		super(schema, name, openl);
-		this.metaInfo = metaInfo;
+        this(schema, name, metaInfo, openl, null);
 	}
 	
 	/**
@@ -46,7 +45,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	}
 	
 	
-	// TODO: should be placed to ModuleOpenClass
+    // TODO: should be placed to ModuleOpenClass
 	public IDataBase getDataBase() {
 		return dataBase;
 	}
@@ -120,6 +119,21 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	}
 	
     public static final String AUXILIARY_METHOD_DELIMETER = "$";
+
+    private static final String AUXILIARY_METHOD_NAME_PATTERN = ".*\\$\\d*";
+
+
+    /**
+     * Checks whether the method is special internal method generated for one
+     * method in overloaded group.
+     * 
+     * @param method Method to check.
+     * @return <code>true</code> if specified method is auxiliary method for
+     *         some method in overloaded group.
+     */
+    public static boolean isAuxiliaryMethod(IOpenMethod method) {
+        return method instanceof MethodDelegator && method.getName().matches(AUXILIARY_METHOD_NAME_PATTERN);
+    }
 
     /**
      * Adds an auxiliary method for all overloaded methods. Such method can be
