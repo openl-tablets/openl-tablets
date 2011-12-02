@@ -8,5 +8,6 @@ package org.openl.runtime;
  * 
  * @author Alexey Gamanovich
  */
-public interface IRuntimeContext {
+public interface IRuntimeContext extends Cloneable {
+    IRuntimeContext clone() throws CloneNotSupportedException;
 }

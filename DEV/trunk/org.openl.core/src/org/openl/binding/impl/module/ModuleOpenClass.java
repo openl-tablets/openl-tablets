@@ -57,7 +57,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
     
     public ModuleOpenClass(IOpenSchema schema, String name, OpenL openl) {
-        super(schema, name, openl);
+        this(schema, name, openl, null);
     } 
     
     /**

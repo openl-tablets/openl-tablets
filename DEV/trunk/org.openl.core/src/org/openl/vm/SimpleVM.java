@@ -11,6 +11,7 @@ import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.util.fast.FastStack;
 
@@ -81,7 +82,7 @@ public class SimpleVM implements IOpenVM {
 		
 	}
 	
-	static class SimpleRuntimeEnv implements IRuntimeEnv {
+	static class SimpleRuntimeEnv implements IRuntimeEnvWithContextManagingSupport {
 		
 		IOpenRunner runner;
 		
@@ -89,7 +90,7 @@ public class SimpleVM implements IOpenVM {
 		
 		FastStack frameStack = new FastStack(100);
 		
-		private IRuntimeContext context;
+		private FastStack contextStack = new FastStack(5);
 		
 		SimpleRuntimeEnv() {
 			this(new SimpleRunner(), 0, new Object[] {});
@@ -142,12 +143,31 @@ public class SimpleVM implements IOpenVM {
 		}
 		
 		public IRuntimeContext getContext() {
-			return context;
+            if (contextStack.size() > 0) {
+                return (IRuntimeContext) contextStack.peek();
+            } else {
+                return null;
+            }
 		}
 		
 		public void setContext(IRuntimeContext context) {
-			this.context = context;
+			contextStack.clear();
+			pushContext(context);
 		}
+
+        @Override
+        public IRuntimeContext popContext() {
+            if (contextStack.size() > 0) {
+                return (IRuntimeContext)contextStack.pop();
+            } else {
+                throw new OpenlNotCheckedException("Failed to restore context. The context modification history is empty.");
+            }
+        }
+
+        @Override
+        public void pushContext(IRuntimeContext context) {
+            contextStack.push(context);
+        }
 	}
 	
 	/*
