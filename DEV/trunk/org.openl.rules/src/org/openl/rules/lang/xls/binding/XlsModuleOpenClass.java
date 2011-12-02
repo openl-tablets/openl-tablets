@@ -9,25 +9,39 @@ package org.openl.rules.lang.xls.binding;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.IRuntimeEnvWithContextManagingSupport;
 
 /**
  * @author snshor
  * 
  */
 public class XlsModuleOpenClass extends ModuleOpenClass {
-	
+
+    private static final Log LOG = LogFactory.getLog(XlsModuleOpenClass.class);
+
     private IDataBase dataBase = new DataBase();
 	
 	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl) {
@@ -42,6 +56,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
           Set<CompiledOpenClass> usingModules) {
 	    super(schema, name, openl, usingModules);
 	    this.metaInfo = metaInfo;
+        addMethod(new ModifyRuntimeContextMethod(this));
+        addMethod(new SetRuntimeContextMethod(this));
+        addMethod(new RestoreRuntimeContextMethod(this));
+        addMethod(new EmptyRuntimeContextMethod(this));
+        addMethod(new CurrentRuntimeContextMethod(this));
 	}
 	
 	
@@ -122,15 +141,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
     private static final String AUXILIARY_METHOD_NAME_PATTERN = ".*\\$\\d*";
 
-
-    /**
-     * Checks whether the method is special internal method generated for one
-     * method in overloaded group.
-     * 
-     * @param method Method to check.
-     * @return <code>true</code> if specified method is auxiliary method for
-     *         some method in overloaded group.
-     */
     public static boolean isAuxiliaryMethod(IOpenMethod method) {
         return method instanceof MethodDelegator && method.getName().matches(AUXILIARY_METHOD_NAME_PATTERN);
     }
@@ -159,6 +169,304 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	public void clearOddDataForExecutionMode() {
 	    super.clearOddDataForExecutionMode();
 	    dataBase = null;
+    }
+
+    public final class CurrentRuntimeContextMethod implements IOpenMethod {
+        private final XlsModuleOpenClass moduleOpenClass;
+        public final static  String CURRENT_CONTEXT_METHOD_NAME = "getContext";
+
+        private CurrentRuntimeContextMethod(XlsModuleOpenClass moduleOpenClass) {
+            this.moduleOpenClass = moduleOpenClass;
+        }
+
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            IRulesRuntimeContext context = (IRulesRuntimeContext)env.getContext();
+            try {
+                return context.clone();
+            } catch (CloneNotSupportedException e) {
+                LOG.warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
+                return context;
+            }
+        }
+
+        @Override
+        public IOpenMethod getMethod() {
+            return this;
+        }
+
+        @Override
+        public String getName() {
+            return CURRENT_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return CURRENT_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.getOpenClass(IRulesRuntimeContext.class);
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return moduleOpenClass;
+        }
+
+        @Override
+        public IMethodSignature getSignature() {
+            return new MethodSignature(new IOpenClass[] {}, new String[] {});
+        }
+    }
+
+    public final class EmptyRuntimeContextMethod implements IOpenMethod {
+        private final XlsModuleOpenClass moduleOpenClass;
+        public final static  String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
+
+        private EmptyRuntimeContextMethod(XlsModuleOpenClass moduleOpenClass) {
+            this.moduleOpenClass = moduleOpenClass;
+        }
+
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return new DefaultRulesRuntimeContext();
+        }
+
+        @Override
+        public IOpenMethod getMethod() {
+            return this;
+        }
+
+        @Override
+        public String getName() {
+            return EMPTY_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return EMPTY_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.getOpenClass(IRulesRuntimeContext.class);
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return moduleOpenClass;
+        }
+
+        @Override
+        public IMethodSignature getSignature() {
+            return new MethodSignature(new IOpenClass[] {}, new String[] {});
+        }
+    }
+
+    public final class RestoreRuntimeContextMethod implements IOpenMethod {
+        private final XlsModuleOpenClass moduleOpenClass;
+        public final static  String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
+
+        private RestoreRuntimeContextMethod(XlsModuleOpenClass moduleOpenClass) {
+            this.moduleOpenClass = moduleOpenClass;
+        }
+
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            if(env instanceof IRuntimeEnvWithContextManagingSupport){
+                ((IRuntimeEnvWithContextManagingSupport)env).popContext();
+            }
+            LOG.warn("Failed to restore runtime context. Runtime context does not support context modifications.");
+            return null;
+        }
+
+        @Override
+        public IOpenMethod getMethod() {
+            return this;
+        }
+
+        @Override
+        public String getName() {
+            return RESTORE_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return RESTORE_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.VOID;
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return moduleOpenClass;
+        }
+
+        @Override
+        public IMethodSignature getSignature() {
+            return new MethodSignature(new IOpenClass[] {}, new String[] {});
+        }
+    }
+
+    public final class SetRuntimeContextMethod implements IOpenMethod {
+        private final XlsModuleOpenClass moduleOpenClass;
+        public final static  String SET_CONTEXT_METHOD_NAME = "setContext";
+
+        private SetRuntimeContextMethod(XlsModuleOpenClass moduleOpenClass) {
+            this.moduleOpenClass = moduleOpenClass;
+        }
+
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            if(env instanceof IRuntimeEnvWithContextManagingSupport){
+                IRulesRuntimeContext runtimeContext =  (IRulesRuntimeContext)params[0];
+                ((IRuntimeEnvWithContextManagingSupport)env).pushContext(runtimeContext);
+            }
+            LOG.warn("Failed to set runtime context. Runtime context does not support context modifications.");
+            return null;
+        }
+
+        @Override
+        public IOpenMethod getMethod() {
+            return this;
+        }
+
+        @Override
+        public String getName() {
+            return SET_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return SET_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.VOID;
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return moduleOpenClass;
+        }
+
+        @Override
+        public IMethodSignature getSignature() {
+            return new MethodSignature(new IOpenClass[] { JavaOpenClass.getOpenClass(IRulesRuntimeContext.class) },
+                new String[] { "context"});
+        }
+    }
+
+    public final class ModifyRuntimeContextMethod implements IOpenMethod {
+        private final XlsModuleOpenClass moduleOpenClass;
+        public final static  String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
+
+        private ModifyRuntimeContextMethod(XlsModuleOpenClass moduleOpenClass) {
+            this.moduleOpenClass = moduleOpenClass;
+        }
+
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            if(env instanceof IRuntimeEnvWithContextManagingSupport){
+                IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext)env.getContext();
+                if(runtimeContext == null){
+                    runtimeContext = new DefaultRulesRuntimeContext();
+                }else{
+                    runtimeContext = new RulesRuntimeContextDelegator(runtimeContext);
+                }
+                runtimeContext.setValue((String)params[0], params[1]);
+                ((IRuntimeEnvWithContextManagingSupport) env).pushContext(runtimeContext);
+            }
+            LOG.warn("Failed to modify runtime context. Runtime context does not support context modifications.");
+            return null;
+        }
+
+        @Override
+        public IOpenMethod getMethod() {
+            return this;
+        }
+
+        @Override
+        public String getName() {
+            return MODIFY_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return MODIFY_CONTEXT_METHOD_NAME;
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.VOID;
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return moduleOpenClass;
+        }
+
+        @Override
+        public IMethodSignature getSignature() {
+            return new MethodSignature(new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.OBJECT },
+                new String[] { "property", "value" });
+        }
     }
 
 }

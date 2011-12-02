@@ -12,6 +12,7 @@ import org.openl.runtime.IRuntimeContext;
 public interface IRulesRuntimeContext extends IRuntimeContext {
 	
 	Object getValue(String variable);
+	void setValue(String name, Object value);
 	
 	// <<< INSERT >>>
 	java.util.Date getCurrentDate();
