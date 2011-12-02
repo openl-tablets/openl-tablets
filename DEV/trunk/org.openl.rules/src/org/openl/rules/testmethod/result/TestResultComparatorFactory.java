@@ -17,9 +17,12 @@ public class TestResultComparatorFactory {
             return new ComparableResultComparator();
         }
         
-        if (actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
-            return new ArrayComparator();
+        if (actualResult != null && expectedResult != null) {
+            if (actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
+                return new ArrayComparator();
+            }
         }
+         
         return new DefaultComparator();
     }
     
