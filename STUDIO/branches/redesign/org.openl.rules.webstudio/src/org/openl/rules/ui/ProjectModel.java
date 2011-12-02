@@ -22,6 +22,7 @@ import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -501,7 +502,7 @@ public class ProjectModel {
 
     private IOpenMethod resolveMethod(IOpenMethod method, TableSyntaxNode syntaxNode) {
 
-        if (isInstanceOfTable(method, syntaxNode)) {
+        if (!XlsModuleOpenClass.isAuxiliaryMethod(method) && isInstanceOfTable(method, syntaxNode)) {
             return method;
         }
 
