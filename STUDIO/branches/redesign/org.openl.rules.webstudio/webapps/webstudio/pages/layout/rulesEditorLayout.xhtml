@@ -15,13 +15,17 @@
 
     <h:head>
         #{mainBean.init}
-        <link href="#{contextPath}/css/common.css" rel="stylesheet" type="text/css"></link>
-        <link href="#{contextPath}/css/layout.css" rel="stylesheet" type="text/css"></link>
+
+        <link href="#{contextPath}/css/common.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/layout.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
+
         <script src="#{contextPath}/javascript/common.js"></script>
-        <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
-        <h:outputScript name="jquery.js" />
+
+        <script src="#{contextPath}/javascript/jquery-1.7.1.min.js"></script>
         <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
         <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
+        <script src="#{contextPath}/javascript/jquery.popup.js"></script>
 
         <script>
             var $j = $.noConflict();
@@ -116,6 +120,8 @@
     </h:head>
 
     <h:body>
+        <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
+
         <div id="header" class="ui-layout-north">
             <ui:insert name="header">
                 <ui:include src="/pages/common/header.xhtml">
@@ -183,6 +189,7 @@
         <div style="display: none">
             <rich:popupPanel />
             <rich:calendar />
+            <rich:inputNumberSpinner />
         </div>
 
         <script>

@@ -55,12 +55,6 @@
         .toolbarButton .arrow:hover {
             background-color: #BBCCDD;
         }
-        .buttonMenu {
-            position: absolute;
-            background: white;
-            border: 1px solid rgb(210,210,210);
-            z-index: 2;
-        }
         .bigButton {
             padding: 4px 7px;
             text-align: center;
@@ -95,23 +89,12 @@
                 button = $j(event.target).closest(buttonElem);
             var buttonPos = button.position();
 
-            var menu = $j("#" + id);
-            menu.css({
-                'top' : buttonPos.top + button.outerHeight(),
-                'left' : buttonPos.left
-            });
-            menu.addClass("buttonMenu");
-            menu.show();
-
-            $j(document).click(function(e) {
-                var target = e.target;
-                var bMenu = $j(target).closest(".buttonMenu");
-                if (!bMenu.length) {
-                    menu.hide();
-                }
-            });
-
             event.stopPropagation();
+
+            $j("#" + id).popup({
+                left: buttonPos.left,
+                top : buttonPos.top + button.outerHeight()
+            });
         }
     </script>
 
