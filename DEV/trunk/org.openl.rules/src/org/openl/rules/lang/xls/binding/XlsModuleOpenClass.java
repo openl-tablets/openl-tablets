@@ -182,6 +182,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             IRulesRuntimeContext context = (IRulesRuntimeContext)env.getContext();
+            if (context == null) {
+                return null;
+            }
             try {
                 return context.clone();
             } catch (CloneNotSupportedException e) {
