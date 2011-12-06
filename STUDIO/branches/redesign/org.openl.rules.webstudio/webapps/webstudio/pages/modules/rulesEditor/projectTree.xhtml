@@ -17,21 +17,21 @@
                 position: relative;
             }
             #nameFilter input {
-                width: 97%;
+                width: 100%;
             }
             #nameFilter img {
                 position: absolute;
-                right: 2px;
-                top: 6px;
+                right: 5px;
+                top: 3px;
                 cursor: pointer;
                 opacity: 0.5;
             }
         </style>
         <div class="treeMenu">
-            <div id="nameFilter">
+            <span id="nameFilter">
                 <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
                 <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
-            </div>
+            </span>
         </div>
     </ui:define>
 
