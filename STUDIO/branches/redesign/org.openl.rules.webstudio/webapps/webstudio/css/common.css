@@ -413,6 +413,19 @@ table.header thead td {
     height: 0 !important;
 }
 
+.rf-insp {
+    border: 0 !important;
+}
+
+.rf-insp-inp {
+    background: none !important;
+}
+
+.rf-insp-btns {
+    border: 0 !important;
+    background: #e6e6e6 !important;
+}
+
 .view_toolbar {
     padding: 0 3px;
 }

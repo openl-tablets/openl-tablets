@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
     <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
     <script src="#{contextPath}/javascript/validator.js"></script>
-    <link href="webresource/css/multiselect.css" rel="stylesheet" type="text/css"></link>
+    <link href="webresource/css/multiselect.css" rel="stylesheet" />
     <script src="webresource/js/AjaxHelper.js"></script>
     <script src="webresource/js/BaseEditor.js"></script>
     <script src="webresource/js/BaseTextEditor.js"></script>
@@ -30,7 +30,7 @@
             color: #EC9D0F;
             padding-bottom: 3px;
         }
-        .section div {
+        .section > div {
             margin-left: 10px;
         }
     </style>
@@ -77,8 +77,7 @@
                                     <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
                                         defaultTime="00:00" rendered="#{prop.dateType}" />
 
-                                    <h:inputText id="aaa" value="#{prop.value}" readonly="true" rendered="#{prop.name == 'version'}"
-                                        onclick="#{rich:component('modalVersionChange')}.show();" />
+                                    <oh:inputVersion value="#{prop.value}" rendered="#{prop.name == 'version'}" />
 
                                     <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
 
@@ -152,35 +151,7 @@
         <h:commandButton value="Copy" action="#{wizard.finish}" />
     </h:form>
 
-    <rich:popupPanel id="modalVersionChange" width="400" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="Version" />
-        </f:facet>
-
-        <f:facet name="controls">
-            <h:graphicImage value="/images/modal/close.png"
-                style="cursor:pointer" alt="Close" title="Close"
-                    onclick="#{rich:component('modalVersionChange')}.hide();" />
-        </f:facet>
-
-        <h:form id="changeVersionForm">
-            <h:panelGroup id="changeVersionPanel">
-                <ui:include src="/pages/common/selectVersion.xhtml" />
-            </h:panelGroup>
-
-            <br />
-            <hr />
-            <br />
-
-            <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px" cellspacing="0px">
-                <a4j:commandButton value="Ok" render="propertiesTable"
-                    oncomplete="#{rich:component('modalVersionChange')}.hide();" />
-                <input type="button" value="Cancel"
-                    onclick="#{rich:component('modalVersionChange')}.hide();" />
-            </h:panelGrid>
-        </h:form>
-    </rich:popupPanel>
-
+    <ui:remove>
     <rich:popupPanel id="newPropertyDlg" width="290" autosized="true">
         <f:facet name="header">
             <h:outputText value="Add Property" />
@@ -201,7 +172,7 @@
             <h:panelGroup style="text-align: center; margin-top: 10px;" layout="block">
                 <a4j:commandButton value="Add"
                     action="#{propertiesManager.addProperty}"
-                    render="propertiesTable newPropertySelect changeVersionPanel"
+                    render="propertiesTable newPropertySelect"
                     oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
                 <h:commandButton value="Cancel" style="margin-left: 5px;"
                     onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
@@ -218,6 +189,7 @@
             </h:panelGrid>
         </h:panelGroup>
     </rich:popupPanel>
+    </ui:remove>
 
     <script>
       function validateForm() {
