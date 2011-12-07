@@ -415,6 +415,7 @@ table.header thead td {
 
 .rf-insp {
     border: 0 !important;
+    display: inline !important;
 }
 
 .rf-insp-inp {
