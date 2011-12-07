@@ -6,7 +6,8 @@
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:rich="http://richfaces.org/rich">
 
-    <h:panelGroup id="#{!empty id ? id : 'version'}" rendered="#{rendered}">
+    <h:panelGroup id="#{!empty id ? id : 'version'}" rendered="#{!empty rendered ? rendered : true}">
+        <script src="#{facesContext.externalContext.request.contextPath}/javascript/taglib/html/inputVersion.js" />
 
         <h:inputText value="#{value}" readonly="true" onclick="showVersionPopup(this, event)" />
 
@@ -14,48 +15,18 @@
             <c:set var="subVersions" value="#{fn:split(value, '.')}" />
             <h:panelGrid columns="2">
                 <h:outputText value="Major" />
-                <rich:inputNumberSpinner value="#{subVersions[0]}"
-                    maxValue="10000" inputSize="4" onchange="applyVersion(this, 0)" />
+                <rich:inputNumberSpinner value="#{subVersions[0]}" maxValue="10000"
+                    inputSize="4" onchange="applyVersion(this, 0)" />
                 <h:outputText value="Minor" />
-                <rich:inputNumberSpinner value="#{subVersions[1]}"
-                    maxValue="100" inputSize="4" onchange="applyVersion(this, 1)" />
+                <rich:inputNumberSpinner value="#{subVersions[1]}" maxValue="100"
+                    inputSize="4" onchange="applyVersion(this, 1)" />
                 <h:outputText value="Variant" />
-                <rich:inputNumberSpinner id="variant" value="#{subVersions[2]}"
-                    maxValue="100" inputSize="4" onchange="applyVersion(this, 2)" />
+                <rich:inputNumberSpinner value="#{subVersions[2]}" maxValue="100"
+                    inputSize="4" onchange="applyVersion(this, 2)" />
             </h:panelGrid>
         </div>
 
         <h:inputHidden value="#{value}" />
-
-        <script>
-        //<![CDATA[
-            //(function($) {
-                function showVersionPopup(input, event) {
-                    event.stopPropagation();
-                    input = $j(input);
-                    var inputPos = input.position();
-                    var popup = input.next();
-                    popup.popup({
-                        left: inputPos.left,
-                        top : inputPos.top + input.outerHeight()
-                    });
-                }
-                var initVersion = "0.0.0";
-                function applyVersion(element, i) {
-                    /*var value = $j(element).find("input").val();
-                    var popup = $j(element).closest("div");
-                    var input = popup.prev();
-                    var hidden = popup.next();
-                    var version = input.val() || initVersion;
-                    var subVersions = version.split(".");
-                    subVersions[i] = value;
-                    var result = subVersions.join(".");
-                    input.val(result);
-                    hidden.val(result);*/
-                }
-            //})(jQuery);
-        //]]>
-        </script>
     </h:panelGroup>
 
 </ui:composition>
