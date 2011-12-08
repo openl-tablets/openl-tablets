@@ -91,12 +91,13 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        var pos = Element.viewportOffset(this.input);
+        var pos = Element.positionedOffset(this.input);
         pos[1] += this.input.getHeight();
-        this.multiselectPanel.style.left = pos[0] - (Prototype.Browser.Gecko ? 1 : 0) + "px";
+        this.multiselectPanel.style.left = pos[0] + "px";
         this.multiselectPanel.style.top = pos[1] + "px";
+        this.multiselectPanel.style.minWidth = this.input.getWidth() + "px";
 
-        document.body.appendChild(this.multiselectPanel);
+        this.input.up().appendChild(this.multiselectPanel);
 
         if (this.ie6) {
             this.openIE6Popup(
