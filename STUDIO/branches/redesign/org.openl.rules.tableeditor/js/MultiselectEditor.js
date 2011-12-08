@@ -36,11 +36,16 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var buttonContainer = new Element("div");
         buttonContainer.className = "multiselect_buttons";
 
-        buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Deselect All"> <input type="button" value="Done">'
-        var b1 = buttonContainer.down(), b2 = b1.next(), b3 = b2.next();
-        b1.onclick = function() {self.setAllCheckBoxes(true)}
-        b2.onclick = function() {self.setAllCheckBoxes(false)}
-        b3.onclick = function() {self.finishEdit()}
+        buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Done">'
+        var b1 = buttonContainer.down(), b2 = b1.next();
+        b1.onclick = function() {
+            self.setAllCheckBoxes(this.value == "Select All");
+            this.value = (this.value == "Select All" ? "Deselect All" : "Select All");
+        }
+
+        b2.onclick = function() {
+            self.finishEdit();
+        }
 
         this.multiselectPanel.appendChild(buttonContainer);
 
