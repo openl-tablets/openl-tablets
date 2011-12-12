@@ -1,6 +1,11 @@
 package org.openl.rules.tableeditor.renderkit;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +13,7 @@ import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
+import org.openl.util.EnumUtils;
 
 /**
  * Temporary class for holding table properties
@@ -130,6 +136,40 @@ public class TableProperty {
         return result;
     }
 
+    public String[] getEnumArrayValue() {
+        if (isEnumArray()) {
+            return EnumUtils.getNames((Enum<?>[]) value);
+        }
+        return null;
+    }
+
+    public void setEnumArrayValue(String[] value) {
+        Object[] resultArray = (Object[]) Array.newInstance(type.getComponentType(), value.length);
+
+        for (int i = 0; i < value.length; i++) {
+            resultArray[i] = EnumUtils.valueOf(type.getComponentType(), value[i]);
+        }
+
+        this.value = resultArray;
+    }
+
+    public List<SelectItem> getEnumArrayItems() {
+        List<SelectItem> items = new ArrayList<SelectItem>();
+
+        if (isEnumType() || isEnumArray()) {
+            Class<?> instanceClass = type.getComponentType();
+
+            String[] values = EnumUtils.getNames(instanceClass);
+            String[] displayValues = EnumUtils.getValues(instanceClass);
+
+            for (int i = 0; i < values.length; i++) {
+                items.add(new SelectItem(values[i], displayValues[i]));
+            }
+        }
+
+        return items;
+    }
+
     public Class<?> getType() {
         return type;
     }
@@ -137,7 +177,7 @@ public class TableProperty {
     public void setType(Class<?> type) {
         this.type = type;
     }
-    
+
     /**
      * This is a setter for the value of the property. Value must be always typify. 
      * This method is commonly used from UI. If property <code>{@link #isDateType()}</code>, 

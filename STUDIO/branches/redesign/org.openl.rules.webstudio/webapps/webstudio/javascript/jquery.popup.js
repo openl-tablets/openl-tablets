@@ -28,6 +28,11 @@
                     'min-width': options.minWidth,
                 });
             }
+            if (options.height) {
+                popup.css({
+                    'height': options.height,
+                });
+            }
             popup.show();
 
             $(document).on("click.jquery.popup", function(e) {
