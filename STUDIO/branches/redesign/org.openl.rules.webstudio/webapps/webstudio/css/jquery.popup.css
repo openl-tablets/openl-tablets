@@ -1,5 +1,6 @@
 
 .jquery-popup {
+	overflow: auto;
     background: white;
     border: 1px solid rgb(210,210,210);
 }

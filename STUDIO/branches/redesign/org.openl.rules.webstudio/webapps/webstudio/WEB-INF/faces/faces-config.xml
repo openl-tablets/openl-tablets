@@ -5,126 +5,34 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
     version="2.0">
 
-  <application>
-    <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
+    <application>
+        <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
 
-    <locale-config>
-      <default-locale>en</default-locale>
-    </locale-config>
-  </application>
+        <locale-config>
+            <default-locale>en</default-locale>
+        </locale-config>
+    </application>
 
-  <component>
-    <component-type>org.openl.commons.web.jsf.facelets.acegi.Authentication</component-type>
-    <component-class>org.openl.commons.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
-  </component>
+    <component>
+        <component-type>org.openl.commons.web.jsf.facelets.acegi.Authentication</component-type>
+        <component-class>org.openl.commons.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
+    </component>
 
-  <navigation-rule>
-    <navigation-case>
-      <from-outcome>mainPage</from-outcome>
-      <to-view-id>/pages/modules/rulesEditor/index.xhtml</to-view-id>
-      <redirect/>
-    </navigation-case>
-      <navigation-case>
-      <from-outcome>wizardSelect</from-outcome>
-      <to-view-id>/pages/modules/rulesEditor/create/step0.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>newTableCancel</from-outcome>
-      <to-view-id>/pages/modules/rulesEditor/create/step0.xhtml</to-view-id>
-      <redirect/>
-    </navigation-case>
-  </navigation-rule>
+    <navigation-rule>
+        <navigation-case>
+            <from-outcome>mainPage</from-outcome>
+            <to-view-id>/pages/modules/rulesEditor/index.xhtml</to-view-id>
+            <redirect />
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>wizardSelect</from-outcome>
+            <to-view-id>/pages/modules/rulesEditor/create/step0.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>newTableCancel</from-outcome>
+            <to-view-id>/pages/modules/rulesEditor/create/step0.xhtml</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
 
-  <!-- Change names copy table wizard -->
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>changeName</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyNames.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>changeProperties</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <!-- Copy table during "Edit as new version"-->
-  <navigation-rule>
-   <from-view-id>/facelets/tableeditor/showTable.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>changeVersion</from-outcome>
-      <to-view-id>/facelets/tableCopier/changeVersion.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-  
-  <!-- Create test from direct from executable table "Create direct tests"-->
-  <navigation-rule>
-   <from-view-id>/facelets/tableeditor/showTable.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>testTableDirect</from-outcome>
-      <to-view-id>/facelets/tableWizard/newTableTest2.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <!-- Change names navigation -->   
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyNames.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-  
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyNamesSelectDestination.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyNames.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <!--End change names navigation  -->  
-
-  <!-- Change properties navigation -->   
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyProperties.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyTableSelectOptions.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/copyPropertiesSelectDestination.xhtml</from-view-id>  
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/copyProperties.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/changeVersion.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>next</from-outcome>
-      <to-view-id>/facelets/tableCopier/selectSheet.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <navigation-rule>
-    <from-view-id>/facelets/tableCopier/selectSheet.xhtml</from-view-id>
-    <navigation-case>
-      <from-outcome>prev</from-outcome>
-      <to-view-id>/facelets/tableCopier/changeVersion.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-
-  <!--Change properties navigation  -->
 </faces-config>

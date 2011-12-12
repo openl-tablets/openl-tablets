@@ -7,9 +7,10 @@
 (function($) {
     $.fn.multiselect = function(options) {
         var defaults = {
-            separator       : ',',
-            separatorEscaper: '\\',
-            zIndex          : 9000
+            separator   : ', ',
+            zIndex      : 9000,
+            height      : 170,
+            checkAllText: 'Select All'
         };
         options = $.extend({}, defaults, options);
 
@@ -17,12 +18,15 @@
             var values = {};
 
             var currentSelect = $(this).hide();
+            var selectId = currentSelect.attr("id");
             var selectName = currentSelect.attr("name");
-            var newSelect = $("<input readonly='readonly' />").insertAfter(currentSelect);
+            var newSelect = $("<input" + (selectId ? " id='" + selectId + "'" : "") + " readonly='readonly' />")
+                .insertAfter(currentSelect);
 
-            var popup = $("<div style='display:none; border-top: 0' />");
+            var popup = $("<div style='display:none; border-top: 0' />")
+                .addClass("jquery-multiselect-popup");
             var checkAll = $("<input type='checkbox' />");
-            popup.append("<div />").append(checkAll).append("Check All");
+            popup.append("<div />").append(checkAll).append(options.checkAllText);
             currentSelect.children("option").each(function() {
                 var option = $(this);
                 var selected = this.getAttribute("selected") ? true : false;
@@ -33,6 +37,7 @@
                         +" />" + option.text() + "</div>");
             });
             popup.insertAfter(newSelect);
+            currentSelect.remove();
 
             setValue();
 
@@ -42,7 +47,8 @@
                     left    : newSelect.position().left,
                     top     : newSelect.position().top + newSelect.outerHeight(),
                     zIndex  : options.zIndex,
-                    minWidth: newSelect.outerWidth() - 2
+                    minWidth: newSelect.outerWidth() - 2,
+                    height  : options.height
                 });
             });
 
