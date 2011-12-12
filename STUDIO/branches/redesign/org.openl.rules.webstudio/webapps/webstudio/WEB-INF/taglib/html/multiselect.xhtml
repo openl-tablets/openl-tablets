@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html">
+
+    <h:panelGroup id="#{!empty id ? id : 'multiselect'}"
+        rendered="#{!empty rendered ? rendered : true}">
+
+        <h:selectManyMenu value="#{selected}">
+            <f:selectItems value="#{items}" />
+        </h:selectManyMenu>
+
+        <script>
+            $j("##{id}").find("select").multiselect();
+        </script>
+
+    </h:panelGroup>
+
+</ui:composition>
