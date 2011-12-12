@@ -97,7 +97,9 @@
                             rendered="#{prop.enumArray}" />
 
                         <h:inputText value="#{prop.value}" id="text" 
-                            rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}" />
+                            rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
+
+                        <h:inputText id="array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
 
                         <span class="propDescription">#{prop.description}</span>
                     </span>
