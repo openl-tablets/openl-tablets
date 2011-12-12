@@ -22,7 +22,6 @@ import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.rules.ui.EnumValuesUIHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
@@ -38,8 +37,6 @@ public class TablePropertiesBean {
     private IOpenLTable table;
     private ITableProperties props;
     private List<TableProperty> listProperties;
-
-    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
 
     private String newTableUri;
 
@@ -133,10 +130,6 @@ public class TablePropertiesBean {
         return tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
                 && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
                 && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
-    }
-
-    public EnumValuesUIHelper getEnumHelper() {
-        return enumHelper;
     }
 
     public void save() throws Exception {
