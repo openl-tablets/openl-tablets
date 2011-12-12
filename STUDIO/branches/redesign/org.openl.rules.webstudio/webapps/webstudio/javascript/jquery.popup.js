@@ -16,14 +16,18 @@
         return this.each(function() {
             var popup = $(this);
 
+            popup.addClass("jquery-popup");
             popup.css({
                 'position': 'absolute',
                 'z-index' : options.zIndex,
                 'left'    : options.left,
                 'top'     : options.top
             });
-            popup.addClass("jquery-popup");
-
+            if (options.minWidth) {
+                popup.css({
+                    'min-width': options.minWidth,
+                });
+            }
             popup.show();
 
             $(document).on("click.jquery.popup", function(e) {

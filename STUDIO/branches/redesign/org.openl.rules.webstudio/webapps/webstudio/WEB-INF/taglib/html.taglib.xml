@@ -13,4 +13,9 @@
         <source>html/inputVersion.xhtml</source>
     </tag>
 
+    <tag>
+        <tag-name>multiselect</tag-name>
+        <source>html/multiselect.xhtml</source>
+    </tag>
+
 </facelet-taglib>
