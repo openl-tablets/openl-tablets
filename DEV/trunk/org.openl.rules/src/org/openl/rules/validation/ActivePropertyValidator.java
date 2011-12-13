@@ -11,10 +11,8 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
@@ -34,33 +32,35 @@ public class ActivePropertyValidator extends TablesValidator {
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;
-        
-        // Group methods not TableSyntaxNodes as we may have dependent modules, and no sources for them, 
-        // represented in current module. The only information about dependency methods contains in openClass.
+
+        // Group methods not TableSyntaxNodes as we may have dependent modules,
+        // and no sources for them,
+        // represented in current module. The only information about dependency
+        // methods contains in openClass.
         //
-        Map<DimensionPropertiesMethodKey, List<ExecutableRulesMethod>> groupedMethods = 
-            groupExecutableMethods(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
-        
+        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(tableSyntaxNodes);
+
         for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {
-            List<ExecutableRulesMethod> methodsGroup = groupedMethods.get(key);
+            List<TableSyntaxNode> methodsGroup = groupedMethods.get(key);
             boolean activeTableWasFound = false;
-            
-            for (ExecutableRulesMethod executableMethod : methodsGroup) {
-                if (executableMethod instanceof TestSuiteMethod) {
+
+            for (TableSyntaxNode executableMethodTable : methodsGroup) {
+                if (executableMethodTable.getMember() instanceof TestSuiteMethod) {
                     // all tests are active by default
                     //
                     activeTableWasFound = true;
                     break;
                 }
-                if (executableMethod.getMethodProperties() != null && 
-                        Boolean.TRUE.equals(executableMethod.getMethodProperties().getActive())) {
+                if (executableMethodTable.getTableProperties() != null && Boolean.TRUE.equals(executableMethodTable.getTableProperties()
+                    .getActive())) {
                     if (activeTableWasFound) {
                         if (validationResult == null) {
                             validationResult = new ValidationResult(ValidationStatus.FAIL);
                         }
-                        SyntaxNodeException exception = new SyntaxNodeException(ODD_ACTIVE_TABLE_MESSAGE, null, 
-                            executableMethod.getSyntaxNode());
-                        executableMethod.getSyntaxNode().addError(exception);
+                        SyntaxNodeException exception = new SyntaxNodeException(ODD_ACTIVE_TABLE_MESSAGE,
+                            null,
+                            executableMethodTable);
+                        executableMethodTable.addError(exception);
                         ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                     } else {
                         activeTableWasFound = true;
@@ -73,10 +73,9 @@ public class ActivePropertyValidator extends TablesValidator {
                 }
                 // warning is attached to any table syntax node
                 ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE,
-                        methodsGroup.get(0).getSyntaxNode()));
+                    methodsGroup.get(0)));
             }
         }
-        
 
         if (validationResult != null) {
             return validationResult;
@@ -84,19 +83,18 @@ public class ActivePropertyValidator extends TablesValidator {
             return ValidationUtils.validationSuccess();
         }
     }
-    
-    private Map<DimensionPropertiesMethodKey, List<ExecutableRulesMethod>> groupExecutableMethods(List<IOpenMethod> methods) {
-        Map<DimensionPropertiesMethodKey, List<ExecutableRulesMethod>> groupedMethods = 
-            new HashMap<DimensionPropertiesMethodKey, List<ExecutableRulesMethod>>();
-        
-        for (IOpenMethod method : methods) {
-            if (method instanceof ExecutableRulesMethod) {
-                ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) method;
+
+    private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(TableSyntaxNode[] tableSyntaxNodes) {
+        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<DimensionPropertiesMethodKey, List<TableSyntaxNode>>();
+
+        for (TableSyntaxNode tsn : tableSyntaxNodes) {
+            if (tsn.getMember() instanceof ExecutableRulesMethod) {
+                ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) tsn.getMember();
                 DimensionPropertiesMethodKey key = new DimensionPropertiesMethodKey(executableMethod);
                 if (!groupedMethods.containsKey(key)) {
-                    groupedMethods.put(key, new ArrayList<ExecutableRulesMethod>());
+                    groupedMethods.put(key, new ArrayList<TableSyntaxNode>());
                 }
-                groupedMethods.get(key).add(executableMethod);
+                groupedMethods.get(key).add(tsn);
             }
         }
         return groupedMethods;
