@@ -9,14 +9,14 @@ package org.openl.rules.lang.xls.binding;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
@@ -97,20 +97,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 				decorator.addMethod(method);
 				generateAuxiliaryMethod(method, decorator.getCandidates().size()-1);
 			} else {
-				
-				// Create decorator for existed method.
-				//
-				OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
-				
-                generateAuxiliaryMethod(existedMethod, 0);
-				// Add new method to decorator as candidate.
-				//
-				decorator.addMethod(method);
-				
-                generateAuxiliaryMethod(method, decorator.getCandidates().size()-1);
-				// Replace existed method with decorator using the same key.
-				//
-				methodMap().put(key, decorator);
+                boolean differentVersionsOfTheTable = false;
+                if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
+                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) existedMethod);
+                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) method);
+                    differentVersionsOfTheTable = newMethodPropertiesKey.equals(existedMethodPropertiesKey);
+                }
+                if (differentVersionsOfTheTable) {
+                    useActiveOrNewerVersion((ExecutableRulesMethod) existedMethod, (ExecutableRulesMethod) method, key);
+                } else {
+                    createMethodDispatcher(method, key, existedMethod);
+                }
 			}
 		} else {
 			
@@ -119,7 +116,49 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			methodMap().put(key, method);
 		}
 	}
-	
+
+    /**
+     * In case we have several versions of one table we should add only the
+     * newest or active version of table.
+     * 
+     * @param method The methods that we are trying to add.
+     * @param key Method key of these methods based on signature.
+     * @param existedMethod The existing method.
+     */
+    public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod,
+            ExecutableRulesMethod newMethod,
+            MethodKey key) {
+        if (new TableVersionComparator().compare(existedMethod, newMethod) < 0) {
+            methodMap().put(key, existedMethod);
+        } else {
+            methodMap().put(key, newMethod);
+        }
+    }
+
+    /**
+     * In case we have two methods overloaded by dimensional properties we
+     * should create dispatcher.
+     * 
+     * @param method The methods that we are trying to add.
+     * @param key Method key of these methods based on signature.
+     * @param existedMethod The existing method.
+     */
+    public void createMethodDispatcher(IOpenMethod method, MethodKey key, IOpenMethod existedMethod) {
+        // Create decorator for existed method.
+        //
+        OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
+
+        generateAuxiliaryMethod(existedMethod, 0);
+        // Add new method to decorator as candidate.
+        //
+        decorator.addMethod(method);
+
+        generateAuxiliaryMethod(method, decorator.getCandidates().size() - 1);
+        // Replace existed method with decorator using the same key.
+        //
+        methodMap().put(key, decorator);
+    }
+
     public static final String AUXILIARY_METHOD_DELIMETER = "$";
 
     private static final String AUXILIARY_METHOD_NAME_PATTERN = ".*\\$\\d*";

@@ -9,12 +9,15 @@ import java.util.Set;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.DefaultInvokerWithTrace;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -55,6 +58,40 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return moduleOpenClass;
     }
 
+
+    @Override
+    public void addMethod(IOpenMethod candidate) {
+        int pos = searchForTheSameTable(candidate);
+        if (pos == -1) {
+            // add new candidate
+            super.addMethod(candidate);
+        } else {
+            // replace by newer or active
+            if (new TableVersionComparator().compare((ExecutableRulesMethod) getCandidates().get(pos),
+                (ExecutableRulesMethod) candidate) > 0) {
+                getCandidates().set(pos, candidate);
+            }
+        }
+
+    }
+
+    /**
+     * For different versions of the some table we should use in dispatching
+     * only the newest or active table.
+     */
+    private int searchForTheSameTable(IOpenMethod method) {
+        if (method instanceof ExecutableRulesMethod) {
+            DimensionPropertiesMethodKey methodKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) method);
+            for (int i = 0; i < getCandidates().size(); i++) {
+                IOpenMethod candidate = getCandidates().get(i);
+                if (candidate instanceof ExecutableRulesMethod && methodKey.equals(new DimensionPropertiesMethodKey((ExecutableRulesMethod) candidate))) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }    
+    
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (Tracer.isTracerOn()) {
