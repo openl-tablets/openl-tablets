@@ -88,15 +88,15 @@ public class MethodSearch {
         return maxdiff * 100 + ndiff;
     }
 
-    static protected IMethodCaller getCastingMethodCaller(String name, IOpenClass[] params, ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
+    public static IMethodCaller getCastingMethodCaller(String name, IOpenClass[] params, ICastFactory casts,
+            Iterator<IOpenMethod> methods) throws AmbiguousMethodException {
 
         List<IOpenMethod> matchingMethods = new ArrayList<IOpenMethod>();
         int bestMatch = NO_MATCH;
 
         IOpenCast[] bestCastHolder = null;
 
-        for (Iterator<IOpenMethod> iter = methods(name, params.length, factory); iter.hasNext();) {
+        for (Iterator<IOpenMethod> iter = methods(name, params.length, methods); iter.hasNext();) {
             IOpenMethod method = iter.next();
             IOpenCast[] castHolder = new IOpenCast[params.length];
 
@@ -127,6 +127,11 @@ public class MethodSearch {
                 return findMostSpecificMethod(name, params, matchingMethods, casts);
         }
 
+    }
+
+    public static IMethodCaller getCastingMethodCaller(String name, IOpenClass[] params, ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
+        return getCastingMethodCaller(name, params, casts, factory.methods());
     }
 
     /**
@@ -216,8 +221,7 @@ public class MethodSearch {
 
     }
 
-    protected static Iterator<IOpenMethod> methods(String name, int nParams, IMethodFactory factory) {
-        Iterator<IOpenMethod> it = factory.methods();
+    protected static Iterator<IOpenMethod> methods(String name, int nParams, Iterator<IOpenMethod> it) {
         if (it == null) {
             return AOpenIterator.empty();
         }
