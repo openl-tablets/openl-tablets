@@ -3,7 +3,6 @@ package org.openl.rules.ui.tablewizard;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.rules.ui.EnumValuesUIHelper;
 import org.openl.rules.ui.copy.NewDimensionalVersionTableCopier;
 import org.openl.rules.ui.copy.NewVersionTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
@@ -19,8 +18,6 @@ public class TableCopierWizardManager extends TableWizard {
     }
 
     private CopyType copyType;
-
-    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
 
     public TableCopierWizardManager () {
     }
@@ -67,10 +64,6 @@ public class TableCopierWizardManager extends TableWizard {
         copyType = CopyType.CHANGE_NAMES;
         startWizard();
         return null;
-    }
-
-    public EnumValuesUIHelper getEnumHelper() {
-        return enumHelper;
     }
 
 }
