@@ -8,7 +8,7 @@
     <c:set var="uid" value="#{!empty id ? id : 'multiselect'}" />
     <h:panelGroup id="#{uid}" rendered="#{!empty rendered ? rendered : true}">
 
-        <h:selectManyMenu id="#{uid}-select" value="#{selected}">
+        <h:selectManyMenu id="#{uid}-select" value="#{selected}" style="display:none">
             <f:selectItems value="#{items}" />
         </h:selectManyMenu>
 
