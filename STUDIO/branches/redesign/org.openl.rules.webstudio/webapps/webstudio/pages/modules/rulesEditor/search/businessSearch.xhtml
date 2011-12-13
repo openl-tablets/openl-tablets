@@ -7,16 +7,11 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <link href="webresource/css/multiselect.css" rel="stylesheet" />
-    <script src="webresource/js/AjaxHelper.js"></script>
-    <script src="webresource/js/BaseEditor.js"></script>
-    <script src="webresource/js/BaseTextEditor.js"></script>
-    <script src="webresource/js/MultiselectEditor.js"></script>
-    <script src="webresource/js/DropdownEditor.js"></script>
     <script src="webresource/js/validation.js"></script>
 
     <br />
@@ -34,22 +29,15 @@
 	            <rich:calendar value="#{prop.value}" datePattern="#{systemConfig['data.format.date']}"
                     defaultTime="00:00" rendered="#{prop.dateType}" />
 
-                <h:outputText binding="#{bussinessSearch.enumHelper.enumOutput}" escape="false" 
-                    value="#{bussinessSearch.enumHelper.enumValue}" rendered="#{prop.enumType}">
-                    <f:attribute name="property" value="#{prop}"/>
-                </h:outputText>
-                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType}" />
+                <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
 
-                <h:outputText binding="#{bussinessSearch.enumHelper.enumArrayOutput}" escape="false" 
-                    value="#{bussinessSearch.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
-                    <f:attribute name="property" value="#{prop}"/>
-                </h:outputText>
-                <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
+                <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
+                    rendered="#{prop.enumArray}" />
+
+                <h:inputText value="#{prop.value}"
+                    rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
 
                 <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
-
-  		    	<h:inputText value="#{prop.value}"
-                    rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
 
                 <input type="hidden" name="id" value="#{prop.name}" />
             </h:column>

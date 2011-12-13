@@ -137,7 +137,7 @@ public class TableProperty {
     }
 
     public String[] getEnumArrayValue() {
-        if (isEnumArray()) {
+        if (value != null && isEnumArray()) {
             return EnumUtils.getNames((Enum<?>[]) value);
         }
         return null;

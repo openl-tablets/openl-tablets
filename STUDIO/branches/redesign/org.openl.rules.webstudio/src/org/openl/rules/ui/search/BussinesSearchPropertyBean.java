@@ -12,7 +12,6 @@ import org.openl.rules.search.OpenLBussinessSearch;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.ui.EnumValuesUIHelper;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -29,8 +28,6 @@ public class BussinesSearchPropertyBean {
     private List<TableProperty> filledPropsForSearch = new ArrayList<TableProperty>();
     private String tableContain;
     private final OpenLBussinessSearch search = new OpenLBussinessSearch();    
-
-    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
 
     public String getTableContain() {
         return tableContain;
@@ -128,10 +125,6 @@ public class BussinesSearchPropertyBean {
         } 
         return result;
     } 
-
-    public EnumValuesUIHelper getEnumHelper() {
-        return enumHelper;
-    }
 
     public OpenLBussinessSearch getSearch() {
         return search;
