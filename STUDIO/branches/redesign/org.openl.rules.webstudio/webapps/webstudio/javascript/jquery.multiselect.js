@@ -20,7 +20,7 @@
             var currentSelect = $(this).hide();
             var selectId = currentSelect.attr("id");
             var selectName = currentSelect.attr("name");
-            var newSelect = $("<input" + (selectId ? " id='" + selectId + "'" : "") + " readonly='readonly' />")
+            var newSelect = $("<input type='text'" + (selectId ? " id='" + selectId + "'" : "") + " readonly='readonly' />")
                 .insertAfter(currentSelect);
 
             var popup = $("<div style='display:none; border-top: 0' />")
