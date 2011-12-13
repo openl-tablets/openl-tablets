@@ -3,11 +3,10 @@ package org.openl.rules.ui.tree;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.util.conf.Version;
 
 /**
  * Folder tree node that represents table with several versions. If node has
@@ -20,8 +19,6 @@ import org.openl.util.conf.Version;
  * @author PUdalau
  */
 public class VersionedTreeNode extends ProjectTreeNode {
-    
-    private static Log LOG = LogFactory.getLog(VersionedTreeNode.class);
     
     private TableSyntaxNode linkedChild;
 
@@ -86,35 +83,8 @@ public class VersionedTreeNode extends ProjectTreeNode {
         }
     }
 
-    /**
-     * Finds table with biggest version(it will later table) or "active" table;
-     * 
-     * @return -1 if the first later or "active", 1 if second later "active" and
-     *         0 if tables are "inactive" and have similar versions
-     */
     public static int findLaterTable(TableSyntaxNode first, TableSyntaxNode second) {
-        // Not all the tables have the property 'active'. e.g. it is more common case when Property table component 
-        // doesn`t have this property. So we need to check if the property exists. 
-        // author: DLiauchuk
-        if (first.getTableProperties().getActive() != null) {
-            if (first.getTableProperties().getActive()) {
-                return -1;
-            } else if (second.getTableProperties().getActive()) {
-                return 1;
-            }
-        } else {
-            return 0;
-        }
-        try {
-            Version firstNodeVersion = Version.parseVersion(first.getTableProperties().getVersion(), 0, "..");
-            Version secondNodeVersion = Version.parseVersion(second.getTableProperties().getVersion(), 0, "..");
-            return secondNodeVersion.compareTo(firstNodeVersion);
-        } catch (RuntimeException e) {
-            // it is just fix to avoid tree crashing.
-            // we need to validate format of the versions, during compilation of Openl and also on UI.
-            LOG.error(e);
-        }
-        return 0;
-        
+        return new TableVersionComparator().compare((ExecutableRulesMethod) first.getMember(),
+            (ExecutableRulesMethod) second.getMember());
     }
 }
