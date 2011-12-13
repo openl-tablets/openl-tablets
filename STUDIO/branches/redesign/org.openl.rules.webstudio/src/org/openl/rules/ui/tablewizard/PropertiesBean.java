@@ -10,7 +10,6 @@ import javax.faces.model.SelectItem;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.ui.EnumValuesUIHelper;
 
 /**
  * Bean that handles property selection (in "copy table",
@@ -23,7 +22,6 @@ public class PropertiesBean {
     private String propNameToAdd;
     private TableProperty propToRemove;
     private Set<String> possibleToAddProps;
-    private EnumValuesUIHelper enumHelper = new EnumValuesUIHelper();
 
     /**
      * Creates PropertiesBean with specified pack of possible properties.
@@ -33,10 +31,6 @@ public class PropertiesBean {
      */
     public PropertiesBean(List<String> possibleProperties) {
         possibleToAddProps = new HashSet<String>(possibleProperties);
-    }
-
-    public EnumValuesUIHelper getEnumHelper() {
-        return enumHelper;
     }
 
     public String getPropNameToAdd() {

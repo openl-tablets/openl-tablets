@@ -13,13 +13,6 @@
     <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
     <script src="#{contextPath}/javascript/validator.js"></script>
-    <link href="webresource/css/multiselect.css" rel="stylesheet" />
-    <script src="webresource/js/AjaxHelper.js"></script>
-    <script src="webresource/js/BaseEditor.js"></script>
-    <script src="webresource/js/BaseTextEditor.js"></script>
-    <script src="webresource/js/MultiselectEditor.js"></script>
-    <script src="webresource/js/DropdownEditor.js"></script>
-    <script src="webresource/js/validation.js"></script>
 
     <style>
         .section h3 {
@@ -80,18 +73,6 @@
                                     <oh:inputVersion value="#{prop.value}" rendered="#{prop.name == 'version'}" />
 
                                     <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
-
-                                    <h:outputText binding="#{tableCopierWizardManager.enumHelper.enumOutput}" escape="false"
-                                        value="#{tableCopierWizardManager.enumHelper.enumValue}" rendered="#{prop.enumType}">
-                                        <f:attribute name="property" value="#{prop}" />
-                                    </h:outputText>
-                                    <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumType}" />
-
-                                    <h:outputText binding="#{tableCopierWizardManager.enumHelper.enumArrayOutput}" escape="false"
-                                        value="#{tableCopierWizardManager.enumHelper.enumArrayValue}" rendered="#{prop.enumArray}">
-                                        <f:attribute name="property" value="#{prop}" />
-                                    </h:outputText>
-                                    <h:inputHidden value="#{prop.stringValue}" rendered="#{prop.enumArray}" />
 
                                     <h:inputText value="#{prop.value}"
                                         rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
