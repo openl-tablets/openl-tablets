@@ -41,16 +41,11 @@
 
             setValue();
 
-            var closestRelativeParent = newSelect.parents().filter(function() { 
-                var $this = $(this);
-                return $this.is("body") || $this.css("position") == "absolute" || $this.css("position") == "relative";
-            }).slice(0, 1);
-
             newSelect.click(function(e) {
                 e.stopPropagation();
                 popup.popup({
-                    left    : newSelect.position().left + closestRelativeParent.scrollLeft(),
-                    top     : newSelect.position().top + closestRelativeParent.scrollTop() + newSelect.outerHeight(),
+                    left    : newSelect.position().left + newSelect.offsetParent().scrollLeft(),
+                    top     : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight(),
                     zIndex  : options.zIndex,
                     minWidth: newSelect.outerWidth() - 2,
                     height  : options.height
