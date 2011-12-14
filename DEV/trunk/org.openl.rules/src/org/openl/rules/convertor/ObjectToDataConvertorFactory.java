@@ -110,6 +110,8 @@ public class ObjectToDataConvertorFactory {
         public Object convert(Object data, IBindingContext bindingContext) {
             return data;
         }
+        
+        static public CopyConvertor the = new CopyConvertor();
     }
     
     /**
@@ -151,6 +153,15 @@ public class ObjectToDataConvertorFactory {
 
             });
 
+            convertors.put(new ClassCastPair(int.class, IntRange.class), new IObjectToDataConvertor() {
+
+                public Object convert(Object data, IBindingContext bindingContext) {
+                    return new IntRange((Integer) data);
+                }
+
+            });
+            
+            
             convertors.put(new ClassCastPair(Double.class, DoubleValue.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data, IBindingContext bindingContext) {
@@ -158,11 +169,30 @@ public class ObjectToDataConvertorFactory {
                 }
 
             });
-            convertors.put(new ClassCastPair(Double.class, Double.class), new CopyConvertor());
-            convertors.put(new ClassCastPair(Double.class, double.class), new CopyConvertor());
-            convertors.put(new ClassCastPair(Integer.class, int.class), new CopyConvertor());
-            convertors.put(new ClassCastPair(String.class, String.class), new CopyConvertor());
-            convertors.put(new ClassCastPair(Date.class, Date.class), new CopyConvertor());
+            convertors.put(new ClassCastPair(Double.class, double.class), CopyConvertor.the);
+            convertors.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
+            convertors.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
+            convertors.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
+            
+            convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
+                
+                @Override
+                public Object convert(Object data, IBindingContext bindingContext) {
+                    return new DoubleValue((Double)data);
+                }
+            });
+            
+            
+            convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
+
+                public Object convert(Object data, IBindingContext bindingContext) {
+                    Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
+                    cal.setTime((Date) data);
+                    return cal;
+                }
+
+            });
+
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data, IBindingContext bindingContext) {
@@ -202,6 +232,9 @@ public class ObjectToDataConvertorFactory {
      * @return NO_Convertor if value is not convertable to expected type.
      */
     public static synchronized IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
+        
+        if (toClass == fromClass)
+            return CopyConvertor.the;
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
         IObjectToDataConvertor convertor = NO_Convertor;
         if (!convertors.containsKey(pair)) {

@@ -112,8 +112,8 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
      * @param result
      * @return
      */
-    protected static NumberValue<?> getAppropriateValue(NumberValue<?>[] values, NumberValue<?> result) {
-        for (NumberValue<?> value : values) {
+    protected static <T extends NumberValue<T>> NumberValue<T> getAppropriateValue(NumberValue<T>[] values, NumberValue<?> result) {
+        for (NumberValue<T> value : values) {
             if (value.equals(result)) {
                 return value;
             }

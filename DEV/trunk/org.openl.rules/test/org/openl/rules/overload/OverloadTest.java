@@ -75,7 +75,7 @@ public class OverloadTest {
         }
     }
 
-    @Test
+//    @Test  see comment at AuxiliaryMethodsValidator
     public void testAuxiliaryMethodsValidator() {
         File xlsFile = new File("test/rules/overload/AuxiliaryMethodsTest.xls");
         try{

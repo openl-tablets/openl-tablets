@@ -21,11 +21,10 @@ public class NumberUtils {
 
     public static Object intOrDouble(double value) {
         int intValue = (int) value;
-        Object res = value;
         if (value == intValue)
-            res = (Integer) intValue;
+            return intValue;
 
-        return res;
+        return value;
     }
 
     public static Number getMinValue(Class<?> numberClass) {

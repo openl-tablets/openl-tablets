@@ -3,6 +3,7 @@
  */
 package org.openl.util.benchmark;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 
 import org.openl.util.IdMap;
 import org.openl.util.IdObject;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -127,8 +129,26 @@ public class BenchmarkJavaBasics {
             map.get(key);
         }
     }
+    
+    private static class CurrentTimeMillis extends BenchmarkUnit {
 
-    private static class ThreadG extends BenchmarkUnit {
+        @Override
+        protected void run() throws Exception {
+            long abc = System.currentTimeMillis();
+        }
+        
+    }
+     
+    private static class NanoTime extends BenchmarkUnit {
+
+        @Override
+        protected void run() throws Exception {
+            long abc = System.nanoTime();
+        }
+        
+    }
+
+    private static class ThreadLocAccess extends BenchmarkUnit {
         @Override
         protected void run() throws Exception {
             BenchmarkJavaBasics.isTracerOn();
@@ -174,6 +194,38 @@ public class BenchmarkJavaBasics {
         }
     }
 
+    
+    private static class ConstructorDirect extends BenchmarkUnit {
+
+        @Override
+        protected void run() throws Exception {
+            double ddd = 4.345;
+            Double d = new Double(ddd);
+        }
+    }
+    
+    private static class ConstructorNewInstance extends BenchmarkUnit {
+
+        Constructor<Double> ctr;
+
+        ConstructorNewInstance()
+        {
+           try {
+            ctr = Double.class.getConstructor(double.class);
+        } catch (SecurityException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        } catch (NoSuchMethodException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        } 
+        }
+        
+        @Override
+        protected void run() throws Exception {
+            double ddd = 4.345;
+            Double d = ctr.newInstance(ddd);
+        }
+    }
+    
     private static ThreadLocal<Object> tracer = new ThreadLocal<Object>();
 
     public static boolean isTracerOn() {
@@ -187,10 +239,16 @@ public class BenchmarkJavaBasics {
                 new MapGet(),
                 new MapInternGet(),
                 new IDMapGet(),
-                new ThreadG(),
+                new ThreadLocAccess(),
                 new TreeMapGet(),
                 new TreeMapGetFirstKey(),
-                new BSearch() };
+                new BSearch(), 
+                new ConstructorDirect(),
+                new ConstructorNewInstance(),
+                new CurrentTimeMillis(),
+                new NanoTime()
+        
+        };
 
         List<BenchmarkInfo> res = new Benchmark(bu).measureAllInList(1000);
 

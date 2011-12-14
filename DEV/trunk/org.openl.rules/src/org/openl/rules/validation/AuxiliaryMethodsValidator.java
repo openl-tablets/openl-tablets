@@ -27,6 +27,10 @@ import org.openl.validation.ValidationUtils;
  * are not used in rules(except of internal OpenL tables such as dispatcher
  * table).
  * 
+ * !!!!!FIX THIS snshor: There should be a different concept for this. The auxiliary methods
+ * should be available only when special tables(cells) are compiled. Then there is no need for
+ * any validation. The compilation should be made through special auxiliary context.   
+ * 
  * @author PUdalau
  */
 public class AuxiliaryMethodsValidator extends TablesValidator {

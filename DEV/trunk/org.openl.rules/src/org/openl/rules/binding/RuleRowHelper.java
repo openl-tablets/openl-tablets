@@ -212,7 +212,8 @@ public class RuleRowHelper {
                             null,
                             new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()));
                     }
-                    setCellMetaInfo(table, paramName, paramType, false);
+                    if(!openlAdapter.getBindingContext().isExecutionMode())
+                        setCellMetaInfo(table, paramName, paramType, false);
                     return res;
                 }
             }
@@ -306,7 +307,8 @@ public class RuleRowHelper {
             // try {
             // Set cell meta information at first.
             //
-            setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
+            if (!openlAdapter.getBindingContext().isExecutionMode())
+                setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
 
             // Try to get cell object value with appropriate string parser.
             // A parser instance will be selected using expected type of cell
@@ -356,7 +358,8 @@ public class RuleRowHelper {
         } else {
             // Set meta info for empty cells. To suggest an appropriate editor
             // according to cell type.
-            setCellMetaInfo(cell, paramName, paramType, false);
+            if (!openlAdapter.getBindingContext().isExecutionMode())
+                setCellMetaInfo(cell, paramName, paramType, false);
         }
 
         return null;
@@ -395,11 +398,11 @@ public class RuleRowHelper {
         cell.setMetaInfo(meta);
     }
 
-    public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue, List<MethodUsage> usedMethods) {
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue, usedMethods);
-        ICell cell = logicalCell.getSource().getCell(0, 0);
-        cell.setMetaInfo(meta);
-    }
+//    public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue, List<MethodUsage> usedMethods) {
+//        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue, usedMethods);
+//        ICell cell = logicalCell.getSource().getCell(0, 0);
+//        cell.setMetaInfo(meta);
+//    }
 
     private static void setMetaInfo(IMetaHolder holder,
             ILogicalTable cell,
