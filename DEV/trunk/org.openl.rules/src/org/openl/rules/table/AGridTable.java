@@ -79,8 +79,11 @@ public abstract class AGridTable implements IGridTable {
         if (getWidth() == width && getHeight() == height) {
             return this;
         }
-
-        return new SubGridTable(this, column, row, width, height);
+        
+        if (width == 1 && height == 1)
+            return new SingleCellGridTable(this, column, row);
+        
+        return  new SubGridTable(this, column, row, width, height);
     }
 
     @Override

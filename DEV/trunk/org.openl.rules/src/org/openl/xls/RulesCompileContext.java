@@ -24,6 +24,7 @@ public class RulesCompileContext extends DefaultCompileContext {
 	{
         addValidator(new org.openl.rules.validation.properties.dimentional.DimensionPropertiesValidator());
         addValidator(new org.openl.rules.validation.GapOverlapValidator());
-        addValidator(new org.openl.rules.validation.AuxiliaryMethodsValidator());
+//        see comment at AuxiliaryMethodsValidator          
+//        addValidator(new org.openl.rules.validation.AuxiliaryMethodsValidator());
 	}
 }

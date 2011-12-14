@@ -16,9 +16,14 @@ public class LogicalTableHelper {
      * @return number of logical columns in the first table row.
      */
     public static int calcLogicalColumns(IGridTable table) {
+        int W = table.getWidth();
+        if (W == 1)
+            return 1;
+        
         int columns = 0;
+        
         int cellWidth;
-        for (int w = 0; w < table.getWidth(); w += cellWidth, columns++) {
+        for (int w = 0; w < W; w += cellWidth, columns++) {
             cellWidth = table.getCell(w, 0).getWidth();
         }
         return columns;
@@ -32,9 +37,12 @@ public class LogicalTableHelper {
      * @return number of logical rows in the first table column.
      */
     public static int calcLogicalRows(IGridTable table) {
+        int H = table.getHeight();
+        if (H == 1)
+            return 1;
         int rows = 0;
         int cellHeight;
-        for (int h = 0; h < table.getHeight(); h += cellHeight, rows++) {
+        for (int h = 0; h < H; h += cellHeight, rows++) {
             cellHeight = table.getCell(0, h).getHeight();
         }
         return rows;
