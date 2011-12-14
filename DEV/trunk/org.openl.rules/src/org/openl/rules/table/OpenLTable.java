@@ -20,6 +20,7 @@ public class OpenLTable implements IOpenLTable {
     private boolean isVersionable;
     private String uri;
     private String name;
+    private String technicalName;
 
     public IGridTable getGridTable() {
         return gridTable;
@@ -63,6 +64,15 @@ public class OpenLTable implements IOpenLTable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getTechnicalName() {
+        return technicalName;
+    }
+
+    public void setTechnicalName(String technicalName) {
+        this.technicalName = technicalName;
     }
 
     public void setExecutable(boolean isExecutable) {

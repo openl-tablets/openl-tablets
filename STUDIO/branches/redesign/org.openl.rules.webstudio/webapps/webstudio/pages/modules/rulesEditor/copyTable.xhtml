@@ -39,8 +39,12 @@
             <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:propertiesTable"
                 immediate="true" />
             <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
-            <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" />
-            <f:selectItem itemLabel="New Business Dimension Version" itemValue="CHANGE_DIMENSION" itemDisabled="true" />
+            <c:if test="true">
+                <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" />
+            </c:if>
+            <c:if test="false">
+                <f:selectItem itemLabel="New Business Dimension Version" itemValue="CHANGE_DIMENSION" />
+            </c:if>
         </h:selectOneMenu>
     </h:form>
 

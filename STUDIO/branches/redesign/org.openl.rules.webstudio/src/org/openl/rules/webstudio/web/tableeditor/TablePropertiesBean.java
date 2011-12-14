@@ -91,7 +91,7 @@ public class TablePropertiesBean {
     public boolean isEditable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
 
-        boolean isDispatcherValidationNode = ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
+        boolean isDispatcherValidationNode = ((TableSyntaxNodeAdapter) table).getTechnicalName().startsWith(
                 DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
 
         return projectModel.isEditable() && !isDispatcherValidationNode;

@@ -18,6 +18,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.constraints.LessThanConstraint;
@@ -85,11 +86,11 @@ public class TableCopier extends WizardBase {
     private void initProperties() {
         List<TableProperty> definedProperties = new ArrayList<TableProperty>();        
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
-        TableSyntaxNode node = getCopyingTable();
+        IOpenLTable node = getCopyingTable();
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (!propDefinition.isSystem()) {
-                ITableProperties tableProperties = node.getTableProperties();
+                ITableProperties tableProperties = node.getProperties();
 
                 String name = propDefinition.getName();
                 Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
@@ -285,17 +286,17 @@ public class TableCopier extends WizardBase {
     }
 
     protected void initTableName() {
-        TableSyntaxNode node = getCopyingTable();                
-        if (node != null) {
-            tableTechnicalName = parseTechnicalName(node.getHeaderLineValue().getValue(), node.getType());
+        IOpenLTable table = getCopyingTable();
+        if (table != null) {
+            tableTechnicalName = table.getTechnicalName();
         }        
     }
 
-    protected TableSyntaxNode getCopyingTable() {
+    public IOpenLTable getCopyingTable() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTableUri(tableUri);
         ProjectModel model = studio.getModel();        
-        return model.getNode(tableUri);
+        return model.getTable(tableUri);
     }
 
     /**

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -62,9 +62,9 @@ public class NewVersionTableCopier extends TableCopier {
     }
 
     public Version getOriginalVersion() {
-        TableSyntaxNode originalNode = getCopyingTable();
-        if (originalNode != null) {
-            ITableProperties tableProperties = originalNode.getTableProperties();
+        IOpenLTable originalTable = getCopyingTable();
+        if (originalTable != null) {
+            ITableProperties tableProperties = originalTable.getProperties();
             String version = tableProperties.getVersion();
             try {
                 return Version.parseVersion(version, 0, "..");
