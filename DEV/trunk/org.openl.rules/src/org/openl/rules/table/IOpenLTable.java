@@ -22,7 +22,8 @@ public interface IOpenLTable {
      *         properties and then from table header)
      */
     String getName();
-    
+    String getTechnicalName();
+
     /**
      * 
      * @return true if table is executable at OpenL rules runtime. Also it indicates that tests can be created for this 

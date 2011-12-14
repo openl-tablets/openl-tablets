@@ -26,10 +26,12 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         this.tsn = tsn;
     }
 
+    @Override
     public IGridTable getGridTable() {
         return tsn.getGridTable();
     }
 
+    @Override
     public IGridTable getGridTable(String view) {
         if (view != null) {
             ILogicalTable gtx = tsn.getTable(view);
@@ -40,20 +42,24 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return getGridTable();
     }
 
+    @Override
     public ITableProperties getProperties() {
         return tsn.getTableProperties();
     }
 
+    @Override
     public String getType() {
         return tsn.getType();
     }
 
+    @Override
     public List<OpenLMessage> getMessages() {
         SyntaxNodeException[] errors = tsn.getErrors();
         return OpenLMessagesUtils.newMessages(errors);
     }
 
-    public String getNameFromHeader() {
+    @Override
+    public String getTechnicalName() {
         IOpenMember member = tsn.getMember();
         if (member != null) {
             return member.getName();
@@ -61,8 +67,9 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return StringUtils.EMPTY;
     }
 
+    @Override
     public String getName() {
-        String tableName = getNameFromHeader();
+        String tableName = getTechnicalName();
         ITableProperties properties = getProperties();
         if (properties != null) {
             String name = properties.getName();
@@ -80,14 +87,17 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return tableName;
     }
 
+    @Override
     public boolean isExecutable() {
         return tsn.isExecutableNode();
     }
 
+    @Override
     public String getUri() {
         return tsn.getUri();
     }
 
+    @Override
     public boolean isVersionable() {
         return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());        
     }

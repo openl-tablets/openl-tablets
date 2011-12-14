@@ -200,7 +200,7 @@ public class ShowTableBean {
     }
     
     public boolean isDispatcherValidationNode() {
-        return ((TableSyntaxNodeAdapter) table).getNameFromHeader().startsWith(
+        return ((TableSyntaxNodeAdapter) table).getTechnicalName().startsWith(
                 DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
     
