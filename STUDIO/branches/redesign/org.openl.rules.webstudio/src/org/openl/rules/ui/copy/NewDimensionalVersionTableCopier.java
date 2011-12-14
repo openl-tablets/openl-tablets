@@ -3,6 +3,7 @@ package org.openl.rules.ui.copy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -14,8 +15,8 @@ import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
  */
 public class NewDimensionalVersionTableCopier extends TableCopier {
 
-    public NewDimensionalVersionTableCopier(String tableUri) {
-        super(tableUri);
+    public NewDimensionalVersionTableCopier(IOpenLTable table) {
+        super(table);
         checkPropertiesExistance();
     }
 

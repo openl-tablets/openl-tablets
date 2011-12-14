@@ -36,13 +36,13 @@ public class TableCopierWizardManager extends TableWizard {
         reload();
         switch (copyType) {
             case CHANGE_NAMES:
-                wizard = new TableNamesCopier(getTableUri()); 
+                wizard = new TableNamesCopier(getTable()); 
                 break;
             case CHANGE_VERSION:
-                wizard = new NewVersionTableCopier(getTableUri());
+                wizard = new NewVersionTableCopier(getTable());
                 break;
             case CHANGE_DIMENSION:
-                wizard = new NewDimensionalVersionTableCopier(getTableUri());
+                wizard = new NewDimensionalVersionTableCopier(getTable());
                 break;
             default:
                 return null;

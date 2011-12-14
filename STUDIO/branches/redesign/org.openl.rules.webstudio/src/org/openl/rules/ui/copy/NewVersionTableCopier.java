@@ -21,8 +21,8 @@ public class NewVersionTableCopier extends TableCopier {
     private static final String VERSION_PROP_NAME = "version";
     private static final String ACTIVE_PROP_NAME = "active";
 
-    public NewVersionTableCopier(String tableUri) {
-        super(tableUri);
+    public NewVersionTableCopier(IOpenLTable table) {
+        super(table);
         checkPropertiesExistance();
     }
 

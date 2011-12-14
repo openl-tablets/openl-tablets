@@ -56,8 +56,7 @@ public class TableCopier extends WizardBase {
 
     public static final String INIT_VERSION = "0.0.1";
 
-    /** Table identifier */
-    private String tableUri = null;
+    private IOpenLTable table = null;
 
     /** Table technical name */
     @NotEmpty(message="Technical name can not be empty")
@@ -75,10 +74,10 @@ public class TableCopier extends WizardBase {
         return propertiesManager;
     }
 
-    public TableCopier(String tableUri) {
+    public TableCopier(IOpenLTable table) {
         start();
-        this.tableUri = tableUri;
-        propertiesManager = new PropertiesBean(getAllPossibleProperties(getCopyingTable().getType()));
+        this.table = table;
+        propertiesManager = new PropertiesBean(getAllPossibleProperties(table.getType()));
         initTableName();
         initProperties();
     }
@@ -86,11 +85,10 @@ public class TableCopier extends WizardBase {
     private void initProperties() {
         List<TableProperty> definedProperties = new ArrayList<TableProperty>();        
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
-        IOpenLTable node = getCopyingTable();
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (!propDefinition.isSystem()) {
-                ITableProperties tableProperties = node.getProperties();
+                ITableProperties tableProperties = table.getProperties();
 
                 String name = propDefinition.getName();
                 Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
@@ -182,8 +180,8 @@ public class TableCopier extends WizardBase {
      */   
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
         throws CreateTableException {
-        IGridTable originalTable = model.getGridTable(tableUri);
-        TableSyntaxNode baseNode = model.getNode(tableUri);
+        IGridTable originalTable = model.getGridTable(table.getUri());
+        TableSyntaxNode baseNode = model.getNode(table.getUri());
         String baseTableType = baseNode.getType();
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
 
@@ -286,17 +284,13 @@ public class TableCopier extends WizardBase {
     }
 
     protected void initTableName() {
-        IOpenLTable table = getCopyingTable();
         if (table != null) {
             tableTechnicalName = table.getTechnicalName();
         }        
     }
 
     public IOpenLTable getCopyingTable() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.setTableUri(tableUri);
-        ProjectModel model = studio.getModel();        
-        return model.getTable(tableUri);
+        return table;
     }
 
     /**
@@ -324,12 +318,8 @@ public class TableCopier extends WizardBase {
     @Override
     protected void reset() {
         super.reset();
-        tableUri = null;
+        table = null;
         tableTechnicalName = null;
-    }
-
-    protected String getTableUri() {
-        return tableUri;
     }
 
     @Override
@@ -451,7 +441,7 @@ public class TableCopier extends WizardBase {
         if (properties.size() > 0) {
             WebStudio studio = WebStudioUtils.getWebStudio();
             ProjectModel model = studio.getModel();
-            TableEditorModel tableEditorModel = model.getTableEditorModel(getTableUri());
+            TableEditorModel tableEditorModel = model.getTableEditorModel(table.getUri());
 
             Set<String> propNames = properties.keySet();
             try {

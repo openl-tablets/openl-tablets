@@ -39,7 +39,7 @@
             <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:propertiesTable"
                 immediate="true" />
             <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
-            <c:if test="true">
+            <c:if test="#{tableCopierWizardManager.table.versionable}">
                 <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" />
             </c:if>
             <c:if test="false">
