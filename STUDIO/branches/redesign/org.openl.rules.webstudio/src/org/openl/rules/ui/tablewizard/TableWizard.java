@@ -1,15 +1,16 @@
 package org.openl.rules.ui.tablewizard;
 
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public abstract class TableWizard {
-    
+
     public static final String ERROR = "error";
-    
-    private String tableUri;
-    
+
+    private IOpenLTable table;
+
     protected BaseWizardBean wizard;
 
     public abstract String startWizard();
@@ -30,22 +31,19 @@ public abstract class TableWizard {
         return wizard.prev();
     }
 
-    public String getTableUri() {
-        return tableUri;
-    }
-
-    public void setTableUri(String tableUri) {
-        this.tableUri = tableUri;
+    public IOpenLTable getTable() {
+        return table;
     }
 
     protected void reload() {
-        tableUri = null;
+        table = null;
         init();        
     }
 
     protected void init() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        tableUri = studio.getTableUri();
+        String tableUri = studio.getTableUri();
+        table = studio.getModel().getTable(tableUri);
     }
 
 }

@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -11,10 +12,11 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  */
 public class TestTableCreationWizardDirect extends TestTableCreationWizard {
 
-    public TestTableCreationWizardDirect(String uri) {
-        TableSyntaxNode node = WebStudioUtils.getProjectModel().getNode(uri);
+    public TestTableCreationWizardDirect(IOpenLTable table) {
+        String tableUri = table.getUri();
+        TableSyntaxNode node = WebStudioUtils.getProjectModel().getNode(tableUri);
         if (node == null) {
-            throw new IllegalArgumentException(String.format("Can`t find node with uri:%s ", uri));
+            throw new IllegalArgumentException(String.format("Can`t find node with uri:%s ", tableUri));
         }
         selectedNode = node;        
     }

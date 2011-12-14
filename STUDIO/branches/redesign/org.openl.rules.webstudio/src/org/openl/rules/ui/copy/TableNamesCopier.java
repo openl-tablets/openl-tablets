@@ -3,6 +3,7 @@ package org.openl.rules.ui.copy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
@@ -10,8 +11,8 @@ import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 
 public class TableNamesCopier extends TableCopier {
 
-    public TableNamesCopier(String tableUri) {
-        super(tableUri);
+    public TableNamesCopier(IOpenLTable table) {
+        super(table);
         checkPropertiesExistance();
     }
 

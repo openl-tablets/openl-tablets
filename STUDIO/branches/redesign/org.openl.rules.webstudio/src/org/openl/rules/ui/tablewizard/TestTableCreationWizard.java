@@ -78,9 +78,9 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
         TableSyntaxNode node = getSelectedNode();
-        
+
         String header = TestTableBuilder.getHeader(node, technicalName);
-        
+
         Map<String, String> params = TestTableBuilder.getParams(node);
 
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
