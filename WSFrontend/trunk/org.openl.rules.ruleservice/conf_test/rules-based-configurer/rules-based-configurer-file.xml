@@ -7,8 +7,8 @@
 
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 
-	<import resource="openl-ruleservice-filesystemdatasource.xml"/>
-	<import resource="../openl-ruleservice-publisher-beans.xml"/>
+	<import resource="classpath:rules-based-configurer/openl-ruleservice-filesystemdatasource.xml"/>
+	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
 	
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
 	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleService">
