@@ -17,7 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
- * Bean to unpack jar with rule.xml to defined folder. This bean is used by
+ * Bean to unpack jar with rules.xml to defined folder. This bean is used by
  * FileSystemDataSource. Set depend-on property in bean definition. This class
  * implements InitializingBean.
  * 
