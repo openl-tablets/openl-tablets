@@ -12,7 +12,11 @@ public class ArrayComparator implements TestResultComparator {
         }
 
         for (int i = 0; i < len; i++) {
-            if (!compareResult(Array.get(actualResult, i), Array.get(expectedResult, i))) {
+            Object actualArrayResult = Array.get(actualResult, i);
+            Object expectedArrayResult = Array.get(expectedResult, i);
+            
+            TestResultComparator comp = TestResultComparatorFactory.getComparator(actualArrayResult, expectedArrayResult);
+            if (!comp.compareResult(actualArrayResult, expectedArrayResult)) {
                 return false;
             }
         }
