@@ -39,4 +39,20 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
                 .get(fieldName)));
     }
     
+    public static boolean containRestrictedSymbols(String fieldName) {
+        /** regex for validating field names. Field name
+         * may start from '_', any letter or '$' sign.
+         * And may be followed by the described symbols and also by any number.
+         */
+        String regex = "^(_|[a-zA-Z]|\\$)(_|[a-zA-Z0-9]|\\$)*";
+        
+        return !fieldName.matches(regex);
+    }
+    
+    /** Generate methods only for fields without restricted symbols.
+    In future should be updated to use this fields too somehow*/
+    protected boolean validField(String fieldName, FieldDescription fieldDescription) {
+        return !fieldDescription.getCanonicalTypeName().equals(VOID_CLASS_NAME) && !containRestrictedSymbols(fieldName);
+    }
+    
 }

@@ -114,17 +114,24 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
     
     @Test
     public void testRestrictedFieldName2() {
+        String field1 = "$Formula//$FinalValue";
+        String field2 = "$Formula$Final_Value";
+        
         Map<String, FieldDescription> cells = new HashMap<String, FieldDescription>();
-        cells.put("$Formula//$FinalValue", new FieldDescription(double.class)); // not allowed name of field, should be skipped in result class
-        cells.put("$Formula$Final_Value", new FieldDescription(String.class));
+        cells.put(field1, new FieldDescription(double.class)); // not allowed name of field, should be skipped in result class
+        cells.put(field2, new FieldDescription(String.class));
+        
+        Map<String, Point> fieldCoordinates = new HashMap<String, Point>();
+        fieldCoordinates.put(field1, new Point(0, 0));
+        fieldCoordinates.put(field2, new Point(1, 0));
         
         String className = "my.test.CustomSpreadsheetRestricted2";
-        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells);
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(className, cells, fieldCoordinates);
         gen.generateAndLoadBeanClass();
         
         Class<?> clazz = checkLoadingClass(className);    
         
-        instantiate(clazz);          
+        instantiate(clazz);
     }
     
     @Test
@@ -141,7 +148,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
         instantiate(clazz);        
     }
 
-    private void instantiate(Class<?> clazz) {
+    private Object instantiate(Class<?> clazz) {
         Object instance = null;
         Constructor<?> constructor = null;
         try {
@@ -155,6 +162,7 @@ public class CustomSpreadsheetResultByteCodeGeneratorTest {
             fail();
         } 
         assertNotNull(instance);
+        return instance;
     }
 
     private Class<?> checkLoadingClass(String className) {

@@ -7,7 +7,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.RulesCommons;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -32,9 +31,7 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
  *
  */
 public class DecoratorMethodWriter extends GettersWriter {
-        
-    private static final String SPACE_SYMBOL = " ";
-
+    
     /**
      * Constructor for the DecoratorMethodWriter
      * 
@@ -57,52 +54,54 @@ public class DecoratorMethodWriter extends GettersWriter {
     protected void generateGetter(ClassWriter classWriter, Entry<String, FieldDescription> field) {
         MethodVisitor methodVisitor;
         String fieldName = field.getKey();
-        
-        /** Generate methods only for fields without restricted symbols.
-            In future should be updated to use this fields too somehow*/
-        if (!containRestrictedSymbols(fieldName)) {
-            FieldDescription fieldType = field.getValue();
-            
-            /** create method name for decorator*/
-            String methodName = String.format("%s%s", prefixForDecorator, fieldName);
-                    
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  methodName, String.format("()%s",
-                ByteCodeGeneratorHelper.getJavaType(fieldType)), null, null);
-            methodVisitor.visitCode();
-            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            
-            methodVisitor.visitLdcInsn(fieldName);
-            
-            /** call method **/
-            ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, SpreadsheetResult.class, nameOfTheMethodToCall, new Class[]{String.class});
-            
-            String typeNameForCast = null;
-            
-            /** need to perform special processing for type name for cast operation*/
-            typeNameForCast = getTypeNameForCast(fieldType);
-            
-            /** perform cast to the field type*/
-            methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, typeNameForCast);        
-            
-            /** if the field is primitive, the cast to wrapper type should be performed, and call for instance intValue() for return*/
-            if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
-                String nameOftheWrapperMethod = String.format("%sValue", fieldType.getCanonicalTypeName());
-                methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Type.getInternalName(NumberUtils.getWrapperType(fieldType.getCanonicalTypeName())), 
-                    nameOftheWrapperMethod, String.format("()%s", ByteCodeGeneratorHelper.getJavaType(fieldType)));            
-            }
-            
-            methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType.getType()));        
-            methodVisitor.visitMaxs(2, 1);
-            methodVisitor.visitEnd();
+
+        FieldDescription fieldType = field.getValue();
+
+        /** create method name for decorator */
+        String methodName = String.format("%s%s", prefixForDecorator, fieldName);
+
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,
+            methodName,
+            String.format("()%s", ByteCodeGeneratorHelper.getJavaType(fieldType)),
+            null,
+            null);
+        methodVisitor.visitCode();
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+
+        methodVisitor.visitLdcInsn(fieldName);
+
+        /** call method **/
+        ByteCodeGeneratorHelper.invokeVirtual(methodVisitor,
+            SpreadsheetResult.class,
+            nameOfTheMethodToCall,
+            new Class[] { String.class });
+
+        String typeNameForCast = null;
+
+        /** need to perform special processing for type name for cast operation */
+        typeNameForCast = getTypeNameForCast(fieldType);
+
+        /** perform cast to the field type */
+        methodVisitor.visitTypeInsn(Opcodes.CHECKCAST, typeNameForCast);
+
+        /**
+         * if the field is primitive, the cast to wrapper type should be
+         * performed, and call for instance intValue() for return
+         */
+        if (fieldType.getType() != null && fieldType.getType().isPrimitive()) {
+            String nameOftheWrapperMethod = String.format("%sValue", fieldType.getCanonicalTypeName());
+            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                Type.getInternalName(NumberUtils.getWrapperType(fieldType.getCanonicalTypeName())),
+                nameOftheWrapperMethod,
+                String.format("()%s", ByteCodeGeneratorHelper.getJavaType(fieldType)));
         }
+
+        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(fieldType.getType()));
+        methodVisitor.visitMaxs(2, 1);
+        methodVisitor.visitEnd();
     }
     
-    private boolean containRestrictedSymbols(String fieldName) {
-        if (fieldName.contains(SPACE_SYMBOL) || fieldName.contains(RulesCommons.COMMENT_SYMBOLS.toString())) {
-            return true;
-        }
-        return false;
-    }
+    
     
     /**
      * Gets the type name for the cast. Not general helper method because contains custom logic for

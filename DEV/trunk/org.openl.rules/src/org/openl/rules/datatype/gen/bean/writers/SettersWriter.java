@@ -18,7 +18,7 @@ public class SettersWriter extends MethodWriter {
     @Override
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            if (!field.getValue().getCanonicalTypeName().equals(MethodWriter.VOID_CLASS_NAME)) {
+            if (validField(field.getKey(), field.getValue())) {
                 generateSetter(classWriter, field);
             }
         }
