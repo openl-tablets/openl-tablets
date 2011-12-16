@@ -458,6 +458,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             NumberOperations.ROUND, new org.openl.meta.FloatValue[] { value });
     }
     
+    public static FloatValue round(FloatValue value, int scale) {
+        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(), scale)),
+            NumberOperations.ROUND,
+            new FloatValue[] {value, new FloatValue(scale)});
+    }
+    
+    public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
+        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(), scale, roundingMethod)),
+            NumberOperations.ROUND,
+            new FloatValue[] {value, new FloatValue(scale)});
+    }
+    
     public FloatValue(String valueString) {        
         value = Float.parseFloat(valueString);
     }

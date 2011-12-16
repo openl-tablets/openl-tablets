@@ -489,21 +489,40 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         return new FloatValue(x.floatValue());
     }
-
-    public static DoubleValue round(DoubleValue d, DoubleValue p) {
-        validate(d, p, NumberOperations.ROUND);
-        
-        return new DoubleValue(new DoubleValue(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue()),
-          NumberOperations.ROUND,
-          new DoubleValue[] { d, p });
-    }
     
+    @Deprecated
     public static org.openl.meta.DoubleValue round(org.openl.meta.DoubleValue value) {
         validate(value, NumberOperations.ROUND);
         
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue((double) Math.round(value.getValue())), 
             NumberOperations.ROUND, new org.openl.meta.DoubleValue[] { value });
     }
+    
+    public static DoubleValue round(DoubleValue value, int scale) {
+        return new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue(), scale)),
+            NumberOperations.ROUND,
+            new DoubleValue[] {value, new DoubleValue(scale)});
+    }
+    
+    public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {
+        return new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue(), scale, roundingMethod)),
+            NumberOperations.ROUND,
+            new DoubleValue[] {value, new DoubleValue(scale)});
+    }
+    
+    /**
+     *
+     * @deprecated as contains errors. Doesn`t round to the appropriate scale.
+     * Leaves the trash in the end, e.g. 1.89700000000001
+     */
+    @Deprecated
+    public static DoubleValue round(DoubleValue d, DoubleValue p) {
+        validate(d, p, NumberOperations.ROUND);
+        
+        return new DoubleValue(new DoubleValue(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue()),
+          NumberOperations.ROUND,
+          new DoubleValue[] { d, p });
+    }    
         
     /**
      * @deprecated double value shouldn`t be empty.

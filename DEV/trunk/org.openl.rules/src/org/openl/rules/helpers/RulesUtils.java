@@ -1063,4 +1063,28 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.or(values);
     }
     
+    public static long round(double value) {
+        return Math.round(value);
+    }
+    
+    public static int round(float value) {
+        return Math.round(value);
+    }
+    
+    public static double round(double value, int scale) {
+        return org.apache.commons.math.util.MathUtils.round(value, scale);
+    }
+    
+    public static float round(float value, int scale) {
+        return org.apache.commons.math.util.MathUtils.round(value, scale);
+    }
+    
+    public static double round(double value, int scale, int roundingMethod) {
+        return org.apache.commons.math.util.MathUtils.round(value, scale, roundingMethod);
+    }
+    
+    public static float round(float value, int scale, int roundingMethod) {
+        return org.apache.commons.math.util.MathUtils.round(value, scale, roundingMethod);
+    }
+    
 }
