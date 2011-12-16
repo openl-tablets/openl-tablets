@@ -30,7 +30,7 @@ public class GettersWriter extends MethodWriter {
         /** ignore those fields that are of void type. In java it is impossible
         but possible in Openl, e.g. spreadsheet cell with void type.*/
         for(Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            if (!field.getValue().getCanonicalTypeName().equals(MethodWriter.VOID_CLASS_NAME)) {
+            if (validField(field.getKey(), field.getValue())) {
                 generateGetter(classWriter, field);
             }
         }
