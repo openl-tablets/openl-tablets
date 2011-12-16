@@ -489,8 +489,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         return new FloatValue(x.floatValue());
     }
-    
-    @Deprecated
+        
     public static org.openl.meta.DoubleValue round(org.openl.meta.DoubleValue value) {
         validate(value, NumberOperations.ROUND);
         

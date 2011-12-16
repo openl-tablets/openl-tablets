@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
