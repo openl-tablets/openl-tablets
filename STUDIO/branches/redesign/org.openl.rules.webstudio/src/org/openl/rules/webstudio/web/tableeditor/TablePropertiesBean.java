@@ -1,25 +1,27 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.renderkit.PropertyGroup;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.ui.ProjectModel;
@@ -29,7 +31,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 
 @ManagedBean
-@RequestScoped
+@ViewScoped
 public class TablePropertiesBean {
 
     //private static final Log LOG = LogFactory.getLog(TablePropertiesBean.class);
@@ -37,51 +39,48 @@ public class TablePropertiesBean {
     private IOpenLTable table;
     private ITableProperties props;
     private List<TableProperty> listProperties;
+    private List<PropertyGroup> groups;
 
     private String newTableUri;
+    private String propertyToAdd;
 
     public TablePropertiesBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         String uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         table = studio.getModel().getTable(uri);
-        
+
         if (table == null) {
             uri = studio.getTableUri();
             table = studio.getModel().getTable(uri);
         }
 
         if (isShowProperties()) {
-        	this.props = table.getProperties();
-        	this.listProperties = initPropertiesList();
+            this.props = table.getProperties();
+            this.listProperties = initPropertiesList();
         }
+    }
+
+    public List<TableProperty> getProperties() {
+        return listProperties;
     }
 
     private List<TableProperty> initPropertiesList() {
         List<TableProperty> listProp = new ArrayList<TableProperty>();
-        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
+                .getDefaultDefinitionsForTable(table.getType());
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            String name = propDefinition.getName();
-            String displayName = propDefinition.getDisplayName();
-            Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null;
-            Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType()
-                    .getInstanceClass();
-            InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
-            String group = propDefinition.getGroup();
-            String format = propDefinition.getFormat();
-            Constraints constraints = propDefinition.getConstraints();
-            String description = propDefinition.getDescription();
-            boolean system = propDefinition.isSystem();
+            Object value = props.getPropertyValue(propDefinition.getName());
+            if (value != null) {
+                InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(propDefinition.getName());
 
-            if (PropertiesChecker.isPropertySuitableForTableType(name, table.getType())) {
-            	TableProperty.TablePropertyBuilder builder = new TableProperty.TablePropertyBuilder(name, type).value(value)
-                .displayName(displayName).group(group).format(format).constraints(constraints)
-                .description(description).system(system).inheritanceLevel(inheritanceLevel);
-            	if (InheritanceLevel.MODULE.equals(inheritanceLevel)
-            			|| InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
-            		builder.inheritedTableUri(getProprtiesTableUri(inheritanceLevel));
-            	}
-                TableProperty prop = builder.build();
+                TableProperty prop = new TableProperty(propDefinition);
+                prop.setValue(value);
+                prop.setInheritanceLevel(inheritanceLevel);
+                if (InheritanceLevel.MODULE.equals(inheritanceLevel)
+                        || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
+                    prop.setInheritedTableUri(getProprtiesTableUri(inheritanceLevel));
+                }
                 listProp.add(prop);
             }
         }
@@ -100,29 +99,36 @@ public class TablePropertiesBean {
     private String getProprtiesTableUri(InheritanceLevel inheritanceLevel) {
         String uri = null;
         ILogicalTable propertiesTable = props.getInheritedPropertiesTable(inheritanceLevel);
-	    if (propertiesTable != null) {
-	        String tableUri = propertiesTable.getSource().getUri();
-	        uri = StringTool.encodeURL(tableUri);
-	    }
+        if (propertiesTable != null) {
+            String tableUri = propertiesTable.getSource().getUri();
+            uri = StringTool.encodeURL(tableUri);
+        }
         return uri;
     }
 
-    public Map<String, List<TableProperty>> getGroupProps() {
+    public List<PropertyGroup> getPropertyGroups() {
+        groups = new ArrayList<PropertyGroup>();
         Map<String, List<TableProperty>> groupProps = new LinkedHashMap<String, List<TableProperty>>();
         if (isShowProperties()) {
-	        for (TableProperty prop : listProperties) {
-	            String group = prop.getGroup();
-	            List<TableProperty> groupList = groupProps.get(group);
-	            if (groupList == null) {
-	                groupList = new ArrayList<TableProperty>();
-	                groupProps.put(group, groupList);
-	            }
-	            if (!groupList.contains(prop) && prop.getValue() != null) {
-	                groupList.add(prop);
-	            }
-	        }
+            for (TableProperty prop : listProperties) {
+                String group = prop.getGroup();
+                List<TableProperty> groupList = groupProps.get(group);
+                if (groupList == null) {
+                    groupList = new ArrayList<TableProperty>();
+                    groupProps.put(group, groupList);
+                }
+                if (!groupList.contains(prop)) {
+                    groupList.add(prop);
+                }
+            }
         }
-        return groupProps;
+        for (String groupName : groupProps.keySet()) {
+            PropertyGroup group = new PropertyGroup();
+            group.setGroup(groupName);
+            group.setProperties(groupProps.get(groupName));
+            groups.add(group);
+        }
+        return groups;
     }
 
     public boolean isShowProperties() {
@@ -158,6 +164,37 @@ public class TablePropertiesBean {
 
     public void setNewTableUri(String newTableUri) {
         this.newTableUri = newTableUri;
+    }
+
+    public List<SelectItem> getPropertiesToAdd() {
+        List<SelectItem> propertiesToAdd = new ArrayList<SelectItem>();
+        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
+                .getDefaultDefinitionsForTable(table.getType(), InheritanceLevel.TABLE, true);
+        Collection<String> currentProps = new TreeSet<String>();
+        for (TableProperty prop : listProperties) {
+            currentProps.add(prop.getName());
+        }
+
+        for (TablePropertyDefinition propDefinition : propDefinitions) {
+            String propName = propDefinition.getName();
+            if (!currentProps.contains(propName)) {
+                propertiesToAdd.add(new SelectItem(propName, propDefinition.getDisplayName()));
+            }
+        }
+        return propertiesToAdd;
+    }
+
+    public String getPropertyToAdd() {
+        return propertyToAdd;
+    }
+
+    public void setPropertyToAdd(String propertyToAdd) {
+        this.propertyToAdd = propertyToAdd;
+    }
+
+    public void addProperty() {
+    	TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyToAdd);
+        listProperties.add(new TableProperty(propDefinition));
     }
 
 }

@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.util.EnumUtils;
@@ -35,6 +36,18 @@ public class TableProperty {
     private boolean dimensional;
     private InheritanceLevel inheritanceLevel;
     private String inheritedTableUri;
+
+    public TableProperty(TablePropertyDefinition propDefinition) {
+    	this.name = propDefinition.getName();
+        this.displayName = propDefinition.getDisplayName();
+        this.type = propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass();
+        this.group = propDefinition.getGroup();
+        this.format = propDefinition.getFormat();
+        this.constraints = propDefinition.getConstraints();
+        this.description = propDefinition.getDescription();
+        this.system = propDefinition.isSystem();
+        this.dimensional = propDefinition.isDimensional();
+    }
 
     private TableProperty(TablePropertyBuilder builder) {
         this.name = builder.name;
@@ -370,4 +383,14 @@ public class TableProperty {
             return new TableProperty(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+            .append(getDisplayName())
+            .append(" : ")
+            .append(getDisplayValue())
+            .toString();
+    }
+
 }
