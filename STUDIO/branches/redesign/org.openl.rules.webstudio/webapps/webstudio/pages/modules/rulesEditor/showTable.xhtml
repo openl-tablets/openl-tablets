@@ -390,7 +390,7 @@
         <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
             linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-            showFormulas="#{studio.showFormulas}" collapseProps="#{studio.collapseProperties}"
+            showFormulas="#{studio.showFormulas}"
             beforeSaveAction="#{showTableBean.beforeSaveAction}"
             afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
             onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
@@ -420,7 +420,7 @@
         }
 
         function onAfterSave() {
-            goTo('#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml', 'content');
+            goTo("showTable.xhtml", "content");
             hideLoader();
         }
 

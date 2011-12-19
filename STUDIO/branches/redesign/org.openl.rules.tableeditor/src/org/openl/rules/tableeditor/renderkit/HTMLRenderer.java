@@ -1,8 +1,6 @@
 package org.openl.rules.tableeditor.renderkit;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,20 +10,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.constraints.Constraint;
-import org.openl.rules.table.constraints.Constraints;
-import org.openl.rules.table.constraints.LessThanConstraint;
-import org.openl.rules.table.constraints.MoreThanConstraint;
-import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -33,9 +19,7 @@ import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
-import org.openl.util.EnumUtils;
 import org.openl.rules.tableeditor.util.WebUtil;
-import org.openl.util.StringTool;
 
 /**
  * Render TableEditor HTML.
@@ -90,7 +74,6 @@ public class HTMLRenderer {
             if (editor.isEditable()) {
                 result.append(renderJS("js/BaseEditor.js"))
                     .append(renderJS("js/BaseTextEditor.js"))
-                    .append(renderJS("js/validation.js"))
                     .append(renderJS("js/datepicker.packed.js"))
                     .append(renderJS("js/TextEditor.js"))
                     .append(renderJS("js/MultiLineEditor.js"))
@@ -240,7 +223,6 @@ public class HTMLRenderer {
         result.append(renderEditorToolbar(editor.getId(), editorJsVar))
             .append(renderJS("js/colorPicker.js"))
             .append(renderJS("js/popup.js"));
-        result.append(renderPropsEditor(editor, Constants.MODE_EDIT));
 
         return result.toString();
     }
@@ -353,13 +335,9 @@ public class HTMLRenderer {
 
     protected String renderViewer(TableEditor editor, List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
-        if (editor.getTable() != null) {
-            result.append(renderPropsEditor(editor, Constants.MODE_VIEW));
-
-            if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
-                String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
-                result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
-            }
+        if (editor.getTable() != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
+            String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
+            result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
         }
         return result.toString();
     }
@@ -383,17 +361,6 @@ public class HTMLRenderer {
         }
 
         return ALL_ROWS;
-    }
-
-    protected String renderPropsEditor(TableEditor editor, String mode) {
-        final IOpenLTable table = editor.getTable();
-        final String tableType = table.getType();
-        if (tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
-                && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
-                && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString())) {
-            return new PropertyRenderer(editor, mode).renderProperties();
-        }
-        return "";
     }
 
     /**
@@ -496,378 +463,4 @@ public class HTMLRenderer {
         }
     }
 
-    /**
-     * Render properties
-     * 
-     * @author DLiauchuk
-     * 
-     */
-    public class PropertyRenderer {
-
-        private List<TableProperty> listProperties = new ArrayList<TableProperty>();
-
-        private StringBuilder result;
-
-        private TableEditor tableEditor;
-
-        private String mode;
-
-        private ITableProperties props;
-
-        private String editorId;
-        private String propsId;
-
-        private String tableType;
-
-        public PropertyRenderer(TableEditor tableEditor, String view) {
-            this.tableEditor = tableEditor;
-            this.editorId =  StringUtils.defaultString(tableEditor.getId());
-            this.propsId = editorId + Constants.ID_POSTFIX_PROPS;
-            IOpenLTable table = tableEditor.getTable();
-            this.props = table.getProperties();
-            this.mode = view;
-            this.tableType = table.getType();
-
-            this.result = new StringBuilder();
-
-            this.listProperties = initPropertiesList();
-        }
-
-        private List<TableProperty> initPropertiesList() {
-            List<TableProperty> listProp = new ArrayList<TableProperty>();
-            TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
-            for (TablePropertyDefinition propDefinition : propDefinitions) {
-                String name = propDefinition.getName();
-                String displayName = propDefinition.getDisplayName();
-                Object value = props != null ? props.getPropertyValue(propDefinition.getName()) : null;
-                Class<?> type = propDefinition.getType() == null ? String.class : propDefinition.getType()
-                        .getInstanceClass();
-                InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
-                String group = propDefinition.getGroup();
-                String format = propDefinition.getFormat();
-                Constraints constraints = propDefinition.getConstraints();
-                String description = propDefinition.getDescription();
-                boolean system = propDefinition.isSystem();
-                if (PropertiesChecker.isPropertySuitableForTableType(name, tableType)) {
-                    TableProperty prop = new TableProperty.TablePropertyBuilder(name, type).value(value)
-                    .displayName(displayName).group(group).format(format).constraints(constraints)
-                    .description(description).system(system).inheritanceLevel(inheritanceLevel).build();
-                    listProp.add(prop);
-                }
-
-            }
-            return listProp;
-        }
-
-        private TableProperty getProperty(String name) {
-            for (TableProperty property : listProperties) {
-                if (property.getName().equals(name)) {
-                    return property;
-                }
-            }
-            return null;
-        }
-
-        private Map<String, List<TableProperty>> groupProps(List<TableProperty> props) {
-            Map<String, List<TableProperty>> groupProps = new LinkedHashMap<String, List<TableProperty>>();
-            for (TableProperty prop : props) {
-                String group = prop.getGroup();
-                List<TableProperty> groupList = groupProps.get(group);
-                if (groupList == null) {
-                    groupList = new ArrayList<TableProperty>();
-                    groupProps.put(group, groupList);
-                }
-                if (!groupList.contains(prop)) {
-                    groupList.add(prop);
-                }
-            }
-            return groupProps;
-        }
-
-        /**
-         * 
-         * @return Construct table for properties
-         */
-        public String renderProperties() {
-            result.append(renderCSS("css/properties.css"));
-            result.append("<table cellspacing='0' cellpadding='0' class='te_props'>");
-            result.append("<tr><td class='te_props_header'>Properties");
-            renderHideButton(propsId);
-            result.append("</td></tr><tr><td><div id=" + propsId
-                    + " class='te_props_propstable' style='display: none;'>");
-            result.append("<table cellspacing='1' cellpadding='1'>");
-            buildPropsTable();
-            result.append("</table></div></td></tr></table>");
-            if (!tableEditor.isCollapseProps()) {
-                result.append(renderJSBody("$('" + propsId + "').show()"));
-            }
-
-            if (mode.equals("edit")) {
-                String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editorId;
-                result.append(renderJSBody("var propIdSelector = 'id^=\"_" + propsId + "_prop-\"';"
-                        + "$$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {"
-                        + "elem.observe('focus', function(e) {"
-                        + "this.addClassName('te_props_prop_focused');"
-                        + "});"
-                        + "elem.observe('blur', function(e) {"
-                        + "this.removeClassName('te_props_prop_focused');"
-                        + editorJsVar + ".handlePropBlur(e);"
-                        + "});"
-                        + "});"));
-            }
-
-            return result.toString();
-        }
-
-        private void buildPropsTable() {
-            Map<String, List<TableProperty>> groupProps = groupProps(listProperties);
-            int groupSize = groupProps.size();
-            int numToDivide = getNumToDivideColumns(groupSize);
-
-            int i = 0;
-            Set<String> groupKeys = groupProps.keySet();
-            for (String group : groupKeys) {
-                if (i == 0) {
-                    result.append("<tr>");
-                }
-                if (i == numToDivide) {
-                    result.append("</tr>");
-                    result.append("<tr>");
-                }
-                result.append("<td valign='top' class='te_props_group'>");
-                fillPropsGroup(group, mode);
-                result.append("</td>");
-
-                if (i == groupSize - 1) {
-                    result.append("</tr>");
-                }
-                i++;
-            }
-        }
-
-        private int getNumToDivideColumns(int groupSize) {
-            int numToDivide = 0;
-            if (groupSize % 2 == 0) {
-                numToDivide = groupSize / 2;
-            } else {
-                numToDivide = (groupSize + 1) / 2;
-            }
-            return numToDivide;
-        }
-
-        private void fillPropsGroup(String groupKey, String mode) {
-            Map<String, List<TableProperty>> groupProps = groupProps(listProperties);
-            List<TableProperty> groupList = groupProps.get(groupKey);
-            String groupId = propsId + Constants.ID_POSTFIX_PROPS_GROUP + groupKey;
-            result.append("<div class='te_props_groupheader'>");
-            result.append(groupKey);
-            renderHideButton(groupId);
-            result.append("</div>");
-            result.append("<div id='" + groupId + "' class='te_props_grouptable'>");
-            result.append("<table>");
-            for (TableProperty prop : groupList) {
-                insertProp(prop);
-            }
-            result.append("</table></div>");
-        }
-
-        private void insertProp(TableProperty prop) {
-            String inheritPropStyleClass = "";
-            if (prop.isModuleLevelProperty() || prop.isCategoryLevelProperty()) {
-                inheritPropStyleClass = " te_props_prop_inherited";
-            }
-            result.append("<tr class='te_props_prop" + inheritPropStyleClass + "'>");
-            insertPropLabel(prop.getDisplayName());
-            insertPropValue(prop, mode);
-            insertPropertiesTableLink(prop, mode);
-            result.append("</tr>");
-        }
-
-        private void insertPropValue(TableProperty prop, String mode) {
-            if ("edit".equals(mode)) {
-                boolean showTooltip = StringUtils.isNotBlank(prop.getDescription());
-                final String propId = getPropId(prop);
-                if (prop.isSystem() || !prop.isCanBeOverridenInTable() || "version".equalsIgnoreCase(prop.getName())) {
-                    insertText(prop, propId, showTooltip);
-                } else {
-                    insertInput(prop, propId, showTooltip);
-                }
-            } else {
-                insertText(prop);
-            }
-        }
-
-        private void insertPropertiesTableLink(TableProperty prop, String mode) {
-            result.append("<td>");
-            String propsTableUri = getProprtiesTablePageUrl(prop, mode);
-            if (propsTableUri != null) {
-                String imgUp = WebUtil.internalPath("img/up.gif");
-                result.append("<a href='" + propsTableUri + "' title=''><img src='" + imgUp
-                        + "' title='Go to Properties table' alt='Go to Properties table' /></a>");
-            }
-            result.append("</td>");
-        }
-
-        private String getProprtiesTablePageUrl(TableProperty prop, String mode) {
-            String url = null;
-            ILogicalTable propertiesTable = null;
-
-            String linkBase = tableEditor.getLinkBase();
-            if (StringUtils.isNotBlank(linkBase)) {
-                if (prop.isModuleLevelProperty()) {
-                    propertiesTable = props.getModulePropertiesTable();
-                } else if (prop.isCategoryLevelProperty()) {
-                    propertiesTable = props.getCategoryPropertiesTable();
-                }
-                if (propertiesTable != null) {
-                    String tableUri = propertiesTable.getSource().getUri();
-                    url = linkBase + "?uri=" + StringTool.encodeURL(tableUri);
-                    if ("edit".equals(mode)) {
-                        url += "&mode=edit";
-                    }
-                }
-            }
-            return url;
-        }
-
-        private void renderHideButton(String idToHide) {
-            String imgCollapseSrc = WebUtil.internalPath("img/arrow_right.gif");
-            String imgExpandSrc = WebUtil.internalPath("img/arrow_down.gif");
-            result.append(" <img src='" + imgCollapseSrc + "' onclick=\"$('" + idToHide
-                    + "').toggle();this.src=(this.title == 'Hide' ? '" + imgExpandSrc + "' : '" + imgCollapseSrc
-                    + "');" + "this.title=(this.title == 'Hide' ? 'Show' : 'Hide');\""
-                    + " title='Hide' class='te_props_hidebutton' />");
-        }
-
-        private String getPropId(TableProperty prop) {
-            return propsId + Constants.ID_POSTFIX_PROP + prop.getName();
-        }
-
-        private void insertInput(TableProperty prop, String id, boolean showTooltip) {
-            
-            boolean inserted = true;
-            
-            String propValue = prop.getStringValue();
-
-            if (prop.isStringType() || prop.isDoubleType()) {
-                insertTextbox(prop, id); 
-            } else if (prop.isStringArray()) {
-                insertTextbox(prop, id);
-            } else if (prop.isDateType()) {
-                insertCalendar(prop, id);
-            } else if (prop.isBooleanType()) {
-                insertCheckbox(propValue, id);
-            } else if (prop.isEnumType()) {
-                insertSingleSelectForEnum(prop, id);
-            } else if (prop.isEnumArray()) {
-                insertMultiSelectForEnum(prop, id);
-            } else {
-                inserted = false;
-            }
-            if (showTooltip && inserted) {
-                insertTooltip(id, prop.getDescription());
-            }
-        }
-
-        private void insertTooltip(String propId, String description) {
-            result.append(renderJSBody(
-                    "new Tooltip('_" + propId + "','" + description + "',{skin:'blue', maxWidth:'160px'})"));
-        }
-
-        private void insertCalendar(TableProperty prop, String id) {
-            String value = prop.getStringValue();
-            Constraints constraints = prop.getConstraints();
-            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>").append(
-                    renderJSBody("new DateEditor('','" + id + "','','" + StringEscapeUtils.escapeJavaScript(value)
-                            + "','')"));
-
-            for (Constraint constraint : constraints.getAll()) {
-                if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
-                    String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
-                    String compareToField = (String) constraint.getParams()[0];
-                    String compareToFieldId = "_" + id.replaceFirst(prop.getName() + "(?=$)", compareToField);
-                    TableProperty compareToProperty = getProperty(compareToField);
-                    String compareToPropertyDisplayName = compareToProperty == null ? "" : compareToProperty
-                            .getDisplayName();
-                    result.append(renderJSBody("new Validation('_" + id + "', '" + validator
-                            + "', 'blur', {compareToFieldId:'" + compareToFieldId + "',messageParams:'"
-                            + compareToPropertyDisplayName + "'})"));
-                }
-            }
-        }
-
-        private void insertSingleSelect(String componentId, String[] values, String[] displayValues, String value) {
-
-            String jsCode = getSingleSelectComponentCode(componentId, values, displayValues, value);
-            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
-                    renderJSBody(jsCode));
-        }
-
-        private void insertSingleSelectForEnum(TableProperty prop, String id) {
-            Class<?> instanceClass = prop.getType();
-            String value = prop.getStringValue();
-
-            String[] values = EnumUtils.getNames(instanceClass);
-            String[] displayValues = EnumUtils.getValues(instanceClass);
-
-            insertSingleSelect(id, values, displayValues, value);
-        }
-
-        private void insertMultiSelectForEnum(TableProperty prop, String id) {
-            Class<?> instanceClass = prop.getType().getComponentType();
-
-            String valueString = prop.getStringValue();
-
-            String[] values = EnumUtils.getNames(instanceClass);
-            String[] displayValues = EnumUtils.getValues(instanceClass);
-
-            insertMultiSelect(id, values, displayValues, valueString);
-        }
-
-        private void insertMultiSelect(String componentId, String[] values, String[] displayValues, String value) {
-
-            String jsCode = getMultiSelectComponentCode(componentId, values, displayValues, value);
-
-            result.append("<td id='" + componentId + "' class='te_props_proptextinput'></td>").append(
-                    renderJSBody(jsCode));
-        }
-
-        private void insertTextbox(TableProperty prop, String id) {
-            String value = prop.getStringValue();
-            insertTextbox(value, id);
-        }
-
-        private void insertTextbox(String value, String id) {
-
-            result.append("<td id='" + id + "' class='te_props_proptextinput'></td>").append(
-                    renderJSBody("new TextEditor('','" + id + "','','" + StringEscapeUtils.escapeJavaScript(value)
-                            + "','')"));
-        }
-
-        private void insertCheckbox(String value, String id) {
-            Boolean bValue = new Boolean(value);
-            if (value == null) {
-                bValue = false;
-            }
-            result.append("<td id='" + id + "'></td>").append(
-                    renderJSBody("new BooleanEditor('','" + id + "','','" + bValue + "','')"));
-        }
-
-        private void insertPropLabel(String displayName) {
-            result.append("<td class='te_props_proplabel'>" + displayName + ":</td>");
-        }
-
-        private void insertText(TableProperty prop) {
-            insertText(prop, null, false);
-        }
-
-        private void insertText(TableProperty prop, String id, boolean showTooltip) {
-            String propValue = prop.getDisplayValue();
-            result.append("<td class='te_props_propvalue'><span"
-                    + (StringUtils.isNotBlank(id) ? (" id='_" + id + "'") : "") + ">" + propValue + "</span></td>");
-            if (showTooltip) {
-                insertTooltip(id, prop.getDescription());
-            }
-        }
-    }
 }

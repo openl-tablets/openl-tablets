@@ -23,7 +23,6 @@ var TableEditor = Class.create({
     editorSwitched: false,
     baseUrl: null,
     selectionPos: null,
-    //selectedPropValue: null,
     selectionHistory: [],
     decorator: null,
     rows: 0,
@@ -31,9 +30,7 @@ var TableEditor = Class.create({
     modFuncSuccess: null,
     editCell: null,
     cellIdPrefix: null,
-    propIdPrefix: null,
     actions: null,
-    inheritedPropStyleClass: null,
     editorWrapper: null,
     switchEditorMenu: null,
 
@@ -45,9 +42,7 @@ var TableEditor = Class.create({
         this.mode = mode ? mode : this.Modes.VIEW;
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
-        this.propIdPrefix = "_" + this.editorId + "_props_prop-";
         this.tableContainer = $(editorId + "_table");
-        this.inheritedPropStyleClass = 'te_props_prop_inherited';
         this.actions = actions;
 
         this.editable = editable === false ? false : true;
@@ -192,8 +187,6 @@ var TableEditor = Class.create({
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
-        } else if (this.isProperty(elt)) {
-            this.selectPropElement(elt);
         }
     },
 
@@ -289,19 +282,6 @@ var TableEditor = Class.create({
         }
         // Handle Table Editor events END
 
-        // Handle Properties Editor events START
-        /*var propIdSelector = 'id^="' + this.propIdPrefix + '"';
-        $$('input[' + propIdSelector + ']', 'select[' + propIdSelector + ']').each(function(elem) {
-            elem.observe("focus", function(e) {
-                this.addClassName('te_props_prop_focused');
-            });
-            elem.observe("blur", function(e) {
-                this.removeClassName('te_props_prop_focused');
-                self.handlePropBlur(e);
-            });
-        });*/
-        // Handle Properties Editor events END
-
         this.modFuncSuccess = function(response) {
             response = eval(response.responseText);
             if (response.status) alert(response.status);
@@ -313,49 +293,6 @@ var TableEditor = Class.create({
                 this.processCallbacks(response, "do");
             }
         }.bindAsEventListener(this);
-    },
-
-    handlePropBlur: function(event) {
-        if (!Validation.isAllValidated()) return false;
-        var prop = Event.findElement(event, "input");
-        if (!prop) {
-            prop = Event.findElement(event, "select");
-        }
-        this.setProp(prop);
-    },
-
-    setProp: function(property) {
-        var name = property.id.replace(this.propIdPrefix, "");
-        var value = AjaxHelper.getInputValue(property);
-        // if (propValue != this.selectedPropValue) {
-        var self = this;
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_PROPERTY), {
-            method    : "get",
-            encoding   : "utf-8",
-            contentType : "text/javascript",
-            parameters: {
-                editorId: this.editorId,
-                propName : name,
-                propValue : value
-            },
-            onSuccess: function(response) {
-                self.modFuncSuccess(response);
-                self.updateInheritedProperty(property, response);
-            },
-            onFailure: AjaxHelper.handleError
-        });
-        //}
-    },
-
-    updateInheritedProperty: function(prop, response) {
-        response = eval(response.responseText);
-        var propRow = prop.up("tr");
-        if (response.inheritedValue) {
-            prop.value = response.inheritedValue;
-            prop.up("tr").addClassName(this.inheritedPropStyleClass);
-        } else {
-            propRow.removeClassName(this.inheritedPropStyleClass);
-        }
     },
 
     /**
@@ -620,22 +557,6 @@ var TableEditor = Class.create({
         if (!wasSelected != !this.hasSelection()) this.isSelectedUpdated(!wasSelected);
     },
 
-    selectPropElement: function(elt) {
-        if (elt && this.currentElement && elt.id == this.currentElement.id) return;
-
-        this.selectionHistory.clear();
-
-        if (this.hasSelection()) {
-            this.decorator.undecorate(this.currentElement);
-            this.isSelectedUpdated(false);
-        }
-
-        //this.selectedPropValue = AjaxHelper.getInputValue(elt);
-
-        this.currentElement = elt;
-        this.selectionPos = '';
-    },
-
     $cell: function(pos) {
         var cell = $(this.cellIdPrefix + pos[0] + ":" + pos[1]);
         if (!cell) return cell;
@@ -646,13 +567,6 @@ var TableEditor = Class.create({
 
     isCell: function(element) {
         if (element && element.id.indexOf(this.cellIdPrefix) >= 0) {
-            return true;
-        }
-        return false;
-    },
-
-    isProperty: function(element) {
-        if (element && element.id.indexOf(this.propIdPrefix) >= 0) {
             return true;
         }
         return false;
@@ -1102,7 +1016,6 @@ TableEditor.Operations = {
     SET_FONT_ITALIC : "setFontItalic",
     SET_FONT_UNDERLINE : "setFontUnderline",
     SET_INDENT : "setIndent",
-    SET_PROPERTY : "setProperty",
     REMOVE_ROW : "removeRow",
     REMOVE_COLUMN : "removeColumn",
     INSERT_ROW_BEFORE : "insertRowBefore",

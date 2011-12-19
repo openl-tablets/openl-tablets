@@ -16,6 +16,9 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
+//import org.openl.rules.table.constraints.Constraint;
+//import org.openl.rules.table.constraints.LessThanConstraint;
+//import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -196,5 +199,19 @@ public class TablePropertiesBean {
     	TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyToAdd);
         listProperties.add(new TableProperty(propDefinition));
     }
+
+    /*for (Constraint constraint : constraints.getAll()) {
+        if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
+            String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
+            String compareToField = (String) constraint.getParams()[0];
+            String compareToFieldId = "_" + id.replaceFirst(prop.getName() + "(?=$)", compareToField);
+            TableProperty compareToProperty = getProperty(compareToField);
+            String compareToPropertyDisplayName = compareToProperty == null ? "" : compareToProperty
+                    .getDisplayName();
+            result.append(renderJSBody("new Validation('_" + id + "', '" + validator
+                    + "', 'blur', {compareToFieldId:'" + compareToFieldId + "',messageParams:'"
+                    + compareToPropertyDisplayName + "'})"));
+        }
+    }*/
 
 }

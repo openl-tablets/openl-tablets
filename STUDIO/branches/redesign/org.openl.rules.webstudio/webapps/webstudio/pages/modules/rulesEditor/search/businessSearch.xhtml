@@ -75,8 +75,7 @@
         </h:panelGroup>
         <br /><br />
         <rules:tableEditor table="#{table}" editable="false" rendered="#{table != null}"
-            linkBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml" linkTarget="content"
-            collapseProps="true" />
+            linkBase="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml" linkTarget="content" />
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>
 
