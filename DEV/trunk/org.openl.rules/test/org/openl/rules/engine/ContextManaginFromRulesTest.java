@@ -85,4 +85,16 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
         env.setContext(context);
         assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
     }
+    
+    @Test
+    public void testTBasicContext(){
+        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("tbasicCaller", new IOpenClass[] {});
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+        context.setUsState(UsStatesEnum.DC);
+        context.setLob("home");
+        env.setContext(context);
+        assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
+    }
 }

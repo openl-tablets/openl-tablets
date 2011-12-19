@@ -82,7 +82,7 @@ public class SimpleVM implements IOpenVM {
 		
 	}
 	
-	static class SimpleRuntimeEnv implements IRuntimeEnvWithContextManagingSupport {
+	static class SimpleRuntimeEnv implements IRuntimeEnv {
 		
 		IOpenRunner runner;
 		
@@ -167,6 +167,11 @@ public class SimpleVM implements IOpenVM {
         @Override
         public void pushContext(IRuntimeContext context) {
             contextStack.push(context);
+        }
+
+        @Override
+        public boolean isContextManagingSupported() {
+            return true;
         }
 	}
 	

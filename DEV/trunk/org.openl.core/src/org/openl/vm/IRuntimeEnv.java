@@ -42,4 +42,10 @@ public interface IRuntimeEnv {
 	 * @param context runtime context.
 	 */
 	void setContext(IRuntimeContext context);
+
+	boolean isContextManagingSupported();
+	
+	IRuntimeContext popContext();
+
+    void pushContext(IRuntimeContext context);
 }
