@@ -56,9 +56,6 @@ public final class Constants {
 
     public static final String ID_POSTFIX_TABLE = "_table";
     public static final String ID_POSTFIX_MENU = "_menu";
-    public static final String ID_POSTFIX_PROPS = "_props";
-    public static final String ID_POSTFIX_PROPS_GROUP = "_group-";
-    public static final String ID_POSTFIX_PROP = "_prop-";
     public static final String ID_POSTFIX_CELL = "_cell-";
 
     public static final String THIRD_PARTY_LIBS_PROTOTYPE = "prototype";
