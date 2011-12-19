@@ -158,7 +158,28 @@ public class TablePropertyDefinitionUtils {
         }
         return resultDefinitions.toArray(new TablePropertyDefinition[0]);
     }
-    
+
+    public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType) {
+        return getDefaultDefinitionsForTable(tableType, null, false);
+    }
+
+    public static TablePropertyDefinition[] getDefaultDefinitionsForTable(
+            String tableType, InheritanceLevel inheritanceLevel, boolean ignoreSystem) {
+        List<TablePropertyDefinition> resultDefinitions = new ArrayList<TablePropertyDefinition>();
+
+        for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            String name = propertyDefinition.getName();
+            if (PropertiesChecker.isPropertySuitableForTableType(name, tableType)
+                    && (inheritanceLevel == null // any level
+                    ||  ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel))
+                    && (!ignoreSystem || (ignoreSystem && !propertyDefinition.isSystem()))) {
+                    resultDefinitions.add(propertyDefinition);
+            }
+        }
+
+        return resultDefinitions.toArray(new TablePropertyDefinition[resultDefinitions.size()]);
+    }
+
     /**
      * Gets the table types in which this property can be defined.
      * 

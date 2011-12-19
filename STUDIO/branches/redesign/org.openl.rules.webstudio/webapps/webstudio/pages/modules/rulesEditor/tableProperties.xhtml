@@ -3,7 +3,6 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:oh="http://openl-tablets.sf.net/jsf/html">
@@ -39,7 +38,6 @@
             margin-left: 5px;
         }
         .propEditor {
-            display: none;
             margin-left: 2px;
         }
         .propEditor input[type="text"],
@@ -53,6 +51,9 @@
         .propDescription {
             display: none;
         }
+        .propHide {
+            display: none;
+        }
         #savePropsButton {
             display: none;
             margin-top: 10px;
@@ -63,20 +64,10 @@
 
     <h:panelGroup rendered="#{tablePropertiesBean.showProperties}">
     <h:form prependId="false">
+        <h:panelGroup id="propsTable">
         <table>
-            <c:forEach items="#{tablePropertiesBean.groupProps}" var="groupProps">
-
-            <c:if test="#{not empty groupProps.value}">
-            <tr>
-                <td colspan="2" class="propsGroupHeader">
-                    #{groupProps.key}
-                </td>
-            </tr>
-            </c:if>
-
-            <c:set value="#{groupProps.value}" var="props" />
-            <a4j:repeat value="#{props}" var="prop">
-            <c:set var="editable"
+            <a4j:repeat value="#{tablePropertiesBean.properties}" var="prop">
+            <ui:param name="editable"
                 value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
             <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
                 onclick="#{editable ? 'editProperty(this)' : ''}">
@@ -87,7 +78,7 @@
                     <span class="propValue">#{prop.displayValue}</span>
 
                     <h:panelGroup rendered="#{editable}">
-                    <span class="propEditor">
+                    <span class="propEditor#{!empty prop.value ? ' propHide' : ''}">
                         <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
                             defaultTime="00:00" rendered="#{prop.dateType}" inputStyle="width:100px" />
 
@@ -112,11 +103,31 @@
                 </td>
             </tr>
             </a4j:repeat>
-            </c:forEach>
         </table>
-        <a4j:commandButton id="savePropsButton" value="Save" action="#{tablePropertiesBean.save}"
-            data="#{tablePropertiesBean.newTableUri}"
-            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data) + '&amp;' + new Date().getTime())" />
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{tablePropertiesBean.editable}">
+            <a4j:commandButton id="savePropsButton" value="Save" action="#{tablePropertiesBean.save}"
+                data="#{tablePropertiesBean.newTableUri}"
+                oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data) + '&amp;' + new Date().getTime())" />
+            <a href="javascript:void(0)" onclick="$j('#addPropsPanel').show('slow')" style="margin-left: 3px">Add</a>
+        </h:panelGroup>
+    </h:form>
+
+    <h:panelGroup rendered="#{tablePropertiesBean.editable}">
+    <h:form prependId="false">
+        <div id="addPropsPanel" style="display: none; padding: 7px; border: 1px solid #eeeeee; background: #f5f5f5">
+            <div style="color: #555555; margin-bottom: 3px">Select property to add</div>
+            <div>
+                <h:selectOneMenu value="#{tablePropertiesBean.propertyToAdd}">
+                    <f:selectItems value="#{tablePropertiesBean.propertiesToAdd}" />
+                </h:selectOneMenu>
+                <a4j:commandButton value="Add" onclick="$j('#addPropsPanel').hide()" style="margin-left: 3px"
+                    action="#{tablePropertiesBean.addProperty}" render=":propsTable @form"
+                    oncomplete="$j('#savePropsButton').show()" />
+            </div>
+            
+        </div>
     </h:form>
     </h:panelGroup>
 
@@ -132,6 +143,11 @@
             var tooltipData = elem.find(".propEditor .propDescription").text();
             new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
         }
+
+        function addProperty() {
+            
+        }
     </script>
+    </h:panelGroup>
 
 </ui:composition>
