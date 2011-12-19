@@ -10,6 +10,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.dt.algorithm.DecisionTableAlgorithmHelper;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -102,7 +103,7 @@ public class Condition extends FunctionalRow implements ICondition {
         }
 
         evaluator = makeOptimizedConditionMethodEvaluator(signature);
-        IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm.makeEvaluator(this, methodType);
+        IConditionEvaluator dtcev = DecisionTableAlgorithmHelper.makeEvaluator(this, methodType);
 
         return conditionEvaluator = dtcev;
     }
