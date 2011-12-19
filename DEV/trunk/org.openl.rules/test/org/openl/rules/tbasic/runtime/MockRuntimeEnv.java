@@ -2,6 +2,7 @@ package org.openl.rules.tbasic.runtime;
 
 import java.util.Stack;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.openl.IOpenRunner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.vm.IRuntimeEnv;
@@ -66,4 +67,19 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 	public void setContext(IRuntimeContext context) {
 		this.context = context;
 	}
+
+    @Override
+    public boolean isContextManagingSupported() {
+        return false;
+    }
+
+    @Override
+    public IRuntimeContext popContext() {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void pushContext(IRuntimeContext context) {
+        throw new NotImplementedException();
+    }
 }

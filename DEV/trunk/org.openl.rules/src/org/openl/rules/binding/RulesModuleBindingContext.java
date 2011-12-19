@@ -27,7 +27,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.IRuntimeEnvWithContextManagingSupport;
 
 /**
  * Binding context for xls rules.
@@ -201,10 +200,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            if(env instanceof IRuntimeEnvWithContextManagingSupport){
-                ((IRuntimeEnvWithContextManagingSupport)env).popContext();
+            if(env.isContextManagingSupported()){
+                env.popContext();
+            } else {
+                LOG.warn("Failed to restore runtime context. Runtime context does not support context modifications.");
             }
-            LOG.warn("Failed to restore runtime context. Runtime context does not support context modifications.");
             return null;
         }
 
@@ -254,11 +254,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            if(env instanceof IRuntimeEnvWithContextManagingSupport){
+            if(env.isContextManagingSupported()){
                 IRulesRuntimeContext runtimeContext =  (IRulesRuntimeContext)params[0];
-                ((IRuntimeEnvWithContextManagingSupport)env).pushContext(runtimeContext);
+                env.pushContext(runtimeContext);
+            } else {
+                LOG.warn("Failed to set runtime context. Runtime context does not support context modifications.");
             }
-            LOG.warn("Failed to set runtime context. Runtime context does not support context modifications.");
             return null;
         }
 
@@ -309,7 +310,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            if(env instanceof IRuntimeEnvWithContextManagingSupport){
+            if(env.isContextManagingSupported()){
                 IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext)env.getContext();
                 if(runtimeContext == null){
                     runtimeContext = new DefaultRulesRuntimeContext();
@@ -317,9 +318,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     runtimeContext = new RulesRuntimeContextDelegator(runtimeContext);
                 }
                 runtimeContext.setValue((String)params[0], params[1]);
-                ((IRuntimeEnvWithContextManagingSupport) env).pushContext(runtimeContext);
+                env.pushContext(runtimeContext);
+            } else {
+                LOG.warn("Failed to modify runtime context. Runtime context does not support context modifications.");
             }
-            LOG.warn("Failed to modify runtime context. Runtime context does not support context modifications.");
             return null;
         }
 
