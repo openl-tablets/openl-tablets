@@ -64,6 +64,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	 */
 	@Override
 	public void addMethod(IOpenMethod method) {
+	    if(method instanceof OpenMethodDispatcher){
+	        addDispatcherMethod((OpenMethodDispatcher)method);
+            return;
+	    }
 		
 		// Get method key.
 		//
@@ -116,6 +120,26 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			methodMap().put(key, method);
 		}
 	}
+
+    /**
+     * Dispatcher method should be added by adding all candidates of the
+     * specified dispatcher to current XlsModuleOpenClass(it will cause adding
+     * methods to dispatcher of current module or creating new dispatcher in
+     * current module).
+     * 
+     * Previously there was problems because dispatcher from dependency was
+     * either added to dispatcher of current module(dispatcher as a candidate in
+     * another dispatcher) or added to current module and was modified during
+     * the current module processing.
+     * FIXME
+     * 
+     * @param dispatcher Dispatcher methods to add.
+     */
+    public void addDispatcherMethod(OpenMethodDispatcher dispatcher) {
+        for (IOpenMethod candidate : dispatcher.getCandidates()) {
+            addMethod(candidate);
+        }
+    }
 
     /**
      * In case we have several versions of one table we should add only the

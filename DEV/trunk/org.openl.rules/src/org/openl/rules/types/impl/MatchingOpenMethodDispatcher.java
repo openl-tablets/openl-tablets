@@ -36,6 +36,7 @@ import org.openl.vm.trace.Tracer;
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
+    private ITablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
 
     // list of properties that have non-null values in candidates space
     // could be used to optimize performance, if null - all properties from the
@@ -111,7 +112,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
          */
         List<IOpenMethod> methods = extractCandidates(getCandidates());
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
-        removeInactiveMethods(selected);
 
         traceObject = getTracedObject(selected, params);
         tracer.push(traceObject);
@@ -158,13 +158,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         selectCandidates(selected, (IRulesRuntimeContext) context);
 
-        // Temporal implementation of the active/inactive method feature for
-        // overloaded methods only.
-        //
-        // Use case: if method has the active table property with 'false' value
-        // it will be ignored by method dispatcher.
-        //
-        removeInactiveMethods(selected);
         if (Tracer.isTracerOn()) {
             traceObject.setResult(selected);
         }
@@ -209,6 +202,18 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
+
+    private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
+        List<IOpenMethod> sorted = prioritySorter.sort(selected);
+        // FIXME temporary solution sort all candidates and remove all that has
+        // priority different from most prior table.
+        for (IOpenMethod candidate : sorted) {
+            if (prioritySorter.getMethodsComparator().compare(candidate, sorted.get(0)) != 0) {
+                selected.remove(candidate);
+            }
+        }
+    }
+
     // <<< INSERT MatchingProperties >>>
 	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
 		selectCandidatesByProperty("effectiveDate", selected, context);
@@ -223,94 +228,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 		selectCandidatesByProperty("state", selected, context);
 		selectCandidatesByProperty("region", selected, context);
 	}
-
-	private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
-		filterMAXCandidatesByProperty("startRequestDate", selected, context);
-		filterMINCandidatesByProperty("endRequestDate", selected, context);
-	}
     // <<< END INSERT MatchingProperties >>>
-
-    private void filterMAXCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        if (selected.size() > 1) {
-            List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
-
-            Comparable<Object> maximumValue = null;
-
-            for (IOpenMethod method : selected) {
-                ITableProperties props = getTableProperties(method);
-                try {
-                    Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(
-                            propName, props);
-                    if (maximumValue == null) {
-                        maximumValue = propValue;
-                    } else {
-                        if (maximumValue.compareTo(propValue) < 0) {
-                            maximumValue = propValue;
-                        }
-                    }
-                } catch (OpenLRuntimeException e) {
-                }
-            }
-
-            if (maximumValue != null) {
-                for (IOpenMethod method : selected) {
-                    ITableProperties props = getTableProperties(method);
-                    try {
-                        Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance()
-                                .getPropertyValue(propName, props);
-                        if (maximumValue.compareTo(propValue) > 0) {
-                            nomatched.add(method);
-                        }
-                    } catch (OpenLRuntimeException e) {
-                        nomatched.add(method);
-                    }
-                }
-
-                selected.removeAll(nomatched);
-            }
-        }
-    }
-
-    private void filterMINCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        if (selected.size() > 1) {
-            List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
-
-            Comparable<Object> minimum = null;
-
-            for (IOpenMethod method : selected) {
-                ITableProperties props = getTableProperties(method);
-                try {
-                    Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance().getPropertyValue(
-                            propName, props);
-                    if (minimum == null) {
-                        minimum = propValue;
-                    } else {
-                        if (minimum.compareTo(propValue) > 0) {
-                            minimum = propValue;
-                        }
-                    }
-                } catch (OpenLRuntimeException e) {
-                }
-            }
-
-            if (minimum != null) {
-                for (IOpenMethod method : selected) {
-                    ITableProperties props = getTableProperties(method);
-                    try {
-                        Comparable<Object> propValue = MatchingOpenMethodDispatcherHelper.getInstance()
-                                .getPropertyValue(propName, props);
-                        if (minimum.compareTo(propValue) < 0) {
-                            nomatched.add(method);
-                        }
-                    } catch (OpenLRuntimeException e) {
-                        nomatched.add(method);
-                    }
-                }
-
-                selected.removeAll(nomatched);
-            }
-        }
-    }
 
     private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
 
@@ -346,7 +264,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
     }
 
-    private ITableProperties getTableProperties(IOpenMethod method) {
+    /*package*/ static ITableProperties getTableProperties(IOpenMethod method) {
         // FIXME
         TableProperties properties = new TableProperties();
         if (method.getInfo().getProperties() != null) {
@@ -355,26 +273,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             }
         }
         return properties;
-    }
-
-    private void removeInactiveMethods(Set<IOpenMethod> candidates) {
-
-        List<IOpenMethod> inactiveCandidates = new ArrayList<IOpenMethod>();
-
-        for (IOpenMethod candidate : candidates) {
-            if (!isActive(candidate)) {
-                inactiveCandidates.add(candidate);
-            }
-        }
-
-        candidates.removeAll(inactiveCandidates);
-    }
-
-    private boolean isActive(IOpenMethod method) {
-
-        ITableProperties tableProperties = getTableProperties(method);
-
-        return tableProperties.getActive() == null || tableProperties.getActive().booleanValue();
     }
 
     private String toString(List<IOpenMethod> methods) {

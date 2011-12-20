@@ -11,8 +11,10 @@ import org.openl.codegen.JavaCodeGen;
 import org.openl.codegen.tools.generator.SourceGenerator;
 import org.openl.codegen.tools.loader.IContextPropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablePropertyDefinitionLoader;
+import org.openl.codegen.tools.loader.ITablesPriorityLoader;
 import org.openl.codegen.tools.type.ContextPropertyDefinitionWrapper;
 import org.openl.codegen.tools.type.ContextPropertyDefinitionWrappers;
+import org.openl.codegen.tools.type.TablePriorityRuleWrappers;
 import org.openl.codegen.tools.type.TablePropertyDefinitionWrapper;
 import org.openl.codegen.tools.type.TablePropertyDefinitionWrappers;
 import org.openl.codegen.tools.type.TablePropertyValidatorsWrapper;
@@ -26,6 +28,7 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
+import org.openl.rules.types.impl.DefaultTablePropertiesSorter;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcherHelper;
 import org.openl.types.java.JavaOpenClass;
@@ -37,10 +40,12 @@ public class GenRulesCode {
 
     private TablePropertyDefinition[] tablePropertyDefinitions;
     private ContextPropertyDefinition[] contextPropertyDefinitions;
+    private String[] tablePriorityRules;
 
     private TablePropertyDefinitionWrappers tablePropertyDefinitionWrappers;
     private TablePropertyValidatorsWrappers tablePropertyValidatorsWrappers;
     private ContextPropertyDefinitionWrappers contextPropertyDefinitionWrappers;
+    private TablePriorityRuleWrappers tablePriorityRuleWrappers;
 
     public static void main(String[] args) throws Exception {
         new GenRulesCode().run();
@@ -59,6 +64,7 @@ public class GenRulesCode {
 
         generateITablePropertiesCode();
         generateDefaultTableProperties();
+        generateDefaultTablePropertiesSorter();
 
         generateDefaultPropertiesContextMatcherCode();
         generateMatchingOpenMethodDispatcherCode();
@@ -90,6 +96,7 @@ public class GenRulesCode {
 
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("tool", new VelocityTool());
+        variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(TableProperties.class);
@@ -179,6 +186,17 @@ public class GenRulesCode {
         processSourceCode(sourceFilePath, "DefaultPropertiesContextMatcher-constraints.vm", variables);
     }
 
+    private void generateDefaultTablePropertiesSorter() throws IOException {
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+
+        variables.put("tool", new VelocityTool());
+        variables.put("priorityRuleWrappers", tablePriorityRuleWrappers);
+
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultTablePropertiesSorter.class);
+        processSourceCode(sourceFilePath, "DefaultTablePropertiesSorter-constraints.vm", variables);
+    }
+
     private void processTypes() {
 
         for (TablePropertyDefinitionWrapper wrapper : tablePropertyDefinitionWrappers.asList()) {
@@ -241,6 +259,8 @@ public class GenRulesCode {
 
         contextPropertyDefinitions = loadContextPropertyDefinitions();
         contextPropertyDefinitionWrappers = new ContextPropertyDefinitionWrappers(contextPropertyDefinitions);
+        tablePriorityRules = loadTablePriorityRules();
+        tablePriorityRuleWrappers = new TablePriorityRuleWrappers(tablePriorityRules);
     }
 
     private TablePropertyDefinition[] loadTablePropertyDefinitions() {
@@ -257,6 +277,14 @@ public class GenRulesCode {
                 CodeGenConstants.DEFINITIONS_XLS, IContextPropertyDefinitionLoader.class);
 
         return rulesFactory.makeInstance().getContextDefinitions();
+    }
+
+    private String[] loadTablePriorityRules() {
+
+        RuleEngineFactory<ITablesPriorityLoader> rulesFactory = new RuleEngineFactory<ITablesPriorityLoader>(
+                CodeGenConstants.DEFINITIONS_XLS, ITablesPriorityLoader.class);
+
+        return rulesFactory.makeInstance().getTablesPriorityRules();
     }
 
 }

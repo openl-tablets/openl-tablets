@@ -115,8 +115,6 @@ public interface ITableProperties {
     boolean isPropertyAppliedByDefault(String propertyName);
 	
 	// <<< INSERT >>>
-	java.lang.String getId();
-	void setId(java.lang.String id);
 	java.lang.String getName();
 	void setName(java.lang.String name);
 	java.lang.String getCategory();
@@ -141,6 +139,8 @@ public interface ITableProperties {
 	void setModifiedBy(java.lang.String modifiedBy);
 	java.util.Date getModifiedOn();
 	void setModifiedOn(java.util.Date modifiedOn);
+	java.lang.String getId();
+	void setId(java.lang.String id);
 	java.lang.String getBuildPhase();
 	void setBuildPhase(java.lang.String buildPhase);
 	java.lang.String getValidateDT();

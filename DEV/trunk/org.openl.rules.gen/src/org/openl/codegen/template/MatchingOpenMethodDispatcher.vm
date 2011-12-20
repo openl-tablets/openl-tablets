@@ -3,11 +3,3 @@
 		selectCandidatesByProperty("$tablePropertyDefinition.Definition.Name", selected, context);
 #end
 	}
-
-	private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
-#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-#if((${tablePropertyDefinition.FilterName} == "MAX") || (${tablePropertyDefinition.FilterName} == "MIN"))
-		filter${tablePropertyDefinition.FilterName}CandidatesByProperty("$tablePropertyDefinition.Definition.Name", selected, context);
-#end
-#end
-	}
