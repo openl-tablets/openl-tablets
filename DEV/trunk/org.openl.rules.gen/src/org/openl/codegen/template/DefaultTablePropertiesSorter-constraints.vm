@@ -1,0 +1,18 @@
+#foreach( $priorityRuleWrapper in $priorityRuleWrappers.simplePriorityRuleWrappers )
+        tablesPriorityRules.add(new ASimplePriorityRule<$priorityRuleWrapper.propertyType>("$priorityRuleWrapper.propertyName") {
+            public String getOperationName() {
+                return "$priorityRuleWrapper.operationName";
+            }
+
+            public $priorityRuleWrapper.propertyType getProprtyValue(ITableProperties properties) {
+                return properties.get$tool.formatAccessorName($priorityRuleWrapper.propertyName)();
+            }
+
+            public int compareNotNulls($priorityRuleWrapper.propertyType propertyValue1, $priorityRuleWrapper.propertyType propertyValue2) {
+                return $priorityRuleWrapper.operationName (propertyValue1, propertyValue2);
+            }
+        });
+#end
+#foreach( $priorityRuleWrapper in $priorityRuleWrappers.javaClassPriorityRuleWrappers )
+        tablesPriorityRules.add(new JavaClassTablesComparator(new $priorityRuleWrapper.className ()));
+#end
