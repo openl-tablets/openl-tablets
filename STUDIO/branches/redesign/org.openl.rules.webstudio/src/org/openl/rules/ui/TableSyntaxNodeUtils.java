@@ -54,19 +54,23 @@ public class TableSyntaxNodeUtils {
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode.getMember() instanceof IOpenMethod
                 && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
+            
+            if (dictionary.getAllMethodOverloads((IOpenMethod)tableSyntaxNode.getMember()).size() > 1) {
+                // Add dimension properties info only if there are more than one table in dictionary.
+                // For single table don`t add this info.
+                //   
+                String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
 
-            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+                for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                    String value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
 
-            for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                String value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
-
-                if (!StringUtils.isEmpty(value)) {
-                    String propertyInfo = StringUtils.join(new Object[] { dimensionalPropertyName, "=", value });
-                    dimensionInfo = StringUtils.join(new Object[] { dimensionInfo,
-                            StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ", propertyInfo });
+                    if (!StringUtils.isEmpty(value)) {
+                        String propertyInfo = StringUtils.join(new Object[] { dimensionalPropertyName, "=", value });
+                        dimensionInfo = StringUtils.join(new Object[] { dimensionInfo,
+                                StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ", propertyInfo });
+                    }
                 }
-
-            }
+            }            
         }
 
         if (!StringUtils.isEmpty(dimensionInfo)) {
