@@ -1086,4 +1086,21 @@ public class RulesUtils {
         return org.apache.commons.math.util.MathUtils.round(value, scale, roundingMethod);
     }
     
+    // added for BA`s, who don`t know about the possibilities of
+    // BigDecimal
+    public static BigDecimal round(BigDecimal value) {        
+        return round(value, 0);
+    }
+    
+    // added for BA`s, who don`t know about the possibilities of
+    // BigDecimal
+    public static BigDecimal round(BigDecimal value, int scale) {
+        return round(value, scale, BigDecimal.ROUND_HALF_UP);
+    }
+    
+    // added for BA`s, who don`t know about the possibilities of
+    // BigDecimal
+    public static BigDecimal round(BigDecimal value, int scale, int roundingMethod) {
+        return value.setScale(scale, roundingMethod);
+    }
 }
