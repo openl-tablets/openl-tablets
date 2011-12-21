@@ -270,6 +270,14 @@ public class WebStudio {
         this.tableView = tableView;
         userSettingsManager.setProperty("table.view", tableView);
     }
+    
+    public boolean isShowHeader() {
+        return tableView.equals("developer");
+    }
+
+    public void setShowHeader(boolean showHeader) {
+        setTableView(showHeader ? "developer" : "business");
+    }
 
     public ProjectModel getModel() {
         return model;

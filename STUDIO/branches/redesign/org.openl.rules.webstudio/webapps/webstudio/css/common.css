@@ -443,14 +443,17 @@ table.header thead td {
     text-decoration: none;
 }
 
-.buttonPanel .button {
+.button {
     background: orange;
     color: white;
-    margin: 0px 2px;
 }
 
-.buttonPanel .button2 {
+.button2 {
     background: #44cc55;
     color: white;
-    margin: 0px 2px;
+}
+
+.buttonPanel .button,
+.buttonPanel .button2 {
+	margin: 0px 2px;
 }
