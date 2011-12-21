@@ -5,7 +5,8 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:authz="http://rules.openl.org/taglibs/acegi">
+    xmlns:authz="http://rules.openl.org/taglibs/acegi"
+    xmlns:a4j="http://richfaces.org/a4j">
 
     <style>
         #rb {
@@ -51,8 +52,34 @@
             <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a><a
                 href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : ''}">Repository</a><a
                 href="#{contextPath}/faces/pages/modules/administration/index.xhtml" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
-
         </div>
+
+        <h:panelGroup style="position: absolute; top: 22px; right: 164px;" layout="block" rendered="#{menu=='rules'}">
+            <a href="javascript:void(0)" onclick="showViewMenu(this, event)" class="button">View</a>
+            <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: orange; color: #555555">
+                <h:form>
+                    <div>Show</div>
+                    <a4j:ajax oncomplete="refreshCurrent()">
+                        <div><h:selectBooleanCheckbox value="#{studio.showHeader}" />Header</div>
+                        <div><h:selectBooleanCheckbox value="#{studio.showFormulas}" />Formulas</div>
+                    </a4j:ajax>
+                </h:form>
+            </div>
+        </h:panelGroup>
+        <script>
+            function showViewMenu(button, event) {
+                button = $j(button);
+                var buttonPos = button.position();
+
+                event.stopPropagation();
+
+                $j("#viewMenu").popup({
+                    left: buttonPos.left,
+                    top : buttonPos.top + button.outerHeight() - 1
+                });
+            }
+        </script>
+
     </div>
 
 </ui:composition>

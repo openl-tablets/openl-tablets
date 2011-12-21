@@ -341,29 +341,8 @@
         </ui:repeat>
     </h:panelGroup>
 
-	<div style="clear:both"></div>
-	</c:if>
-
-    <c:if test="#{!showTableBean.serviceTable}">
-    <div style="position: absolute; right: 20px; top: 7px">
-        <h:form>
-            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
-                <f:param name="view" value="business" />
-                <h:graphicImage url="/webresource/images/business-view.png" title="Business View" alt="Business View" />
-            </a4j:commandLink>
-
-            <a4j:commandLink action="#{showTableBean.switchView}" execute="@this" render="tePanel">
-                <f:param name="view" value="developer" />
-                <h:graphicImage url="/webresource/images/developer-view.png" title="Developer View" alt="Developer View" />
-            </a4j:commandLink>
-
-            <a4j:commandLink action="#{showTableBean.setShowFormulas}" execute="@this" render="tePanel">
-                <h:graphicImage url="/webresource/images/formula.png" title="Show Formulas" alt="Show Formulas" />
-            </a4j:commandLink>
-        </h:form>
-    </div>
+    <div style="clear:both"></div>
     </c:if>
-	
 
     <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
         <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
