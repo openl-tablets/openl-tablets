@@ -39,7 +39,7 @@ public class CellLoader {
 
                 int end = 0;
 
-                if (code.startsWith("{")) {
+                if (code.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol())) {
                     end = -1;
                 }
 
@@ -77,11 +77,13 @@ public class CellLoader {
             return false;
         }
         
-        if (src.startsWith("{") && src.endsWith("}")) {
+        if (src.startsWith(SpreadsheetExpressionMarker.OPEN_CURLY_BRACKET.getSymbol()) 
+                && src.endsWith(SpreadsheetExpressionMarker.CLOSED_CURLY_BRACKET.getSymbol())) {
             return true;
         }
 
-        if (src.startsWith("=") && (src.length() > 2 || src.length() == 2 && Character.isLetterOrDigit(src.charAt(1)))) {
+        if (src.startsWith(SpreadsheetExpressionMarker.EQUALS_SIGN.getSymbol()) 
+                && (src.length() > 2 || src.length() == 2 && Character.isLetterOrDigit(src.charAt(1)))) {
             return true;
         }
 
