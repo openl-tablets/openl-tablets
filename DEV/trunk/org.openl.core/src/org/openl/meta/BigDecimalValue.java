@@ -457,6 +457,19 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         return new BigIntegerValue(String.valueOf(x.longValue()));
     }
+    
+    public static BigDecimalValue round(BigDecimalValue value) {        
+        return round(value, 0);
+    }
+        
+    public static BigDecimalValue round(BigDecimalValue value, int scale) {
+        return round(value, scale, BigDecimal.ROUND_HALF_UP);
+    }
+    
+    public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {
+        return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMethod)), 
+            NumberOperations.ROUND, new BigDecimalValue[]{value});
+    }
 
     public BigDecimalValue(String valueString) {
         value = new BigDecimal(valueString);
