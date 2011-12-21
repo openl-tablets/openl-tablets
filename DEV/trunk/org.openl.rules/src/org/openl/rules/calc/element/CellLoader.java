@@ -66,7 +66,8 @@ public class CellLoader {
 
             return result;
         } catch (Throwable t) {
-            throw SyntaxNodeExceptionUtils.createError(null, t, null, source);
+            String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+            throw SyntaxNodeExceptionUtils.createError(message, t, null, source);
         }
     }
 
