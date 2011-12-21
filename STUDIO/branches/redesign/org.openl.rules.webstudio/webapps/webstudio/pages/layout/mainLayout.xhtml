@@ -29,6 +29,13 @@
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
 
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+
         <script>
             var $j = $.noConflict();
 
@@ -44,12 +51,9 @@
 
             var mainLayout;
             $j(document).ready(function () {
-                $j('body').layout({
-                    closable: false,
-                    resizable: false,
-                    spacing_open: 1
-                });
-                mainLayout = $j('#center').layout({
+                setLayoutDimensions();
+               
+                mainLayout = $j("#center").layout({
                     //useStateCookie: true,
                     north__resizable: false,
                     spacing_open: 3,
@@ -69,8 +73,6 @@
                     hideLoader();
                     return false;
                 });
-
-                //setViewDimensions();
             });
 
             function goTo(page, target) {
@@ -103,17 +105,24 @@
                 }
             }
 
-            /*function setViewDimensions() {
-                $j(".view_workspace").each(function() {
-                    $j(this).css({
-                        "width": $j(this).width() + "px",
-                        "height": $j(this).up(".ui-layout-pane").height() - $j(this).prev(".view_toolbar").height() + "px"
-                    });
+            function setLayoutDimensions() {
+                $j("#center").css({
+                   "height": $j(this).outerHeight() - $j("#header").outerHeight() - $j("#footer").outerHeight()
                 });
             }
             window.onresize = function(e) {
-                setViewDimensions();
-            }*/
+                setLayoutDimensions();
+            }
+
+            function showLoader() {
+                $j('#blockPopup').fadeIn(500);
+                $j('#ajaxLoader').show();
+            }
+
+            function hideLoader() {
+                $j('#blockPopup').hide();
+                $j('#ajaxLoader').slideUp();
+            }
         </script>
 
         <title>
@@ -124,13 +133,14 @@
     <h:body>
         <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
 
-        <div id="header" class="ui-layout-north">
+        <div id="header">
             <ui:insert name="header">
                 <ui:include src="/pages/common/header.xhtml">
                     <ui:param name="menu" value="rules" />
                 </ui:include>
             </ui:insert>
         </div>
+
         <div id="center" class="ui-layout-center">
             <h:panelGroup id="top" class="ui-layout-north" layout="block">
                 <ui:insert name="top">
@@ -158,7 +168,8 @@
                 </ui:insert>
             </h:panelGroup>
         </div>
-        <div id="footer" class="ui-layout-south">
+
+        <div id="footer">
             <ui:insert name="footer">
                 <ui:include src="/pages/common/footer.xhtml" />
             </ui:insert>
@@ -169,30 +180,19 @@
             <img src="webresource/images/ajax-loader.gif" />
         </div>
 
-        <script>
-            function showLoader() {
-                $j('#blockPopup').fadeIn(500);
-                $j('#ajaxLoader').show();
-            }
-            function hideLoader() {
-                $j('#blockPopup').hide();
-                $j('#ajaxLoader').slideUp();
-            }
-        </script>
-
-        <a4j:status onstart="showLoader()" onstop="hideLoader()" />
-
-        <iframe src="#{contextPath}/pages/modules/rulesEditor/sourceModified.xhtml"
-            style="visibility: hidden" width="0" height="0" />
-
-        <iframe name="hidden" style="visibility: hidden" width="0" height="0" />
-
-        <!-- Init RichFaces resources -->
         <div style="display: none">
+            <a4j:status onstart="showLoader()" onstop="hideLoader()" />
+
+            <iframe src="#{contextPath}/pages/modules/rulesEditor/sourceModified.xhtml"
+                style="visibility: hidden" width="0" height="0" />
+
+            <iframe name="hidden" style="visibility: hidden" width="0" height="0" />
+
+            <!-- Init RichFaces resources -->
             <rich:popupPanel />
             <rich:calendar />
             <rich:inputNumberSpinner />
-        </div>
+         </div>
 
         <script>
             hashchange();
