@@ -10,6 +10,7 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.meta.DoubleValue;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
@@ -122,6 +123,10 @@ public class DoubleRange implements INumberRange {
             return true;
         }
         return false;
+    }
+    
+    public boolean contains(DoubleValue value) {
+        return contains(value.doubleValue());
     }
 
     public boolean contains(DoubleRange range) {

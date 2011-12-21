@@ -10,6 +10,7 @@ import org.openl.domain.IntRangeDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.meta.IntValue;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
@@ -38,6 +39,10 @@ public class IntRange extends IntRangeDomain implements INumberRange {
 
     public IntRange(Integer number) {
         super(number, number);
+    }
+    
+    public boolean contains(IntValue value) {
+        return contains(value.intValue());
     }
 
     /**
