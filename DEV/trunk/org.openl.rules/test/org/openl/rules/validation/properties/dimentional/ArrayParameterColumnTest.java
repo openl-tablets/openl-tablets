@@ -20,7 +20,7 @@ public class ArrayParameterColumnTest {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), 
             getRules());
         
-        assertEquals("countryLocal1 == country || countryLocal2 == country || countryLocal3 == country || countryLocal4 == country", 
+        assertEquals("country == null || countryLocal1 == country || countryLocal2 == country || countryLocal3 == country || countryLocal4 == country", 
             arrayColumn.getCodeExpression());
         
         // test array column with one element
@@ -31,7 +31,7 @@ public class ArrayParameterColumnTest {
         properties.add(tableProperty);
         ArrayParameterColumn arrayColumn1 = new ArrayParameterColumn(getArrayProperty(), 
             new DispatcherTableRules(properties));
-        assertEquals("countryLocal == country", arrayColumn1.getCodeExpression());
+        assertEquals("country == null || countryLocal == country", arrayColumn1.getCodeExpression());
         
     }
     

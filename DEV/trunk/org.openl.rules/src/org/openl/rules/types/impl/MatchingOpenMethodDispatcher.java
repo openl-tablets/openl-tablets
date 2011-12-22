@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
@@ -21,11 +24,11 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -34,6 +37,11 @@ import org.openl.vm.trace.Tracer;
  * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
+
+    private static final Log LOG = LogFactory.getLog(CopyOfMatchingOpenMethodDispatcher.class);
+    public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
+    public static final String DISPATCHING_MODE_JAVA = "java";
+    public static final String DISPATCHING_MODE_DT = "dt";
 
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
     private ITablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
@@ -98,7 +106,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);
         } else {
-            return super.invoke(target, params, env);
+            return invokeDispatcherTable(target, params, env);
         }
     }
 
@@ -110,13 +118,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
          * this block is for overloaded by active property tables without any
          * dimension property. all not active tables should be ignored.
          */
-        List<IOpenMethod> methods = extractCandidates(getCandidates());
+        List<IOpenMethod> methods = getCandidates();
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
 
         traceObject = getTracedObject(selected, params);
         tracer.push(traceObject);
         try {
-            return super.invoke(target, params, env);
+            return invokeDispatcherTable(target, params, env);
         } catch (Exception e) {
             traceObject.setError(e);
             return null;
@@ -124,6 +132,41 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             tracer.pop();
         }
 
+    }
+    
+    private IOpenMethod dispatchingOpenMethod;
+    
+    public IOpenMethod getDispatchingOpenMethod() {
+        return dispatchingOpenMethod;
+    }
+
+    public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
+        this.dispatchingOpenMethod = dispatchingOpenMethod;
+    }
+
+    public Object invokeDispatcherTable(Object target, Object[] params, IRuntimeEnv env) {
+        String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
+        if (dispatchingMode == null || !dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA)) {
+            if (dispatchingOpenMethod != null) {
+                return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
+            } else {
+                LOG.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+                    MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
+            }
+        }
+        return super.invoke(target, params, env);
+    }
+    
+    private Object[] updateArguments(Object[] params, IRuntimeEnv env, IOpenMethod dispatcherMethod){
+        Object[] arguments = new Object[dispatcherMethod.getSignature().getNumberOfParameters()];
+        System.arraycopy(params, 0, arguments, 0, params.length);
+        IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
+        if (context != null) {
+            for (int i = params.length; i < dispatcherMethod.getSignature().getNumberOfParameters(); i++) {
+                arguments[i] = context.getValue(dispatcherMethod.getSignature().getParameterName(i));
+            }
+        }
+        return arguments;
     }
 
     private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
@@ -153,8 +196,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
 
-        List<IOpenMethod> methods = extractCandidates(candidates);
-        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
+        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
         selectCandidates(selected, (IRulesRuntimeContext) context);
 
@@ -201,7 +243,15 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
-
+    
+    public IOpenMethod getAuxiliaryMethodForCandidate(IOpenMethod candidate) {
+        for (IOpenMethod method : moduleOpenClass.getMethods()) {
+            if (method instanceof MethodDelegator && ((MethodDelegator) method).getMethod() == candidate) {
+                return method;
+            }
+        }
+        return null;
+    }
 
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
         List<IOpenMethod> sorted = prioritySorter.sort(selected);
@@ -264,7 +314,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
     }
 
-    /*package*/ static ITableProperties getTableProperties(IOpenMethod method) {
+    public static ITableProperties getTableProperties(IOpenMethod method) {
         // FIXME
         TableProperties properties = new TableProperties();
         if (method.getInfo().getProperties() != null) {
@@ -291,8 +341,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return builder.toString();
     }
 
-    private List<IOpenMethod> extractCandidates(List<IOpenMethod> methods) {
-        return OpenMethodDispatcherHelper.extractMethods(methods);
+    public List<IOpenMethod> getSortedByPriorityMethods(){
+        return prioritySorter.sort(getCandidates());
     }
-
 }

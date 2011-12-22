@@ -1,6 +1,6 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openl.OpenL;
@@ -28,7 +28,8 @@ public class DecisionTableOpenlBuilder {
     public DecisionTableOpenlBuilder(String tableName, IOpenClass returnType, Map<String, IOpenClass> incomeParams) {
         this.tableName = tableName;
         this.returnType = returnType;        
-        this.incomeParams = new HashMap<String, IOpenClass>(incomeParams);
+        //LinkedHashMap to save the sequence of params
+        this.incomeParams = new LinkedHashMap<String, IOpenClass>(incomeParams);
     }
     
     public DecisionTable build(TableSyntaxNode tsn, OpenL openl, ModuleOpenClass moduleOpenClass) {

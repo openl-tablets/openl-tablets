@@ -40,7 +40,14 @@ public class DimensionPropertiesValidator extends TablesValidator {
             // search for generated dispatcher decision table for dimension properties.
             //
             if (isDimensionPropertiesDispatcherTable(tsn)) {
-                OpenLMessage validationMessage = validateDecisionTable(tsn, propertiesDomains, openClass);
+                // FIXME currently validation of dispatcher tables is disabled
+                // because of "match by default" case(when context value == null
+                // the all tables with matches by corresponding property).
+                //
+                // check {context value} == null || {matching expression} was
+                // introduced and validation mechanism does not works with such
+                // expressions.
+                OpenLMessage validationMessage = null;//validateDecisionTable(tsn, propertiesDomains, openClass);
                 if (validationMessage != null) {
                     if (validationResult == null) {
                         validationResult = new ValidationResult(ValidationStatus.FAIL); 

@@ -313,12 +313,10 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] otherNodes = getTableSyntaxNodes(moduleNode, notProp_And_NotDatatypeSelectors, tableComparator);
         IBoundNode topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
         
-        if (!moduleContext.isExecutionMode()) {
-            DispatcherTablesBuilder dispTableBuilder = 
-                new DispatcherTablesBuilder(openl, (XlsModuleOpenClass) topNode.getType(), moduleContext);
-            dispTableBuilder.build();
-            //TODO build dispatcher table even in execution mode
-        }
+        DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(openl,
+            (XlsModuleOpenClass) topNode.getType(),
+            moduleContext);
+        dispTableBuilder.build();
 
         return topNode;
     }
