@@ -20,6 +20,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 import org.openl.rules.runtime.RulesFileDependencyLoader;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 
 public class ExternalDependenciesTest {
 
@@ -90,6 +91,8 @@ public class ExternalDependenciesTest {
 
     @Test
     public void testDependencies3() throws Exception {
+        System.setProperty(MatchingOpenMethodDispatcher.DISPATCHING_MODE_PROPERTY,
+            MatchingOpenMethodDispatcher.DISPATCHING_MODE_JAVA);
         ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
         ProjectDescriptor descr = strategy.resolveProject(new File("test/resources/dependencies/test3/module"));
 
