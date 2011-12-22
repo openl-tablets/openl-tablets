@@ -38,7 +38,7 @@ import org.openl.vm.trace.Tracer;
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
-    private static final Log LOG = LogFactory.getLog(CopyOfMatchingOpenMethodDispatcher.class);
+    private static final Log LOG = LogFactory.getLog(MatchingOpenMethodDispatcher.class);
     public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
     public static final String DISPATCHING_MODE_JAVA = "java";
     public static final String DISPATCHING_MODE_DT = "dt";
