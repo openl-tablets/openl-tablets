@@ -37,6 +37,7 @@
         </style>
 
         <script>
+        //<![CDATA[
             var $j = $.noConflict();
 
             $j.ajaxSetup({
@@ -89,7 +90,7 @@
             function hashchange() {
                 if (location.hash) {
                     var page = location.href.split("#")[1];
-                    if (page.indexOf(urlRewrite.prefix) &lt; 0) {
+                    if (page.indexOf(urlRewrite.prefix) < 0) {
                         page = urlRewrite.prefix + page;
                     }
                     $j("#content").load(page);
@@ -123,6 +124,22 @@
                 $j('#blockPopup').hide();
                 $j('#ajaxLoader').slideUp();
             }
+
+            function showPopupMenu(event, popupId, elem, params) {
+                elem = $j(elem);
+                var elemPos = elem.position();
+
+                event.stopPropagation();
+
+                var left = elemPos.left + ((params && params.offsetLeft) || 0);
+                var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
+
+                $j("#" + popupId).popup({
+                    left: left,
+                    top : top
+                });
+            }
+        //]]>
         </script>
 
         <title>

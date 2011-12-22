@@ -55,7 +55,7 @@
         </div>
 
         <h:panelGroup style="position: absolute; top: 22px; right: 164px;" layout="block" rendered="#{menu=='rules'}">
-            <a href="javascript:void(0)" onclick="showViewMenu(this, event)" class="button">View</a>
+            <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})" class="button">View</a>
             <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: orange; color: #555555">
                 <h:form>
                     <div>Show</div>
@@ -66,20 +66,6 @@
                 </h:form>
             </div>
         </h:panelGroup>
-        <script>
-            function showViewMenu(button, event) {
-                button = $j(button);
-                var buttonPos = button.position();
-
-                event.stopPropagation();
-
-                $j("#viewMenu").popup({
-                    left: buttonPos.left,
-                    top : buttonPos.top + button.outerHeight() - 1
-                });
-            }
-        </script>
-
     </div>
 
 </ui:composition>

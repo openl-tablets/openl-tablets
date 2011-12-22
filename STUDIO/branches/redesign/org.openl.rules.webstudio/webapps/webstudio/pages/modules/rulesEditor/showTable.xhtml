@@ -15,13 +15,13 @@
         /* TODO Create Button plugin */
         .editToolbar {
             float: left;
-            margin-right: 50px;
-            border-bottom: 1px solid rgb(170,170,170);
+            border-bottom: 1px solid #cccccc;
             background: -moz-linear-gradient(top, #FEFEFE, #F7F7F7);
             background: -webkit-linear-gradient(top, #FEFEFE, #F7F7F7);
             background: -ms-linear-gradient(top, #FEFEFE, #F7F7F7);
             background: linear-gradient(top, #FEFEFE, #F7F7F7);
             filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=0);
+            box-shadow: 0 -1px 2px white inset;
         }
         .toolbarButton, .checkboxButton {
             position: relative;
@@ -76,6 +76,13 @@
             color: #888888;
             font-size: 90%;
         }
+        .targetTablesPopup {
+            display: none;
+            padding: 4px 6px;
+        }
+        .targetTablesPopup div {
+            margin-bottom: 3px;
+        }
      </style>
 
      <script>
@@ -83,18 +90,11 @@
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
         }
 
-        function showButtonMenu(event, id, buttonElem) {
+        function showButtonMenu(event, popupId, buttonElem) {
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
-            var buttonPos = button.position();
-
-            event.stopPropagation();
-
-            $j("#" + id).popup({
-                left: buttonPos.left,
-                top : buttonPos.top + button.outerHeight()
-            });
+            showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
         }
     </script>
 
@@ -306,40 +306,58 @@
                 </td>
                 </c:if>
 
+                <c:if test="#{!empty showTableBean.targetTables}">
+                <c:set var="oneTargetTable" value="#{fn:length(showTableBean.targetTables) == 1}" />
+                <td style="padding: 0 10px">
+                    <h:panelGroup rendered="#{oneTargetTable}" layout="block"
+                        style="font-weight: bold; color: #333333; margin-bottom: 2px">
+                        <h:outputText value="Target Table" />
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{!oneTargetTable}" layout="block" style="font-weight: bold">
+                        <a href="javascript:void(0)"
+                            onclick="showPopupMenu(event, 'targetTables', this, {'offsetTop' : 3})">Target Tables</a>
+                    </h:panelGroup>
+                    <div id="targetTables" class="#{oneTargetTable ? '' : 'targetTablesPopup'}">
+                        <ui:repeat value="#{showTableBean.targetTables}" var="targetTable">
+                        <div>
+                            <h:outputLink value="showTable.xhtml" target="content">
+                                <f:param name="uri" value="#{targetTable.uri}" />
+                                <h:outputText value="#{targetTable.name}" />
+                            </h:outputLink>
+                        </div>
+                        </ui:repeat>
+                    </div>
+                </td>
+                </c:if>
+
+                <!-- If table has tests and runs -->
+                <c:if test="#{showTableBean.hasAnyTests}">
+                <c:set var="oneTest" value="#{fn:length(showTableBean.allTests) == 1}" />
+                <td style="padding: 0 10px">
+                    <h:panelGroup rendered="#{oneTest}" layout="block"
+                        style="font-weight: bold; color: #333333; margin-bottom: 2px">
+                        <h:outputText value="Available Tests/Runs" />
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{!oneTest}" layout="block" style="font-weight: bold">
+                        <a href="javascript:void(0)"
+                            onclick="showPopupMenu(event, 'availableTests', this, {'offsetTop' : 3})">Available Tests/Runs</a>
+                    </h:panelGroup>
+                    <div id="availableTests" class="#{oneTest ? '' : 'targetTablesPopup'}">
+                        <ui:repeat value="#{showTableBean.allTests}" var="test">
+                        <div>
+                            <h:outputLink value="showTable.xhtml" target="content">
+                                <f:param name="uri" value="#{test.info.sourceUrl}" />
+                                <h:outputText value="#{test.name}" />
+                            </h:outputLink>
+                        </div>
+                        </ui:repeat>
+                    </div>
+                </td>
+                </c:if>
+
             </tr>
         </table>
     </div>
-
-    <h:panelGroup rendered="#{not empty showTableBean.targetTables}">
-        <div>
-            <div style="font-weight: bold;">
-                <h:outputText value="Target Table" />
-                <h:outputText value="s" rendered="#{fn:length(showTableBean.targetTables) > 1}" />
-                <h:outputText value=":" />
-            </div>
-            <ui:repeat value="#{showTableBean.targetTables}" var="targetTable">
-            <div>
-                <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-                    <f:param name="uri" value="#{targetTable.uri}" />
-                    <h:outputText value="#{targetTable.name}" />
-                </h:outputLink>
-            </div>
-            </ui:repeat>
-        </div>
-    </h:panelGroup>
-
-    <!-- If table has any type of tests, including tests with test cases, run methods -->
-    <h:panelGroup rendered="#{showTableBean.hasAnyTests}">
-        <div style="font-weight: bold;">Available Tests:</div>
-        <ui:repeat value="#{showTableBean.allTests}" var="test">
-            <div>
-                <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml" target="content">
-                    <f:param name="uri" value="#{test.info.sourceUrl}" />
-                    <h:outputText value="#{test.name}" />
-                </h:outputLink>
-            </div>
-        </ui:repeat>
-    </h:panelGroup>
 
     <div style="clear:both"></div>
     </c:if>
