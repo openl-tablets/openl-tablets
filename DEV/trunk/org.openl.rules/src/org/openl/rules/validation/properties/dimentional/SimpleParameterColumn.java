@@ -27,7 +27,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
         
         if (matchExpression != null) {
             String parameterName = propertyName + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX;
-            result = matchExpression.getMatchExpression().getCodeExpression(parameterName);
+            result = getMatchByDefaultCodeExpression(matchExpression) + matchExpression.getMatchExpression().getCodeExpression(parameterName);
         } else {
             String message = String.format("Can`t create expression for \"%s\" property validation.", propertyName);
             OpenLMessagesUtils.addWarn(message);

@@ -2,7 +2,7 @@ package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +33,10 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -49,7 +51,8 @@ public class TableSyntaxNodeDispatcherBuilder {
     
     private static Log LOG = LogFactory.getLog(TableSyntaxNodeDispatcherBuilder.class);
     
-    private static final Map<String, IOpenClass> incomeParams;
+    //LinkedHashMap to save the sequence of params
+    public static final LinkedHashMap<String, IOpenClass> incomeParams;
     
     /**
      * Initialize a map of parameters from context, that will be used as income parameters to newly 
@@ -57,7 +60,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * 
      */
     static {
-        incomeParams = new HashMap<String, IOpenClass>();
+        incomeParams = new LinkedHashMap<String, IOpenClass>();
         Method[] methods = IRulesRuntimeContext.class.getDeclaredMethods();
         for (Method method : methods) {
             String methodName = method.getName(); 
@@ -87,14 +90,14 @@ public class TableSyntaxNodeDispatcherBuilder {
     private OpenL openl;
     private RulesModuleBindingContext moduleContext;
     private XlsModuleOpenClass moduleOpenClass;
-    private List<ExecutableRulesMethod> methodsGroup;
+    private MatchingOpenMethodDispatcher dispatcher;
     
     public TableSyntaxNodeDispatcherBuilder(OpenL openl, RulesModuleBindingContext moduleContext, 
-            XlsModuleOpenClass moduleOpenClass, List<ExecutableRulesMethod> methodsGroup) {
+            XlsModuleOpenClass moduleOpenClass, MatchingOpenMethodDispatcher dispatcher) {
         this.openl = openl;
         this.moduleContext = moduleContext;
         this.moduleOpenClass = moduleOpenClass;
-        this.methodsGroup = new ArrayList<ExecutableRulesMethod>(methodsGroup);
+        this.dispatcher = dispatcher;
     }
     
     /**
@@ -185,7 +188,7 @@ public class TableSyntaxNodeDispatcherBuilder {
     }
 
     private DispatcherTableReturnColumn getReturnColumn() {         
-        return new DispatcherTableReturnColumn(methodsGroup, incomeParams);        
+        return new DispatcherTableReturnColumn(dispatcher, incomeParams);        
     }
     
     /**
@@ -207,10 +210,10 @@ public class TableSyntaxNodeDispatcherBuilder {
         return isPropertyPresented;        
     }
 
-    private ExecutableRulesMethod getMember() {
+    private IOpenMethod getMember() {
         // as we have a group of overloaded methods, we need to take one it`s 
         // member to get all common settings for the whole group
-        return methodsGroup.get(0);        
+        return dispatcher.getCandidates().get(0);        
     }
     
     /**
@@ -226,11 +229,13 @@ public class TableSyntaxNodeDispatcherBuilder {
     }
     
     private Map<String, IOpenClass> updateIncomeParams() {
-        Map<String, IOpenClass> updatedIncomeParams = new HashMap<String, IOpenClass>(incomeParams);
+        //LinkedHashMap to save the sequence of params
+        LinkedHashMap<String, IOpenClass> updatedIncomeParams = new LinkedHashMap<String, IOpenClass>();
         IMethodSignature originalSignature = getMethodSignature();
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
             updatedIncomeParams.put(originalSignature.getParameterName(j), originalSignature.getParameterType(j));
-        }        
+        }
+        updatedIncomeParams.putAll(incomeParams);
         return updatedIncomeParams;
     }
 
@@ -242,10 +247,8 @@ public class TableSyntaxNodeDispatcherBuilder {
      */
     private List<ITableProperties> getMethodsProperties() {
         List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
-        for (ExecutableRulesMethod method : methodsGroup) {
-            if (method.getMethodProperties() != null) {
-                propertiesValues.add(method.getMethodProperties());
-            }            
+        for (IOpenMethod method : dispatcher.getCandidates()) {
+                propertiesValues.add(MatchingOpenMethodDispatcher.getTableProperties(method));
         }
         return propertiesValues;
     }
@@ -256,7 +259,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return name of the method in group.
      */
     private String getMethodName() {
-        return getMember().getHeader().getName();
+        return getMember().getName();
     }
     
     /**
@@ -265,7 +268,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return type of the method in group.
      */
     private IOpenClass getMethodReturnType() {        
-        return getMember().getHeader().getType();        
+        return getMember().getType();        
     }
     
     /**
@@ -274,7 +277,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return method signature of the method in group.
      */
     private IMethodSignature getMethodSignature() {        
-        return getMember().getHeader().getSignature();
+        return getMember().getSignature();
     }
     
     /**

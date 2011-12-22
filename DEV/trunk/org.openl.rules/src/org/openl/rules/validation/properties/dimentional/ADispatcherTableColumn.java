@@ -2,6 +2,7 @@ package org.openl.rules.validation.properties.dimentional;
 
 import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 /**
  * Common implementation for columns that are used in dispatcher table, built by dimensional properties.  
@@ -56,5 +57,15 @@ public abstract class ADispatcherTableColumn implements IDecisionTableColumn {
         return dimensionProperty;
     }
     
+    public static String getMatchByDefaultCodeExpression(MatchingExpression matchExpression) {
+        return getMatchByDefaultCodeExpression(matchExpression.getMatchExpression().getContextAttribute());
+    }    
+
+    // "match by default" case(when context value == null
+    // the all tables with matches by corresponding property).
+    public static String getMatchByDefaultCodeExpression(String contextAttribute) {
+        return contextAttribute + " == null || ";
+    }    
+
     
 }

@@ -28,8 +28,8 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
     }
 
     public String getCodeExpression() {
-        String result = StringUtils.EMPTY;        
         MatchingExpression matchExpression = getProperty().getExpression();        
+        String result = getMatchByDefaultCodeExpression(matchExpression);        
         
         // array values can have only "contains" operation  
         //
@@ -40,7 +40,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             if (getNumberOfLocalParameters() == 1) {
                 // code expression will look like: "<propertyName>Local == <contextValue>"
                 //
-                result = createCodeExpression(matchExpression, getLocalParameterName());
+                result += createCodeExpression(matchExpression, getLocalParameterName());
             } else {
                 // building condition like: 
                 // "<propertyName>Local1 == <contextValue> || <propertyName>Local2 == <contextValue> || ..."
@@ -52,7 +52,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
                     String parameterName = getLocalParameterName(i);                    
                     codeExpression.append(createCodeExpression(matchExpression, parameterName));
                 }
-                result = codeExpression.toString();
+                result += codeExpression.toString();
             }
         } else {
             String message = String.format("Can`t create expression for \"%s\" property validation.", 
@@ -60,7 +60,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             OpenLMessagesUtils.addWarn(message);
         }
         return result;        
-    }    
+    }
 
     public String getTitle() {        
         return getProperty().getDisplayName();

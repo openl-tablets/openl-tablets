@@ -14,8 +14,10 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
@@ -66,14 +68,32 @@ public class DispatcherTablesBuilder {
         }
     }
 
+    // TODO refactor to work with dispatchers instead of grouping methods by
+    // properties one more time
     private void build(List<ExecutableRulesMethod> methodsGroup) {
         List<ExecutableRulesMethod> overloadedMethodsGroup = excludeOveloadedByVersion(methodsGroup);
         if (overloadedMethodsGroup.size() > 1) {
-            TableSyntaxNodeDispatcherBuilder dispBuilder = 
-                new TableSyntaxNodeDispatcherBuilder(openl, moduleContext, moduleOpenClass, overloadedMethodsGroup);
+            MatchingOpenMethodDispatcher dispatcherMethodForGroup = getDispatcherMethodForGroup(overloadedMethodsGroup);
+            TableSyntaxNodeDispatcherBuilder dispBuilder = new TableSyntaxNodeDispatcherBuilder(openl,
+                moduleContext,
+                moduleOpenClass,
+                dispatcherMethodForGroup);
             TableSyntaxNode tsn = dispBuilder.build();
-            addNewTsnToTopNode(tsn);
+            if (!isVirtualWorkbook()) {
+                addNewTsnToTopNode(tsn);
+            }
+            dispatcherMethodForGroup.setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
         }
+    }
+    
+    private MatchingOpenMethodDispatcher getDispatcherMethodForGroup(List<ExecutableRulesMethod> overloadedMethodsGroup){
+        IOpenMethod dispatcher = moduleOpenClass.getMethod(overloadedMethodsGroup.get(0).getName(),
+            overloadedMethodsGroup.get(0).getSignature().getParameterTypes());
+        return (MatchingOpenMethodDispatcher) dispatcher;
+    }
+    
+    private boolean isVirtualWorkbook(){
+        return moduleOpenClass.getXlsMetaInfo().getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
     }
     
     private void addNewTsnToTopNode(TableSyntaxNode tsn) {        

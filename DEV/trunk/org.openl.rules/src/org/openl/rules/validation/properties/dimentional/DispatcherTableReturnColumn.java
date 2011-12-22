@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.StringTool;
 
@@ -57,16 +57,18 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
         this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);    
     }
     
-    public DispatcherTableReturnColumn(List<ExecutableRulesMethod> groupedMethods, 
+    public DispatcherTableReturnColumn(MatchingOpenMethodDispatcher dispatcher, 
             Map<String, IOpenClass> newIncomeParams) {        
-        this(groupedMethods.get(0).getHeader().getType(), getAuxiliaryMethodNames(groupedMethods), 
-            groupedMethods.get(0).getSignature(), newIncomeParams);        
+        this(dispatcher.getType(), getAuxiliaryMethodNames(dispatcher), 
+            dispatcher.getSignature(), newIncomeParams);        
     }
     
-    private static List<String> getAuxiliaryMethodNames(List<ExecutableRulesMethod> groupedMethods){
-        List<String> methodNames = new ArrayList<String>(groupedMethods.size());
-        for(ExecutableRulesMethod method : groupedMethods){
-            methodNames.add(method.getName());
+    private static List<String> getAuxiliaryMethodNames(MatchingOpenMethodDispatcher dispatcher){
+        List<IOpenMethod> sortedByPriorityMethods = dispatcher.getSortedByPriorityMethods();
+        List<String> methodNames = new ArrayList<String>(sortedByPriorityMethods.size());
+        for(IOpenMethod method : sortedByPriorityMethods){
+            IOpenMethod auxiliaryMethod = dispatcher.getAuxiliaryMethodForCandidate(method);
+            methodNames.add(auxiliaryMethod.getName());
         }
         return methodNames;
     }
@@ -97,7 +99,7 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     
     public String getRuleValue(int ruleIndex, int elementNum) {        
         return String.format("=%s(%s)",
-            auxiliaryMethodNames.get(ruleIndex) + XlsModuleOpenClass.AUXILIARY_METHOD_DELIMETER + ruleIndex,
+            auxiliaryMethodNames.get(ruleIndex),
             originalParamsThroughComma());
     }
 
