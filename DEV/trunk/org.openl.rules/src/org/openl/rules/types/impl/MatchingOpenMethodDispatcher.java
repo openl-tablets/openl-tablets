@@ -103,9 +103,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (Tracer.isTracerOn()) {
-            return invokeTraced(target, params, env);
-        } else {
+        if (isJavaDispatchingMode()) {
+            return invokeJavaDispatching(target, params, env);
+        }else{
             return invokeDispatcherTable(target, params, env);
         }
     }
@@ -124,7 +124,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         traceObject = getTracedObject(selected, params);
         tracer.push(traceObject);
         try {
-            return invokeDispatcherTable(target, params, env);
+            return super.invoke(target, params, env);
         } catch (Exception e) {
             traceObject.setError(e);
             return null;
@@ -145,16 +145,26 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     public Object invokeDispatcherTable(Object target, Object[] params, IRuntimeEnv env) {
-        String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
-        if (dispatchingMode == null || !dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA)) {
-            if (dispatchingOpenMethod != null) {
-                return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
-            } else {
-                LOG.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
-                    MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
-            }
+        if (dispatchingOpenMethod != null) {
+            return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
+        } else {
+            LOG.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+                MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
+            return invokeJavaDispatching(target, params, env);
         }
-        return super.invoke(target, params, env);
+    }
+
+    public boolean isJavaDispatchingMode() {
+        String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
+        return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA);
+    }
+    
+    public Object invokeJavaDispatching(Object target, Object[] params, IRuntimeEnv env) {
+        if (Tracer.isTracerOn()) {
+            return invokeTraced(target, params, env);
+        } else {
+            return super.invoke(target, params, env);
+        }
     }
     
     private Object[] updateArguments(Object[] params, IRuntimeEnv env, IOpenMethod dispatcherMethod){
@@ -340,7 +350,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         return builder.toString();
     }
-
+    
     public List<IOpenMethod> getSortedByPriorityMethods(){
         return prioritySorter.sort(getCandidates());
     }
