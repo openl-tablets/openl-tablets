@@ -23,34 +23,26 @@
             filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=0);
             box-shadow: 0 -1px 2px white inset;
         }
-        .toolbarButton, .checkboxButton {
+        .toolbarButton {
             position: relative;
             display: inline-block;
             text-decoration: none;
             color: #313131;
             padding: 4px 8px 4px 24px;
         }
-        .checkboxButton {
-            cursor: pointer;
-            padding: 13px 1px 13px 24px;
-        }
-        .toolbarButton:hover, .checkboxButton:hover {
+        .toolbarButton:hover {
             color: #000000;
             box-shadow: 0 0 1px #99BBFF;
             background: #E8EFF7;
         }
-        .toolbarButton img, .checkboxButton input {
+        .toolbarButton img {
             position: absolute;
             left: 4px;
             top: 2px;
         }
-        .checkboxButton input {
-            left: 2px;
-            top: 10px;
-        }
-        .toolbarButton .arrow, .checkboxButton .arrow {
+        .toolbarButton .arrow {
             background: url('webresource/images/arrow_down.png') no-repeat center;
-            padding: 2px 2px;
+            padding: 2px 3px;
         }
         .toolbarButton .arrow:hover {
             background-color: #BBCCDD;
@@ -58,6 +50,11 @@
         .bigButton {
             padding: 4px 7px;
             text-align: center;
+            margin-right: 8px;
+        }
+        .bigMenuButton {
+            padding: 4px 3px;
+            margin: 0;
         }
         .bigButton img {
             position: static;
@@ -161,52 +158,63 @@
                     <c:set var="traceUrl"
                         value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                     <h:form prependId="false">
+                        <div id="unitsMenu" style="display: none">
+                            <table id="testTable" class="testtable" style="border: 1px solid white">
+                                <ui:repeat var="test" value="#{showTableBean.tests}">
+                                <tr style="vertical-align: top">
+                                    <td>
+                                        <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" />
+                                    </td>
+                                    <td>
+                                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                                            <ui:param name="args" value="#{test.executionParams}" />
+                                        </ui:include>
+                                    </td>
+                                </tr>
+                                </ui:repeat>
+                            </table>
+                        </div>
                         <table>
                             <tr>
                                 <td>
-                                    <span class="checkboxButton" title="Select Units to Perform">
-                                        <h:selectBooleanCheckbox id="selectAll" onclick="selectAllTests()" value="true" />
-                                        <span onclick="showButtonMenu(event, 'unitsMenu', 'span')">Units</span>
-                                        <span onclick="showButtonMenu(event, 'unitsMenu', 'span')" class="arrow" >
-                                            <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
-                                        </span>
-                                    </span>
-                                    <div id="unitsMenu" style="display: none">
-                                        <table id="testTable" class="testtable" style="border: 1px solid white">
-                                            <ui:repeat var="test" value="#{showTableBean.tests}">
-                                            <tr style="vertical-align: top">
-                                                <td>
-                                                    <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" />
-                                                </td>
-                                                <td>
-	                                                <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-	                                                    <ui:param name="args" value="#{test.executionParams}" />
-	                                                </ui:include>
-	                                            </td>
-                                            </tr>
-                                            </ui:repeat>
-                                        </table>
-                                    </div>
-                                </td>
-                                <td>
                                     <c:set var="runLink"
                                         value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton bigButton"
-                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}', 'content')">
-                                        <img src="webresource/images/run.gif" />
-                                        <span>Run</span>
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton bigButton bigMenuButton"
+                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}', 'content')"
+                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
+                                        style="padding-right: 1px">
+                                        <table style="border-collapse: collapse;">
+                                            <tr>
+                                                <td>
+                                                    <img src="webresource/images/run.gif" />
+                                                </td>
+                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'unitsMenu', 'a')"
+                                                    style="visibility: hidden;">
+                                                    <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span>Run</span>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace" styleClass="toolbarButton bigButton"
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Trace" styleClass="toolbarButton bigButton bigMenuButton"
                                         onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win')"
+                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
                                         <table style="border-collapse: collapse;">
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/trace.gif" />
                                                 </td>
-                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'traceMenu', 'a')">
+                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'unitsMenu', 'a')"
+                                                    style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
                                             </tr>
@@ -218,19 +226,36 @@
                                         </table>
                                     </a4j:commandLink>
                                     <div id="traceMenu" style="display: none">
-    	                                <h:commandLink onclick="return isAnyTestSelected();" styleClass="toolbarButton"
-    	                                    action="#{showTableBean.traceIntoFile}" title="Trace into File">
-    	                                    <img src="webresource/images/traceIntoFile.gif" />
-    	                                    <span>Into File</span>
-    	                                </h:commandLink>
+                                        <h:commandLink onclick="return isAnyTestSelected();" styleClass="toolbarButton"
+                                            action="#{showTableBean.traceIntoFile}" title="Trace into File">
+                                            <img src="webresource/images/traceIntoFile.gif" />
+                                            <span>Into File</span>
+                                        </h:commandLink>
                                     </div>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark" styleClass="toolbarButton bigButton"
+                                    <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark" styleClass="toolbarButton bigButton bigMenuButton"
                                         onclick="return isAnyTestSelected();"
-                                        oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')">
-                                        <img src="webresource/images/clock-icon.png" />
-                                        <span>Benchmark</span>
+                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
+                                        oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')"
+                                        style="padding-right: 1px">
+                                        <table style="border-collapse: collapse;">
+                                            <tr>
+                                                <td>
+                                                    <img src="webresource/images/clock-icon.png" />
+                                                </td>
+                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'unitsMenu', 'a')"
+                                                    style="visibility: hidden;">
+                                                    <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span>Benchmark</span>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </a4j:commandLink>
                                 </td>
                             </tr>
