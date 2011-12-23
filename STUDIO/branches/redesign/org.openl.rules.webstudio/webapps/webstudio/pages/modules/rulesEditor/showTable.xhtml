@@ -75,7 +75,7 @@
         }
         .targetTablesPopup {
             display: none;
-            padding: 4px 6px;
+            padding: 3px 4px 2px;
         }
         .targetTablesPopup div {
             margin-bottom: 3px;
@@ -334,24 +334,37 @@
                 <c:if test="#{!empty showTableBean.targetTables}">
                 <c:set var="oneTargetTable" value="#{fn:length(showTableBean.targetTables) == 1}" />
                 <td style="padding: 0 10px">
-                    <h:panelGroup rendered="#{oneTargetTable}" layout="block"
-                        style="font-weight: bold; color: #333333; margin-bottom: 2px">
+                    <div style="font-weight: bold; color: #333333; margin-bottom: 2px">
                         <h:outputText value="Target Table" />
-                    </h:panelGroup>
-                    <h:panelGroup rendered="#{!oneTargetTable}" layout="block" style="font-weight: bold">
-                        <a href="javascript:void(0)"
-                            onclick="showPopupMenu(event, 'targetTables', this, {'offsetTop' : 3})">Target Tables</a>
-                    </h:panelGroup>
-                    <div id="targetTables" class="#{oneTargetTable ? '' : 'targetTablesPopup'}">
-                        <ui:repeat value="#{showTableBean.targetTables}" var="targetTable">
+                        <h:outputText value="s" rendered="#{!oneTargetTable}" />
+                    </div>
+                    <div>
+                        <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
+                        <h:panelGroup rendered="#{i.index == 0}">
+                            <h:outputLink value="showTable.xhtml" target="content">
+                                <f:param name="uri" value="#{targetTable.uri}" />
+                                <h:outputText value="#{targetTable.name}" />
+                            </h:outputLink>
+                            <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
+                                onclick="showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
+                                style="margin-left: 4px">
+                                <h:graphicImage url="/webresource/images/arrow_down.png" title="Other Target Tables" />
+                            </h:outputLink>
+                        </h:panelGroup>
+                        </ui:repeat>
+                    </div>
+                    <h:panelGroup id="targetTables" class="targetTablesPopup" rendered="#{!oneTargetTable}" layout="block">
+                        <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
+                        <h:panelGroup rendered="#{i.index > 0}">
                         <div>
                             <h:outputLink value="showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
                         </div>
+                        </h:panelGroup>
                         </ui:repeat>
-                    </div>
+                    </h:panelGroup>
                 </td>
                 </c:if>
 
@@ -359,24 +372,35 @@
                 <c:if test="#{showTableBean.hasAnyTests}">
                 <c:set var="oneTest" value="#{fn:length(showTableBean.allTests) == 1}" />
                 <td style="padding: 0 10px">
-                    <h:panelGroup rendered="#{oneTest}" layout="block"
-                        style="font-weight: bold; color: #333333; margin-bottom: 2px">
-                        <h:outputText value="Available Tests/Runs" />
-                    </h:panelGroup>
-                    <h:panelGroup rendered="#{!oneTest}" layout="block" style="font-weight: bold">
-                        <a href="javascript:void(0)"
-                            onclick="showPopupMenu(event, 'availableTests', this, {'offsetTop' : 3})">Available Tests/Runs</a>
-                    </h:panelGroup>
-                    <div id="availableTests" class="#{oneTest ? '' : 'targetTablesPopup'}">
-                        <ui:repeat value="#{showTableBean.allTests}" var="test">
+                    <div style="font-weight: bold; color: #333333; margin-bottom: 2px">Available Tests/Runs</div>
+                    <div>
+                        <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
+                        <h:panelGroup rendered="#{i.index == 0}">
+                            <h:outputLink value="showTable.xhtml" target="content">
+                                <f:param name="uri" value="#{test.info.sourceUrl}" />
+                                <h:outputText value="#{test.name}" />
+                            </h:outputLink>
+                            <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
+                                onclick="showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
+                                style="margin-left: 4px">
+                                <h:graphicImage url="/webresource/images/arrow_down.png"
+                                    title="Other Available Tests/Runs" />
+                            </h:outputLink>
+                        </h:panelGroup>
+                        </ui:repeat>
+                    </div>
+                    <h:panelGroup id="availableTests" class="targetTablesPopup" rendered="#{!oneTest}" layout="block">
+                        <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
+                        <h:panelGroup rendered="#{i.index > 0}">
                         <div>
                             <h:outputLink value="showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{test.name}" />
                             </h:outputLink>
                         </div>
+                        </h:panelGroup>
                         </ui:repeat>
-                    </div>
+                    </h:panelGroup>
                 </td>
                 </c:if>
 
@@ -457,24 +481,8 @@
             }
 
             alert('No tests selected');
-    	    return false;
-    	}
-
-        function isAllTestsSelected() {
-            return $j("#testTable :checkbox").length == $j("#testTable :checked").length;
+            return false;
         }
-
-        function selectAllTests() {
-    	    var selectAll = $j("#selectAll");
-    	    $j("#testTable :checkbox").attr("checked", selectAll.is(":checked"));
-    	}
-
-        (function() {
-            var selectAll = $j("#selectAll");
-            $j("#testTable :checkbox").click(function() {
-                selectAll.attr("checked", isAllTestsSelected());
-            });
-        })();
     //]]>
     </script>
 
