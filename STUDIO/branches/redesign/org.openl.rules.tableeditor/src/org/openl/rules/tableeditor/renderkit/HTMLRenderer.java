@@ -223,6 +223,7 @@ public class HTMLRenderer {
         result.append(renderEditorToolbar(editor.getId(), editorJsVar))
             .append(renderJS("js/colorPicker.js"))
             .append(renderJS("js/popup.js"));
+        result.append("<div id='" + editor.getId() + Constants.TABLE_EDITOR_WRAPPER_PREFIX + "' class='te_editor_wrapper'></div>");
 
         return result.toString();
     }
