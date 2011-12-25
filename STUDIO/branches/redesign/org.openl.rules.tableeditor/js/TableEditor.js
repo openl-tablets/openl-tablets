@@ -158,7 +158,7 @@ var TableEditor = Class.create({
                 AjaxHelper.handleError(response,
                         "Server failed to save your changes");
 
-				if (self.actions && self.actions.saveFailure) {
+                if (self.actions && self.actions.saveFailure) {
                     self.actions.saveFailure();
                 }
 
@@ -170,8 +170,6 @@ var TableEditor = Class.create({
      * Handles mouse click on the table.
      */
     handleClick: function(e) {
-    	console.log("click");
-    	console.log(this.editor);
         var elt = Event.element(e);
         if (this.editor && this.editor.is(elt)) {
             return;
@@ -186,7 +184,6 @@ var TableEditor = Class.create({
                 this.switchEditorMenu = null;
             }
         }
-        console.log("click2");
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
@@ -262,28 +259,20 @@ var TableEditor = Class.create({
         this.decorator = new Decorator('te_selected');
 
         // Handle Table Editor events START
+        Event.stopObserving(document, "click");
         Event.observe(document, "click", function(e) {
-            var elt = Event.element(e);
-            if (self.currentElement
-                    && self.currentElement != elt) {
-                self.currentElement.blur();
-            }
             self.handleClick(e);
         });
 
+        Event.stopObserving(document, "keydown");
         Event.observe(document, "keydown", function(e) {
             self.handleKeyDown(e);
         });
 
-        if (Prototype.Browser.IE || Prototype.Browser.Opera) {
-            document.onkeypress = function(e) {
-                self.handleKeyPress(e || window.event)
-            }
-        } else {
-            Event.observe(document, "keypress", function(e) {
-                self.handleKeyPress(e);
-            });
-        }
+        Event.stopObserving(document, "keypress");
+        Event.observe(document, "keypress", function(e) {
+            self.handleKeyPress(e);
+        });
         // Handle Table Editor events END
 
         this.modFuncSuccess = function(response) {
@@ -360,7 +349,6 @@ var TableEditor = Class.create({
 
         this.editor = new TableEditor.Editors[editorName](
                 this, editorWrapper.id, params, initialValue, true, style);
-        console.log(this.editor);
         this.editorName = editorName;
 
         // Increase height of multiline editor
@@ -478,7 +466,6 @@ var TableEditor = Class.create({
     },
 
     setCellValue: function() {
-    	console.log("setCellValue");
         if (this.editor) {
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
@@ -571,13 +558,12 @@ var TableEditor = Class.create({
         if (!this.isCell(this.currentElement)) {
             return;
         }
-        console.log(this.editor);
+
         if (this.editor) {
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
                 case 13: if (this.editor.__do_nothing_on_enter !== true) {
                     this.setCellValue();
-                    if (Prototype.Browser.Opera) event.preventDefault();
                 }
                 break;
             }
@@ -594,11 +580,6 @@ var TableEditor = Class.create({
             if (event.charCode != undefined) { // FF
                 if (event.charCode == 0) return true;
             } else if (event.keyCode < 32 || TableEditor.isNavigationKey(event.keyCode)) return true;
-
-            if (Prototype.Browser.Opera) {
-                if (event.which == 0) return;
-                event.preventDefault();
-            }
 
             this.editBeginRequest(this.currentElement, event.charCode || event.keyCode);
         }
