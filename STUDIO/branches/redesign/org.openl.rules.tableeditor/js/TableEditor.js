@@ -337,7 +337,7 @@ var TableEditor = Class.create({
 
         var editorStyle = this.getCellEditorStyle(cell);
         this.editorWrapper = this.createEditorWrapper(cell);
-        document.body.appendChild(this.editorWrapper);
+        $(this.editorId).appendChild(this.editorWrapper);
 
         this.showCellEditor(response.editor, this.editorWrapper, initialValue, response.params, editorStyle);
 
@@ -456,7 +456,7 @@ var TableEditor = Class.create({
         editorWrapper.style.zIndex = "3";
         editorWrapper.style.width = cell.offsetWidth - 2 + "px";
         editorWrapper.style.height = cell.offsetHeight - 2 + "px";
-        var pos = Element.viewportOffset(cell);
+        var pos = Element.positionedOffset(cell);
         editorWrapper.style.left = pos[0] + "px";
         editorWrapper.style.top = pos[1] + "px";
         //editorWrapper.style.padding = "0px";
@@ -507,7 +507,7 @@ var TableEditor = Class.create({
                 });
             }
             this.editor.destroy();
-            document.body.removeChild(this.editorWrapper);
+            $(this.editorId).removeChild(this.editorWrapper);
             this.editor = null;
             this.editorName = null;
             this.editorSwitched = false;
