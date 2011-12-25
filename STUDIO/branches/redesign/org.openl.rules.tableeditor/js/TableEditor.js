@@ -170,6 +170,8 @@ var TableEditor = Class.create({
      * Handles mouse click on the table.
      */
     handleClick: function(e) {
+    	console.log("click");
+    	console.log(this.editor);
         var elt = Event.element(e);
         if (this.editor && this.editor.is(elt)) {
             return;
@@ -184,6 +186,7 @@ var TableEditor = Class.create({
                 this.switchEditorMenu = null;
             }
         }
+        console.log("click2");
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
@@ -254,6 +257,7 @@ var TableEditor = Class.create({
         var self = this;
 
         initToolbar(self.editorId);
+        self.editorWrapper = $(self.editorId + "_editorWrapper");
 
         this.decorator = new Decorator('te_selected');
 
@@ -336,8 +340,7 @@ var TableEditor = Class.create({
         }
 
         var editorStyle = this.getCellEditorStyle(cell);
-        this.editorWrapper = this.createEditorWrapper(cell);
-        $(this.editorId).appendChild(this.editorWrapper);
+        this.showEditorWrapper(cell);
 
         this.showCellEditor(response.editor, this.editorWrapper, initialValue, response.params, editorStyle);
 
@@ -357,6 +360,7 @@ var TableEditor = Class.create({
 
         this.editor = new TableEditor.Editors[editorName](
                 this, editorWrapper.id, params, initialValue, true, style);
+        console.log(this.editor);
         this.editorName = editorName;
 
         // Increase height of multiline editor
@@ -446,23 +450,13 @@ var TableEditor = Class.create({
         this.editorSwitched = true;
     },
 
-    createEditorWrapper: function(cell) {
-        var editorWrapper = new Element("div");
-
-        var wrapperId = cell.id + "_editorWrapper";
-        editorWrapper.setAttribute("id", wrapperId);
-
-        editorWrapper.style.position = "absolute";
-        editorWrapper.style.zIndex = "3";
-        editorWrapper.style.width = cell.offsetWidth - 2 + "px";
-        editorWrapper.style.height = cell.offsetHeight - 2 + "px";
+    showEditorWrapper: function(cell) {
+        this.editorWrapper.style.width = cell.offsetWidth - 2 + "px";
+        this.editorWrapper.style.height = cell.offsetHeight - 2 + "px";
         var pos = Element.positionedOffset(cell);
-        editorWrapper.style.left = pos[0] + "px";
-        editorWrapper.style.top = pos[1] + "px";
-        //editorWrapper.style.padding = "0px";
-        editorWrapper.style.backgroundColor = "#B4C8FF";
-        
-        return editorWrapper;
+        this.editorWrapper.style.left = pos[0] + "px";
+        this.editorWrapper.style.top = pos[1] + "px";
+        this.editorWrapper.show();
     },
 
     getCellEditorStyle: function(cell) {
@@ -484,6 +478,7 @@ var TableEditor = Class.create({
     },
 
     setCellValue: function() {
+    	console.log("setCellValue");
         if (this.editor) {
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
@@ -507,7 +502,7 @@ var TableEditor = Class.create({
                 });
             }
             this.editor.destroy();
-            $(this.editorId).removeChild(this.editorWrapper);
+            this.editorWrapper.hide();
             this.editor = null;
             this.editorName = null;
             this.editorSwitched = false;
@@ -576,6 +571,7 @@ var TableEditor = Class.create({
         if (!this.isCell(this.currentElement)) {
             return;
         }
+        console.log(this.editor);
         if (this.editor) {
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
@@ -585,7 +581,7 @@ var TableEditor = Class.create({
                 }
                 break;
             }
-            return
+            return;
         }
 
         if (event.keyCode == 13) {

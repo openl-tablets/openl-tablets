@@ -53,7 +53,7 @@ public final class Constants {
     public static final String TABLE_EDITOR_RESOURCES = "_tableEditorResources";
 
     public static final String TABLE_EDITOR_PREFIX = "_te";
-
+    public static final String TABLE_EDITOR_WRAPPER_PREFIX = "_editorWrapper";
     public static final String ID_POSTFIX_TABLE = "_table";
     public static final String ID_POSTFIX_MENU = "_menu";
     public static final String ID_POSTFIX_CELL = "_cell-";

@@ -49,3 +49,9 @@
     background: #C8DEFF;
     cursor: pointer;
 }
+
+.te_editor_wrapper {
+    position: absolute;
+    z-index: 3;
+    background-color: #B4C8FF;
+}
