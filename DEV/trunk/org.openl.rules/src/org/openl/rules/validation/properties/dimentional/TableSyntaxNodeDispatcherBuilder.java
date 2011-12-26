@@ -2,6 +2,7 @@ package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.OpenL;
+import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
@@ -33,9 +37,12 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.MethodDelegator;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -246,7 +253,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      */
     private List<ITableProperties> getMethodsProperties() {
         List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
-        for (IOpenMethod method : dispatcher.getSortedByPriorityMethods()) {
+        for (IOpenMethod method : dispatcher.getCandidates()) {
                 propertiesValues.add(MatchingOpenMethodDispatcher.getTableProperties(method));
         }
         return propertiesValues;
@@ -295,11 +302,46 @@ public class TableSyntaxNodeDispatcherBuilder {
           
         DecisionTableLoader dtLoader = new DecisionTableLoader();
         try {
-            dtLoader.loadAndBind(tsn, decisionTable, openl, null, moduleContext);            
+            dtLoader.loadAndBind(tsn, decisionTable, openl, null, createContextWithAuxiliaryMethods());            
         } catch (Exception e) {            
             LOG.error(e);
         }
         return tsn;
+    }
+    
+
+    public static final String AUXILIARY_METHOD_DELIMETER = "$";
+
+    private IOpenMethod generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
+        final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
+        IOpenMethod auxiliaryMethod = new MethodDelegator(originalMethod) {
+            @Override
+            public String getName() {
+                return auxiliaryMethodName;
+            }
+        };
+        return auxiliaryMethod;
+    }
+
+    private IBindingContextDelegator createContextWithAuxiliaryMethods(){
+        List<IOpenMethod> candidates = dispatcher.getCandidates();
+        final Map<MethodKey, IOpenMethod> auxiliaryMethods = new HashMap<MethodKey, IOpenMethod>(candidates.size());
+        for(int i = 0; i < candidates.size(); i++){
+            IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
+            auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);
+        }
+        IBindingContextDelegator context = new BindingContextDelegator(moduleContext){
+            @Override
+            public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
+                IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
+                if (auxiliaryMethod == null) {
+                    return super.findMethodCaller(namespace, name, parTypes);
+                } else {
+                    return auxiliaryMethod;
+                }
+            }
+        };
+        return context;
     }
     
     /**

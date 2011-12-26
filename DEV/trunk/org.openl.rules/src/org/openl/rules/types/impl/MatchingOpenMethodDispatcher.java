@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
@@ -33,15 +30,16 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
 /**
+ * Represents group of methods(rules) overloaded by dimension properties.
+ * 
+ * TODO: refactor to use {@link ExecutableRulesMethod} in this class instead of
+ * common {@link IOpenMethod}
  * 
  * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
-
-    private static final Log LOG = LogFactory.getLog(MatchingOpenMethodDispatcher.class);
     public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
     public static final String DISPATCHING_MODE_JAVA = "java";
-    public static final String DISPATCHING_MODE_DT = "dt";
 
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
     private ITablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
@@ -56,6 +54,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private ATableTracerNode traceObject;
 
+    private List<IOpenMethod> candidatesSorted;
+
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
         decorate(method);
@@ -67,13 +67,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return moduleOpenClass;
     }
 
-
     @Override
     public void addMethod(IOpenMethod candidate) {
         int pos = searchForTheSameTable(candidate);
         if (pos == -1) {
             // add new candidate
             super.addMethod(candidate);
+            candidatesSorted = null;
         } else {
             // replace by newer or active
             if (new TableVersionComparator().compare((ExecutableRulesMethod) getCandidates().get(pos),
@@ -99,15 +99,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             }
         }
         return -1;
-    }    
-    
-    @Override
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (isJavaDispatchingMode()) {
-            return invokeJavaDispatching(target, params, env);
-        }else{
-            return invokeDispatcherTable(target, params, env);
-        }
     }
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
@@ -133,50 +124,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
 
     }
-    
-    private IOpenMethod dispatchingOpenMethod;
-    
-    public IOpenMethod getDispatchingOpenMethod() {
-        return dispatchingOpenMethod;
-    }
 
-    public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
-        this.dispatchingOpenMethod = dispatchingOpenMethod;
-    }
-
-    public Object invokeDispatcherTable(Object target, Object[] params, IRuntimeEnv env) {
-        if (dispatchingOpenMethod != null) {
-            return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
-        } else {
-            LOG.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
-                MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
-            return invokeJavaDispatching(target, params, env);
-        }
-    }
-
-    public boolean isJavaDispatchingMode() {
-        String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
-        return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA);
-    }
-    
-    public Object invokeJavaDispatching(Object target, Object[] params, IRuntimeEnv env) {
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);
         } else {
             return super.invoke(target, params, env);
         }
-    }
-    
-    private Object[] updateArguments(Object[] params, IRuntimeEnv env, IOpenMethod dispatcherMethod){
-        Object[] arguments = new Object[dispatcherMethod.getSignature().getNumberOfParameters()];
-        System.arraycopy(params, 0, arguments, 0, params.length);
-        IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
-        if (context != null) {
-            for (int i = params.length; i < dispatcherMethod.getSignature().getNumberOfParameters(); i++) {
-                arguments[i] = context.getValue(dispatcherMethod.getSignature().getParameterName(i));
-            }
-        }
-        return arguments;
     }
 
     private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
@@ -195,7 +149,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
             } catch (OpenLRuntimeException e) {
                 ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0],
-                        params);
+                    params);
                 traceObject.setError(e);
                 return traceObject;
             }
@@ -221,9 +175,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints that
                 // removed candidates
-                throw new OpenLRuntimeException(String.format(
-                        "No matching methods for the context. Details: \n%1$s\nContext: %2$s", toString(candidates),
-                        context.toString()));
+                throw new OpenLRuntimeException(String.format("No matching methods for the context. Details: \n%1$s\nContext: %2$s",
+                    toString(candidates),
+                    context.toString()));
 
             case 1:
                 return selected.iterator().next();
@@ -232,9 +186,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new OpenLRuntimeException(String.format(
-                        "Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s", toString(candidates),
-                        context.toString()));
+                throw new OpenLRuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
+                    toString(candidates),
+                    context.toString()));
         }
 
     }
@@ -253,17 +207,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
-    
-    public IOpenMethod getAuxiliaryMethodForCandidate(IOpenMethod candidate) {
-        for (IOpenMethod method : moduleOpenClass.getMethods()) {
-            if (method instanceof MethodDelegator && ((MethodDelegator) method).getMethod() == candidate) {
-                return method;
-            }
-        }
-        return null;
-    }
 
-    private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context){
+    private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         List<IOpenMethod> sorted = prioritySorter.sort(selected);
         // FIXME temporary solution sort all candidates and remove all that has
         // priority different from most prior table.
@@ -275,19 +220,20 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     // <<< INSERT MatchingProperties >>>
-	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-		selectCandidatesByProperty("effectiveDate", selected, context);
-		selectCandidatesByProperty("expirationDate", selected, context);
-		selectCandidatesByProperty("startRequestDate", selected, context);
-		selectCandidatesByProperty("endRequestDate", selected, context);
-		selectCandidatesByProperty("lob", selected, context);
-		selectCandidatesByProperty("usregion", selected, context);
-		selectCandidatesByProperty("country", selected, context);
-		selectCandidatesByProperty("currency", selected, context);
-		selectCandidatesByProperty("lang", selected, context);
-		selectCandidatesByProperty("state", selected, context);
-		selectCandidatesByProperty("region", selected, context);
-	}
+    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+        selectCandidatesByProperty("effectiveDate", selected, context);
+        selectCandidatesByProperty("expirationDate", selected, context);
+        selectCandidatesByProperty("startRequestDate", selected, context);
+        selectCandidatesByProperty("endRequestDate", selected, context);
+        selectCandidatesByProperty("lob", selected, context);
+        selectCandidatesByProperty("usregion", selected, context);
+        selectCandidatesByProperty("country", selected, context);
+        selectCandidatesByProperty("currency", selected, context);
+        selectCandidatesByProperty("lang", selected, context);
+        selectCandidatesByProperty("state", selected, context);
+        selectCandidatesByProperty("region", selected, context);
+    }
+
     // <<< END INSERT MatchingProperties >>>
 
     private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
@@ -350,8 +296,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         return builder.toString();
     }
-    
-    public List<IOpenMethod> getSortedByPriorityMethods(){
-        return prioritySorter.sort(getCandidates());
+
+    @Override
+    public List<IOpenMethod> getCandidates() {
+        if (candidatesSorted == null) {
+            candidatesSorted = prioritySorter.sort(super.getCandidates());
+        }
+        return candidatesSorted;
     }
 }
