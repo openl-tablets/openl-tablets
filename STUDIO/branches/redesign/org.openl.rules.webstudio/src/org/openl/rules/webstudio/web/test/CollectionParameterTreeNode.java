@@ -43,12 +43,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
         } else {
             Iterator<Object> iterator = getType().getAggregateInfo().getIterator(getValue());
-            IOpenClass arrayElementType = getType().getComponentClass();
+            IOpenClass collectionElementType = getType().getComponentClass();
             int index = 0;
             LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
             while (iterator.hasNext()) {
-                Object arrayElement = iterator.next();
-                elements.put(index, TestTreeBuilder.createNode(arrayElementType, arrayElement, null, this));
+                Object element = iterator.next();
+                elements.put(index, TestTreeBuilder.createNode(collectionElementType, element, null, this));
                 index++;
             }
             return elements;
