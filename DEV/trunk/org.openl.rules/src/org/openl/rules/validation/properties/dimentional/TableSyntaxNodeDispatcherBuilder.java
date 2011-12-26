@@ -112,7 +112,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @param methodsGroup group of overloaded tables.
      */
     public TableSyntaxNode build() {
-        XlsSheetGridModel sheetGridModel = (XlsSheetGridModel) initSheetGridModel();
+        XlsSheetGridModel sheetGridModel = (XlsSheetGridModel) writeDispatcherTable();
         
         // build TableSyntaxNode
         TableSyntaxNode tsn = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetGridModel,
@@ -126,7 +126,7 @@ public class TableSyntaxNodeDispatcherBuilder {
         return tsn;
     }
     
-    private IWritableGrid initSheetGridModel() {
+    private IWritableGrid writeDispatcherTable() {
         // properties values from methods in group that will be used 
         // to build dispatcher table by dimensional properties.
         //
@@ -134,13 +134,27 @@ public class TableSyntaxNodeDispatcherBuilder {
         
         DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
         
-        IWritableGrid grid = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, 
-            DISPATCHER_TABLES_SHEET + getDispatcherTableName());
+        List<IDecisionTableColumn> conditions = getDispatcherTableConditions(propertiesFromMethods, rules);
         
-        return initDecisionTableBuilder(getDispatcherTableConditions(propertiesFromMethods, rules), getReturnColumn())
+        int numberOfColumns = getNumberOfColumns(conditions) + 1; // + 1 for return column
+        
+        IWritableGrid grid = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, 
+            DISPATCHER_TABLES_SHEET + getDispatcherTableName(), numberOfColumns);
+        
+        return initDecisionTableBuilder(conditions, getReturnColumn())
             .build(grid, rules.getRulesNumber());        
     }
     
+    private int getNumberOfColumns(List<IDecisionTableColumn> conditions) {
+        int numberOfAllLocalParameters = 0;
+        for (int i = 0; i < conditions.size(); i++) {
+            if (conditions.get(i).getNumberOfLocalParameters() > 0) {
+                numberOfAllLocalParameters += conditions.get(i).getNumberOfLocalParameters();
+            }
+        }
+        return numberOfAllLocalParameters;
+    }
+
     private DecisionTableOpenlBuilder initDTOpenlBuilder() {
         IOpenClass originalReturnType = getMethodReturnType();
         Map<String, IOpenClass> updatedIncomeParams = updateIncomeParams();

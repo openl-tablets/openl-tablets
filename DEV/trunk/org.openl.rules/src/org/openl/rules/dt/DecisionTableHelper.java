@@ -2,6 +2,7 @@ package org.openl.rules.dt;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.RulesCommons;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -268,20 +269,45 @@ public class DecisionTableHelper {
      * @return virtual {@link IWritableGrid}.
      */
     public static IWritableGrid createVirtualGrid() {
-        return XlsSheetGridHelper.createVirtualGrid(getPOISheet());
+        return XlsSheetGridHelper.createVirtualGrid(getPOIHSSFSheet());
     }
     
+    /**
+     * @deprecated 26.12.2011
+     * As always creates workbooks for excel before 2007
+     */
+    @Deprecated    
     public static IWritableGrid createVirtualGrid(String gridName, String poiSheetName) {
-        return XlsSheetGridHelper.createVirtualGrid(getPOISheet(poiSheetName), gridName);
+        return XlsSheetGridHelper.createVirtualGrid(getPOIHSSFSheet(poiSheetName), gridName);
     }
     
-    private static Sheet getPOISheet() {
+    public static IWritableGrid createVirtualGrid(String gridName, String poiSheetName, int numberOfColumns) {
+        return XlsSheetGridHelper.createVirtualGrid(getPOISheet(poiSheetName, numberOfColumns), gridName);
+    }
+
+    private static Sheet getPOISheet(String poiSheetName, int numberOfColumns) {
+        Sheet sheet = null;
+        if (numberOfColumns > 256) {
+             sheet = getPOIXSSFSheet(poiSheetName);
+        } else {
+            // Pre-2007 excel sheets had a limitation of 256 columns.
+            sheet = getPOIHSSFSheet(poiSheetName);
+        }
+        return sheet;
+    }
+    
+    private static Sheet getPOIHSSFSheet() {
         HSSFWorkbook workbook = new HSSFWorkbook();
         return workbook.createSheet();
     }
     
-    private static Sheet getPOISheet(String poiSheetName) {
+    private static Sheet getPOIHSSFSheet(String poiSheetName) {
         HSSFWorkbook workbook = new HSSFWorkbook();
+        return workbook.createSheet(poiSheetName);
+    }
+    
+    private static Sheet getPOIXSSFSheet(String poiSheetName) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
         return workbook.createSheet(poiSheetName);
     }
  
