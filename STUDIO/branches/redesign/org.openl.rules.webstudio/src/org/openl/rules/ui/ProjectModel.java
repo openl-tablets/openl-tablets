@@ -502,7 +502,7 @@ public class ProjectModel {
 
     private IOpenMethod resolveMethod(IOpenMethod method, TableSyntaxNode syntaxNode) {
 
-        if (!XlsModuleOpenClass.isAuxiliaryMethod(method) && isInstanceOfTable(method, syntaxNode)) {
+        if (isInstanceOfTable(method, syntaxNode)) {
             return method;
         }
 
