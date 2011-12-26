@@ -73,8 +73,16 @@
                                 <td style="width: 156px">
                                     <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
                                         defaultTime="00:00" rendered="#{prop.dateType}" />
-
-                                    <oh:inputVersion value="#{prop.value}" rendered="#{prop.name == 'version'}" />
+									
+									<h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}">
+										<table>
+											<tr>
+												<td><oh:inputVersion value="#{wizard.minNextVersion}"/></td>
+												<td>Current:</td>
+												<td><h:outputText value="#{prop.value}"/></td>
+											</tr>
+										</table>
+									</h:panelGroup>		
 
                                     <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
 
