@@ -10,7 +10,6 @@ import org.openl.rules.dt.DecisionTableColumnHeaders;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.StringTool;
 
@@ -29,9 +28,9 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     private IOpenClass originalReturnType;
     
     /**
-     * Table names of the auxiliary methods for each method on overloaded tables group.
+     * Name of method in overloaded tables group.
      */
-    private List<String> auxiliaryMethodNames;
+    private String methodName;
     
     /**
      * Signature of the member of overloaded tables group.
@@ -49,30 +48,20 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     protected DispatcherTableReturnColumn () {        
     }
     
-    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, List<String> auxiliaryMethodNames, 
+    protected DispatcherTableReturnColumn(IOpenClass originalReturnType, String methodName, 
             IMethodSignature originalSignature, Map<String, IOpenClass> newIncomeParams) {
         this.originalReturnType = originalReturnType;
-        this.auxiliaryMethodNames = auxiliaryMethodNames;
+        this.methodName = methodName;
         this.originalSignature = originalSignature;
         this.newIncomeParams = new HashMap<String, IOpenClass>(newIncomeParams);    
     }
     
     public DispatcherTableReturnColumn(MatchingOpenMethodDispatcher dispatcher, 
             Map<String, IOpenClass> newIncomeParams) {        
-        this(dispatcher.getType(), getAuxiliaryMethodNames(dispatcher), 
+        this(dispatcher.getType(), dispatcher.getName(), 
             dispatcher.getSignature(), newIncomeParams);        
     }
     
-    private static List<String> getAuxiliaryMethodNames(MatchingOpenMethodDispatcher dispatcher){
-        List<IOpenMethod> sortedByPriorityMethods = dispatcher.getSortedByPriorityMethods();
-        List<String> methodNames = new ArrayList<String>(sortedByPriorityMethods.size());
-        for(IOpenMethod method : sortedByPriorityMethods){
-            IOpenMethod auxiliaryMethod = dispatcher.getAuxiliaryMethodForCandidate(method);
-            methodNames.add(auxiliaryMethod.getName());
-        }
-        return methodNames;
-    }
-
     public void setOriginalReturnType(IOpenClass originalReturnType) {
         this.originalReturnType = originalReturnType;
     }
@@ -98,8 +87,10 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     }
     
     public String getRuleValue(int ruleIndex, int elementNum) {        
-        return String.format("=%s(%s)",
-            auxiliaryMethodNames.get(ruleIndex),
+        return String.format("=%s%s%d(%s)",
+            methodName,
+            TableSyntaxNodeDispatcherBuilder.AUXILIARY_METHOD_DELIMETER,
+            ruleIndex,
             originalParamsThroughComma());
     }
 

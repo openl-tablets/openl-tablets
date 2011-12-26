@@ -19,6 +19,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.impl.MethodDelegator;
@@ -99,8 +100,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 			if (existedMethod instanceof OpenMethodDispatcher) {
 				OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
 				decorator.addMethod(method);
-				generateAuxiliaryMethod(method, decorator.getCandidates().size()-1);
-			} else {
+		} else {
                 boolean differentVersionsOfTheTable = false;
                 if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
                     DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) existedMethod);
@@ -170,45 +170,25 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
     public void createMethodDispatcher(IOpenMethod method, MethodKey key, IOpenMethod existedMethod) {
         // Create decorator for existed method.
         //
-        OpenMethodDispatcher decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
+        OpenMethodDispatcher decorator;
+        if (isJavaDispatchingMode()) {
+            decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
+        } else {
+            decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
+        }
 
-        generateAuxiliaryMethod(existedMethod, 0);
         // Add new method to decorator as candidate.
         //
         decorator.addMethod(method);
 
-        generateAuxiliaryMethod(method, decorator.getCandidates().size() - 1);
         // Replace existed method with decorator using the same key.
         //
         methodMap().put(key, decorator);
     }
 
-    public static final String AUXILIARY_METHOD_DELIMETER = "$";
-
-    private static final String AUXILIARY_METHOD_NAME_PATTERN = ".*\\$\\d*";
-
-    public static boolean isAuxiliaryMethod(IOpenMethod method) {
-        return method instanceof MethodDelegator && method.getName().matches(AUXILIARY_METHOD_NAME_PATTERN);
-    }
-
-    /**
-     * Adds an auxiliary method for all overloaded methods. Such method can be
-     * used internally and has name: <original method name>+prefix:&<index of
-     * method in overloaded methods group>
-     * 
-     * @param originalMethod Method in overloaded group.
-     * @param index Index in overloaded methods group(according to the sequence
-     *            of binding).
-     */
-    private void generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
-        final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
-        IOpenMethod auxiliaryMethod = new MethodDelegator(originalMethod) {
-            @Override
-            public String getName() {
-                return auxiliaryMethodName;
-            }
-        };
-        addMethod(auxiliaryMethod);
+    public boolean isJavaDispatchingMode() {
+        String dispatchingMode = System.getProperty(MatchingOpenMethodDispatcher.DISPATCHING_MODE_PROPERTY);
+        return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(MatchingOpenMethodDispatcher.DISPATCHING_MODE_JAVA);
     }
 
     @Override
