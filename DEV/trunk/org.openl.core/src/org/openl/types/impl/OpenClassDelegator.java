@@ -47,9 +47,8 @@ public class OpenClassDelegator implements IOpenClass {
     public String getDisplayName(int mode) {
         return baseClass.getDisplayName(mode);
     }
-
-    @SuppressWarnings("unchecked")
-    public IDomain getDomain() {
+    
+    public IDomain<?> getDomain() {
         return baseClass.getDomain();
     }
 
@@ -216,4 +215,5 @@ public class OpenClassDelegator implements IOpenClass {
         }
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
+
 }

@@ -47,9 +47,8 @@ public class NullOpenClass implements IOpenClass {
     public String getDisplayName(int mode) {
         return getName();
     }
-
-    @SuppressWarnings("unchecked")
-    public IDomain getDomain() {
+    
+    public IDomain<?> getDomain() {
         return null;
     }
 

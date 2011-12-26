@@ -392,12 +392,12 @@ public class JavaOpenClass extends AOpenClass {
     
     @Override
     public IOpenClass getComponentClass() {        
-        if (isArray()) {
-            return JavaOpenClass.getOpenClass(getInstanceClass().getComponentType());
-        }
+        if (isArray() || OpenClassHelper.isCollection(this)) {
+            return getAggregateInfo().getComponentType(this);
+        } 
         return null;
     }
-
+    
     @SuppressWarnings("unchecked")
     public Iterator<IOpenClass> superClasses() {
         Class[] tmp = instanceClass.getInterfaces();
@@ -587,15 +587,20 @@ public class JavaOpenClass extends AOpenClass {
                     values = new HashMap<BeanOpenField, Object>();
                     map.put(proxy, values);
                 }
-
-                BeanOpenField bf = getters.get(method);
+                
+                BeanOpenField bf = null;
+                if (getters != null) {
+                     bf = getters.get(method);    
+                }                
 
                 if (bf != null) {
                     Object res = values.get(bf);
                     return res != null ? res : bf.getType().nullObject();
                 }
-
-                bf = setters.get(method);
+                
+                if (setters != null) {
+                    bf = setters.get(method);
+                }                
 
                 if (bf != null) {
                     values.put(bf, args[0]);
@@ -613,7 +618,7 @@ public class JavaOpenClass extends AOpenClass {
                 if (method.getName().equals(equals.getName())) {
                     return proxy == args[0];
                 }
-
+                
                 throw new RuntimeException("Default Interface Proxy Implementation does not support method "
                         + method.getDeclaringClass().getName() + "::" + method.getName()
                         + ". Only bean access is supported");
