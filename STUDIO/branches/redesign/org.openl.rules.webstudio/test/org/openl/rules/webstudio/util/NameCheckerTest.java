@@ -1,17 +1,10 @@
-package org.openl.rules.webstudio.repository;
+package org.openl.rules.webstudio.util;
 
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 
 import junit.framework.TestCase;
 
-public class RepositoryTreeControllerTestCase extends TestCase {
-    private RepositoryTreeController instance;
-
-    @Override
-    protected void setUp() throws Exception {
-        instance = new RepositoryTreeController();
-    }
+public class NameCheckerTest extends TestCase {
 
     public void testCheckNameBad() {
         final String[] badNames = { "\\f", "f/g", "f*", "?f*", "g?", "f:x", "f;x", "a<b", "a>b", "a\tb", "a\nv", "a%b",
