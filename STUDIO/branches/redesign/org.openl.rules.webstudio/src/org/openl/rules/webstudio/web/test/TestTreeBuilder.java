@@ -5,6 +5,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.OpenClassHelper;
 import org.richfaces.component.UIRepeat;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -35,7 +36,7 @@ public class TestTreeBuilder {
             Object value,
             String fieldName,
             ParameterDeclarationTreeNode parent) {
-        if (fieldType.getAggregateInfo()!= null && fieldType.getAggregateInfo().isAggregate(fieldType)) {
+        if (OpenClassHelper.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
         } else if (!fieldType.isSimple()) {
             return new ComplexParameterTreeNode(fieldName, value, fieldType, parent);
