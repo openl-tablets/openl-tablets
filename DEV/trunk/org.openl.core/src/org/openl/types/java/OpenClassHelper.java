@@ -118,4 +118,8 @@ public class OpenClassHelper {
 
         return false;
     }
+
+    public static boolean isCollection(IOpenClass openClass) {
+        return openClass.getAggregateInfo()!= null && openClass.getAggregateInfo().isAggregate(openClass);
+    }
 }

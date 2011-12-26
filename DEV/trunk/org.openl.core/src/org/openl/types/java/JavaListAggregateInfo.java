@@ -9,11 +9,11 @@ package org.openl.types.java;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.iterators.EmptyIterator;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.impl.AAggregateInfo;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -76,8 +76,12 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         return makeListIndex(aggregateType);
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator<Object> getIterator(Object aggregate) {
-        return OpenIterator.fromArrayObj(aggregate);
+        // temporary return an empty iterator
+        // While the possibility to get an iterator from list won`t be added
+        // TODO: add the possibility to get an iterator from list
+        return EmptyIterator.INSTANCE;        
     }
 
     public boolean isAggregate(IOpenClass type) {
