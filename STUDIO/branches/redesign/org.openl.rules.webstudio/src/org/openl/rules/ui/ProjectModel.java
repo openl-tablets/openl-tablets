@@ -899,10 +899,12 @@ public class ProjectModel {
             case RELOAD:
                 modulesCache.reset();
             case SINGLE:
-                // Clear the cache of dependency manager, as the project has been modified.
-                studio.getDependencyManager()
-                    .reset(new Dependency(
-                            DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
+                if (moduleInfo != null) {
+                 // Clear the cache of dependency manager, as the project has been modified
+                    studio.getDependencyManager()
+                        .reset(new Dependency(
+                                DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
+                }
                 break;
         }
         setModuleInfo(moduleInfo, reloadType);
@@ -971,10 +973,10 @@ public class ProjectModel {
     }
 
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
-        if (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO) {
+        if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
         }
-        
+
         File projectFolder = moduleInfo.getProject().getProjectFolder();
         if (reloadType == ReloadType.FORCED) {
             RulesProjectResolver projectResolver = studio.getProjectResolver();

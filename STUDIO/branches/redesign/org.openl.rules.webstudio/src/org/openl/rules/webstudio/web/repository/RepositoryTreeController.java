@@ -22,12 +22,15 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -81,6 +84,8 @@ public class RepositoryTreeController {
     @ManagedProperty(value="#{zipFilter}")
     private PathFilter zipFilter;
 
+    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+
     private String projectName;
     private String newProjectTemplate;
     private String[] projectTemplates = { "SampleTemplate.xls" };
@@ -120,6 +125,7 @@ public class RepositoryTreeController {
         }
         String errorMessage = uploadAndAddFile();
         if (errorMessage == null) {
+            resetStudioModel();
             FacesUtils.addInfoMessage("File was uploaded successfully.");
         } else {
             FacesUtils.addErrorMessage(errorMessage);
@@ -136,6 +142,7 @@ public class RepositoryTreeController {
                 try {
                     AProjectFolder addedFolder = folder.addFolder(folderName);
                     repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
+                    resetStudioModel();
                 } catch (ProjectException e) {
                     LOG.error("Failed to create folder '" + folderName + "'.", e);
                     errorMessage = e.getMessage();
@@ -155,6 +162,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().checkIn(major, minor);
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = e.getMessage();
             LOG.error(msg, e);
@@ -167,6 +175,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().checkOut();
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to check out project.";
             LOG.error(msg, e);
@@ -179,6 +188,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().close();
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to close project.";
             LOG.error(msg, e);
@@ -258,6 +268,7 @@ public class RepositoryTreeController {
             userWorkspace.copyProject(project, newProjectName);
             AProject newProject = userWorkspace.getProject(newProjectName);
             repositoryTreeState.addRulesProjectToTree(newProject);
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to copy project.";
             LOG.error(msg, e);
@@ -300,6 +311,7 @@ public class RepositoryTreeController {
             try {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
+                resetStudioModel();
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
             }
@@ -334,6 +346,7 @@ public class RepositoryTreeController {
         try {
             projectArtefact.getArtefact(childName).delete();
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             LOG.error("Error deleting element.", e);
             FacesUtils.addErrorMessage("Error deleting.", e.getMessage());
@@ -353,6 +366,7 @@ public class RepositoryTreeController {
             } else {
                 repositoryTreeState.deleteSelectedNodeFromTree();
             }
+            resetStudioModel();
         } catch (ProjectException e) {
             LOG.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
@@ -378,6 +392,7 @@ public class RepositoryTreeController {
                     repositoryTreeState.deleteNode(projectInTree);
                 }
             }
+            resetStudioModel();
         } catch (ProjectException e) {
             LOG.error("Cannot delete rules project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
@@ -404,6 +419,7 @@ public class RepositoryTreeController {
             project.erase();
             userWorkspace.refresh();
             repositoryTreeState.deleteSelectedNodeFromTree();
+            resetStudioModel();
         } catch (ProjectException e) {
             repositoryTreeState.invalidateTree();
             String msg = "Cannot erase project '" + project.getName() + "'.";
@@ -732,6 +748,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().open();
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to open project.";
             LOG.error(msg, e);
@@ -744,6 +761,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to open project version.";
             LOG.error(msg, e);
@@ -994,6 +1012,7 @@ public class RepositoryTreeController {
         try {
             project.undelete();
             repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Cannot undelete project '" + project.getName() + "'.";
             LOG.error(msg, e);
@@ -1014,6 +1033,7 @@ public class RepositoryTreeController {
         }
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
+            resetStudioModel();
             FacesUtils.addInfoMessage(("File was successfully updated."));
         } else {
             FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file.");
@@ -1027,6 +1047,7 @@ public class RepositoryTreeController {
             try {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
+                resetStudioModel();
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage(e.getMessage());
             }
@@ -1150,4 +1171,9 @@ public class RepositoryTreeController {
     public boolean getCanDelete(){
         return isGranted(PRIVILEGE_DELETE);
     }
+
+    private void resetStudioModel() {
+        studio.reset(ReloadType.FORCED);
+    }
+
 }

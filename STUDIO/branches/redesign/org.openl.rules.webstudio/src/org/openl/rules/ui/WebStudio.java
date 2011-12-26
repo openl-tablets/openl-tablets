@@ -319,7 +319,7 @@ public class WebStudio {
 
     public void reset(ReloadType reloadType) {
         try {
-            if(reloadType == ReloadType.FORCED){
+            if (reloadType == ReloadType.FORCED){
                 invalidateProjects();
             }
             model.reset(reloadType);
