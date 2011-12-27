@@ -171,9 +171,11 @@ var TableEditor = Class.create({
      */
     handleClick: function(e) {
         var elt = Event.element(e);
+        // Click on editor
         if (this.editor && this.editor.is(elt)) {
             return;
         }
+
         if (this.switchEditorMenu) {
             try {
                 if (this.switchEditorMenu.has(elt)) {
@@ -184,9 +186,12 @@ var TableEditor = Class.create({
                 this.switchEditorMenu = null;
             }
         }
+
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
+        } else {
+            this.tableBlur();
         }
     },
 
@@ -213,6 +218,104 @@ var TableEditor = Class.create({
                     break;
                 }
             }
+        }
+    },
+
+    handleKeyPress: function(event) {
+        if (!this.isCell(this.currentElement)) {
+            return;
+        }
+
+        if (this.editor) {
+            switch (event.keyCode) {
+                case 27: this.editor.cancelEdit(); break;
+                case 13: if (this.editor.__do_nothing_on_enter !== true) {
+                    this.setCellValue();
+                }
+                break;
+            }
+            return;
+        }
+
+        if (event.keyCode == 13) {
+            if (this.hasSelection()) this.editBeginRequest(this.currentElement);
+            return;
+        }
+
+        if (this.hasSelection()) {
+            if ([event.ctrlKey, event.altKey, event.shiftKey, event.metaKey].any()) return;
+            if (event.charCode != undefined) { // FF
+                if (event.charCode == 0) return true;
+            } else if (event.keyCode < 32 || TableEditor.isNavigationKey(event.keyCode)) return true;
+
+            this.editBeginRequest(this.currentElement, event.charCode || event.keyCode);
+        }
+    },
+
+    /**
+     * Handles key presses. Performs table navigation.
+     */
+    handleKeyDown: function(event) {
+        if (!this.isCell(this.currentElement)) {
+            return;
+        }
+
+        if (this.editor) {
+            switch (event.keyCode) {
+                case 113: this.editor.handleF2(event); break;
+                case 114: this.editor.handleF3(event); break;
+            }
+            return;
+        }
+
+        if (!TableEditor.isNavigationKey(event.keyCode)) return;
+
+        if (!this.hasSelection()) {
+            this.selectionPos = [1, 1];
+            this.selectElement();
+            return;
+        }
+
+        var sp = this.selectionPos.clone();
+
+        // Check history
+        if (this.selectionHistory.length > 0 && this.selectionHistory.last()[0] == event.keyCode) {
+            this.selectElement(null, -1);
+            return;
+        }
+
+        var scanUpLeft = function(index, noRestore) {
+            var tmp = sp[index];
+            while (sp[index] >= 1 && !this.$cell(sp)) --sp[index];
+            var res = this.$cell(sp);
+            if (!noRestore) sp[index] = tmp;
+            return res;
+        }
+
+        switch (event.keyCode) {
+            case 37: case 38: // LEFT, UP
+            var cell = null;
+            var theIndex = event.keyCode == 38 ? 0 : 1;
+            while (--sp[theIndex] >= 1) {
+                cell = scanUpLeft.call(this, 1 - theIndex, true);
+                if (cell) {
+                    if ((sp[0] + cell.rowSpan >= this.selectionPos[0] + theIndex) &&
+                        (sp[1] + cell.colSpan >= this.selectionPos[1] + 1 - theIndex))
+                        break;
+                }
+                sp[1 - theIndex] = this.selectionPos[1 - theIndex];
+            }
+            if (cell) this.selectElement(cell, event.keyCode + 2);
+            break;
+
+            case 39: case 40:  //RIGHT, DOWN
+            var theIndex = event.keyCode == 40 ? 0 : 1;
+
+            sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
+            if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
+            var newCell = scanUpLeft.call(this, 1 - theIndex);
+            if (newCell) this.selectElement(newCell, event.keyCode - 2);
+            break;
         }
     },
 
@@ -536,7 +639,17 @@ var TableEditor = Class.create({
         }
         this.decorator.undecorate(this.currentElement);
         this.decorator.decorate(this.currentElement = elt);
-        if (!wasSelected != !this.hasSelection()) this.isSelectedUpdated(!wasSelected);
+        if (!wasSelected != !this.hasSelection())
+        	this.isSelectedUpdated(!wasSelected);
+    },
+
+    tableBlur: function() {
+        if (this.currentElement) {
+            this.decorator.undecorate(this.currentElement);
+            this.currentElement = null;
+            this.selectionPos = null;
+            this.isSelectedUpdated(false);
+        }
     },
 
     $cell: function(pos) {
@@ -552,104 +665,6 @@ var TableEditor = Class.create({
             return true;
         }
         return false;
-    },
-
-    handleKeyPress: function(event) {
-        if (!this.isCell(this.currentElement)) {
-            return;
-        }
-
-        if (this.editor) {
-            switch (event.keyCode) {
-                case 27: this.editor.cancelEdit(); break;
-                case 13: if (this.editor.__do_nothing_on_enter !== true) {
-                    this.setCellValue();
-                }
-                break;
-            }
-            return;
-        }
-
-        if (event.keyCode == 13) {
-            if (this.hasSelection()) this.editBeginRequest(this.currentElement);
-            return;
-        }
-
-        if (this.hasSelection()) {
-            if ([event.ctrlKey, event.altKey, event.shiftKey, event.metaKey].any()) return;
-            if (event.charCode != undefined) { // FF
-                if (event.charCode == 0) return true;
-            } else if (event.keyCode < 32 || TableEditor.isNavigationKey(event.keyCode)) return true;
-
-            this.editBeginRequest(this.currentElement, event.charCode || event.keyCode);
-        }
-    },
-
-    /**
-     * Handles key presses. Performs table navigation.
-     */
-    handleKeyDown: function(event) {
-        if (!this.isCell(this.currentElement)) {
-            return;
-        }
-
-        if (this.editor) {
-            switch (event.keyCode) {
-                case 113: this.editor.handleF2(event); break;
-                case 114: this.editor.handleF3(event); break;
-            }
-            return;
-        }
-
-        if (!TableEditor.isNavigationKey(event.keyCode)) return;
-
-        if (!this.hasSelection()) {
-            this.selectionPos = [1, 1];
-            this.selectElement();
-            return;
-        }
-
-        var sp = this.selectionPos.clone();
-
-        // Check history
-        if (this.selectionHistory.length > 0 && this.selectionHistory.last()[0] == event.keyCode) {
-            this.selectElement(null, -1);
-            return;
-        }
-
-        var scanUpLeft = function(index, noRestore) {
-            var tmp = sp[index];
-            while (sp[index] >= 1 && !this.$cell(sp)) --sp[index];
-            var res = this.$cell(sp);
-            if (!noRestore) sp[index] = tmp;
-            return res;
-        }
-
-        switch (event.keyCode) {
-            case 37: case 38: // LEFT, UP
-            var cell = null;
-            var theIndex = event.keyCode == 38 ? 0 : 1;
-            while (--sp[theIndex] >= 1) {
-                cell = scanUpLeft.call(this, 1 - theIndex, true);
-                if (cell) {
-                    if ((sp[0] + cell.rowSpan >= this.selectionPos[0] + theIndex) &&
-                        (sp[1] + cell.colSpan >= this.selectionPos[1] + 1 - theIndex))
-                        break;
-                }
-                sp[1 - theIndex] = this.selectionPos[1 - theIndex];
-            }
-            if (cell) this.selectElement(cell, event.keyCode + 2);
-            break;
-
-            case 39: case 40:  //RIGHT, DOWN
-            var theIndex = event.keyCode == 40 ? 0 : 1;
-
-            sp[theIndex] += this.currentElement[["rowSpan", "colSpan"][theIndex]];
-            if (sp[theIndex] > this[["rows", "columns"][theIndex]]) break;
-            var newCell = scanUpLeft.call(this, 1 - theIndex);
-            if (newCell) this.selectElement(newCell, event.keyCode - 2);
-            break;
-        }
     },
 
     undoredo: function(redo) {
@@ -949,7 +964,9 @@ var TableEditor = Class.create({
         });
     },
 
-    hasSelection : function() {return this.selectionPos && this.currentElement},
+    hasSelection : function() {
+        return this.selectionPos && this.currentElement;
+    },
 
     processCallbacks: function(obj, action) {
         function isBoolean(t) {return obj.hasUndo === true || obj.hasUndo === false}
