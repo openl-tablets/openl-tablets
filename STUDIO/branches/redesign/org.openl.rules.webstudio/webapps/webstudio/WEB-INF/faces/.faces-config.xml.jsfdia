@@ -7,22 +7,8 @@
     PATH="/pages/modules/rulesEditor/index.xhtml"
     TARGET="rules:#pages#modules#rulesEditor#index.xhtml"
     TITLE="mainPage" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="wizardSelect::#pages#modules#rulesEditor#create#step0.xhtml"
-    NAME="output1" PATH="/pages/modules/rulesEditor/create/step0.xhtml"
-    TARGET="rules:#pages#modules#rulesEditor#create#step0.xhtml"
-    TITLE="wizardSelect" model-entity="JSFProcessItemOutput"/>
-   <PROCESS-ITEM-OUTPUT
-    ID="newTableCancel::#pages#modules#rulesEditor#create#step0.xhtml"
-    NAME="output2" PATH="/pages/modules/rulesEditor/create/step0.xhtml"
-    TARGET="rules:#pages#modules#rulesEditor#create#step0.xhtml"
-    TITLE="newTableCancel" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#pages#modules#rulesEditor#index.xhtml"
-  PATH="/pages/modules/rulesEditor/index.xhtml" SHAPE="272,145,0,0" model-entity="JSFProcessGroup"/>
- <PROCESS-ITEM
-  NAME="rules:#pages#modules#rulesEditor#create#step0.xhtml"
-  PATH="/pages/modules/rulesEditor/create/step0.xhtml"
-  SHAPE="272,321,0,0" model-entity="JSFProcessGroup"/>
+  PATH="/pages/modules/rulesEditor/index.xhtml" SHAPE="240,145,0,0" model-entity="JSFProcessGroup"/>
 </PROCESS>
