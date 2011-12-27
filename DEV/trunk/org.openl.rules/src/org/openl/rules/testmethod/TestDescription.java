@@ -3,6 +3,7 @@ package org.openl.rules.testmethod;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.DynamicObject;
@@ -104,7 +105,8 @@ public class TestDescription {
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
-            executionParams[i] = new ParameterWithValueDeclaration(paramName, paramValue, IParameterDeclaration.IN);
+            IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
+            executionParams[i] = new ParameterWithValueDeclaration(paramName, paramValue, paramType, IParameterDeclaration.IN);
         }
         return executionParams;
     }
