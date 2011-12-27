@@ -382,7 +382,7 @@ public class ShowTableBean {
         return allTests;
     }
 
-    public String removeTable() {
+    public String removeTable() throws IOException {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
         try {
@@ -393,7 +393,6 @@ public class ShowTableBean {
         } catch (TableServiceException e) {
             e.printStackTrace();
             // TODO UI exception
-            return null;
         }
         return "mainPage";
     }
