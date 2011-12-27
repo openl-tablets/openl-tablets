@@ -146,7 +146,7 @@ public class InputArgsBean {
             } catch (Exception e) {
 
             }
-            args[i] = new ParameterWithValueDeclaration(parameterName, parameterValue, IParameterDeclaration.IN);
+            args[i] = new ParameterWithValueDeclaration(parameterName, parameterValue, parameterType, IParameterDeclaration.IN);
         }
         return args;
     }
