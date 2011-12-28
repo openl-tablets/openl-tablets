@@ -12,8 +12,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 //import org.openl.rules.table.constraints.Constraint;
@@ -93,7 +91,7 @@ public class TablePropertiesBean {
     public boolean isEditable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
 
-        boolean isDispatcherValidationNode = ((TableSyntaxNodeAdapter) table).getTechnicalName().startsWith(
+        boolean isDispatcherValidationNode = table.getTechnicalName().startsWith(
                 DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
 
         return projectModel.isEditable() && !isDispatcherValidationNode;
@@ -135,10 +133,7 @@ public class TablePropertiesBean {
     }
 
     public boolean isShowProperties() {
-        String tableType = table.getType();
-        return tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
-                && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
-                && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
+        return table.isCanContainProperties();
     }
 
     public void save() throws Exception {

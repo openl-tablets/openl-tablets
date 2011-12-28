@@ -39,4 +39,6 @@ public interface IOpenLTable {
 
     String getUri();
 
+    boolean isCanContainProperties();
+
 }

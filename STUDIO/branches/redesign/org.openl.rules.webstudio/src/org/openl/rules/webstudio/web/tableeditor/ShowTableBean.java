@@ -25,7 +25,6 @@ import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -198,12 +197,11 @@ public class ShowTableBean {
             }
         }
     }
-    
+
     public boolean isDispatcherValidationNode() {
-        return ((TableSyntaxNodeAdapter) table).getTechnicalName().startsWith(
-                DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+        return table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
-    
+
     private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
         boolean result = false;
         Object systemValue = null;
@@ -315,18 +313,8 @@ public class ShowTableBean {
 
     public boolean isCopyable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && !isServiceTable()
+        return projectModel.isEditable() && table.isCanContainProperties()
                 && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType()); 
-    }
-
-    public boolean isServiceTable() {
-        String tableType = table.getType();
-        if (XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tableType)
-                || XlsNodeTypes.XLS_OTHER.toString().equals(tableType)
-                || XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableType)) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -410,7 +398,7 @@ public class ShowTableBean {
     @SuppressWarnings("unchecked")
     public boolean updateSystemProperties() {
         boolean result = true;
-        if (!isServiceTable()) {
+        if (table.isCanContainProperties()) {
             String editorId = FacesUtils.getRequestParameter(
                     org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
