@@ -30,15 +30,13 @@
 
         <table class="testtable">    
             <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-              <tr>
-                  <a4j:repeat value="#{runTestMethodBean.testDescription.executionParams}" var="parameter">
-                      <th>
-                          <h:outputText value="#{parameter.name}" />
-                      </th>
-                  </a4j:repeat>
-                  <th>
-                      <h:outputText value="Result" />
-                  </th>
+              <tr>                  
+                 <th>
+                 	Input Parameters
+                 </th>                  
+                 <th>
+                    Result
+                 </th>
               </tr>
             </h:panelGroup>
         <a4j:repeat value="#{runTestMethodBean.results}" var="result"
@@ -47,6 +45,7 @@
             	<td>
 		            <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
 		               <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+		               	 <ui:param name="headers" value="#{runTestMethodBean.testDescription.parametersNames}" />
 		                 <ui:param name="args" value="#{runTestMethodBean.testDescription.executionParams}" />
 		               </ui:include>
 		            </h:panelGroup>
