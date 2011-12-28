@@ -38,7 +38,7 @@ var TableEditor = Class.create({
     fontColorPicker: null,
 
     // Constructor
-    initialize : function(editorId, url, editCell, actions, mode, editable) {
+    initialize: function(editorId, url, editCell, actions, mode, editable) {
         this.mode = mode ? mode : this.Modes.VIEW;
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
@@ -65,10 +65,87 @@ var TableEditor = Class.create({
         if (this.mode == this.Modes.EDIT) {
             this.initEditMode();
         }
-        
+
+        Event.stopObserving(document, "click");
+        Event.stopObserving(document, "keydown");
+        Event.stopObserving(document, "keypress");
+        this.tableContainer.stopObserving("dblclick");
+
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
         });
+    },
+
+    toEditMode: function(cellToEdit) {
+        var self = this;
+
+        if (!cellToEdit) {
+            cellToEdit = $(PopupMenu.lastTarget);
+        }
+
+        var cellPos;
+        if (cellToEdit) {
+            cellPos = cellToEdit.id.split(this.cellIdPrefix)[1];
+        }
+
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
+            method: "get",
+            encoding: "utf-8",
+            contentType: "text/javascript",
+            parameters: {
+                cell: cellPos,
+                editorId: self.editorId
+            },
+            onSuccess: function(data) {
+                $(self.editorId).innerHTML = data.responseText.stripScripts();
+                new ScriptLoader().evalScripts(data.responseText);
+
+                self.mode = self.Modes.EDIT;
+                self.initEditMode();
+
+                self.editCell = cellPos;
+                self.startEditing();
+            },
+            onFailure: AjaxHelper.handleError
+        });
+    },
+
+    initEditMode: function() {
+        var self = this;
+
+        initToolbar(self.editorId);
+        self.editorWrapper = $(self.editorId + "_editorWrapper");
+
+        this.decorator = new Decorator('te_selected');
+
+        // Handle Table Editor events START
+        Event.stopObserving(document, "click");
+        Event.observe(document, "click", function(e) {
+            self.handleClick(e);
+        });
+
+        Event.stopObserving(document, "keydown");
+        Event.observe(document, "keydown", function(e) {
+            self.handleKeyDown(e);
+        });
+
+        Event.stopObserving(document, "keypress");
+        Event.observe(document, "keypress", function(e) {
+            self.handleKeyPress(e);
+        });
+        // Handle Table Editor events END
+
+        this.modFuncSuccess = function(response) {
+            response = eval(response.responseText);
+            if (response.status) alert(response.status);
+            else {
+                if (response.response) {
+                    this.renderTable(response.response);
+                    this.selectElement();
+                }
+                this.processCallbacks(response, "do");
+            }
+        }.bindAsEventListener(this);
     },
 
     startEditing: function() {
@@ -79,10 +156,7 @@ var TableEditor = Class.create({
         }
     },
 
-    /**
-     * Renders table.
-     */
-    renderTable : function(data) {
+    renderTable: function(data) {
         this.tableContainer.innerHTML = data.stripScripts();
         new ScriptLoader().evalScripts(data);
         var table = $(this.tableContainer.childNodes[0]);
@@ -317,78 +391,6 @@ var TableEditor = Class.create({
             if (newCell) this.selectElement(newCell, event.keyCode - 2);
             break;
         }
-    },
-
-    toEditMode: function(cellToEdit) {
-        var self = this;
-
-        if (!cellToEdit) {
-            cellToEdit = $(PopupMenu.lastTarget);
-        }
-
-        var cellPos;
-        if (cellToEdit) {
-            cellPos = cellToEdit.id.split(this.cellIdPrefix)[1];
-        }
-
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
-            method: "get",
-            encoding: "utf-8",
-            contentType: "text/javascript",
-            parameters: {
-                cell: cellPos,
-                editorId: self.editorId
-            },
-            onSuccess: function(data) {
-                $(self.editorId).innerHTML = data.responseText.stripScripts();
-                new ScriptLoader().evalScripts(data.responseText);
-
-                self.mode = self.Modes.EDIT;
-                self.initEditMode();
-
-                self.editCell = cellPos;
-                self.startEditing();
-            },
-            onFailure: AjaxHelper.handleError
-        });
-    },
-
-    initEditMode: function() {
-        var self = this;
-
-        initToolbar(self.editorId);
-        self.editorWrapper = $(self.editorId + "_editorWrapper");
-
-        this.decorator = new Decorator('te_selected');
-
-        // Handle Table Editor events START
-        Event.stopObserving(document, "click");
-        Event.observe(document, "click", function(e) {
-            self.handleClick(e);
-        });
-
-        Event.stopObserving(document, "keydown");
-        Event.observe(document, "keydown", function(e) {
-            self.handleKeyDown(e);
-        });
-
-        Event.stopObserving(document, "keypress");
-        Event.observe(document, "keypress", function(e) {
-            self.handleKeyPress(e);
-        });
-        // Handle Table Editor events END
-
-        this.modFuncSuccess = function(response) {
-            response = eval(response.responseText);
-            if (response.status) alert(response.status);
-            else {
-                if (response.response) {
-                    this.renderTable(response.response);
-                    this.selectElement();
-                }
-                this.processCallbacks(response, "do");
-            }
-        }.bindAsEventListener(this);
     },
 
     /**
