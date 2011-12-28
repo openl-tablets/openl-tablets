@@ -3,6 +3,7 @@ package org.openl.rules.types.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -273,8 +274,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     public static ITableProperties getTableProperties(IOpenMethod method) {
         // FIXME
         TableProperties properties = new TableProperties();
-        if (method.getInfo().getProperties() != null) {
-            for (Entry<String, Object> property : method.getInfo().getProperties().entrySet()) {
+        Map<String, Object> definedInTable = null;
+        if (method instanceof ExecutableRulesMethod) {
+            definedInTable = ((ExecutableRulesMethod) method).getProperties();
+        } else if (method.getInfo() != null) {
+            definedInTable = method.getInfo().getProperties();
+        }
+        if (definedInTable != null) {
+            for (Entry<String, Object> property : definedInTable.entrySet()) {
                 properties.setFieldValue(property.getKey(), property.getValue());
             }
         }
