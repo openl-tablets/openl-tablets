@@ -105,15 +105,15 @@ public class ShowTableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {
-            initProblems();
-            initTests(model);        
-            initParams();
-
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
                     || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
                 targetTables = model.getTargetTables(uri);
             }
+            
+            initProblems();
+            initTests(model);        
+            initParams();
 
             storeTable();
         }
