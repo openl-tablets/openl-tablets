@@ -7,6 +7,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
@@ -122,6 +123,15 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         TableSyntaxNodeAdapter table = (TableSyntaxNodeAdapter) obj;
 
         return new EqualsBuilder().append(getUri(), table.getUri()).isEquals();
+    }
+
+    @Override
+    public boolean isCanContainProperties() {
+        String tableType = getType();
+        return tableType != null
+                && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
+                && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
+                && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
     }
 
 }

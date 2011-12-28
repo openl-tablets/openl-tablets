@@ -21,6 +21,7 @@ public class OpenLTable implements IOpenLTable {
     private String uri;
     private String name;
     private String technicalName;
+    private boolean canContainProperties;
 
     public IGridTable getGridTable() {
         return gridTable;
@@ -93,6 +94,15 @@ public class OpenLTable implements IOpenLTable {
 
     public boolean isVersionable() {        
         return isVersionable;
+    }
+
+    @Override
+    public boolean isCanContainProperties() {
+        return canContainProperties;
+    }
+
+    public void setCanContainProperties(boolean canContainProperties) {
+        this.canContainProperties = canContainProperties;
     }
 
 }
