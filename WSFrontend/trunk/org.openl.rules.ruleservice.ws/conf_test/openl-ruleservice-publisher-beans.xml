@@ -13,6 +13,10 @@
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
 	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
+	<!--
+		Aegis databinding post processor for type mapping customization of internal OpenL classes.
+	-->
+	<bean class="org.openl.rules.ruleservice.databinding.AegisDatabindingPostProcessor"/>
 	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding">
         <property name="contextProperties">
     		<map>
