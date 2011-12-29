@@ -24,6 +24,7 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
@@ -207,6 +208,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             }
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
+    }
+
+    @Override
+    public IMemberMetaInfo getInfo() {
+        return getDispatcherTable().getMember().getInfo();
     }
 
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
