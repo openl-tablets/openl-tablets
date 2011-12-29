@@ -365,7 +365,7 @@ public class TableCopier extends WizardBase {
     protected String makeUrlForNewTable() {
         return super.makeUrlForNewTable() + "&mode=edit";
     }
-    
+
     private String getInputIdJS(String propName) {
         return "$j('#" + propsTable.getParent().getId() + "').find('input[type=hidden][name=id][value="
             + propName + "]').parent().find('input:first').id";
