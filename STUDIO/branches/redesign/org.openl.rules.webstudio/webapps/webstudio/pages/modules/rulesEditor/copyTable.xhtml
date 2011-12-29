@@ -42,7 +42,7 @@
             <c:if test="#{tableCopierWizardManager.table.versionable}">
                 <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" />
             </c:if>
-            <c:if test="false">
+            <c:if test="#{tableCopierWizardManager.table.canContainProperties}">
                 <f:selectItem itemLabel="New Business Dimension Version" itemValue="CHANGE_DIMENSION" />
             </c:if>
         </h:selectOneMenu>
@@ -73,18 +73,21 @@
                                 <td style="width: 156px">
                                     <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
                                         defaultTime="00:00" rendered="#{prop.dateType}" />
-									
-									<h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}">
-										<table>
-											<tr>
-												<td><oh:inputVersion value="#{wizard.minNextVersion}"/></td>
-												<td>Current:</td>
-												<td><h:outputText value="#{prop.value}"/></td>
-											</tr>
-										</table>
-									</h:panelGroup>		
 
                                     <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+
+                                    <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
+                                        rendered="#{prop.enumArray}" />
+
+                                    <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}">
+                                        <table>
+                                            <tr>
+                                                <td><oh:inputVersion value="#{wizard.minNextVersion}"/></td>
+                                                <td>Current:</td>
+                                                <td><h:outputText value="#{prop.value}"/></td>
+                                            </tr>
+                                        </table>
+                                    </h:panelGroup>
 
                                     <h:inputText value="#{prop.value}"
                                         rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
@@ -103,7 +106,7 @@
                         </a4j:repeat>
                     </table>
                 </h:panelGroup>
-        
+
                 <a4j:commandButton value="Edit Properties" oncomplete="#{rich:component('newPropertyDlg')}.show();"
                     style="margin-top: 8px" rendered="false" />
             </div>
