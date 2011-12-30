@@ -90,6 +90,14 @@ public class TestDescription {
     public ParameterWithValueDeclaration[] getExecutionParams() {
         return executionParams;
     }
+    
+    public String[] getParametersNames() {
+        String[] names = new String[executionParams.length];
+        for (int i = 0; i < executionParams.length; i ++) {
+            names[i] = executionParams[i].getName();
+        }
+        return names;
+    }
 
     public Object[] getArguments() {
         Object[] args = new Object[executionParams.length];
