@@ -322,12 +322,15 @@
 
                 <c:if test="#{showTableBean.canCreateTest}">
                 <td>
-                    <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}" styleClass="toolbarButton bigButton" title="Create new Test"
-                        oncomplete="goTo('#{rulesEditor}/create/index.xhtml?initStep=test/step2.xhtml', 'content')">
-                        <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
-                        <img src="webresource/images/test_new.gif" />
-                        <span>Create Test</span>
-                    </a4j:commandLink>
+                    <h:form>
+                        <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
+                            styleClass="toolbarButton bigButton" title="Create new Test"
+                            oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')">
+                            <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
+                            <img src="webresource/images/test_new.gif" />
+                            <span>Create Test</span>
+                        </a4j:commandLink>
+                    </h:form>
                 </td>
                 </c:if>
 

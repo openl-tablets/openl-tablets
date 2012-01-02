@@ -204,8 +204,7 @@ span.codeerror {
     display: block;
     position: absolute;
     z-index: 1;
-    background-color: #000;
-    -moz-border-radius: 4px;
+    background-color: #000000;
     border-radius: 4px;
     white-space: nowrap;
     line-height: normal;
