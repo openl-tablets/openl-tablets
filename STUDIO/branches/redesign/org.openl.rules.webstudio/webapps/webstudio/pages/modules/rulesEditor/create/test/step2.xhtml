@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j"
-    template="/pages/modules/rulesEditor/create/businessFields.xhtml">
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <ui:define name="controlButtons">
-        <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
-            oncomplete="go('test/step1.xhtml')" rendered="#{tableCreatorWizardManager.tableType != 'TEST_DIRECT'}" />
-        <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}" onclick="return validate();"
-            oncomplete="go('test/step3.xhtml')" />
-        <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
-    </ui:define>
+    <ui:include src="/pages/modules/rulesEditor/create/businessFields.xhtml">
+        <ui:param name="prev" value="#{tableCreatorWizardManager.tableType != 'TEST_DIRECT' ? 'test/step1.xhtml' : ''}" />
+        <ui:param name="next" value="test/step3.xhtml" />
+    </ui:include>
 
 </ui:composition>
