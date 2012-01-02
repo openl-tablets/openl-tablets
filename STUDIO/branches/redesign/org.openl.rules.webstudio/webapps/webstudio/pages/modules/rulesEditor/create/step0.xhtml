@@ -17,10 +17,8 @@
             <div align="left">
                 <h:selectOneRadio id="tableList" value="#{tableCreatorWizardManager.tableType}"
                     layout="pageDirection" onchange="setPageAlias(this.value);">
-                    <f:selectItem itemValue="DECISION" itemLabel="Decision Table" itemDisabled="true" />
                     <f:selectItem itemValue="DATATYPE" itemLabel="Datatype Table" />
                     <f:selectItem itemValue="DATATYPE_ALIAS" itemLabel="Datatype Alias Table" />
-                    <f:selectItem itemValue="DATA" itemLabel="Data Table" itemDisabled="true" />
                     <f:selectItem itemValue="TEST" itemLabel="Test Method" />
                     <f:selectItem itemValue="PROPERTY" itemLabel="Properties Table" />
                 </h:selectOneRadio>
