@@ -14,15 +14,15 @@
         fieldset { display: inline; }
     </style>
 
-    <h:panelGroup id="wizardData">
-        <ui:include src="/pages/modules/rulesEditor/create/#{initStep}" />
-    </h:panelGroup>
+    <h:panelGroup id="wizardData" />
 
     <script>
         function go(to) {
             var contextPath = "#{facesContext.externalContext.request.contextPath}";
             $j("#wizardData").load(contextPath + "/faces/pages/modules/rulesEditor/create/" + to);
         }
+
+        go('#{initStep}');
     </script>
 
 </ui:composition>
