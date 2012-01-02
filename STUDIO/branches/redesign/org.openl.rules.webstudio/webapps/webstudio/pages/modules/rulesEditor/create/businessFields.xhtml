@@ -17,7 +17,7 @@
                  vertical-align: top;
             }
         </style>
-        <h:form prependId="false">
+        <h:form id="businessFieldsForm">
             <h:panelGrid columns="3">
                 <h:outputLabel value="Business Name" for="businessName" />
                 <h:inputText id="businessName" value="#{wizard.businessName}">
@@ -57,29 +57,27 @@
 
         </h:form>
 
-        <f:verbatim>
-            <script>
-              function updateCategoryNameControls() {
-                  var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
-                  $j('#categoryNamesList').attr("disabled", selectorCheckedValue != 'existing');
-                  $j('#newCategoryName').attr("disabled", selectorCheckedValue != 'new');
-              }
+        <script>
+          function updateCategoryNameControls() {
+              var selectorCheckedValue = $j("input[name='businessFieldsForm\\:categoryNameSelector']:checked").val();
+              $j('#businessFieldsForm\\:categoryNamesList').attr("disabled", selectorCheckedValue != 'existing');
+              $j('#businessFieldsForm\\:newCategoryName').attr("disabled", selectorCheckedValue != 'new');
+          }
 
-              function validate() {
-                  return validateNewCategoryName();
-              }
+          function validate() {
+              return validateNewCategoryName();
+          }
 
-              function validateNewCategoryName() {
-                  var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
-                  if (selectorCheckedValue == 'new') {
-                      return validateRequired('newCategoryName', true);
-                  }
-                  return true;
+          function validateNewCategoryName() {
+              var selectorCheckedValue = $j("input[name='businessFieldsForm\\:categoryNameSelector']:checked").val();
+              if (selectorCheckedValue == 'new') {
+                  return validateRequired('businessFieldsForm:newCategoryName', true);
               }
+              return true;
+          }
 
-              updateCategoryNameControls();
-            </script>
-        </f:verbatim>
+          updateCategoryNameControls();
+        </script>
     </ui:define>
 
 </ui:composition>
