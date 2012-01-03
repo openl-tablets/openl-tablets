@@ -57,23 +57,20 @@ form {
     margin: 0px;
 }
 
-#blockPopup {
-	position: fixed;
-	top: 43px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: #ffffff;
-	opacity: 0.3;
-	filter: alpha(opacity = 30);
-	z-index: 10000;
+#loadingPanel {
+    position: fixed;
+    top: 43px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
 }
 
-#ajaxLoader {
-	position: fixed;
-	top: 17px;
-	left: 49%;
-	z-index: 10001;
+#loadingPanel img {
+    position: fixed;
+    top: 17px;
+    left: 49%;
+    z-index: 10001;
 }
 
 .info_box {
