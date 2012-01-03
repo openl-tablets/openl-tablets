@@ -116,13 +116,11 @@
             }
 
             function showLoader() {
-                $j('#blockPopup').fadeIn(500);
-                $j('#ajaxLoader').show();
+                $j('#loadingPanel').show();
             }
 
             function hideLoader() {
-                $j('#blockPopup').hide();
-                $j('#ajaxLoader').slideUp();
+                $j('#loadingPanel').hide();
             }
 
             function showPopupMenu(event, popupId, elem, params) {
@@ -192,8 +190,7 @@
             </ui:insert>
         </div>
 
-        <div id="blockPopup" style="display: none"></div>
-        <div id="ajaxLoader" style="display: none">
+        <div id="loadingPanel" style="display: none">
             <img src="webresource/images/ajax-loader.gif" />
         </div>
 
