@@ -417,8 +417,8 @@
     <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
         <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
             <span style="margin-right: 4px">Problems</span>
-            <h:graphicImage url="/webresource/images/arrow_down.gif" title="Hide Problems"
-                onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? '#{contextPath}/images/arrow_right.gif' : '#{contextPath}/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Hide Problems' : 'Hide Problems');" />
+            <img src="webresource/images/arrow_down.gif" title="Hide Problems"
+                onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
         </div>
         <div id="problemsPanel">
             <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
