@@ -1,0 +1,12 @@
+#header {
+    border-bottom: 1px solid #dddddd;
+    padding: 7px 11px;
+}
+
+#content {
+     overflow: auto;
+}
+
+#footer {
+    border-top: 1px solid #dddddd;
+}
