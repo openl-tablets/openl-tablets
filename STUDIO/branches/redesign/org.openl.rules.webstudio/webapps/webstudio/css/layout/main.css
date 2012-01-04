@@ -15,7 +15,7 @@
 }
 
 #content {
-    padding: 4px 7px;
+    overflow: hidden;
 }
 
 #bottom {
@@ -34,13 +34,7 @@
 	/* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
 	   otherwise you may get double-scrollbars - on the pane AND on the content-div
 	*/
-	overflow:	auto;
-}
-	/* (scrolling) content-div inside pane allows for fixed header(s) and/or footer(s) */
-.ui-layout-content {
-	padding:	10px;
-	position:	relative; /* contain floated or positioned elements */
-	overflow:	auto; /* add scrolling to content-div */
+    overflow: auto;
 }
 
 /*
