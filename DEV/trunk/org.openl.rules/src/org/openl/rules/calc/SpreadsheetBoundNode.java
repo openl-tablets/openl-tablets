@@ -4,15 +4,21 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -27,20 +33,38 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         super(tableSyntaxNode, openl, header, module);
     }
-
+    
+    /**
+     * {@link Spreadsheet} is being created after {@link #preBind(IBindingContext)} phase.
+     * See {@link XlsBinder#bindInternal(XlsModuleSyntaxNode, XlsModuleOpenClass, TableSyntaxNode[], OpenL, RulesModuleBindingContext)} method
+     */
     @Override
     protected ExecutableRulesMethod createMethodShell() {
         Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this);
         spreadsheet.setSpreadsheetType(builder.getSpreadsheetOpenClass(spreadsheet.getName()));
+        
+        // As custom spreadsheet result is being generated at runtime,
+        // call this method to ensure that CSR will be generated during the compilation.
+        // Add generated type to be accessible through binding context
+        //     
+        try {
+            builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, spreadsheet.getType());
+        } catch (Exception e) {     
+            String message = String.format("Cannot add type %s to the binding context", spreadsheet.getType().getName());
+            SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
+            getTableSyntaxNode().addError(exception);
+            BindHelper.processError(exception, builder.getBindingContext());
+        }
+        
         return spreadsheet;
     }
     
-    private void initSpreadsheetBuilder(IBindingContext bindingContext) throws Exception {
+    private void initSpreadsheetBuilder(IBindingContext bindingContext) throws SyntaxNodeException {
         validateTableBody(getTableSyntaxNode().getTableBody());
         setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode()));
     }
      
-    public void preBind(IBindingContext bindingContext) throws Exception {
+    public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
         initSpreadsheetBuilder(bindingContext);
         builder.populateSpreadsheetOpenClass(getHeader());
     }
@@ -50,12 +74,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
         
-        builder.build(getSpreadsheet());
-        
-        // As custom spreadsheet result is being generated at runtime,
-        // call this method to ensure that CSR will be generated during the compilation.
-        // 
-        getSpreadsheet().getType();
+        builder.finalizeBuild(getSpreadsheet());
     }
     
     private void validateTableBody(ILogicalTable tableBody) throws SyntaxNodeException {

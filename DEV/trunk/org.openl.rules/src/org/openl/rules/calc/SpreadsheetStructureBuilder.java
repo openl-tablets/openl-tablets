@@ -41,16 +41,16 @@ public class SpreadsheetStructureBuilder {
     
     public static final String DOLLAR_SIGN = "$";
     
-    private SpreadsheetSourceExtractor sourceExtractor;
+    private SpreadsheetComponentsBuilder componentsBuilder;
     
     private IBindingContext spreadsheetBindingContext;
     
-    public SpreadsheetStructureBuilder(SpreadsheetSourceExtractor rowColumnExtractor) {
-        this.sourceExtractor = rowColumnExtractor;
+    public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder rowColumnExtractor) {
+        this.componentsBuilder = rowColumnExtractor;
     }
     
     public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {        
-        this.sourceExtractor = new SpreadsheetSourceExtractor(tableSyntaxNode, bindingContext);
+        this.componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
     }
     
     private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
@@ -68,7 +68,7 @@ public class SpreadsheetStructureBuilder {
      */
     public void addCellFields(SpreadsheetOpenClass spreadsheetType, IOpenMethodHeader spreadsheetHeader) {
         /** at first appropriate data should be extracted from the source table**/
-        sourceExtractor.extractDataFromSource(spreadsheetHeader.getType());
+        componentsBuilder.buildHeaders(spreadsheetHeader.getType());
         
         /** build cells representations of the spreadsheet*/
         buildCellsInternal(spreadsheetType);
@@ -86,22 +86,18 @@ public class SpreadsheetStructureBuilder {
     }
     
     public IResultBuilder getResultBuilder(Spreadsheet spreadsheet) {
-        return sourceExtractor.getResultBuilder(spreadsheet);
+        return componentsBuilder.buildResultBuilder(spreadsheet);
     }
     
-    public String[] getRowNames() {
-        return sourceExtractor.getRowNames();
-    }
-    
-    public String[] getColumnNames() {
-        return sourceExtractor.getColumnNames();
+    public SpreadsheetComponentsBuilder getComponentsBuilder() {
+        return componentsBuilder;
     }
     
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {        
-        IBindingContext generalBindingContext = sourceExtractor.getBindingContext();
+        IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
-        int rowsCount = sourceExtractor.getRowNamesTable().getHeight();
-        int columnsCount = sourceExtractor.getColumnNamesTable().getWidth();
+        int rowsCount = componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getHeight();
+        int columnsCount = componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getWidth();
         
         /** create cells according to the size of the spreadsheet**/
         cells = new SpreadsheetCell[rowsCount][columnsCount];
@@ -128,8 +124,8 @@ public class SpreadsheetStructureBuilder {
     }
     
     private void extractCellValues(IOpenMethodHeader spreadsheetHeader) {
-        int rowsCount = sourceExtractor.getRowNamesTable().getHeight();
-        int columnsCount = sourceExtractor.getColumnNamesTable().getWidth();
+        int rowsCount = componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getHeight();
+        int columnsCount = componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getWidth();
         
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             IBindingContext rowBindingContext = getRowContext(rowIndex, spreadsheetHeader.getName());
@@ -141,16 +137,16 @@ public class SpreadsheetStructureBuilder {
     }
     
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex, IOpenMethodHeader spreadsheetHeader) {
-        Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = sourceExtractor.getColumnHeaders();
-        Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = sourceExtractor.getRowHeaders();
+        Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
+        Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
         if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
             return;
         }
 
         IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext, spreadsheetHeader.getName());
 
-        ILogicalTable cell = LogicalTableHelper.mergeBounds(sourceExtractor.getRowNamesTable().getRow(rowIndex),
-                sourceExtractor.getColumnNamesTable().getColumn(columnIndex));
+        ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex),
+                componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
 
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
@@ -175,7 +171,7 @@ public class SpreadsheetStructureBuilder {
             spreadsheetCell.setValue(cellValue);
         } catch (SyntaxNodeException e) {
 
-            sourceExtractor.getTableSyntaxNode().addError(e);
+            componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
     }
@@ -184,8 +180,8 @@ public class SpreadsheetStructureBuilder {
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, SpreadsheetCell spreadsheetCell, int rowIndex, int columnIndex) {
-        SpreadsheetHeaderDefinition columnHeaders = sourceExtractor.getColumnHeaders().get(columnIndex);
-        SpreadsheetHeaderDefinition rowHeaders = sourceExtractor.getRowHeaders().get(rowIndex);
+        SpreadsheetHeaderDefinition columnHeaders = componentsBuilder.getColumnHeaders().get(columnIndex);
+        SpreadsheetHeaderDefinition rowHeaders = componentsBuilder.getRowHeaders().get(rowIndex);
         
         if (columnHeaders == null || rowHeaders == null) {
             return;
@@ -224,10 +220,11 @@ public class SpreadsheetStructureBuilder {
     }
 
     private SpreadsheetCell buildCell(int rowIndex, int columnIndex) {        
-        Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = sourceExtractor.getColumnHeaders();
-        Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = sourceExtractor.getRowHeaders();
+        Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
+        Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
         
-        ILogicalTable cell = LogicalTableHelper.mergeBounds(sourceExtractor.getRowNamesTable().getRow(rowIndex), sourceExtractor.getColumnNamesTable().getColumn(columnIndex));
+        ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex), 
+            componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
         ICell sourceCell = cell.getSource().getCell(0, 0);
         
         SpreadsheetCell spreadsheetCell;
@@ -322,7 +319,7 @@ public class SpreadsheetStructureBuilder {
     }
     
     private ComponentOpenClass createAndPopulateColumnOpenClass(int columnIndex, String columnOpenClassName) {
-        IBindingContext generalBindingContext = sourceExtractor.getBindingContext();
+        IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
         
         ComponentOpenClass columnOpenClass = createRowOrColumnOpenClass(columnOpenClassName, generalBindingContext.getOpenL());            
         
@@ -330,7 +327,7 @@ public class SpreadsheetStructureBuilder {
 
         for (int rowIndex = 0; rowIndex < height; rowIndex++) {
 
-            SpreadsheetHeaderDefinition headerDefinition = sourceExtractor.getRowHeaders().get(rowIndex);
+            SpreadsheetHeaderDefinition headerDefinition = componentsBuilder.getRowHeaders().get(rowIndex);
 
             if (headerDefinition == null) {
                 continue;
@@ -348,7 +345,7 @@ public class SpreadsheetStructureBuilder {
         String nameOpenField = String.format("%scolumn", DOLLAR_SIGN);
         IOpenField columnField = new ConstOpenField(nameOpenField, columnIndex, JavaOpenClass.INT);
         columnOpenClass.addField(columnField);
-        SpreadsheetHeaderDefinition shd = sourceExtractor.getRowHeaders().get(columnIndex);
+        SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(columnIndex);
         if (shd != null) {
             String columnName = shd.getFirstname();
             if (columnName != null) {
@@ -360,7 +357,7 @@ public class SpreadsheetStructureBuilder {
     }
     
     private ComponentOpenClass createAndPopulateRowOpenClass(int rowIndex, String rowOpenClassName) {
-        IBindingContext generalBindingContext = sourceExtractor.getBindingContext();
+        IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
         
         /** create row open class for current row**/
         ComponentOpenClass rowOpenClass = createRowOrColumnOpenClass(rowOpenClassName, generalBindingContext.getOpenL());
@@ -371,7 +368,7 @@ public class SpreadsheetStructureBuilder {
         /** create for each column in row its field*/
         for (int columnIndex = 0; columnIndex < width; columnIndex++) {
             
-            SpreadsheetHeaderDefinition columnHeader = sourceExtractor.getColumnHeaders().get(columnIndex);
+            SpreadsheetHeaderDefinition columnHeader = componentsBuilder.getColumnHeaders().get(columnIndex);
 
             if (columnHeader == null) {
                 continue;
@@ -391,7 +388,7 @@ public class SpreadsheetStructureBuilder {
         IOpenField rowField = new ConstOpenField(nameOpenField, rowIndex, JavaOpenClass.INT);
         rowOpenClass.addField(rowField);
 
-        SpreadsheetHeaderDefinition shd = sourceExtractor.getRowHeaders().get(rowIndex);
+        SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(rowIndex);
         if (shd != null) {
             String rowName = shd.getFirstname();
             if (rowName != null) {

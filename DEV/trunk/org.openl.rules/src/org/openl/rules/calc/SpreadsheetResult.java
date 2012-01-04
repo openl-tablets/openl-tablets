@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.rules.helpers.ITableAdaptor;
 import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.table.ILogicalTable;

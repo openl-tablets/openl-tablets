@@ -78,9 +78,7 @@ public class WorksheetIndexParser implements IIndexParser {
                 // Continue tables parsing.
                 // 
                 continue;
-            }
-
-            HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, parsedHeader);
+            }            
 
             String header = parsedHeader.getIdentifier();
             String xls_type = XlsLoader.getTableHeaders().get(header);
@@ -88,6 +86,8 @@ public class WorksheetIndexParser implements IIndexParser {
             if (xls_type == null) {
                 xls_type = NOT_AVAILABLE;
             }
+            
+            HeaderSyntaxNode headerNode = HeaderNodeFactory.getHeaderNode(xls_type, src, parsedHeader);
 
             nodes[i] = new TableSyntaxNode(xls_type, new GridLocation(table), sheetSrc, table, headerNode);
         }
