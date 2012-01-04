@@ -14,7 +14,7 @@
     <style>
         /* TODO Create Button plugin */
         .editToolbar {
-            float: left;
+            display: inline-block;
             border-bottom: 1px solid #cccccc;
             background: -moz-linear-gradient(top, #FEFEFE, #F7F7F7);
             background: -webkit-linear-gradient(top, #FEFEFE, #F7F7F7);
@@ -80,20 +80,7 @@
         .targetTablesPopup div {
             margin-bottom: 3px;
         }
-     </style>
-
-     <script>
-        function open_win(url, name) {
-            window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
-        }
-
-        function showButtonMenu(event, popupId, buttonElem) {
-            var button = $j(event.target).parent(buttonElem);
-            if (!button.length)
-                button = $j(event.target).closest(buttonElem);
-            showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
-        }
-    </script>
+    </style>
 
     <c:if test="#{!showTableBean.dispatcherValidationNode}">
     <div class="editToolbar">
@@ -410,31 +397,27 @@
             </tr>
         </table>
     </div>
-
-    <div style="clear:both"></div>
     </c:if>
 
-    <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-top: 10px;">
-        <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
-            <span style="margin-right: 4px">Problems</span>
-            <img src="webresource/images/arrow_down.gif" title="Hide Problems"
-                onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
-        </div>
-        <div id="problemsPanel">
-            <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
-                <ui:param name="messages" value="#{showTableBean.problems}" />
-                <ui:param name="editable" value="#{showTableBean.editable}" />
-            </ui:include>
-        </div>
-    </h:panelGroup>
+    <div style="margin-top: 12px;">
+        <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-bottom: 12px;">
+            <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
+                <span style="margin-right: 4px">Problems</span>
+                <img src="webresource/images/arrow_down.gif" title="Hide Problems"
+                    onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
+            </div>
+            <div id="problemsPanel">
+                <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
+                    <ui:param name="messages" value="#{showTableBean.problems}" />
+                    <ui:param name="editable" value="#{showTableBean.editable}" />
+                </ui:include>
+            </div>
+        </h:panelGroup>
 
-    <br />
+        <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
+            <input type="hidden" name="uri" value="" />
+        </form>
 
-    <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
-        <input type="hidden" name="uri" value="" />
-    </form>
-
-    <h:panelGroup id="tePanel" layout="block">
         <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
             linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
             mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
@@ -447,12 +430,22 @@
             <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                 rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
             <h:outputLink value="javascript:search()">Search</h:outputLink>
-
         </rules:tableEditor>
-    </h:panelGroup>
+    </div>
 
     <script>
     //<![CDATA[
+        function open_win(url, name) {
+            window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
+        }
+
+        function showButtonMenu(event, popupId, buttonElem) {
+            var button = $j(event.target).parent(buttonElem);
+            if (!button.length)
+                button = $j(event.target).closest(buttonElem);
+            showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
+        }
+
         function search() {
            	var searchQuery = $j(PopupMenu.lastTarget).text();
             goTo("search/simpleSearch.xhtml?searchQuery=" + searchQuery);
