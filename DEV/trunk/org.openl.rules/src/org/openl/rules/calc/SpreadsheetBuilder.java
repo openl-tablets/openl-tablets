@@ -23,18 +23,22 @@ public class SpreadsheetBuilder {
         this.structureBuilder = cellsBuilder;
     }
     
+    public IBindingContext getBindingContext() {
+        return bindingContext;
+    }
+    
     /**
-     * 
+     * See {@link SpreadsheetStructureBuilder#addCellFields(SpreadsheetOpenClass, IOpenMethodHeader)}
      * @param spreadsheetHeader
      */
     public void populateSpreadsheetOpenClass(IOpenMethodHeader spreadsheetHeader) {
         structureBuilder.addCellFields(getSpreadsheetOpenClass(spreadsheetHeader.getName()), spreadsheetHeader);
     }
 
-    public void build(Spreadsheet spreadsheet) {   
-        spreadsheet.setRowNames(structureBuilder.getRowNames());
+    public void finalizeBuild(Spreadsheet spreadsheet) {   
+        spreadsheet.setRowNames(structureBuilder.getComponentsBuilder().getCellsHeadersExtractor().getRowNames());
         
-        spreadsheet.setColumnNames(structureBuilder.getColumnNames());
+        spreadsheet.setColumnNames(structureBuilder.getComponentsBuilder().getCellsHeadersExtractor().getColumnNames());
 
         spreadsheet.setCells(structureBuilder.getCells(spreadsheet.getHeader()));
         

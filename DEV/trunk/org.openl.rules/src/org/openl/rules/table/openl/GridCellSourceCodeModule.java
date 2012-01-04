@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
@@ -144,6 +145,14 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
 
     public boolean isModified() {
         return false;
+    }
+    
+    @Override
+    public String toString() {
+        if (StringUtils.isNotBlank(code)) {
+            return code;
+        }
+        return super.toString();
     }
     
 }

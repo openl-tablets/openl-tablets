@@ -27,6 +27,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.extension.load.IExtensionLoader;
 import org.openl.rules.extension.load.NameConventionLoaderFactory;
+import org.openl.rules.indexer.HeaderNodeFactory;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -317,7 +318,7 @@ public class XlsLoader {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
 
         IdentifierNode headerToken = Tokenizer.firstToken(src, " \n\r");
-        HeaderSyntaxNode headerNode = new HeaderSyntaxNode(src, headerToken);
+        
 
         String header = headerToken.getIdentifier();
 
@@ -326,6 +327,8 @@ public class XlsLoader {
         if (xls_type == null) {
             xls_type = XlsNodeTypes.XLS_OTHER.toString();
         }
+        
+        HeaderSyntaxNode headerNode = HeaderNodeFactory.getHeaderNode(xls_type, src, headerToken);
 
         TableSyntaxNode tsn = new TableSyntaxNode(xls_type, new GridLocation(table), source, table, headerNode);
 
