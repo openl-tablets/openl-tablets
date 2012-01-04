@@ -12,9 +12,19 @@
     <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
 
     <style>
+        #tablePanel {
+            overflow: auto;
+            position: relative;
+            height: 100%;
+        }
+
+        #tablePanel > div {
+            padding: 12px 7px 0;
+        }
+
         /* TODO Create Button plugin */
-        .editToolbar {
-            display: inline-block;
+        #tableToolbarPanel {
+            padding: 3px 0 1px; 
             border-bottom: 1px solid #cccccc;
             background: -moz-linear-gradient(top, #FEFEFE, #F7F7F7);
             background: -webkit-linear-gradient(top, #FEFEFE, #F7F7F7);
@@ -23,6 +33,7 @@
             filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=0);
             box-shadow: 0 -1px 2px white inset;
         }
+
         .toolbarButton {
             position: relative;
             display: inline-block;
@@ -63,16 +74,16 @@
             display: block;
             margin-top: 3px;
         }
-        .editToolbar .delimeter {
+        #tableToolbarPanel .delimeter {
             border-left: 1px solid white;
             border-right: 1px solid rgba(215,215,215,0.7);
             padding: 0;
         }
-        .editToolbar .blockHeader {
+        /*#tableToolbarPanel .blockHeader {
             text-align: center;
             color: #888888;
             font-size: 90%;
-        }
+        }*/
         .targetTablesPopup {
             display: none;
             padding: 3px 4px 2px;
@@ -83,7 +94,7 @@
     </style>
 
     <c:if test="#{!showTableBean.dispatcherValidationNode}">
-    <div class="editToolbar">
+    <div id="tableToolbarPanel">
         <table>
             <tr>
 
@@ -399,42 +410,48 @@
     </div>
     </c:if>
 
-    <div style="margin-top: 12px;">
-        <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-bottom: 12px;">
-            <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
-                <span style="margin-right: 4px">Problems</span>
-                <img src="webresource/images/arrow_down.gif" title="Hide Problems"
-                    onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
-            </div>
-            <div id="problemsPanel">
-                <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
-                    <ui:param name="messages" value="#{showTableBean.problems}" />
-                    <ui:param name="editable" value="#{showTableBean.editable}" />
-                </ui:include>
-            </div>
-        </h:panelGroup>
+    <div id="tablePanel">
+        <div>
+            <h:panelGroup rendered="#{showTableBean.hasProblems}" layout="block" style="margin-bottom: 12px;">
+                <div style="font-weight: bold; font-size: 12px; margin: 0px 2px 4px 2px;">
+                    <span style="margin-right: 4px">Problems</span>
+                    <img src="webresource/images/arrow_down.gif" title="Hide Problems"
+                        onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
+                </div>
+                <div id="problemsPanel">
+                    <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
+                        <ui:param name="messages" value="#{showTableBean.problems}" />
+                        <ui:param name="editable" value="#{showTableBean.editable}" />
+                    </ui:include>
+                </div>
+            </h:panelGroup>
 
-        <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
-            <input type="hidden" name="uri" value="" />
-        </form>
+            <form target="hidden" name="editInExcelForm" method="post" action="#{contextPath}/action/launch">
+                <input type="hidden" name="uri" value="" />
+            </form>
 
-        <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
-            linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
-            mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
-            showFormulas="#{studio.showFormulas}"
-            beforeSaveAction="#{showTableBean.beforeSaveAction}"
-            afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
-            onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
-            excludeScripts="prototype">
+            <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
+                linkBase="#{rulesEditor}/showTable.xhtml" linkTarget="content"
+                mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+                showFormulas="#{studio.showFormulas}"
+                beforeSaveAction="#{showTableBean.beforeSaveAction}"
+                afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
+                onAfterSave="javascript:onAfterSave();" onSaveFailure="javascript:onSaveFailure();"
+                excludeScripts="prototype">
 
-            <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
-                rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
-            <h:outputLink value="javascript:search()">Search</h:outputLink>
-        </rules:tableEditor>
+                <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
+                    rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
+                <h:outputLink value="javascript:search()">Search</h:outputLink>
+            </rules:tableEditor>
+        </div>
     </div>
 
     <script>
     //<![CDATA[
+        $j(document).ready(function () {
+            setContentHeight();
+        });
+
         function open_win(url, name) {
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
         }
