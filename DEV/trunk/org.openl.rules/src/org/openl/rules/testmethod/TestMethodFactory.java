@@ -71,8 +71,14 @@ public class TestMethodFactory {
             if (openClass != null) {
                 List<String> fieldsToTest = new ArrayList<String>(openClass.getSpreadsheetCellsForTest().size());
                 for (int i = 0; i < openClass.getSpreadsheetCellsForTest().size(); i++) {
-                    String fieldNameToTest = openClass.getSpreadsheetCellsForTest().get(i)[1].getIdentifier();
-                    fieldsToTest.add(fieldNameToTest);
+                    IdentifierNode[] nodes = openClass.getSpreadsheetCellsForTest().get(i);
+                    if (nodes.length > 1) {
+                        // get the field name next to _res_ field, e.g. "_res_.$Value$Name"
+                        //
+                        String fieldNameToTest = nodes[1].getIdentifier();
+                        fieldsToTest.add(fieldNameToTest);
+                    }
+                    
                 }
                 
                 TestResultComparator resultComparator = TestResultComparatorFactory.getBeanComparator(testUnit.getActualResult(), testUnit.getExpectedResult(), fieldsToTest);
