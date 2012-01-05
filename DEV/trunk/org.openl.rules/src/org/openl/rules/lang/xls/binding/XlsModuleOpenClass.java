@@ -13,6 +13,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -22,7 +23,6 @@ import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
-import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 
 /**
@@ -171,7 +171,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Create decorator for existed method.
         //
         OpenMethodDispatcher decorator;
-        if (isJavaDispatchingMode()) {
+        if (OpenLSystemProperties.isJavaDispatchingMode()) {
             decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
         } else {
             decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
@@ -184,12 +184,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Replace existed method with decorator using the same key.
         //
         methodMap().put(key, decorator);
-    }
-
-    public boolean isJavaDispatchingMode() {
-        String dispatchingMode = System.getProperty(MatchingOpenMethodDispatcher.DISPATCHING_MODE_PROPERTY);
-        return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(MatchingOpenMethodDispatcher.DISPATCHING_MODE_JAVA);
-    }
+    }    
 
     @Override
 	public void clearOddDataForExecutionMode() {

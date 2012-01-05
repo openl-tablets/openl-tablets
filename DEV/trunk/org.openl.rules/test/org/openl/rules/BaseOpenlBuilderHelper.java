@@ -30,6 +30,11 @@ public abstract class BaseOpenlBuilderHelper {
     
     private IDependencyManager dependencyManager;
     
+    
+    public BaseOpenlBuilderHelper() {
+        
+    }
+    
     public BaseOpenlBuilderHelper(String _src) {
         build(_src);        
     }
@@ -106,7 +111,7 @@ public abstract class BaseOpenlBuilderHelper {
         return wrapper;
     }
     
-    private void build(String fileToBuildWrapper) {
+    public void build(String fileToBuildWrapper) {
         buildXlsModuleSyntaxNode(fileToBuildWrapper);        
     }
     
