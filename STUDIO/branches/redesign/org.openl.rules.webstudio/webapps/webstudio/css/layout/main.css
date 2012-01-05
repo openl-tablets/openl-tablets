@@ -18,7 +18,8 @@ html, body {
 }
 
 #content {
-    overflow: hidden;
+    padding: 5px 7px;
+    overflow: auto;
 }
 
 #bottom {

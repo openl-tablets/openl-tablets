@@ -12,6 +12,11 @@
     <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
 
     <style>
+        #content {
+            padding: 0;
+            overflow: hidden;
+        }
+
         #tablePanel {
             overflow: auto;
             position: relative;
@@ -24,13 +29,8 @@
 
         /* TODO Create Button plugin */
         #tableToolbarPanel {
-            padding: 3px 0 1px; 
+            padding: 2px 0 1px;
             border-bottom: 1px solid #cccccc;
-            background: -moz-linear-gradient(top, #FEFEFE, #F7F7F7);
-            background: -webkit-linear-gradient(top, #FEFEFE, #F7F7F7);
-            background: -ms-linear-gradient(top, #FEFEFE, #F7F7F7);
-            background: linear-gradient(top, #FEFEFE, #F7F7F7);
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=0);
             box-shadow: 0 -1px 2px white inset;
         }
 
