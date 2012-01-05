@@ -18,7 +18,6 @@ import org.openl.vm.trace.Tracer;
 public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatcher {
 
     private static final Log LOG = LogFactory.getLog(OverloadedMethodsDispatcherTable.class);
-    public static final String DISPATCHING_MODE_DT = "dt";
 
     public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super(method, moduleOpenClass);
@@ -43,12 +42,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
             return invokeJavaDispatching(target, params, env);
         }
     }
-
-    public boolean isJavaDispatchingMode() {
-        String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
-        return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA);
-    }
-
+    
     public Object invokeJavaDispatching(Object target, Object[] params, IRuntimeEnv env) {
         if (Tracer.isTracerOn()) {
             return invokeTraced(target, params, env);

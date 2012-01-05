@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -51,7 +52,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     
     @Override
     public IOpenClass getType() {
-        if (super.getType().getInstanceClass().equals(SpreadsheetResult.class)) {
+        if (super.getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType()) {
             return getCustomSpreadsheetResultType();
         } else {
             return super.getType();

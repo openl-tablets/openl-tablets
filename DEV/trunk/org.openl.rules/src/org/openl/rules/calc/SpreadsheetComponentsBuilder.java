@@ -37,9 +37,6 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
  */
 public class SpreadsheetComponentsBuilder {
     
-    /** cell name indicating return statement*/
-    public static final String RETURN_NAME = "RETURN";
-    
     /** tableSyntaxNode of the spreadsheet**/
     private TableSyntaxNode tableSyntaxNode;
     
@@ -182,7 +179,7 @@ public class SpreadsheetComponentsBuilder {
         IdentifierNode[] nodes;
 
         try {
-            nodes = Tokenizer.tokenize(source, ":");
+            nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMETER.toString());
         } catch (OpenLCompilationException e) {
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header", source);
         }
@@ -193,7 +190,8 @@ public class SpreadsheetComponentsBuilder {
             case 2:
                 return new SymbolicTypeDefinition(nodes[0], nodes[1]);
             default:
-                throw SyntaxNodeExceptionUtils.createError("Valid header format: name [: type]", source);
+                String message = String.format("Valid header format: name [%s type]", SpreadsheetSymbols.TYPE_DELIMETER.toString());
+                throw SyntaxNodeExceptionUtils.createError(message, source);
         }
     }
     
@@ -263,7 +261,7 @@ public class SpreadsheetComponentsBuilder {
     
     private void buildReturnCells(IOpenClass spreadsheetHeaderType) throws SyntaxNodeException {
 
-        SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(RETURN_NAME);
+        SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());
 
         if (headerDefinition == null) {
             return;
@@ -348,7 +346,7 @@ public class SpreadsheetComponentsBuilder {
         } else {
             throw SyntaxNodeExceptionUtils.createError(
                     "The return type is scalar, but there are more than one return cells", headerDefinition.findVarDef(
-                            RETURN_NAME).getName());
+                        SpreadsheetSymbols.RETURN_NAME.toString()).getName());
         }
 
         return returnType;
@@ -364,7 +362,7 @@ public class SpreadsheetComponentsBuilder {
         SymbolicTypeDefinition symbolicTypeDefinition = null;
         
         if (isExistsReturnHeader()) {
-            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(SpreadsheetComponentsBuilder.RETURN_NAME);
+            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(SpreadsheetSymbols.RETURN_NAME.toString());
         }
         
         if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {

@@ -40,9 +40,6 @@ import org.openl.vm.trace.Tracer;
  * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
-    public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
-    public static final String DISPATCHING_MODE_JAVA = "java";
-
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
     private ITablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
 
