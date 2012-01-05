@@ -1,12 +1,15 @@
-#header {
-    box-shadow: 5px 8px 5px #cccccc;
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
 }
 
 #top {
     background: #f9f9f9;
-    box-shadow: 5px 3px 5px #cccccc;
-    z-index: 2 !important;
-    height: 27px !important;
+    border-bottom: 1px solid #dddddd;
+    height: 36px;
+    position: relative;
 }
 
 #left, #right {

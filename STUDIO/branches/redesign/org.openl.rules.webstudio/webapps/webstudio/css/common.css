@@ -133,6 +133,10 @@ form {
     to { background-color: #FFE7E1; }
 }
 
+#topPanel {
+    padding: 7px 15px;
+}
+
 .data_cell {
     background: #eeffee;
     border: 1px solid;
