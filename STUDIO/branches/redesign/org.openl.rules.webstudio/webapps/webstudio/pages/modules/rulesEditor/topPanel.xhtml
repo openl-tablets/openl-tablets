@@ -9,43 +9,47 @@
 
     <c:set var="rProject" value="#{studio.currentProject}" />
 
-    <h:panelGroup id="topPanel" style="margin-left: 10px" layout="block">
-        <h:form id="headerForm">
-            <span class="buttonPanel">
-                <a4j:ajax render=":topPanel :projects :bottomPanel" oncomplete="refreshCurrent()">
-                    <h:commandLink action="#{mainBean.reload}" title="Refresh Projects"><img
-                        src="webresource/images/refresh.png" />
-                    </h:commandLink>
+    <h:panelGroup id="topPanel" layout="block">
+        <div style="display: inline-block">
+            <h:form id="headerForm">
+                <div class="buttonPanel">
+                    <a4j:ajax render=":topPanel :projects :bottomPanel" oncomplete="refreshCurrent()">
+                        <h:commandLink action="#{mainBean.reload}" title="Refresh Projects"><img
+                            src="webresource/images/refresh.png" />
+                        </h:commandLink>
 
-                    <h:commandLink action="#{mainBean.checkInProject}" title="Check in Project"
-                        rendered="#{!empty rProject and rProject.checkedOut}"><img
-                        src="webresource/images/repository/checkin.gif" />
-                    </h:commandLink>
-                    <h:commandLink action="#{mainBean.checkOutProject}" title="Check out Project"
-                        rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked}"><img
-                        src="webresource/images/repository/checkout.gif" />
-                    </h:commandLink>
-                </a4j:ajax>
+                        <h:commandLink action="#{mainBean.checkInProject}" title="Check in Project"
+                            rendered="#{!empty rProject and rProject.checkedOut}"><img
+                            src="webresource/images/repository/checkin.gif" />
+                        </h:commandLink>
+                        <h:commandLink action="#{mainBean.checkOutProject}" title="Check out Project"
+                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked}"><img
+                            src="webresource/images/repository/checkout.gif" />
+                        </h:commandLink>
+                    </a4j:ajax>
 
-                <h:outputLink value="test/runAllTests.xhtml" target="content"
-                    title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
-                    src="webresource/images/test_ok.gif" /></h:outputLink>
-                
-                <span style="margin:0 21px"></span>
-                
-                <h:outputLink rendered="#{studio.model.editable}" value="create/index.xhtml"
-                    target="content" title="Create new table" styleClass="button">Create New</h:outputLink>
+                    <h:outputLink value="test/runAllTests.xhtml" target="content"
+                        title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
+                        src="webresource/images/test_ok.gif" /></h:outputLink>
 
-                <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
-                    value="revertModuleChanges.xhtml" target="content" title="Revert Changes"
-                    styleClass="button2">Revert</h:outputLink>
+                    <span style="margin:0 21px"></span>
 
-                <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
-                    value="rulesDependencies.xhtml" target="content"
-                    title="Rules Dependencies">Dependencies</h:outputLink>
-            </span>
-        </h:form>
-        <h:panelGroup style="position: absolute; right: 21px; top: 3px">
+                    <h:outputLink rendered="#{studio.model.editable}" value="create/index.xhtml"
+                        target="content" title="Create new table" styleClass="button">Create New</h:outputLink>
+
+                    <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
+                        value="revertModuleChanges.xhtml" target="content" title="Revert Changes"
+                        styleClass="button2">Revert</h:outputLink>
+
+                    <span style="margin:0 13px"></span>
+
+                    <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
+                        value="rulesDependencies.xhtml" target="content"
+                        title="Rules Dependencies">Dependencies</h:outputLink>
+                </div>
+            </h:form>
+        </div>
+        <div style="float: right;">
             <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
                 <span style="font-size: 90%">
                     <h:outputLink value="search/advancedSearch.xhtml" target="content">Advanced</h:outputLink>
@@ -64,7 +68,7 @@
                 href="#" title="Compare Excel files"><img
                 src="webresource/images/compare.gif" /></a>
             
-        </h:panelGroup>
+        </div>
     </h:panelGroup>
 
 </ui:composition>

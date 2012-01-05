@@ -29,13 +29,6 @@
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
 
-        <style>
-            html, body {
-                height: 100%;
-                margin: 0;
-            }
-        </style>
-
         <script>
         //<![CDATA[
             var $j = $.noConflict();
@@ -60,14 +53,12 @@
 
                 mainLayout = $j("#center").layout({
                     //useStateCookie: true,
-                    north__resizable: false,
                     spacing_open: 3,
-                    north__spacing_open: 1,
                     west__size: 230,
                     east__size: 230,
                     east__initHidden: true
                 });
-                $j('#center .ui-layout-center').layout({
+                $j("#center .ui-layout-center").layout({
                     spacing_open: 3,
                     south__onresize: setContentHeight
                 });
@@ -80,10 +71,6 @@
                     return false;
                 });
             });
-
-            function resizeWindow() {
-                $j(window).resize();
-            }
 
             function goTo(page, target) {
                 if (page) {
@@ -117,10 +104,22 @@
 
             function setLayoutDimensions() {
                 $j("#center").css({
-                   "height": $j(this).outerHeight() - $j("#header").outerHeight() - $j("#footer").outerHeight()
+                   "height": $j(this).outerHeight()
+                       - $j("#header").outerHeight()
+                       - $j("#top").outerHeight()
+                       - $j("#footer").outerHeight()
                 });
                 setContentHeight();
             }
+
+            /*function setViewDimensions() {
+                $j(".view_workspace").each(function() {
+                    $j(this).css({
+                        "height": $j(this).closest(".ui-layout").outerHeight()
+                            - $j(this).prev(".view_toolbar").outerHeight() - 30
+                    });
+                });
+            }*/
 
             function setContentHeight() {
                 var contentPanel = $j("#tablePanel");
@@ -174,12 +173,13 @@
             </ui:insert>
         </div>
 
-        <div id="center" class="ui-layout-center">
-            <h:panelGroup id="top" class="ui-layout-north" layout="block">
-                <ui:insert name="top">
-                    <ui:include src="/pages/modules/rulesEditor/topPanel.xhtml" />
-                </ui:insert>
-            </h:panelGroup>
+        <h:panelGroup id="top" layout="block">
+            <ui:insert name="top">
+                <ui:include src="/pages/modules/rulesEditor/topPanel.xhtml" />
+            </ui:insert>
+        </h:panelGroup>
+
+        <div id="center">
             <h:panelGroup id="left" class="ui-layout-west" layout="block">
                 <ui:insert name="left">
                     <ui:include src="/pages/modules/rulesEditor/leftPanel.xhtml" />
