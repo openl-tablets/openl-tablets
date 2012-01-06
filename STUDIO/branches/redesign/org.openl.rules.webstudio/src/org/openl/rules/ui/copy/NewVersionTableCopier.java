@@ -18,12 +18,45 @@ import org.openl.util.conf.Version;
  */
 public class NewVersionTableCopier extends TableCopier {
 
+    private static final String VERSION_DELIMETER = "..";
     private static final String VERSION_PROP_NAME = "version";
     private static final String ACTIVE_PROP_NAME = "active";
 
     public NewVersionTableCopier(IOpenLTable table) {
         super(table);
         checkPropertiesExistance();
+    }
+    
+    public Version getOriginalVersion() {
+        // get the version of copying table
+        //
+        Version tableVersion = getTableCurrentVersion();
+        if (tableVersion == null) {
+            // specify first version if it was not previously defined
+            //
+            tableVersion = Version.parseVersion(INIT_VERSION, 0, VERSION_DELIMETER);
+        }
+        return tableVersion;
+    }
+    
+    @Override
+    public Version getMinNextVersion() {
+        Version originalVersion = getOriginalVersion();        
+        originalVersion.setVariant(originalVersion.getVariant() + 1);
+        return originalVersion;
+    }
+
+    @Override
+    public List<TableProperty> getPropertiesToDisplay() {
+        List<TableProperty> properties = new ArrayList<TableProperty>();
+        TableProperty versionProperty = getProperty(VERSION_PROP_NAME);
+        if (versionProperty != null) {
+            // set next min value for version property
+            //
+            versionProperty.setValue(getMinNextVersion().toString());
+        }
+        properties.add(versionProperty);
+        return properties;
     }
 
     private void checkPropertiesExistance() {
@@ -33,7 +66,7 @@ public class NewVersionTableCopier extends TableCopier {
             versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME,
                     TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME))
                     .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME))
-                    .value(INIT_VERSION).build();
+                    .value(getOriginalVersion().toString()).build();
             getPropertiesManager().addProperty(versionProperty);
         }
     }
@@ -46,11 +79,16 @@ public class NewVersionTableCopier extends TableCopier {
 
     private void updateOriginalTable() {
         Map<String, Object> properties = new HashMap<String, Object>();
+        // set original table property 'active' to false
+        //
         properties.put(ACTIVE_PROP_NAME, "false");
-        Version version = getOriginalVersion();
-        if (version == null) {
-            properties.put(VERSION_PROP_NAME, INIT_VERSION);
-        }
+        
+        // reset the original version value (should be done for table that didn`t have 
+        // this property before)
+        //
+        Version version = getOriginalVersion();        
+        properties.put(VERSION_PROP_NAME, version.toString());
+        
         updatePropertiesForOriginalTable(properties);
     }
 
@@ -61,37 +99,18 @@ public class NewVersionTableCopier extends TableCopier {
         return properties;
     }
 
-    public Version getOriginalVersion() {
-        IOpenLTable originalTable = getCopyingTable();
-        if (originalTable != null) {
-            ITableProperties tableProperties = originalTable.getProperties();
+    private Version getTableCurrentVersion() {
+        IOpenLTable copyingTable = getCopyingTable();
+        if (copyingTable != null) {
+            ITableProperties tableProperties = copyingTable.getProperties();
             String version = tableProperties.getVersion();
             try {
-                return Version.parseVersion(version, 0, "..");
+                return Version.parseVersion(version, 0, VERSION_DELIMETER);
             } catch (RuntimeException e) {
                 return null;
             }
         } else {
             return null;
         }
-        
     }
-
-    @Override
-    public Version getMinNextVersion() {
-        Version originalVersion = getOriginalVersion();
-        if (originalVersion == null) {
-            originalVersion = Version.parseVersion(INIT_VERSION, 0, "..");
-        }
-        originalVersion.setVariant(originalVersion.getVariant() + 1);
-        return originalVersion;
-    }
-
-    @Override
-    public List<TableProperty> getPropertiesToDisplay() {
-        List<TableProperty> properties = new ArrayList<TableProperty>();
-        properties.add(getProperty(VERSION_PROP_NAME));
-        return properties;
-    }
-
 }
