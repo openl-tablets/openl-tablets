@@ -398,7 +398,7 @@ public class TableCopier extends WizardBase {
         for (TableProperty property : propertiesManager.getProperties()) {
             String name = property.getName();
             Object value = property.getValue();
-            if (value == null || (value instanceof String && StringUtils.isEmpty((String)value))) {
+            if (isEmpty(value)) {
                 continue;
             } else {
                 newProperties.put(name.trim(), value);
@@ -407,6 +407,16 @@ public class TableCopier extends WizardBase {
         return newProperties;        
     }
     
+    public static boolean isEmpty(Object value) {        
+        if (value == null) {
+            return true;
+        } else if (value instanceof String && StringUtils.isEmpty((String)value)) {
+            return true;
+        } else if (value.getClass().isArray()) {
+            return ((Object[])value).length > 0 ? false : true;
+        }
+        return false;
+    }    
 
     public void setPropsTable(UIRepeat propsTable) {
         this.propsTable = propsTable;
