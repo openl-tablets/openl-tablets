@@ -7,11 +7,18 @@
     template="/pages/layout/adminLayout.xhtml">
 
     <ui:define name="content">
-        <rich:tabPanel switchType="client">
-            <rich:tab header="System Settings">
-                <ui:include src="/pages/modules/administration/systemSettings.xhtml" />
-            </rich:tab>
-        </rich:tabPanel>
+        <h:panelGroup layout="block">
+            <div>
+                <div class="view_header">
+                    <span>System Settings</span>
+                </div>
+                <div>
+                    <div>
+                        <ui:include src="/pages/modules/administration/systemSettings.xhtml" />
+                    </div>
+                </div>
+            </div>
+        </h:panelGroup>
     </ui:define>
 
 </ui:composition>

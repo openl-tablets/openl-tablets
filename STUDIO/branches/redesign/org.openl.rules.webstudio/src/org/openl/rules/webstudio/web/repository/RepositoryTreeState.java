@@ -97,17 +97,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
         root = new TreeRepository("", "", filter, "root");
 
-        String rpName = "Rules Projects";
+        String rpName = "Projects";
         rulesRepository = new TreeRepository(rpName, rpName, filter, UiConst.TYPE_REPOSITORY);
         rulesRepository.setData(null);
 
-        String dpName = "Deployment Projects";
+        String dpName = "Deployments";
         deploymentRepository = new TreeRepository(dpName, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
         //Such keys are used for correct order of repositories.
-        root.addChild("1st - RulesProjects", rulesRepository);
-        root.addChild("2nd - DeploymentProjects", deploymentRepository);
+        root.addChild("1st - Projects", rulesRepository);
+        root.addChild("2nd - Deployments", deploymentRepository);
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 

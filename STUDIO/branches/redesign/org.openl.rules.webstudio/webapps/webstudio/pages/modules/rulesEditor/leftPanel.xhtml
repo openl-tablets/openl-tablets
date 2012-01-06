@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <h:panelGroup id="leftPanel" layout="block">
-        <rich:tabPanel id="leftPanelTab" switchType="client">
-            <rich:tab header="Projects">
-                <ui:include src="/pages/modules/rulesEditor/projectTree.xhtml" />
-            </rich:tab>
-            <rich:tab header="Rules" id="rulesTab">
-               <ui:include src="/pages/modules/rulesEditor/tree.xhtml" />
-            </rich:tab>
-        </rich:tabPanel>
+        <div id="leftPanelTab">
+            <div class="view_header" style="cursor: pointer">
+                <span onclick="toProjects()">Projects</span>
+                <span style="display: none">Rules</span>
+            </div>
+            <div>
+                <div id="projectsTreePanel">
+                    <ui:include src="/pages/modules/rulesEditor/projectTree.xhtml" />
+                </div>
+                <div id="rulesTreePanel" style="display: none">
+                    <ui:include src="/pages/modules/rulesEditor/tree.xhtml" />
+                </div>
+            </div>
+        </div>
     </h:panelGroup>
+
+    <script>
+        function toProjects() {
+            $j("#projectsTreePanel").show();
+            $j("#rulesTreePanel").hide();
+        }
+        function toRules() {
+            $j("#projectsTreePanel").hide();
+            $j("#rulesTreePanel").show();
+        }
+    </script>
 
 </ui:composition>

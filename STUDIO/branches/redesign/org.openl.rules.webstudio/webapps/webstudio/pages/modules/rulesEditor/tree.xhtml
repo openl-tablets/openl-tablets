@@ -10,7 +10,7 @@
     <ui:define name="toolbar">
         <h:form>
             <h:panelGroup id="rulesTreeView">
-                <h:panelGroup rendered="#{studio.currentProject != null}" layout="block" styleClass="treeMenu">
+                <h:panelGroup rendered="#{studio.currentProject != null}" layout="block">
                     <h:selectOneMenu value="#{treeBean.currentView}">
                         <f:selectItems value="#{treeBean.views}" />
                         <f:ajax event="change" render=":rulesTree" />
