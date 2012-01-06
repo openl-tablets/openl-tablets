@@ -6,6 +6,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -45,16 +46,19 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the compilation.
-        // Add generated type to be accessible through binding context
-        //     
-        try {
-            builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, spreadsheet.getType());
-        } catch (Exception e) {     
-            String message = String.format("Cannot add type %s to the binding context", spreadsheet.getType().getName());
-            SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
-            getTableSyntaxNode().addError(exception);
-            BindHelper.processError(exception, builder.getBindingContext());
+        // Add generated type to be accessible through binding context.
+        //
+        if (OpenLSystemProperties.isCustomSpreadsheetType()) {
+            try {
+                builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, spreadsheet.getType());
+            } catch (Exception e) {     
+                String message = String.format("Cannot add type %s to the binding context", spreadsheet.getType().getName());
+                SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
+                getTableSyntaxNode().addError(exception);
+                BindHelper.processError(exception, builder.getBindingContext());
+            }
         }
+        
         
         return spreadsheet;
     }
