@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <rich:tabPanel switchType="client">
-        <rich:tab header="Properties">
-            <div id="tableProperties"></div>
-        </rich:tab>
-    </rich:tabPanel>
+    <h:panelGroup id="rightPanel" layout="block">
+        <div>
+            <div class="view_header">
+                <span>Properties</span>
+            </div>
+            <div>
+                <div>
+                    <ui:include src="/pages/modules/rulesEditor/properties.xhtml" />
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
 
 </ui:composition>

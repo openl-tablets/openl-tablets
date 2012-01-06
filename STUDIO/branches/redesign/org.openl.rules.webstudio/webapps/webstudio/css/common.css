@@ -367,7 +367,7 @@ table.header thead td {
 
 .treeMenu {
     width: 100%;
-    border-bottom: 1px dotted rgb(150,150,150);
+    border-bottom: 1px solid #cccccc;
     padding-bottom: 4px;
 }
 
@@ -427,15 +427,29 @@ table.header thead td {
     background: #e6e6e6 !important;
 }
 
+.view_header {
+     font-size: 110%;
+     padding: 7px;
+     color: #171717;
+}
+
 .view_toolbar {
-    padding: 0 3px;
+    border-top: 1px solid #cccccc;
+}
+
+.view_toolbar > div {
+    padding: 7px 4px 6px;
 }
 
 .view_workspace {
     width: 100%;
     height: 100%;
     overflow: auto;
-    padding: 5px 0 2px;
+    border-top: 1px solid #cccccc;
+}
+
+.view_workspace > div {
+    padding: 5px 7px;
 }
 
 .button, .button2 {

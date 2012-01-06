@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <h:panelGroup id="bottomPanel" layout="block">
-        <rich:tabPanel switchType="client">
-            <rich:tab header="Problems">
-                <ui:include src="/pages/modules/rulesEditor/problems.xhtml" />
-            </rich:tab>
-        </rich:tabPanel>
+        <div>
+            <div class="view_header">
+                <span>Problems</span>
+            </div>
+            <div>
+                <div>
+                    <ui:include src="/pages/modules/rulesEditor/problems.xhtml" />
+                </div>
+            </div>
+        </div>
     </h:panelGroup>
 
 </ui:composition>

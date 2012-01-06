@@ -9,11 +9,11 @@
     template="/pages/layout/view.xhtml">
 
     <ui:define name="toolbar">
-        <h:panelGroup layout="block" styleClass="treeMenu">
+        <h:panelGroup layout="block">
             <h:button id="filterButton" value="Filter" onclick="showRepFilterDialog();return false;">
               <rich:tooltip showDelay="500">Filter repository tree</rich:tooltip>
             </h:button>
-    
+
             <a4j:commandLink title="Refresh" action="#{repositoryTreeController.refreshTree}"
                 render="projectTree nodeView" process="@this" style="margin-left: 5px;">
                 <h:graphicImage url="/webresource/images/refresh.png" alt="Refresh" />

@@ -7,13 +7,18 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core">
-    
-    <h:panelGroup rendered="#{node.type == 'repository'}">
-        <rich:tabPanel switchType="client">
-            <rich:tab header="Rules Projects">
-                <ui:include src="/pages/modules/repository/projects.xhtml" />
-            </rich:tab>
-        </rich:tabPanel>
+
+    <h:panelGroup layout="block" rendered="#{node.type == 'repository'}">
+        <div>
+            <div class="view_header">
+                <span>Projects</span>
+            </div>
+            <div>
+                <div>
+                    <ui:include src="/pages/modules/repository/projects.xhtml" />
+                </div>
+            </div>
+        </div>
     </h:panelGroup>
 
 	<c:set var="deleteMessage" value="Mark project as deleted" />
@@ -163,13 +168,18 @@
     </rich:tab>
   </rich:tabPanel>
 
-  <h:panelGroup rendered="#{node.type == 'drepository'}">
-    <rich:tabPanel switchType="client">
-      <rich:tab header="Deployment Projects">
-        <ui:include src="/pages/modules/repository/projectsD.xhtml" />
-      </rich:tab>
-    </rich:tabPanel>
-  </h:panelGroup>
+    <h:panelGroup layout="block" rendered="#{node.type == 'drepository'}">
+        <div>
+            <div class="view_header">
+                <span>Deployments</span>
+            </div>
+            <div>
+                <div>
+                    <ui:include src="/pages/modules/repository/projectsD.xhtml" />
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'deployment'}">
     <h:panelGroup rendered="#{artefact.deleted}">

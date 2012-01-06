@@ -3,7 +3,15 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/pages/layout/simpleView.xhtml">
+
+  <ui:define name="workspace">
+  <style>
+    #content {
+        padding: 0;
+    }
+  </style>
 
   <rich:dataTable value="#{repositoryTreeController.rulesProjects}" var="prj"
     styleClass="standard" rowClasses="odd,even">
@@ -75,5 +83,7 @@
   <h:panelGroup rendered="#{empty repositoryTreeController.rulesProjects}" styleClass="noEntries">
     <h:outputText value="No entries found" />
   </h:panelGroup>
+  
+  </ui:define>
 
 </ui:composition>

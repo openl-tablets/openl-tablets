@@ -5,8 +5,10 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
+    template="/pages/layout/simpleView.xhtml">
 
+    <ui:define name="workspace">
     <script src="#{contextPath}/javascript/jquery.easytabs.min.js"></script>
 
     <style>
@@ -202,5 +204,7 @@
     <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage" />
 
     </h:form>
+
+    </ui:define>
 
 </ui:composition>
