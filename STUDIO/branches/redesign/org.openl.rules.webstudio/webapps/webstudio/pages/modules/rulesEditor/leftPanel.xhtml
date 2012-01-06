@@ -6,8 +6,7 @@
     <h:panelGroup id="leftPanel" layout="block">
         <div id="leftPanelTab">
             <div class="view_header" style="cursor: pointer">
-                <span onclick="toProjects()">Projects</span>
-                <span style="display: none">Rules</span>
+                <span id="projectsHeader" onclick="toProjects()">Projects</span>
             </div>
             <div>
                 <div id="projectsTreePanel">
@@ -25,7 +24,12 @@
             $j("#projectsTreePanel").show();
             $j("#rulesTreePanel").hide();
         }
-        function toRules() {
+
+        function toRules(header) {
+            if (header) {
+                $j("#projectsHeader").text(header);
+                $j("#projectsHeader").attr("title", header);
+            }
             $j("#projectsTreePanel").hide();
             $j("#rulesTreePanel").show();
         }

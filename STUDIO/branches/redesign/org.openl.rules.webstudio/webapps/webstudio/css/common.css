@@ -431,6 +431,9 @@ table.header thead td {
      font-size: 110%;
      padding: 7px;
      color: #171717;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     overflow: hidden;
 }
 
 .view_toolbar {
