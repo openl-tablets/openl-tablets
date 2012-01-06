@@ -82,9 +82,9 @@
                                     <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}">
                                         <table>
                                             <tr>
-                                                <td><oh:inputVersion value="#{wizard.minNextVersion}"/></td>
+                                                <td><oh:inputVersion value="#{prop.value}"/></td>
                                                 <td>Current:</td>
-                                                <td><h:outputText value="#{prop.value}"/></td>
+                                                <td><h:outputText value="#{wizard.originalVersion}"/></td>
                                             </tr>
                                         </table>
                                     </h:panelGroup>
