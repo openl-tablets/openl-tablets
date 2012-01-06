@@ -74,7 +74,7 @@
                             <li>
                                 <a4j:commandLink action="#{mainBean.selectModule}" execute="@this"
                                     onclick="selectModule(this)" render="rulesTree :rulesTreeView topPanel bottomPanel"
-                                    oncomplete="toRules();goTo('home.xhtml', 'content')">
+                                    oncomplete="toRules('#{project.name} - #{module.name}');goTo('home.xhtml', 'content')">
                                     #{module.name}
                                     <f:param name="project" value="#{module.project.id}" />
                                     <f:param name="module" value="#{module.name}" />
