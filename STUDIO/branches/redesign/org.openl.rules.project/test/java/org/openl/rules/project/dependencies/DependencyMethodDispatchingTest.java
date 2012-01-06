@@ -7,13 +7,13 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.project.instantiation.ApiBasedEngineFactoryInstantiationStrategy;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 import org.openl.rules.runtime.RulesFileDependencyLoader;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 
 public class DependencyMethodDispatchingTest {
 	
@@ -29,8 +29,8 @@ public class DependencyMethodDispatchingTest {
     public void testAmbigiousMethodException() {
         // AmbigiousMethodException can be retrieved in only the dispatching
         // mode based on methods selecting in java code
-        System.setProperty(MatchingOpenMethodDispatcher.DISPATCHING_MODE_PROPERTY,
-            MatchingOpenMethodDispatcher.DISPATCHING_MODE_JAVA);
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
+            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
         ProjectDescriptor descr = strategy.resolveProject(new File(MODULES_FOLDER));
 
