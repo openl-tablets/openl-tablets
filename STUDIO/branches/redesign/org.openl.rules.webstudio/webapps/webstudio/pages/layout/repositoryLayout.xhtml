@@ -24,7 +24,7 @@
         <script>
             var $j = $.noConflict();
 
-            $j(document).ready(function () {
+            $j(function () {
                 setLayoutDimensions();
 
                 $j(window).resize(function() {
@@ -32,10 +32,10 @@
                 });
 
                 $j("#center").layout({
-                    //useStateCookie: true,
-                    spacing_open: 3,
+                    spacing_open: 1,
                     west__size: 230
                 });
+                $j("body").css({"visibility": "visible"});
             });
 
             function setLayoutDimensions() {
@@ -75,7 +75,7 @@
         </title>
     </h:head>
 
-    <h:body>
+    <h:body style="visibility: hidden">
         <div id="header">
             <ui:insert name="header">
                 <ui:include src="/pages/common/header.xhtml">

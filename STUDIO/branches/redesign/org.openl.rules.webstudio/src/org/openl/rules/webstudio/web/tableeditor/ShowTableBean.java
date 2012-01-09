@@ -82,16 +82,16 @@ public class ShowTableBean {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
-
-        if (uri == null) {
-            uri = studio.getTableUri();
-        } else {
-            studio.setTableUri(uri);
-        }
-
         final ProjectModel model = studio.getModel();
 
         table = model.getTable(uri);
+
+        if (table == null) {
+            uri = studio.getTableUri();
+            table = model.getTable(uri);
+        } else {
+            studio.setTableUri(uri);
+        }
 
         if (table == null) {
             try {
