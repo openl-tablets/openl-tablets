@@ -5,8 +5,11 @@ html, body {
     overflow: hidden;
 }
 
-#top {
+#header {
     background: #f9f9f9;
+}
+
+#top {
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
     height: 47px;
