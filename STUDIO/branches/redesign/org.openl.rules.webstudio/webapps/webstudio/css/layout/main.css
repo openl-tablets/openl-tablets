@@ -7,8 +7,9 @@ html, body {
 
 #top {
     background: #f9f9f9;
+    border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
-    height: 36px;
+    height: 47px;
     position: relative;
 }
 
@@ -27,7 +28,7 @@ html, body {
 
 #footer {
 	border-top: 1px solid #dddddd;
-    background: #eeeeee;
+    background: #f9f9f9;
 }
 
 /*
@@ -43,12 +44,14 @@ html, body {
 /*
  *	RESIZER-BARS
  */
-.ui-layout-resizer	{ /* all 'resizer-bars' */
-	background: #f7f7f7;
+.ui-layout-resizer	{
+	background: #dddddd;
 }
-.ui-layout-resizer-drag {		/* REAL resizer while resize in progress */
+.ui-layout-resizer-west {
+    cursor: col-resize !important;
 }
-.ui-layout-resizer-hover	{	/* affects both open and closed states */
+.ui-layout-resizer-south {
+    cursor: row-resize !important;
 }
 /* NOTE: It looks best when 'hover' and 'dragging' are set to the same color,
 	otherwise color shifts while dragging when bar can't keep up with mouse */

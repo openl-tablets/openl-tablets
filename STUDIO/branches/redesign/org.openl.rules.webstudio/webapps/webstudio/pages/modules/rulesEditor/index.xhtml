@@ -6,7 +6,6 @@
     template="/pages/layout/mainLayout.xhtml">
 
     <ui:define name="content">
-         <ui:include src="/pages/modules/rulesEditor/home.xhtml" />
 
          <h:outputScript rendered="#{not empty param.error}">
              alert('#{param.error}');

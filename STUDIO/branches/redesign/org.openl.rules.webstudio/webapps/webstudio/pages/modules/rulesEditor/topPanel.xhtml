@@ -9,6 +9,34 @@
 
     <c:set var="rProject" value="#{studio.currentProject}" />
 
+    <style>
+        #searchInput {
+            position: relative;
+        }
+        #searchInput input[type='text'] {
+            height: 22px;
+            width: 175px;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding-right: 20px;
+        }
+        #searchInput input[type='image'] {
+            position: absolute;
+            right: 10px;
+            top: 3px;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        #otherSearches {
+            display: none;
+            padding: 3px 5px 4px;
+            width: 163px;
+        }
+        #otherSearches div {
+            margin-bottom: 2px;
+        }
+    </style>
+
     <h:panelGroup id="topPanel" layout="block">
         <div style="display: inline-block">
             <h:form id="headerForm">
@@ -51,23 +79,41 @@
         </div>
         <div style="float: right;">
             <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
-                <span style="font-size: 90%">
-                    <h:outputLink value="search/advancedSearch.xhtml" target="content">Advanced</h:outputLink>
-                    <span style="margin: 0 3px">|</span>
-                    <h:outputLink value="search/businessSearch.xhtml" target="content">Business</h:outputLink>
-                </span>
+                <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
+                    onclick="showPopupMenu(event, 'otherSearches', $j(this).next(), {'offsetTop' : 4})">
+                    <h:graphicImage url="/webresource/images/arrow_down.png" title="Other Searches" />
+                </h:outputLink>
                 <form style="display: inline;"
                     onsubmit="goTo('search/simpleSearch.xhtml?searchQuery=' + $j('#searchQuery').val()); return false;">
-                    <input type="text" id="searchQuery" placeholder="Search..." />
-                    <input type="image" src="#{contextPath}/webresource/images/search.png" />
+                    <span id="searchInput">
+                        <input type="text" id="searchQuery" placeholder="Search..." />
+                        <input type="image" src="#{contextPath}/webresource/images/search.png" />
+                    </span>
                 </form>
+                <div id="otherSearches">
+                    <div><a href="#search/advancedSearch.xhtml">Advanced</a></div>
+                    <div><a href="#search/businessSearch.xhtml">Business</a></div>
+                </div>
             </h:panelGroup>
 
-            <a target="_blank" style="margin-left: 15px"
-                onclick="window.open('#{rulesEditor}/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                href="#" title="Compare Excel files"><img
+            <div class="buttonPanel" style="display: inline-block; margin-left: 17px">
+                <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})" class="button">View</a>
+                <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: orange; color: #555555">
+                    <h:form>
+                        <div>Show</div>
+                        <a4j:ajax oncomplete="refreshCurrent()">
+                            <div><h:selectBooleanCheckbox value="#{studio.showHeader}" />Header</div>
+                            <div><h:selectBooleanCheckbox value="#{studio.showFormulas}" />Formulas</div>
+                        </a4j:ajax>
+                    </h:form>
+                </div>
+
+                <a target="_blank" style="margin-left: 17px"
+                    onclick="window.open('#{rulesEditor}/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                    href="#" title="Compare Excel files"><img
                 src="webresource/images/compare.gif" /></a>
-            
+            </div>
+
         </div>
     </h:panelGroup>
 

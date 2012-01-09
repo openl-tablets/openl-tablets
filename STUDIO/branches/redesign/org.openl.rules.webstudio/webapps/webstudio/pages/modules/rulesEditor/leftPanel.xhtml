@@ -5,8 +5,9 @@
 
     <h:panelGroup id="leftPanel" layout="block">
         <div id="leftPanelTab">
-            <div class="view_header" style="cursor: pointer">
-                <span id="projectsHeader" onclick="toProjects()">Projects</span>
+            <div class="view_header">
+                <span id="navigationHeader" onclick="goTo('home.xhtml')"
+                    style="cursor: pointer">#{!empty studio.navigationHeader ? studio.navigationHeader : 'Projects'}</span>
             </div>
             <div>
                 <div id="projectsTreePanel">
@@ -20,19 +21,25 @@
     </h:panelGroup>
 
     <script>
-        function toProjects() {
+      //<![CDATA[
+        function toProjectsPanel() {
+            $j("#navigationHeader").text("Projects");
+            $j("#navigationHeader").removeAttr("title");
+
             $j("#projectsTreePanel").show();
             $j("#rulesTreePanel").hide();
         }
 
-        function toRules(header) {
+        function toRulesPanel(header) {
             if (header) {
-                $j("#projectsHeader").text(header);
-                $j("#projectsHeader").attr("title", header);
+                $j("#navigationHeader").text(header);
+                $j("#navigationHeader").attr("title", header);    
             }
+
             $j("#projectsTreePanel").hide();
             $j("#rulesTreePanel").show();
         }
+      //]]>
     </script>
 
 </ui:composition>

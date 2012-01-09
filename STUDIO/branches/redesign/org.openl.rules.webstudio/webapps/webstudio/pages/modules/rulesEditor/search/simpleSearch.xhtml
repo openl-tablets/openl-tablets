@@ -11,15 +11,7 @@
 
     <br />
 
-    <h:form>
-        <h:inputText size="50" value="#{simpleSearchBean.searchQuery}"
-            style="width: 300px; margin-right: 3px;" />
-        <a4j:commandButton value="Search" action="#{simpleSearchBean.search}" render="searchResults" />
-    </h:form>
-
-    <br />
-
-    <h:panelGroup id="searchResults">
+    <div id="searchResults">
         <h:outputText value="No results found" rendered="#{empty simpleSearchBean.searchResults}"
             style="font-weight: bold" />
         <h:panelGroup rendered="#{not empty simpleSearchBean.searchResults}">
@@ -68,6 +60,6 @@
                 <p />
             </a4j:repeat>
         </h:panelGroup>
-    </h:panelGroup>
+    </div>
 
 </ui:composition>

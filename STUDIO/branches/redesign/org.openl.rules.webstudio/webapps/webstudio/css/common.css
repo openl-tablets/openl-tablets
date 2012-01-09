@@ -10,18 +10,15 @@ table, input, textarea {
 }
 
 input[type='text'], input[type='password'], textarea, select {
-    border-width: 1px !important;
-    border-style: solid !important;
-    border-left-color: #888888 !important;
-    border-top-color: #888888 !important;
-    border-right-color: rgb(230,230,230) !important;
-    border-bottom-color: rgb(230,230,230) !important;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #888888 #E6E6E6 #E6E6E6 #888888;
     border-radius: 1px;
     outline: none;
 }
 
 input[type='text'], input[type='password'], textarea {
-    padding: 2px 3px;
+    padding: 3px;
 }
 
 img {
@@ -68,8 +65,8 @@ form {
 
 #loadingPanel img {
     position: fixed;
-    top: 17px;
-    left: 49%;
+    top: 2px;
+    right: 750px;
     z-index: 10001;
 }
 
@@ -134,7 +131,7 @@ form {
 }
 
 #topPanel {
-    padding: 7px 15px;
+    padding: 12px 15px;
 }
 
 .data_cell {
@@ -434,10 +431,7 @@ table.header thead td {
      white-space: nowrap;
      text-overflow: ellipsis;
      overflow: hidden;
-}
-
-.view_toolbar {
-    border-top: 1px solid #cccccc;
+     border-bottom: 1px solid #dddddd;
 }
 
 .view_toolbar > div {
@@ -448,7 +442,6 @@ table.header thead td {
     width: 100%;
     height: 100%;
     overflow: auto;
-    border-top: 1px solid #cccccc;
 }
 
 .view_workspace > div {
@@ -456,7 +449,7 @@ table.header thead td {
 }
 
 .button, .button2 {
-    padding: 4px 6px;
+    padding: 6px 8px;
     text-decoration: none;
 }
 

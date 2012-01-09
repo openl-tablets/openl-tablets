@@ -20,12 +20,13 @@
         <script>
             var $j = $.noConflict();
 
-            $j(document).ready(function () {
+            $j(function () {
                 $j('body').layout({
                     closable: false,
                     resizable: false,
                     spacing_open: 1
                 });
+                $j("body").css({"visibility": "visible"});
             });
         </script>
 
@@ -34,7 +35,7 @@
         </title>
     </h:head>
 
-    <h:body>
+    <h:body style="visibility: hidden">
         <div id="header" class="ui-layout-north">
             <ui:insert name="header">
                 <ui:include src="/pages/common/header.xhtml">
@@ -43,7 +44,7 @@
             </ui:insert>
         </div>
         <div id="center" class="ui-layout-center">
-            <div id="content" class="ui-layout-center" style="padding-top: 15px">
+            <div id="content" class="ui-layout-center" style="padding-top: 15px; position: static">
                 <ui:insert name="content" />
             </div>
         </div>

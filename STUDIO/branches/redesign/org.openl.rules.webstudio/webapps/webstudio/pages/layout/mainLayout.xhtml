@@ -30,7 +30,13 @@
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
 
         <script>
-        //<![CDATA[
+          //<![CDATA[
+            // Firebug functions for logging
+            log = console.log;
+            err = console.error;
+
+            var HOME_PAGE = "home.xhtml";
+
             var $j = $.noConflict();
 
             $j.ajaxSetup({
@@ -41,10 +47,10 @@
                 prefix: "#{rulesEditor}/"
             }
 
-            $j(window).bind("hashchange", hashchange);
+            $j(window).bind("hashchange", loadPage);
 
             var mainLayout;
-            $j(document).ready(function () {
+            $j(function () {
                 setLayoutDimensions();
 
                 $j(window).resize(function() {
@@ -52,22 +58,19 @@
                 });
 
                 mainLayout = $j("#center").layout({
-                    //useStateCookie: true,
-                    spacing_open: 3,
+                    spacing_open: 1,
                     west__size: 230,
                     east__size: 230,
                     east__initHidden: true
                 });
-                $j("#center .ui-layout-center").layout({
-                    spacing_open: 3,
-                    south__onresize: setContentHeight
-                });
+
+                loadPage();
+
+                $j("body").css({"visibility": "visible"});
 
                 $j("a[target='content']").live("click", function() {
                     var page = $j(this).attr("href");
-                    showLoader();
                     goTo(page, "content");
-                    hideLoader();
                     return false;
                 });
             });
@@ -79,17 +82,35 @@
                 }
             }
 
-            function refreshCurrent() {
-                hashchange();
+            function goHome() {
+                location.hash = HOME_PAGE;
             }
 
-            function hashchange() {
+            function refreshCurrent() {
+                loadPage();
+            }
+
+            function loadPage() {
                 if (location.hash) {
                     var page = location.href.split("#")[1];
                     if (page.indexOf(urlRewrite.prefix) < 0) {
                         page = urlRewrite.prefix + page;
                     }
+
+                    showLoader();
                     $j("#content").load(page);
+                    hideLoader();
+
+                    if (page.indexOf(HOME_PAGE) > -1) {
+                        toProjectsPanel();
+                        
+                    } else {
+                        var header;
+                        if (page.indexOf("module.xhtml") > -1) {
+                            header = decodeURIComponent(page.split("?")[1]);
+                        }
+                        toRulesPanel(header);
+                    }
 
                     if (page.indexOf("showTable.xhtml") > -1) {
                         mainLayout.show("east");
@@ -99,6 +120,8 @@
                     } else {
                         mainLayout.hide("east");
                     }
+                } else {
+                    goHome();
                 }
             }
 
@@ -109,7 +132,6 @@
                        - $j("#top").outerHeight()
                        - $j("#footer").outerHeight()
                 });
-                setContentHeight();
             }
 
             /*function setViewDimensions() {
@@ -120,17 +142,6 @@
                     });
                 });
             }*/
-
-            function setContentHeight() {
-                var contentPanel = $j("#tablePanel");
-                if (contentPanel.length) {
-                    var contentToolbarPanel = $j("#tableToolbarPanel");
-                    contentPanel.css({
-                       "height": $j("#content").outerHeight()
-                           - ((contentToolbarPanel.length && contentToolbarPanel.outerHeight()) || 0)
-                    });
-                }
-            }
 
             function showLoader() {
                 $j('#loadingPanel').show();
@@ -154,7 +165,7 @@
                     top : top
                 });
             }
-        //]]>
+          //]]>
         </script>
 
         <title>
@@ -162,7 +173,7 @@
         </title>
     </h:head>
 
-    <h:body>
+    <h:body style="visibility: hidden">
         <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
 
         <div id="header">
@@ -173,11 +184,11 @@
             </ui:insert>
         </div>
 
-        <h:panelGroup id="top" layout="block">
+        <div id="top">
             <ui:insert name="top">
                 <ui:include src="/pages/modules/rulesEditor/topPanel.xhtml" />
             </ui:insert>
-        </h:panelGroup>
+        </div>
 
         <div id="center">
             <h:panelGroup id="left" class="ui-layout-west" layout="block">
@@ -185,16 +196,9 @@
                     <ui:include src="/pages/modules/rulesEditor/leftPanel.xhtml" />
                 </ui:insert>
             </h:panelGroup>
-            <div class="ui-layout-center">
-                <h:panelGroup id="content" class="ui-layout-center" layout="block">
-                    <ui:insert name="content" />
-                </h:panelGroup>
-                <h:panelGroup id="bottom" class="ui-layout-south" layout="block">
-                    <ui:insert name="bottom">
-                        <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
-                    </ui:insert>
-                </h:panelGroup>
-            </div>
+            <h:panelGroup id="content" class="ui-layout-center" layout="block">
+                <ui:insert name="content" />
+            </h:panelGroup>
             <h:panelGroup id="right" class="ui-layout-east" layout="block">
                 <ui:insert name="right">
                     <ui:include src="/pages/modules/rulesEditor/rightPanel.xhtml" />
@@ -224,8 +228,5 @@
             <rich:inputNumberSpinner />
          </div>
 
-        <script>
-            hashchange();
-        </script>
     </h:body>
 </html>
