@@ -10,6 +10,7 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.rules.constrainer;visibility:=reexport
 Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.binding.impl,
+ org.openl.engine,
  org.openl.rules,
  org.openl.rules.annotations,
  org.openl.rules.binding,
