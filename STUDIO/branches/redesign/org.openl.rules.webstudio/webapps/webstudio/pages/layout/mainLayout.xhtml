@@ -32,8 +32,10 @@
         <script>
           //<![CDATA[
             // Firebug functions for logging
-            log = console.log;
-            err = console.error;
+            if (typeof console != "undefined") {
+                log = console.log;
+                err = console.error;
+            }
 
             var HOME_PAGE = "home.xhtml";
 
