@@ -90,9 +90,7 @@ public class ExternalDependenciesTest {
     }
 
     @Test
-    public void testDependencies3() throws Exception {
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
-            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
+    public void testDependencies3() throws Exception {        
         ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
         ProjectDescriptor descr = strategy.resolveProject(new File("test/resources/dependencies/test3/module"));
 
