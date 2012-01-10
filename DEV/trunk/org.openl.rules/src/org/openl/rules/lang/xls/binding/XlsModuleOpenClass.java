@@ -171,10 +171,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Create decorator for existed method.
         //
         OpenMethodDispatcher decorator;
-        if (OpenLSystemProperties.isJavaDispatchingMode()) {
-            decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
-        } else {
+        if (OpenLSystemProperties.isDTDispatchingMode()) {
             decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
+        } else {            
+            decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
         }
 
         // Add new method to decorator as candidate.
