@@ -106,7 +106,7 @@ var TableEditor = Class.create({
                 self.editCell = cellPos;
                 self.startEditing();
             },
-            onFailure: AjaxHelper.handleError
+            onFailure: self.handleError
         });
     },
 
@@ -146,6 +146,25 @@ var TableEditor = Class.create({
                 this.processCallbacks(response, "do");
             }
         }.bindAsEventListener(this);
+    },
+
+    /**
+     * Handles response error.
+     */
+    handleError: function(response, errorMessage) {
+        if (response.status == 399) { // Redirect
+            var redirectPage = response.getResponseHeader("Location");
+            if (redirectPage) {
+                top.location.href = redirectPage;
+            } else {
+                alert(response.statusText);
+            }
+        } else {
+            if (!errorMessage) {
+                errorMessage = "Error: " + response.status + " - " + response.statusText;
+            }
+            alert(errorMessage);
+        }
     },
 
     startEditing: function() {
@@ -229,7 +248,7 @@ var TableEditor = Class.create({
                 }
             },
             onFailure: function(response) {
-                AjaxHelper.handleError(response,
+                self.handleError(response,
                         "Server failed to save your changes");
 
                 if (self.actions && self.actions.saveFailure) {
@@ -415,7 +434,7 @@ var TableEditor = Class.create({
                 row : self.selectionPos[0],
                 col : self.selectionPos[1]
             },
-            onFailure: AjaxHelper.handleError
+            onFailure: self.handleError
         });
     },
 
@@ -428,7 +447,7 @@ var TableEditor = Class.create({
                 initialValue = response.initValue;
             } else {
                 // Get initial value from table cell
-                initialValue = AjaxHelper.unescapeHTML(
+                initialValue = HTMLHelper.unescapeHTML(
                         cell.innerHTML.replace(/<br>/ig, "\n")).strip();
             }
         }
@@ -469,7 +488,7 @@ var TableEditor = Class.create({
                 // Uncomment after migration on Prototype 1.7
                 // Prototype 1.6.1 has issue with Chrome browser
                 // if (Event.isRightClick(e)) {
-                if (AjaxHelper.isRightClick(e)) {
+                if (HTMLHelper.isRightClick(e)) {
                     if (self.switchEditorMenu) {
                         return true;
                     }
@@ -588,7 +607,7 @@ var TableEditor = Class.create({
                         editor: this.editorSwitched ? this.editorName : ''
                     },
                     onFailure: function(response) {
-                        AjaxHelper.handleError(response,
+                        self.handleError(response,
                                 "Error during setting the value.");
                     }
                 });
@@ -676,7 +695,7 @@ var TableEditor = Class.create({
                 editorId: this.editorId
             },
             onSuccess: this.modFuncSuccess,
-            onFailure: AjaxHelper.handleError
+            onFailure: this.handleError
         })
     },
 
@@ -720,8 +739,8 @@ var TableEditor = Class.create({
                     cell.style.textAlign = _align;
                 }
             },
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            parameters: params,
+            onFailure: self.handleError
         });
     },
 
@@ -810,8 +829,8 @@ var TableEditor = Class.create({
                     self.processCallbacks(response, "do");
                 }
             },
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            parameters: params,
+            onFailure: self.handleError
         });
     },
 
@@ -848,8 +867,8 @@ var TableEditor = Class.create({
                     }
                 }
             },
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            parameters: params,
+            onFailure: self.handleError
         });
     },
 
@@ -880,8 +899,8 @@ var TableEditor = Class.create({
                     cell.style.fontWeight = _bold ? "normal" : "bold";
                 }
             },
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            parameters: params,
+            onFailure: self.handleError
         });
     },
 
@@ -912,8 +931,8 @@ var TableEditor = Class.create({
                     cell.style.fontStyle = _italic ? "normal" : "italic";
                 }
             },
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            parameters: params,
+            onFailure: self.handleError
         });
     },
 
@@ -944,8 +963,8 @@ var TableEditor = Class.create({
                     cell.style.textDecoration = _underline ? "none" : "underline";
                 }
             },
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            parameters: params,
+            onFailure: self.handleError
         });
     },
 
@@ -956,13 +975,13 @@ var TableEditor = Class.create({
         }
         var params = {
             editorId: this.editorId,
-            row : this.selectionPos[0],
-            col : this.selectionPos[1]
+            row: this.selectionPos[0],
+            col: this.selectionPos[1]
         }
         new Ajax.Request(this.buildUrl(operation), {
-            onSuccess : this.modFuncSuccess,
-            parameters : params,
-            onFailure: AjaxHelper.handleError
+            onSuccess: this.modFuncSuccess,
+            parameters: params,
+            onFailure: this.handleError
         });
     },
 
@@ -1059,7 +1078,7 @@ var Decorator = Class.create({
 
 // @Deprecated
 function openMenu(menuId, td, event) {
-    if (AjaxHelper.isRightClick(event)) {
+    if (HTMLHelper.isRightClick(event)) {
         td.oncontextmenu = function() { return false; };
         PopupMenu.sheduleShowMenu(menuId, event, 150);
     }

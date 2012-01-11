@@ -132,7 +132,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     },
 
     finishEdit: function() {
-        AjaxHelper.setInputValue(this.input, this.combineValue());
+        HTMLHelper.setInputValue(this.input, this.combineValue());
         this.handleF3();
         this.destroy();
     },
