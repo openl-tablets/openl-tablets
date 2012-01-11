@@ -41,4 +41,17 @@ public enum XlsNodeTypes {
     public String toString() {
         return name;
     }
+    
+    // Temporary method.
+    // Should be removed when TableSyntaxNode will be switched from String node type
+    // to XlsNodeTypes
+    //
+    public static XlsNodeTypes getEnumConstant(String name) {
+        for (XlsNodeTypes constant : XlsNodeTypes.values()) {
+            if (constant.toString().equals(name)) {
+                return constant;
+            }
+        }
+        return null;
+    }
 }
