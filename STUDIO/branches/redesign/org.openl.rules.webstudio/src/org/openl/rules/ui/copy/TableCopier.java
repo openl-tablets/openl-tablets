@@ -83,18 +83,16 @@ public class TableCopier extends WizardBase {
     }
 
     private void initProperties() {
-        List<TableProperty> definedProperties = new ArrayList<TableProperty>();        
-        TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        List<TableProperty> definedProperties = new ArrayList<TableProperty>();       
 
-        for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if (!propDefinition.isSystem()) {
-                ITableProperties tableProperties = table.getProperties();
+        ITableProperties tableProperties = table.getProperties();        
+        for (String possiblePropertyName : propertiesManager.getPossibleToAddProperties()) {
+            TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(possiblePropertyName);
+            if (!propDefinition.isSystem()) {                
+                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ? 
+                        tableProperties.getPropertyValue(possiblePropertyName) : null;
 
-                String name = propDefinition.getName();
-                Object propertyValue = tableProperties.getPropertyValue(name) != null ? 
-                        tableProperties.getPropertyValue(name) : null;
-
-                if (tableProperties.getPropertiesDefinedInTable().containsKey(name)) {
+                if (tableProperties.getPropertiesDefinedInTable().containsKey(possiblePropertyName)) {
                     Class<?> propertyType = null;
 
                     if (propDefinition.getType() != null) {
@@ -105,7 +103,7 @@ public class TableCopier extends WizardBase {
                     String format = propDefinition.getFormat();
                     boolean dimensional = propDefinition.isDimensional();
 
-                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(name, propertyType).value(
+                    TableProperty tableProperty = new TableProperty.TablePropertyBuilder(possiblePropertyName, propertyType).value(
                                 propertyValue).displayName(displayName).format(format).dimensional(dimensional).build();
 
                     definedProperties.add(tableProperty);
@@ -345,6 +343,10 @@ public class TableCopier extends WizardBase {
             propertiesStyle = propertiesSection.getSource().getCell(0, 0).getStyle();
         }        
         return propertiesStyle;
+    }
+    
+    protected IOpenLTable getTable() {
+        return table;
     }
 
     public String getTableTechnicalName() {
