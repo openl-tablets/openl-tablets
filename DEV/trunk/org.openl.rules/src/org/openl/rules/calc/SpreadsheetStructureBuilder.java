@@ -64,11 +64,11 @@ public class SpreadsheetStructureBuilder {
      * Add to {@link SpreadsheetOpenClass} fields that are represented by spreadsheet cells.
      * 
      * @param spreadsheetType open class of the spreadsheet
-     * @param spreadsheetHeader header of the spreadsheet table     
+     * @param spreadsheetHeaderType type of the header of the spreadsheet table     
      */
-    public void addCellFields(SpreadsheetOpenClass spreadsheetType, IOpenMethodHeader spreadsheetHeader) {
+    public void addCellFields(SpreadsheetOpenClass spreadsheetType, IOpenClass spreadsheetHeaderType) {
         /** at first appropriate data should be extracted from the source table**/
-        componentsBuilder.buildHeaders(spreadsheetHeader.getType());
+        componentsBuilder.buildHeaders(spreadsheetHeaderType);
         
         /** build cells representations of the spreadsheet*/
         buildCellsInternal(spreadsheetType);
