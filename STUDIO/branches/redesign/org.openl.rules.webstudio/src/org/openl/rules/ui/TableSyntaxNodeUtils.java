@@ -11,6 +11,7 @@ import org.openl.types.IOpenMethod;
 
 public class TableSyntaxNodeUtils {
 
+    private static final String ROUND_BRACKETS_WITH_ANY_TEXT = "\\(.*\\)";
     private static final String DISPLAY_TABLE_PROPERTY_NAME = "display";    
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode) {
@@ -42,7 +43,7 @@ public class TableSyntaxNodeUtils {
         }
 
         if (name == null) {
-            name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getType());
+            name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getNodeType());
         }
 
         if (display == null) {
@@ -85,23 +86,32 @@ public class TableSyntaxNodeUtils {
 
         return src;
     }
+    
+    // TODO: refactor
+    // Pass the HeaderSyntaxNode of the tsn and gets it`s name
+    // Update header parsing in all components on Binding phase
+    // @author DLiauchuk
+    public static String str2name(String methodHeader, XlsNodeTypes tableType) {
+        String resultName = methodHeader;
+        if (StringUtils.isBlank(resultName)) {
+            resultName = "NO NAME";
+        } else if (tableType.equals(XlsNodeTypes.XLS_DATATYPE)) {
+            String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
+            // ensure that the appropriate index exists
+            //
+            if (tokens.length > DatatypeNodeBinder.TYPE_INDEX) {
+                resultName = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
+            }            
+        } else if (tableType.equals(XlsNodeTypes.XLS_DT) || tableType.equals(XlsNodeTypes.XLS_SPREADSHEET)
+                || tableType.equals(XlsNodeTypes.XLS_TBASIC) || tableType.equals(XlsNodeTypes.XLS_COLUMN_MATCH)
+                || tableType.equals(XlsNodeTypes.XLS_DATA) || tableType.equals(XlsNodeTypes.XLS_DATATYPE)
+                || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
+                || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD)) {
 
-    public static String str2name(String src, String type) {
-        if (src == null) {
-            src = "NO NAME";
-        } else if (type.equals(XlsNodeTypes.XLS_DATATYPE.toString())) {
-            String[] tokens = StringUtils.split(src.replaceAll("\\(.*\\)", ""));
-            src = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
-        } else if (type.equals(XlsNodeTypes.XLS_DT.toString()) || type.equals(XlsNodeTypes.XLS_SPREADSHEET.toString())
-                || type.equals(XlsNodeTypes.XLS_TBASIC.toString()) || type.equals(XlsNodeTypes.XLS_COLUMN_MATCH.toString())
-                || type.equals(XlsNodeTypes.XLS_DATA.toString()) || type.equals(XlsNodeTypes.XLS_DATATYPE.toString())
-                || type.equals(XlsNodeTypes.XLS_METHOD.toString()) || type.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
-                || type.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
-
-            String[] tokens = StringUtils.split(src.replaceAll("\\(.*\\)", ""));
-            src = tokens[tokens.length - 1].trim();
+            String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
+            resultName = tokens[tokens.length - 1].trim();
         }
-        return src;
+        return resultName;
     }
 
     /**
