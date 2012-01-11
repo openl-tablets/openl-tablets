@@ -68,7 +68,7 @@ public class HTMLRenderer {
         }
         result.append(renderJS("js/tooltip.js"))
             .append(renderJS("js/ScriptLoader.js"))
-            .append(renderJS("js/AjaxHelper.js"))
+            .append(renderJS("js/HTMLHelper.js"))
             .append(renderJS("js/TableEditor.js"))
             .append(renderJS("js/popup/popupmenu.js"));
             if (editor.isEditable()) {

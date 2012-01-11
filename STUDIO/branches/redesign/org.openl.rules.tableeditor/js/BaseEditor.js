@@ -51,7 +51,7 @@ var BaseEditor = Class.create({
      */
     getValue: function() {
         var input = this.getInputElement();
-        return input ? AjaxHelper.getInputValue(input).toString().replace(/\u00A0/g, ' ') : null;
+        return input ? HTMLHelper.getInputValue(input).toString().replace(/\u00A0/g, ' ') : null;
     },
 
     getDisplayValue: function() {
@@ -72,7 +72,7 @@ var BaseEditor = Class.create({
         if (this.input) {
             this.parentElement.innerHTML = "";
             this.parentElement.appendChild(this.input);
-            AjaxHelper.setInputValue(this.getInputElement(), value);
+            HTMLHelper.setInputValue(this.getInputElement(), value);
             if (this.focus) {
                 this.input.focus();
             }

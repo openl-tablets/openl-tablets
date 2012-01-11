@@ -28,6 +28,7 @@
         <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
+        <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script>
           //<![CDATA[
@@ -42,8 +43,18 @@
             var $j = $.noConflict();
 
             $j.ajaxSetup({
-                cache: false
+                cache: false,
+                // Handle jQuery AJAX errors
+                error: function(response, message, error) {
+                    handleError(response.status);
+                }
             });
+
+            // Handle JSF / Richfaces AJAX errors
+            var onError = function onError(data) {
+                handleError(data.responseCode);
+            };
+            jsf.ajax.addOnError(onError);
 
             var urlRewrite = {
                 prefix: "#{rulesEditor}/"
@@ -76,6 +87,14 @@
                     return false;
                 });
             });
+
+            function handleError(code) {
+                if (code == 399) { // Session Timeout
+                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else {
+                    alert("Server failed(");
+                }
+            }
 
             function goTo(page, target) {
                 if (page) {

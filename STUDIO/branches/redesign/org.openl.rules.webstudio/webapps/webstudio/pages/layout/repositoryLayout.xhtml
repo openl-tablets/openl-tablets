@@ -20,9 +20,16 @@
         <script src="#{contextPath}/javascript/jquery-1.7.1.min.js"></script>
         <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
         <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
+        <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script>
             var $j = $.noConflict();
+
+            // Handle JSF / Richfaces AJAX errors
+            var onError = function onError(data) {
+                handleError(data.responseCode);
+            };
+            jsf.ajax.addOnError(onError);
 
             $j(function () {
                 setLayoutDimensions();
@@ -37,6 +44,14 @@
                 });
                 $j("body").css({"visibility": "visible"});
             });
+
+            function handleError(code) {
+                if (code == 399) { // Session Timeout
+                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else {
+                    alert("Server failed(");
+                }
+            }
 
             function setLayoutDimensions() {
                 $j("#center").css({

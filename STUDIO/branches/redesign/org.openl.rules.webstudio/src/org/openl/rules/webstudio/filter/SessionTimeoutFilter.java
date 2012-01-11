@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.filter;
 
 import java.io.IOException;
 
+import javax.faces.context.FacesContext;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -11,6 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,13 +25,15 @@ public class SessionTimeoutFilter implements Filter {
     private String redirectPage;
     private String[] excludePages;
 
+    @Override
     public void destroy() {
         // destroy
     }
 
+    @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        /*HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
         if (excludePages != null && excludePages.length > 0) {
             for (String excludePage : excludePages) {
                 if (!excludePage.equals("") && request.getRequestURL().indexOf(excludePage) > -1) {
@@ -38,23 +42,26 @@ public class SessionTimeoutFilter implements Filter {
                 }
             }
         }
+
         if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
-            String redirect = request.getContextPath() + redirectPage;
-            LOG.info("Session Timeout filter: redirect to " + redirectPage + " page");
-            String xRequested = request.getHeader("X-Requested-With");
-            if (xRequested != null && xRequested.equalsIgnoreCase("XMLHttpRequest")) {
-                // handle Ajax requests
-                response.setHeader("Location", redirect);
-                response.sendError(REDIRECT_ERROR_CODE, "Redirect Error");
+            String redirectUrl = request.getContextPath() + redirectPage;
+            LOG.info("Session Expired: redirect to " + redirectPage + " page");
+
+            // Handle Ajax requests
+            if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")       // jQuery / Prototype
+                   ||  StringUtils.equals(request.getHeader("faces-request"), "partial/ajax")) {  // JSF 2 / RichFaces
+                response.setHeader("Location", redirectUrl);
+                response.sendError(REDIRECT_ERROR_CODE);
             } else {
-                response.sendRedirect(redirect);
+                response.sendRedirect(redirectUrl);
             }
-        } else {*/
+        } else {
             filterChain.doFilter(servletRequest, servletResponse);
-        //}
+        }
     }
 
+    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         config = filterConfig;
         redirectPage = config.getInitParameter("redirectPage");
