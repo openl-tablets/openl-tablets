@@ -42,12 +42,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
 		ILogicalTable table = tsn.getTable();
 		IOpenSourceCodeModule tableSource = new GridCellSourceCodeModule(table.getSource(), cxt);
-		IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableSource, " \n\r");
-
-		 if (parsedHeader.length < 2) {
-			String message = "Datatype table format: Datatype <typename>";
-			throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
-		}
+		
+		IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
 
 		String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
 

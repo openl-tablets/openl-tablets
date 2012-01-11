@@ -130,23 +130,32 @@ public class DatatypeHelper {
 
     private static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
-        if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
+        if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
-            IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
+            IdentifierNode[] parsedHeader = tokenizeHeader(src);
 
             return parsedHeader[DatatypeNodeBinder.TYPE_INDEX].getIdentifier();
         }
 
         return null;
     }
+    
+    public static IdentifierNode[] tokenizeHeader(IOpenSourceCodeModule tableHeader) throws OpenLCompilationException {
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableHeader, " \n\r");
+        if (parsedHeader.length < 2) {
+            String message = "Datatype table format: Datatype <typename>";
+            throw SyntaxNodeExceptionUtils.createError(message, null, null, tableHeader);
+        }
+        return parsedHeader;
+    }
 
     private static String getParentDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
-        if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
+        if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
             IOpenSourceCodeModule src = tsn.getHeader().getModule();
 
-            IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
+            IdentifierNode[] parsedHeader = tokenizeHeader(src);
 
             if (parsedHeader.length == 4) {
                 return parsedHeader[DatatypeNodeBinder.PARENT_TYPE_INDEX].getIdentifier();
@@ -168,7 +177,7 @@ public class DatatypeHelper {
 
         for (TableSyntaxNode tsn : nodes) {
 
-            if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
+            if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
                 
                 try {
                     String datatypeName = DatatypeHelper.getDatatypeName(tsn);

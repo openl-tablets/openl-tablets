@@ -14,7 +14,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 
 /**
  * @author PUdalau
@@ -28,12 +27,12 @@ public class DatatypeNodeComparatorTest extends BaseOpenlBuilderHelper {
 
     private TableSyntaxNode findTableSyntaxNodeByDatatypeName(String datatypeName) {
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
-            if (XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())) {
+            if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
                 ILogicalTable table = tsn.getTable();
                 IOpenSourceCodeModule src = new GridCellSourceCodeModule(table.getSource());
-
+                
                 try {
-                    IdentifierNode[] parsedHeader = Tokenizer.tokenize(src, " \n\r");
+                    IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(src);
                     if (parsedHeader[DatatypeNodeBinder.TYPE_INDEX].getIdentifier().equals(datatypeName)) {
                         return tsn;
                     }

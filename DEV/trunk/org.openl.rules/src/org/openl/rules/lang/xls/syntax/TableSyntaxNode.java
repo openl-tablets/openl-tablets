@@ -16,6 +16,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -191,6 +192,16 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
             }
         }
         return false;
+    }
+    
+    /**
+     * Use this method instead of {@link #getType()}. Returns the enum constant for 
+     * the current node.
+     * 
+     * @return the {@link XlsNodeTypes} for current TableSyntaxNode
+     */
+    public XlsNodeTypes getNodeType() {
+        return XlsNodeTypes.getEnumConstant(getType());
     }
 
 }
