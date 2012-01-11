@@ -71,6 +71,10 @@ public class PropertiesBean {
     private TablePropertyDefinition getPropByName(String name) {
         return TablePropertyDefinitionUtils.getPropertyByName(name);
     }
+    
+    public List<String> getPossibleToAddProperties() {
+        return new ArrayList<String>(possibleToAddProps);
+    }
 
     /**
      * @return List of {@link SelectItem} that represents all properties that

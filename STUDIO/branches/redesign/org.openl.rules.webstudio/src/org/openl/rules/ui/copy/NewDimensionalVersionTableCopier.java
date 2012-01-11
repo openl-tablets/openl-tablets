@@ -7,6 +7,8 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 
@@ -23,13 +25,12 @@ public class NewDimensionalVersionTableCopier extends TableCopier {
     private void checkPropertiesExistance() {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if (propDefinition.isDimensional()
-                    && getProperty(propDefinition.getName()) == null) {
+            if (propDefinition.isDimensional() && getProperty(propDefinition.getName()) == null) {
                 TableProperty property = new TablePropertyBuilder(propDefinition.getName(),
-                        TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propDefinition.getName()))
-                        .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(propDefinition.getName()))
-                        .dimensional(true).build();
-                getPropertiesManager().addProperty(property);
+                TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propDefinition.getName())).displayName(
+                    TablePropertyDefinitionUtils.getPropertyDisplayName(propDefinition.getName())).dimensional(true)
+                    .build();
+                getPropertiesManager().addProperty(property);            
             }
         }
     }
@@ -39,7 +40,8 @@ public class NewDimensionalVersionTableCopier extends TableCopier {
         List<TableProperty> properties = new ArrayList<TableProperty>();
 
         for (TableProperty property : getPropertiesManager().getProperties()) {
-            if (property.isDimensional()) {
+            if (property.isDimensional() && PropertiesChecker.isPropertySuitableForTableType(property.getName(), getTable().getType()) 
+                    && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, property.getName())) {
                 properties.add(property);
             }
         }
