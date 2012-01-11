@@ -16,13 +16,13 @@ import org.openl.util.conf.Version;
 /**
  * @author Andrei Astrouski
  */
-public class NewVersionTableCopier extends TableCopier {
+public class VersionPropertyTableCopier extends TableCopier {
 
     private static final String VERSION_DELIMETER = "..";
     private static final String VERSION_PROP_NAME = "version";
     private static final String ACTIVE_PROP_NAME = "active";
 
-    public NewVersionTableCopier(IOpenLTable table) {
+    public VersionPropertyTableCopier(IOpenLTable table) {
         super(table);
         checkPropertiesExistance();
     }
