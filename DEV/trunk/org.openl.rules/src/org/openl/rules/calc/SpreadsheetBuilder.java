@@ -32,7 +32,7 @@ public class SpreadsheetBuilder {
      * @param spreadsheetHeader
      */
     public void populateSpreadsheetOpenClass(IOpenMethodHeader spreadsheetHeader) {
-        structureBuilder.addCellFields(getSpreadsheetOpenClass(spreadsheetHeader.getName()), spreadsheetHeader);
+        structureBuilder.addCellFields(getSpreadsheetOpenClass(spreadsheetHeader.getName()), spreadsheetHeader.getType());
     }
 
     public void finalizeBuild(Spreadsheet spreadsheet) {   

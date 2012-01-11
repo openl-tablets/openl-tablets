@@ -23,6 +23,8 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
+// TODO: refactor
+// Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
     
     private SpreadsheetBuilder builder;

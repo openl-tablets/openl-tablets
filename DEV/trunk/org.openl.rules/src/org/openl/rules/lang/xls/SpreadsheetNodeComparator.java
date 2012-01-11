@@ -23,10 +23,19 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode>{
             //
             CellsHeaderExtractor extractor1 = extractNames(o1);            
             
+            // TODO: refactor
+            // extract working with header to helper class
+            // should be simple: Helper.getMethodName(tableHeader)
+            //
             String[] tokens = o2.getHeader().getHeaderToken().getModule().getCode().split(" ");
-            String methodName = tokens[2].substring(0, tokens[2].indexOf("("));
-            
-            return extractor1.getDependentSpreadsheetTypes().contains(methodName) ? 1 : 0;        
+            if (tokens != null && tokens.length > 2) {
+                String methodName = tokens[2].substring(0, tokens[2].indexOf("("));
+                
+                return extractor1.getDependentSpreadsheetTypes().contains(methodName) ? 1 : 0;
+            } else {
+                return 0;
+            }
+                    
         } else if (isSpreadsheet(o1)) {
             CellsHeaderExtractor extractor1 = extractNames(o1);
             return extractor1.getDependentSpreadsheetTypes().size() > 0 ? 1 : 0;        
@@ -38,7 +47,7 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode>{
     }
 
     private boolean isSpreadsheet(TableSyntaxNode o1) {
-        return o1.getType().equals(XlsNodeTypes.XLS_SPREADSHEET.toString());
+        return XlsNodeTypes.XLS_SPREADSHEET.equals(o1.getNodeType());
     }
 
     private CellsHeaderExtractor extractNames(TableSyntaxNode tableSyntaxNode) {
