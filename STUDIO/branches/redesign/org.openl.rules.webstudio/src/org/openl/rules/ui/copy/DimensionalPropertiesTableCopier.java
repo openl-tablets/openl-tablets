@@ -15,9 +15,9 @@ import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 /**
  * @author Andrei Astrouski
  */
-public class NewDimensionalVersionTableCopier extends TableCopier {
+public class DimensionalPropertiesTableCopier extends TableCopier {
 
-    public NewDimensionalVersionTableCopier(IOpenLTable table) {
+    public DimensionalPropertiesTableCopier(IOpenLTable table) {
         super(table);
         checkPropertiesExistance();
     }

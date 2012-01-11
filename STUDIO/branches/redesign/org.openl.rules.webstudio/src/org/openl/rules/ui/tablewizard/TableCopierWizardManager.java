@@ -3,8 +3,8 @@ package org.openl.rules.ui.tablewizard;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.rules.ui.copy.NewDimensionalVersionTableCopier;
-import org.openl.rules.ui.copy.NewVersionTableCopier;
+import org.openl.rules.ui.copy.DimensionalPropertiesTableCopier;
+import org.openl.rules.ui.copy.VersionPropertyTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
 
 @ManagedBean
@@ -39,10 +39,10 @@ public class TableCopierWizardManager extends TableWizard {
                 wizard = new TableNamesCopier(getTable()); 
                 break;
             case CHANGE_VERSION:
-                wizard = new NewVersionTableCopier(getTable());
+                wizard = new VersionPropertyTableCopier(getTable());
                 break;
             case CHANGE_DIMENSION:
-                wizard = new NewDimensionalVersionTableCopier(getTable());
+                wizard = new DimensionalPropertiesTableCopier(getTable());
                 break;
             default:
                 return null;
