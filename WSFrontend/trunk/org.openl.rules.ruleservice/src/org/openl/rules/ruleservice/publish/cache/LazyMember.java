@@ -17,6 +17,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private Module module;
     private IDependencyManager dependencyManager;
     private boolean executionMode;
+    private T original;
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it
      * contains generated classes for datatypes.(If we use different
@@ -26,11 +27,12 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private ClassLoader classLoader;
 
     public LazyMember(Module module, IDependencyManager dependencyManager,
-			boolean executionMode, ClassLoader classLoader) {
+			boolean executionMode, ClassLoader classLoader, T original) {
 		this.module = module;
 		this.dependencyManager = dependencyManager;
 		this.executionMode = executionMode;
 		this.classLoader = classLoader;
+		this.original = original;
 	}
 
 	/**
@@ -69,27 +71,31 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 		return classLoader;
 	}
 
+    public T getOriginal() {
+        return original;
+    }
+
     public String getDisplayName(int mode) {
-        return getMember().getDisplayName(mode);
+        return original.getDisplayName(mode);
     }
 
     public String getName() {
-        return getMember().getName();
+        return original.getName();
     }
 
     public IOpenClass getType() {
-        return getMember().getType();
+        return original.getType();
     }
 
     public boolean isStatic() {
-        return getMember().isStatic();
+        return original.isStatic();
     }
 
     public IMemberMetaInfo getInfo() {
-        return getMember().getInfo();
+        return original.getInfo();
     }
 
     public IOpenClass getDeclaringClass() {
-        return getMember().getDeclaringClass();
+        return original.getDeclaringClass();
     }
 }

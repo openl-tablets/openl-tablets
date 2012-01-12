@@ -13,11 +13,11 @@ import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.publish.cache.ModuleInfoGatheringDependencyLoader.ModuleStatistics;
 
 /**
  * Prebinds multimodule openclass and creates LazyMethod and LazyField that will
@@ -30,7 +30,6 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
 
     private LazyMultiModuleEngineFactory factory;
     private ClassLoader classLoader;
-    private ModuleStatistics moduleStatistic;
     private Collection<Module> modules;
     private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
 
@@ -38,8 +37,6 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
             IDependencyManager dependencyManager) {
         super(null, executionMode, createDependencyManager(modules, executionMode, dependencyManager));
         this.modules = modules;
-        moduleStatistic = ((ModuleInfoGatheringDependencyLoader) ((RulesProjectDependencyManager) getDependencyManager())
-                .getDependencyLoaders().get(0)).getModuleStatistic();
     }
 
     public void addInitializingListener(InitializingListener listener) {
@@ -54,7 +51,7 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
             IDependencyManager dependencyManager) {
         RulesProjectDependencyManager multiModuleDependencyManager = new RulesProjectDependencyManager();
         multiModuleDependencyManager.setExecutionMode(executionMode);
-        IDependencyLoader loader = new ModuleInfoGatheringDependencyLoader(modules);
+        IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
         List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
         dependencyLoaders.add(loader);
         if (dependencyManager instanceof DependencyManager) {
@@ -131,7 +128,6 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
                 }
             }
             factory.setDependencyManager(getDependencyManager());
-            factory.setModuleStatistic(moduleStatistic);
         }
 
         return factory;

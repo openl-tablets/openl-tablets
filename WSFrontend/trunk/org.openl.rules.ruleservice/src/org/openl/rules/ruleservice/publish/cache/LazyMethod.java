@@ -23,8 +23,8 @@ public class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
     private Class<?>[] argTypes;
 
     public LazyMethod(String methodName, Class<?>[] argTypes, Module module, IDependencyManager dependencyManager,
-            boolean executionMode, ClassLoader classLoader) {
-        super(module, dependencyManager, executionMode, classLoader);
+            boolean executionMode, ClassLoader classLoader, IOpenMethod original) {
+        super(module, dependencyManager, executionMode, classLoader, original);
         this.methodName = methodName;
         this.argTypes = argTypes;
     }
@@ -43,11 +43,11 @@ public class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
     }
 
     public IMethodSignature getSignature() {
-        return getMember().getSignature();
+        return getOriginal().getSignature();
     }
 
     public IOpenMethod getMethod() {
-        return getMember().getMethod();
+        return this;
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {

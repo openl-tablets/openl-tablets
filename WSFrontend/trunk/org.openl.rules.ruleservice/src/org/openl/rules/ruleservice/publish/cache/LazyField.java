@@ -18,8 +18,8 @@ public class LazyField extends LazyMember<IOpenField> implements IOpenField {
     private String fieldName;
 
     public LazyField(String fieldName, Module module, IDependencyManager dependencyManager,
-            boolean executionMode, ClassLoader classLoader) {
-        super(module, dependencyManager, executionMode, classLoader);
+            boolean executionMode, ClassLoader classLoader, IOpenField original) {
+        super(module, dependencyManager, executionMode, classLoader, original);
         this.fieldName = fieldName;
     }
 
@@ -42,15 +42,15 @@ public class LazyField extends LazyMember<IOpenField> implements IOpenField {
     }
 
     public boolean isConst() {
-        return getMember().isConst();
+        return getOriginal().isConst();
     }
 
     public boolean isReadable() {
-        return getMember().isReadable();
+        return getOriginal().isReadable();
     }
 
     public boolean isWritable() {
-        return getMember().isWritable();
+        return getOriginal().isWritable();
     }
 
 }
