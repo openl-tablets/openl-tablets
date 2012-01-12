@@ -31,6 +31,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -268,7 +269,7 @@ public class TableSyntaxNodeDispatcherBuilder {
     private List<ITableProperties> getMethodsProperties() {
         List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
         for (IOpenMethod method : dispatcher.getCandidates()) {
-                propertiesValues.add(MatchingOpenMethodDispatcher.getTableProperties(method));
+                propertiesValues.add(PropertiesHelper.getTableProperties(method));
         }
         return propertiesValues;
     }

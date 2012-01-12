@@ -348,7 +348,7 @@ public class XlsBinder implements IOpenBinder {
      * @param dependencies set of dependent modules for creating module.
      * @return
      */
-    private XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl,
+    protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl,
         Set<CompiledOpenClass> moduleDependencies) {
 
         XlsModuleOpenClass module = null;

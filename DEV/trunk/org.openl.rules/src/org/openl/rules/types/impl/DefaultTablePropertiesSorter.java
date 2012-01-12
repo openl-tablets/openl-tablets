@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
 import org.openl.rules.table.properties.expressions.sequence.JavaClassTablesComparator;
 import org.openl.types.IOpenMethod;
@@ -56,8 +57,8 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
         methodsComparator = new Comparator<IOpenMethod>() {
             @Override
             public int compare(IOpenMethod o1, IOpenMethod o2) {
-                ITableProperties tableProperties1 = MatchingOpenMethodDispatcher.getTableProperties(o1);
-                ITableProperties tableProperties2 = MatchingOpenMethodDispatcher.getTableProperties(o2);
+                ITableProperties tableProperties1 = PropertiesHelper.getTableProperties(o1);
+                ITableProperties tableProperties2 = PropertiesHelper.getTableProperties(o2);
                 int comparisonResult = 0;
                 for(Comparator<ITableProperties> tablesPriorityRule : tablesPriorityRules){
                     comparisonResult = tablesPriorityRule.compare(tableProperties1, tableProperties2);

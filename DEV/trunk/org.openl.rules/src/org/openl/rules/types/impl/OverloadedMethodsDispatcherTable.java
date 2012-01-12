@@ -53,10 +53,13 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
 
     private Object[] updateArguments(Object[] params, IRuntimeEnv env, IOpenMethod dispatcherMethod) {
         Object[] arguments = new Object[dispatcherMethod.getSignature().getNumberOfParameters()];
-        System.arraycopy(params, 0, arguments, 0, params.length);
+        int parametersOfOverloadedMethods = getCandidates().get(0).getSignature().getNumberOfParameters();
+        if (parametersOfOverloadedMethods > 0) {
+            System.arraycopy(params, 0, arguments, 0, params.length);
+        }
         IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
         if (context != null) {
-            for (int i = params.length; i < dispatcherMethod.getSignature().getNumberOfParameters(); i++) {
+            for (int i = parametersOfOverloadedMethods; i < dispatcherMethod.getSignature().getNumberOfParameters(); i++) {
                 arguments[i] = context.getValue(dispatcherMethod.getSignature().getParameterName(i));
             }
         }

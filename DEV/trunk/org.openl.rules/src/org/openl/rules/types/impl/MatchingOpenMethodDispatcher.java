@@ -3,8 +3,6 @@ package org.openl.rules.types.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
@@ -15,27 +13,22 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.DefaultInvokerWithTrace;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.MethodDelegator;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
- * 
- * TODO: refactor to use {@link ExecutableRulesMethod} in this class instead of
- * common {@link IOpenMethod}
  * 
  * TODO: refactor invoke functionality. Use {@link DefaultInvokerWithTrace}.
  */
@@ -75,8 +68,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             candidatesSorted = null;
         } else {
             // replace by newer or active
-            if (new TableVersionComparator().compare((ExecutableRulesMethod) getCandidates().get(pos),
-                (ExecutableRulesMethod) candidate) > 0) {
+            if (new TableVersionComparator().compare(getCandidates().get(pos), candidate) > 0) {
                 getCandidates().set(pos, candidate);
             }
         }
@@ -88,13 +80,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
      * only the newest or active table.
      */
     private int searchForTheSameTable(IOpenMethod method) {
-        if (method instanceof ExecutableRulesMethod) {
-            DimensionPropertiesMethodKey methodKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) method);
-            for (int i = 0; i < getCandidates().size(); i++) {
-                IOpenMethod candidate = getCandidates().get(i);
-                if (candidate instanceof ExecutableRulesMethod && methodKey.equals(new DimensionPropertiesMethodKey((ExecutableRulesMethod) candidate))) {
-                    return i;
-                }
+        DimensionPropertiesMethodKey methodKey = new DimensionPropertiesMethodKey(method);
+        for (int i = 0; i < getCandidates().size(); i++) {
+            IOpenMethod candidate = getCandidates().get(i);
+            if (methodKey.equals(new DimensionPropertiesMethodKey(candidate))) {
+                return i;
             }
         }
         return -1;
@@ -206,7 +196,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
-
+    
     @Override
     public IMemberMetaInfo getInfo() {
         return getDispatcherTable().getMember().getInfo();
@@ -252,7 +242,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         boolean matchExists = false;
 
         for (IOpenMethod method : selected) {
-            ITableProperties props = getTableProperties(method);
+            ITableProperties props = PropertiesHelper.getTableProperties(method);
             MatchingResult res = matcher.match(propName, props, context);
 
             switch (res) {
@@ -274,30 +264,13 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
     }
 
-    public static ITableProperties getTableProperties(IOpenMethod method) {
-        // FIXME
-        TableProperties properties = new TableProperties();
-        Map<String, Object> definedInTable = null;
-        if (method instanceof ExecutableRulesMethod) {
-            definedInTable = ((ExecutableRulesMethod) method).getProperties();
-        } else if (method.getInfo() != null) {
-            definedInTable = method.getInfo().getProperties();
-        }
-        if (definedInTable != null) {
-            for (Entry<String, Object> property : definedInTable.entrySet()) {
-                properties.setFieldValue(property.getKey(), property.getValue());
-            }
-        }
-        return properties;
-    }
-
     private String toString(List<IOpenMethod> methods) {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Candidates: {\n");
 
         for (IOpenMethod method : methods) {
-            ITableProperties tableProperties = getTableProperties(method);
+            ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             builder.append(tableProperties.toString());
             builder.append("\n");
         }
