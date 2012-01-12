@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -121,9 +122,15 @@ public class MethodUsagesSearcher {
                 }
             }
         }
-        if (boundNode.getChildren() != null) {
+        if (ArrayUtils.isNotEmpty(boundNode.getChildren())) {
             for (IBoundNode child : boundNode.getChildren()) {
                 findAllMethods(child, methods, sourceString, startIndex);
+            }
+        }
+        if(boundNode instanceof ATargetBoundNode){
+            IBoundNode targetNode = ((ATargetBoundNode)boundNode).getTargetNode();
+            if (targetNode != null) {
+                findAllMethods(targetNode, methods, sourceString, startIndex);
             }
         }
     }
