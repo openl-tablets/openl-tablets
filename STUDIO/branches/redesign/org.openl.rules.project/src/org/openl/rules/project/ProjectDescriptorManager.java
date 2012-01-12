@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
@@ -102,7 +103,7 @@ public class ProjectDescriptorManager {
             Module module = new Module();
             module.setProject(descriptor);
             module.setRulesRootPath(new PathEntry(file.getAbsolutePath()));
-            module.setName(file.getName());
+            module.setName(FilenameUtils.getBaseName(file.getName()));
             module.setType(ModuleType.API);
             modules.add(module);
         }
