@@ -25,10 +25,10 @@ public abstract class ASimplePriorityRule<T extends Comparable<T>> implements IP
             if(propertyValue2 == null){
                 return 0;
             }else{
-                return -1;
+                return 1;
             }
         }else if(propertyValue2 == null){
-            return 1;
+            return -1;
         }
         return compareNotNulls(propertyValue1, propertyValue2);
     }
