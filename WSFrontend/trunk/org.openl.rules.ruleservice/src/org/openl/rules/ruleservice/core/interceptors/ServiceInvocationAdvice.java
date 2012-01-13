@@ -140,6 +140,9 @@ public class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
             Method beanMethod = MethodUtils.getMatchingAccessibleMethod(serviceBean.getClass(), calledMethod.getName(),
                     calledMethod.getParameterTypes());
             try {
+                if (beanMethod == null){
+                    throw new OpenLRuntimeException("Called method not found in ServiceBean");
+                }
                 result = beanMethod.invoke(serviceBean, args);
                 result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Throwable e) {
