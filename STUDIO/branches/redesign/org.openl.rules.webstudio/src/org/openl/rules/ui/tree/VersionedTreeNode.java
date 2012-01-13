@@ -5,7 +5,6 @@ import java.util.TreeMap;
 
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.ui.IProjectTypes;
 
 /**
@@ -84,7 +83,6 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     public static int findLaterTable(TableSyntaxNode first, TableSyntaxNode second) {
-        return new TableVersionComparator().compare((ExecutableRulesMethod) first.getMember(),
-            (ExecutableRulesMethod) second.getMember());
+        return new TableVersionComparator().compare(first, second);
     }
 }
