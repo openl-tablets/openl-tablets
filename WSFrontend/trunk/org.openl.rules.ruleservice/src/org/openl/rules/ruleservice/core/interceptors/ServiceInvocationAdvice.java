@@ -139,8 +139,19 @@ public class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
             beforeInvocation(interfaceMethod, args);
             Method beanMethod = MethodUtils.getMatchingAccessibleMethod(serviceBean.getClass(), calledMethod.getName(),
                     calledMethod.getParameterTypes());
-            if (beanMethod == null){
-                throw new OpenLRuntimeException("Called method not found in ServiceBean");
+            if (beanMethod == null) {
+                StringBuilder sb = new StringBuilder();
+                boolean flag = true;
+                for (Class<?> clazz : calledMethod.getParameterTypes()){
+                    if (flag){
+                        flag = false;
+                    }else{
+                        sb.append(", ");
+                    }
+                    sb.append(clazz.getCanonicalName());
+                }
+                throw new OpenLRuntimeException("Called method not found in service bean. Please, check that excel file contains method with name \""
+                        + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
             }
             try {
                 result = beanMethod.invoke(serviceBean, args);
