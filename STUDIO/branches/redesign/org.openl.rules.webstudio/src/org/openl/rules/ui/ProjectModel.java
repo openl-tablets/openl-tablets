@@ -22,7 +22,6 @@ import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -479,6 +478,12 @@ public class ProjectModel {
             if (resolvedMethod != null) {
                 return resolvedMethod;
             }
+        }
+
+        // for methods that exist in module but not included in CompiledOpenClass
+        // e.g. elder inactive versions of methods
+        if(tsn.getMember() instanceof IOpenMethod ){
+            return (IOpenMethod) tsn.getMember();
         }
 
         return null;
