@@ -35,7 +35,7 @@ public class DecisionTableOpenlBuilder {
     public DecisionTable build(TableSyntaxNode tsn, OpenL openl, ModuleOpenClass moduleOpenClass) {
         IMethodSignature signature = new MethodSignature(incomeParams.values().toArray(
                 new IOpenClass[incomeParams.size()]), incomeParams.keySet().toArray(new String[incomeParams.size()]));
-        IOpenClass declaringClass = null; // can be null.
+        IOpenClass declaringClass = moduleOpenClass;
 
         OpenMethodHeader header = new OpenMethodHeader(tableName, returnType, signature, declaringClass);
         DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn, openl, header, moduleOpenClass);
