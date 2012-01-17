@@ -15,7 +15,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.CompiledOpenClass;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.message.OpenLMessage;
@@ -180,12 +179,10 @@ public class ShowTableBean {
             }
         }
 
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
+        ProjectModel model = WebStudioUtils.getProjectModel();
 
-        CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
+        List<OpenLMessage> messages = model.getModuleMessages();
 
-        List<OpenLMessage> messages = compiledOpenClass.getMessages();
         List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         for (OpenLMessage message : warningMessages) {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN

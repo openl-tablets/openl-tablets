@@ -689,6 +689,14 @@ public class ProjectModel {
         return compiledOpenClass;
     }
 
+    public List<OpenLMessage> getModuleMessages() {
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        if (compiledOpenClass != null) {
+            return compiledOpenClass.getMessages();
+        }
+        return Collections.emptyList();
+    }
+
     /**
      * @return Returns the wrapperInfo.
      */
