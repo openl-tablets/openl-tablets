@@ -91,8 +91,10 @@
             function handleError(code) {
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else if (code == 404) { // File Not Found
+                    alert("Sorry! Page Not Found!");
                 } else {
-                    alert("Server failed(");
+                    alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
                 }
             }
 
