@@ -9,7 +9,6 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -54,9 +53,8 @@ public class ProblemsBean {
 
         if (studio.getCurrentProject() != null) {
             ProjectModel model = studio.getModel();
-            CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
 
-            List<OpenLMessage> messages = compiledOpenClass.getMessages();
+            List<OpenLMessage> messages = model.getModuleMessages();
 
             TreeNode root = new TreeNode();
 
