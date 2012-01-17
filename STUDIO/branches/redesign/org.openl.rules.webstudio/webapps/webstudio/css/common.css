@@ -10,11 +10,12 @@ table, input, textarea {
 }
 
 input[type='text'], input[type='password'], textarea, select {
-    border-width: 1px;
-    border-style: solid;
-    border-color: #888888 #E6E6E6 #E6E6E6 #888888;
-    border-radius: 1px;
-    outline: none;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #888888 #E6E6E6 #E6E6E6 #888888 !important;
+    border-radius: 1px !important;
+    outline: none !important;
+    background: #ffffff !important;
 }
 
 input[type='text'], input[type='password'], textarea {
@@ -413,10 +414,6 @@ table.header thead td {
 .rf-insp {
     border: 0 !important;
     display: inline !important;
-}
-
-.rf-insp-inp {
-    background: none !important;
 }
 
 .rf-insp-btns {
