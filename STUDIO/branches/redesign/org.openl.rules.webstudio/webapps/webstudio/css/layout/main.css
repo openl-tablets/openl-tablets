@@ -35,16 +35,6 @@ html, body {
 }
 
 /*
- *	PANES & CONTENT-DIVs
- */
-.ui-layout-pane { /* all 'panes' */
-	/* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
-	   otherwise you may get double-scrollbars - on the pane AND on the content-div
-	*/
-    overflow: auto;
-}
-
-/*
  *	RESIZER-BARS
  */
 .ui-layout-resizer	{
