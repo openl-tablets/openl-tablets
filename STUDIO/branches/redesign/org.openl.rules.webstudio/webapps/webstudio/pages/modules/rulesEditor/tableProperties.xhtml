@@ -78,7 +78,7 @@
                     <h:panelGroup rendered="#{editable}">
                     <span class="propEditor#{!empty prop.value ? ' propHide' : ''}">
                         <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
-                            defaultTime="00:00" rendered="#{prop.dateType}" inputStyle="width:100px" />
+                            rendered="#{prop.dateType}" inputStyle="width:100px" />
 
                         <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 
