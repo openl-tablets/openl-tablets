@@ -69,7 +69,7 @@
                 <ul>
                     <a4j:repeat value="#{studio.allProjects}" var="project">
                     <li style="margin-bottom: 5px">
-                        <a class="projectName" href="#">#{project.name}</a>
+                        <a class="projectName" href="javascript:void(0)" style="cursor: default;">#{project.name}</a>
                         <ul style="margin-left: 9px">
                             <a4j:repeat value="#{project.modules}" var="module">
                             <li>
