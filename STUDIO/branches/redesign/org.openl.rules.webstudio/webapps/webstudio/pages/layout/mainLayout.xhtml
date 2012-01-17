@@ -52,6 +52,7 @@
 
             // Handle JSF / Richfaces AJAX errors
             var onError = function onError(data) {
+                console.error(data);
                 handleError(data.responseCode);
             };
             jsf.ajax.addOnError(onError);
