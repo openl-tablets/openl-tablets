@@ -96,8 +96,13 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     private Object convert(Object x) {        
         if (needConversion(x)) {
             IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(column.getExpectedType(), 
-                x.getClass());        
-            return convertor.convert(x, null);
+                x.getClass());     
+            try {
+            	return convertor.convert(x, null);
+            } catch (Exception e) {
+            	String message = String.format("Cannot convert value %s to %s", x, column.getExpectedType().getName());
+            	LOG.warn(message, e);
+			}
         } 
         return x;
     }

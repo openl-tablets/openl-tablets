@@ -50,4 +50,16 @@ public class SpreadsheetColumnExtractorTest {
          extractor.convertAndStoreData(new org.openl.meta.StringValue(testedValue), instanceToPopulate);        
          assertNull(instanceToPopulate.getCode());
     }
+    
+    @Test
+    public void testExtractingValueOfNotAppropriateType() {
+    	ColumnToExtract columnToExtract = new ColumnToExtract("Value", Double.class, false);
+    	SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract, true);
+    	
+    	SimpleStep instanceToPopulate = new SimpleStep();
+    	
+    	extractor.convertAndStoreData("stringValueInsteadOfDouble", instanceToPopulate);        
+        assertNull(instanceToPopulate.getValue());
+    	
+    }
 }
