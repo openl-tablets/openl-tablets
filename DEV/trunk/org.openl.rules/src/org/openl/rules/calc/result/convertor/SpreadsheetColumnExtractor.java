@@ -1,6 +1,5 @@
 package org.openl.rules.calc.result.convertor;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang.ClassUtils;
@@ -54,31 +53,39 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     }
 
     private void store(Object value, S step) {
-        Method setterName = null;
-        try {
-            setterName = step.getClass().getMethod(StringTool.getSetterName(column.getColumnName()), column.getExpectedType());
-        } catch (SecurityException e) {
-            LOG.warn(e);
-        } catch (NoSuchMethodException e) {
-            LOG.warn(e);
-            try {
-                // for fields that use only Upper case letters (e.g ID).
-                setterName = step.getClass().getMethod(getSetterName(column.getColumnName()), column.getExpectedType());
-            } catch (SecurityException e1) {               
-                LOG.warn(e);
-            } catch (NoSuchMethodException e1) {
-                LOG.warn(e);
-            }
-        }        
-        try {            
-            setterName.invoke(step, value);
-        } catch (IllegalArgumentException e) {
-            LOG.warn(e);
-        } catch (IllegalAccessException e) {
-            LOG.warn(e);
-        } catch (InvocationTargetException e) {
-            LOG.warn(e);
+        Method setterMethod = getSetterMethod(step);        
+        if (setterMethod != null) {
+        	try {  
+                setterMethod.invoke(step, value);
+            } catch (Exception e) {
+                 LOG.warn(e);
+            } 
+        } else {
+        	String message = String.format("Cannot find setter in %s class for [%s] column", 
+    				step.getClass().getName(), column.getColumnName());
+        	LOG.warn(message);
         }
+    }
+    
+    private Method getSetterMethod(S step) {
+    	Method setterMethod = null;
+    	// try to get setter, by upper case the first symbol in the column name, and leave the other part as is
+    	//
+    	String setterName = StringTool.getSetterName(column.getColumnName());
+        try {
+            setterMethod = step.getClass().getMethod(setterName, column.getExpectedType());
+        } catch (Exception e) {            
+            try {
+                // try to get setter by upper case the first symbol in the column name, and lower
+            	// case the rest
+            	//
+            	setterName = getSetterName(column.getColumnName());
+                setterMethod = step.getClass().getMethod(setterName, column.getExpectedType());
+            } catch (Exception e1) {               
+            	LOG.warn(e1);
+            }
+        } 
+        return setterMethod;
     }
     
     //protected for tests 
