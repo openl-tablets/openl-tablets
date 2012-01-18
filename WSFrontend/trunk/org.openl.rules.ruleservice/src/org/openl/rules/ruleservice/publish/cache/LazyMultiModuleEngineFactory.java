@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -146,13 +147,16 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
     }
 
-    private Module getModuleForMember(IOpenMember member){
+    /*package*/ Module getModuleForMember(IOpenMember member){
         String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
         for (Module module : modules) {
             try {
                 // TODO: find proper way of getting module of OpenMember
                 // now URLs comparison is used.
-                if (sourceUrl.equals(new File(module.getRulesRootPath().getPath()).toURI().toURL().toExternalForm())) {
+                if (FilenameUtils.normalize(sourceUrl)
+                    .equals(FilenameUtils.normalize(new File(module.getRulesRootPath().getPath()).toURI()
+                        .toURL()
+                        .toExternalForm()))) {
                     return module;
                 }
             } catch (MalformedURLException e) {
