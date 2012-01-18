@@ -700,7 +700,8 @@ var TableEditor = Class.create({
 
         if (!toolbar) {
             do {
-                if (element.hasClassName("cp_palette")) {
+                if (element.nodeName == "DIV"
+                        && element.hasClassName("cp_palette")) {
                     picker = element;
                     break;
                 }
