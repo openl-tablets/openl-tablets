@@ -16,6 +16,9 @@ public class SpreadsheetColumnExtractorTest {
         assertEquals(ecpectedName1, extractor.getSetterName("ID"));
         assertEquals(ecpectedName1, extractor.getSetterName("Id"));
         assertEquals(ecpectedName1, extractor.getSetterName("iD"));
+        assertEquals("setCode", extractor.getSetterName("CoDe"));
+        assertEquals("setCode", extractor.getSetterName("code"));
+        assertEquals("setMycustomsuperfield", extractor.getSetterName("myCustomSuperField"));
     }
     
     @Test
@@ -34,5 +37,17 @@ public class SpreadsheetColumnExtractorTest {
         extractor.convertAndStoreData(testedValue, instanceToPopulate1);
         
         assertEquals(testedValue, instanceToPopulate.getCode());
+    }
+    
+    @Test 
+    public void testNotExistingColumn() {
+    	 String testedValue = "valueToExtract";
+    	 ColumnToExtract columnToExtract = new ColumnToExtract("Not_Existing_Column", String.class, false);
+         SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract, true);
+         
+         CodeStep instanceToPopulate = new CodeStep();
+         // storing with converting
+         extractor.convertAndStoreData(new org.openl.meta.StringValue(testedValue), instanceToPopulate);        
+         assertNull(instanceToPopulate.getCode());
     }
 }
