@@ -53,6 +53,10 @@
 
             // Handle JSF / Richfaces AJAX errors
             var onError = function onError(data) {
+                if (data.errorName
+                    && data.errorName.indexOf("ViewExpiredException") > -1) { // Session Timeout
+                    handleError(399);
+                }
                 handleError(data.responseCode);
             };
             jsf.ajax.addOnError(onError);
