@@ -33,6 +33,7 @@ var TableEditor = Class.create({
     actions: null,
     editorWrapper: null,
     switchEditorMenu: null,
+    toolbar: null,
 
     fillColorPicker: null,
     fontColorPicker: null,
@@ -114,6 +115,7 @@ var TableEditor = Class.create({
         var self = this;
 
         initToolbar(self.editorId);
+        self.toolbar = $(self.editorId).down(".te_toolbar");
         self.editorWrapper = $(self.editorId + "_editorWrapper");
 
         this.decorator = new Decorator('te_selected');
@@ -283,6 +285,8 @@ var TableEditor = Class.create({
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
+        } else if (this.isToolbar(elt)) {
+            // Do Nothing
         } else {
             this.tableBlur();
         }
@@ -688,6 +692,16 @@ var TableEditor = Class.create({
         return false;
     },
 
+    isToolbar: function(element) {
+        var toolbar = element && element.up(".te_toolbar");
+        var picker;
+        if (!toolbar) {
+            picker = element && element.up(".cp_palette");
+        }
+        return (toolbar && toolbar.up().id.indexOf(this.editorId) >= 0)
+            || (picker && picker.up().id.indexOf("_color_colorPicker") >= 0);
+    },
+
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
         new Ajax.Request(this.buildUrl((redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO)), {
@@ -752,17 +766,18 @@ var TableEditor = Class.create({
         if (!this.fillColorPicker) { // Lazy initialization
 
             this.fillColorPicker = new ColorPicker(
-            	actionElemId,
+                actionElemId,
+                self.toolbar,
                 function(color) {
                     self.setColor(color, TableEditor.Operations.SET_FILL_COLOR);
                 },
                 { // Optional params
-                	showOn: false,
-                	onMouseOver: function () {
-                	    self.decorator.undecorate(self.currentElement);
-                	},
-                	onColorMouseOver: function(color) {
-                	    self.currentElement.style.backgroundColor = color;
+	                showOn: false,
+	                onMouseOver: function () {
+	                    self.decorator.undecorate(self.currentElement);
+	            	},
+	            	onColorMouseOver: function(color) {
+	            	    self.currentElement.style.backgroundColor = color;
 	                },
 	                onMouseOut: function () {
 	                    self.currentElement.style.backgroundColor = self.currentFillColor;
@@ -783,6 +798,7 @@ var TableEditor = Class.create({
 
             this.fontColorPicker = new ColorPicker(
                 actionElemId,
+                self.toolbar,
                 function(color) {
                     self.setColor(color, TableEditor.Operations.SET_FONT_COLOR);
                 },

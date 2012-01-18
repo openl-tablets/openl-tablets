@@ -19,9 +19,10 @@ var ColorPicker = Class.create({
     documentClickListener: null,
     opened: false,
 
-    initialize: function(id, onSelect, optParams) {
+    initialize: function(id, parent, onSelect, optParams) {
         this.actionElement = $(id);
         this.onSelect = onSelect;
+        this.parent = parent;
         this.optParams = optParams;
 
         if (this.optParams.showOn != false && !this.optParams.showOn) {
@@ -51,7 +52,7 @@ var ColorPicker = Class.create({
             }
 
             // Show Color Picker
-            document.body.appendChild(this.colorPicker);
+            this.parent.appendChild(this.colorPicker);
 
             if (self.optParams.onMouseOver) {
                 this.colorPicker.observe("mouseover", function(e) {
@@ -117,7 +118,7 @@ var ColorPicker = Class.create({
     },
 
     getInitPosition: function() {
-        var pos = Element.viewportOffset(this.actionElement);
+        var pos = Element.positionedOffset(this.actionElement);
         pos[1] += this.actionElement.getHeight();
         return pos;
     },
@@ -169,7 +170,7 @@ var ColorPicker = Class.create({
 
         if (this.opened) {
             Event.stopObserving(document, 'click', this.documentClickListener);
-            document.body.removeChild(this.colorPicker);
+            Element.remove(this.colorPicker);
             this.opened = false;
         }
     },
