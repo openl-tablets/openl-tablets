@@ -693,11 +693,20 @@ var TableEditor = Class.create({
     },
 
     isToolbar: function(element) {
-        var toolbar = element && element.up(".te_toolbar");
+        if (!element) return false;
+
+        var toolbar = element.up(".te_toolbar");
         var picker;
+
         if (!toolbar) {
-            picker = element && element.up(".cp_palette");
+            do {
+                if (element.hasClassName("cp_palette")) {
+                    picker = element;
+                    break;
+                }
+            } while (element = element.parentNode);
         }
+
         return (toolbar && toolbar.up().id.indexOf(this.editorId) >= 0)
             || (picker && picker.up().id.indexOf("_color_colorPicker") >= 0);
     },
