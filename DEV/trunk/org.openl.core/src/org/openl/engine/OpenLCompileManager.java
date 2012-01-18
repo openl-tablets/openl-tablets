@@ -107,6 +107,7 @@ public class OpenLCompileManager extends OpenLHolder {
             OpenLMessages.getCurrentInstance().addMessages(validationMessages);
         }
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
+        messages.addMessages(processedCode.getMessagesFromDependencies());
         if (executionMode) {
             ((ModuleOpenClass) openClass).clearOddDataForExecutionMode();
         }

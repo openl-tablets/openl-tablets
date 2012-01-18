@@ -1,6 +1,11 @@
 package org.openl.syntax.code;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openl.CompiledOpenClass;
 import org.openl.binding.IBoundCode;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
@@ -80,5 +85,13 @@ public class ProcessedCode {
         }
 
         return boundCode.getErrors();
+    }
+
+    public List<OpenLMessage> getMessagesFromDependencies() {
+        List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+        for(CompiledOpenClass dependency : parsedCode.getCompiledDependencies()){
+            messages.addAll(dependency.getMessages());
+        }
+        return messages;
     }
 }
