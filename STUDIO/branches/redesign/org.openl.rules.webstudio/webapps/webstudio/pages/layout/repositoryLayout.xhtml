@@ -25,6 +25,7 @@
         <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script>
+          //<![CDATA[
             var $j = $.noConflict();
 
             // Handle JSF / Richfaces AJAX errors
@@ -75,6 +76,7 @@
             function hideLoader() {
                 $j('#loadingPanel').hide();
             }
+          //]]>
         </script>
 
         <style>
