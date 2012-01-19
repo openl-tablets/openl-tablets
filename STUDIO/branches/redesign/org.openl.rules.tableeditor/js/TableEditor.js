@@ -245,7 +245,7 @@ var TableEditor = Class.create({
                 } else {
                     self.processCallbacks(response, "do");
                     if (self.actions && self.actions.afterSave) {
-                        self.actions.afterSave();
+                        self.actions.afterSave({"newUri": response.response});
                     }
                 }
             },
