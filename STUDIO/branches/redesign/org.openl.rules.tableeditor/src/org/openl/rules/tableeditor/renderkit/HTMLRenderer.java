@@ -229,7 +229,7 @@ public class HTMLRenderer {
     }
 
     protected String getEditorJSAction(String action) {
-        return StringUtils.isBlank(action) ? "''" : "function() {" + action + "}";
+        return StringUtils.isBlank(action) ? "''" : "function(data) {" + action + "}";
     }
 
     protected String renderEditorToolbar(String editorId, String editorJsVar) {
