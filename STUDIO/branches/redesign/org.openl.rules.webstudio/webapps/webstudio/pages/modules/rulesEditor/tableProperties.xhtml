@@ -107,7 +107,7 @@
         <h:panelGroup rendered="#{tablePropertiesBean.editable}">
             <a4j:commandButton id="savePropsButton" value="Save" action="#{tablePropertiesBean.save}"
                 data="#{tablePropertiesBean.newTableUri}"
-                oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data) + '&amp;' + new Date().getTime())" />
+                oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data))" />
             <a href="javascript:void(0)" onclick="$j('#addPropsPanel').show('slow')" style="margin-left: 3px">Add</a>
         </h:panelGroup>
     </h:form>
