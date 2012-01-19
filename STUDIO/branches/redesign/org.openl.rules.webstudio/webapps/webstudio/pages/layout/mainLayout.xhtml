@@ -106,7 +106,11 @@
             function goTo(page, target) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
-                    location.hash = page;
+                    if (decodeURIComponent(location.hash) == ("#" + decodeURIComponent(page))) {
+                        refreshCurrent();
+                    } else {
+                        location.hash = page;
+                    }
                 }
             }
 
