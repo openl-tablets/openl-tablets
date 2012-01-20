@@ -54,7 +54,7 @@ public class TableVersionComparator implements Comparator<ITableProperties> {
             // it is just fix to avoid tree crashing.
             // we need to validate format of the versions, during compilation of
             // Openl and also on UI.
-            LOG.warn(e);
+            LOG.debug(String.format("Failed to parse version: [%s]", version));
             return DEFAULT_VERSION;
         }
     }
