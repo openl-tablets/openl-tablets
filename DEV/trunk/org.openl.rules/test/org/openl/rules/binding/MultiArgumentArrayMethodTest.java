@@ -19,6 +19,7 @@ public class MultiArgumentArrayMethodTest {
         int[] callMultiArgumentsArray1();        
         int[] callMultiArgumentsArray2();
         int[] testArrayCall1();
+        void callVoidMethod();
     }
     
     @Before
@@ -68,5 +69,12 @@ public class MultiArgumentArrayMethodTest {
         assertEquals(2, instance.testArrayCall1().length);
         assertEquals(30, instance.testArrayCall1()[0]);
         assertEquals(31, instance.testArrayCall1()[1]);
+    }
+    
+    @Test
+    public void testVoidMultiCall() {
+    	// calling method with void return type many times
+    	//
+    	instance.callVoidMethod();
     }
 }
