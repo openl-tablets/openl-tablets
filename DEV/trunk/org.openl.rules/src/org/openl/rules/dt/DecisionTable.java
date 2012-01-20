@@ -16,7 +16,6 @@ import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.dt.algorithm.DecisionTableAlgorithmFactory;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.DecisionTableDataType;
@@ -189,7 +188,9 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     protected void makeAlgorithm(IConditionEvaluator[] evs) throws Exception {
-        algorithm = DecisionTableAlgorithmFactory.getAlgorithm(evs, this);
+
+        algorithm = new DecisionTableOptimizedAlgorithm(evs, this);
+        algorithm.buildIndex();
     }
 
     private void prepare(IOpenMethodHeader header,

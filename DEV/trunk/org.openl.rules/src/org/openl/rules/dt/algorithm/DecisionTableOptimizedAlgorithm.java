@@ -3,17 +3,41 @@
  */
 package org.openl.rules.dt.algorithm;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
 import org.openl.rules.binding.RulesBindingDependencies;
-
+import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.index.ARuleIndex;
+import org.openl.rules.dt.type.BooleanAdaptorFactory;
+import org.openl.rules.dt.type.BooleanTypeAdaptor;
+import org.openl.rules.dt.type.DoubleRangeAdaptor;
+import org.openl.rules.dt.type.IRangeAdaptor;
+import org.openl.rules.dt.type.IntRangeAdaptor;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IAggregateInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -196,7 +220,6 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author sshor
  */
-// TODO: rename, it is common implementation for DT algorithm 
 public class DecisionTableOptimizedAlgorithm {
 
     /**
@@ -204,6 +227,7 @@ public class DecisionTableOptimizedAlgorithm {
      */
     private IConditionEvaluator[] evaluators;
     private DecisionTable table;
+    private ARuleIndex indexRoot;
     private BindingDependencies dependencies;
 
     public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table) {
@@ -216,13 +240,138 @@ public class DecisionTableOptimizedAlgorithm {
     public IConditionEvaluator[] getEvaluators() {
         return evaluators;
     }
-    
-    public DecisionTable getTable() {
-        return table;
+
+    private Object evaluateTestValue(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
+        return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    protected Object evaluateTestValue(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        return condition.getEvaluator().invoke(target, dtparams, env);
+    private static IRangeAdaptor getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
+        if (ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true)) {
+            if (org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass())) {
+                return new IntRangeAdaptor();
+            } else if (org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass())) {
+                return new DoubleRangeAdaptor();
+            }
+        }
+        return null;
+    }
+
+    // TODO to do - fix _NO_PARAM_ issue
+
+    @SuppressWarnings("unchecked")
+    public static IConditionEvaluator makeEvaluator(ICondition condition, IOpenClass methodType) throws SyntaxNodeException {
+
+        IParameterDeclaration[] params = condition.getParams();
+
+        switch (params.length) {
+
+            case 1:
+                IOpenClass paramType = params[0].getType();
+
+                if (methodType.equals(paramType) || methodType.getInstanceClass().equals(paramType.getInstanceClass())) {
+                    return new EqualsIndexedEvaluator();
+                }
+                
+                if (methodType instanceof JavaOpenClass && ((JavaOpenClass) methodType).equalsAsPrimitive(paramType)) {
+                    return new EqualsIndexedEvaluator();
+                }
+
+
+                IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
+
+                if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
+                    .isAssignableFrom(methodType)) {
+
+                    return new ContainsInArrayIndexedEvaluator();
+                }
+
+                IRangeAdaptor<Object, Object> rangeAdaptor = getRangeAdaptor(methodType, paramType);
+
+                if (rangeAdaptor != null) {
+                    return new RangeIndexedEvaluator(rangeAdaptor);
+                }
+
+                if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class).equals(methodType)) {
+                    return new DefaultConditionEvaluator();
+
+                }
+
+                break;
+
+            case 2:
+
+                IOpenClass paramType0 = params[0].getType();
+                IOpenClass paramType1 = params[1].getType();
+
+                if (methodType == paramType0 && methodType == paramType1) {
+
+                    Class<?> clazz = methodType.getInstanceClass();
+
+                    if (clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class && !Comparable.class.isAssignableFrom(clazz)) {
+
+                        String message = String.format("Type '%s' is not Comparable", methodType.getName());
+
+                        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
+                    }
+
+                    return new RangeIndexedEvaluator(null);
+                }
+
+                aggregateInfo = paramType1.getAggregateInfo();
+
+                if (aggregateInfo.isAggregate(paramType1) && aggregateInfo.getComponentType(paramType1) == methodType) {
+
+                    BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(paramType0);
+
+                    if (booleanTypeAdaptor != null) {
+                        return new ContainsInOrNotInArrayIndexedEvaluator(booleanTypeAdaptor);
+                    }
+                }
+
+                break;
+        }
+
+        List<String> names = new ArrayList<String>();
+
+        for (IParameterDeclaration parameterDeclaration : params) {
+
+            String name = parameterDeclaration.getType().getName();
+            names.add(name);
+        }
+
+        String parametersString = StringUtils.join(names, ",");
+
+        String message = String.format("Can not make a Condition Evaluator for parameter %s and [%s]",
+            methodType.getName(),
+            parametersString);
+
+        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
+    }
+
+    public void buildIndex() throws Exception {
+
+        ArrayList<Object[][]> params = new ArrayList<Object[][]>();
+
+        for (int i = 0; i < evaluators.length; i++) {
+
+            if (evaluators[i].isIndexed()) {
+
+                Object[][] values = table.getConditionRows()[i].getParamValues();
+                Object[][] precalculatedParams = prepareIndexedParams(values);
+                params.add(precalculatedParams);
+            } else {
+                break;
+            }
+        }
+
+        if (params.size() == 0) {
+            return;
+        }
+
+        Object[][] params0 = params.get(0);
+        indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length - 1).intIterator());
+
+        indexNodes(indexRoot, params, 1);
     }
 
     /**
@@ -277,13 +426,35 @@ public class DecisionTableOptimizedAlgorithm {
      * @return iterator over <b>rule indexes</b> - integer iterator.
      */
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
-       
+
+        // Select rules set using indexed mode
+        //
         ICondition[] conditions = table.getConditionRows();
 
         IIntIterator iterator = null;
         int conditionNumber = 0;
 
-        iterator = new IntRangeDomain(0, table.getNumberOfRules() - 1).intIterator();
+        if (indexRoot == null) {
+            iterator = new IntRangeDomain(0, table.getNumberOfRules() - 1).intIterator();
+        } else {
+
+            ARuleIndex index = indexRoot;
+
+            for (; conditionNumber < evaluators.length; conditionNumber++) {
+
+                Object testValue = evaluateTestValue(conditions[conditionNumber], target, params, env);
+
+                DecisionTableRuleNode node = index.findNode(testValue);
+
+                if (!node.hasIndex()) {
+                    iterator = node.getRulesIterator();
+                    conditionNumber += 1;
+                    break;
+                }
+
+                index = node.getNextIndex();
+            }
+        }
 
         for (; conditionNumber < evaluators.length; conditionNumber++) {
 
@@ -296,6 +467,64 @@ public class DecisionTableOptimizedAlgorithm {
         }
 
         return iterator;
+    }
+
+    private void indexNode(DecisionTableRuleNode node, ArrayList<Object[][]> params, int level) {
+
+        ARuleIndex nodeIndex = evaluators[level].makeIndex(params.get(level), node.getRulesIterator());
+        node.setNextIndex(nodeIndex);
+
+        indexNodes(nodeIndex, params, level + 1);
+    }
+
+    private void indexNodes(ARuleIndex index, ArrayList<Object[][]> params, int level) {
+
+        if (index == null) {
+            return;
+        }
+
+        if (params.size() <= level) {
+            return;
+        }
+
+        Iterator<DecisionTableRuleNode> iter = index.nodes();
+
+        while (iter.hasNext()) {
+
+            DecisionTableRuleNode node = iter.next();
+            indexNode(node, params, level);
+        }
+
+        indexNode(index.getEmptyOrFormulaNodes(), params, level);
+    }
+
+    private Object[][] prepareIndexedParams(Object[][] params) throws SyntaxNodeException {
+
+        Object[][] indexedParams = new Object[params.length][];
+
+        for (int i = 0; i < params.length; i++) {
+
+            if (params[i] == null) {
+                indexedParams[i] = null;
+            } else {
+
+                Object[] values = new Object[params[i].length];
+                indexedParams[i] = values;
+
+                for (int j = 0; j < values.length; j++) {
+
+                    Object value = params[i][j];
+
+                    if (value instanceof IOpenMethod) {
+                        throw SyntaxNodeExceptionUtils.createError("Can not index conditions with formulas",
+                            table.getSyntaxNode());
+                    }
+                    values[j] = value;
+                }
+            }
+        }
+
+        return indexedParams;
     }
 
 }
