@@ -102,8 +102,8 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
     protected String originalParamsThroughComma() {
         String result = StringUtils.EMPTY;
         List<String> values = new ArrayList<String>();        
-        for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {            
-            values.add(originalSignature.getParameterName(i));            
+        for (int i = 0; i < originalSignature.getNumberOfParameters(); i++) {
+            values.add(TableSyntaxNodeDispatcherBuilder.getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(i)));
         }
         if (!values.isEmpty()) {
             result = StringTool.listToStringThroughSymbol(values, ","); 
@@ -142,8 +142,9 @@ public class DispatcherTableReturnColumn implements IDecisionTableReturnColumn {
                                                                                      // On compare we don`t need to build
                                                                                      // and execute validation tables at 
                                                                                      // all during binding.
-                values.add(String.format("%s %s", originalSignature.getParameterType(j).getInstanceClass().getSimpleName(), 
-                    originalSignature.getParameterName(j)));
+                values.add(String.format("%s %s",
+                    originalSignature.getParameterType(j).getInstanceClass().getSimpleName(),
+                    TableSyntaxNodeDispatcherBuilder.getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j))));
             }           
         }   
         if (values.size() > 0) {
