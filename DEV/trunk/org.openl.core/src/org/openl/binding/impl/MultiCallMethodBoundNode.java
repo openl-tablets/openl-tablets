@@ -7,6 +7,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -45,16 +46,31 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         int paramsLenght = 0;
         if (arrayParameters != null) {
         	paramsLenght = Array.getLength(arrayParameters);
-        }       
+        }    
         
-        // create an array of results        
-        Object results = Array.newInstance(super.getType().getInstanceClass(), paramsLenght);
+        Object results = null;
         
-        // populate the results array by invoking method for single parameter
-        for (int callIndex = 0; callIndex < paramsLenght; callIndex++) {
-            Array.set(results , callIndex, getMethodCaller().invoke(target, 
-                initParametersForSingleCall(methodParameters, arrayParameters, callIndex), env));            
+        if (JavaOpenClass.VOID.equals(super.getType())) {
+        	// for void type return the last return value, as it doens`t matter, it will be null,
+        	// for all the calls
+        	//
+        	for (int callIndex = 0; callIndex < paramsLenght; callIndex++) {
+        		results = getMethodCaller().invoke(target, 
+        				initParametersForSingleCall(methodParameters, arrayParameters, callIndex), env);
+        	}
+        } else {
+        	// create an array of results
+        	//
+            results = Array.newInstance(super.getType().getInstanceClass(), paramsLenght);
+            
+            // populate the results array by invoking method for single parameter
+            //
+            for (int callIndex = 0; callIndex < paramsLenght; callIndex++) {
+                Array.set(results , callIndex, getMethodCaller().invoke(target, 
+                    initParametersForSingleCall(methodParameters, arrayParameters, callIndex), env));            
+            }
         }
+        
         return results;
     }
     
