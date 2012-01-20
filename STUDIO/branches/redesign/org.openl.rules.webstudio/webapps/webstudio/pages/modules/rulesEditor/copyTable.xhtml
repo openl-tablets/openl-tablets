@@ -42,7 +42,7 @@
             <c:if test="#{tableCopierWizardManager.table.versionable}">
                 <f:selectItem itemLabel="New Version" itemValue="CHANGE_VERSION" />
             </c:if>
-            <c:if test="#{tableCopierWizardManager.table.canContainProperties}">
+            <c:if test="#{tableCopierWizardManager.table.versionable}">
                 <f:selectItem itemLabel="New Business Dimension Version" itemValue="CHANGE_DIMENSION" />
             </c:if>
         </h:selectOneMenu>
