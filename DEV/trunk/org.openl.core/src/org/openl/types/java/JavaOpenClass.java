@@ -307,7 +307,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     public String getName() {
-        return instanceClass.getName();
+        return instanceClass.getCanonicalName();
     }
 
     public String getSimpleName() {

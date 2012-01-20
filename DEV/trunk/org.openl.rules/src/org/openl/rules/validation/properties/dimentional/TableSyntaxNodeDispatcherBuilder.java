@@ -15,6 +15,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.BindingContextDelegator;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
@@ -55,6 +56,7 @@ import org.openl.types.java.JavaOpenClass;
 public class TableSyntaxNodeDispatcherBuilder {
     
     public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
+    public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
     
     private static Log LOG = LogFactory.getLog(TableSyntaxNodeDispatcherBuilder.class);
     
@@ -105,6 +107,10 @@ public class TableSyntaxNodeDispatcherBuilder {
         this.moduleContext = moduleContext;
         this.moduleOpenClass = moduleOpenClass;
         this.dispatcher = dispatcher;
+    }
+    
+    public static String getDispatcherParameterNameForOriginalParameter(String parameterName){
+        return ARGUMENT_PREFIX_IN_SIGNATURE + parameterName;
     }
     
     /**
@@ -254,7 +260,8 @@ public class TableSyntaxNodeDispatcherBuilder {
         LinkedHashMap<String, IOpenClass> updatedIncomeParams = new LinkedHashMap<String, IOpenClass>();
         IMethodSignature originalSignature = getMethodSignature();
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
-            updatedIncomeParams.put(originalSignature.getParameterName(j), originalSignature.getParameterType(j));
+            updatedIncomeParams.put(getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
+                originalSignature.getParameterType(j));
         }
         updatedIncomeParams.putAll(incomeParams);
         return updatedIncomeParams;
@@ -320,6 +327,7 @@ public class TableSyntaxNodeDispatcherBuilder {
             dtLoader.loadAndBind(tsn, decisionTable, openl, null, createContextWithAuxiliaryMethods());            
         } catch (Exception e) {            
             LOG.error(e);
+            OpenLMessagesUtils.addWarn(e.getMessage(), tsn);
         }
         return tsn;
     }

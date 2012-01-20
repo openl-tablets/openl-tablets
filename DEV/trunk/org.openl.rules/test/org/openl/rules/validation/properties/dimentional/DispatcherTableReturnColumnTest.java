@@ -45,7 +45,8 @@ public class DispatcherTableReturnColumnTest {
         IMethodSignature signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.FLOAT});
         retColumn.setOriginalSignature(signature);
         
-        assertEquals("p0, p1", retColumn.originalParamsThroughComma());
+        assertEquals(String.format("%1$sp0, %1$sp1", TableSyntaxNodeDispatcherBuilder.ARGUMENT_PREFIX_IN_SIGNATURE),
+            retColumn.originalParamsThroughComma());
         
         signature = new MethodSignature(new IOpenClass[0]);
         retColumn.setOriginalSignature(signature);
@@ -64,7 +65,8 @@ public class DispatcherTableReturnColumnTest {
         
         retColumn.setOriginalSignature(signature);
         retColumn.setNewIncomeParams(newIncomeParams);
-        assertEquals("String p0, float p1, double field3, int field2, String field1", retColumn.paramsThroughComma());
+        assertEquals(String.format("String %1$sp0, float %1$sp1, double field3, int field2, String field1",
+            TableSyntaxNodeDispatcherBuilder.ARGUMENT_PREFIX_IN_SIGNATURE), retColumn.paramsThroughComma());
         
         // check with empty signature
         //
@@ -78,7 +80,8 @@ public class DispatcherTableReturnColumnTest {
         signature = new MethodSignature(new IOpenClass[]{JavaOpenClass.DOUBLE, JavaOpenClass.SHORT});
         retColumn.setOriginalSignature(signature);
         
-        assertEquals("double p0, short p1", retColumn.paramsThroughComma());
+        assertEquals(String.format("double %1$sp0, short %1$sp1",
+            TableSyntaxNodeDispatcherBuilder.ARGUMENT_PREFIX_IN_SIGNATURE), retColumn.paramsThroughComma());
         
         // check with both empty signature and income parameters
         //        
