@@ -6,81 +6,79 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/content.xhtml">
+    xmlns:rich="http://richfaces.org/rich">
 
-    <ui:define name="page">
-        <h:head>
-            <style>
-                .revertTable th,
-                .revertTable td {
-                    padding: 5px 11px;
-                    text-align: center;
-                }
-            </style>
-        </h:head>
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-        <h2>Revert Module Changes</h2>
+    <style>
+        .revertTable th,
+        .revertTable td {
+            padding: 5px 11px;
+            text-align: center;
+        }
+    </style>
 
-        <c:set var="history" value="#{revertProjectChangesBean.history}" />
+    <h2>Revert Module Changes</h2>
 
-        <h:panelGroup rendered="#{empty history}">
-            <h:panelGrid>
-                <p class="info_box">Module has no changes</p>
-            </h:panelGrid>
-        </h:panelGroup>
+    <c:set var="history" value="#{revertProjectChangesBean.history}" />
 
-        <h:panelGroup rendered="#{not empty history}">
-            <h:panelGrid>
-                <h:messages globalOnly="true" errorClass="error_box" infoClass="info_box"
-                    style="list-style: none; padding: 0px" />
-            </h:panelGrid>
+    <h:panelGroup rendered="#{empty history}">
+        <h:panelGrid>
+            <p class="info_box">Module has no changes</p>
+        </h:panelGrid>
+    </h:panelGroup>
 
-            <h:form>
+    <h:panelGroup rendered="#{not empty history}">
+        <h:panelGrid>
+            <h:messages globalOnly="true" errorClass="error_box" infoClass="info_box"
+                style="list-style: none; padding: 0px" />
+        </h:panelGrid>
 
-                <rich:dataTable id="revertTable" value="#{history}" var="historyItem" rowKeyVar="row"
-                    onrowmouseover="rowMouseOver(this)" onrowmouseout="rowMouseOut(this)"
-                    onrowclick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
-                    styleClass="revertTable">
+        <h:form>
+
+            <rich:dataTable id="revertTable" value="#{history}" var="historyItem" rowKeyVar="row"
+                onrowmouseover="rowMouseOver(this)" onrowmouseout="rowMouseOut(this)"
+                onrowclick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
+                styleClass="revertTable">
+                <rich:column>
+                    <f:facet name="header">
+                        <h:outputText value="#" />
+                    </f:facet>
+                    <h:outputText value="#{row + 1}" />
+                </rich:column>
+                <rich:column>
+                    <f:facet name="header">
+                        <h:outputText value="Modified On" />
+                    </f:facet>
+                    <h:outputText value="#{historyItem.disabled ? 'Initial' : historyItem.modifiedOn}"
+                        style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
+                </rich:column>
+                <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
                     <rich:column>
                         <f:facet name="header">
-                            <h:outputText value="#" />
+                            <h:outputText value="#{source}" />
                         </f:facet>
-                        <h:outputText value="#{row + 1}" />
+                        <h:graphicImage value="webresource/images/ok.png"
+                            rendered="#{historyItem.sourceName == source}" />
                     </rich:column>
-                    <rich:column>
-                        <f:facet name="header">
-                            <h:outputText value="Modified On" />
-                        </f:facet>
-                        <h:outputText value="#{historyItem.disabled ? 'Initial' : historyItem.modifiedOn}"
-                            style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
-                    </rich:column>
-                    <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
-                        <rich:column>
-                            <f:facet name="header">
-                                <h:outputText value="#{source}" />
-                            </f:facet>
-                            <h:graphicImage value="webresource/images/ok.png"
-                                rendered="#{historyItem.sourceName == source}" />
-                        </rich:column>
-                    </c:forEach>
-                    <rich:column>
-                        <f:facet name="header">
-                            <h:outputText value="Compare" />
-                        </f:facet>
-                        <h:selectBooleanCheckbox
-                            onclick="return checkVersionToCompare(this, #{historyItem.version})" />
-                    </rich:column>
-                </rich:dataTable>
+                </c:forEach>
+                <rich:column>
+                    <f:facet name="header">
+                        <h:outputText value="Compare" />
+                    </f:facet>
+                    <h:selectBooleanCheckbox
+                        onclick="return checkVersionToCompare(this, #{historyItem.version})" />
+                </rich:column>
+            </rich:dataTable>
 
-                <br />
-                <input type="hidden" id="versionToRevert" name="toRevert" value=""  />
-                <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
-                <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
-                    onclick="if(!confirm('Do you really want to revert these changes?'))return false;" />
-                <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
-                    oncomplete="window.open('#{contextPath}/faces/pages/modules/rulesEditor/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
-            </h:form>
+            <br />
+            <input type="hidden" id="versionToRevert" name="toRevert" value=""  />
+            <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
+            <h:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
+                onclick="if(!confirm('Do you really want to revert these changes?'))return false;" />
+            <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
+                oncomplete="window.open('#{contextPath}/faces/pages/modules/rulesEditor/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
+        </h:form>
 
         <script>
             var rowHoverColor = "#FAE5C1";
@@ -147,7 +145,6 @@
             }
         </script>
 
-        </h:panelGroup>
+    </h:panelGroup>
 
-    </ui:define>
 </ui:composition>
