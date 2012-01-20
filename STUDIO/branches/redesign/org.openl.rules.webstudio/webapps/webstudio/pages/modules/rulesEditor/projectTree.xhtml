@@ -38,9 +38,6 @@
     </ui:define>
 
     <ui:define name="workspace">
-        <!--link href="#{contextPath}/css/tree/style.css" rel="stylesheet" />
-        <script src="#{contextPath}/javascript/jquery.jstree.js"></script-->
-
         <style>
             #projects ul {
                 list-style: none;
@@ -86,8 +83,35 @@
                     </li>
                     </a4j:repeat>
                 </ul>
+
+                <script>
+                  //<![CDATA[
+                    var selected;
+                    var projects = $j("#projects > ul > li");
+
+                    var filterPattern = $j("#nameFilter input").val();
+                    if (filterPattern) {
+                        filterProjects(filterPattern);
+                    }
+
+                    function selectModule(link) {
+                        if (selected) {
+                            selected.removeClass('selected');
+                        }
+                        $j(link).addClass('selected');
+                        selected = $j(link);
+                    }
+
+                    function filterProjects(pattern) {
+                        projects.each(function() {
+                            var projectName = $j(this).find(">a").text();
+                            $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+                        });
+                    }
+                  //]]>
+                </script>
             </h:panelGroup>
-    
+
             <h:panelGroup rendered="#{empty studio.allProjects}">
                 <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
                 <br />
@@ -100,29 +124,6 @@
             </h:panelGroup>
         </h:form>
 
-        <script>
-            //$j("#projects").jstree({themes:{dots: false, icons: false}});
-
-            //<![CDATA[
-            var selected;
-            var projects = $j("#projects > ul > li");
-
-            function selectModule(link) {
-                if (selected) {
-                    selected.removeClass('selected');
-                }
-                $j(link).addClass('selected');
-                selected = $j(link);
-            }
-
-            function filterProjects(pattern) {
-                projects.each(function() {
-                    var projectName = $j(this).find(">a").text();
-                    $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
-                });
-            }
-          //]]>
-        </script>
     </ui:define>
 
 </ui:composition>
