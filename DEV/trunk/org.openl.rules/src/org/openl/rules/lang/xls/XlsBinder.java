@@ -35,6 +35,7 @@ import org.openl.conf.IExecutable;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -325,10 +326,10 @@ public class XlsBinder implements IOpenBinder {
 
     private LinkedList<Comparator<TableSyntaxNode>> getNodesComparator() {
         LinkedList<Comparator<TableSyntaxNode>> nodeComparator = new LinkedList<Comparator<TableSyntaxNode>>();
-        
-        SpreadsheetNodeComparator spreadsheetComparator = new SpreadsheetNodeComparator();
-        nodeComparator.add(spreadsheetComparator);
-        
+        if (OpenLSystemProperties.isCustomSpreadsheetType()) {
+        	SpreadsheetNodeComparator spreadsheetComparator = new SpreadsheetNodeComparator();
+            nodeComparator.add(spreadsheetComparator);
+        }
         TestAndMethodTableNodeComparator testAndMethodComparator = new TestAndMethodTableNodeComparator();
         nodeComparator.add(testAndMethodComparator);
        
@@ -536,15 +537,15 @@ public class XlsBinder implements IOpenBinder {
 
         TableSyntaxNode[] tableSyntaxNodes = childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
         
-        if (tableComparators != null && tableComparators.size() > 0) {
-            try {
-                for (Comparator<TableSyntaxNode> comparator : tableComparators) {
-                    Arrays.sort(tableSyntaxNodes, comparator);
-                }
-            } catch (Exception e) {
-                // ignore sort exceptions.
-            }
-        }
+		if (tableComparators != null && tableComparators.size() > 0) {
+			for (Comparator<TableSyntaxNode> comparator : tableComparators) {
+				try {
+					Arrays.sort(tableSyntaxNodes, comparator);
+				} catch (Exception e) {
+					// ignore sort exceptions.
+				}
+			}
+		}
 
         return tableSyntaxNodes;
     }
