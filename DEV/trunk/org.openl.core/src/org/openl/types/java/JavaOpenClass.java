@@ -127,6 +127,7 @@ public class JavaOpenClass extends AOpenClass {
                 javaClassCache.put(IntValue.class, new JavaOpenClass(IntValue.class, null, true));
                 javaClassCache.put(LongValue.class, new JavaOpenClass(LongValue.class, null, true));
                 javaClassCache.put(ShortValue.class, new JavaOpenClass(ShortValue.class, null, true));
+                javaClassCache.put(org.openl.meta.StringValue.class, new JavaOpenClass(org.openl.meta.StringValue.class, null, true));
             }
             cacheLock.unlock();
         }
