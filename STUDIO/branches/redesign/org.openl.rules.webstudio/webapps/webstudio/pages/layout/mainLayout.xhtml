@@ -55,7 +55,7 @@
             // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
             jsf.ajax.addOnEvent(function (data) {
                 if (data.status === "success") {
-                    var viewState = $j("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML).text();
+                    var viewState = $j("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML);
                     if (viewState.length) {
                         $j("partial-response:first changes:first update[id != 'javax.faces.ViewState']", data.responseXML).each(function (i, u) {
                             $j("form", document.getElementById(u.getAttribute("id"))).each(function (i, f) {
@@ -63,7 +63,7 @@
                                 if (!field.length) {
                                     field = $j("<input type=\"hidden\" name=\"javax.faces.ViewState\" />").appendTo(f);
                                 }
-                                field.val(viewState);
+                                field.val(viewState.text());
                             });
                         });
                     }
