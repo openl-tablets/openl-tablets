@@ -72,7 +72,7 @@
 
             // Handle JSF / Richfaces AJAX errors
             jsf.ajax.addOnError(function (data) {
-                if (err) err(data);
+                if (typeof console != "undefined") err(data);
                 handleError(data.responseCode);
             });
 
