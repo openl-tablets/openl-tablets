@@ -36,12 +36,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
     private ITablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
 
-    // list of properties that have non-null values in candidates space
-    // could be used to optimize performance, if null - all properties from the
-    // group
-    // Business Dimension will have to apply
-    private Set<String> propertiesSet;
-
     private XlsModuleOpenClass moduleOpenClass;
 
     private ATableTracerNode traceObject;
@@ -138,7 +132,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
             } catch (OpenLRuntimeException e) {
                 ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0],
-                    params);
+                        params);
                 traceObject.setError(e);
                 return traceObject;
             }
@@ -164,9 +158,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints that
                 // removed candidates
-                throw new OpenLRuntimeException(String.format("No matching methods for the context. Details: \n%1$s\nContext: %2$s",
-                    toString(candidates),
-                    context.toString()));
+                throw new OpenLRuntimeException(String.format(
+                        "No matching methods for the context. Details: \n%1$s\nContext: %2$s", toString(candidates),
+                        context.toString()));
 
             case 1:
                 return selected.iterator().next();
@@ -175,9 +169,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new OpenLRuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
-                    toString(candidates),
-                    context.toString()));
+                throw new OpenLRuntimeException(String.format(
+                        "Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s", toString(candidates),
+                        context.toString()));
         }
 
     }
@@ -196,7 +190,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
-    
+
     @Override
     public IMemberMetaInfo getInfo() {
         return getDispatcherTable().getMember().getInfo();
@@ -214,27 +208,22 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     // <<< INSERT MatchingProperties >>>
-    private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        selectCandidatesByProperty("effectiveDate", selected, context);
-        selectCandidatesByProperty("expirationDate", selected, context);
-        selectCandidatesByProperty("startRequestDate", selected, context);
-        selectCandidatesByProperty("endRequestDate", selected, context);
-        selectCandidatesByProperty("lob", selected, context);
-        selectCandidatesByProperty("usregion", selected, context);
-        selectCandidatesByProperty("country", selected, context);
-        selectCandidatesByProperty("currency", selected, context);
-        selectCandidatesByProperty("lang", selected, context);
-        selectCandidatesByProperty("state", selected, context);
-        selectCandidatesByProperty("region", selected, context);
-    }
-
+	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+		selectCandidatesByProperty("effectiveDate", selected, context);
+		selectCandidatesByProperty("expirationDate", selected, context);
+		selectCandidatesByProperty("startRequestDate", selected, context);
+		selectCandidatesByProperty("endRequestDate", selected, context);
+		selectCandidatesByProperty("lob", selected, context);
+		selectCandidatesByProperty("usregion", selected, context);
+		selectCandidatesByProperty("country", selected, context);
+		selectCandidatesByProperty("currency", selected, context);
+		selectCandidatesByProperty("lang", selected, context);
+		selectCandidatesByProperty("state", selected, context);
+		selectCandidatesByProperty("region", selected, context);
+	}
     // <<< END INSERT MatchingProperties >>>
 
     private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-
-        if (propertiesSet != null && !propertiesSet.contains(propName)) {
-            return;
-        }
 
         List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
         List<IOpenMethod> matchedByDefault = new ArrayList<IOpenMethod>();

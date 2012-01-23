@@ -1,5 +1,23 @@
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.simplePriorityRuleWrappers )
         tablesPriorityRules.add(new ASimplePriorityRule<$priorityRuleWrapper.propertyType>("$priorityRuleWrapper.propertyName") {
+            #if (${priorityRuleWrapper.operationName} == 'MAX')
+@Override
+            public int compare(ITableProperties properties1, ITableProperties properties2) {
+                $priorityRuleWrapper.propertyType propertyValue1 = getProprtyValue(properties1);
+                $priorityRuleWrapper.propertyType propertyValue2 = getProprtyValue(properties2);
+                if(propertyValue1 == null){
+                    if(propertyValue2 == null){
+                        return 0;
+                    }else{
+                        return -1;
+                    }
+                }else if(propertyValue2 == null){
+                    return 1;
+                }
+                return compareNotNulls(propertyValue1, propertyValue2);
+            }
+            #end
+
             public String getOperationName() {
                 return "$priorityRuleWrapper.operationName";
             }
