@@ -52,12 +52,17 @@ public class Spreadsheet extends ExecutableRulesMethod {
     
     @Override
     public IOpenClass getType() {
-        if (super.getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType()) {
+        if (isCustomSpreadsheetType()) {
             return getCustomSpreadsheetResultType();
         } else {
             return super.getType();
         }
     }
+
+	public boolean isCustomSpreadsheetType() {
+		return super.getType().getInstanceClass().equals(SpreadsheetResult.class) 
+				&& OpenLSystemProperties.isCustomSpreadsheetType();
+	}
 
     private IOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
