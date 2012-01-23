@@ -51,15 +51,30 @@
                 }
             });
 
-            // Handle JSF / Richfaces AJAX errors
-            var onError = function onError(data) {
-                if (data.errorName
-                    && data.errorName.indexOf("ViewExpiredException") > -1) { // Session Timeout
-                    handleError(399);
+            // Fix Mojarra bug. Make rerendered forms work.
+            // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
+            jsf.ajax.addOnEvent(function (data) {
+                if (data.status === "success") {
+                    var viewState = $j("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML).text();
+                    if (viewState.length) {
+                        $j("partial-response:first changes:first update[id != 'javax.faces.ViewState']", data.responseXML).each(function (i, u) {
+                            $j("form", document.getElementById(u.getAttribute("id"))).each(function (i, f) {
+                                var field = $j("input[name='javax.faces.ViewState']", f);
+                                if (!field.length) {
+                                    field = $j("<input type=\"hidden\" name=\"javax.faces.ViewState\" />").appendTo(f);
+                                }
+                                field.val(viewState);
+                            });
+                        });
+                    }
                 }
+            });
+
+            // Handle JSF / Richfaces AJAX errors
+            jsf.ajax.addOnError(function (data) {
+                if (err) err(data);
                 handleError(data.responseCode);
-            };
-            jsf.ajax.addOnError(onError);
+            });
 
             var urlRewrite = {
                 prefix: "#{rulesEditor}/"
