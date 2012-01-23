@@ -6,15 +6,29 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
+import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ApiBasedEngineFactoryInstantiationStrategy;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 import org.openl.types.IOpenMethod;
 
 public class LazyMultiModuleEngineFactoryTest {
+    private static RulesProjectDependencyManager dependencyManager;
+    @BeforeClass
+    public static void init(){
+        dependencyManager = new RulesProjectDependencyManager();
+        List<IDependencyLoader> loaders = new ArrayList<IDependencyLoader>();
+        loaders.add(new RulesModuleDependencyLoader(new SimpleXlsResolvingStrategy().resolveProject(new File("./test-resources/multi-module_overloaded/project3"))
+            .getModules()));
+        dependencyManager.setDependencyLoaders(loaders);
+    }
     /**
      * Test is concluded in module paths.
      */
@@ -43,6 +57,7 @@ public class LazyMultiModuleEngineFactoryTest {
     public void testModulesMatching() throws Exception {
         List<Module> modules = resolveAllModules("./test-resources/multi-module_overloaded");
         LazyMultiModuleEngineFactory factory = new LazyMultiModuleEngineFactory(modules);
+        factory.setDependencyManager(dependencyManager);
         checkModules(factory, modules);
     }
 
@@ -57,7 +72,7 @@ public class LazyMultiModuleEngineFactoryTest {
     private List<IOpenMethod> getMethodsFromModule(Module module) throws Exception {
         ApiBasedEngineFactoryInstantiationStrategy instantiationStrategy = new ApiBasedEngineFactoryInstantiationStrategy(module,
             false,
-            null);
+            dependencyManager);
         return instantiationStrategy.compile(ReloadType.NO).getOpenClass().getMethods();
     }
 }
