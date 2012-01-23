@@ -67,12 +67,11 @@
             <a4j:repeat value="#{tablePropertiesBean.properties}" var="prop">
             <ui:param name="editable"
                 value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
-            <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
-                onclick="#{editable ? 'editProperty(this)' : ''}">
-                <td class="propName">
+            <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}">
+                <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     #{prop.displayName}
                 </td>
-                <td class="propData">
+                <td class="propData" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     <span class="propValue">#{prop.displayValue}</span>
 
                     <h:panelGroup rendered="#{editable}">
@@ -93,10 +92,12 @@
                         <span class="propDescription">#{prop.description}</span>
                     </span>
                     </h:panelGroup>
-
+                </td>
+                <td>
                     <h:panelGroup rendered="#{prop.inheritedProperty}">
                         <a href="showTable.xhtml?uri=#{prop.inheritedTableUri}" target="content"
-                            title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
+                            title="Go to Properties table" style="padding: 0 5px 0 4px"><img
+                            src="webresource/images/up.gif" /></a>
                     </h:panelGroup>
                 </td>
             </tr>
