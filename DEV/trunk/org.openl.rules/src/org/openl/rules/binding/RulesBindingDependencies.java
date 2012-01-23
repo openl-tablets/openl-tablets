@@ -5,7 +5,6 @@ import java.util.List;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 
@@ -18,9 +17,9 @@ public class RulesBindingDependencies extends BindingDependencies {
         if (method instanceof ExecutableMethod) {
             getRulesMethodsMap().put((ExecutableMethod)method, node);
         } else if (method instanceof OpenMethodDispatcher) {
-            List<IOpenMethod> overlappedMethods = OpenMethodDispatcherHelper.extractMethod(method);
+            List<IOpenMethod> overlappedMethods =((OpenMethodDispatcher)method).getCandidates();
             for (IOpenMethod overlappedMethod : overlappedMethods) {
-                getRulesMethodsMap().put((ExecutableMethod)overlappedMethod, node);
+                addMethodDependency(overlappedMethod, node);
             }
             
         }
