@@ -492,7 +492,7 @@
         }
 
         function onAfterSave(newUri) {
-            goTo("showTable.xhtml?uri=" + decodeURIComponent(newUri), "content");
+            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), "content");
             hideLoader();
         }
 
