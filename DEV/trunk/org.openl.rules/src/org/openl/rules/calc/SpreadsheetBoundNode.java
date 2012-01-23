@@ -50,7 +50,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         // call this method to ensure that CSR will be generated during the compilation.
         // Add generated type to be accessible through binding context.
         //
-        if (OpenLSystemProperties.isCustomSpreadsheetType()) {
+        if (spreadsheet.isCustomSpreadsheetType()) {
             try {
                 builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, spreadsheet.getType());
             } catch (Exception e) {     
