@@ -26,7 +26,11 @@
                 binding="#{inputArgsBean.currentArgTreeNode}">
                 <td><rich:panel id="dynamicTreePanel">
                         <rich:tree toggleType="client" selectionType="client" value="#{inputArgsBean.root}" var="item"
-                            nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}" styleClass="dynamicTree">
+                            nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}"
+                            styleClass="dynamicTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
+                            <!-- rowKeyConverter is a temporary solution.
+                             After migrating to the newer version of RichFaces it can be removed.
+                             See: https://issues.jboss.org/browse/RF-11102 for details -->
                             <rich:treeNode type="collection">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
