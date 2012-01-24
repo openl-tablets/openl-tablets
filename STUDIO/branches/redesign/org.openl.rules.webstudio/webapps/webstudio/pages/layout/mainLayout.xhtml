@@ -73,6 +73,12 @@
             // Handle JSF / Richfaces AJAX errors
             jsf.ajax.addOnError(function (data) {
                 if (typeof console != "undefined") err(data);
+                // @Deprecated
+                // TODO Create common mechanism to disable editing in UI when Excel file is opened.
+                if (data.errorMessage && data.errorMessage.indexOf(".xls") > -1) {
+                    alert("Failed to save changes. Please close project Excel file and try again.");
+                    return;
+                }
                 handleError(data.responseCode);
             });
 
