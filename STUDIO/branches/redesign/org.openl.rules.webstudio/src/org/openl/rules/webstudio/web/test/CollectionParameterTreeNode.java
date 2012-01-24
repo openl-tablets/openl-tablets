@@ -48,7 +48,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
             while (iterator.hasNext()) {
                 Object element = iterator.next();
-                elements.put(index, TestTreeBuilder.createNode(collectionElementType, element, null, this));
+                elements.put(index, ParameterTreeBuilder.createNode(collectionElementType, element, null, this));
                 index++;
             }
             return elements;
