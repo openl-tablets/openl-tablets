@@ -95,7 +95,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         pos[1] += this.input.getHeight();
         this.multiselectPanel.style.left = pos[0] + "px";
         this.multiselectPanel.style.top = pos[1] + "px";
-        this.multiselectPanel.style.minWidth = this.input.getWidth() + "px";
 
         this.input.up().appendChild(this.multiselectPanel);
 
