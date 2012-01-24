@@ -162,7 +162,7 @@ public class InputArgsBean {
         ParameterWithValueDeclaration[] args = getArguments();
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
-            argTreeNodes[i] = TestTreeBuilder.createNode(args[i].getType(),
+            argTreeNodes[i] = ParameterTreeBuilder.createNode(args[i].getType(),
                 args[i].getValue(),
                 args[i].getName(),
                 null);

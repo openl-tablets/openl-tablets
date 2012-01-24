@@ -43,7 +43,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 if (!field.isConst()) {
                     String fieldName = fieldEntry.getKey();
                     fields.put(fieldName,
-                        TestTreeBuilder.createNode(field.getType(), field.get(getValue(), env), fieldName, this));
+                            ParameterTreeBuilder.createNode(field.getType(), field.get(getValue(), env), fieldName, this));
                 }
             }
             return fields;
