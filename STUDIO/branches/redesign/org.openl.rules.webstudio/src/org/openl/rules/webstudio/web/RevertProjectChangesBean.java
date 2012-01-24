@@ -78,12 +78,8 @@ public class RevertProjectChangesBean {
         long versionToRevert = Long.parseLong(versionToRevertParam);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (model.getHistoryManager().revert(versionToRevert)) {
-            return "mainPage";
-        } else {
-            FacesUtils.addErrorMessage("Error when reverting project");
-            return null;
-        }
+        model.getHistoryManager().revert(versionToRevert);
+        return null;
     }
 
     public String compare() {
