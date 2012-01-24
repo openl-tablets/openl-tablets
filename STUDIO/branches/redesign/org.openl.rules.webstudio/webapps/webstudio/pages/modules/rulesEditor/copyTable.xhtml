@@ -144,7 +144,8 @@
         <br />
         <br />
 
-        <h:commandButton value="Copy" action="#{wizard.finish}" />
+        <a4j:commandButton value="Copy" action="#{wizard.finish}" data="#{wizard.newTableUri}"
+            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data))" />
     </h:form>
 
     <ui:remove>

@@ -10,7 +10,9 @@
     <ui:define name="controlButtons">
         <a4j:commandButton value="Prev"  onclick="enableControls()" action="#{tableCreatorWizardManager.prev}"
             immediate="true" oncomplete="go('property/step2.xhtml')" />
-        <h:commandButton value="Save" action="#{wizard.finish}" onclick="return validateForm();enableControls()" />
+        <a4j:commandButton value="Save" action="#{wizard.finish}"
+            onclick="return validateForm();enableControls()" data="#{wizard.newTableUri}"
+            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data))" />
         <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
     </ui:define>
 

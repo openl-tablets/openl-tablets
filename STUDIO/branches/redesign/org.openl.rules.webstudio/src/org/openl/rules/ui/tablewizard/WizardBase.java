@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +23,6 @@ import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringTool;
 
 /**
  * @author Aliaksandr Antonik.
@@ -174,11 +172,6 @@ public abstract class WizardBase extends BaseWizardBean {
         }
         if (success) {
             resetStudio();
-            try {
-                FacesUtils.redirect(makeUrlForNewTable());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
         return null;
     }
@@ -186,12 +179,6 @@ public abstract class WizardBase extends BaseWizardBean {
     private void resetStudio() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.rebuildModel();
-    }
-
-    protected String makeUrlForNewTable() {
-        StringBuffer buffer = new StringBuffer(FacesUtils.getContextPath() + "#showTable.xhtml");
-        buffer.append("?uri=" + StringTool.encodeURL(newTableUri));
-        return buffer.toString();
     }
 
 }
