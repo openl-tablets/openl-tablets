@@ -175,7 +175,8 @@ public class TablePropertiesBean {
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
-            if (!currentProps.contains(propName)) {
+            if (!currentProps.contains(propName)
+                    && !"version".equals(propName)) {
                 propertiesToAdd.add(new SelectItem(propName, propDefinition.getDisplayName()));
             }
         }
