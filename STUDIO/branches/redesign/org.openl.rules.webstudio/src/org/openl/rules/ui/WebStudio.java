@@ -251,7 +251,7 @@ public class WebStudio {
 
     public String getNavigationHeader() {
     	if (currentModule != null) {
-    		return currentModule.getProject().getName() + " - " + currentModule.getName();
+    		return currentModule.getProject().getName() + " > " + currentModule.getName();
     	}
     	return null;
 	}

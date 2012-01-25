@@ -161,7 +161,7 @@
                         var header;
                         if (page.indexOf("module.xhtml") > -1) {
                             var headerParts = page.split("?")[1].split("/");
-                            header = decodeURIComponent(headerParts[0] + " - " + headerParts[1]);
+                            header = decodeURIComponent(headerParts[0] + " > " + headerParts[1]);
                         }
                         toRulesPanel(header);
                     }
