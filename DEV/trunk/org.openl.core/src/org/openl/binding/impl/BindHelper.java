@@ -10,6 +10,7 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenField;
+import org.openl.types.java.OpenClassHelper;
 
 public class BindHelper {
     
@@ -78,6 +79,25 @@ public class BindHelper {
 
     public static void processError(SyntaxNodeException error) {
         OpenLMessagesUtils.addError(error);
+    }
+    
+
+    public static final String CONDITION_TYPE_MESSAGE = "Condition must have boolean type";
+    /**
+     * Checks the condition expression.
+     * 
+     * @param conditionNode Bound node that represents condition expression.
+     * @param bindingContext Binding context.
+     * @return <code>conditionNode</code> in case it is correct, and {@link ErrorBoundNode} in case condition is wrong.
+     */
+    public static IBoundNode checkConditionBoundNode(IBoundNode conditionNode,
+            IBindingContext bindingContext) {
+        if (conditionNode != null && !OpenClassHelper.isBooleanType(conditionNode.getType())) {
+            BindHelper.processError(CONDITION_TYPE_MESSAGE, conditionNode.getSyntaxNode(), bindingContext);
+            return new ErrorBoundNode(conditionNode.getSyntaxNode());
+        }else{
+            return conditionNode;
+        }
     }
 
     public static void processWarn(String message, ISyntaxNode source, IBindingContext bindingContext) {
