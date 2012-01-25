@@ -73,6 +73,7 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
 
         IBoundNode[] children = bindChildren(node,
                 new TypeBindingContext(bindingContext, info.getComponentType(containerType)));
-        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, children[0] });
+        IBoundNode conditionNode = BindHelper.checkConditionBoundNode(children[0], bindingContext);
+        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, conditionNode });
     }
 }

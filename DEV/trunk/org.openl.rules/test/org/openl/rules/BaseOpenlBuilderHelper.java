@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -137,5 +138,16 @@ public abstract class BaseOpenlBuilderHelper {
     protected IOpenMethod getMethod(String methodName, IOpenClass[] params) {
         IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
         return __class.getMatchingMethod(methodName, params);
+    }
+
+    protected IOpenField getField(String fieldName) {
+        return getJavaWrapper().getOpenClassWithErrors().getField(fieldName);
+    }
+
+    protected Object getFieldValue(String fieldName) {
+        IOpenField field = getField(fieldName);
+        org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
+        Object __myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
+        return field.get(__myInstance, environment);
     }
 }
