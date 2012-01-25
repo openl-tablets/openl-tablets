@@ -60,7 +60,7 @@
 
   <context-param>
     <param-name>org.richfaces.skin</param-name>
-    <param-value>#{skinBean.skin}</param-value>
+    <param-value>classic</param-value>
   </context-param>
 
   <context-param>
