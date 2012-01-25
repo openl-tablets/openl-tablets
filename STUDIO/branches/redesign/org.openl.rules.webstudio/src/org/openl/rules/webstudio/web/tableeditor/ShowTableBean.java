@@ -24,7 +24,6 @@ import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -367,19 +366,16 @@ public class ShowTableBean {
         return allTests;
     }
 
-    public String removeTable() throws IOException {
+    public String removeTable() throws Exception {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
-        try {
-            new TableServiceImpl(true).removeTable(gridTable);
-            studio.rebuildModel();
-            RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
-            visitedTables.getTables().remove(table);
-        } catch (TableServiceException e) {
-            e.printStackTrace();
-            // TODO UI exception
-        }
-        return "mainPage";
+
+        new TableServiceImpl(true).removeTable(gridTable);
+        studio.rebuildModel();
+        RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
+        visitedTables.getTables().remove(table);
+
+        return null;
     }
 
     public boolean beforeSaveAction() {

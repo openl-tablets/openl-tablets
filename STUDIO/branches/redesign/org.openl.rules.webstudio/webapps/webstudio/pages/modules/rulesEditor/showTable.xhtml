@@ -126,12 +126,13 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <h:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
+                                    <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
+                                        oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'))"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/delete.gif" />
                                         <span>Remove</span>
-                                    </h:commandLink>
+                                    </a4j:commandLink>
                                 </td>
                             </tr>
                         </table>

@@ -18,12 +18,4 @@
         <component-class>org.openl.commons.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
     </component>
 
-    <navigation-rule>
-        <navigation-case>
-            <from-outcome>mainPage</from-outcome>
-            <to-view-id>/pages/modules/rulesEditor/index.xhtml</to-view-id>
-            <redirect />
-        </navigation-case>
-    </navigation-rule>
-
 </faces-config>

@@ -1,14 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PROCESS model-entity="JSFProcess">
- <PROCESS-ITEM NAME="rules:" SHAPE="32,129,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules::0" NAME="item" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT
-    ID="mainPage::#pages#modules#rulesEditor#index.xhtml" NAME="output"
-    PATH="/pages/modules/rulesEditor/index.xhtml"
-    TARGET="rules:#pages#modules#rulesEditor#index.xhtml"
-    TITLE="mainPage" model-entity="JSFProcessItemOutput"/>
-  </PROCESS-ITEM>
- </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#pages#modules#rulesEditor#index.xhtml"
-  PATH="/pages/modules/rulesEditor/index.xhtml" SHAPE="240,145,0,0" model-entity="JSFProcessGroup"/>
-</PROCESS>
+<PROCESS model-entity="JSFProcess"/>
