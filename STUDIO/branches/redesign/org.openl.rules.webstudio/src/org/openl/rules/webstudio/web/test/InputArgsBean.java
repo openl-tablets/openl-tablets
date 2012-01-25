@@ -34,7 +34,11 @@ public class InputArgsBean {
     }
 
     public boolean isMethodHasParameters() {
-        return getTestedMethod().getSignature().getNumberOfParameters() > 0;
+        IOpenMethod testMethod = getTestedMethod();
+        if (testMethod != null) {
+            return testMethod.getSignature().getNumberOfParameters() > 0;
+        }
+        return false;
     }
 
     public void setUri(String uri) {
