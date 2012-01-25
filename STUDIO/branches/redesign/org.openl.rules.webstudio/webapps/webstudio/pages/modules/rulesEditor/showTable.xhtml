@@ -173,6 +173,7 @@
                                     <c:set var="runLink"
                                         value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
                                     <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton bigButton bigMenuButton"
+                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}', 'content')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
