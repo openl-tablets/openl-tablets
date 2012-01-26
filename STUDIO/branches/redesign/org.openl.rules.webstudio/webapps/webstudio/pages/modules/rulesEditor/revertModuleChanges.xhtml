@@ -76,7 +76,7 @@
             <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
             <a4j:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
                 onclick="if(!confirm('Do you really want to revert these changes?'))return false;"
-                oncomplete="alert('Reverting changes was successful!'); refreshCurrent()" />
+                oncomplete="alert('Reverting changes was successful!'); reloadCurrent()" />
             <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
                 oncomplete="window.open('#{contextPath}/faces/pages/modules/rulesEditor/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
         </h:form>
