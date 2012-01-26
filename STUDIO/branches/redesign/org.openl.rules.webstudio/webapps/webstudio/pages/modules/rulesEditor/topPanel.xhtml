@@ -57,7 +57,7 @@
                     </a4j:ajax>
 
                     <h:outputLink value="test/runAllTests.xhtml" target="content"
-                        title="Run All Tests" rendered="#{treeBean.projectHasTests}"><img
+                        title="Run All Tests" rendered="#{!empty rProject and treeBean.projectHasTests}"><img
                         src="webresource/images/test_ok.gif" /></h:outputLink>
 
                     <span style="margin:0 21px"></span>

@@ -240,21 +240,16 @@ public class WebStudio {
         return getCurrentProject(FacesUtils.getSession());
     }
 
-    /**
-     * DOCUMENT ME!
-     * 
-     * @return Returns the current module.
-     */
     public Module getCurrentModule() {
         return currentModule;
     }
 
     public String getNavigationHeader() {
-    	if (currentModule != null) {
-    		return currentModule.getProject().getName() + " > " + currentModule.getName();
-    	}
-    	return null;
-	}
+        if (currentModule != null) {
+            return currentModule.getProject().getName() + " > " + currentModule.getName();
+        }
+        return null;
+    }
 
     /**
      * DOCUMENT ME!

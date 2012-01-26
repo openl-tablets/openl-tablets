@@ -140,9 +140,17 @@
             }
 
             function reloadCurrent() {
-                $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
-                //$j("#left").load(urlRewrite.prefix + "leftPanel.xhtml");
+                reloadTop();
+                reloadLeft();
                 loadContent();
+            }
+
+            function reloadTop() {
+                $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
+            }
+
+            function reloadLeft() {
+                //$j("#left").load(urlRewrite.prefix + "leftPanel.xhtml");
             }
 
             function loadContent() {
@@ -158,6 +166,7 @@
 
                     if (page.indexOf(HOME_PAGE) > -1) {
                         toProjectsPanel();
+                        reloadTop();
                     } else {
                         var header;
                         if (page.indexOf("module.xhtml") > -1) {
