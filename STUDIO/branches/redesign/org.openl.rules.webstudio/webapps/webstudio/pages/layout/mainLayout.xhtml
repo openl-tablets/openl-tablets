@@ -86,7 +86,7 @@
                 prefix: "#{rulesEditor}/"
             }
 
-            $j(window).bind("hashchange", loadPage);
+            $j(window).bind("hashchange", loadContent);
 
             var mainLayout;
             $j(function () {
@@ -103,7 +103,7 @@
                     east__initHidden: true
                 });
 
-                loadPage();
+                loadContent();
 
                 $j("body").css({"visibility": "visible"});
 
@@ -128,7 +128,7 @@
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
                     if (decodeURIComponent(location.hash) == ("#" + decodeURIComponent(page))) {
-                        refreshCurrent();
+                        reloadCurrent();
                     } else {
                         location.hash = page;
                     }
@@ -139,11 +139,13 @@
                 location.hash = HOME_PAGE;
             }
 
-            function refreshCurrent() {
-                loadPage();
+            function reloadCurrent() {
+                $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
+                //$j("#left").load(urlRewrite.prefix + "leftPanel.xhtml");
+                loadContent();
             }
 
-            function loadPage() {
+            function loadContent() {
                 if (location.hash) {
                     var page = location.href.split("#")[1];
                     if (page.indexOf(urlRewrite.prefix) < 0) {
@@ -156,7 +158,6 @@
 
                     if (page.indexOf(HOME_PAGE) > -1) {
                         toProjectsPanel();
-                        
                     } else {
                         var header;
                         if (page.indexOf("module.xhtml") > -1) {

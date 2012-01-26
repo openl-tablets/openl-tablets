@@ -41,7 +41,7 @@
         <div style="display: inline-block">
             <h:form id="headerForm">
                 <div class="buttonPanel">
-                    <a4j:ajax render=":topPanel :projects :bottomPanel" oncomplete="refreshCurrent()">
+                    <a4j:ajax render=":projects" oncomplete="reloadCurrent()">
                         <h:commandLink action="#{mainBean.reload}" title="Refresh Projects"><img
                             src="webresource/images/refresh.png" />
                         </h:commandLink>
@@ -87,7 +87,7 @@
                     onsubmit="goTo('search/simpleSearch.xhtml?searchQuery=' + $j('#searchQuery').val()); return false;">
                     <span id="searchInput">
                         <input type="text" id="searchQuery" placeholder="Search..." />
-                        <input type="image" src="#{contextPath}/webresource/images/search.png" />
+                        <input type="image" src="webresource/images/search.png" />
                     </span>
                 </form>
                 <div id="otherSearches">
@@ -101,7 +101,7 @@
                 <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: orange; color: #555555">
                     <h:form>
                         <div>Show</div>
-                        <a4j:ajax oncomplete="refreshCurrent()">
+                        <a4j:ajax oncomplete="reloadCurrent()">
                             <div><h:selectBooleanCheckbox value="#{studio.showHeader}" />Header</div>
                             <div><h:selectBooleanCheckbox value="#{studio.showFormulas}" />Formulas</div>
                         </a4j:ajax>
