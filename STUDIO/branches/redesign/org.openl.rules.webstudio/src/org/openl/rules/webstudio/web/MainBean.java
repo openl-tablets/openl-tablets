@@ -54,4 +54,9 @@ public class MainBean {
         studio.selectModule(projectId, moduleName);
     }
 
+    public void clearModule() throws Exception {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.setCurrentModule(null);
+    }
+
 }
