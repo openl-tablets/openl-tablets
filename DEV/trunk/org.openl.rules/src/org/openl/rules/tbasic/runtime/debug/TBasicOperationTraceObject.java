@@ -82,7 +82,11 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
         /**
          * Extract the value from the result of the TBasic operation.
          */
-        return ((Result)super.getResult()).getValue();
+        if (super.getResult() != null) {
+            return ((Result) super.getResult()).getValue();
+        } else {
+            return null;
+        }
     }
 
     public String getType() {
