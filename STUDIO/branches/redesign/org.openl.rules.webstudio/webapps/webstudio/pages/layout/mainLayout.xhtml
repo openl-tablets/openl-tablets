@@ -33,12 +33,6 @@
 
         <script>
           //<![CDATA[
-            // Firebug functions for logging
-            if (typeof console != "undefined") {
-                log = console.log;
-                err = console.error;
-            }
-
             var HOME_PAGE = "home.xhtml";
 
             var $j = $.noConflict();
@@ -72,7 +66,7 @@
 
             // Handle JSF / Richfaces AJAX errors
             jsf.ajax.addOnError(function (data) {
-                if (typeof console != "undefined") err(data);
+                if (typeof console != "undefined") console.error(data);
                 // @Deprecated
                 // TODO Create common mechanism to disable editing in UI when Excel file is opened.
                 if (data.errorMessage && data.errorMessage.indexOf(".xls") > -1) {

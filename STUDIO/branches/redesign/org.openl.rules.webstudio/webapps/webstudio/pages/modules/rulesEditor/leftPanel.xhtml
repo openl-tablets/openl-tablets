@@ -6,11 +6,10 @@
     <h:panelGroup id="leftPanel" layout="block">
         <div id="leftPanelTab">
             <div class="view_header">
-                <span id="navigationHeader" onclick="goTo('home.xhtml')"
-                    style="cursor: pointer">#{!empty studio.navigationHeader ? studio.navigationHeader : 'Projects'}</span>
+                <span id="navigationHeader" onclick="goTo('home.xhtml')" style="cursor: pointer"></span>
             </div>
             <div>
-                <div id="projectsTreePanel">
+                <div id="projectsTreePanel" style="display: none">
                     <ui:include src="/pages/modules/rulesEditor/projectTree.xhtml" />
                 </div>
                 <div id="rulesTreePanel" style="display: none">
@@ -22,6 +21,8 @@
 
     <script>
       //<![CDATA[
+        var NAVI_HEADER_ITEM = "naviHeader";
+
         function toProjectsPanel() {
             $j("#navigationHeader").text("Projects");
             $j("#navigationHeader").removeAttr("title");
@@ -31,7 +32,11 @@
         }
 
         function toRulesPanel(header) {
+            if (!header) {
+                header = sessionStorage.getItem(NAVI_HEADER_ITEM);
+            } 
             if (header) {
+                sessionStorage.setItem(NAVI_HEADER_ITEM, header);
                 $j("#navigationHeader").text(header);
                 $j("#navigationHeader").attr("title", header);    
             }

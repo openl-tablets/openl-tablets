@@ -244,13 +244,6 @@ public class WebStudio {
         return currentModule;
     }
 
-    public String getNavigationHeader() {
-        if (currentModule != null) {
-            return currentModule.getProject().getName() + " > " + currentModule.getName();
-        }
-        return null;
-    }
-
     /**
      * DOCUMENT ME!
      * 
