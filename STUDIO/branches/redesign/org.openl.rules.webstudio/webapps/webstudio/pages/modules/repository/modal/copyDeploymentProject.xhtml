@@ -19,7 +19,7 @@
       <h:panelGroup id="modalCopyDeploymentProject">
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
           <h:outputText value="Project Name" />
-          <input id="deploymentProjectName1" value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
+          <input id="deploymentProjectName1" value="#{artefact.name}" type="text" size="35" readonly="readonly" title="#{artefact.name}"/>
           <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
           <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
         </h:panelGrid>
@@ -31,7 +31,7 @@
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalCopyDeploymentProject')}.hide();" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyDeploymentProject').hide();" />
       </h:panelGrid>
     </h:form>
   </rich:popupPanel>
