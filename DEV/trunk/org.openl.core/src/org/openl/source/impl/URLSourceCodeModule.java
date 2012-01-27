@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -35,12 +36,29 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         return url;
     }
     
-    public long getLastModified(){
+    public long getLastModified() {
+    	InputStream is = null;
         try {
-            return url.openConnection().getLastModified();
+        	URLConnection conn = url.openConnection();
+        	long lastModified = conn.getLastModified();
+        	
+        	// FileURLConnection#getLastModified() opens an input stream to get the last modified date.
+        	// It should be closed explicitly.
+        	//
+        	is = conn.getInputStream();
+        	
+            return lastModified;
         } catch (IOException e) {
             LOG.warn(String.format("Failed to open connection for URL \"%s\"", url.toString()), e);
             return -1;
+        } finally {
+        	if (is != null) {
+        		try { 
+        			is.close();
+        		} catch (IOException e) {
+					// ignore
+				}
+        	}
         }
     }
 
