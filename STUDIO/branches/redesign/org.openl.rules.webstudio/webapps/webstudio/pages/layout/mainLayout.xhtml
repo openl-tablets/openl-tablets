@@ -103,7 +103,7 @@
 
                 $j("a[target='content']").live("click", function() {
                     var page = $j(this).attr("href");
-                    goTo(page, "content");
+                    goTo(page);
                     return false;
                 });
             });
@@ -118,7 +118,7 @@
                 }
             }
 
-            function goTo(page, target) {
+            function goTo(page, reload) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
                     if (decodeURIComponent(location.hash) == ("#" + decodeURIComponent(page))) {
@@ -126,6 +126,10 @@
                     } else {
                         location.hash = page;
                     }
+                }
+                if (reload) {
+                    reloadTop();
+                    reloadLeft();
                 }
             }
 
@@ -144,7 +148,9 @@
             }
 
             function reloadLeft() {
-                //$j("#left").load(urlRewrite.prefix + "leftPanel.xhtml");
+                $j("#left").load(urlRewrite.prefix + "leftPanel.xhtml", function() {
+                    reopenLeftPanel();
+                });
             }
 
             function loadContent() {
@@ -180,6 +186,39 @@
                     }
                 } else {
                     goHome();
+                }
+            }
+
+            var NAVI_HEADER_ITEM = "naviHeader";
+
+            function toProjectsPanel() {
+                sessionStorage.removeItem(NAVI_HEADER_ITEM);
+                $j("#navigationHeader").text("Projects");
+                $j("#navigationHeader").removeAttr("title");
+
+                $j("#projectsTreePanel").show();
+                $j("#rulesTreePanel").hide();
+            }
+
+            function toRulesPanel(header) {
+                if (!header) {
+                    header = sessionStorage.getItem(NAVI_HEADER_ITEM);
+                } 
+                if (header) {
+                    sessionStorage.setItem(NAVI_HEADER_ITEM, header);
+                    $j("#navigationHeader").text(header);
+                    $j("#navigationHeader").attr("title", header);    
+                }
+
+                $j("#projectsTreePanel").hide();
+                $j("#rulesTreePanel").show();
+            }
+
+            function reopenLeftPanel() {
+                if (sessionStorage.getItem(NAVI_HEADER_ITEM)) {
+                    toRulesPanel();
+                } else {
+                    toProjectsPanel();
                 }
             }
 

@@ -41,7 +41,7 @@
         <div style="display: inline-block">
             <h:form id="headerForm">
                 <div class="buttonPanel">
-                    <a4j:ajax render=":projects" oncomplete="reloadCurrent()">
+                    <a4j:ajax oncomplete="reloadCurrent()">
                         <h:commandLink action="#{mainBean.reload}" title="Refresh Projects"><img
                             src="webresource/images/refresh.png" />
                         </h:commandLink>

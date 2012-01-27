@@ -12,7 +12,7 @@
             immediate="true" oncomplete="go('datatypeAlias/step3.xhtml')" />
         <a4j:commandButton value="Save" action="#{wizard.finish}"
             onclick="return validateForm();enableControls()" data="#{wizard.newTableUri}"
-            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data))" />
+            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
         <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
     </ui:define>
 
