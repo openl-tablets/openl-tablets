@@ -109,7 +109,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                                        oncomplete="goTo('#{rulesEditor}/copyTable.xhtml', 'content')" title="Copy Table"
+                                        oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')" title="Copy Table"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
@@ -128,7 +128,7 @@
                                 <td>
                                     <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
-                                        oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'))"
+                                        oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/delete.gif" />
                                         <span>Remove</span>
@@ -173,7 +173,7 @@
                                     <c:set var="runLink"
                                         value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
                                     <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton bigButton bigMenuButton"
-                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}', 'content')"
+                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
@@ -231,7 +231,7 @@
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml', 'content')"
+                                        oncomplete="goTo('#{rulesEditor}/test/benchmarkMethod.xhtml')"
                                         style="padding-right: 1px">
                                         <table style="border-collapse: collapse;">
                                             <tr>
@@ -278,7 +278,7 @@
                                     <ui:include src="/pages/modules/rulesEditor/test/inputTestCase.xhtml" />
                                     <a4j:commandButton id="runButton" style="display: none"
                                         action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
-                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')" />
+                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml')" />
                                     <a4j:commandButton id="traceButton" style="display: none"
                                         action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
                                         oncomplete="open_win('#{traceUrl}', 'trace_win')" />
@@ -286,7 +286,7 @@
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
                                 <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="toolbarButton bigButton" title="Run"
-                                    oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml', 'content')">
+                                    oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml')">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
                                 </a4j:commandLink>
@@ -305,7 +305,7 @@
                         <h:form>
                             <a4j:commandLink styleClass="toolbarButton bigButton" title="Run All Tests"
                                 action="#{showTableBean.runAllTestsForTable}"
-                                oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml', 'content')">
+                                oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml')">
                                 <img src="webresource/images/test_ok.gif" />
                                 <span>Test</span>
                             </a4j:commandLink>
@@ -488,7 +488,7 @@
         }
 
         function onAfterSave(newUri) {
-            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), "content");
+            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
             hideLoader();
         }
 
