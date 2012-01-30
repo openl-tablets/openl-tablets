@@ -16,7 +16,7 @@
 
         <tr>
             <ui:repeat var="arg" value="#{args}">
-            <td>
+            <td style="vertical-align: top;">
                 <rich:tree toggleType="client" selectionType="client"
                     value="#{parameterTreeBuilder.getRoot(arg)}" var="item">
                     <rich:treeNode>#{item.treeText}</rich:treeNode>
