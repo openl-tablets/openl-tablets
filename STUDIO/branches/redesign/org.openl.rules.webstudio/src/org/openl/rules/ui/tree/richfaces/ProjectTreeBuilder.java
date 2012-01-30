@@ -5,7 +5,6 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tree.ProjectTreeNode;
-import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
@@ -52,8 +51,7 @@ public class ProjectTreeBuilder extends TreeBuilder {
         String elementType = element.getType();
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
             String uri = ((ProjectTreeNode) element).getUri();
-            return WebContext.getContextPath() + "/faces/pages/modules/rulesEditor/showTable.xhtml?"
-                    + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
+            return "#showTable.xhtml?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         }
         return null;
     }
