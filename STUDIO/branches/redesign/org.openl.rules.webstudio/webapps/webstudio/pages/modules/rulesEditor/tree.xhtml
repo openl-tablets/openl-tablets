@@ -22,7 +22,7 @@
 
     <ui:define name="workspace">
         <rich:tree id="rulesTree" styleClass="tree" value="#{treeBean.tree}" var="node" nodeType="#{node.type}"
-            toggleType="client" nodeClass="#{node.active ? '' : 'treeNodeInactive'}" selection="#{treeBean.selected}">
+            toggleType="client" nodeClass="#{node.active ? '' : 'treeNodeInactive'}">
             <rich:treeNode type="folder"
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/tree/folder-error.png' : 'webresource/images/tree/folder.png'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/tree/folder-error.png' : 'webresource/images/tree/folder.png'}">
@@ -133,6 +133,11 @@
                 </h:outputLink>
             </rich:treeNode>
         </rich:tree>
+
+        <script>
+            openTreeNode();
+        </script>
+
     </ui:define>
 
 </ui:composition>

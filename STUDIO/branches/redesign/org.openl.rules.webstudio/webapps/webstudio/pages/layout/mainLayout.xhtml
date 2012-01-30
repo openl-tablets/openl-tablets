@@ -153,16 +153,19 @@
                 });
             }
 
+            function getCurrentPage() {
+                var page = location.href.split("#")[1];
+                if (page && page.indexOf(urlRewrite.prefix) < 0) {
+                    page = urlRewrite.prefix + page;
+                }
+                return page;
+            }
+
             function loadContent() {
                 if (location.hash) {
-                    var page = location.href.split("#")[1];
-                    if (page.indexOf(urlRewrite.prefix) < 0) {
-                        page = urlRewrite.prefix + page;
-                    }
+                    var page = getCurrentPage();
 
-                    showLoader();
                     $j("#content").load(page);
-                    hideLoader();
 
                     if (page.indexOf(HOME_PAGE) > -1) {
                         toProjectsPanel();
@@ -181,11 +184,36 @@
                         $j("#tableProperties").load(
                                 urlRewrite.prefix + "tableProperties.xhtml?"
                                 + page.split("?")[1]);
+                        openTreeNode(page);
                     } else {
                         mainLayout.hide("east");
                     }
                 } else {
                     goHome();
+                }
+            }
+
+            function openTreeNode(page) {
+                var page = page || getCurrentPage();
+
+                if (page && page.indexOf("showTable.xhtml") > -1) {
+                    var tableId = page.split("uri=")[1].split("&")[0];
+                    var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
+                    if (tableLink.length) { // Firefox has bug with decoding url after refresh
+                        // Expand nodes
+                        tableLink.parents(".rf-tr-nd-colps").each(function() {
+                            var node = $j(this);
+                            node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
+                            node.find(".rf-trn-hnd-colps").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                        });
+                        // Select node
+                        $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");
+                        tableLink.closest(".rf-trn-cnt").addClass("rf-trn-sel");
+    
+                        tableLink.closest(".view_workspace").animate({
+                            scrollTop: tableLink.offset().top
+                        });
+                    }
                 }
             }
 

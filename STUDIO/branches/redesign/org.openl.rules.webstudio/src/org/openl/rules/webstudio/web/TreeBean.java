@@ -1,23 +1,19 @@
 package org.openl.rules.webstudio.web;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 
-//import org.openl.commons.web.jsf.FacesUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
-//import org.openl.rules.ui.tree.richfaces.TreeStateManager;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.tree.ITreeElement;
-import org.richfaces.model.SequenceRowKey;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
@@ -27,17 +23,6 @@ import org.richfaces.model.TreeNodeImpl;
 @ManagedBean
 @RequestScoped
 public class TreeBean {
-
-    //private TreeStateManager stateManager;
-
-    public TreeBean() {
-        //String nodeToOpen = FacesUtils.getRequestParameter("nodeToOpen");
-        //stateManager = new TreeStateManager(nodeToOpen);
-    }
-
-    /*public TreeStateManager getStateManager() {
-        return stateManager;
-    }*/
 
     public String getCurrentView() {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -76,12 +61,6 @@ public class TreeBean {
         }
         // Empty tree
         return new TreeNodeImpl();
-    }
-
-    public Collection<Object> getSelected() {
-        Collection<Object> selected = new ArrayList<Object>();
-        selected.add(new SequenceRowKey("0.1"));
-        return selected;
     }
 
 }
