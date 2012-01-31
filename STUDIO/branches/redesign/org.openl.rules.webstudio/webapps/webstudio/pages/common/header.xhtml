@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -11,7 +10,7 @@
     <style>
         #rb {
             text-align: right;
-            padding: 5px 8px;
+            padding: 7px 8px;
         }
         #rb a {
             text-decoration: none;
@@ -31,15 +30,14 @@
         }
     </style>
 
-    <div style="height: 27px;">
-        <div style="position: absolute; left: 11px; top: 2px">
+    <div style="height: 29px;">
+        <div style="position: absolute; left: 11px; top: 3px">
             <a href="#home.xhtml" style="text-decoration: none">
                 <ui:include src="/pages/common/logo.xhtml" />
             </a>
         </div>
 
         <div id="rb">
-            
             <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/guide/html/#{versionProperties['openl.version']}/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                 title="Help">Help</a>
             <span id="userName" title="Current user" style="margin: 0 1px 0 9px">
@@ -51,7 +49,7 @@
             </c:if>
         </div>
 
-        <div id="ll" style="position: absolute; top: 6px; right: 255px;">
+        <div id="ll" style="position: absolute; top: 7px; right: 255px;">
             <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a><a
                 href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : ''}">Repository</a><a
                 href="#{contextPath}/faces/pages/modules/administration/index.xhtml" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
