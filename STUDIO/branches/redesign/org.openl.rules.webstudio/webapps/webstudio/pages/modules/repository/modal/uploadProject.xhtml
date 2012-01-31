@@ -36,30 +36,32 @@
             </h:panelGrid>
             </h:form>        
         </rich:tab>
-        
+
         <rich:tab header="Workspace">
             <h:form>
-                <rich:dataTable value="#{localUpload.projects4Upload}"
-                    rendered="#{not empty localUpload.projects4Upload}"
-                    var="item" width="600" styleClass="standard" rowClasses="odd,even">
-                    <f:facet name="header">
-                        <rich:columnGroup>
-                            <rich:column>
-                                <h:outputText value="Selected" />
-                            </rich:column>
-                            <rich:column>
-                                <h:outputText value="Name" />
-                            </rich:column>
-                        </rich:columnGroup>
-                    </f:facet>
-
-                    <rich:column style="text-align:center; width: 20px;">
-                        <h:selectBooleanCheckbox value="#{item.selected}" />
-                    </rich:column>
-                    <rich:column>
-                        <h:outputText value="#{item.projectName}" />
-                    </rich:column>
-                </rich:dataTable>
+                <div style="max-height: 292px; overflow:auto">
+                    <rich:dataTable value="#{localUpload.projects4Upload}"
+                        rendered="#{not empty localUpload.projects4Upload}"
+                        var="item" width="600" styleClass="standard" rowClasses="odd,even">
+                        <f:facet name="header">
+                            <rich:columnGroup>
+                                <rich:column>
+                                    <h:outputText value="Selected" />
+                                </rich:column>
+                                <rich:column>
+                                    <h:outputText value="Name" />
+                                </rich:column>
+                            </rich:columnGroup>
+                        </f:facet>
+    
+                        <rich:column style="text-align:center; width: 20px;">
+                            <h:selectBooleanCheckbox value="#{item.selected}" />
+                        </rich:column>
+                        <rich:column>
+                            <h:outputText value="#{item.projectName}" />
+                        </rich:column>
+                    </rich:dataTable>
+                </div>
 
                 <h:outputText value="All projects are already in repository"
                     rendered="#{empty localUpload.projects4Upload}" />
