@@ -1,6 +1,7 @@
 #header {
     border-bottom: 1px solid #dddddd;
-    padding: 7px 11px;
+    padding: 3px 11px;
+    background: #f9f9f9;
 }
 
 #content {
@@ -9,4 +10,5 @@
 
 #footer {
     border-top: 1px solid #dddddd;
+    background: #f9f9f9;
 }

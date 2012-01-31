@@ -132,7 +132,7 @@ form {
 }
 
 #topPanel {
-    padding: 12px 15px;
+    padding: 18px 10px;
 }
 
 .data_cell {
@@ -424,7 +424,7 @@ table.header thead td {
 .view_header {
      font-size: 110%;
      height: 14px;
-     padding: 7px;
+     padding: 7px 7px 7px 9px;
      color: #171717;
      white-space: nowrap;
      text-overflow: ellipsis;
@@ -437,7 +437,7 @@ table.header thead td {
 }
 
 .view_toolbar > div {
-    padding: 7px 4px 6px;
+    padding: 7px 5px 6px 7px;
 }
 
 .view_workspace,
@@ -483,7 +483,16 @@ table.header thead td {
     color: white;
 }
 
+.imageButton {
+    padding: 5px 16px;
+    border: 1px solid #e5e5e5;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-color: #fbfbfb !important;
+}
+
 .buttonPanel .button,
-.buttonPanel .button2 {
+.buttonPanel .button2,
+.buttonPanel .imageButton {
 	margin: 0px 2px;
 }

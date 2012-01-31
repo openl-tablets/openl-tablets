@@ -15,10 +15,11 @@
         }
         #searchInput input[type='text'] {
             height: 22px;
-            width: 185px;
+            width: 195px;
             -moz-box-sizing: border-box;
             box-sizing: border-box;
             padding-right: 20px;
+            margin-top: -5px;
         }
         #searchInput input[type='image'] {
             position: absolute;
@@ -30,7 +31,7 @@
         #otherSearches {
             display: none;
             padding: 3px 5px 4px;
-            width: 173px;
+            width: 183px;
         }
         #otherSearches div {
             margin-bottom: 2px;
@@ -38,45 +39,6 @@
     </style>
 
     <h:panelGroup id="topPanel" layout="block">
-        <div style="display: inline-block">
-            <h:form id="headerForm">
-                <div class="buttonPanel">
-                    <a4j:ajax oncomplete="reloadCurrent()">
-                        <h:commandLink action="#{mainBean.reload}" title="Refresh Projects"><img
-                            src="webresource/images/refresh.png" />
-                        </h:commandLink>
-
-                        <h:commandLink action="#{mainBean.checkInProject}" title="Check in Project"
-                            rendered="#{!empty rProject and rProject.checkedOut}"><img
-                            src="webresource/images/repository/checkin.gif" />
-                        </h:commandLink>
-                        <h:commandLink action="#{mainBean.checkOutProject}" title="Check out Project"
-                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked}"><img
-                            src="webresource/images/repository/checkout.gif" />
-                        </h:commandLink>
-                    </a4j:ajax>
-
-                    <h:outputLink value="test/runAllTests.xhtml" target="content"
-                        title="Run All Tests" rendered="#{!empty rProject and treeBean.projectHasTests}"><img
-                        src="webresource/images/test_ok.gif" /></h:outputLink>
-
-                    <span style="margin:0 21px"></span>
-
-                    <h:outputLink rendered="#{studio.model.editable}" value="create/index.xhtml"
-                        target="content" title="Create new table" styleClass="button">Create New</h:outputLink>
-
-                    <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
-                        value="revertModuleChanges.xhtml" target="content" title="Revert Changes"
-                        styleClass="button2">Revert</h:outputLink>
-
-                    <span style="margin:0 13px"></span>
-
-                    <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
-                        value="rulesDependencies.xhtml" target="content"
-                        title="Rules Dependencies">Dependencies</h:outputLink>
-                </div>
-            </h:form>
-        </div>
         <div style="float: right;">
             <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
                 <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
@@ -108,12 +70,51 @@
                     </h:form>
                 </div>
 
-                <a target="_blank" style="margin-left: 17px"
-                    onclick="window.open('#{rulesEditor}/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                    href="#" title="Compare Excel files"><img
-                src="webresource/images/compare.gif" /></a>
+                <div style="display:inline-block; margin-left: 15px">
+                    <a target="_blank" style="background:url('webresource/images/compare.gif')"
+                        onclick="window.open('#{rulesEditor}/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                        href="#" title="Compare Excel files" class="imageButton" />
+                </div>
             </div>
+        </div>
 
+        <div>
+            <h:form id="headerForm">
+                <div class="buttonPanel">
+                    <a4j:ajax oncomplete="reloadCurrent()">
+                        <h:commandLink action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
+                            style="background:url('webresource/images/refresh.png')" />
+
+                        <h:commandLink action="#{mainBean.checkInProject}" title="Check in Project"
+                            rendered="#{!empty rProject and rProject.checkedOut}" styleClass="imageButton"
+                            style="background:url('webresource/images/repository/checkin.gif')" />
+                        <h:commandLink action="#{mainBean.checkOutProject}" title="Check out Project"
+                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked}"
+                            styleClass="imageButton"
+                            style="background:url('webresource/images/repository/checkout.gif')" />
+                    </a4j:ajax>
+
+                    <h:outputLink value="test/runAllTests.xhtml" target="content"
+                        title="Run All Tests" rendered="#{!empty rProject and treeBean.projectHasTests}"
+                        styleClass="imageButton" style="background:url('webresource/images/test_ok.gif')" />
+
+                    <span style="margin-left: 17px;" />
+
+                    <h:outputLink rendered="#{studio.model.editable}" value="create/index.xhtml"
+                        target="content" title="Create new table" styleClass="button">Create New</h:outputLink>
+
+                    <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
+                        value="revertModuleChanges.xhtml" target="content" title="Revert Changes"
+                        styleClass="button2">Revert</h:outputLink>
+
+                    <span style="margin-left: 17px;" />
+
+                    <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
+                        value="rulesDependencies.xhtml" target="content"
+                        title="Rules Dependencies">Dependencies</h:outputLink>
+
+                </div>
+            </h:form>
         </div>
     </h:panelGroup>
 
