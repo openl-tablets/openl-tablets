@@ -78,12 +78,17 @@ public class DatatypeOpenField extends AOpenField {
                 method = targetClass.getMethod(StringTool.getSetterName(getName()), getType().getInstanceClass());
                 method.invoke(target, value);
             } catch (NoSuchMethodException e1) {
-                processError(e1);
+            	String errorMessage = String.format("There is no setter method in class %s for the field %s with type %s", 
+            			targetClass.getSimpleName(), getName(), getType().getInstanceClass().getSimpleName());
+                processError(errorMessage, e1);
             } catch (IllegalArgumentException e1) {
+            	// TODO: add business friendly message if needed
                 processError(e1);
             } catch (IllegalAccessException e1) {
+            	// TODO: add business friendly message if needed
                 processError(e1);
             } catch (InvocationTargetException e1) {
+            	// TODO: add business friendly message if needed
                 processError(e1);
             }
         } catch (SecurityException e1) {
@@ -94,6 +99,14 @@ public class DatatypeOpenField extends AOpenField {
     private void processError(Throwable e1) {
         LOG.error(this, e1);
         OpenLMessagesUtils.addError(e1);  
+    }
+    
+    private void processError(String errorMessage, Throwable e1) {
+    	LOG.error(errorMessage);
+        LOG.error(this, e1);
+        // add business friendly error description
+        //
+        OpenLMessagesUtils.addError(errorMessage);  
     }
 
     public void setDeclaringClass(IOpenClass declaringClass) {
