@@ -212,28 +212,32 @@ public class TableEditorModel {
         boolean propExists = propertyCoordinates != null;
         boolean propIsBlank = value == null;
 
-        if (!propIsBlank && !propExists) {
-            int tableWidth = fullTable.getWidth();
-            if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
-                nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
+        if (!propIsBlank) {
+            if (!propExists) {
+                int tableWidth = fullTable.getWidth();
+                if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
+                    nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
+                }
+                nRowsToInsert = 1;
+                if ((nRowsToInsert > 0 && !UndoableInsertRowsAction.canInsertRows(gridTable, nRowsToInsert))
+                        || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
+                    createdActions.add(UndoableEditTableAction.moveTable(fullTable));
+                }
+                GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
+                        UndoableEditTableAction.INSERT, ActionType.EXPAND, nRowsToInsert);
+                allTable.doAction(gridTable);
+                createdActions.add(allTable);
+                if (isBusinessView()) {
+                    GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
+                            UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, nRowsToInsert);
+                    displayedTable.doAction(gridTable);
+                    createdActions.add(displayedTable);
+                }
             }
-            nRowsToInsert = 1;
-            if ((nRowsToInsert > 0 && !UndoableInsertRowsAction.canInsertRows(gridTable, nRowsToInsert))
-                    || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
-                createdActions.add(UndoableEditTableAction.moveTable(fullTable));
+        } else {
+            if (propExists) {
+                removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
             }
-            GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
-                    UndoableEditTableAction.INSERT, ActionType.EXPAND, nRowsToInsert);
-            allTable.doAction(gridTable);
-            createdActions.add(allTable);
-            if (isBusinessView()) {
-                GridRegionAction displayedTable = new GridRegionAction(gridTable.getRegion(),
-                        UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, nRowsToInsert);
-                displayedTable.doAction(gridTable);
-                createdActions.add(displayedTable);
-            }
-        } else if (propIsBlank && propExists) {
-            removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
             return;
         }
 
@@ -254,6 +258,10 @@ public class TableEditorModel {
             objectValue = IWritableGrid.Tool.parseStringValue(formatter, value);
         }
         setProperty(name, objectValue);
+    }
+
+    public synchronized void removeProperty(String name) throws Exception {
+        setProperty(name, (Object) null);
     }
 
     private IFormatter getPropertyFormatter(String propertyName) {
