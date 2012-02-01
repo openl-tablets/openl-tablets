@@ -136,16 +136,26 @@ public abstract class FacesUtils {
      *
      * @return parameter value - if parameter exists, <code>null</code> -
      *         otherwise.
+     * TODO: this method should be used only for uri decoding
+     * in other cases use method without decoding        
      */
     public static String getRequestParameter(String parameterName) {
-        String param = (String) getRequestParameterMap().get(parameterName);
+        String param = getRequestParameterClean(parameterName);
 
         if (StringUtils.isNotBlank(param)) {
             try {
+            	// If a character encoding is not specified, the Servlet specification requires that an encoding of ISO-8859-1 is used.
+            	// see http://wiki.apache.org/tomcat/FAQ/CharacterEncoding
+            	// http://blogs.warwick.ac.uk/kieranshaw/entry/utf-8_internationalisation_with/ (section tomcat)
+            	//
                 param = new String(param.getBytes("ISO-8859-1"), "UTF-8");
             } catch (Exception e) {}
         }
         return param;
+    }
+    
+    public static String getRequestParameterClean(String parameterName) {
+    	return getRequestParameterMap().get(parameterName);
     }
 
     public static Map<String, String> getRequestParameterMap() {
