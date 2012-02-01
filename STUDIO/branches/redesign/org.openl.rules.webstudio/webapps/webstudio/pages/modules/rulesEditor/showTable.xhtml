@@ -466,11 +466,27 @@
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
         }
 
+        /**
+        	Limits popup height and width inside the bordering component.
+        */
+        function adjustSize(popupId, borderingComponentId) {
+        	var borderingComponent = $j("#" + borderingComponentId);
+        	var popup = $j("#" + popupId);
+        	var popupPosition = popup.position();
+        	var maxHeight = borderingComponent.outerHeight() - popupPosition.top - 10;
+        	var maxWidth = borderingComponent.outerWidth() - popupPosition.left - 10;
+        	popup.css({
+                'max-height': maxHeight,
+                'max-width': maxWidth,
+            });
+        }
+    	
         function showButtonMenu(event, popupId, buttonElem) {
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
             showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
+            adjustSize(popupId,'content');
         }
 
         function search() {
