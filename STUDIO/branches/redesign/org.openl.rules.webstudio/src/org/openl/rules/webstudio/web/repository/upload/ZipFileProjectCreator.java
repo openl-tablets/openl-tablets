@@ -10,11 +10,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeController;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class ZipFileProjectCreator extends AProjectCreator {
+    private static final Log LOG = LogFactory.getLog(ZipFileProjectCreator.class);
     
     private ZipFile zipFile;
     
@@ -39,8 +43,13 @@ public class ZipFileProjectCreator extends AProjectCreator {
         // Sort zip entries names alphabetically
         Set<String> sortedNames = new TreeSet<String>();
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
-            ZipEntry item = items.nextElement();
-            sortedNames.add(item.getName());
+            try {
+                ZipEntry item = items.nextElement();
+                sortedNames.add(item.getName());
+            } catch (Exception e) {
+                // TODO message on UI
+                LOG.warn("Can not extract zip entry.", e);
+            }
         }
         return sortedNames;
     }
@@ -50,17 +59,22 @@ public class ZipFileProjectCreator extends AProjectCreator {
         Set<String> sortedNames = sortZipEntriesNames(zipFile);
         ZipRulesProjectBuilder projectBuilder = getZipProjectBuilder(sortedNames);
         for (String name : sortedNames) {
-            ZipEntry item = zipFile.getEntry(name);
-            if (item.isDirectory()) {
-                projectBuilder.addFolder(item.getName());
-            } else {
-                InputStream zipInputStream;
-                try {
-                    zipInputStream = zipFile.getInputStream(item);
-                } catch (IOException e) {                    
-                    throw new ProjectException("Error extracting zip archive", e);
+            try {
+                ZipEntry item = zipFile.getEntry(name);
+                if (item.isDirectory()) {
+                    projectBuilder.addFolder(item.getName());
+                } else {
+                    InputStream zipInputStream;
+                    try {
+                        zipInputStream = zipFile.getInputStream(item);
+                    } catch (IOException e) {
+                        throw new ProjectException("Error extracting zip archive", e);
+                    }
+                    projectBuilder.addFile(item.getName(), zipInputStream);
                 }
-                projectBuilder.addFile(item.getName(), zipInputStream);
+            } catch (Exception e) {
+                // TODO message on UI
+                LOG.warn(String.format("Bad zip entry name [%s].", name));
             }
         }
         return projectBuilder;
