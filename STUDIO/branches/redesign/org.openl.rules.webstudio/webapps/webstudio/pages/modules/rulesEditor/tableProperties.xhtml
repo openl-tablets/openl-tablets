@@ -67,7 +67,8 @@
             <a4j:repeat value="#{tablePropertiesBean.properties}" var="prop">
             <ui:param name="editable"
                 value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
-            <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}">
+            <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
+                onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
                 <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     #{prop.displayName}
                 </td>
@@ -93,11 +94,17 @@
                     </span>
                     </h:panelGroup>
                 </td>
-                <td>
+                <td style="padding: 0 7px">
                     <h:panelGroup rendered="#{prop.inheritedProperty}">
                         <a href="showTable.xhtml?uri=#{prop.inheritedTableUri}" target="content"
-                            title="Go to Properties table" style="padding: 0 5px 0 4px"><img
-                            src="webresource/images/up.gif" /></a>
+                            title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
+                        <a4j:commandLink id="removePropBtn" action="#{tablePropertiesBean.remove(prop)}" title="Remove"
+                            render="propsTable :addPropsPanel" oncomplete="$j('#savePropsButton').fadeIn();"
+                            style="display: none">
+                            <img style="opacity: 0.5" src="webresource/images/close.gif" />
+                        </a4j:commandLink>
                     </h:panelGroup>
                 </td>
             </tr>
@@ -116,23 +123,24 @@
 
     <h:panelGroup rendered="#{tablePropertiesBean.editable}">
     <h:form prependId="false">
-        <div id="addPropsPanel"
+        <h:panelGroup id="addPropsPanel" layout="block"
             style="display: none; margin: 7px 3px; padding: 8px; border: 1px solid #eeeeee; background: #f5f5f5; text-align: center">
             <div style="display: inline-block; text-align: left;">
                 <div style="color: #555555; margin-bottom: 8px">Select property to add</div>
                 <div>
                     <h:selectOneMenu value="#{tablePropertiesBean.propertyToAdd}">
                         <f:selectItems value="#{tablePropertiesBean.propertiesToAdd}" />
-                    </h:selectOneMenu><br/>
+                    </h:selectOneMenu>
                 </div>
-                <div style="margin-top: 7px">
+                <div style="margin-top: 9px">
                     <a4j:commandButton value="Add" onclick="$j('#addPropsPanel').hide()"
-                        action="#{tablePropertiesBean.addProperty}" render=":propsTable @form"
+                        action="#{tablePropertiesBean.addNew}" render=":propsTable @form"
                         oncomplete="$j('#savePropsButton').fadeIn();$j('#addPropBtn').fadeIn()" />
-                    <a href="javascript:void(0)" onclick="$j('#addPropsPanel').hide();$j('#addPropBtn').fadeIn()" style="margin-left: 3px">Cancel</a>
+                    <a href="javascript:void(0)" onclick="$j('#addPropsPanel').hide();$j('#addPropBtn').fadeIn()"
+                        style="margin-left: 3px">Cancel</a>
                 </div>
             </div>
-        </div>
+        </h:panelGroup>
     </h:form>
     </h:panelGroup>
 
@@ -149,8 +157,11 @@
             new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
         }
 
-        function addProperty() {
-            
+        function showRemoveBtn(row) {
+            $j(row).find("a[id*='removePropBtn']").show();
+        }
+        function hideRemoveBtn(row) {
+            $j(row).find("a[id*='removePropBtn']").hide();
         }
     </script>
     </h:panelGroup>

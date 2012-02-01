@@ -2,21 +2,21 @@ package org.openl.rules.webstudio.web.tableeditor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-//import org.openl.rules.table.constraints.Constraint;
-//import org.openl.rules.table.constraints.LessThanConstraint;
-//import org.openl.rules.table.constraints.MoreThanConstraint;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -35,12 +35,11 @@ import org.openl.util.StringTool;
 @ViewScoped
 public class TablePropertiesBean {
 
-    //private static final Log LOG = LogFactory.getLog(TablePropertiesBean.class);
-
     private IOpenLTable table;
     private ITableProperties props;
     private List<TableProperty> listProperties;
     private List<PropertyGroup> groups;
+    private Set<String> propsToRemove = new HashSet<String>();
 
     private String newTableUri;
     private String propertyToAdd;
@@ -136,26 +135,6 @@ public class TablePropertiesBean {
         return table.isCanContainProperties();
     }
 
-    public void save() throws Exception {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
-        TableEditorModel tableEditorModel = model.getTableEditorModel(table);
-        boolean toSave = false;
-        for (TableProperty property : listProperties) {
-            String name = property.getName();
-            Object newValue = property.getValue();
-            if (newValue != null
-                    && !newValue.equals(props.getPropertyValue(name))) {
-                tableEditorModel.setProperty(name, newValue);
-                toSave = true;
-            }
-        }
-        if (toSave) {
-            this.newTableUri = tableEditorModel.save();
-            studio.rebuildModel();
-        }
-    }
-
     public String getNewTableUri() {
         return newTableUri;
     }
@@ -191,9 +170,39 @@ public class TablePropertiesBean {
         this.propertyToAdd = propertyToAdd;
     }
 
-    public void addProperty() {
-    	TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyToAdd);
+    public void addNew() {
+        TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyToAdd);
         listProperties.add(new TableProperty(propDefinition));
+        propsToRemove.remove(propertyToAdd);
+    }
+
+    public void save() throws Exception {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+        TableEditorModel tableEditorModel = model.getTableEditorModel(table);
+        boolean toSave = false;
+        for (TableProperty property : listProperties) {
+            String name = property.getName();
+            Object newValue = property.getValue();
+            Object oldValue = props.getPropertyValue(name);
+            if (ObjectUtils.notEqual(oldValue, newValue)) {
+                tableEditorModel.setProperty(name, newValue);
+                toSave = true;
+            }
+        }
+        for (String propToRemove : propsToRemove) {
+            tableEditorModel.removeProperty(propToRemove);
+            toSave = true;
+        }
+        if (toSave) {
+            this.newTableUri = tableEditorModel.save();
+            studio.rebuildModel();
+        }
+    }
+
+    public void remove(TableProperty prop) {
+        listProperties.remove(prop);
+        propsToRemove.add(prop.getName());
     }
 
     /*for (Constraint constraint : constraints.getAll()) {
