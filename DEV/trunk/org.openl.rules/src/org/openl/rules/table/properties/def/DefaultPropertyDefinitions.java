@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties.def;
 
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -23,6 +24,7 @@ public class DefaultPropertyDefinitions
 		definitions[0].setDescription("The name of the table, should be unique");
 		definitions[0].setDimensional(false);
 		definitions[0].setDisplayName("Name");
+		definitions[0].setErrorSeverity(Severity.WARN);
 		definitions[0].setGroup("Info");
 		definitions[0].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[0].setName("name");
@@ -204,6 +206,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setDescription("Unique service name of the table, that can be used for direct call of rule");
 		definitions[12].setDimensional(false);
 		definitions[12].setDisplayName("ID");
+		definitions[12].setErrorSeverity(Severity.ERROR);
 		definitions[12].setGroup("Dev");
 		definitions[12].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
 		definitions[12].setName("id");

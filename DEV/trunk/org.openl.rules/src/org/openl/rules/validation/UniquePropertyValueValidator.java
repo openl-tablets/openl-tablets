@@ -8,11 +8,17 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.openl.OpenL;
+import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.OpenMethodDispatcherHelper;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
@@ -64,34 +70,29 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
                 ExecutableRulesMethod existsMethod = values.get(value);
 
-                // String message =
-                // String.format("Found tables with duplicate property '%s': %s [%s], %s [%s]",
-                // propertyName,
-                // existsTable.getHeaderLineValue().getValue(),
-                // existsTable.getUri(),
-                // tableSyntaxNode.getHeaderLineValue().getValue(),
-                // tableSyntaxNode.getUri());
-
                 String message = String.format("Found method with duplicate property '%s'", propertyName);
-
+                
+                TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
+                
+                Severity errorSeverity = null;
+                if (property != null) {
+                	errorSeverity = property.getErrorSeverity();
+                }
+                 
+                OpenLMessage message1 = getMessage(message, errorSeverity, existsMethod.getSyntaxNode());
+                OpenLMessage message2 = getMessage(message, errorSeverity, method.getSyntaxNode());
+                
                 if (validationResult == null) {
                     validationResult = new ValidationResult(ValidationStatus.FAIL, null);
-
-                    OpenLWarnMessage warnMessage1 = new OpenLWarnMessage(message, existsMethod.getSyntaxNode());
-                    OpenLWarnMessage warnMessage2 = new OpenLWarnMessage(message, method.getSyntaxNode());
-
-                    ValidationUtils.addValidationMessage(validationResult, warnMessage1);
-                    ValidationUtils.addValidationMessage(validationResult, warnMessage2);
-
+                    ValidationUtils.addValidationMessage(validationResult, message1);
+                    ValidationUtils.addValidationMessage(validationResult, message2);
                 } else {
-                    OpenLWarnMessage warnMessage = new OpenLWarnMessage(message, method.getSyntaxNode());
-                    ValidationUtils.addValidationMessage(validationResult, warnMessage);
+                    ValidationUtils.addValidationMessage(validationResult, message2);
                 }
             } else {
                 values.put(value, method);
             }
         }
-
         // Return validation result if it not null (it is not null if at
         // least one error has occurred).
         //
@@ -102,7 +103,22 @@ public class UniquePropertyValueValidator extends TablesValidator {
         return ValidationUtils.validationSuccess();
     }
     
-    @SuppressWarnings("unchecked")
+    private OpenLMessage getMessage(String message, Severity severity, TableSyntaxNode syntaxNode) {
+		if (Severity.WARN.equals(severity)) {
+			return new OpenLWarnMessage(message, syntaxNode);
+		} else if (Severity.ERROR.equals(severity)) {
+			SyntaxNodeException sne = new SyntaxNodeException(message, null, syntaxNode);
+			// error should be put inside tsn
+			//
+			syntaxNode.addError(sne);
+			return new OpenLErrorMessage(sne);
+		}
+		// return warning in default case, e.g. severity == null
+		//
+		return new OpenLWarnMessage(message, syntaxNode);
+	}
+
+	@SuppressWarnings("unchecked")
     private ExecutableRulesMethod[] selectActiveMethods(List<IOpenMethod> methods) {        
 
         Collection<IOpenMethod> outputCollection = CollectionUtils.select(methods, new Predicate() {

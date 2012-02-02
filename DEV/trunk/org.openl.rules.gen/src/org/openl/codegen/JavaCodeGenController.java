@@ -6,6 +6,7 @@ package org.openl.codegen;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
@@ -111,6 +112,12 @@ public class JavaCodeGenController implements ICodeGenController {
 		map.put(XlsNodeTypes.class, new Processor() {            
             public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
                 return gen.genLiteralTableType((XlsNodeTypes) value, sb);
+            }
+        });
+		
+		map.put(Severity.class, new Processor() {            
+            public StringBuilder processValue(Object value, ICodeGen gen, StringBuilder sb) {
+                return gen.genLiteralErrorSeverity((Severity) value, sb);
             }
         });
     }
