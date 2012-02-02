@@ -124,7 +124,11 @@ public class DatatypeOpenClass extends ADynamicClass {
             LOG.error(this, e);
         } catch (IllegalAccessException e) {            
             LOG.error(this, e);
-        } 
+        } catch (Throwable e) {
+        	// catch e.g. NoClassDefFoundError
+        	//
+        	LOG.error(this, e);
+		}
         return instance;
     }
     
