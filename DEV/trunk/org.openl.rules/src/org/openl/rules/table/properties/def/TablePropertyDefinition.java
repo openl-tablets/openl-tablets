@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties.def;
 
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
@@ -26,6 +27,7 @@ public class TablePropertyDefinition {
 	private InheritanceLevel[] inheritanceLevel;
 	private String description;
 	private MatchingExpression expression;
+	private Severity errorSeverity;
 
     public enum SystemValuePolicy {
 	    IF_BLANK_ONLY, ON_EACH_EDIT
@@ -173,7 +175,13 @@ public class TablePropertyDefinition {
 
     public InheritanceLevel[] getInheritanceLevel() {
         return inheritanceLevel;
-    }	
-    
-    
+    }
+
+	public Severity getErrorSeverity() {
+		return errorSeverity;
+	}
+
+	public void setErrorSeverity(Severity errorSeverity) {
+		this.errorSeverity = errorSeverity;
+	}
 }

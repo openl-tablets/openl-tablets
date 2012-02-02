@@ -1,5 +1,6 @@
 package org.openl.codegen;
 
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
@@ -67,5 +68,7 @@ public interface ICodeGen {
     StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb);
     
     StringBuilder genLiteralTableType(XlsNodeTypes value, StringBuilder sb);
+    
+    StringBuilder genLiteralErrorSeverity(Severity value, StringBuilder sb);
     
 }

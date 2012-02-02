@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
@@ -485,4 +486,9 @@ public class JavaCodeGen implements ICodeGen {
     public StringBuilder genLiteralTableType(XlsNodeTypes value, StringBuilder sb) {
         return sb.append(XlsNodeTypes.class.getSimpleName()).append(".").append(value.name());        
     }
+
+	@Override
+	public StringBuilder genLiteralErrorSeverity(Severity value, StringBuilder sb) {
+        return sb.append(Severity.class.getSimpleName()).append(".").append(value.name());
+	}
 }
