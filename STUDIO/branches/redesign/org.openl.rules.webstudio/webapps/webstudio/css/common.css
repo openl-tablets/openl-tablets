@@ -264,6 +264,12 @@ form .formfields {
   padding-right: 5px;
 }
 
+.required2:after {
+    color: #ff2722;
+    content: "*";
+    padding-left: 2px;
+}
+
 form.standard table.buttonPanel {
   margin-top: 10px;
   margin-left: -4px;
@@ -283,7 +289,8 @@ form.standard table.buttonPanel {
 }
 
 .error {
-  color: red;
+    color: red;
+    padding: 0 2px;
 }
 
 .success {
