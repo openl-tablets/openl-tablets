@@ -9,6 +9,7 @@ import java.util.List;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
+import org.openl.rules.table.properties.expressions.sequence.FilledPropertiesPriorityRule;
 import org.openl.types.IOpenMethod;
 
 public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
@@ -24,22 +25,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
     private void initTablesPriorityRules() {
         // <<< INSERT >>>
         tablesPriorityRules.add(new ASimplePriorityRule<java.util.Date>("startRequestDate") {
-            @Override
-            public int compare(ITableProperties properties1, ITableProperties properties2) {
-                java.util.Date propertyValue1 = getProprtyValue(properties1);
-                java.util.Date propertyValue2 = getProprtyValue(properties2);
-                if(propertyValue1 == null){
-                    if(propertyValue2 == null){
-                        return 0;
-                    }else{
-                        return -1;
-                    }
-                }else if(propertyValue2 == null){
-                    return 1;
-                }
-                return compareNotNulls(propertyValue1, propertyValue2);
-            }
-            
+
             public String getOperationName() {
                 return "MAX";
             }
@@ -53,7 +39,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
         });
         tablesPriorityRules.add(new ASimplePriorityRule<java.util.Date>("endRequestDate") {
-            
+
             public String getOperationName() {
                 return "MIN";
             }
@@ -67,6 +53,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
         });
         // <<< END INSERT >>>
+        tablesPriorityRules.add(new FilledPropertiesPriorityRule());
     }
 
     private void initMethodsCoparator() {
