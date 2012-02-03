@@ -6,10 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
@@ -119,36 +116,6 @@ public class ExecutionModeTest {
         assertEquals(200.0, res3.doubleValue(), 0);
     }
 
-    @Test
-    public void testOberloadedMaxMin() throws Exception {
-        File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        EngineFactory<ITestI> engineFactory = new RuleEngineFactory<ITestI>(xlsFile, ITestI.class);
-        engineFactory.setExecutionMode(true);
-
-        ITestI instance = engineFactory.makeInstance();
-
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
-
-        Object[][] testData = { { "2011-01-15", "2011-02-15", 120.0 }, { "2011-02-15", "2011-01-15", 120.0 },
-                { "2011-01-15", "2020-01-15", 120.0 }, { "2020-01-15", "2011-01-15", 120.0 },
-                { "2011-03-15", "2011-03-15", 120.0 }, { "2011-04-15", "2011-03-15", 100.0 },
-                { "2020-04-15", "2011-03-15", 100.0 }, { "2011-04-15", "2020-03-15", 100.0 },
-                { "2011-07-15", "2011-07-15", 100.0 }, { "2020-07-15", "2011-07-15", 100.0 },
-                { "2011-07-15", "2011-07-15", 100.0 }, { "2020-07-15", "2011-07-15", 100.0 },
-                { "2011-07-15", "2011-08-15", 150.0 } };
-
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-        for (int i = 0; i < testData.length; i++) {
-            Object[] data = testData[i];
-            Date currentDate = df.parse((String) data[0]);
-            Date requestDate = df.parse((String) data[1]);
-            context.setCurrentDate(currentDate);
-            context.setRequestDate(requestDate);
-            DoubleValue res = instance.driverRiskScoreOverloadTest("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
-        }
-    }
 
     @Test
     public void testSkipedTables() {
