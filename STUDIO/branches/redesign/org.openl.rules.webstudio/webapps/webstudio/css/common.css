@@ -55,6 +55,11 @@ form {
     margin: 0px;
 }
 
+fieldset {
+    border: 1px solid #cccccc;
+    border-radius: 1px;
+}
+
 #loadingPanel {
     position: fixed;
     top: 43px;

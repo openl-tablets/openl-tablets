@@ -60,7 +60,7 @@ public class TableCopier extends WizardBase {
 
     /** Table technical name */
     @NotBlank(message="Can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
     private String tableTechnicalName;
 
     /**
