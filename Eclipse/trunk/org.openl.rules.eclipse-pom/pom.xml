@@ -49,17 +49,32 @@
 
 	<repositories>
 		<repository>
-			<id>local-eclipse-repo</id>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+       			<id>local-eclipse-repo</id>
 			<url>file://${basedir}/../org.openl.rules.eclipse-pom/m2_repo</url>
 		</repository>
 	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 			<id>local-eclipse-plugin-repo</id>
 			<url>file://${basedir}/../org.openl.rules.eclipse-pom/m2_repo</url>
 		</pluginRepository>
-
 	</pluginRepositories>
 
 	<reporting>
