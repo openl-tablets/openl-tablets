@@ -12,7 +12,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -59,7 +59,7 @@ public class TableCopier extends WizardBase {
     private IOpenLTable table = null;
 
     /** Table technical name */
-    @NotEmpty(message="Technical name can not be empty")
+    @NotBlank(message="Can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
     private String tableTechnicalName;
 

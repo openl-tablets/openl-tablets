@@ -12,8 +12,6 @@
     <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
     <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
-    <script src="#{contextPath}/javascript/validator.js"></script>
-
     <style>
         .section h3 {
             margin: 30px 0 15px;
@@ -27,8 +25,6 @@
             margin-left: 10px;
         }
     </style>
-
-    <h:messages errorClass="error" />
 
     <h2>Copy Table</h2>
     <br />
@@ -54,12 +50,12 @@
             <div>
                 <h:panelGroup id="technicalNamePanel">
                     <h:panelGrid columns="3" style="background: #F1F1F1; padding: 3px 0; margin-bottom: 5px">
-                        <h:outputText value="Technical name" />
+                        <h:outputText value="Technical name" styleClass="required2" />
                         <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
-                            disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}">
-                            <rich:validator />
-                        </h:inputText>
-                        <h:message for="technicalName" styleClass="error" />
+                            disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}" />
+                        <a4j:outputPanel ajaxRendered="true">
+                            <h:message for="technicalName" styleClass="error" />
+                        </a4j:outputPanel>
                     </h:panelGrid>
                 </h:panelGroup>
 
@@ -67,7 +63,7 @@
                     <table>
                         <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop">
                             <tr>
-                                <td style="min-width: 88px">
+                                <td style="min-width: 97px">
                                     <h:outputText value="#{prop.displayName}" />
                                 </td>
                                 <td style="width: 156px">
@@ -117,26 +113,32 @@
             <div>
                 <span style="cursor: pointer; border-bottom: 1px dashed #777777"
                     onclick="$j('#savePanel').slideDown();$j(this).hide()">#{wizard.workbookName} -> #{wizard.worksheetName}</span>
-                <h:panelGrid id="savePanel" columns="2" style="display: none">
-                    <h:outputText value="Workbook" />
-                    <h:selectOneMenu value="#{wizard.workbook}">
+                <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
+                    <h:outputText value="Workbook" styleClass="required2" />
+                    <h:selectOneMenu value="#{wizard.workbook}" style="width:100%">
                         <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
                         <f:selectItems value="#{wizard.workbooks}"/>
                     </h:selectOneMenu>
-                    <h:outputText value="Worksheet" />
-                    <h:panelGrid columns="2">
-                        <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{wizard.newWorksheet}"
-                            layout="pageDirection">
-                            <f:selectItem itemValue="existing" itemLabel="Existing"/>
-                            <f:selectItem itemValue="new" itemLabel="New"/>
-                        </h:selectOneRadio>
-                        <h:panelGrid columns="1">
-                            <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet">
-                                <f:selectItems value="#{wizard.worksheets}" />
-                            </h:selectOneMenu>
-                            <h:inputText value="#{wizard.newWorksheetName}" id="newSheetName" />
-                        </h:panelGrid>
-                    </h:panelGrid>
+                    <h:outputText value="" />
+                    <h:outputText value="Worksheet" styleClass="required2" />
+                    <h:panelGroup>
+                        <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet" style="width:100%">
+                            <f:selectItems value="#{wizard.worksheets}" />
+                        </h:selectOneMenu>
+                        <h:inputText value="#{wizard.newWorksheetName}" id="newSheetName" style="width:100%" />
+                    </h:panelGroup>
+                    <a4j:outputPanel ajaxRendered="true" style="padding-left: 8px">
+                        <h:message for="newSheetName" styleClass="error" />
+                    </a4j:outputPanel>
+                    <h:outputText value="" />
+                    <h:panelGroup>
+                        <div style="margin-top: -7px">
+                            <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{wizard.newWorksheet}">
+                                <f:selectItem itemValue="existing" itemLabel="Existing" />
+                                <f:selectItem itemValue="new" itemLabel="New" />
+                            </h:selectOneRadio>
+                        </div>
+                    </h:panelGroup>
                 </h:panelGrid>
             </div>
         </div>
@@ -145,7 +147,7 @@
         <br />
 
         <a4j:commandButton value="Copy" action="#{wizard.finish}" data="#{wizard.newTableUri}"
-            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
+            oncomplete="if(event.data)goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
     </h:form>
 
     <ui:remove>
@@ -158,7 +160,7 @@
                 style="cursor:pointer"
             onclick="#{rich:component('newPropertyDlg')}.hide();" />
         </f:facet>
-    
+
         <h:form rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}">
             <h:panelGrid columns="2">
                 <h:outputText value="Select Property" />
@@ -175,7 +177,7 @@
                     onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />
             </h:panelGroup>
         </h:form>
-    
+
         <h:panelGroup rendered="#{empty propertiesManager.propertiesThatCanBeAdded}">
             <h:panelGrid style="text-align: center; width: 100%">
                 <h:outputText value="There are no properties to add" />
@@ -189,29 +191,11 @@
     </ui:remove>
 
     <script>
-      function validateForm() {
-        return validateNewSheetName();
-      }
-            
-      function validateNewSheetName() {
-        var e = document.forms['copyTableForm']['newSheet'][0];
-        var newSheet = e.value == 'new' ? e.checked : !e.checked;
-        if (newSheet) {
-          return validateRequired('newSheetName', true);
-        }
-        return true;
-      }
-
       function updateControls() {
-        var e = document.forms['copyTableForm']['newSheet'][0];
-        var newSheet = e.value == 'new' ? e.checked : !e.checked;
-        $j('#sheet').attr("disabled", newSheet);
-        $j('#newSheetName').attr("disabled", !newSheet);
-      }
-
-      function enableControls() {
-        $j('#sheet').attr("disabled", false);
-        $j('#newSheetName').attr("disabled", false);
+          var e = document.forms["copyTableForm"]["newSheet"][0];
+          var newSheet = e.value == "new" ? e.checked : !e.checked;
+          $j("#sheet").attr("disabled", newSheet).toggle(!newSheet);
+          $j("#newSheetName").attr("disabled", !newSheet).toggle(newSheet);
       }
 
       updateControls();

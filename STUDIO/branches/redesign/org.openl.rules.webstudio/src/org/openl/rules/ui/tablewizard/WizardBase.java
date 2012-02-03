@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -35,7 +36,10 @@ public abstract class WizardBase extends BaseWizardBean {
     private Map<String, XlsWorkbookSourceCodeModule> workbooks;
     private boolean newWorksheet;
     private boolean wizardFinised;
+
+    @NotBlank(message="Can not be empty")
     private String newWorksheetName;
+
     /** New table identifier */
     private String newTableUri;
 
