@@ -31,7 +31,7 @@
     <module>../org.openl.rules.workspace</module>
     <module>../org.openl.commons.web</module>
     <module>../org.openl.rules.webstudio</module>
-	<module>../org.openl.rules.project</module>    
+    <module>../org.openl.rules.project</module>    
     <module>../org.openl.rules.security</module>
     <module>../org.openl.rules.security.standalone</module>
     <module>../org.openl.rules.diff</module>
@@ -40,6 +40,14 @@
 
   <repositories>
     <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
       <id>local-studio-repo</id>
       <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
     </repository>
@@ -57,6 +65,14 @@
 
   <pluginRepositories>
     <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </snapshots>
       <id>local-studio-plugin-repo</id>
       <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
     </pluginRepository>
@@ -368,9 +384,6 @@
         </exclusions>
       </dependency>
 -->
-
-
-
     </dependencies>
   </dependencyManagement>
 
