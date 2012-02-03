@@ -31,8 +31,16 @@
 
 	<repositories>
 		<repository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 			<id>local-wsfrontend-repo</id>
-			<url>file://${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
+			<url>file:///${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
 		</repository>
 
 		<repository>
@@ -43,8 +51,16 @@
 
 	<pluginRepositories>
 		<pluginRepository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 			<id>local-wsfrontend-plugin-repo</id>
-			<url>file://${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
+			<url>file:///${basedir}/../org.openl.rules.ruleservice-pom/m2_repo</url>
 		</pluginRepository>
 	</pluginRepositories>
 
