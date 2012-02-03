@@ -197,12 +197,24 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        List<IOpenMethod> sorted = prioritySorter.sort(selected);
-        // FIXME temporary solution sort all candidates and remove all that has
-        // priority different from most prior table.
-        for (IOpenMethod candidate : sorted) {
-            if (prioritySorter.getMethodsComparator().compare(candidate, sorted.get(0)) != 0) {
-                selected.remove(candidate);
+        //If more that one method
+        if (selected.size() > 1){
+            //Find the most high priority method
+            IOpenMethod mostPriority = null;
+            for (IOpenMethod candidate : selected) {
+                if (mostPriority == null){
+                    mostPriority = candidate;
+                }else{
+                    if (prioritySorter.getMethodsComparator().compare(mostPriority, candidate) > 0){
+                        mostPriority = candidate;
+                    }
+                }
+            }
+            //Remove methods those priority not equals to the most high priority method 
+            for (IOpenMethod candidate : selected) {
+                if (prioritySorter.getMethodsComparator().compare(candidate, mostPriority) != 0) {
+                    selected.remove(candidate);
+                }
             }
         }
     }
