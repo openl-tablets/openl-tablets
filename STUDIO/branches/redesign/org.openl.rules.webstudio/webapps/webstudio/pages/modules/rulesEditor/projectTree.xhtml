@@ -87,10 +87,14 @@
                 <script>
                   //<![CDATA[
                     var selected;
+                    var FILTER_PATTERN_ITEM = "filterPattern";
+
                     var projects = $j("#projects > ul > li");
 
-                    var filterPattern = $j("#nameFilter input").val();
+                    var filterPattern = $j("#nameFilter input").val()
+                        || sessionStorage.getItem(FILTER_PATTERN_ITEM);
                     if (filterPattern) {
+                        $j("#nameFilter input").val(filterPattern);
                         filterProjects(filterPattern);
                     }
 
@@ -103,6 +107,7 @@
                     }
 
                     function filterProjects(pattern) {
+                        sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
                         projects.each(function() {
                             var projectName = $j(this).find(">a").text();
                             $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
