@@ -12,13 +12,14 @@
     <ui:define name="header">Select Properties</ui:define>
 
     <ui:define name="data">
+        <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
+
         <h:form>
-            <h:outputLabel value="Table Name: " for="techName" />
-            <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
+            <h:outputLabel value="Table Name " for="techName" />
             <h:inputText id="techName" value="#{wizard.tableName}" />
             <br />
             <br />
-            <h:outputText value="Properties:" />
+            <h:outputText value="Properties" />
             <br />
             <br />
             <h:panelGroup id="propertiesTable">
