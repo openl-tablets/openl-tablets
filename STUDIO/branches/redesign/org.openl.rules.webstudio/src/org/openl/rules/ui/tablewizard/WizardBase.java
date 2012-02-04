@@ -63,17 +63,33 @@ public abstract class WizardBase extends BaseWizardBean {
         return newWorksheet ? SHEET_NEW : SHEET_EXSISTING;
     }
 
+    public void setNewWorksheet(String value) {
+        newWorksheet = SHEET_NEW.equals(value);
+    }
+
     public String getNewWorksheetName() {
         return newWorksheetName;
+    }
+
+    public void setNewWorksheetName(String newWorksheetName) {
+        this.newWorksheetName = newWorksheetName;
     }
 
     public String getWorkbook() {
         return workbook;
     }
 
+    public void setWorkbook(String workbook) {
+        this.workbook = workbook;
+    }
+
     public String getWorkbookName() {
         String[] parts = workbook.split("/");
         return parts[parts.length - 1];
+    }
+
+    public void setWorksheetIndex(Integer worksheetIndex) {
+        this.worksheetIndex = worksheetIndex;
     }
 
     public List<SelectItem> getWorkbooks() {
@@ -142,22 +158,6 @@ public abstract class WizardBase extends BaseWizardBean {
         wizardFinised = false;
         newWorksheetName = StringUtils.EMPTY;
         getModifiedWorkbooks().clear();
-    }
-
-    public void setNewWorksheet(String value) {
-        newWorksheet = SHEET_NEW.equals(value);
-    }
-
-    public void setNewWorksheetName(String newWorksheetName) {
-        this.newWorksheetName = newWorksheetName;
-    }
-
-    public void setWorkbook(String workbook) {
-        this.workbook = workbook;
-    }
-
-    public void setWorksheetIndex(Integer worksheetIndex) {
-        this.worksheetIndex = worksheetIndex;
     }
 
     @Override
