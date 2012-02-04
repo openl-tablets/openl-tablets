@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
@@ -16,7 +15,6 @@
                 padding: 3px 5px 3px 21px;
                 text-decoration: none;
                 vertical-align: middle;
-                border: 1px solid rgb(190,210,230);
             }
         </style>
 
@@ -60,7 +58,9 @@
                         title="Remove Parameter" style="margin-left: 5px;">
                         <h:graphicImage value="/images/delete.gif" />
                     </a4j:commandLink>
-                    <h:message for="pname" errorClass="error" style="margin-left: 5px;" />
+                    <a4j:outputPanel ajaxRendered="true">
+                        <h:message for="pname" errorClass="error" style="margin-left: 5px;" />
+                    </a4j:outputPanel>
                 </h:column>
             </h:dataTable>
 
@@ -70,7 +70,8 @@
             <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
                 oncomplete="go('datatype/step2.xhtml')" />
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
-                oncomplete="go('datatype/step4.xhtml')">
+                data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) go('datatype/step4.xhtml')">
             </a4j:commandButton>
             <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
         </h:form>

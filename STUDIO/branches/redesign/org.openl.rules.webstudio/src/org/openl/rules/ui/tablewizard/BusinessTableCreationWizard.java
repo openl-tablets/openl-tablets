@@ -13,6 +13,7 @@ import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -22,11 +23,14 @@ import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 public abstract class BusinessTableCreationWizard extends WizardBase {
 
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9\\- ]*)?", message="Invalid business name")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9\\- ]*)?", message="Invalid name")
     private String businessName;
 
     private String categoryName;
+
+    @NotBlank(message="Can not be empty")
     private String newCategoryName;
+
     private String categoryNameSelector = "existing";
 
     public String getBusinessName() {

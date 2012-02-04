@@ -2,19 +2,19 @@ package org.openl.rules.ui.tablewizard;
 
 import javax.validation.constraints.Pattern;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * @author Aliaksandr Antonik.
  */
 public class TypeNamePair {
 
-    @NotEmpty(message="Parameter type can not be empty")
+    @NotBlank(message="Can not be empty")
     private String type;
 
     private boolean iterable;
 
-    @NotEmpty(message="Parameter name can not be empty")
+    @NotBlank(message="Can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name for parameter")
     private String name;
 
