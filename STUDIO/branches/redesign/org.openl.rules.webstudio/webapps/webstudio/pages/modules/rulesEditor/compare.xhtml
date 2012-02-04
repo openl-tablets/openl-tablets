@@ -14,9 +14,9 @@
 
         <h:messages styleClass="error" globalOnly="true" />
 
-        <h:form id="diffForm">
+        <h:form id="diffForm" rendered="#{!param.disableUpload}">
             <div id="diffFormPanel">
-                <h:panelGrid columns="2" rendered="#{!param.disableUpload}">
+                <h:panelGrid columns="2">
                     <h:outputText value="Select 2 Excel Files" />
 
                     <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
