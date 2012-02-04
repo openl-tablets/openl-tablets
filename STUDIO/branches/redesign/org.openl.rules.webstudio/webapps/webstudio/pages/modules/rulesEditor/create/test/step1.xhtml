@@ -12,12 +12,12 @@
 
     <ui:define name="data">
         <h:form>
-            <h:panelGroup rendered="#{not empty wizard.decisionTables}">
-                <h:outputText value="Table: " />
+            <h:panelGrid columns="2" rendered="#{not empty wizard.decisionTables}" cellspacing="5">
+                <h:outputText value="Table" styleClass="required2" />
                 <h:selectOneMenu value="#{wizard.selectedTable}">
                     <f:selectItems value="#{wizard.decisionTables}" />
                 </h:selectOneMenu>
-            </h:panelGroup>
+            </h:panelGrid>
             <h:outputText value="There is no any available table for tests"
                 rendered="#{empty wizard.decisionTables}" styleClass="error" />
 
