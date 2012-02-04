@@ -16,7 +16,6 @@
                 padding: 3px 5px 3px 21px;
                 text-decoration: none;
                 vertical-align: middle;
-                border: 1px solid rgb(190,210,230);
             }
         </style>
 
@@ -44,7 +43,9 @@
                         title="Remove Value" style="margin-left: 5px;">
                         <h:graphicImage value="/images/delete.gif" />
                     </a4j:commandLink>
-                    <h:message for="vname" errorClass="error" style="margin-left: 5px;" />
+                    <a4j:outputPanel ajaxRendered="true">
+                        <h:message for="vname" errorClass="error" style="margin-left: 5px;" />
+                    </a4j:outputPanel>
                 </h:column>
             </h:dataTable>
 
@@ -54,8 +55,8 @@
             <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
                 oncomplete="go('datatypeAlias/step2.xhtml')" />
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
-                oncomplete="go('datatypeAlias/step4.xhtml')">
-            </a4j:commandButton>
+                data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) go('datatypeAlias/step4.xhtml')" />
             <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
         </h:form>
 

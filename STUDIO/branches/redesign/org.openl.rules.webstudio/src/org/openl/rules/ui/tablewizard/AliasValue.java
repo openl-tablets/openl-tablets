@@ -1,13 +1,13 @@
 package org.openl.rules.ui.tablewizard;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * @author Andrei Astrouski
  */
 public class AliasValue {
 
-    @NotEmpty(message="Value can not be empty")
+    @NotBlank(message="Can not be empty")
     private String value;
 
     public String getValue() {
