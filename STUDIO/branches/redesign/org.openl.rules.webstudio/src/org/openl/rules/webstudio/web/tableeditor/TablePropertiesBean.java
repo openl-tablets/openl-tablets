@@ -13,6 +13,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.ILogicalTable;
@@ -186,7 +187,8 @@ public class TablePropertiesBean {
             Object newValue = property.getValue();
             Object oldValue = props.getPropertyValue(name);
             if (ObjectUtils.notEqual(oldValue, newValue)) {
-                tableEditorModel.setProperty(name, newValue);
+                tableEditorModel.setProperty(name,
+                        newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
                 toSave = true;
             }
         }
