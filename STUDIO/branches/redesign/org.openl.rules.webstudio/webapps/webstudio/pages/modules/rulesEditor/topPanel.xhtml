@@ -7,6 +7,7 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j">
 
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rProject" value="#{studio.currentProject}" />
 
     <style>
@@ -72,7 +73,7 @@
 
                 <div style="display:inline-block; margin-left: 15px">
                     <a target="_blank" style="background:url('webresource/images/compare.gif')"
-                        onclick="window.open('#{rulesEditor}/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                        onclick="window.open('#{contextPath}/faces/pages/modules/rulesEditor/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                         href="#" title="Compare Excel files" class="imageButton" />
                 </div>
             </div>
