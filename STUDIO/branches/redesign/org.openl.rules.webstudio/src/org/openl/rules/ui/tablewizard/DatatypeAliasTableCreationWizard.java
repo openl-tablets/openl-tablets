@@ -10,7 +10,7 @@ import javax.faces.model.SelectItem;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
@@ -26,8 +26,8 @@ import org.springframework.util.CollectionUtils;
  */
 public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizard {
 
-    @NotEmpty(message="Technical name can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid table name")
+    @NotBlank(message="Can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
     private String technicalName;
 
     private String aliasType;
