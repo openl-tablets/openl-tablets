@@ -27,7 +27,7 @@ public class PropertyTableCreationWizard extends BusinessTableCreationWizard {
     private String tableName;
     private List<SelectItem> scopeTypes = new ArrayList<SelectItem>(Arrays.asList(new SelectItem("Module"),
             new SelectItem("Category")));
-    
+
     public PropertiesBean getPropertiesManager() {
         return propertiesManager;
     }
@@ -55,7 +55,7 @@ public class PropertyTableCreationWizard extends BusinessTableCreationWizard {
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
-    
+
     @Override
     public String next() {
         if (getStep() == 1){
