@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
@@ -30,14 +30,14 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
      * index of the selected item, when selecting table name to test.
      */        
     private int selectedTableNameIndex;
-    
+
     /**
      * Technical name of newly created test table.
      */
-    @NotEmpty(message="Technical name can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid technical name")
+    @NotBlank(message="Can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
     private String technicalName;
-    
+
     private List<TableSyntaxNode> executableTables;
 
     /**
@@ -62,7 +62,7 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
         String defaultName = TestTableBuilder.getDefaultTechnicalName(node);
         return defaultName;
     }
-    
+
     /**
      * 
      * @return <code>TableSyntaxNode</code> from model, by the 

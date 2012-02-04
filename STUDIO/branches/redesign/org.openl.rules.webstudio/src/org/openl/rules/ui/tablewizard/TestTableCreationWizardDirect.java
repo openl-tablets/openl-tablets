@@ -20,26 +20,26 @@ public class TestTableCreationWizardDirect extends TestTableCreationWizard {
         }
         selectedNode = node;        
     }
-    
+
     private TableSyntaxNode selectedNode;
         
     public void setSelectedNode(TableSyntaxNode selectedNode) {
         this.selectedNode = selectedNode;
     }
-    
+
     @Override
     protected TableSyntaxNode getSelectedNode() {
         return selectedNode;        
     }
-    
+
     @Override
     public String getName() {
         return "testTableDirect";
     }
-        
+
     @Override
     protected void onStart() {        
         setTechnicalName(getDefaultTechnicalName());
     }
-    
+
 }

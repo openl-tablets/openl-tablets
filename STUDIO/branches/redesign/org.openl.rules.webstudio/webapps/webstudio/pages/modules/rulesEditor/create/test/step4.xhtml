@@ -8,11 +8,10 @@
     template="/pages/modules/rulesEditor/create/selectSheet.xhtml">
 
     <ui:define name="controlButtons">
-        <a4j:commandButton value="Prev"  onclick="enableControls()" action="#{tableCreatorWizardManager.prev}"
+        <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"
             immediate="true" oncomplete="go('test/step3.xhtml')" />
-        <a4j:commandButton value="Save" action="#{wizard.finish}"
-            onclick="return validateForm();enableControls()" data="#{wizard.newTableUri}"
-            oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
+        <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableUri}"
+            oncomplete="if(event.data) goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
         <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
     </ui:define>
 
