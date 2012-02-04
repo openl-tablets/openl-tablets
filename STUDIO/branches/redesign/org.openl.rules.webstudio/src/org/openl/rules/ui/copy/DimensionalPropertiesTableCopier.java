@@ -6,11 +6,9 @@ import java.util.List;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 
 /**
  * @author Andrei Astrouski
@@ -26,11 +24,8 @@ public class DimensionalPropertiesTableCopier extends TableCopier {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (propDefinition.isDimensional() && getProperty(propDefinition.getName()) == null) {
-                TableProperty property = new TablePropertyBuilder(propDefinition.getName(),
-                TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(propDefinition.getName())).displayName(
-                    TablePropertyDefinitionUtils.getPropertyDisplayName(propDefinition.getName())).dimensional(true)
-                    .build();
-                getPropertiesManager().addProperty(property);            
+                TableProperty property = new TableProperty(propDefinition);
+                getPropertiesManager().addProperty(property);
             }
         }
     }
