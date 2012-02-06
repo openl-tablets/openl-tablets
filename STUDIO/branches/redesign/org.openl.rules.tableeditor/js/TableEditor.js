@@ -63,14 +63,14 @@ var TableEditor = Class.create({
 
         var self = this;
 
-        if (this.mode == this.Modes.EDIT) {
-            this.initEditMode();
-        }
-
         Event.stopObserving(document, "click");
         Event.stopObserving(document, "keydown");
         Event.stopObserving(document, "keypress");
         this.tableContainer.stopObserving("dblclick");
+
+        if (this.mode == this.Modes.EDIT) {
+            this.initEditMode();
+        }
 
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
@@ -121,17 +121,14 @@ var TableEditor = Class.create({
         this.decorator = new Decorator('te_selected');
 
         // Handle Table Editor events START
-        Event.stopObserving(document, "click");
         Event.observe(document, "click", function(e) {
             self.handleClick(e);
         });
 
-        Event.stopObserving(document, "keydown");
         Event.observe(document, "keydown", function(e) {
             self.handleKeyDown(e);
         });
 
-        Event.stopObserving(document, "keypress");
         Event.observe(document, "keypress", function(e) {
             self.handleKeyPress(e);
         });
