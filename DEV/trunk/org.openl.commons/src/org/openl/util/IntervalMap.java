@@ -26,8 +26,18 @@ import java.util.TreeMap;
 /**
  *
  * 0123456789 uz N p p u u u
+ *	
+ *	Divide the coordinate line by dots (the beginning and the end of the interval).
+ *	And assign the value to the beginning(means that the left border is included, while right not).	
+ *	
+ *	Example: if call the method {@link #putInterval(11, 23, "AnyValue")}, the result will be:
  *
+ *	_____11("AnyValue")______________23______________ - means that value "AnyValue" belongs to [11;22].
  *
+ * If then call the method {@link #putInterval(11, 50, "Yo")} the result will be:
+ * 	_____11("AnyValue", "Yo")______________23("Yo")____________________50___ - means that value "AnyValue" is the same, and "Yo" belongs to [11;49]
+ *
+ *	@author DLiauchuk
  */
 
 public class IntervalMap<T, V> {
@@ -70,17 +80,13 @@ public class IntervalMap<T, V> {
 
             element.getValue().add(value);
         }
-
     }
     
-    
-    public boolean removeInterval(Comparable<T> fromKey, Comparable<T> toKey, V value)
-    {
+    public boolean removeInterval(Comparable<T> fromKey, Comparable<T> toKey, V value) {
         SortedMap<Comparable<T>, List<V>> submap = map.subMap(fromKey, toKey);
         
         if (submap.size() == 0)
-        	throw new RuntimeException("Interval not found! " + fromKey + " - " + toKey);
-        
+        	throw new RuntimeException("Interval not found! " + fromKey + " - " + toKey);        
 
         if (!submap.firstKey().equals(fromKey))
         	throw new RuntimeException("Interval should start with " + toKey);
@@ -96,16 +102,8 @@ public class IntervalMap<T, V> {
 				removedKeys.add(e.getKey());
 		}
         
-//        for (Comparable<T> key : removedKeys) {
-//        	map.remove(key);
-//		}
-        
         return true;
-        
-        
-
-    }
-    
+    }    
 
     public TreeMap<Comparable<T>, List<V>> treeMap() {
         return map;

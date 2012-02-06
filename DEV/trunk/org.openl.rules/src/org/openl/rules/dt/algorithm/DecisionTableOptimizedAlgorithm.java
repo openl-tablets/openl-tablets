@@ -246,15 +246,27 @@ public class DecisionTableOptimizedAlgorithm {
     }
 
     private static IRangeAdaptor getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
-        if (ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true)) {
-            if (org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass())) {
+        if (isMethodTypeNumber(methodType)) {
+            if (isParameterIntRange(paramType)) {
                 return new IntRangeAdaptor();
-            } else if (org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass())) {
+            } else if (isParameterDoubleRange(paramType)) {
                 return new DoubleRangeAdaptor();
             }
         }
         return null;
     }
+
+	private static boolean isParameterDoubleRange(IOpenClass paramType) {
+		return org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass());
+	}
+
+	private static boolean isParameterIntRange(IOpenClass paramType) {
+		return org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass());
+	}
+
+	private static boolean isMethodTypeNumber(IOpenClass methodType) {
+		return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true);
+	}
 
     // TODO to do - fix _NO_PARAM_ issue
 

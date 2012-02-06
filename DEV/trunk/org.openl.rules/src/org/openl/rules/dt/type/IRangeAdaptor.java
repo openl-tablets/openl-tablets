@@ -13,7 +13,7 @@ public interface IRangeAdaptor<T, C> {
      * Gets max value of range.
      * 
      * @param param
-     * @return the max bound of the expression min <= X && X < max
+     * @return the max bound of the expression min <= X && X <= max
      */
     Comparable<C> getMax(T param);
 
@@ -21,7 +21,7 @@ public interface IRangeAdaptor<T, C> {
      * Gets min value of range.
      * 
      * @param param
-     * @return the min bound of the expression min <= X && X < max
+     * @return the min bound of the expression min <= X && X <= max
      */
     Comparable<C> getMin(T param);
     

@@ -37,15 +37,10 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
         this.adaptor = adaptor;
     }
 
-    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
-
-        
-        
+    public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {        
         IParameterDeclaration[] cparams  = condition.getParams();
         
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
-        
-        
         
         String code = cparams.length == 2 ? 
            String.format("%1$s<=(%2$s) && (%2$s) < %3$s", cparams[0].getName(), conditionSource.getCode(), cparams[1].getName())
@@ -84,8 +79,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
 
             int i = iterator.nextInt();
 
-            if (indexedparams[i] == null || indexedparams[i][0] == null) {
-
+            if (isEmptyParameter(indexedparams, i)) {
                 emptyBuilder.addRule(i);
                 continue;
             }
@@ -97,13 +91,12 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
                 vFrom = (Comparable<Object>) indexedparams[i][0];
                 vTo = (Comparable<Object>) indexedparams[i][1];
             } else {
+            	// adapt border values for usage in IntervalMap
+            	// see IntervalMap description
+            	//
                 vFrom = adaptor.getMin(indexedparams[i][0]);
                 vTo = adaptor.getMax(indexedparams[i][0]);
             }
-
-            // TODO fix null from and To, last could be replaces with very big
-            // value
-            // TODO DoubleRange
 
             map.putInterval(vFrom, vTo, new Integer(i));
         }
@@ -113,32 +106,43 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
         List<Comparable<?>> index = new ArrayList<Comparable<?>>();
         List<DecisionTableRuleNode> rules = new ArrayList<DecisionTableRuleNode>();
 
-        int i = 0;
-
-        DecisionTableRuleNode emptyNode = emptyBuilder.makeNode("Empty");
-
-        for (Iterator<Map.Entry<Comparable<Object>, List<Integer>>> iter = treeMap.entrySet().iterator(); iter.hasNext(); ++i) {
+        DecisionTableRuleNode emptyNode = emptyBuilder.makeNode("Empty");        
+        
+        // for each indexed value create a DecisionTableRuleNode with indexes of rules,
+        // that match given value        
+        // 
+        for (Iterator<Map.Entry<Comparable<Object>, List<Integer>>> iter = treeMap.entrySet().iterator(); iter.hasNext();) {
 
             Map.Entry<Comparable<Object>, List<Integer>> element = iter.next();
-            Comparable<?> indexObj = element.getKey();
-            List<Integer> list = element.getValue();
+            Comparable<?> indexedValue = element.getKey();
+            List<Integer> rulesIndexesList = element.getValue();
 
-            if (emptyNode.getRules().length > 0)
-                list = merge(list, emptyNode.getRules());
-
-            int[] idxAry = new int[list.size()];
-
-            for (int j = 0; j < idxAry.length; j++) {
-                idxAry[j] = list.get(j);
+            if (emptyNode.getRules().length > 0) {
+                rulesIndexesList = merge(rulesIndexesList, emptyNode.getRules());
             }
 
-            rules.add(new DecisionTableRuleNode(idxAry));
-            index.add(indexObj);
+            int[] rulesIndexesArray = listToPrimitiveArray(rulesIndexesList);
+
+            rules.add(new DecisionTableRuleNode(rulesIndexesArray));
+            index.add(indexedValue);
         }
 
         return new RangeIndex(emptyNode, index.toArray(new Comparable[index.size()]), 
             rules.toArray(new DecisionTableRuleNode[rules.size()]), adaptor);
     }
+
+	private int[] listToPrimitiveArray(List<Integer> rulesIndexesList) {
+		int[] rulesIndexesArray = new int[rulesIndexesList.size()];
+
+		for (int j = 0; j < rulesIndexesArray.length; j++) {
+		    rulesIndexesArray[j] = rulesIndexesList.get(j);
+		}
+		return rulesIndexesArray;
+	}
+
+	private boolean isEmptyParameter(Object[][] indexedparams, int i) {
+		return indexedparams[i] == null || indexedparams[i][0] == null;
+	}
 
     private List<Integer> merge(List<Integer> list, int[] rules) {
 
@@ -168,10 +172,8 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
                 idx2++;
             }
         }
-
         return newList;
     }
-
 
     public IDomain<Integer> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
         return null;
@@ -204,13 +206,8 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
             }    
             
             min = Math.min(min, (Integer)vFrom);
-            max = Math.max(max, (Integer)vTo - 1);
-            
+            max = Math.max(max, (Integer)vTo - 1);            
         }
-        
-        
-        
         return new IntRange(min, max);
     }
-
 }
