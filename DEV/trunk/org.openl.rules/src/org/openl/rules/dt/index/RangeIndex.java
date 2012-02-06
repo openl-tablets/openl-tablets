@@ -12,10 +12,10 @@ public class RangeIndex extends ARuleIndex {
 	private Comparable<?>[] index;
 	private DecisionTableRuleNode[] rules;
 	
-	private IRangeAdaptor<Object, Object> adaptor;
+	private IRangeAdaptor<?, ?> adaptor;
 
 	public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-			Comparable<Object>[] index, DecisionTableRuleNode[] rules, IRangeAdaptor<Object, Object> adaptor) {
+			Comparable<?>[] index, DecisionTableRuleNode[] rules, IRangeAdaptor<?, ?> adaptor) {
 		super(emptyOrFormulaNodes);
 
 		this.index = index;
@@ -67,6 +67,22 @@ public class RangeIndex extends ARuleIndex {
 	@Override
 	public Iterator<DecisionTableRuleNode> nodes() {
 		return OpenIterator.fromArray(rules);
+	}
+	
+	/**
+	 * Used for tests
+	 * @param node
+	 * @return
+	 */
+	public int getNodeIndex(DecisionTableRuleNode node) {
+		for (int i = 0; i < rules.length; i++) {
+			// check the node by the link
+			//
+			if (rules[i] == node) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }

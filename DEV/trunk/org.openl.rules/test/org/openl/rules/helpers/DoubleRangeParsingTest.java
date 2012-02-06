@@ -60,4 +60,12 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange(-200.7, -13.01), new DoubleRange("[-200.7;-13.01]"));
         assertEquals(new DoubleRange(Double.NEGATIVE_INFINITY, -7), new DoubleRange("<= -7"));
     }
+    
+    @Test
+    public void testSimplifiedDeclaration() {
+    	DoubleRange range1 = new DoubleRange("1-15");
+    	assertEquals(range1, new DoubleRange(1, 15, BoundType.INCLUDING, BoundType.INCLUDING));
+    	assertTrue(range1.contains(1));
+    	assertTrue(range1.contains(15));
+    }
 }
