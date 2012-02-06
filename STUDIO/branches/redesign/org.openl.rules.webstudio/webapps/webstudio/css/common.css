@@ -22,6 +22,65 @@ input[type='text'], input[type='password'], textarea {
     padding: 3px;
 }
 
+input[type='submit'], input[type='reset'],
+input[type='button'], button,
+.button, .imageButton {
+    padding: 4px 6px;
+    border: 1px solid #dddddd;
+    background: #fbfbfb;
+    color: #444444;
+    margin-right: 4px;
+    cursor: pointer;
+}
+
+input[type='submit']:hover, input[type='reset']:hover,
+input[type='button']:hover, button:hover,
+.button:hover, .imageButton:hover {
+    border-color: #cccccc;
+    color: #222222;
+}
+
+input[type='submit']:active, input[type='reset']:active,
+input[type='button']:active, button:active,
+.button:active, .imageButton:active {
+    border-color: #bbbbbb;
+}
+
+input[type='submit']:disabled, input[type='reset']:disabled,
+input[type='button']:disabled, button:disabled,
+.button:disabled, .imageButton:disabled {
+    border-color: #eeeeee;
+    color: #999999;
+    cursor: default;
+}
+
+.button, .actionButton {
+    text-decoration: none;
+}
+
+.button {
+    padding: 5px 6px;
+}
+
+.actionButton {
+    padding: 6px 8px;
+    background: orange;
+    color: white;
+}
+
+.imageButton {
+    padding: 5px 16px;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-color: #fbfbfb !important;
+}
+
+.buttonPanel .button,
+.buttonPanel .actionButton,
+.buttonPanel .imageButton {
+    margin: 0px 2px;
+}
+
 img {
     border: 0;
 }
@@ -478,33 +537,4 @@ table.header thead td {
 .view_workspace > div,
 .simpleView_workspace > div {
     padding: 5px 7px;
-}
-
-.button, .button2 {
-    padding: 6px 8px;
-    text-decoration: none;
-}
-
-.button {
-    background: orange;
-    color: white;
-}
-
-.button2 {
-    background: #44cc55;
-    color: white;
-}
-
-.imageButton {
-    padding: 5px 16px;
-    border: 1px solid #e5e5e5;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-    background-color: #fbfbfb !important;
-}
-
-.buttonPanel .button,
-.buttonPanel .button2,
-.buttonPanel .imageButton {
-	margin: 0px 2px;
 }
