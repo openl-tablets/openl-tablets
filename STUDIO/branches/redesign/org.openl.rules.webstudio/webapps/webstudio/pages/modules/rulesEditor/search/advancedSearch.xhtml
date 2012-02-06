@@ -13,6 +13,8 @@
     <link href="#{contextPath}/css/advSearch.css" rel="stylesheet" />
     <script src="#{contextPath}/javascript/advSearch.js"></script>
 
+    <div class="view_header">Advanced Search</div>
+    <div class="content">
 <table><tr><td>
 <h:form id="advSearchForm">
   <h:panelGrid columns="3" cellspacing="5" >
@@ -181,7 +183,7 @@
 
 <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
 
-<h:panelGroup id="searchResults">
+<h:panelGroup id="searchResults" layout="block">
     <c:forEach items="#{advancedSearchRequest.searchResults}" var="table">
         <br />
         <h:panelGroup>
@@ -209,6 +211,7 @@
         <h:outputText value="No rows selected&lt;br/&gt;" rendered="#{table == null}" escape="false" />
      </c:forEach>
 </h:panelGroup>
+</div>
 
 <script>
   function fixValue1Enabled() {

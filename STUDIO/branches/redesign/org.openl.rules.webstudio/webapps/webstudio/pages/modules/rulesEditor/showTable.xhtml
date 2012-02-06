@@ -13,14 +13,22 @@
 
     <style>
         #content {
-            padding: 0;
             overflow: hidden;
+        }
+
+        #tableToolbarPanel {
+            padding: 2px 0 1px;
+            border-bottom: 1px solid #dddddd;
+            height: 58px;
         }
 
         #tablePanel {
             overflow: auto;
-            position: relative;
-            height: 100%;
+            position: absolute;
+            top: 62px;
+            bottom: 0;
+            left: 0;
+            right: 0;
         }
 
         #tablePanel > div {
@@ -28,11 +36,6 @@
         }
 
         /* TODO Create Button plugin */
-        #tableToolbarPanel {
-            padding: 2px 0 1px;
-            border-bottom: 1px solid #dddddd;
-        }
-
         .toolbarButton {
             position: relative;
             display: inline-block;
@@ -442,12 +445,12 @@
     </div>
 
     <script>
-    //<![CDATA[
+      //<![CDATA[
         $j(function () {
-            setContentHeight();
+            //setContentHeight();
 
             $j(window).resize(function() {
-                setContentHeight();
+                //setContentHeight();
             });
         });
 
@@ -480,7 +483,7 @@
                 'max-width': maxWidth,
             });
         }
-    	
+
         function showButtonMenu(event, popupId, buttonElem) {
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
@@ -521,7 +524,7 @@
             alert('No tests selected');
             return false;
         }
-    //]]>
+      //]]>
     </script>
 
 </ui:composition>
