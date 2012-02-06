@@ -83,6 +83,8 @@
             $j(window).bind("hashchange", loadContent);
 
             var mainLayout;
+            var centerLayout;
+
             $j(function () {
                 setLayoutDimensions();
 
@@ -97,6 +99,11 @@
                     east__initHidden: true
                 });
 
+                centerLayout = $j("#center .ui-layout-center").layout({
+                    spacing_open: 1,
+                    south__size: 110
+                });
+
                 loadContent();
 
                 $j("body").css({"visibility": "visible"});
@@ -107,6 +114,14 @@
                     return false;
                 });
             });
+
+            function toggleProblems(show) {
+                if (show) {
+                    centerLayout.show("south");
+                } else {
+                    centerLayout.hide("south");
+                }
+            }
 
             function handleError(code) {
                 if (code == 399) { // Session Timeout
@@ -130,6 +145,7 @@
                 if (reload) {
                     reloadTop();
                     reloadLeft();
+                    reloadBottom();
                 }
             }
 
@@ -140,6 +156,7 @@
             function reloadCurrent() {
                 reloadTop();
                 reloadLeft();
+                reloadBottom();
                 loadContent();
             }
 
@@ -151,6 +168,10 @@
                 $j("#left").load(urlRewrite.prefix + "leftPanel.xhtml", function() {
                     reopenLeftPanel();
                 });
+            }
+
+            function reloadBottom() {
+                $j("#bottom").load(urlRewrite.prefix + "bottomPanel.xhtml");
             }
 
             function getCurrentPage() {
@@ -170,7 +191,10 @@
                     if (page.indexOf(HOME_PAGE) > -1) {
                         toProjectsPanel();
                         reloadTop();
+                        toggleProblems(false);
                     } else {
+                        toggleProblems(true);
+
                         var header;
                         if (page.indexOf("module.xhtml") > -1) {
                             var headerParts = page.split("?")[1].split("/");
@@ -321,8 +345,13 @@
                     <ui:include src="/pages/modules/rulesEditor/leftPanel.xhtml" />
                 </ui:insert>
             </h:panelGroup>
-            <h:panelGroup id="content" class="ui-layout-center" layout="block">
-                <ui:insert name="content" />
+            <h:panelGroup class="ui-layout-center" layout="block">
+                <h:panelGroup id="content" class="ui-layout-center" layout="block">
+                    <ui:insert name="content" />
+                </h:panelGroup>
+                <h:panelGroup id="bottom" class="ui-layout-south" layout="block">
+                    <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
+                </h:panelGroup>
             </h:panelGroup>
             <h:panelGroup id="right" class="ui-layout-east" layout="block">
                 <ui:insert name="right">

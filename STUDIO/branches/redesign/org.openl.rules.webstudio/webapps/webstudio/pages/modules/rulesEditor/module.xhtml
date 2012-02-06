@@ -1,37 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <style>
-        #content {
-            padding: 0;
-            overflow: hidden;
-        }
-    </style>
-
-    <script>
-        $j(function () {
-            $j("#moduleLayout").layout({
-                spacing_open: 1,
-                south__size: 80
-            });
-        });
-    </script>
-
-    <div id="moduleLayout" style="height: 100%">
-        <div class="ui-layout-center" style="padding: 5px 7px">
-            <h1>Welcome To OpenL Tablets Web Studio</h1>
-            <p>
-                If you are looking at this screen you already have downloaded 
-                and installed all the necessary software, and this achievement
-                alone makes you qualified for all the benefits of our new Web Studio
-            </p>
-        </div>
-        <h:panelGroup class="ui-layout-south" layout="block"
-            rendered="#{!empty studio.model.moduleMessages}">
-            <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
-        </h:panelGroup>
+    <div>
+        <h1>Welcome To OpenL Tablets Web Studio</h1>
+        <p>
+            If you are looking at this screen you already have downloaded 
+            and installed all the necessary software, and this achievement
+            alone makes you qualified for all the benefits of our new Web Studio
+        </p>
     </div>
 
 </ui:composition>
