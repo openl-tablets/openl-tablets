@@ -61,7 +61,7 @@
 
             <div class="buttonPanel" style="display: inline-block; margin-left: 17px">
                 <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})" class="button">View</a>
-                <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: orange; color: #555555">
+                <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: #cccccc; color: #555555">
                     <h:form>
                         <div>Show</div>
                         <a4j:ajax oncomplete="reloadCurrent()">
@@ -102,16 +102,16 @@
                     <span style="margin-left: 17px;" />
 
                     <h:outputLink rendered="#{studio.model.editable}" value="create/index.xhtml"
-                        target="content" title="Create new table" styleClass="button">Create New</h:outputLink>
+                        target="content" title="Create new table" styleClass="actionButton">Create New</h:outputLink>
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
                         value="revertModuleChanges.xhtml" target="content" title="Revert Changes"
-                        styleClass="button2">Revert</h:outputLink>
+                        styleClass="button">Revert</h:outputLink>
 
-                    <span style="margin-left: 17px;" />
+                    <span style="margin-left: 13px;" />
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
-                        value="rulesDependencies.xhtml" target="content"
+                        value="rulesDependencies.xhtml" target="content" styleClass="button"
                         title="Rules Dependencies">Dependencies</h:outputLink>
 
                 </div>
