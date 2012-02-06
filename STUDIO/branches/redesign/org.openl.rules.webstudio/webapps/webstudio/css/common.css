@@ -87,7 +87,7 @@ img {
 
 hr {
     border: 0 !important;
-    border-bottom: 1px solid rgb(190,190,190) !important;
+    border-bottom: 1px solid #dddddd !important;
     margin-top: 15px;
 }
 

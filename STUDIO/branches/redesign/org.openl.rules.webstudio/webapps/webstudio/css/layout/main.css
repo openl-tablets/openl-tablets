@@ -21,8 +21,11 @@ html, body {
 }
 
 #content {
-    padding: 5px 7px;
     overflow: auto;
+}
+
+.content {
+    padding: 7px;
 }
 
 #bottom {

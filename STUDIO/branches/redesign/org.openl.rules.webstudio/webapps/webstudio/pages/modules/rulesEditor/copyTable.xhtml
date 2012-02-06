@@ -26,9 +26,8 @@
         }
     </style>
 
-    <h2>Copy Table</h2>
-    <br />
-
+    <div class="view_header">Copy Table</div>
+    <div class="content" style="padding: 13px 9px">
     <h:form>
         <h:outputText value="Copy as " />
         <h:selectOneMenu value="#{tableCopierWizardManager.copyType}">
@@ -189,6 +188,8 @@
         </h:panelGroup>
     </rich:popupPanel>
     </ui:remove>
+
+    </div>
 
     <script>
       function updateControls() {

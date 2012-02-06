@@ -9,9 +9,9 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="wizard" value="#{tableCreatorWizardManager.wizard}" />
 
-    <h2>
+    <div class="view_header">
         <ui:insert name="header" />
-    </h2>
+    </div>
 
     <!--ui:insert name="steps">
         <h:panelGroup rendered="#{not empty wizard and wizard.stepsCount > 0}">
@@ -26,9 +26,8 @@
         </h:panelGroup>
     </ui:insert-->
 
-    <hr />
-    <br />
-
-    <ui:insert name="data" />
+    <div style="padding: 11px 0 0 7px">
+        <ui:insert name="data" />
+    </div>
 
 </ui:composition>

@@ -1,39 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/content.xhtml">
+    xmlns:rich="http://richfaces.org/rich">
 
-    <ui:define name="page">
-        <script>
-            //<![CDATA[
-        	function toggleSelectAll(nItems) {
-        	    var selectAllCheckBox = document.getElementById("BMForm:BMTable:selectAll");
-        	    for(i = 0; i < nItems; i++) {
-                    var checkbox = document.getElementById("BMForm:BMTable:" + i + ":BM");
-                    if (checkbox) {
-                        checkbox.checked = selectAllCheckBox.checked;
-                    }
+    <script>
+      //<![CDATA[
+        function toggleSelectAll(nItems) {
+            var selectAllCheckBox = document.getElementById("BMForm:BMTable:selectAll");
+            for(i = 0; i < nItems; i++) {
+                var checkbox = document.getElementById("BMForm:BMTable:" + i + ":BM");
+                if (checkbox) {
+                    checkbox.checked = selectAllCheckBox.checked;
                 }
-        	}
-            //]]>
-        </script>
-
-        <style>
-            .matrix {
-                border-collapse: collapse;
             }
-            .matrixColumn {
-                border: 1px solid #999999;
-                padding: 5px 7px;
-            }
-        </style>
+        }
+      //]]>
+    </script>
 
-        <h3>Results of benchmarking</h3>
+    <style>
+        .matrix {
+            border-collapse: collapse;
+        }
+        .matrixColumn {
+            border: 1px solid #999999;
+            padding: 5px 7px;
+        }
+    </style>
+
+    <div class="view_header">Results of benchmarking</div>
+
+    <div class="content">
         <h:form id="BMForm">
             <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
                 binding="#{benchmarkMethodBean.htmlDataTableBM}" styleClass="matrix"
@@ -127,5 +126,5 @@
         </h:dataTable>
 
         </h:form>
-    </ui:define>
+    </div>
 </ui:composition>
