@@ -4,8 +4,11 @@
 package org.openl.rules.tbasic;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessages;
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
 import org.openl.runtime.EngineFactory;
 
@@ -51,7 +54,16 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         EngineFactory<IAlgorithmTableParserManager> engineFactory = new EngineFactory<IAlgorithmTableParserManager>(
                 sourceType, sourceFile, IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
+        
+        // get the errors before compiling inside component.
+        // As inside they are cleaned in EngineFactory
+        //
+        List<OpenLMessage> oldMessages = new ArrayList<OpenLMessage>(OpenLMessages.getCurrentInstance().getMessages());        
         rulesWrapperInstance = engineFactory.makeInstance();
+        
+        // add to the current messages instance old messages
+        //
+        OpenLMessages.getCurrentInstance().addMessages(oldMessages);
     }
 
     private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {
