@@ -201,15 +201,12 @@ public class TableCopier extends WizardBase {
             logicBaseTableStartRow++;
 
             ITableProperties tableProperties = baseNode.getTableProperties();   
-            Map<String, Object> baseTablePhysicalProperties = null;
 
             if (tableProperties != null) {
                 propertiesStyle = getPropertiesStyle(tableProperties);
-                baseTablePhysicalProperties = tableProperties.getPropertiesDefinedInTable();
+                logicBaseTableStartRow += tableProperties.getPropertiesSection().getHeight();
             }
             buildedPropForNewTable = buildProperties();
-
-            logicBaseTableStartRow += baseTablePhysicalProperties == null ? 0 : baseTablePhysicalProperties.size();
         }
 
         IGridTable gridTable = originalTable.getSubtable(0, logicBaseTableStartRow, originalTable.getWidth(),
