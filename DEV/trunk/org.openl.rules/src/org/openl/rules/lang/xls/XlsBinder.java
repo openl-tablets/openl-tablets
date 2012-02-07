@@ -592,11 +592,11 @@ public class XlsBinder implements IOpenBinder {
             processError(error, tableSyntaxNode, moduleContext);
 
         } catch (CompositeSyntaxNodeException ex) {
-
-            for (SyntaxNodeException error : ex.getErrors()) {
-                processError(error, tableSyntaxNode, moduleContext);
-            }
-
+        	if (ex.getErrors() != null) {
+        		for (SyntaxNodeException error : ex.getErrors()) {
+        			processError(error, tableSyntaxNode, moduleContext);
+        		}
+        	}
         } catch (Throwable t) {
 
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);

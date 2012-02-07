@@ -10,7 +10,6 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
@@ -54,11 +53,6 @@ public class OpenLCompileManager extends OpenLHolder {
      * @return {@link IOpenClass} instance
      */
     public IOpenClass compileModule(IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
-    	/** clear {@link OpenLMessages} as they are stored ThreadLocal. It is not right because in one thread 
-    	 * there can be a lot of compiled modules.
-    	 * @author DLiauchuk
-    	 */
-    	OpenLMessages.getCurrentInstance().clear();
         ProcessedCode processedCode;
         if(executionMode){
             processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), false, dependencyManager);
@@ -84,13 +78,7 @@ public class OpenLCompileManager extends OpenLHolder {
      * @return {@link CompiledOpenClass} instance
      */
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode,
-        IDependencyManager dependencyManager) {
-    	
-    	/** clear {@link OpenLMessages} as they are stored ThreadLocal. It is not right because in one thread 
-    	 * there can be a lot of compiled modules.
-    	 * @author DLiauchuk
-    	 */
-    	OpenLMessages.getCurrentInstance().clear();
+        IDependencyManager dependencyManager) {    	
         ProcessedCode processedCode;
         if (executionMode) {
             processedCode = sourceManager.processSource(source, SourceType.MODULE,
