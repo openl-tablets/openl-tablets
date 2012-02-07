@@ -267,16 +267,16 @@
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
-                                <a4j:commandLink styleClass="toolbarButton bigButton" title="Run"
+                                <a class="toolbarButton bigButton" title="Run" href="javascript:void(0)"
                                     onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:runButton').show();document.getElementById('inputArgsForm:traceButton').hide();">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
-                                </a4j:commandLink>
-                                <a4j:commandLink styleClass="toolbarButton bigButton" title="Trace"
+                                </a>
+                                <a class="toolbarButton bigButton" title="Trace" href="javascript:void(0)"
                                     onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:traceButton').show();document.getElementById('inputArgsForm:runButton').hide();">
                                     <img src="webresource/images/trace.gif" />
                                     <span>Trace</span>
-                                </a4j:commandLink>
+                                </a>
                                 <div id="inputArgsMenu" style="display: none">
                                     <ui:include src="/pages/modules/rulesEditor/test/inputTestCase.xhtml" />
                                     <a4j:commandButton id="runButton" style="display: none"
