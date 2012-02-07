@@ -155,7 +155,7 @@
                         value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                     <h:form prependId="false">
                         <c:set var="runLink"
-                            value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
+                            value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}?uri=#{showTableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none">
                             <table id="testTable" class="testtable" style="border: 1px solid white">
                                 <ui:repeat var="test" value="#{showTableBean.tests}">
@@ -274,6 +274,8 @@
                 <c:if test="#{showTableBean.table.executable}">
                     <td>
                         <h:form id="inputArgsForm">
+                            <c:set var="runLink"
+                                value="test/runTestMethod.xhtml?uri=#{showTableBean.encodedUri}" />
                             <c:set var="traceUrl"
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
@@ -293,7 +295,7 @@
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
-                                            oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml')" />
+                                            oncomplete="goTo('#{runLink}')" />
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win')" />
@@ -305,7 +307,7 @@
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
                                 <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="toolbarButton bigButton" title="Run"
-                                    oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml')">
+                                    oncomplete="goTo('#{runLink}')">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
                                 </a4j:commandLink>
@@ -324,7 +326,7 @@
                         <h:form>
                             <a4j:commandLink styleClass="toolbarButton bigButton" title="Run All Tests"
                                 action="#{showTableBean.runAllTestsForTable}"
-                                oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml')">
+                                oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml?uri=#{showTableBean.encodedUri}')">
                                 <img src="webresource/images/test_ok.gif" />
                                 <span>Test</span>
                             </a4j:commandLink>
