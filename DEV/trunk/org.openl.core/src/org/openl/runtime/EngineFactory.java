@@ -9,6 +9,7 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
+import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -141,6 +142,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
     public synchronized CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
+        	OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
         return compiledOpenClass;
