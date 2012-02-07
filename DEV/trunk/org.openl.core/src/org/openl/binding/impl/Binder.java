@@ -16,6 +16,7 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.INodeBinderFactory;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.java.JavaOpenClass;
@@ -118,7 +119,7 @@ public class Binder implements IOpenBinder {
         INodeBinder nodeBinder = bindingContext.findBinder(syntaxNode);
 
         if (nodeBinder == null) {
-            throw new NullPointerException(String.format("Binder not found for node '%s'", syntaxNode.getType()));
+            throw new OpenlNotCheckedException(String.format("Binder not found for node '%s'", syntaxNode.getType()));
         }
 
         return nodeBinder.bind(syntaxNode, bindingContext);
