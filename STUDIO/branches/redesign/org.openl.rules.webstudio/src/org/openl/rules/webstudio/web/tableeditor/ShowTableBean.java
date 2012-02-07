@@ -39,6 +39,7 @@ import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.openl.rules.webstudio.web.test.InputArgsBean;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -283,9 +284,17 @@ public class ShowTableBean {
         model.addTestSuitesToRun(testSuites);
     }
 
-    public String traceIntoFile() {
-        makeTestSuite();
+    public String traceIntoFile(boolean withArgs) {
+        if (withArgs) {
+            ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).makeTestSuite();
+        } else {
+            makeTestSuite();
+        }
         return ((TraceIntoFileBean) FacesUtils.getBackingBean("traceIntoFileBean")).traceIntoFile();
+    }
+
+    public String traceIntoFile() {
+        return traceIntoFile(false);
     }
 
     public int[] getSelectedIndices() {
