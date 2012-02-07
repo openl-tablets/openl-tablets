@@ -154,6 +154,8 @@
                     <c:set var="traceUrl"
                         value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                     <h:form prependId="false">
+                        <c:set var="runLink"
+                            value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
                         <div id="unitsMenu" style="display: none">
                             <table id="testTable" class="testtable" style="border: 1px solid white">
                                 <ui:repeat var="test" value="#{showTableBean.tests}">
@@ -169,12 +171,25 @@
                                 </tr>
                                 </ui:repeat>
                             </table>
+                            <div style="padding: 6px 5px">
+                                <a4j:commandButton id="runButton" action="#{showTableBean.makeTestSuite}" value="Run"
+                                    title="Run" onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
+                                    style="display:none" />
+                                <a4j:commandButton id="traceButton" action="#{showTableBean.makeTestSuite}"
+                                    value="Trace" title="Trace" onclick="return isAnyTestSelected();"
+                                    oncomplete="open_win('#{traceUrl}', 'trace_win')"
+                                    style="display:none" />
+                                <h:commandButton id="traceIntoFileButton" action="#{showTableBean.traceIntoFile}"
+                                    value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
+                                    style="display:none" />
+                                <a4j:commandButton id="benchmarkButton" action="#{showTableBean.makeTestSuite}"
+                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
+                                    oncomplete="goTo('test/benchmarkMethod.xhtml')" style="display:none" />
+                            </div>
                         </div>
                         <table>
                             <tr>
                                 <td>
-                                    <c:set var="runLink"
-                                        value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}" />
                                     <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton bigButton bigMenuButton"
                                         onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -185,7 +200,8 @@
                                                 <td>
                                                     <img src="webresource/images/run.gif" />
                                                 </td>
-                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'unitsMenu', 'a');return false;"
+                                                <td rowspan="2" class="arrow"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#runButton').show();$j('#traceButton, #traceIntoFileButton, #benchmarkButton').hide();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -209,7 +225,8 @@
                                                 <td>
                                                     <img src="webresource/images/trace.gif" />
                                                 </td>
-                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'unitsMenu', 'a');return false;"
+                                                <td rowspan="2" class="arrow"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#traceButton, #traceIntoFileButton').show();$j('#runButton, #benchmarkButton').hide();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -221,13 +238,6 @@
                                             </tr>
                                         </table>
                                     </a4j:commandLink>
-                                    <div id="traceMenu" style="display: none">
-                                        <h:commandLink onclick="return isAnyTestSelected();" styleClass="toolbarButton"
-                                            action="#{showTableBean.traceIntoFile}" title="Trace into File">
-                                            <img src="webresource/images/traceIntoFile.gif" />
-                                            <span>Into File</span>
-                                        </h:commandLink>
-                                    </div>
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{showTableBean.makeTestSuite}" title="Benchmark" styleClass="toolbarButton bigButton bigMenuButton"
@@ -241,7 +251,8 @@
                                                 <td>
                                                     <img src="webresource/images/clock-icon.png" />
                                                 </td>
-                                                <td rowspan="2" class="arrow" onclick="showButtonMenu(event, 'unitsMenu', 'a');return false;"
+                                                <td rowspan="2" class="arrow"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#benchmarkButton').show();$j('#runButton, #traceButton, #traceIntoFileButton').hide();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -268,23 +279,28 @@
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <a class="toolbarButton bigButton" title="Run" href="javascript:void(0)"
-                                    onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:runButton').show();document.getElementById('inputArgsForm:traceButton').hide();">
+                                    onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
                                 </a>
                                 <a class="toolbarButton bigButton" title="Trace" href="javascript:void(0)"
-                                    onclick="showButtonMenu(event, 'inputArgsMenu', 'a');document.getElementById('inputArgsForm:traceButton').show();document.getElementById('inputArgsForm:runButton').hide();">
+                                    onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
                                     <img src="webresource/images/trace.gif" />
                                     <span>Trace</span>
                                 </a>
                                 <div id="inputArgsMenu" style="display: none">
                                     <ui:include src="/pages/modules/rulesEditor/test/inputTestCase.xhtml" />
-                                    <a4j:commandButton id="runButton" style="display: none"
-                                        action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
-                                        oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml')" />
-                                    <a4j:commandButton id="traceButton" style="display: none"
-                                        action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
-                                        oncomplete="open_win('#{traceUrl}', 'trace_win')" />
+                                    <div style="padding: 8px 5px 6px">
+                                        <a4j:commandButton id="runButton" style="display: none"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
+                                            oncomplete="goTo('#{rulesEditor}/test/runTestMethod.xhtml')" />
+                                        <a4j:commandButton id="traceButton" style="display: none"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
+                                            oncomplete="open_win('#{traceUrl}', 'trace_win')" />
+                                        <h:commandButton id="traceIntoFileButton" style="display: none"
+                                            action="#{showTableBean.traceIntoFile(true)}" value="Trace into File"
+                                            title="Trace into File" />
+                                    </div>
                                 </div>
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
