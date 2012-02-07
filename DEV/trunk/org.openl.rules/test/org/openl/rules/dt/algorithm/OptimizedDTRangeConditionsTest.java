@@ -10,7 +10,7 @@ import org.openl.types.java.JavaOpenClass;
 
 public class OptimizedDTRangeConditionsTest extends BaseOpenlBuilderHelper {
 	
-	public static final String src = "rules/dt/algorithm/OptimizedDTRangeConditions.xls";
+	public static final String src = "test/rules/dt/algorithm/OptimizedDTRangeConditions.xls";
 	
 	public OptimizedDTRangeConditionsTest() {
 		super(src);
