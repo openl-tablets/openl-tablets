@@ -6,6 +6,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -16,6 +17,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UIRepeat;
 
@@ -32,13 +34,22 @@ public class RunTestMethodBean {
     private TestUnitsResults results;
 
     private UIRepeat resultItems;
+    
+    /**
+     * URI of tested table
+     */
+    private String uri;
 
     public RunTestMethodBean() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        testSuite = model.popLastTest();
+        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
-        TestResultsHelper.initExplanator();
-        runTestMethod(testSuite);
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        if (model.hasTestSuitesToRun()) {
+            testSuite = model.popLastTest();
+
+            TestResultsHelper.initExplanator();
+            runTestMethod(testSuite);
+        }
     }
 
     private void runTestMethod(TestSuite testSuite) {
@@ -50,7 +61,11 @@ public class RunTestMethodBean {
     }
 
     public String getTableName() {
-        return testSuite.getName();
+        if (testSuite != null) {
+            return testSuite.getName();
+        } else {
+            return WebStudioUtils.getProjectModel().getTable(uri).getName();
+        }
     }
 
     public TestDescription getTestDescription() {
@@ -60,9 +75,17 @@ public class RunTestMethodBean {
     public List<TestUnit> getResults() {
         return results.getTestUnits();
     }
+    
+    public boolean isExpired(){
+        return StringUtils.isNotBlank(uri) && testSuite == null;
+    }
 
     public String getUri() {
-        return testSuite.getUri();
+        if (testSuite != null) {
+            return testSuite.getUri();
+        } else {
+            return uri;
+        }
     }
 
     public UIRepeat getResultItems() {

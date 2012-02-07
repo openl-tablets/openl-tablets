@@ -12,6 +12,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 
@@ -28,7 +29,9 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.ui.ObjectViewer;
+import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.richfaces.component.UIRepeat;
 
@@ -43,14 +46,20 @@ public class RunAllTestsBean {
 
     private UIRepeat testUnits;
 
+    /**
+     * URI of tested table
+     */
+    private String uri;
+
     public RunAllTestsBean() {
+        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         TestResultsHelper.initExplanator();
         testAll();
     }
 
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (!model.hasTestSuitesToRun()) {
+        if (!model.hasTestSuitesToRun() && uri == null) {
             ranResults = model.runAllTests();
         } else {
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
@@ -255,6 +264,15 @@ public class RunAllTestsBean {
         return fieldsCoordinates;
     }
     
+    public boolean isExpired(){
+        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
+    }
     
+    public String getTestedTableUri(){
+        return uri;
+    }
 
+    public String getTestedTableName(){
+        return ProjectHelper.createTestName(WebStudioUtils.getProjectModel().getMethod(uri));
+    }
 }

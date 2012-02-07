@@ -24,55 +24,49 @@
         </h:outputLink>
     </div>
     <div class="content">
-        <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
+        <h:outputText value="View expired. Test data is no more available." rendered="#{runTestMethodBean.expired}" />
 
-        <table class="testtable">    
-            <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-              <tr>                  
-                 <th>
-                 	Input Parameters
-                 </th>                  
-                 <th>
-                    Result
-                 </th>
-              </tr>
-            </h:panelGroup>
-        <a4j:repeat value="#{runTestMethodBean.results}" var="result"
-            binding="#{runTestMethodBean.resultItems}">
-            <tr style="vertical-align: top">
-            	<td>
-		            <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-		               <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-		               	 <ui:param name="headers" value="#{runTestMethodBean.testDescription.parametersNames}" />
-		                 <ui:param name="args" value="#{runTestMethodBean.testDescription.executionParams}" />
-		               </ui:include>
-		            </h:panelGroup>
-		        </td>
-            	<td>
-	            <c:set var="errors" value="#{runTestMethodBean.errors}" />
-	            <h:panelGroup rendered="#{empty errors}">
-	                <h:outputText value="#{runTestMethodBean.stringResult}"
-	                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />
-	                <h:outputLink
-	                    value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
-	                    rendered="#{not empty runTestMethodBean.explanationValueResult}">
-	                    <h:outputText value="#{runTestMethodBean.formattedExplanationValueResult}" />
-	                </h:outputLink>
-	                <h:outputText rendered="#{not empty runTestMethodBean.spreadsheetResult}"
-	                    value="#{runTestMethodBean.formattedSpreadsheetResult}"
-	                    escape="false" />
-	                <br />
-	            </h:panelGroup>
-	            <h:panelGroup rendered="#{not empty errors}">
-	                <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
-	                    <ui:param name="messages" value="#{errors}" />
-	                    <ui:param name="editable" value="#{studio.model.editable}" />
-	                </ui:include>
-	            </h:panelGroup>
-	            </td>
-            </tr>
-        </a4j:repeat>
-        </table>
+        <h:panelGroup rendered="#{not runTestMethodBean.expired}">
+            <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
+
+            <table class="testtable">
+                <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+                    <tr>
+                        <th>Input Parameters</th>
+                        <th>Result</th>
+                    </tr>
+                </h:panelGroup>
+                <a4j:repeat value="#{runTestMethodBean.results}" var="result" binding="#{runTestMethodBean.resultItems}">
+                    <tr style="vertical-align: top">
+                        <td><h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+                                <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
+                                    <ui:param name="headers"
+                                        value="#{runTestMethodBean.testDescription.parametersNames}" />
+                                    <ui:param name="args" value="#{runTestMethodBean.testDescription.executionParams}" />
+                                </ui:include>
+                            </h:panelGroup></td>
+                        <td><c:set var="errors" value="#{runTestMethodBean.errors}" /> <h:panelGroup
+                                rendered="#{empty errors}">
+                                <h:outputText value="#{runTestMethodBean.stringResult}"
+                                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />
+                                <h:outputLink
+                                    value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
+                                    rendered="#{not empty runTestMethodBean.explanationValueResult}">
+                                    <h:outputText value="#{runTestMethodBean.formattedExplanationValueResult}" />
+                                </h:outputLink>
+                                <h:outputText rendered="#{not empty runTestMethodBean.spreadsheetResult}"
+                                    value="#{runTestMethodBean.formattedSpreadsheetResult}" escape="false" />
+                                <br />
+                            </h:panelGroup> <h:panelGroup rendered="#{not empty errors}">
+                                <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
+                                    <ui:param name="messages" value="#{errors}" />
+                                    <ui:param name="editable" value="#{studio.model.editable}" />
+                                </ui:include>
+                            </h:panelGroup></td>
+                    </tr>
+                </a4j:repeat>
+            </table>
+        </h:panelGroup>
 
     </div>
 
