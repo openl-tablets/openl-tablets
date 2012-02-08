@@ -11,7 +11,7 @@ import org.openl.syntax.exception.CompositeOpenlException;
 public class OpenLMessagesTest {
 	
 	public static final String src1 = "test/rules/messages/project1.xls";
-	public static final String src2 = "test/rules/messages/project2.xlsx";
+	public static final String src2 = "test/rules/messages/project2.xls";
 	
 	@Test
 	public void testInSeriesCompileMessages1() {
