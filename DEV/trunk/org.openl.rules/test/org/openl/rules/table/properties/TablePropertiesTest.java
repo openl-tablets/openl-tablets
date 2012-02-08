@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.bindibg;
+package org.openl.rules.table.properties;
 
 import static org.junit.Assert.*;
 

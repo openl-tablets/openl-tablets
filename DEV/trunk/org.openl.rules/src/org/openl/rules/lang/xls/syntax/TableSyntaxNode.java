@@ -173,8 +173,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
     public boolean hasPropertiesDefinedInTable() {
         boolean result = false;        
         if (tableProperties != null
-                && tableProperties.getPropertiesSection() != null
-                && tableProperties.getPropertiesDefinedInTable().size() > 0) {
+                && tableProperties.getPropertiesSection() != null) {
             result = true;
         }
         return result;
