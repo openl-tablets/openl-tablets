@@ -183,6 +183,8 @@ public class WebStudio {
                 return;
             }
             project.checkIn();
+            reset(ReloadType.FORCED);
+            model.getProjectTree();
         } catch (Exception e) {
             LOG.error("Can not check in!", e);
             try {
@@ -203,6 +205,7 @@ public class WebStudio {
             }
             project.checkOut();
             reset(ReloadType.FORCED);
+            model.getProjectTree();
         } catch (Exception e) {
             LOG.error("Can not check out!", e);
             try {
