@@ -80,7 +80,9 @@
                 prefix: "#{rulesEditor}/"
             }
 
-            $j(window).bind("hashchange", loadContent);
+            $j(window).bind("hashchange", function() {
+                loadContent(getCurrentPage());
+            });
 
             var mainLayout;
             var centerLayout;
@@ -151,7 +153,7 @@
             }
 
             function goHome() {
-                location.hash = HOME_PAGE;
+                loadContent(urlRewrite.prefix + HOME_PAGE);
             }
 
             function reloadCurrent() {
@@ -176,17 +178,19 @@
             }
 
             function getCurrentPage() {
-                var page = location.href.split("#")[1];
-                if (page && page.indexOf(urlRewrite.prefix) < 0) {
-                    page = urlRewrite.prefix + page;
+                if (location.hash) {
+                    var page = location.href.split("#")[1];
+                    if (page && page.indexOf(urlRewrite.prefix) < 0) {
+                        page = urlRewrite.prefix + page;
+                    }
+                    return page;
                 }
-                return page;
             }
 
-            function loadContent() {
-                if (location.hash) {
-                    var page = getCurrentPage();
+            function loadContent(page) {
+                var page = page || getCurrentPage();
 
+                if (page) {
                     $j("#content").load(page);
 
                     if (page.indexOf(HOME_PAGE) > -1) {
