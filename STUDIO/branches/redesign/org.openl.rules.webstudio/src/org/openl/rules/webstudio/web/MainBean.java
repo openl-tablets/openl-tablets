@@ -45,14 +45,12 @@ public class MainBean {
     public void reload() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         studio.reset(ReloadType.FORCED);
-        if (studio.getCurrentModule() != null) {
-            studio.getModel().getProjectTree();// Reason: tree should be built
-                                               // before accessing the ProjectModel.
-                                               // Is is related to UI: rendering of
-                                               // frames is asynchronous and we
-                                               // should build tree before the
-                                               // 'content' frame
-        }
+        studio.getModel().getProjectTree(); // Reason: tree should be built
+                                            // before accessing the ProjectModel.
+                                            // Is is related to UI: rendering of
+                                            // frames is asynchronous and we
+                                            // should build tree before the
+                                            // 'content' frame
     }
 
     public void selectModule() throws Exception {
