@@ -305,7 +305,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return method signature of the method in group.
      */
     private IMethodSignature getMethodSignature() {        
-        return getMember().getSignature();
+        return dispatcher.getSignature();
     }
     
     /**

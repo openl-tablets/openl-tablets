@@ -210,12 +210,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     }
                 }
             }
+            List<IOpenMethod> notPriorMethods = new ArrayList<IOpenMethod>();
             //Remove methods those priority not equals to the most high priority method 
             for (IOpenMethod candidate : selected) {
                 if (prioritySorter.getMethodsComparator().compare(candidate, mostPriority) != 0) {
-                    selected.remove(candidate);
+                    notPriorMethods.add(candidate);
                 }
             }
+            selected.removeAll(notPriorMethods);
         }
     }
 
