@@ -200,9 +200,8 @@ public class TableCopier extends WizardBase {
             headerStyle = originalTable.getCell(0, 0).getStyle();
             logicBaseTableStartRow++;
 
-            ITableProperties tableProperties = baseNode.getTableProperties();   
-
-            if (tableProperties != null && tableProperties.getPropertiesSection() != null) {
+            if (baseNode.hasPropertiesDefinedInTable()) {
+            	ITableProperties tableProperties = baseNode.getTableProperties();
                 propertiesStyle = getPropertiesStyle(tableProperties);
                 logicBaseTableStartRow += tableProperties.getPropertiesSection().getHeight();
             }
