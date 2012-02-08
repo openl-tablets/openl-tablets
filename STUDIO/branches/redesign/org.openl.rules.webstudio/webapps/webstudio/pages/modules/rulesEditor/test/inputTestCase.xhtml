@@ -59,7 +59,7 @@
                                     <h:graphicImage value="/images/delete.gif" />
                                 </a4j:commandLink>
                                 <h:outputText value="#{item.treeText}" />
-                                <a4j:commandLink action="#{inputArgsBean.initObject}" rendered="#{item.valueNull}"
+                                <a4j:commandLink action="#{inputArgsBean.initObject}" rendered="#{item.valueNull and inputArgsBean.initableObject}"
                                     render="dynamicTreePanel" title="Init">
                                     <h:graphicImage value="/images/newtable.gif" />
                                 </a4j:commandLink>
