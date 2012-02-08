@@ -761,7 +761,7 @@ public class ProjectModel {
     }
 
     public synchronized void buildProjectTree() {
-        if (compiledOpenClass == null) {
+        if (compiledOpenClass == null || studio.getCurrentModule() == null) {
             return;
         }
 
