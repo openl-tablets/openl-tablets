@@ -967,14 +967,7 @@ public class ProjectModel {
         return searchBean.search(xsn);
     }
 
-    public void saveSearch(OpenLSavedSearch search) throws Exception {
-        XlsWorkbookSourceCodeModule module = getWorkbookNodes()[0].getWorkbookSourceCodeModule();
-        if (module != null) {
-            IExporter iExporter = XlsSheetGridHelper.createExporter(module);
-            iExporter.persist(search);
-            module.save();
-            reset(ReloadType.SINGLE);
-        }
+    public void saveSearch(OpenLSavedSearch search) {
     }
 
     public void setProjectTree(ProjectTreeNode projectRoot) {
