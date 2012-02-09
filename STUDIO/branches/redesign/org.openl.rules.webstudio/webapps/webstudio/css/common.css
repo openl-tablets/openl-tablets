@@ -352,7 +352,7 @@ form.standard table.buttonPanel {
     top: 11px;
     z-index: 5;
     padding: 5px 5px 0;
-    box-shadow: 0 0 5px red;
+    box-shadow: 0 1px 5px #ccc;
     background: white;
     max-height: 211px;
     overflow: auto;
