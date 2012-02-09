@@ -110,6 +110,10 @@
         <h:form id="mainForm" prependId="false">
             <div id="top">
                 <ui:insert name="top">
+                    <div class="messages">
+                        <h:messages infoClass="success" errorClass="error" showDetail="true"
+                            showSummary="false" tooltip="true" globalOnly="true"/>
+                    </div>
                     <ui:include src="/pages/modules/repository/topPanel.xhtml" />
                 </ui:insert>
             </div>
