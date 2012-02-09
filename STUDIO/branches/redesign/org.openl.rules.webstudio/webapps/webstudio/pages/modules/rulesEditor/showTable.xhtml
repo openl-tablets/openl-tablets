@@ -491,14 +491,14 @@
         	Limits popup height and width inside the bordering component.
         */
         function adjustSize(popupId, borderingComponentId) {
-        	var borderingComponent = $j("#" + borderingComponentId);
-        	var popup = $j("#" + popupId);
-        	var popupPosition = popup.position();
-        	var maxHeight = borderingComponent.outerHeight() - popupPosition.top - 10;
-        	var maxWidth = borderingComponent.outerWidth() - popupPosition.left - 10;
-        	popup.css({
+            var borderingComponent = $j("#" + borderingComponentId);
+            var popup = $j("#" + popupId);
+            var popupPosition = popup.position();
+            var maxHeight = borderingComponent.outerHeight() - popupPosition.top - 10;
+            var maxWidth = borderingComponent.outerWidth() - popupPosition.left - 10;
+            popup.css({
                 'max-height': maxHeight,
-                'max-width': maxWidth,
+                'max-width': maxWidth
             });
         }
 
@@ -506,8 +506,8 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
+            adjustSize(popupId, 'content');
             showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
-            adjustSize(popupId,'content');
         }
 
         function search() {
