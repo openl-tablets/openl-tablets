@@ -30,7 +30,8 @@
                 rendered="#{not empty wizard.decisionTables}"
                 oncomplete="go('test/step2.xhtml')">
             </a4j:commandButton>
-            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
         </h:form>
     </ui:define>
 

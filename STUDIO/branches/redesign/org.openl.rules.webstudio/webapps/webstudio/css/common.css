@@ -130,7 +130,7 @@ fieldset {
 
 #loadingPanel img {
     position: fixed;
-    top: 2px;
+    top: 3px;
     right: 750px;
     z-index: 10001;
 }

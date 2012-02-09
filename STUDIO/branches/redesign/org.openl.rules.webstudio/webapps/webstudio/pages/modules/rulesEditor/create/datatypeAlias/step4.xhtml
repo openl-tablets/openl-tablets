@@ -10,7 +10,8 @@
             immediate="true" oncomplete="go('datatypeAlias/step3.xhtml')" />
         <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableUri}"
             oncomplete="if(event.data) goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
-        <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+        <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+            oncomplete="goTo('create/index.xhtml')" />
     </ui:define>
 
 </ui:composition>
