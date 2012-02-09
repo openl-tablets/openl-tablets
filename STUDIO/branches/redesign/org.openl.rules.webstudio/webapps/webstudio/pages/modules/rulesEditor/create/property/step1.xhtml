@@ -55,7 +55,8 @@
                 oncomplete="go('step0.xhtml')" />
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
                 data="#{facesContext.maximumSeverity}" oncomplete="if(!event.data) go('property/step2.xhtml')" />
-            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
         </h:form>
 
     <script>

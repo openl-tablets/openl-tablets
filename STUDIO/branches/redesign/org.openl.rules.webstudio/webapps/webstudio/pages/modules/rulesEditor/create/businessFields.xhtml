@@ -54,8 +54,8 @@
                 oncomplete="go('#{prev}')" rendered="#{!empty prev}" />
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
                 data="#{facesContext.maximumSeverity}" oncomplete="if(!event.data) go('#{next}')" />
-            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
-
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
         </h:form>
 
         <script>

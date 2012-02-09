@@ -1,12 +1,9 @@
 package org.openl.rules.ui.tablewizard;
 
-import java.io.IOException;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.lang.StringUtils;
-import org.openl.commons.web.jsf.FacesUtils;
 
 /**
  * @author Aliaksandr Antonik.
@@ -31,11 +28,6 @@ public class TableWizardManager extends TableWizard{
     public String cancel() {
         if (wizard != null) {
             wizard.cancel();
-        }
-        try {
-            FacesUtils.redirect(FacesUtils.getContextPath() + "#home.xhtml");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
         return null;
     }

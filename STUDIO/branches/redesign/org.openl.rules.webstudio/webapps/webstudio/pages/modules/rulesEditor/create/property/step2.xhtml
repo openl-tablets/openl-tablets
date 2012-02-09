@@ -64,7 +64,8 @@
                 oncomplete="go('property/step1.xhtml')" />
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
                 oncomplete="go('property/step3.xhtml')" />
-            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
         </h:form>
 
         <rich:popupPanel id="newPropertyDlg" width="290" top="100" left="200" autosized="true">

@@ -51,9 +51,7 @@
             </script>
 
             <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.startWizard}"
-                oncomplete="go(pageAlias + '/step1.xhtml')">
-            </a4j:commandButton>
-            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+                oncomplete="go(pageAlias + '/step1.xhtml')" />
         </h:form>
     </ui:define>
 </ui:composition>
