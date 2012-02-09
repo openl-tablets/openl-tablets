@@ -6,6 +6,7 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IMemberMetaInfo;
@@ -157,7 +158,7 @@ public class ProjectHelper {
         IMemberMetaInfo mi = testMethod.getInfo();
         TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
 
-        String name = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[1];
+        String name = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[INamedThing.SHORT];
         if (testMethod instanceof TestSuiteMethod) {
            TestSuiteMethod testSuite = (TestSuiteMethod)testMethod;
            if (testSuite.isRunmethod()) {

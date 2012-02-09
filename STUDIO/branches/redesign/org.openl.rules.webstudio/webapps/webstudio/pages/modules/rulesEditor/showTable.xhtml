@@ -395,7 +395,7 @@
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
-                                <h:outputText value="#{test.name}" />
+                                <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
                                 onclick="showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
@@ -412,7 +412,7 @@
                         <div>
                             <h:outputLink value="showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
-                                <h:outputText value="#{test.name}" />
+                                <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
                         </div>
                         </h:panelGroup>

@@ -46,7 +46,7 @@
                     <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml"
                         target="content" style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
                         <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
-                        <h:outputText value="#{testUnitsResults.testSuite.name}" />
+                        <h:outputText value="#{runAllTestsBean.getTestTableName(testUnitsResults)}" />
                     </h:outputLink>
                 </h1>
                 <table class="testtable">
