@@ -346,9 +346,21 @@ form.standard table.buttonPanel {
   font-size: 8pt;
 }
 
+.messages {
+    position: absolute;
+    left: 41%;
+    top: 11px;
+    z-index: 5;
+    padding: 5px 5px 0;
+    box-shadow: 0 0 5px red;
+    background: white;
+    max-height: 211px;
+    overflow: auto;
+}
+
 .messages ul {
-  margin: 0px 0px 10px 5px;
-  padding: 0px;
+  margin: 0 0 7px 5px;
+  padding: 0;
   list-style-type: none;
 }
 
