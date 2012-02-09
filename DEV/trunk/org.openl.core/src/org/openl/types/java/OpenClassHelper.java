@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.openl.base.INameSpacedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -121,5 +122,15 @@ public class OpenClassHelper {
 
     public static boolean isCollection(IOpenClass openClass) {
         return openClass.getAggregateInfo()!= null && openClass.getAggregateInfo().isAggregate(openClass);
+    }
+    
+    public static String displayNameForCollection(IOpenClass collectionType, boolean isEmpty) {
+    	StringBuilder builder = new StringBuilder();
+        if(isEmpty){
+            builder.append("Empty ");
+        }
+        builder.append("Collection of ");
+        builder.append(collectionType.getComponentClass().getDisplayName(INameSpacedThing.SHORT));
+        return builder.toString();
     }
 }
