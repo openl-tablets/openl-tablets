@@ -63,6 +63,8 @@
                                     render="dynamicTreePanel" title="Init">
                                     <h:graphicImage value="/images/newtable.gif" />
                                 </a4j:commandLink>
+                                <h:graphicImage value="/images/error16.png" rendered="#{not inputArgsBean.initableObject}"
+                                    title="Can not instantiate bean #{item.type.name}. Make sure that bean type has public constructor without parameters."/>
                                 <a4j:commandLink action="#{inputArgsBean.disposeObject}"
                                     rendered="#{not item.valueNull}" render="dynamicTreePanel" title="Dispose">
                                     <h:graphicImage value="/images/close.gif" />
