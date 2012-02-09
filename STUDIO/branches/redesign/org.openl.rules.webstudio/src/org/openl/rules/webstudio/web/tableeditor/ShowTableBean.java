@@ -34,6 +34,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
@@ -373,6 +374,10 @@ public class ShowTableBean {
      */
     public IOpenMethod[] getAllTests() {
         return allTests;
+    }
+    
+    public String getTestName(Object testMethod){
+        return ProjectHelper.createTestName((IOpenMethod) testMethod);
     }
 
     public String removeTable() throws Exception {
