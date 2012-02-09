@@ -14,6 +14,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.ui.IGridSelector;
+import org.openl.rules.table.ui.filters.CollectionCellFilter;
 import org.openl.rules.table.ui.filters.ExpectedResultFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.ui.filters.TableValueFilter;
@@ -72,9 +73,11 @@ public class ObjectViewer {
         
         IGridTable gridtable = table.getSource();        
         TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);       
+        CollectionCellFilter collectionFilter = new CollectionCellFilter();
         
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(tableValueFilter);
+        filters.add(collectionFilter);
         
         if (filter) {            
             filters.add(new LinkMaker(tableValueFilter));

@@ -3,12 +3,12 @@ package org.openl.rules.webstudio.web.test;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.openl.base.INameSpacedThing;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.OpenClassHelper;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
@@ -23,13 +23,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getDisplayedValue() {
-        StringBuilder builder = new StringBuilder();
-        if(isLeaf()){
-            builder.append("Empty ");
-        }
-        builder.append("Collection of ");
-        builder.append(getType().getComponentClass().getDisplayName(INameSpacedThing.SHORT));
-        return builder.toString();
+    	return OpenClassHelper.displayNameForCollection(getType(), isLeaf());        
     }
 
     @Override
