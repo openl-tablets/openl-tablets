@@ -106,17 +106,14 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 		env.setContext(context);
 	}
 
-    @Override
     public boolean isContextManagingSupported() {
         return env.isContextManagingSupported();
     }
 
-    @Override
     public IRuntimeContext popContext() {
         return env.popContext();
     }
 
-    @Override
     public void pushContext(IRuntimeContext context) {
         env.pushContext(context);
     }

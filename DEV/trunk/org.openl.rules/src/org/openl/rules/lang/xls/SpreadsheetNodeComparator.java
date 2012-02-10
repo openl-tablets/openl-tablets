@@ -15,7 +15,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  */
 public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode>{
 
-    @Override
     public int compare(TableSyntaxNode o1, TableSyntaxNode o2) {
         if (isSpreadsheet(o1) && isSpreadsheet(o2)) {
             // compare both spreadsheets table syntax nodes

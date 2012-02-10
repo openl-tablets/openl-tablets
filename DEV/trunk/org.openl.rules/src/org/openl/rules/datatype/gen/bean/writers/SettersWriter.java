@@ -14,8 +14,7 @@ public class SettersWriter extends MethodWriter {
     public SettersWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, allFields);        
     }
-
-    @Override
+    
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             if (validField(field.getKey(), field.getValue())) {

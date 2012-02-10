@@ -69,7 +69,6 @@ public class TestSuite implements INamedThing {
         }
     }
 
-    @Override
     public String getDisplayName(int mode) {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getDisplayName(mode);

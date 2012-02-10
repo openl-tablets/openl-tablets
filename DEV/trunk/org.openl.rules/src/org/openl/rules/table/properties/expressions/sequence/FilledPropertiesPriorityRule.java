@@ -13,7 +13,6 @@ public class FilledPropertiesPriorityRule implements IPriorityRule {
 
     private static final String[] dimensionProperties = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
 
-    @Override
     public int compare(ITableProperties properties1, ITableProperties properties2) {
         return getNumberOfSpecifiedProperties(properties2) - getNumberOfSpecifiedProperties(properties1);
     }

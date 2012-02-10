@@ -68,17 +68,14 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 		this.context = context;
 	}
 
-    @Override
     public boolean isContextManagingSupported() {
         return false;
     }
 
-    @Override
     public IRuntimeContext popContext() {
         throw new NotImplementedException();
     }
 
-    @Override
     public void pushContext(IRuntimeContext context) {
         throw new NotImplementedException();
     }

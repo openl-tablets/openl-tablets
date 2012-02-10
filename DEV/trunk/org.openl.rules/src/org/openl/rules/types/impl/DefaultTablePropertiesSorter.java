@@ -58,7 +58,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
 
     private void initMethodsCoparator() {
         methodsComparator = new Comparator<IOpenMethod>() {
-            @Override
+
             public int compare(IOpenMethod o1, IOpenMethod o2) {
                 ITableProperties tableProperties1 = PropertiesHelper.getTableProperties(o1);
                 ITableProperties tableProperties2 = PropertiesHelper.getTableProperties(o2);
@@ -74,7 +74,6 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
         };
     }
 
-    @Override
     public List<IOpenMethod> sort(Collection<IOpenMethod> candidates) {
         List<IOpenMethod> result = new ArrayList<IOpenMethod>(candidates);
         Collections.sort(result, methodsComparator);

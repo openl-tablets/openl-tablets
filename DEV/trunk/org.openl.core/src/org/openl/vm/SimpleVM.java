@@ -154,8 +154,7 @@ public class SimpleVM implements IOpenVM {
 			contextStack.clear();
 			pushContext(context);
 		}
-
-        @Override
+        
         public IRuntimeContext popContext() {
             if (contextStack.size() > 0) {
                 return (IRuntimeContext)contextStack.pop();
@@ -164,12 +163,10 @@ public class SimpleVM implements IOpenVM {
             }
         }
 
-        @Override
         public void pushContext(IRuntimeContext context) {
             contextStack.push(context);
         }
 
-        @Override
         public boolean isContextManagingSupported() {
             return true;
         }

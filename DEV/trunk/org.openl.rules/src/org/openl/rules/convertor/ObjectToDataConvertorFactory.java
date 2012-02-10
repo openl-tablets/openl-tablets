@@ -1,7 +1,6 @@
 package org.openl.rules.convertor;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -176,7 +175,6 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
                 
-                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     return new DoubleValue((Double)data);
                 }

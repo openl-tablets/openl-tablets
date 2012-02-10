@@ -60,8 +60,7 @@ public class Tracer {
             public String getUri() {
                 return null;
             }
-
-            @Override
+            
             public Object getResult() {                
                 return null;
             }

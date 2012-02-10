@@ -487,7 +487,6 @@ public class JavaCodeGen implements ICodeGen {
         return sb.append(XlsNodeTypes.class.getSimpleName()).append(".").append(value.name());        
     }
 
-	@Override
 	public StringBuilder genLiteralErrorSeverity(Severity value, StringBuilder sb) {
         return sb.append(Severity.class.getSimpleName()).append(".").append(value.name());
 	}

@@ -27,12 +27,10 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         this.tsn = tsn;
     }
 
-    @Override
     public IGridTable getGridTable() {
         return tsn.getGridTable();
     }
 
-    @Override
     public IGridTable getGridTable(String view) {
         if (view != null) {
             ILogicalTable gtx = tsn.getTable(view);
@@ -43,23 +41,19 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return getGridTable();
     }
 
-    @Override
     public ITableProperties getProperties() {
         return tsn.getTableProperties();
     }
 
-    @Override
     public String getType() {
         return tsn.getType();
     }
 
-    @Override
     public List<OpenLMessage> getMessages() {
         SyntaxNodeException[] errors = tsn.getErrors();
         return OpenLMessagesUtils.newMessages(errors);
     }
 
-    @Override
     public String getTechnicalName() {
         IOpenMember member = tsn.getMember();
         if (member != null) {
@@ -68,7 +62,6 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return StringUtils.EMPTY;
     }
 
-    @Override
     public String getName() {
         String tableName = getTechnicalName();
         ITableProperties properties = getProperties();
@@ -88,27 +81,22 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return tableName;
     }
 
-    @Override
     public boolean isExecutable() {
         return tsn.isExecutableNode();
     }
 
-    @Override
     public String getUri() {
         return tsn.getUri();
     }
 
-    @Override
     public boolean isVersionable() {
         return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());        
     }
 
-    @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31).append(getUri()).toHashCode();
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -125,7 +113,6 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return new EqualsBuilder().append(getUri(), table.getUri()).isEquals();
     }
 
-    @Override
     public boolean isCanContainProperties() {
         String tableType = getType();
         return tableType != null
