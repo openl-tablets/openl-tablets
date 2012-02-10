@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -161,7 +160,7 @@ public abstract class WizardBase extends BaseWizardBean {
     }
 
     @Override
-    public String finish() {
+    public String finish() throws Exception {
         boolean success = false;
         try {
             if (!wizardFinised) {
@@ -171,8 +170,8 @@ public abstract class WizardBase extends BaseWizardBean {
             doSave();
             success = true;
         } catch (Exception e) {
-            FacesUtils.addErrorMessage("Could not save table.", e.getMessage());
             LOG.error("Could not save table: ", e);
+            throw e;
         }
         if (success) {
             resetStudio();

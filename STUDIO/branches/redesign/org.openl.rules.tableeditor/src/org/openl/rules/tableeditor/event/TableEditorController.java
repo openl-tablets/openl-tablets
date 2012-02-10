@@ -40,7 +40,7 @@ public class TableEditorController extends BaseTableEditorController implements 
     private static final String ERROR_SAVE_TABLE = "Failed to save table.";
     private static final String ERROR_SET_STYLE = "Failed to set style.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
-        + " Please close project Excel file and try again.";
+        + " Please close module Excel file and try again.";
 
     public String edit() {
         String editorId = getEditorId();

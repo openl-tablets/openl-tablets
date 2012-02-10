@@ -11,7 +11,7 @@ public interface SourceHistoryManager<T> {
 
     void save(T source);
 
-    boolean revert(long version);
+    void revert(long version) throws Exception;
 
     T get(long version);
 
