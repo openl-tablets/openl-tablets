@@ -3,6 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+
   <display-name>OpenL Tablets WebStudio</display-name>
   <description>OpenL Tablets WebStudio</description>
 
