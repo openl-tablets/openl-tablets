@@ -9,6 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
@@ -317,6 +318,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (!valueAnArray && !isList) {
 
+                    IOpenCast cast = cxt.getCast(foreignTable.getDataModel().getType(),fieldType);
+                    if (cast == null || !cast.isImplicit()) {
+                        String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                            getField().getName(),
+                            fieldType,
+                            foreignTable.getDataModel().getType());
+                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                    }
                     String s = getCellStringValue(valuesTable);
 
                     if (s == null || s.length() == 0) {
