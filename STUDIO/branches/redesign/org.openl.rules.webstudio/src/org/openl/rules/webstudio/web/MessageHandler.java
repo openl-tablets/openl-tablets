@@ -33,9 +33,7 @@ public class MessageHandler {
      * @return
      */
     public String getUrlForEmptySource(OpenLMessage message) {
-        return WebContext.getContextPath() + "/pages/common/message.xhtml"
-            + "?type" + "=" + message.getSeverity().name()
-            + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
+        return "message.xhtml" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
     }
     
     protected String getUri(OpenLMessage message) {

@@ -96,8 +96,8 @@ public class ShowTableBean {
         if (table == null) {
             try {
                 String infoLink = 
-                    String.format("%s/faces/pages/common/message.xhtml?summary=%s", 
-                        FacesUtils.getContextPath(), INFO_MESSAGE);
+                    String.format("message.xhtml?summary=%s", 
+                        INFO_MESSAGE);
 
                 FacesUtils.redirect(infoLink);
             } catch (IOException e) {                
