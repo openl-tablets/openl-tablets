@@ -15,28 +15,35 @@
             <table>
                 <tr style="vertical-align: top">
                     <td style="padding-top: 5px"><b>Input parameters: </b></td>
+                    <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
                     <td>
-	                    <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-	                        <ui:param name="args" value="#{showTraceTableBean.inputParameters}" />
+	                    <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+	                        <ui:param name="parameter" value="#{parameter}" />
 	                    </ui:include>
 	                </td>
+                    </ui:repeat>
                     <td>
                         <ui:include src="/pages/common/tableViewMenu.xhtml" />
                     </td>
                 </tr>
                 <tr style="vertical-align: top">
-                    <td style="padding-top: 5px"><b>Returned result: </b></td>
+                    <td><b>Returned result: </b></td>
+
+                    <h:panelGroup rendered="#{showTraceTableBean.spreadsheetResultReturn}">
                     <td>
-                        <h:outputText rendered="#{showTraceTableBean.spreadsheetResultReturn}"
-                                    value="#{showTraceTableBean.formattedResult}"
-                                    escape="false" />
-                                    
-                        <h:panelGroup rendered="#{!showTraceTableBean.spreadsheetResultReturn}">
-                            <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                                <ui:param name="args" value="#{showTraceTableBean.returnResult}" />
-                            </ui:include> 
-                        </h:panelGroup>
-                    </td>                               
+                        <h:outputText value="#{showTraceTableBean.formattedResult}" escape="false" />
+                    </td>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{!showTraceTableBean.spreadsheetResultReturn}">
+                        <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
+                        <td>
+                            <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+                                <ui:param name="parameter" value="#{parameter}" />
+                            </ui:include>
+                        </td>
+                        </ui:repeat>
+                    </h:panelGroup>
                 </tr>
             </table>
 

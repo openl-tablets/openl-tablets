@@ -51,7 +51,9 @@
                 </h1>
                 <table class="testtable">
                     <tr>
-                        <th>Input Parameters</th>
+                        <ui:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="parameterHeader">
+                            <th>#{parameterHeader}</th>
+                        </ui:repeat>
                         <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                             <th><h:outputText value="Description" /></th>
                         </h:panelGroup>
@@ -63,11 +65,14 @@
                     </tr>
 
                     <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
-                        <tr style="vertical-align: top">
-                            <td><ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                                    <ui:param name="headers" value="#{testUnitsResults.testDataColumnDisplayNames}" />
-                                    <ui:param name="args" value="#{runAllTestsBean.paramDescriptions}" />
-                                </ui:include></td>
+                        <tr>
+                            <ui:repeat value="#{runAllTestsBean.paramDescriptions}" var="parameter">
+                            <td>
+                                <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{parameter}" />
+                                </ui:include>
+                            </td>
+                            </ui:repeat>
                             <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                                 <td><h:outputText value="#{runAllTestsBean.unitDescription}" /></td>
                             </h:panelGroup>
