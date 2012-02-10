@@ -68,9 +68,9 @@
             jsf.ajax.addOnError(function (data) {
                 if (typeof console != "undefined") console.error(data);
                 // @Deprecated
-                // TODO Create common mechanism to disable editing in UI when Excel file is opened.
+                // TODO Create mechanism to disable editing in UI when Excel file is opened.
                 if (data.errorMessage && data.errorMessage.indexOf(".xls") > -1) {
-                    alert("Failed to save changes. Please close project Excel file and try again.");
+                    alert("Failed to save changes. Please close module Excel file and try again.");
                     return;
                 }
                 handleError(data.responseCode);

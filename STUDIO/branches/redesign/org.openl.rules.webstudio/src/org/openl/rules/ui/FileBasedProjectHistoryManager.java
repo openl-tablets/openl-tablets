@@ -14,15 +14,18 @@ import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
-import org.openl.util.Log;
 import org.openl.util.file.FileStorage;
 
 /**
  * @author Andrei Astrouski
  */
 public class FileBasedProjectHistoryManager implements SourceHistoryManager<File> {
+
+    private static final Log LOG = LogFactory.getLog(FileBasedProjectHistoryManager.class);
 
     private ProjectModel projectModel;
     private FileStorage storage;
@@ -93,7 +96,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         return get((String[]) null);
     }
 
-    public boolean revert(long date) {
+    public void revert(long date) throws Exception {
         File fileToRevert = getPrev(date);
         if (fileToRevert != null) {
             File currentSourceFile = projectModel.getSourceByName(fileToRevert.getName());
@@ -102,14 +105,13 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 save(fileToRevert);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
-                Log.info("Project was reverted successfully");
+                LOG.info("Project was reverted successfully");
             } catch (Exception e) {
-                Log.error("Can't revert project at "
+                LOG.error("Can't revert project at "
                         + new SimpleDateFormat().format(new Date(date)));
+                throw e;
             }
-            return true;
         }
-        return false;
     }
 
 }

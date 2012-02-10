@@ -73,7 +73,7 @@ public class RevertProjectChangesBean {
         return model.getModuleSourceNames();
     }
 
-    public String revert() {
+    public String revert() throws Exception {
         String versionToRevertParam = FacesUtils.getRequestParameter("toRevert");
         long versionToRevert = Long.parseLong(versionToRevertParam);
 
