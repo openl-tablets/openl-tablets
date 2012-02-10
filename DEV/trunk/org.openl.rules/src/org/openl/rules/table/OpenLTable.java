@@ -66,8 +66,7 @@ public class OpenLTable implements IOpenLTable {
     public void setName(String name) {
         this.name = name;
     }
-
-    @Override
+  
     public String getTechnicalName() {
         return technicalName;
     }
@@ -96,7 +95,6 @@ public class OpenLTable implements IOpenLTable {
         return isVersionable;
     }
 
-    @Override
     public boolean isCanContainProperties() {
         return canContainProperties;
     }

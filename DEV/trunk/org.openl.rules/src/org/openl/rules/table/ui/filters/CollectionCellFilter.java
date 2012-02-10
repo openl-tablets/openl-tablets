@@ -9,7 +9,6 @@ import org.openl.util.formatters.IFormatter;
 
 public class CollectionCellFilter extends AGridFilter {
 
-	@Override
 	public FormattedCell filterFormat(FormattedCell cell) {
 		Object cellValue = cell.getObjectValue();
 		if (cellValue != null) {

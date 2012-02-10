@@ -355,7 +355,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         this.categoryPropertiesTable = categoryPropertiesTable;
     }
 
-    @Override
     public ILogicalTable getInheritedPropertiesTable(InheritanceLevel inheritanceLevel) {
     	if (InheritanceLevel.MODULE.equals(inheritanceLevel)) {
     		return modulePropertiesTable;

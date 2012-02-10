@@ -32,7 +32,6 @@ public class TableVersionComparator implements Comparator<ITableProperties> {
         return compare(first.getTableProperties(), second.getTableProperties());
     }
 
-    @Override
     public int compare(ITableProperties first, ITableProperties second) {
         if (first.getActive() != second.getActive()) {
             if (first.getActive()) {

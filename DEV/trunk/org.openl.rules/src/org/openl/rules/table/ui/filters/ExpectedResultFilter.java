@@ -18,7 +18,6 @@ public class ExpectedResultFilter extends AGridFilter {
         this.spreadsheetCellsForTest = new HashMap<Point, ComparedResult>(spreadsheetCellsForTest);
     }
 
-    @Override
     public FormattedCell filterFormat(FormattedCell cell) {
         Point cellCoordinates = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
         

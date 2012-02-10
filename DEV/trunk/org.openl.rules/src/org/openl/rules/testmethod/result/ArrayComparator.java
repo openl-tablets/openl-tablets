@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 
 public class ArrayComparator implements TestResultComparator {
 
-    @Override
     public boolean compareResult(Object actualResult, Object expectedResult) {
         int len = Array.getLength(actualResult);
         if (len != Array.getLength(expectedResult)) {
