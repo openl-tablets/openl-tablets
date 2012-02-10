@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.Date;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
@@ -38,6 +40,10 @@ public class ParameterTreeBuilder {
             root.addChild(param.getName(), treeNode);
         }
         return root;
+    }
+
+    public boolean isDateParameter(Object value) {
+        return value instanceof Date;
     }
 
 }

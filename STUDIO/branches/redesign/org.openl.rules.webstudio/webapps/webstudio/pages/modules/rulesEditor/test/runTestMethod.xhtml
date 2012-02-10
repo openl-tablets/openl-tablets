@@ -30,21 +30,25 @@
             <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
 
             <table class="testtable">
-                <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-                    <tr>
-                        <th>Input Parameters</th>
-                        <th>Result</th>
-                    </tr>
-                </h:panelGroup>
+                <tr>
+                    <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+                        <ui:repeat value="#{runTestMethodBean.testDescription.parametersNames}" var="parameterHeader">
+                            <th>#{parameterHeader}</th>
+                        </ui:repeat>
+                    </h:panelGroup>
+                    <th>Result</th>
+                </tr>
                 <a4j:repeat value="#{runTestMethodBean.results}" var="result" binding="#{runTestMethodBean.resultItems}">
                     <tr style="vertical-align: top">
-                        <td><h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-                                <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                                    <ui:param name="headers"
-                                        value="#{runTestMethodBean.testDescription.parametersNames}" />
-                                    <ui:param name="args" value="#{runTestMethodBean.testDescription.executionParams}" />
-                                </ui:include>
-                            </h:panelGroup></td>
+                        <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+                        <ui:repeat value="#{runTestMethodBean.testDescription.executionParams}" var="parameter">
+                        <td>
+                            <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+                                <ui:param name="parameter" value="#{parameter}" />
+                            </ui:include>
+                        </td>
+                        </ui:repeat>
+                        </h:panelGroup>
                         <td><c:set var="errors" value="#{runTestMethodBean.errors}" /> <h:panelGroup
                                 rendered="#{empty errors}">
                                 <h:outputText value="#{runTestMethodBean.stringResult}"

@@ -157,17 +157,19 @@
                         <c:set var="runLink"
                             value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}?uri=#{showTableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none">
-                            <table id="testTable" class="testtable" style="border: 1px solid white">
+                            <table id="testTable" class="testtable" style="margin: 2px 2px 1px 2px; border: 1px solid white">
                                 <ui:repeat var="test" value="#{showTableBean.tests}">
-                                <tr style="vertical-align: top">
+                                <tr>
                                     <td>
                                         <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" />
                                     </td>
+                                    <ui:repeat var="parameter" value="#{test.executionParams}">
                                     <td>
-                                        <ui:include src="/pages/modules/rulesEditor/test/showTestCase.xhtml">
-                                            <ui:param name="args" value="#{test.executionParams}" />
+                                        <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+                                            <ui:param name="parameter" value="#{parameter}" />
                                         </ui:include>
                                     </td>
+                                    </ui:repeat>
                                 </tr>
                                 </ui:repeat>
                             </table>
