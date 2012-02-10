@@ -50,7 +50,10 @@
 
   <script>
     function showAddDeployEntry() {
-      document.getElementById('addDeployEntryForm:projectName').onchange();
+      var projectSelector = document.getElementById('addDeployEntryForm:projectName');
+      if(projectSelector){
+    	projectSelector.onchange();  
+      }
       RichFaces.$('addDeployEntry').show();
     }
   </script>
