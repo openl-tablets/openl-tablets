@@ -508,8 +508,8 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
-            adjustSize(popupId, 'content');
             showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
+            adjustSize(popupId, 'content');
         }
 
         function search() {
