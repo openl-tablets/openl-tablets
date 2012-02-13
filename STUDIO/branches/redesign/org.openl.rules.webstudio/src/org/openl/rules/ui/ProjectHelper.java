@@ -9,9 +9,11 @@ import java.util.List;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.MethodDelegator;
 
 /**
  * @author snshor
@@ -47,11 +49,7 @@ public class ProjectHelper {
     }
 
     public static boolean isMethodTestedBy(IOpenMethod tested, IOpenMethod tester) {
-        if (!(tester instanceof TestSuiteMethod)) {
-            return false;
-        }
-        IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
-        return toTest == tested && isTester(tester);
+        return isTester(tester) && isTestForMethod(tester, tested);
     }
 
     public static boolean isMethodHasParams(IOpenMethod m) {
@@ -151,7 +149,18 @@ public class ProjectHelper {
             return false;
         }
         IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
-        return toTest == tested;
+        if(toTest == tested){
+            return true;
+        }
+        if(toTest instanceof OpenMethodDispatcher){
+            if(((OpenMethodDispatcher)toTest).getCandidates().contains(tested)){
+                return true;
+            }
+        }
+        if(tested instanceof MethodDelegator){
+            return isTestForMethod(tester, ((MethodDelegator)tested).getMethod());
+        }
+        return false;
     }
     
     public static String createTestName(IOpenMethod testMethod) {
