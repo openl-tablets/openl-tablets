@@ -1,0 +1,12 @@
+void main(String[] args)
+{
+	MyCustomer cust = MyCustomer.load("src/xml/MyCustomer.xml");	
+	
+	System.out.println("Customer "+cust.name+" has "+cust.child.length+" children:");	
+	for(int i=0; i<cust.child.length; i++)
+	{
+	  MyCustomer.child c=cust.child[i];
+	  System.out.println(c.name+" Age="+c.age+" Gender="+c.gender);	
+	}
+}
+
