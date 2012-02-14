@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <style>
+        html, body {
+            overflow: hidden;
+        }
+        .view_toolbar {
+            padding: 0 3px;
+        }
+        .view_workspace {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding: 5px 0 2px;
+        }
+    </style>
+
+    <h:outputScript name="jquery.js" />
+
+    <div>
+        <div class="view_toolbar">
+            <ui:insert name="toolbar" />
+        </div>
+    
+        <div class="view_workspace">
+            <ui:insert name="workspace" />
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function setViewDimensions() {
+            $(".view_workspace").each(function() {
+                $(this).css({
+                    "width": $(window).width() - 9 + "px",
+                    "height": $(window).height() - $(this).prev(".view_toolbar").height() - 50 + "px"
+                });
+            });
+        }
+
+        setViewDimensions();
+
+        window.onresize = function(e) {
+            setViewDimensions();
+        }
+    </script>
+
+</ui:composition>

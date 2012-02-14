@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+  <h:head>
+    <link href="#{contextPath}/css/openl/style1.css" rel="stylesheet" type="text/css"></link>
+    <script src="#{contextPath}/javascript/common.js" type="text/javascript" ></script>
+
+    <style>
+      table.standard { border-bottom: 1px solid #{richSkin.headerBackgroundColor}; }
+      table.standard td { border-right-color: #{richSkin.generalBackgroundColor}; }
+      table.standard thead td { border-top-color: #{richSkin.headerBackgroundColor}; color: #{richSkin.headerTextColor}; border-right-color: #{richSkin.generalBackgroundColor}; }
+    </style>
+    <title>
+        <ui:insert name="title">OpenL Tablets WebStudio</ui:insert>
+    </title>
+  </h:head>
+
+  <h:body>
+    <ui:include src="/facelets/common/header.xhtml" />
+    <ui:insert name="page" />
+
+    <ui:insert name="special" />
+  </h:body>
+</html>
