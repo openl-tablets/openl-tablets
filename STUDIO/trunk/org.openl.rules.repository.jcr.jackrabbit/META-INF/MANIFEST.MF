@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Repository JackRabbit Jcr implementation
 Bundle-SymbolicName: org.openl.rules.repository.jcr.jackrabbit;singleton:=true
-Bundle-Version: 5.8.2
+Bundle-Version: 5.9.0
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.repository.jcr;visibility:=reexport,
