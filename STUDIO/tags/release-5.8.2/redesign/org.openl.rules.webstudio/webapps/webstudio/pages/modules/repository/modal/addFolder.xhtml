@@ -1,0 +1,38 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalNewFolder" width="400" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Add Folder" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('modalNewFolder').hide();" alt="Close" />
+    </f:facet>
+
+    <h:form id="newFolderForm">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputLabel for="folderName" styleClass="required" value="Folder Name" />
+        <h:inputText id="folderName" size="40" maxlength="50" value="#{repositoryTreeController.folderName}" />
+      </h:panelGrid>
+
+      <hr />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton value="Add" action="#{repositoryTreeController.addFolder}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalNewFolder')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+  </rich:popupPanel>
+
+  <script>
+    function openNewFolderDialog() {
+      RichFaces.$('modalNewFolder').show();
+      focusElement("newFolderForm:folderName");
+    }
+  </script>
+</ui:composition>
