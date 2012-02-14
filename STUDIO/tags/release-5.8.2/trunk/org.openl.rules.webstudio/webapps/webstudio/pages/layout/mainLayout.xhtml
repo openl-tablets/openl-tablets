@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
+
+    <h:head>
+        #{mainBean.init}
+
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+        <link href="#{contextPath}/css/common.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
+
+        <script src="#{contextPath}/javascript/common.js"></script>
+
+        <script src="#{contextPath}/javascript/jquery-1.7.1.min.js"></script>
+        <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
+        <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
+        <script src="#{contextPath}/javascript/jquery.popup.js"></script>
+        <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
+        <h:outputScript name="jsf.js" library="javax.faces" />
+
+        <script>
+          //<![CDATA[
+            var HOME_PAGE = "home.xhtml";
+
+            var $j = $.noConflict();
+
+            $j.ajaxSetup({
+                cache: false,
+                // Handle jQuery AJAX errors
+                error: function(response, message, error) {
+                    handleError(response.status);
+                }
+            });
+
+            // Fix Mojarra bug. Make rerendered forms work.
+            // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
+            jsf.ajax.addOnEvent(function (data) {
+                if (data.status === "success") {
+                    var viewState = $j("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML);
+                    if (viewState.length) {
+                        $j("partial-response:first changes:first update[id != 'javax.faces.ViewState']", data.responseXML).each(function (i, u) {
+                            $j("form", document.getElementById(u.getAttribute("id"))).each(function (i, f) {
+                                var field = $j("input[name='javax.faces.ViewState']", f);
+                                if (!field.length) {
+                                    field = $j("<input type=\"hidden\" name=\"javax.faces.ViewState\" />").appendTo(f);
+                                }
+                                field.val(viewState.text());
+                            });
+                        });
+                    }
+                }
+            });
+
+            // Handle JSF / Richfaces AJAX errors
+            jsf.ajax.addOnError(function (data) {
+                if (typeof console != "undefined") console.error(data);
+                // @Deprecated
+                // TODO Create mechanism to disable editing in UI when Excel file is opened.
+                if (data.errorMessage && data.errorMessage.indexOf(".xls") > -1) {
+                    alert("Failed to save changes. Please close module Excel file and try again.");
+                    return;
+                }
+                handleError(data.responseCode);
+            });
+
+            var urlRewrite = {
+                prefix: "#{rulesEditor}/"
+            }
+
+            $j(window).bind("hashchange", function() {
+                loadContent(getCurrentPage());
+            });
+
+            var mainLayout;
+            var centerLayout;
+
+            $j(function () {
+                setLayoutDimensions();
+
+                $j(window).resize(function() {
+                    setLayoutDimensions();
+                });
+
+                mainLayout = $j("#center").layout({
+                    spacing_open: 1,
+                    west__size: 230,
+                    east__size: 230,
+                    east__initHidden: true
+                });
+
+                centerLayout = $j("#center .ui-layout-center").layout({
+                    spacing_open: 1,
+                    south__size: 110
+                });
+
+                loadContent();
+
+                $j("body").css({"visibility": "visible"});
+
+                $j("a[target='content']").live("click", function() {
+                    var page = $j(this).attr("href");
+                    goTo(page);
+                    return false;
+                });
+            });
+
+            function toggleProblems(show) {
+                if (show) {
+                    centerLayout.show("south");
+                } else {
+                    centerLayout.hide("south");
+                }
+            }
+
+            function handleError(code) {
+                if (code == 399) { // Session Timeout
+                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else if (code == 404) { // File Not Found
+                    alert("Sorry! Page Not Found!");
+                } else {
+                    alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
+                }
+            }
+
+            function goTo(page, reload) {
+                if (page) {
+                    page = page.replace(urlRewrite.prefix, "");
+                    if (decodeURIComponent(location.hash) == ("#" + decodeURIComponent(page))) {
+                        reloadCurrent();
+                    } else {
+                        location.hash = page;
+                    }
+                }
+
+                if (reload) {
+                    reloadTop();
+                    reloadLeft();
+                    reloadBottom();
+                }
+            }
+
+            function goHome() {
+                loadContent(urlRewrite.prefix + HOME_PAGE);
+            }
+
+            function reloadCurrent() {
+                reloadTop();
+                reloadLeft();
+                reloadBottom();
+                loadContent();
+            }
+
+            function reloadTop() {
+                $j("#top").load(urlRewrite.prefix + "topPanel.xhtml");
+            }
+
+            function reloadLeft() {
+                $j("#left").load(urlRewrite.prefix + "leftPanel.xhtml", function() {
+                    reopenLeftPanel();
+                });
+            }
+
+            function reloadBottom() {
+                $j("#bottom").load(urlRewrite.prefix + "bottomPanel.xhtml");
+            }
+
+            function getCurrentPage() {
+                if (location.hash) {
+                    var page = location.href.split("#")[1];
+                    if (page && page.indexOf(urlRewrite.prefix) < 0) {
+                        page = urlRewrite.prefix + page;
+                    }
+                    return page;
+                }
+            }
+
+            function loadContent(page) {
+                var page = page || getCurrentPage();
+
+                if (page) {
+                    $j("#content").load(page);
+
+                    if (page.indexOf(HOME_PAGE) > -1) {
+                        toProjectsPanel();
+                        reloadTop();
+                        $j("#rulesTree, #problemsTree").hide();
+                        toggleProblems(false);
+                    } else {
+                        toggleProblems(true);
+
+                        var header;
+                        if (page.indexOf("module.xhtml") > -1) {
+                            var headerParts = page.split("?")[1].split("/");
+                            header = decodeURIComponent(headerParts[0] + " > " + headerParts[1]);
+                        }
+                        toRulesPanel(header);
+                    }
+
+                    if (page.indexOf("showTable.xhtml") > -1) {
+                        mainLayout.show("east");
+                        $j("#tableProperties").load(
+                                urlRewrite.prefix + "tableProperties.xhtml?"
+                                + page.split("?")[1]);
+                        openTreeNode(page);
+                    } else {
+                        mainLayout.hide("east");
+                    }
+                } else {
+                    goHome();
+                }
+            }
+
+            function openTreeNode(page) {
+                var page = page || getCurrentPage();
+
+                if (page && page.indexOf("showTable.xhtml") > -1) {
+                    var tableId = page.split("uri=")[1].split("&")[0];
+                    var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
+                    if (tableLink.length) { // Firefox has bug with decoding url after refresh
+                        // Expand nodes
+                        tableLink.parents(".rf-tr-nd-colps").each(function() {
+                            var node = $j(this);
+                            node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
+                            node.find(".rf-trn-hnd-colps").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                        });
+                        // Select node
+                        $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");
+                        tableLink.closest(".rf-trn-cnt").addClass("rf-trn-sel");
+    
+                        /*tableLink.closest(".view_workspace").animate({
+                            scrollTop: tableLink.offset().top
+                        });*/
+                    }
+                }
+            }
+
+            var NAVI_HEADER_ITEM = "naviHeader";
+
+            function toProjectsPanel() {
+                sessionStorage.removeItem(NAVI_HEADER_ITEM);
+                $j("#navigationHeader").text("Projects");
+                $j("#navigationHeader").removeAttr("title");
+
+                $j("#projectsTreePanel").show();
+                $j("#rulesTreePanel").hide();
+            }
+
+            function toRulesPanel(header) {
+                if (!header) {
+                    header = sessionStorage.getItem(NAVI_HEADER_ITEM);
+                } 
+                if (header) {
+                    sessionStorage.setItem(NAVI_HEADER_ITEM, header);
+                    $j("#navigationHeader").text(header);
+                    $j("#navigationHeader").attr("title", header);    
+                }
+
+                $j("#projectsTreePanel").hide();
+                $j("#rulesTreePanel").show();
+            }
+
+            function reopenLeftPanel() {
+                if (sessionStorage.getItem(NAVI_HEADER_ITEM)) {
+                    toRulesPanel();
+                } else {
+                    toProjectsPanel();
+                }
+            }
+
+            function setLayoutDimensions() {
+                $j("#center").css({
+                   "height": $j(this).outerHeight()
+                       - $j("#header").outerHeight()
+                       - $j("#top").outerHeight()
+                       - $j("#footer").outerHeight()
+                });
+            }
+
+            /*function setViewDimensions() {
+                $j(".view_workspace").each(function() {
+                    $j(this).css({
+                        "height": $j(this).closest(".ui-layout").outerHeight()
+                            - $j(this).prev(".view_toolbar").outerHeight() - 30
+                    });
+                });
+            }*/
+
+            function showLoader() {
+                $j('#loadingPanel').show();
+            }
+
+            function hideLoader() {
+                $j('#loadingPanel').hide();
+            }
+
+            function showPopupMenu(event, popupId, elem, params) {
+                elem = $j(elem);
+                var elemPos = elem.position();
+
+                event.stopPropagation();
+
+                var left = elemPos.left + ((params && params.offsetLeft) || 0);
+                var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
+
+                $j("#" + popupId).popup({
+                    left: left,
+                    top : top
+                });
+            }
+          //]]>
+        </script>
+
+        <title>
+            <ui:insert name="title">OpenL Tablets WebStudio</ui:insert>
+        </title>
+    </h:head>
+
+    <h:body style="visibility: hidden">
+        <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
+
+        <div id="header">
+            <ui:insert name="header">
+                <ui:include src="/pages/common/header.xhtml">
+                    <ui:param name="menu" value="rules" />
+                </ui:include>
+            </ui:insert>
+        </div>
+
+        <div id="top">
+            <ui:insert name="top">
+                <ui:include src="/pages/modules/rulesEditor/topPanel.xhtml" />
+            </ui:insert>
+        </div>
+
+        <div id="center">
+            <h:panelGroup id="left" class="ui-layout-west" layout="block">
+                <ui:insert name="left">
+                    <ui:include src="/pages/modules/rulesEditor/leftPanel.xhtml" />
+                </ui:insert>
+            </h:panelGroup>
+            <h:panelGroup class="ui-layout-center" layout="block">
+                <h:panelGroup id="content" class="ui-layout-center" layout="block">
+                    <ui:insert name="content" />
+                </h:panelGroup>
+                <h:panelGroup id="bottom" class="ui-layout-south" layout="block">
+                    <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
+                </h:panelGroup>
+            </h:panelGroup>
+            <h:panelGroup id="right" class="ui-layout-east" layout="block">
+                <ui:insert name="right">
+                    <ui:include src="/pages/modules/rulesEditor/rightPanel.xhtml" />
+                </ui:insert>
+            </h:panelGroup>
+        </div>
+
+        <div id="footer">
+            <ui:insert name="footer">
+                <ui:include src="/pages/common/footer.xhtml" />
+            </ui:insert>
+        </div>
+
+        <div id="loadingPanel" style="display: none">
+            <img src="webresource/images/ajax-loader.gif" />
+        </div>
+
+        <div style="display: none">
+            <a4j:status onstart="showLoader()" onstop="hideLoader()" />
+
+            <iframe src="#{contextPath}/faces/pages/modules/rulesEditor/sourceModified.xhtml" width="0" height="0" />
+            <iframe name="hidden" width="0" height="0" />
+
+            <!-- Init RichFaces resources -->
+            <rich:popupPanel />
+            <rich:calendar />
+            <rich:inputNumberSpinner />
+            <rich:dataTable />
+         </div>
+
+    </h:body>
+</html>

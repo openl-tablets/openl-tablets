@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <script>
+        function open_explain_win(url) {
+           window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
+               + '&amp;title=Explanation&amp;treePage=faces/pages/modules/rulesEditor/explain/explain.xhtml&amp;mainPage=faces/pages/modules/rulesEditor/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+        }
+    </script>
+
+    <h:panelGroup rendered="#{runAllTestsBean.numberOfTests > 1}">
+    <div class="view_header">
+        <h:outputText value="Number of Tests: " />
+        <h:panelGroup>
+            <h:outputText value="#{runAllTestsBean.numberOfTests}" />
+            <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests} failed)"
+                rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
+                style="color: red" />
+        </h:panelGroup>
+    </div>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{runAllTestsBean.numberOfTests le 1 and not empty runAllTestsBean.testedTableUri}">
+    <div class="view_header">
+        <h:outputText value="Results of running "/>
+        <h:outputLink value="showTable.xhtml" target="content">
+            <f:param name="uri" value="#{runAllTestsBean.testedTableUri}" />
+            <h:outputText value="#{runAllTestsBean.testedTableName}" />
+        </h:outputLink>
+    </div>
+    </h:panelGroup>
+
+    <div class="content">
+        <h:outputText value="View expired. Test data is no more available." rendered="#{runAllTestsBean.expired}" />
+
+        <h:panelGroup rendered="#{not runAllTestsBean.expired}">
+            <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
+                <h1>
+                    <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml"
+                        target="content" style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
+                        <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
+                        <h:outputText value="#{runAllTestsBean.getTestTableName(testUnitsResults)}" />
+                    </h:outputLink>
+                </h1>
+                <table class="testtable">
+                    <tr>
+                        <ui:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="parameterHeader">
+                            <th>#{parameterHeader}</th>
+                        </ui:repeat>
+                        <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                            <th><h:outputText value="Description" /></th>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
+                            <th><h:outputText value="Expected" /></th>
+                        </h:panelGroup>
+                        <th>Result</th>
+
+                    </tr>
+
+                    <a4j:repeat value="#{testUnitsResults.testUnits}" binding="#{runAllTestsBean.testItems}">
+                        <tr>
+                            <ui:repeat value="#{runAllTestsBean.paramDescriptions}" var="parameter">
+                            <td>
+                                <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{parameter}" />
+                                </ui:include>
+                            </td>
+                            </ui:repeat>
+                            <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                                <td><h:outputText value="#{runAllTestsBean.unitDescription}" /></td>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
+                                <td><h:outputText value="#{runAllTestsBean.formattedExpected}"
+                                        rendered="#{empty runAllTestsBean.explanationValueExpected}" /> <h:outputLink
+                                        value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
+                                        rendered="#{not empty runAllTestsBean.explanationValueExpected}">
+                                        <h:outputText value="#{runAllTestsBean.formattedExplanationValueExpected}" />
+                                    </h:outputLink></td>
+                            </h:panelGroup>
+                            <td><h:panelGroup
+                                    rendered="#{runAllTestsBean.compareResult == 0 or runAllTestsBean.compareResult == 1}">
+                                    <h:graphicImage value="webresource/images/ok.png"
+                                        rendered="#{runAllTestsBean.compareResult == 0}" />
+                                    <h:graphicImage value="webresource/images/error.png"
+                                        rendered="#{runAllTestsBean.compareResult == 1}" />
+                                    <h:outputText value=" " />
+                                    <h:outputText value="#{runAllTestsBean.formattedActualResult}"
+                                        rendered="#{empty runAllTestsBean.explanationValueActual and empty runAllTestsBean.spreadsheetResult}" />
+                                    <h:outputLink
+                                        value="javascript: open_explain_win('?rootID=#{runAllTestsBean.actualExplanatorId}&amp;header=Explanation')"
+                                        rendered="#{not empty runAllTestsBean.explanationValueActual}">
+                                        <h:outputText value="#{runAllTestsBean.formattedExplanationValueActual}" />
+                                    </h:outputLink>
+                                    <h:outputText rendered="#{not empty runAllTestsBean.spreadsheetResult}"
+                                        value="#{runAllTestsBean.formattedSpreadsheetResult}" escape="false" />
+                                </h:panelGroup> <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
+                                    <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
+                                        <ui:param name="messages" value="#{runAllTestsBean.errors}" />
+                                        <ui:param name="editable" value="#{studio.model.editable}" />
+                                    </ui:include>
+                                </h:panelGroup></td>
+                        </tr>
+                    </a4j:repeat>
+                </table>
+            </ui:repeat>
+        </h:panelGroup>
+    </div>
+
+</ui:composition>
