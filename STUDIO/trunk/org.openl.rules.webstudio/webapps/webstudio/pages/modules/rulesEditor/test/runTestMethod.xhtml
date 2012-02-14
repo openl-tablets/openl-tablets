@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <script>
+        function open_explain_win(url) {
+           window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
+               + '&amp;title=Explanation&amp;treePage=faces/pages/modules/rulesEditor/explain/explain.xhtml&amp;mainPage=faces/pages/modules/rulesEditor/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+        }
+    </script>
+
+    <div class="view_header">
+        <h:outputText value="Results of running "/>
+        <h:outputLink value="showTable.xhtml" target="content">
+            <f:param name="uri" value="#{runTestMethodBean.uri}" />
+            <h:outputText value="#{runTestMethodBean.tableName}" />
+        </h:outputLink>
+    </div>
+    <div class="content">
+        <h:outputText value="View expired. Test data is no more available." rendered="#{runTestMethodBean.expired}" />
+
+        <h:panelGroup rendered="#{not runTestMethodBean.expired}">
+            <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
+
+            <table class="testtable">
+                <tr>
+                    <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+                        <ui:repeat value="#{runTestMethodBean.testDescription.parametersNames}" var="parameterHeader">
+                            <th>#{parameterHeader}</th>
+                        </ui:repeat>
+                    </h:panelGroup>
+                    <th>Result</th>
+                </tr>
+                <a4j:repeat value="#{runTestMethodBean.results}" var="result" binding="#{runTestMethodBean.resultItems}">
+                    <tr style="vertical-align: top">
+                        <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
+                        <ui:repeat value="#{runTestMethodBean.testDescription.executionParams}" var="parameter">
+                        <td>
+                            <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+                                <ui:param name="parameter" value="#{parameter}" />
+                            </ui:include>
+                        </td>
+                        </ui:repeat>
+                        </h:panelGroup>
+                        <td><c:set var="errors" value="#{runTestMethodBean.errors}" /> <h:panelGroup
+                                rendered="#{empty errors}">
+                                <h:outputText value="#{runTestMethodBean.stringResult}"
+                                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />
+                                <h:outputLink
+                                    value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
+                                    rendered="#{not empty runTestMethodBean.explanationValueResult}">
+                                    <h:outputText value="#{runTestMethodBean.formattedExplanationValueResult}" />
+                                </h:outputLink>
+                                <h:outputText rendered="#{not empty runTestMethodBean.spreadsheetResult}"
+                                    value="#{runTestMethodBean.formattedSpreadsheetResult}" escape="false" />
+                                <br />
+                            </h:panelGroup> <h:panelGroup rendered="#{not empty errors}">
+                                <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
+                                    <ui:param name="messages" value="#{errors}" />
+                                    <ui:param name="editable" value="#{studio.model.editable}" />
+                                </ui:include>
+                            </h:panelGroup></td>
+                    </tr>
+                </a4j:repeat>
+            </table>
+        </h:panelGroup>
+
+    </div>
+
+</ui:composition>
