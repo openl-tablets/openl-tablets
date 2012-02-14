@@ -68,4 +68,20 @@ public class DoubleRangeParsingTest {
     	assertTrue(range1.contains(1));
     	assertTrue(range1.contains(15));
     }
+    
+    @Test
+    public void testLiteralPreffixes(){
+        assertEquals(new DoubleRange("less than 10"), new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.EXCLUDING));
+        assertEquals(new DoubleRange("less than 5"), new DoubleRange("<5"));
+        assertEquals(new DoubleRange("more than 10"), new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING));
+        assertEquals(new DoubleRange("more than 5"), new DoubleRange(">5"));
+    }
+
+    @Test
+    public void testLiteralSuffixes(){
+        assertEquals(new DoubleRange("10 or less"), new DoubleRange(Double.NEGATIVE_INFINITY, 10, BoundType.INCLUDING, BoundType.INCLUDING));
+        assertEquals(new DoubleRange("5 or less"), new DoubleRange("<=5"));
+        assertEquals(new DoubleRange("10 and more"), new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
+        assertEquals(new DoubleRange("5 and more"), new DoubleRange(">=5"));
+    }
 }
