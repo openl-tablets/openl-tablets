@@ -11,16 +11,16 @@
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
-  <version>5.8.2-SNAPSHOT</version>
+  <version>5.8.2</version>
   <packaging>pom</packaging>
   <name>OpenL - STUDIO</name>
   <description>OpenL WebStudio Pom Project</description>
   <url>http://openl-tablets.sf.net/</url>
 
   <scm>
-    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/redesign</connection>
-    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/branches/redesign</developerConnection>
-    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/tags/release-5.8.2/redesign</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/STUDIO/tags/release-5.8.2/redesign</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.8.2/openl-tablets</url>
   </scm>
 
   <modules>
