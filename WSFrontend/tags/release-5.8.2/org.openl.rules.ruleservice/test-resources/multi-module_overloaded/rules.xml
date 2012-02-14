@@ -1,0 +1,18 @@
+<project>
+	<id>multi-module_overloaded</id>
+	<name>Multi module overloading test</name>
+
+	<!-- OpenL project includes one or more modules.  -->
+	<modules>
+
+		<module>
+			<name>CA_AUTO_21102010_21112011</name>
+			<type>api</type>
+			<!-- 
+				Rules root document. Usually excel file on file system. 
+			-->
+			<rules-root path="project*/Module*.xlsx"/>
+
+		</module>	
+	</modules>
+</project>
