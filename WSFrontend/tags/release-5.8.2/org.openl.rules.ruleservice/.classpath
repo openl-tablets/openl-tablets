@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="rules-production.properties" kind="src" path="src"/>
+	<classpathentry kind="src" path="conf_test"/>
+	<classpathentry excluding="ehcache.xml|rules-production.properties" kind="src" path="conf"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-test/3.0.5.RELEASE/spring-test-3.0.5.RELEASE.jar "/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.5/junit-4.5.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
