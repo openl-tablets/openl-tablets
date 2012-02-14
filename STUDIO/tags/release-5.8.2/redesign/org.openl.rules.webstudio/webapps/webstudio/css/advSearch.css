@@ -1,0 +1,54 @@
+td.search-group {
+  font-family: arial, sans-serif;
+  background-color: #ffeeee;
+}
+
+select.search-group {
+  font-family: arial, sans-serif;
+  font-size: 120%;
+}
+
+.searchResults {
+  background-color:#cbdd34;
+  vertical-align:top;
+  padding:5px;
+  font-family: arial, sans-serif;
+  font-size: 90%;
+}
+
+.searchResults ul {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.searchResults ul li {
+  margin:5px;
+  list-style:none;
+}
+
+.search-element {
+  font-family: arial, sans-serif;
+  font-size: 90%;
+  background-color: white;
+}
+
+th.search {
+  font-family: arial, sans-serif;
+  font-size: 90%;
+  color: #8B4513;
+}
+
+input.search-empty {
+  font-family: arial, sans-serif;
+  font-size: 90%;
+  font-style: italic;
+  color: lightgray;
+}
+
+input.search {
+  font-family: arial, sans-serif;
+  font-size: 90%;
+  font-weight: bold;
+  color: red;
+}

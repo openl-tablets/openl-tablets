@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Add alias values</ui:define>
+
+    <ui:define name="data">
+        <style>
+            .addButton {
+                background: url(#{contextPath}/webresource/images/add_obj.gif) no-repeat 2px;
+                padding: 3px 5px 3px 21px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
+        </style>
+
+        <h:form>
+            <a4j:commandLink action="#{wizard.addValue}"
+                render="valuesTable" title="Add more" styleClass="addButton">
+                <h:outputText value="Add Value" />
+            </a4j:commandLink>
+
+            <br />
+            <br />
+
+            <h:dataTable id="valuesTable" value="#{wizard.values}" var="value"
+                binding="#{wizard.valuesTable}">
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="Values" />
+                    </f:facet>
+                    <h:inputText id="vname" value="#{value.value}" />
+                </h:column>
+
+                <h:column>
+                    <a4j:commandLink action="#{wizard.removeValue}"
+                        render="valuesTable" execute="@this"
+                        title="Remove Value" style="margin-left: 5px;">
+                        <h:graphicImage value="/images/delete.gif" />
+                    </a4j:commandLink>
+                    <a4j:outputPanel ajaxRendered="true">
+                        <h:message for="vname" errorClass="error" style="margin-left: 5px;" />
+                    </a4j:outputPanel>
+                </h:column>
+            </h:dataTable>
+
+            <br />
+            <hr />
+
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('datatypeAlias/step2.xhtml')" />
+            <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
+                data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) go('datatypeAlias/step4.xhtml')" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
+        </h:form>
+
+  </ui:define>
+
+</ui:composition>
