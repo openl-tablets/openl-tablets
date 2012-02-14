@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <c:set var="contextPath" value="#{request.contextPath}" />
+
+    <h:head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+        <link href="#{contextPath}/css/common.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/layout/simple.css" rel="stylesheet" />
+        <script src="#{contextPath}/javascript/common.js"></script>
+        <h:outputScript name="jquery.js" />
+        <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
+
+        <script>
+            var $j = $.noConflict();
+            $j(document).ready(function () {
+                $j('body').layout();
+            });
+        </script>
+
+        <title>
+            <ui:insert name="title">OpenL Tablets WebStudio</ui:insert>
+        </title>
+    </h:head>
+
+    <h:body>
+        <div id="header" class="ui-layout-north">
+            <ui:insert name="header">
+                <ui:include src="/pages/common/simpleHeader.xhtml" />
+            </ui:insert>
+        </div>
+        <div id="content" class="ui-layout-center">
+            <ui:insert name="content" />
+        </div>
+        <div id="footer" class="ui-layout-south">
+            <ui:insert name="footer">
+                <ui:include src="/pages/common/footer.xhtml" />
+            </ui:insert>
+        </div>
+    </h:body>
+</html>

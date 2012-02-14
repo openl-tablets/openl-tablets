@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Select scope</ui:define>
+
+    <ui:define name="data">
+        <style>
+            #categoryNameModule table tr {
+                 vertical-align: top;
+            }
+        </style>
+
+        <h:form prependId="false">
+            <h:panelGrid columns="2" cellspacing="5">
+                <h:outputText value="Scope" styleClass="required2" />
+                <h:selectOneMenu id="scopeType" value="#{wizard.scopeType}"
+                    onchange="updateCategoryNameModule()">
+                    <f:selectItems value="#{wizard.scopeTypes}" />
+                </h:selectOneMenu>
+            </h:panelGrid>
+
+            <br/>
+
+            <fieldset id="categoryNameModule" style="display: none;">
+                <legend>Category Name</legend>
+                <h:panelGrid columns="2">
+                    <h:selectOneRadio id="categoryNameSelector" value="#{wizard.categoryNameSelector}"
+                        layout="pageDirection" onchange="updateCategoryNameControls()">
+                        <f:selectItem itemValue="existing" itemLabel="Existing" />
+                        <f:selectItem itemValue="new" itemLabel="New" />
+                        <f:selectItem itemValue="sheetName" itemLabel="As sheet name" />
+                    </h:selectOneRadio>
+                    <h:panelGrid columns="2">
+                        <h:selectOneMenu id="categoryNamesList" value="#{wizard.categoryName}">
+                            <f:selectItems value="#{wizard.categoryNamesList}" />
+                        </h:selectOneMenu>
+                        <h:outputText value="" />
+                        <h:inputText id="newCategoryName" value="#{wizard.newCategoryName}" />
+                        <a4j:outputPanel ajaxRendered="true">
+                            <h:message for="newCategoryName" styleClass="error" />
+                        </a4j:outputPanel>
+                    </h:panelGrid>
+                </h:panelGrid>
+            </fieldset>
+
+            <hr />
+            <br />
+
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('step0.xhtml')" />
+            <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
+                data="#{facesContext.maximumSeverity}" oncomplete="if(!event.data) go('property/step2.xhtml')" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
+        </h:form>
+
+    <script>
+      function updateCategoryNameModule() {
+          var scopeType = $j('#scopeType').val();
+          var categoryNameModule = $j('#categoryNameModule');
+          if (scopeType == 'Category') {
+              categoryNameModule.show();
+          } else {
+              categoryNameModule.hide();
+              $j('#newCategoryName').attr("disabled", true);
+          }
+      }
+
+      function updateCategoryNameControls() {
+          var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
+          $j('#categoryNamesList').attr("disabled", selectorCheckedValue != 'existing');
+          $j('#newCategoryName').attr("disabled", selectorCheckedValue != 'new');
+      }
+
+      updateCategoryNameModule();
+      updateCategoryNameControls();
+    </script>
+
+    </ui:define>
+
+</ui:composition>
