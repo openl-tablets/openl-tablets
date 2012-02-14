@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<facelet-taglib
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facelettaglibary_2_0.xsd"
+    version="2.0">
+
+    <namespace>http://openl-tablets.sourceforge.net/jsf</namespace>
+
+    <tag>
+        <tag-name>tableViewer</tag-name>
+        <component>
+            <component-type>org.openl.rules.tableeditor.TableViewer</component-type>
+            <renderer-type>org.openl.rules.tableeditor.TableViewer</renderer-type>
+        </component>
+    </tag>
+
+    <tag>
+        <tag-name>tableEditor</tag-name>
+        <component>
+            <component-type>org.openl.rules.tableeditor.TableEditor</component-type>
+            <renderer-type>org.openl.rules.tableeditor.TableEditor</renderer-type>
+        </component>
+    </tag>
+
+</facelet-taglib>

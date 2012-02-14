@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <div class="view_header">Search Results</div>
+
+    <div id="searchResults" class="content">
+        <h:outputText value="No results found" rendered="#{empty simpleSearchBean.searchResults}"
+            style="font-weight: bold" />
+        <h:panelGroup rendered="#{not empty simpleSearchBean.searchResults}">
+            <a4j:repeat var="sr" value="#{simpleSearchBean.searchResults}"
+                binding="#{simpleSearchBean.searchResultsData}">
+
+                <c:set var="uri" value="#{sr[0]}" />
+                <c:set var="result" value="#{sr[1]}" />
+
+                <table style="width: 80%">
+                    <h:panelGroup rendered="#{simpleSearchBean.xlsFile and !simpleSearchBean.canViewTable}">
+                    <tr>
+                        <td style="width: 16px">
+                            <h:graphicImage url="/webresource/images/viewTable.gif" />
+                        </td>
+                        <td style="vertical-align: top">
+                            <h:outputLink title="View Table" value="showTable.xhtml" target="content">
+                                <f:param name="uri" value="#{uri}" />
+                                <h:outputText value="View Table" />
+                            </h:outputLink>
+                        </td>
+                    </tr>
+                    </h:panelGroup>
+                    <tr>
+                        <td style="width: 16px">
+                            <h:graphicImage url="/webresource/images/excel.png" rendered="#{simpleSearchBean.xlsFile}" />
+                            <h:graphicImage url="/webresource/images/word.png" rendered="#{simpleSearchBean.docFile}" />
+                        </td>
+                        <td style="vertical-align: top">
+                            <h:outputText value="#{simpleSearchBean.fileHeader}"
+                                rendered="#{!studio.model.editable and !simpleSearchBean.canViewTable}" />
+                            <h:outputLink value="#{contextPath}/action/launch" target="hidden" title="View Result"
+                                rendered="#{studio.model.editable or simpleSearchBean.canViewTable}">
+                                <f:param name="uri" value="#{uri}" />
+                                <h:outputText value="#{simpleSearchBean.fileHeader}" />
+                            </h:outputLink>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td />
+                        <td>
+                            <h:outputText value="#{result}" escape="false" />
+                        </td>
+                    </tr>
+                </table>
+                <p />
+            </a4j:repeat>
+        </h:panelGroup>
+    </div>
+
+</ui:composition>
