@@ -1,18 +1,17 @@
 <!-- This file is for releasing OpenL version with maven-release-plugin -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openl.rules</groupId>
 	<artifactId>openl-poi-lib-svn-pom</artifactId>
 	<packaging>pom</packaging>
-	<version>5.8.2-SNAPSHOT</version>
+	<version>5.8.2</version>
 	<name>OpenL POI LIB SVN root pom</name>
 	<url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
 	<scm>
-		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</connection>
-		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</developerConnection>
+		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.2</connection>
+		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.2</developerConnection>
 	</scm>
 
 	<distributionManagement>

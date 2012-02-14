@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -12,16 +11,16 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.lib.poi.dev-pom</artifactId>
-	<version>5.8.2-SNAPSHOT</version>
+	<version>5.8.2</version>
 	<packaging>pom</packaging>
 	<name>OpenL - POI 3.7 - Dev POM</name>
 	<description>POI for OpenL</description>
 	<url>http://openl-tablets.sf.net/</url>
 
 	<scm>
-		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</connection>
-		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</developerConnection>
-		<url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
+		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.2/trunk</connection>
+		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.2/trunk</developerConnection>
+		<url>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.8.2/openl-tablets</url>
 	</scm>
 
 	<modules>
@@ -65,13 +64,11 @@
 
 								<cobertura-merge datafile="target\cobertura-merged-file.ser">
 									<fileset dir="..">
-										<include
-											name="org.openl.apache.poi.enhancements\target\cobertura\cobertura.ser" />
+										<include name="org.openl.apache.poi.enhancements\target\cobertura\cobertura.ser" />
 									</fileset>
 								</cobertura-merge>
 
-								<cobertura-report datafile="target\cobertura-merged-file.ser"
-									destdir="target\site\cobertura-summary">
+								<cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
 									<fileset dir="..\org.openl.lib.poi35.dev.modified\src\">
 										<include name="**\*.java" />
 									</fileset>
