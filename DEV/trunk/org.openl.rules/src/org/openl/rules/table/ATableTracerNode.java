@@ -21,6 +21,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     private Throwable error;
 
     public ATableTracerNode() {
+        this(null, null);
     }
 
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
@@ -31,7 +32,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
          */
 
         super(traceObject);
-        this.params = params;
+        this.params = params != null ? params : new Object[0];
     }
     
     protected String asString(IOpenMethod method, int mode) {
