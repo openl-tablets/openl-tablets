@@ -7,7 +7,7 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.syntax.impl.IdentifierNode;
 
-public class TableSyntaxNodeBuilder {
+public class TableSyntaxNodeBuilder implements Builder<TableSyntaxNode>{
     
     private String tableType;
     

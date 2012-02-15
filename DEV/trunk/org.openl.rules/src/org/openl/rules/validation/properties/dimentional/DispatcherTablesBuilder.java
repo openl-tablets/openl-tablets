@@ -3,7 +3,6 @@ package org.openl.rules.validation.properties.dimentional;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.OpenL;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -38,14 +37,12 @@ public class DispatcherTablesBuilder {
         }
         return false;
     }
-    
-    private OpenL openl;    
+
     private XlsModuleOpenClass moduleOpenClass;
     private RulesModuleBindingContext moduleContext;
     
-    public DispatcherTablesBuilder(OpenL openl, XlsModuleOpenClass moduleOpenClass, 
+    public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass, 
             RulesModuleBindingContext moduleContext) {
-        this.openl = openl;
         this.moduleContext = moduleContext;
         this.moduleOpenClass = moduleOpenClass;        
     }
@@ -60,19 +57,20 @@ public class DispatcherTablesBuilder {
         }
     }
 
-    private void build(MatchingOpenMethodDispatcher dispatcher) {
-            TableSyntaxNodeDispatcherBuilder dispBuilder = new TableSyntaxNodeDispatcherBuilder(openl,
-                moduleContext,
-                moduleOpenClass,
-                dispatcher);
-            TableSyntaxNode tsn = dispBuilder.build();
-            if (!isVirtualWorkbook()) {
-                addNewTsnToTopNode(tsn);
-            }
-            if (dispatcher instanceof OverloadedMethodsDispatcherTable) {
-                ((OverloadedMethodsDispatcherTable) dispatcher).setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
-            }
-    }
+	private void build(MatchingOpenMethodDispatcher dispatcher) {
+		Builder<TableSyntaxNode> tsnDispatcherBuilder = new TableSyntaxNodeDispatcherBuilder(moduleContext, 
+				moduleOpenClass, dispatcher);
+		TableSyntaxNode tsn = tsnDispatcherBuilder.build();
+		if (tsn != null) {
+			if (!isVirtualWorkbook()) {
+				addNewTsnToTopNode(tsn);
+			}
+			if (dispatcher instanceof OverloadedMethodsDispatcherTable) {
+				((OverloadedMethodsDispatcherTable) dispatcher)
+						.setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
+			}
+		}
+	}
     
     private boolean isVirtualWorkbook(){
         return moduleOpenClass.getXlsMetaInfo().getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;

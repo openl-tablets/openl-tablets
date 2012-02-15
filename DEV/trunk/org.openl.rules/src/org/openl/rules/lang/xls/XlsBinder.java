@@ -316,8 +316,7 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] otherNodes = getTableSyntaxNodes(moduleNode, notProp_And_NotDatatype, nodesComparator);        
         IBoundNode topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
         
-        DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(openl,
-            (XlsModuleOpenClass) topNode.getType(),
+        DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder((XlsModuleOpenClass) topNode.getType(),
             moduleContext);
         dispTableBuilder.build();
 
