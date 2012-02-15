@@ -115,7 +115,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     		
             // build TableSyntaxNode
     		//
-    		Builder<TableSyntaxNode> tsnBuilder = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetWithTable,
+    		Builder<TableSyntaxNode> tsnBuilder = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetWithTable.getSheetSource(),
             		decisionTableSource);    		
             tsn = tsnBuilder.build();
             
