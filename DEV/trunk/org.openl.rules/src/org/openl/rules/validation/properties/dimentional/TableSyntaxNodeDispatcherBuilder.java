@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -29,6 +28,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
@@ -53,10 +53,11 @@ import org.openl.types.java.JavaOpenClass;
  * @author DLiauchuk
  *
  */
-public class TableSyntaxNodeDispatcherBuilder {
+public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode>{
     
     public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
     public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
+    private static String VIRTUAL_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
     
     private static Log LOG = LogFactory.getLog(TableSyntaxNodeDispatcherBuilder.class);
     
@@ -79,31 +80,16 @@ public class TableSyntaxNodeDispatcherBuilder {
             }
         }
     }
-    
-    /**
-     * Exclude those methods, that are not used as context variables.
-     * 
-     * @param methodName
-     * @return
-     */
-    private static boolean belongsToExcluded(String methodName) {
-        boolean result = false;
-        if ("getValue".equals(methodName)) {
-            result = true;
-        }
-        return result;
-    } 
-    
-    private static String VIRTUAL_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
-    
-    private OpenL openl;
+
     private RulesModuleBindingContext moduleContext;
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
     
-    public TableSyntaxNodeDispatcherBuilder(OpenL openl, RulesModuleBindingContext moduleContext, 
+    public TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext moduleContext, 
             XlsModuleOpenClass moduleOpenClass, MatchingOpenMethodDispatcher dispatcher) {
-        this.openl = openl;
+    	if (moduleContext == null || moduleOpenClass == null || dispatcher == null) {
+    		throw new IllegalArgumentException("None of the constructor parameters can be null");
+    	}
         this.moduleContext = moduleContext;
         this.moduleOpenClass = moduleOpenClass;
         this.dispatcher = dispatcher;
@@ -119,37 +105,47 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @param methodsGroup group of overloaded tables.
      */
     public TableSyntaxNode build() {
-        XlsSheetGridModel sheetGridModel = (XlsSheetGridModel) writeDispatcherTable();
-        
-        // build TableSyntaxNode
-        TableSyntaxNode tsn = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetGridModel,
-                sheetGridModel.getTables()[0]).build();
-        
-        // build Openl decision table
-        DecisionTable decisionTable = initDTOpenlBuilder().build(tsn, openl, moduleOpenClass);
-        
-        loadCreatedTable(decisionTable, tsn);
-        
+    	TableSyntaxNode tsn = null;
+    	if (needToBuild()) {
+    		// build source of decision table
+    		//
+    		Builder<IWritableGrid> dtSourceBuilder = initDecisionTableSourceBuilder();
+    		XlsSheetGridModel sheetWithTable = (XlsSheetGridModel)dtSourceBuilder.build();    		
+    		IGridTable decisionTableSource = sheetWithTable.getTables()[0];    		
+    		
+            // build TableSyntaxNode
+    		//
+    		Builder<TableSyntaxNode> tsnBuilder = new TableSyntaxNodeBuilder(XlsNodeTypes.XLS_DT.toString(), sheetWithTable,
+            		decisionTableSource);    		
+            tsn = tsnBuilder.build();
+            
+            // build Openl decision table
+            //
+            Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
+            DecisionTable decisionTable = dtOpenLBuilder.build();
+            
+            loadCreatedTable(decisionTable, tsn);
+    	}
         return tsn;
     }
     
-    private IWritableGrid writeDispatcherTable() {
-        // properties values from methods in group that will be used 
-        // to build dispatcher table by dimensional properties.
-        //
-        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
-        
-        DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
-        
-        List<IDecisionTableColumn> conditions = getDispatcherTableConditions(propertiesFromMethods, rules);
-        
-        int numberOfColumns = getNumberOfColumns(conditions) + 1; // + 1 for return column
-        
-        IWritableGrid grid = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, 
-            DISPATCHER_TABLES_SHEET + getDispatcherTableName(), numberOfColumns);
-        
-        return initDecisionTableBuilder(conditions, getReturnColumn())
-            .build(grid, rules.getRulesNumber());        
+    /**
+     * Build the table only if there is any property value for any table.
+     * 
+     * @return flag if it is needed to build the table for given methods properties
+     */
+    public boolean needToBuild() {
+    	List<TablePropertyDefinition> dimensionalPropertiesDef = 
+                TablePropertyDefinitionUtils.getDimensionalTableProperties();
+    	
+    	List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+    	
+    	for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
+            if (isPropertyPresented(dimensionProperty.getName(), propertiesFromMethods)) {
+            	return true;
+            }
+    	}
+    	return false;
     }
     
     private int getNumberOfColumns(List<IDecisionTableColumn> conditions) {
@@ -162,18 +158,35 @@ public class TableSyntaxNodeDispatcherBuilder {
         return numberOfAllLocalParameters;
     }
 
-    private DecisionTableOpenlBuilder initDTOpenlBuilder() {
+    private DecisionTableOpenlBuilder initDecisionTableOpenlBuilder(TableSyntaxNode tsn) {
         IOpenClass originalReturnType = getMethodReturnType();
         Map<String, IOpenClass> updatedIncomeParams = updateIncomeParams();
         
         // table name for dispatcher table
         String tableName = getDispatcherTableName();
         
-        return new DecisionTableOpenlBuilder(tableName, originalReturnType, updatedIncomeParams);
+        DecisionTableOpenlBuilder dtOpenLBuilder = new DecisionTableOpenlBuilder(tableName, originalReturnType, updatedIncomeParams);
+        dtOpenLBuilder.setTableSyntaxNode(tsn);
+        dtOpenLBuilder.setModuleOpenClass(moduleOpenClass);
+        return dtOpenLBuilder;
     }
     
-    private DecisionTableBuilder initDecisionTableBuilder(List<IDecisionTableColumn> conditions, 
-            DispatcherTableReturnColumn returnColumn) {
+    private DecisionTableBuilder initDecisionTableSourceBuilder() {
+    	// properties values from methods in group that will be used 
+        // to build dispatcher table by dimensional properties.
+        //
+        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+        
+        DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
+        
+        List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
+        
+        int numberOfColumns = getNumberOfColumns(conditions) + 1; // + 1 for return column
+        
+        IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, 
+        		DISPATCHER_TABLES_SHEET + getDispatcherTableName(), numberOfColumns);
+    	
+        DispatcherTableReturnColumn returnColumn = getReturnColumn();
         
         DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder(new Point(0, 0));
         
@@ -181,6 +194,8 @@ public class TableSyntaxNodeDispatcherBuilder {
         decisionTableBuilder.setReturnBuilder(new ReturnColumnBuilder(returnColumn));
         decisionTableBuilder.setHeaderBuilder(new TableHeaderBuilder(buildMethodHeader(getDispatcherTableName(), 
             returnColumn)));
+        decisionTableBuilder.setSheetWithTable(sheetForTable);
+        decisionTableBuilder.setRulesNumber(rules.getRulesNumber());
         
         return decisionTableBuilder; 
     }
@@ -196,7 +211,7 @@ public class TableSyntaxNodeDispatcherBuilder {
         return strBuf.toString();
     }
     
-    private List<IDecisionTableColumn> getDispatcherTableConditions(List<ITableProperties> propertiesFromMethods, 
+    private List<IDecisionTableColumn> getConditions(List<ITableProperties> propertiesFromMethods, 
         DispatcherTableRules rules) {
                
         List<TablePropertyDefinition> dimensionalPropertiesDef = 
@@ -274,7 +289,7 @@ public class TableSyntaxNodeDispatcherBuilder {
      * @return properties values from tables in group.
      */
     private List<ITableProperties> getMethodsProperties() {
-        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();        
         for (IOpenMethod method : dispatcher.getCandidates()) {
                 propertiesValues.add(PropertiesHelper.getTableProperties(method));
         }
@@ -317,21 +332,20 @@ public class TableSyntaxNodeDispatcherBuilder {
     private TableSyntaxNode loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
         
-        PropertiesLoader propLoader = new PropertiesLoader(openl, moduleContext, (XlsModuleOpenClass)moduleOpenClass);
+        PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, (XlsModuleOpenClass)moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
         
         setTableProperties(tsn);
           
         DecisionTableLoader dtLoader = new DecisionTableLoader();
         try {
-            dtLoader.loadAndBind(tsn, decisionTable, openl, null, createContextWithAuxiliaryMethods());            
+            dtLoader.loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());            
         } catch (Exception e) {            
             LOG.error(e);
             OpenLMessagesUtils.addWarn(e.getMessage(), tsn);
         }
         return tsn;
     }
-    
 
     public static final String AUXILIARY_METHOD_DELIMETER = "$";
 
@@ -379,5 +393,19 @@ public class TableSyntaxNodeDispatcherBuilder {
                         + MethodUtil.printMethod(getMember(), 0, true)
                         + ". Please, edit original tables to make any change to the overloading logic.");
     }
+    
+    /**
+     * Exclude those methods, that are not used as context variables.
+     * 
+     * @param methodName
+     * @return
+     */
+    private static boolean belongsToExcluded(String methodName) {
+        boolean result = false;
+        if ("getValue".equals(methodName)) {
+            result = true;
+        }
+        return result;
+    } 
 
 }

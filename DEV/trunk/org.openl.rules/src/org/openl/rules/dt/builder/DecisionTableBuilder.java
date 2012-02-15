@@ -3,6 +3,7 @@ package org.openl.rules.dt.builder;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
+import org.openl.rules.validation.properties.dimentional.Builder;
 
 /**
  * Creates the memory representation of DT table by POI.
@@ -10,7 +11,7 @@ import org.openl.rules.table.Point;
  * @author DLiauchuk
  *
  */
-public class DecisionTableBuilder {
+public class DecisionTableBuilder implements Builder<IWritableGrid>{
     
     /** number 5 - is a number of first development rows in table.*/
     public static final int DECISION_TABLE_HEADER_ROWS_NUMBER = 5;  
@@ -25,6 +26,9 @@ public class DecisionTableBuilder {
     private IDecisionTableColumnBuilder conditionsBuilder;
     private IDecisionTableColumnBuilder returnBuilder;
     private Point startPoint;
+    
+    private IWritableGrid sheetWithTable;
+    private int rulesNumber;
     
     public DecisionTableBuilder(Point startPoint) {        
         this.startPoint = startPoint;
@@ -62,37 +66,57 @@ public class DecisionTableBuilder {
         this.returnBuilder = returnBuilder;
     }
     
-    /**
+    public IWritableGrid getSheetWithTable() {
+		return sheetWithTable;
+	}
+
+	public void setSheetWithTable(IWritableGrid sheetWithTable) {
+		this.sheetWithTable = sheetWithTable;
+	}
+
+	public void setRulesNumber(int rulesNumber) {
+		this.rulesNumber = rulesNumber;
+	}
+
+	/**
      * Builds the decision table on the given sheet with given number of rules.     
      * 
      * @param sheet sheet to build table on it.
      * @param rulesNumber number of rules for decision table
      * 
      * @return sheet with builded table on it.
+     * @deprecated
      */
     public IWritableGrid build(IWritableGrid sheet, int rulesNumber) {        
-        
-        if (conditionsBuilder == null) {
+        setSheetWithTable(sheet);
+    	setRulesNumber(rulesNumber);
+                
+        build();
+        return getSheetWithTable();
+    }
+    
+    public IWritableGrid build() {
+    	if (conditionsBuilder == null) {
             throw new OpenlNotCheckedException("Condition builder cannot be null when building decision table");
         }
         
         /**
          * column index that is free for further writing
          */
-        int lastColumnIndex = conditionsBuilder.build(sheet, rulesNumber, startPoint.getColumn(), startPoint.getRow());
+        int lastColumnIndex = conditionsBuilder.build(getSheetWithTable(), rulesNumber, startPoint.getColumn(), startPoint.getRow());
         
         if (returnBuilder == null) {
             throw new OpenlNotCheckedException("Return builder cannot be null when building decision table");
         }
-        returnBuilder.build(sheet, rulesNumber, lastColumnIndex, startPoint.getRow());
+        returnBuilder.build(getSheetWithTable(), rulesNumber, lastColumnIndex, startPoint.getRow());
         
         if (headerBuilder == null) {
             throw new OpenlNotCheckedException("Header builder cannot be null when building decision table");
         }
         
-        headerBuilder.build(sheet, lastColumnIndex, startPoint.getColumn(), startPoint.getRow());        
+        headerBuilder.build(getSheetWithTable(), lastColumnIndex, startPoint.getColumn(), startPoint.getRow());
         
-        return sheet;
+        return getSheetWithTable();
     }
     
 }
