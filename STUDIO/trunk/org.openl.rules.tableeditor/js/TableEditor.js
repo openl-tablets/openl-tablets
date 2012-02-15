@@ -324,7 +324,8 @@ var TableEditor = Class.create({
             switch (event.keyCode) {
                 case 27: this.editor.cancelEdit(); break;
                 case 13: if (this.editor.__do_nothing_on_enter !== true) {
-                    this.setCellValue();
+                    this.setCellValue(
+                            HTMLHelper.unescapeHTML(this.currentElement.innerHTML.replace(/<br>/ig, "\n")).strip());
                 }
                 break;
             }
@@ -590,8 +591,11 @@ var TableEditor = Class.create({
         }
     },
 
-    setCellValue: function() {
+    setCellValue: function(prevValue) {
         if (this.editor) {
+            if (prevValue) {
+                this.editor.initialValue = prevValue;
+            }
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
                 var self = this;
