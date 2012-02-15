@@ -21,7 +21,7 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 // wcm
                 tracer.push(traceObject);
 
-                wScore = new WScoreTraceObject(columnMatch);
+                wScore = new WScoreTraceObject(columnMatch, params);
                 // score
                 tracer.push(wScore);
             }

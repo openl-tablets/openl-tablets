@@ -11,8 +11,8 @@ public class WScoreTraceObject extends ATableTracerNode {
     private ColumnMatch columnMatch;
     private int score;
 
-    public WScoreTraceObject(ColumnMatch columnMatch) {
-        super(columnMatch, null);
+    public WScoreTraceObject(ColumnMatch columnMatch, Object[] params) {
+        super(columnMatch, params);
 
         this.columnMatch = columnMatch;
     }
