@@ -79,22 +79,6 @@ public class InputArgsBean {
         currentnode.setValueForced(fieldType.newInstance(new SimpleVM().getRuntimeEnv()));
     }
     
-    /**
-     * TODO: Refactor. Not a good way to check if it is possible to instantiate
-     * @return
-     */
-    public boolean isInitableObject() {
-    	boolean result = true;
-    	ParameterDeclarationTreeNode currentnode = getCurrentNode();
-    	IOpenClass fieldType = currentnode.getType();
-    	try {
-    		fieldType.newInstance(new SimpleVM().getRuntimeEnv());
-    	} catch (Exception ex) {
-    		result = false;
-    	}
-    	return result;
-    }
-    
     public void initCollection() {
         ParameterDeclarationTreeNode currentnode = getCurrentNode();
         IOpenClass fieldType = currentnode.getType();
@@ -105,8 +89,6 @@ public class InputArgsBean {
 
         currentnode.setValueForced(ary);
     }
-    
-    
 
     public void disposeObject() {
         ParameterDeclarationTreeNode currentnode = getCurrentNode();
