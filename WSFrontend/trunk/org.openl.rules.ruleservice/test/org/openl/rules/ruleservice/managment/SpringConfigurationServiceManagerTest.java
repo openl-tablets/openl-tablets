@@ -34,7 +34,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         serviceManager.start();
         IRulesFrontend frontend = applicationContext.getBean("frontend", IRulesFrontend.class);
         assertNotNull(frontend);
-        Object object = frontend.execute("org.openl.tablets.tutorial4", "vehicleEligibilityScore", new Object[] {
+        Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4", "vehicleEligibilityScore", new Object[] {
                 new DefaultRulesRuntimeContext(), "Provisional" });
         assertTrue(object instanceof org.openl.meta.DoubleValue);
         org.openl.meta.DoubleValue value = (org.openl.meta.DoubleValue) object;
@@ -49,7 +49,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         serviceManager.start();
         IRulesFrontend frontend = applicationContext.getBean("frontend", IRulesFrontend.class);
         assertNotNull(frontend);
-        frontend.execute("ErrorTest", "vehicleEligibilityScore", new Object[] { new DefaultRulesRuntimeContext(),
+        frontend.execute("ErrorTest_ErrorTest", "vehicleEligibilityScore", new Object[] { new DefaultRulesRuntimeContext(),
                 "test" });
     }
 }

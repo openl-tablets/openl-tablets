@@ -4,6 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
+	<import resource="classpath:project-resolver-beans.xml"/>
+
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
 	<!-- This implementation based on JCR repository -->
 	<bean id="datasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource">
@@ -89,4 +91,21 @@
 		</constructor-arg>
 	</bean>
 
+	<!-- Local storage for all projects that is used in services. -->
+	<bean id="localTemporaryDeploymentsStorage"
+		class="org.openl.rules.ruleservice.loader.LocalTemporaryDeploymentsStorage">
+		<constructor-arg name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"></constructor-arg>
+		<constructor-arg name="localWorkspaceFolderFilter"
+			ref="localWorkspaceFolderFilter"></constructor-arg>
+		<property name="directoryToLoadDeploymentsIn" value="${ruleservice.tmp.dir}" />
+	</bean>
+
+	<!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects. 
+	Contains own storage for all projects that is used in services. -->
+	<bean id="rulesLoader" class="org.openl.rules.ruleservice.loader.RulesLoader">
+		<constructor-arg name="dataSource" ref="datasource" />
+		<constructor-arg name="projectResolver" ref="projectResolver" />
+		<constructor-arg name="storage"
+			ref="localTemporaryDeploymentsStorage" />
+	</bean>
 </beans>
