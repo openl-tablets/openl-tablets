@@ -1,6 +1,4 @@
-package org.openl.rules.property.runtime;
-
-import java.util.Map;
+package org.openl.rules.property;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.table.properties.TableProperties;
@@ -12,12 +10,12 @@ import org.openl.vm.IRuntimeEnv;
 
 public class PropertiesOpenField extends AOpenField {
 
-    private Map<String, Object> properties;
+    private TableProperties propertiesInstance;
     private ModuleOpenClass declaringClass;
 
     public PropertiesOpenField(String name, TableProperties propertiesInstance, ModuleOpenClass declaringClass) {
         super(name, JavaOpenClass.getOpenClass(propertiesInstance.getClass()));
-        this.properties = propertiesInstance.getAllProperties();
+        this.propertiesInstance = propertiesInstance;
         this.declaringClass = declaringClass;
     }
     
@@ -30,7 +28,7 @@ public class PropertiesOpenField extends AOpenField {
         Object data = ((IDynamicObject) target).getFieldValue(getName());
 
         if (data == null) {
-            data = properties;
+            data = propertiesInstance;
             ((IDynamicObject) target).setFieldValue(getName(), data);
         }
 
@@ -44,5 +42,9 @@ public class PropertiesOpenField extends AOpenField {
 
     public void set(Object target, Object value, IRuntimeEnv env) {
         ((IDynamicObject) target).setFieldValue(getName(), value);
+    }
+    
+    /*package*/ void setPropertiesInstance(TableProperties propertiesInstance){
+        this.propertiesInstance = propertiesInstance;
     }
 }
