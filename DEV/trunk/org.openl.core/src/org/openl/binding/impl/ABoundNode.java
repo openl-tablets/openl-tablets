@@ -100,7 +100,13 @@ public abstract class ABoundNode implements IBoundNode {
 
     public void updateDependency(BindingDependencies dependencies) {
     }
-
+    
+    // FIXME: Not right implementation of Visitor pattern.
+    // http://en.wikipedia.org/wiki/Visitor_pattern
+    // Accepter should simply redirect to the visitors method visit.
+    // Currently, as there is an inside logic, it doesn`t allow to 
+    // create custom visitor for other purposes.
+    //
     public boolean visit(IBoundNodeVisitor visitor) {
 
         if (!visitor.visit(this)) {

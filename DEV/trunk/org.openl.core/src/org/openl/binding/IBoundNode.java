@@ -53,7 +53,12 @@ public interface IBoundNode {
     void updateAssignFieldDependency(BindingDependencies dependencies);
 
     void updateDependency(BindingDependencies dependencies);
-
+    
+    /** 
+     * Not right implementation of Visitor pattern.
+     * Don`t use it
+     */
+    @Deprecated
     boolean visit(IBoundNodeVisitor visitor);
-
+    
 }

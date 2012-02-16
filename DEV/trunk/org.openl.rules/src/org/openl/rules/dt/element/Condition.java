@@ -6,7 +6,9 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -84,11 +86,18 @@ public class Condition extends FunctionalRow implements ICondition {
             RuleRow ruleRow) throws Exception {
 
         super.prepare(NullOpenClass.the, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
-        
-        IOpenSourceCodeModule source = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule();
+        IBoundMethodNode methodNode = ((CompositeMethod) getMethod()).getMethodBodyBoundNode();
+        IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
         if (StringUtils.isEmpty(source.getCode())){
             throw SyntaxNodeExceptionUtils.createError("Cannot execute empty expression", source);
+        }
+        
+        // tested in TypeInExpressionTest
+        //
+        if (methodNode.getChildren().length == 1 && methodNode.getChildren()[0].getChildren()[0] instanceof TypeBoundNode) {
+        	String message = String.format("Cannot execute expression with only type definition %s", source.getCode());
+        	throw SyntaxNodeExceptionUtils.createError(message, source);
         }
         
         IOpenClass methodType = ((CompositeMethod) getMethod()).getBodyType();
