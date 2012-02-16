@@ -60,9 +60,15 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
                     moduleConfigurations.add(new ModuleConfiguration(deployment.getDeploymentName(), deployment
                             .getCommonVersion(), project.getName(), module.getName()));
                 }
-                serviceDescriptions.add(new ServiceDescription(deployment.getDeploymentName(), deployment
-                        .getDeploymentName() + "/" + project.getName(), null, provideRuntimeContext,
+                if (!moduleConfigurations.isEmpty()) {
+                    String serviceName = String.format("%s_%s", deployment.getDeploymentName(), project.getName());
+                    String serviceUrl = String.format("%s/%s", deployment.getDeploymentName(), project.getName());
+                    serviceDescriptions.add(new ServiceDescription(serviceName,
+                        serviceUrl,
+                        null,
+                        provideRuntimeContext,
                         moduleConfigurations));
+                }
             }
         }
         return serviceDescriptions;
