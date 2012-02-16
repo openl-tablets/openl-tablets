@@ -152,9 +152,11 @@
             elem.find(".propEditor").show();
             $j("#savePropsButton").show();
 
-            var tooltipElemId = elem.find(".propEditor input").attr("id");
             var tooltipData = elem.find(".propEditor .propDescription").text();
-            new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
+            if (tooltipData) {
+                var tooltipElemId = elem.find(".propEditor input").attr("id");
+                new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
+            }
         }
 
         function showRemoveBtn(row) {
