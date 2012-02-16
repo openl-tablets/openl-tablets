@@ -12,10 +12,14 @@ table, input, textarea {
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px !important;
     border-style: solid !important;
-    border-color: #888888 #E6E6E6 #E6E6E6 #888888 !important;
+    border-color: #aaaaaa #dddddd #dddddd #aaaaaa !important;
     border-radius: 1px !important;
-    outline: none !important;
     background: #ffffff !important;
+}
+
+input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
+    border-color: #dddddd !important;
+    outline: 1px solid orange;
 }
 
 input[type='text'], input[type='password'], textarea {
