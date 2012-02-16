@@ -1,4 +1,28 @@
 
 .jquery-multiselect-popup {
-    
+    box-shadow: 2px 2px 3px #eeeeee;
 }
+
+.jquery-multiselect-popup-header {
+    padding: 5px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.jquery-multiselect-popup-data {
+    padding: 3px 0;
+}
+
+.jquery-multiselect-popup-data div {
+    padding: 2px 5px;
+}
+
+.jquery-multiselect-popup-data div:hover {
+    background: #3399EE;
+    color: white;
+}
+
+.jquery-multiselect-popup input[type='checkbox'] {
+    margin-right: 7px;
+    cursor: pointer;
+}
+

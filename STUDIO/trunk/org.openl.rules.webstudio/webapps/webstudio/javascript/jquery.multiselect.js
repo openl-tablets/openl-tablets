@@ -23,19 +23,21 @@
             var newSelect = $("<input type='text'" + (selectId ? " id='" + selectId + "'" : "") + " readonly='readonly' />")
                 .insertAfter(currentSelect);
 
-            var popup = $("<div style='display:none; border-top: 0' />")
+            var popup = $("<div style='display:none' />")
                 .addClass("jquery-multiselect-popup");
             var checkAll = $("<input type='checkbox' />");
-            popup.append("<div />").append(checkAll).append(options.checkAllText);
+            popup.append($("<div class='jquery-multiselect-popup-header' />").append(checkAll).append($("<label>" + options.checkAllText + "</label>")));
+            var data = $("<div class='jquery-multiselect-popup-data' />");
             currentSelect.children("option").each(function() {
                 var option = $(this);
                 var selected = this.getAttribute("selected") ? true : false;
                 values[option.val()] = selected;
-                popup.append("<div><input type='checkbox' value='" + option.val() + "'"
+                data.append("<div><input type='checkbox' value='" + option.val() + "'"
                         + (selected ? " checked='checked'" : "")
                         + (selectName ? " name='" + selectName + "'" : "")
-                        +" />" + option.text() + "</div>");
+                        +" /><label>" + option.text() + "</label></div>");
             });
+            popup.append(data);
             popup.insertAfter(newSelect);
             currentSelect.remove();
 
@@ -45,7 +47,7 @@
                 e.stopPropagation();
                 popup.popup({
                     left     : newSelect.position().left + newSelect.offsetParent().scrollLeft(),
-                    top      : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight(),
+                    top      : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight() - 1,
                     zIndex   : options.zIndex,
                     minWidth : newSelect.outerWidth() - 2,
                     maxHeight: options.maxHeight
