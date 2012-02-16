@@ -37,10 +37,15 @@
 
             var $j = $.noConflict();
 
+            var loadingPanel;
+
             $j.ajaxSetup({
                 cache: false,
+                beforeSend: showLoader,
+                success: hideLoader,
                 // Handle jQuery AJAX errors
                 error: function(response, message, error) {
+                    hideLoader();
                     handleError(response.status);
                 }
             });
@@ -106,6 +111,7 @@
                     south__size: 110
                 });
 
+                loadingPanel = $j("#loadingPanel");
                 loadContent();
 
                 $j("body").css({"visibility": "visible"});
@@ -139,7 +145,7 @@
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
                     if (decodeURIComponent(location.hash) == ("#" + decodeURIComponent(page))) {
-                        reloadCurrent();
+                        loadContent();
                     } else {
                         location.hash = page;
                     }
@@ -289,21 +295,16 @@
                 });
             }
 
-            /*function setViewDimensions() {
-                $j(".view_workspace").each(function() {
-                    $j(this).css({
-                        "height": $j(this).closest(".ui-layout").outerHeight()
-                            - $j(this).prev(".view_toolbar").outerHeight() - 30
-                    });
-                });
-            }*/
-
             function showLoader() {
-                $j('#loadingPanel').show();
+                if (loadingPanel.is(":hidden")) {
+                    loadingPanel.show();
+                }
             }
 
             function hideLoader() {
-                $j('#loadingPanel').hide();
+                if (loadingPanel.is(":visible")) {
+                    loadingPanel.hide();
+                }
             }
 
             function showPopupMenu(event, popupId, elem, params) {
