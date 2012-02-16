@@ -583,8 +583,7 @@ var TableEditor = Class.create({
 
                 textAlign: cell.style.textAlign,
 
-                padding: '1px',
-                boxShadow: '0 0 1px orange'
+                padding: '1px'
             }
 
             return style;
