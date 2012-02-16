@@ -9,7 +9,7 @@
         var defaults = {
             separator   : ', ',
             zIndex      : 9000,
-            height      : 170,
+            maxHeight   : 170,
             checkAllText: 'Select All'
         };
         options = $.extend({}, defaults, options);
@@ -44,11 +44,11 @@
             newSelect.click(function(e) {
                 e.stopPropagation();
                 popup.popup({
-                    left    : newSelect.position().left + newSelect.offsetParent().scrollLeft(),
-                    top     : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight(),
-                    zIndex  : options.zIndex,
-                    minWidth: newSelect.outerWidth() - 2,
-                    height  : options.height
+                    left     : newSelect.position().left + newSelect.offsetParent().scrollLeft(),
+                    top      : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight(),
+                    zIndex   : options.zIndex,
+                    minWidth : newSelect.outerWidth() - 2,
+                    maxHeight: options.maxHeight
                 });
             });
 
