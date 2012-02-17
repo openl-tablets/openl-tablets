@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.base-pom</artifactId>
+		<version>5.9.0</version>
+		<relativePath /><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687 -->
+	</parent>
+
+	<groupId>org.openl.rules</groupId>
+	<artifactId>org.openl.lib.poi.dev-pom</artifactId>
+	<version>5.9.0</version>
+	<packaging>pom</packaging>
+	<name>OpenL - POI 3.7 - Dev POM</name>
+	<description>POI for OpenL</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<scm>
+		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.9.0/trunk</connection>
+		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.9.0/trunk</developerConnection>
+		<url>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/tags/release-5.9.0/openl-tablets</url>
+	</scm>
+
+	<modules>
+		<module>../org.openl.lib.poi.dev</module>
+		<module>../org.openl.lib.poi.dev.modified</module>
+	</modules>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<configuration>
+					<configLocation>../org.openl.lib.poi35.dev-pom/checkstyle.xml</configLocation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<profiles>
+		<profile>
+			<id>internal-deploy</id>
+			<distributionManagement>
+				<site>
+					<id>internal-minsk</id>
+					<url>file://d:/reports/org.openl.lib.poi35.dev-pom</url>
+				</site>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>cobertura-summary-report</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<inherited>true</inherited>
+						<configuration>
+							<tasks>
+								<taskdef resource="tasks.properties" />
+
+								<cobertura-merge datafile="target\cobertura-merged-file.ser">
+									<fileset dir="..">
+										<include name="org.openl.apache.poi.enhancements\target\cobertura\cobertura.ser" />
+									</fileset>
+								</cobertura-merge>
+
+								<cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+									<fileset dir="..\org.openl.lib.poi35.dev.modified\src\">
+										<include name="**\*.java" />
+									</fileset>
+								</cobertura-report>
+							</tasks>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.lib.poi.dev</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>
