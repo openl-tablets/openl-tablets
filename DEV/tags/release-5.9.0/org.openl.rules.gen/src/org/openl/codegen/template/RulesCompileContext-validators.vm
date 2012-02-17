@@ -1,0 +1,16 @@
+#if ($tool.length($validatorsDefinitions) > 0)
+	{
+#foreach( $validatorsDefinition in $validatorsDefinitions )
+#foreach( $validatorClass in $validatorsDefinition.ValidatorClasses )
+#if ( ${tool.hasConstructorWithoutParams($validatorClass)} )
+        addValidator(new ${validatorClass.Name}());
+#elseif ( ${tool.hasConstructorWithPropertyName($validatorClass)} )
+        addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}"));
+#elseif ( ${tool.hasConstructorWithConstraintForProperty($validatorClass)} )
+        addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}", "${validatorsDefinition.getPropertyConstraints($validatorClass)}"));
+#else
+        //WARNING failed to process "${validatorClass.Name}" validator.
+#end
+#end#end
+	}
+#end
