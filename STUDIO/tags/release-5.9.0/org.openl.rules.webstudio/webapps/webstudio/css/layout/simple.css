@@ -1,0 +1,14 @@
+#header {
+    border-bottom: 1px solid #dddddd;
+    padding: 3px 11px;
+    background: #f9f9f9;
+}
+
+#content {
+     overflow: auto;
+}
+
+#footer {
+    border-top: 1px solid #dddddd;
+    background: #f9f9f9;
+}
