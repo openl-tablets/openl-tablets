@@ -1,0 +1,5 @@
+	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
+		selectCandidatesByProperty("$tablePropertyDefinition.Definition.Name", selected, context);
+#end
+	}
