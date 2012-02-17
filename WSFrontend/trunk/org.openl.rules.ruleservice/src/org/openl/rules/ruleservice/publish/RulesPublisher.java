@@ -115,6 +115,9 @@ public class RulesPublisher implements IRulesPublisher {
                 log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
                 serviceClass = null;
             }
+        }else{
+            log.warn(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
+                service.getName()));
         }
         if (serviceClass == null) {
             serviceClass = generatedServiceClass;
