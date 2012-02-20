@@ -380,15 +380,18 @@ public class ShowTableBean {
         return ProjectHelper.createTestName((IOpenMethod) testMethod);
     }
 
-    public String removeTable() throws Exception {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+    public String removeTable() throws Throwable {
+        try {
+            final WebStudio studio = WebStudioUtils.getWebStudio();
+            IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
 
-        new TableServiceImpl(true).removeTable(gridTable);
-        studio.rebuildModel();
-        RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
-        visitedTables.getTables().remove(table);
-
+            new TableServiceImpl(true).removeTable(gridTable);
+            studio.rebuildModel();
+            RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
+            visitedTables.getTables().remove(table);
+        } catch (Exception e) {
+            throw e.getCause();
+        }
         return null;
     }
 
