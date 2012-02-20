@@ -101,6 +101,8 @@
                 value="Compare" render="comparedBMTable"/>
             <a4j:commandButton action="#{benchmarkMethodBean.delete}"
                 value="Delete" render="comparedBMTable BMTable"/>
+            <br />
+            <br />
         <h:dataTable id="comparedBMTable" value="#{benchmarkMethodBean.comparedBenchmarks}" var="item"
             binding="#{benchmarkMethodBean.htmlDataTableBMCompared}" styleClass="matrix"
             columnClasses="none,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn">
