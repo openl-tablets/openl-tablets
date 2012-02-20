@@ -13,10 +13,11 @@ public class SpreadsheetBuilder {
     private SpreadsheetStructureBuilder structureBuilder;
     
     private IBindingContext bindingContext;    
-    private SpreadsheetOpenClass spreadsheetType;
+    private SpreadsheetOpenClass spreadsheetOpenClass;
     
-    public SpreadsheetBuilder(IBindingContext bindingContext) {
+    public SpreadsheetBuilder(IBindingContext bindingContext, SpreadsheetOpenClass spreadsheetOpenClass) {
         this.bindingContext = bindingContext;
+        this.spreadsheetOpenClass = spreadsheetOpenClass;
     }
     
     public void setSpreadsheetCellsBuilder(SpreadsheetStructureBuilder cellsBuilder) {
@@ -32,30 +33,20 @@ public class SpreadsheetBuilder {
      * @param spreadsheetHeader
      */
     public void populateSpreadsheetOpenClass(IOpenMethodHeader spreadsheetHeader) {
-        structureBuilder.addCellFields(getSpreadsheetOpenClass(spreadsheetHeader.getName()), spreadsheetHeader.getType());
+        structureBuilder.addCellFields(spreadsheetOpenClass, spreadsheetHeader.getType());
     }
 
     public void finalizeBuild(Spreadsheet spreadsheet) {   
-        spreadsheet.setRowNames(structureBuilder.getComponentsBuilder().getCellsHeadersExtractor().getRowNames());
+        spreadsheet.setRowNames(structureBuilder.getRowNames());
         
-        spreadsheet.setColumnNames(structureBuilder.getComponentsBuilder().getCellsHeadersExtractor().getColumnNames());
+        spreadsheet.setColumnNames(structureBuilder.getColumnNames());
 
         spreadsheet.setCells(structureBuilder.getCells(spreadsheet.getHeader()));
         
         spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));        
     }
     
-    /**
-     * Creates the spreadsheet open class
-     * 
-     * @param spreadsheetName name of the spreadsheet table
-     * @return spreadsheet open class
-     */
-    public SpreadsheetOpenClass getSpreadsheetOpenClass(String spreadsheetName) {
-        if (spreadsheetType == null) {
-            spreadsheetType = new SpreadsheetOpenClass(null, spreadsheetName + "Type", bindingContext.getOpenL());
-        }
-        
-        return spreadsheetType;
+    public SpreadsheetOpenClass getPopulatedSpreadsheetOpenClass() {
+    	return spreadsheetOpenClass;
     }
 }

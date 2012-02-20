@@ -93,6 +93,14 @@ public class SpreadsheetStructureBuilder {
         return componentsBuilder;
     }
     
+    public String[] getRowNames() {
+    	return getComponentsBuilder().getCellsHeadersExtractor().getRowNames();
+    }
+    
+    public String[] getColumnNames() {
+    	return getComponentsBuilder().getCellsHeadersExtractor().getColumnNames();
+    }
+    
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {        
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
