@@ -6,7 +6,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -44,7 +43,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     @Override
     protected ExecutableRulesMethod createMethodShell() {
         Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this);
-        spreadsheet.setSpreadsheetType(builder.getSpreadsheetOpenClass(spreadsheet.getName()));
+        spreadsheet.setSpreadsheetType(builder.getPopulatedSpreadsheetOpenClass());
         
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the compilation.
@@ -67,7 +66,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     
     private void initSpreadsheetBuilder(IBindingContext bindingContext) throws SyntaxNodeException {
         validateTableBody(getTableSyntaxNode().getTableBody());
-        setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode()));
+        setSpreadsheetBuilder(SpreadsheetBuilderFactory.getSpreadsheetBuilder(bindingContext, getTableSyntaxNode(), getHeader().getName()));
     }
      
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
