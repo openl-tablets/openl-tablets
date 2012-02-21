@@ -8,7 +8,7 @@
 	
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
 	<bean id="datasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource">
-		<constructor-arg name="loadDeploymentsFromDirectory" value="/openl/datasource"/>
+		<constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
 		<property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
 		<property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
 	</bean>
