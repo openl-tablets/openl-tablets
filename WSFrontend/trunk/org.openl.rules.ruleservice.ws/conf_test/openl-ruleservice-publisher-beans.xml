@@ -10,7 +10,7 @@
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
 	<bean id="rootClassNamesBindingFactoryBean" class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
-		<property name="rootClassNames" value="${ruleservice.rootClassNames}"/>
+		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}"/>
 	</bean>
 	
 	<bean id="dataBinding" class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
