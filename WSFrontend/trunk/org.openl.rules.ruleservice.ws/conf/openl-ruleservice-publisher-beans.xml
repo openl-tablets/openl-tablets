@@ -10,11 +10,18 @@
 	<!--
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
-	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
 	<!--
 		Aegis databinding post processor for type mapping customization of internal OpenL classes.
 	-->
-	<bean class="org.openl.rules.ruleservice.databinding.AegisDatabindingPostProcessor"/>
+	<bean id="rootClassNamesBindingFactoryBean" class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
+		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}"/>
+	</bean>
+	
+	<bean id="dataBinding" class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
+		<property name="writeXsiTypes" value="true"/>
+		<property name="overrideTypes" ref="rootClassNamesBindingFactoryBean"/>
+	</bean>
+
 	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding" scope="prototype">
         <property name="contextProperties">
     		<map>
@@ -27,7 +34,7 @@
         </property>
 	</bean-->
 
-	<!-- Main description for the one WebService.-->
+	<!-- Main description for the one WebService -->
 	<!--
 		All configurations for server (like a data binding type and
 		interceptors) are represented there. ServerFactoryBean configuration
@@ -35,9 +42,23 @@
 		http://cxf.apache.org/docs/simple-frontend-configuration.html) but
 		without namespace "simple".
 	-->
+	
+	<bean id="loggingFeature" class="org.apache.cxf.feature.LoggingFeature">
+		<constructor-arg>
+			<util:constant static-field="java.lang.Integer.MAX_VALUE"/>
+		</constructor-arg>
+	</bean>
+
 	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
 		scope="prototype">
-		<property name="dataBinding" ref="binding" />
+		<property name="dataBinding" ref="dataBinding" />
+		<property name="features">
+			<list>
+				<!-- Comment/Uncomment following block for enable/disable logging feature -->
+				<!-- <ref local="loggingFeature" /> -->
+			</list>
+		</property>
+		
 	</bean>
 	
 	<!--
@@ -57,7 +78,6 @@
 		<property name="baseAddress" value="/" />
 	</bean>
 
-	<!--  -->
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
 	
 	<!--  -->

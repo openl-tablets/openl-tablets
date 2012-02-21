@@ -6,28 +6,17 @@
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd" >
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml" />
-
 	<!--
 		Data binding type in WebServices(set it to the "serverPrototype" bean)
 	-->
-	<bean id="binding" class="org.apache.cxf.aegis.databinding.AegisDatabinding"/>
-	<!--
-		Aegis databinding post processor for type mapping customization of internal OpenL classes.
-	-->
-	<bean class="org.openl.rules.ruleservice.databinding.AegisDatabindingPostProcessor"/>
-	<!--bean id="binding" class="org.apache.cxf.jaxb.JAXBDataBinding">
-        <property name="contextProperties">
-    		<map>
-   			<entry>
-      			<key><util:constant
-								static-field="com.sun.xml.bind.api.JAXBRIContext.ANNOTATION_READER" /></key>
-      			<bean class="org.jvnet.annox.xml.bind.AnnoxAnnotationReader"/>
-   			</entry>
-      		</map>
-        </property>
-	</bean -->
+	<bean id="rootClassNamesBindingFactoryBean" class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
+		<property name="rootClassNames" value="${ruleservice.rootClassNames}"/>
+	</bean>
+	
+	<bean id="dataBinding" class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
+		<property name="writeXsiTypes" value="true"/>
+		<property name="overrideTypes" ref="rootClassNamesBindingFactoryBean"/>
+	</bean>
 
 	<!-- Main description for the one WebService.-->
 	<!--
@@ -39,7 +28,7 @@
 	-->
 	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
 		scope="prototype">
-		<property name="dataBinding" ref="binding" />
+		<property name="dataBinding" ref="dataBinding" />
 	</bean>
 	
 	<!--
@@ -58,9 +47,6 @@
 		<property name="serverFactory" ref="serverPrototypeFactory" />
 		<property name="baseAddress" value="http://localhost:9000/" />
 	</bean>
-
-	<!-- Provide information about modules that can be used as dependencies. -->
-	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/>  -->
 	
 	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
 	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>

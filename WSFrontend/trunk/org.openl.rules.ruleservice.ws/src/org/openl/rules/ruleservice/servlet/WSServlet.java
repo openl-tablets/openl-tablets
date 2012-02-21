@@ -8,6 +8,12 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+/**
+ * OpenL Web Service CXFServlet extended Servlet
+ * 
+ * @author Marat Kamalov
+ * 
+ */
 public class WSServlet extends CXFServlet {
     private static final long serialVersionUID = 1L;
 

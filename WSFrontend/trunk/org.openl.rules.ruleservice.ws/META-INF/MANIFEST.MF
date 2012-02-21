@@ -14,4 +14,6 @@ Require-Bundle: org.openl.rules.ruleservice.ws.lib,
  org.openl.rules
 Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.servlet,
- org.openl.ruleservice.publish
+ org.openl.ruleservice.publish,
+ org.openl.rules.ruleservice.context,
+ org.openl.rules.ruleservice.databinding

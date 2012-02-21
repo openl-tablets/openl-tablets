@@ -52,7 +52,7 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
 
     public OpenLService deploy(OpenLService service) throws ServiceDeployException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
-        String serviceAddress = baseAddress + service.getUrl();
+        String serviceAddress = getBaseAddress() + service.getUrl();
         svrFactory.setAddress(serviceAddress);
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
