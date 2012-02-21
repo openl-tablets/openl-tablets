@@ -1,16 +1,18 @@
 package org.openl.rules.property;
 
 import static org.junit.Assert.*;
+
 import java.util.Map;
 
 import org.junit.Test;
+import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.types.IOpenField;
 
 public class PropertyTableTest extends BaseOpenlBuilderHelper{    
 
@@ -49,6 +51,22 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper{
             assertFalse((Boolean) defaultProperties.get("failOnMiss"));
             } else {
                 fail();
+        }
+    }
+
+    @Test
+    public void testFielsInOpenClass() {
+        CompiledOpenClass compiledOpenClass = getJavaWrapper().getCompiledClass();
+        Map<String, IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
+        //properties table with name will be represented as field
+        assertTrue(fields.containsKey("categoryProp"));
+        //properties table without name will not be represented as field
+        for(String fieldName: fields.keySet()){
+            if(getField(fieldName) instanceof PropertiesOpenField){
+                ITableProperties properties = (ITableProperties)getFieldValue(fieldName);
+                String scope = properties.getScope();
+                assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));
+            }
         }
     }
 }
