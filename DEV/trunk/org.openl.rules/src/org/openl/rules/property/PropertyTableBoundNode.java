@@ -77,7 +77,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     }
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        if (cxt.isExecutionMode()) {
+        if (cxt.isExecutionMode() && field != null) {
             field.setPropertiesInstance(getTablePropertiesForExecutionMode(propertiesInstance));
         }
     }
