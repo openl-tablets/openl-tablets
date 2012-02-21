@@ -23,8 +23,6 @@ import org.openl.rules.ruleservice.simple.IRulesFrontend;
 import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 
 public class MultiModuleDispatchingTest {
     private static final String SERVICE_NAME = "multiModule";
