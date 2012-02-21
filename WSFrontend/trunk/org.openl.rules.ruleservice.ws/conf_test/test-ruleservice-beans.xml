@@ -7,12 +7,12 @@
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 
 	<import resource="classpath:test-ruleservice-loader-beans.xml"/>
-	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
+	<import resource="classpath:test-openl-ruleservice-publisher-beans.xml"/>
 	
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
 	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleService">
-		<property name="loader" ref="rulesLoader"></property>
-		<property name="publisher" ref="rulesPublisher"></property>
+		<property name="loader" ref="rulesLoader"/>
+		<property name="publisher" ref="rulesPublisher"/>
 	</bean>
 
 	<!-- Determines the services that should be exposed using RulesLoader.  -->
