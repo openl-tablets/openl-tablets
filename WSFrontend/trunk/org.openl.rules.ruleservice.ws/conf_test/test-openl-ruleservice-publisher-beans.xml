@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd" >
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+	<!--
+		Data binding type in WebServices(set it to the "serverPrototype" bean)
+	-->
+	<!-- <bean id="rootClassNamesBindingFactoryBean" class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
+		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}"/>
+	</bean>
+	
+	<bean id="dataBinding" class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
+		<property name="writeXsiTypes" value="true"/>
+		<property name="overrideTypes" ref="rootClassNamesBindingFactoryBean"/>
+	</bean> -->
+	
+	<bean id="dataBinding" class="org.apache.cxf.jaxb.JAXBDataBinding"/>
+
+	<!-- Main description for the one WebService.-->
+	<!--
+		All configurations for server (like a data binding type and
+		interceptors) are represented there. ServerFactoryBean configuration
+		is similar to a CXF simple frontend configuration(see
+		http://cxf.apache.org/docs/simple-frontend-configuration.html) but
+		without namespace "simple".
+	-->
+	<bean id="loggingFeature" class="org.apache.cxf.feature.LoggingFeature">
+		<constructor-arg>
+			<util:constant static-field="java.lang.Integer.MAX_VALUE"/>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
+		scope="prototype">
+		<property name="dataBinding" ref="dataBinding" />
+		<property name="features">
+			<list>
+				<!-- Comment/Uncomment following block for enable/disable logging feature -->
+				<ref local="loggingFeature" /> 
+			</list>
+		</property>
+	</bean>
+	
+	<!--
+		Prototypes factory. It will create new server prototype for each new
+		WebService.
+	-->
+	<bean id="serverPrototypeFactory"
+		class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+		<property name="targetBeanName">
+			<idref local="serverPrototype" />
+		</property>
+	</bean>
+
+	<!-- Deploymen admin defines the way to expose services. -->
+	<bean id="deploymentAdmin" class="org.openl.ruleservice.publish.WebServicesDeploymentAdmin">
+		<property name="serverFactory" ref="serverPrototypeFactory" />
+		<property name="baseAddress" value="http://localhost:9000/" />
+	</bean>
+	
+	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
+	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>
+	
+	<!-- Initializes OpenL Engine instances according to web services configuration description 
+	and calls DeploymentAdmin to expose corresponding web service -->
+	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
+		<property name="deploymentAdmin" ref="deploymentAdmin"/>
+		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
+		<property name="instantiationFactory" ref="instantiationFactory"/>
+	</bean>
+</beans>
