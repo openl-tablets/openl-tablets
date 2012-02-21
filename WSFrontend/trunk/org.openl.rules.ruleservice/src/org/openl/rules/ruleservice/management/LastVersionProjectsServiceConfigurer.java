@@ -32,8 +32,10 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
             throw new IllegalArgumentException("loader argument can't be null");
         }
         
-        log.debug("Calculate services to be deployed...");
-        
+        if (log.isDebugEnabled()) {
+            log.debug("Calculate services to be deployed...");
+        }
+
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         for (Deployment deployment : loader.getDeployments()) {
             String deploymentName = deployment.getDeploymentName();

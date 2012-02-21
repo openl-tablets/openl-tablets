@@ -21,12 +21,12 @@ import org.springframework.beans.factory.ObjectFactory;
  */
 public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
 
-    private static final Log LOG = LogFactory.getLog(WebServicesDeploymentAdmin.class);
+    private static final Log log = LogFactory.getLog(WebServicesDeploymentAdmin.class);
 
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
     private String baseAddress;
-    
+
     public String getBaseAddress() {
         return baseAddress;
     }
@@ -56,14 +56,16 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         svrFactory.setAddress(serviceAddress);
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
-        
+
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
         try {
             Server wsServer = svrFactory.create();
             runningServices.put(service, wsServer);
-            LOG.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
-                    serviceAddress));
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
+                        serviceAddress));
+            }
         } catch (Throwable t) {
             throw new ServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
@@ -92,8 +94,10 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         }
         try {
             runningServices.get(service).stop();
-            LOG.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName, baseAddress
-                    + service.getUrl()));
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName,
+                        baseAddress + service.getUrl()));
+            }
             runningServices.remove(service);
             return service;
         } catch (Throwable t) {

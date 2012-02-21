@@ -126,11 +126,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         } else {
             if (checkOrCreateFolder(desFile)) {
                 if (Log.isInfoEnabled()) {
-                    Log.info("Destination folder is already exist");
+                    Log.info("Destination folder is already exist. Path: " + getDestinationDirectory());
                 }
             } else {
                 if (Log.isInfoEnabled()) {
-                    Log.info("Destination folder was created");
+                    Log.info("Destination folder was created. Path: " + getDestinationDirectory());
                 }
             }
         }
@@ -147,6 +147,10 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
 
             unpack(file, getDestinationDirectory());
+            
+            if (Log.isInfoEnabled()) {
+                Log.info("Unpacking jars into " + getDestinationDirectory() + " was completed.");
+            }
         }
     }
 }

@@ -18,7 +18,9 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBefo
 import org.springframework.core.Ordered;
 
 public class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
-
+    
+    //private Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
+    
     private static final String MSG_SEPARATOR = "; ";
 
     private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<Method, List<ServiceMethodBeforeAdvice>>();

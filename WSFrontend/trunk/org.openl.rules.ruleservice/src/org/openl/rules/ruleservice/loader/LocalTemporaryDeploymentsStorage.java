@@ -21,7 +21,7 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
  * initialization.
  * Thread safe implementation.
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
 public class LocalTemporaryDeploymentsStorage {
@@ -290,7 +290,9 @@ public class LocalTemporaryDeploymentsStorage {
         synchronized (flag) {
             cacheForGetDeployment.clear();
             FolderHelper.clearFolder(getFolderToLoadDeploymentsIn());
-            log.info("Local temprorary folder for downloading deployments was cleared.");
+            if (log.isInfoEnabled()) {
+                log.info("Local temprorary folder for downloading deployments was cleared.");
+            }
         }
     }
 

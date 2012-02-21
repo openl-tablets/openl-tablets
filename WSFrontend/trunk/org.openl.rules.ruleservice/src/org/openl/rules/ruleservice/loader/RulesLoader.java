@@ -22,7 +22,7 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
  * OpenL projects/modules inside the projects. Contains own storage for all
  * projects that is used in services.
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
 public class RulesLoader implements IRulesLoader {

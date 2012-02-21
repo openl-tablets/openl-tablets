@@ -19,12 +19,12 @@ import org.springframework.aop.framework.ProxyFactory;
 /**
  * Publisher
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
 public class RulesPublisher implements IRulesPublisher {
     private Log log = LogFactory.getLog(RulesPublisher.class);
-    
+
     private IRulesInstantiationFactory instantiationFactory;
     private IDeploymentAdmin deploymentAdmin;
     private IDependencyManager dependencyManager;
@@ -72,18 +72,18 @@ public class RulesPublisher implements IRulesPublisher {
         factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
         if (serviceClass.isInterface()) {
             factory.addInterface(serviceClass);
-            if(!service.isProvideRuntimeContext()){
+            if (!service.isProvideRuntimeContext()) {
                 factory.addInterface(IEngineWrapper.class);
             }
-        }else{
-            //deprecated approach with wrapper: service class is not interface
+        } else {
+            // deprecated approach with wrapper: service class is not interface
             factory.setTarget(serviceBean);
             if (!Proxy.isProxyClass(serviceBean.getClass())) {
                 factory.setProxyTargetClass(true);
             } else {
                 factory.setProxyTargetClass(false);
             }
-        }        
+        }
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(serviceBean.getClass().getClassLoader());
         Object proxyServiceBean = null;
@@ -112,12 +112,16 @@ public class RulesPublisher implements IRulesPublisher {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
                 service.getInstantiationStrategy().setRulesInterface(serviceClass);
             } catch (ClassNotFoundException e) {
-                log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
+                if (log.isWarnEnabled()) {
+                    log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
+                }
                 serviceClass = null;
             }
-        }else{
-            log.warn(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
-                service.getName()));
+        } else {
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
+                        service.getName()));
+            }
         }
         if (serviceClass == null) {
             serviceClass = generatedServiceClass;

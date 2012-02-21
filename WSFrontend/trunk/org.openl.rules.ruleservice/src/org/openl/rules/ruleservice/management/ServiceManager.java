@@ -75,12 +75,16 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
      * Determine services to be deployed on start.
      */
     public void start() {
-        log.info("Assembling services after service manager start");
+        if (log.isInfoEnabled()) {
+            log.info("Assembling services after service manager start");
+        }
         processServices();
     }
 
     public void onDeploymentAdded() {
-        log.info("Assembling services after data source modification");
+        if (log.isInfoEnabled()) {
+            log.info("Assembling services after data source modification");
+        }
         synchronized (this) {
             processServices();
         }
@@ -96,15 +100,17 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
 
     @SuppressWarnings("unchecked")
     public Map<String, ServiceDescription> gatherServicesToBeDeployed() {
-        try{
-        List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRulesLoader());
-        Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
-        for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-            newServices.put(serviceDescription.getName(), serviceDescription);
-        }
-        return newServices;
-        }catch (Exception e) {
-            log.error("Failed to gather services to be deployed", e);
+        try {
+            List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRulesLoader());
+            Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
+            for (ServiceDescription serviceDescription : servicesToBeDeployed) {
+                newServices.put(serviceDescription.getName(), serviceDescription);
+            }
+            return newServices;
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error("Failed to gather services to be deployed", e);
+            }
             return MapUtils.EMPTY_MAP;
         }
     }
@@ -116,7 +122,9 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
                 try {
                     ruleService.undeploy(serviceName);
                 } catch (ServiceDeployException e) {
-                    log.error(String.format("Failed to undeploy \"%s\" service", serviceName), e);
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format("Failed to undeploy \"%s\" service", serviceName), e);
+                    }
                 }
             }
         }
@@ -132,7 +140,9 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
                 try {
                     ruleService.redeploy(serviceDescription);
                 } catch (ServiceDeployException e) {
-                    log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
+                    }
                 }
             }
         }
@@ -144,7 +154,9 @@ public class ServiceManager implements IServiceManager, IDataSourceListener {
                 try {
                     ruleService.deploy(serviceDescription);
                 } catch (ServiceDeployException e) {
-                    log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
+                    }
                 }
             }
         }
