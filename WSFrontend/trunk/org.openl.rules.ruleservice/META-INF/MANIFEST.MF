@@ -18,5 +18,4 @@ Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.core.interceptors.annotations,
  org.openl.rules.ruleservice.loader,
  org.openl.rules.ruleservice.management,
- org.openl.rules.ruleservice.managment,
  org.openl.rules.ruleservice.publish
