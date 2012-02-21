@@ -40,7 +40,9 @@ public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>
             if (className != null && className.trim().length() > 0) {
                 String trimmedClassName = className.trim();
                 ret.add(trimmedClassName);
-                log.info(trimmedClassName + " class is added to the root class names list for WS type binding.");
+                if (log.isInfoEnabled()) {
+                    log.info(trimmedClassName + " class is added to the root class names list for WS type binding.");
+                }
             }
         }
 

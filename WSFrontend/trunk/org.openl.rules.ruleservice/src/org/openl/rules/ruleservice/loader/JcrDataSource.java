@@ -21,10 +21,10 @@ import org.springframework.beans.factory.DisposableBean;
 
 /**
  * JCR repository data source. Uses
- * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository.
- * Thread safe implementation.
+ * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository. Thread
+ * safe implementation.
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
 public class JcrDataSource implements IDataSource, DisposableBean {
@@ -54,7 +54,9 @@ public class JcrDataSource implements IDataSource, DisposableBean {
             }
             return ret;
         } catch (RRepositoryException e) {
-            log.warn("Exception has been occured on deployments retriving from repository", e);
+            if (log.isWarnEnabled()) {
+                log.warn("Exception has been occured on deployments retriving from repository", e);
+            }
             throw new DataSourceException(e);
         }
     }
@@ -107,7 +109,9 @@ public class JcrDataSource implements IDataSource, DisposableBean {
             rProductionRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
             return rProductionRepository;
         } catch (RRepositoryException e) {
-            log.error("Exception has been occured on getting instance of RProductionRepository.", e);
+            if (log.isErrorEnabled()) {
+                log.error("Exception has been occured on getting instance of RProductionRepository.", e);
+            }
             throw new DataSourceException(e);
         }
     }
@@ -129,7 +133,9 @@ public class JcrDataSource implements IDataSource, DisposableBean {
                                 + " class listener is registered in jcr data source");
                     }
                 } catch (RRepositoryException e) {
-                    log.warn("Exception has been occured on adding listener to jcr data source.", e);
+                    if (log.isWarnEnabled()) {
+                        log.warn("Exception has been occured on adding listener to jcr data source.", e);
+                    }
                     throw new DataSourceException(e);
                 }
             }
@@ -152,13 +158,15 @@ public class JcrDataSource implements IDataSource, DisposableBean {
                                 + " class listener is unregistered from jcr data source");
                     }
                 } catch (RRepositoryException e) {
-                    log.warn("Exception has been occured on removing listener from jcr data source.", e);
+                    if (log.isWarnEnabled()) {
+                        log.warn("Exception has been occured on removing listener from jcr data source.", e);
+                    }
                     throw new DataSourceException(e);
                 }
             }
         }
     }
-    
+
     /** {@inheritDoc} */
     public void removeAllListeners() {
         synchronized (listeners) {
@@ -174,18 +182,23 @@ public class JcrDataSource implements IDataSource, DisposableBean {
                                     + " class listener is removed from jcr data source");
                         }
                     } catch (RRepositoryException e) {
-                        log.warn("Exception has been occured on removing listener from jcr data source.", e);
+                        if (log.isWarnEnabled()) {
+                            log.warn("Exception has been occured on removing listener from jcr data source.", e);
+                        }
                         throw new DataSourceException(e);
                     }
                 }
             }
         }
     }
-    
+
     public void destroy() throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("JCR data source releasing");
+        }
         getRProductionRepository().release();
     }
-   
+
     private RDeploymentListener buildRDeploymentListener(IDataSourceListener dataSourceListener) {
         return new DataSourceListenerWrapper(dataSourceListener);
     }
