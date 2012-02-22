@@ -44,7 +44,7 @@
 	-->
 	
 	<bean id="loggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
-		<property name="loggingEnabled" value="${ruleservice.loggingEnabled}"/>
+		<property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
 	</bean>
 
 	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
@@ -52,7 +52,7 @@
 		<property name="dataBinding" ref="dataBinding" />
 		<property name="features">
 			<list>
-				<!-- Comment/Uncomment following block for enable/disable logging feature -->
+				<!-- Comment/Uncomment following block for use/unuse logging feature. It can increase performance if logging isn't used. -->
 				<ref local="loggingFeature" />
 			</list>
 		</property>
