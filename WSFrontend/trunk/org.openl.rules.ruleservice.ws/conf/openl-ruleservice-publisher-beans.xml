@@ -43,10 +43,8 @@
 		without namespace "simple".
 	-->
 	
-	<bean id="loggingFeature" class="org.apache.cxf.feature.LoggingFeature">
-		<constructor-arg>
-			<util:constant static-field="java.lang.Integer.MAX_VALUE"/>
-		</constructor-arg>
+	<bean id="loggingFeature" class="org.openl.rules.ruleservice.logging.LoggingFeature">
+		<property name="loggingEnabled" value="${ruleservice.loggingEnabled}"/>
 	</bean>
 
 	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
@@ -55,10 +53,10 @@
 		<property name="features">
 			<list>
 				<!-- Comment/Uncomment following block for enable/disable logging feature -->
-				<!-- <ref local="loggingFeature" /> -->
+				<ref local="loggingFeature" />
 			</list>
 		</property>
-		
+
 	</bean>
 	
 	<!--
