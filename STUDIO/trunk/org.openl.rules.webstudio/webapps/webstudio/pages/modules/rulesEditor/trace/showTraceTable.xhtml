@@ -12,6 +12,7 @@
         </h:panelGroup>
 
         <h:panelGroup rendered="#{empty param.first}">
+            <div style="border-bottom: 1px solid #dddddd">
             <table>
                 <tr style="vertical-align: top">
                     <td style="padding-top: 5px"><b>Input parameters: </b></td>
@@ -46,6 +47,7 @@
                     </h:panelGroup>
                 </tr>
             </table>
+            </div>
 
             <c:set var="errors" value="#{showTraceTableBean.errors}" />
             <h:panelGroup rendered="#{not empty errors}">
@@ -56,8 +58,10 @@
                 <p />
             </h:panelGroup>
 
+            <br />
+
             <rules:tableEditor table="#{showTraceTableBean.traceTable}" filter="#{showTraceTableBean.traceFilter}"
-                editable="false" view="#{showTraceTableBean.traceTableView}" />
+                editable="false" view="#{studio.tableView}" />
 
         </h:panelGroup>
     </ui:define>

@@ -163,11 +163,6 @@ public class OpenLAdvancedSearchBean {
         return selectedTableTypes;
     }
 
-    public String getStudioView() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        return studio == null ? null : studio.getModel().getTableView(FacesUtils.getRequestParameter("view"));
-    }
-
     public synchronized SearchElementBean[] getTableElements() {
         return tableElements;
     }

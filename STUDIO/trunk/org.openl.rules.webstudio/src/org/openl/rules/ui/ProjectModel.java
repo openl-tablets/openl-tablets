@@ -45,7 +45,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.OpenLTable;
 import org.openl.rules.table.xls.XlsCellStyle2;
-import org.openl.rules.table.xls.XlsSheetGridHelper;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -77,7 +76,6 @@ import org.openl.util.StringTool;
 import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
-import org.openl.util.export.IExporter;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -617,10 +615,6 @@ public class ProjectModel {
         return tsn == null ? null : tsn.getGridTable();
     }
 
-    public String getTableView(String view) {
-        return view == null ? studio.getTableView() : view;
-    }
-
     /**
      * Gets test methods for method by uri.
      * 
@@ -1062,7 +1056,7 @@ public class ProjectModel {
     }
 
     public TableEditorModel getTableEditorModel(IOpenLTable table) {
-        String tableView = getTableView(null);
+        String tableView = studio.getTableView();
         TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
         return tableModel;
     }
