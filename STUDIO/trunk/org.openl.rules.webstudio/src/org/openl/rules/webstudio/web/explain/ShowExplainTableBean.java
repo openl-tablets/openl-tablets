@@ -51,11 +51,6 @@ public class ShowExplainTableBean {
         return filter;
     }
 
-    public String getTableView() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.getTableView(FacesUtils.getRequestParameter("view"));
-    }
-
     public String getHeader() {
         StringBuilder header = new StringBuilder();
 

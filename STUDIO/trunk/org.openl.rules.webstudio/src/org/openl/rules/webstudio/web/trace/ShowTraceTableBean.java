@@ -63,11 +63,6 @@ public class ShowTraceTableBean {
         return traceHelper.makeFilter(traceElementId, model);
     }
 
-    public String getTraceTableView() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.getTableView(FacesUtils.getRequestParameter("view"));
-    }
-    
     public ParameterWithValueDeclaration[] getInputParameters() {
         ITableTracerObject tto = traceHelper.getTableTracer(traceElementId);
         return new TracerObjectDecorator(tto).getInputParameters();

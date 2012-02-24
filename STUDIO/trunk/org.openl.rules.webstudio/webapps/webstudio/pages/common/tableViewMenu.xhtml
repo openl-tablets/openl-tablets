@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <style>
-        td.menu {
-            background: lightblue;
-            text-align: center;
-            vertical-align: middle;
-        }
         table.menu {
             position: absolute;
             visibility: hidden;
             border: 1px solid rgb(200, 200, 200);
+            background: #ffffff;
+            padding: 0 1px;
         }
-        td.menuButton {
+        span.menuButton {
             border: 1px solid rgb(200, 200, 200);
+            padding: 3px;
+            display: inline-block;
+        }
+        .colorButton {
+            width: 14px;
+            height: 14px;
+            display: inline-block;
         }
     </style>
 
@@ -33,12 +36,14 @@
 
     <c:set value="#{tableViewMenuBean.filterHolder}" var="filterHolder" />
 
-    <div class="menudiv" style="width: 150px"
+    <div class="menudiv" style="width: 110px"
         onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')">
-        <table cellspacing="0">
+        <table cellspacing="0" cellpadding="0">
             <tr>
-                <td title="#{filterHolder.filterName}" class="menuButton">
-                    <h:graphicImage url="/webresource/images/#{filterHolder.imageName}" />
+                <td>
+                    <span class="menuButton">
+                        <span style="background: #{filterHolder.imageName}" class="colorButton" />
+                    </span>
                 </td>
             </tr>
             <tr>
@@ -47,35 +52,26 @@
                         <tr>
                         <c:forEach begin="0" end="#{fn:length(tableViewMenuBean.filterImageNames) - 1}"
                             var="filterId">
-                            <td class="menu">
-                                <a href="?#{tableViewMenuBean.requestParams}&amp;filterType=#{filterId}">
-                                    <h:graphicImage
-                                        url="/webresource/images/#{tableViewMenuBean.filterImageNames[filterId]}"
-                                        alt="#{tableViewMenuBean.filterNames[filterId]}"
-                                        title="#{tableViewMenuBean.filterNames[filterId]}" /></a>
+                            <c:if test="#{filterHolder.imageName != tableViewMenuBean.filterImageNames[filterId]}">
+                            <td>
+                                <a href="?#{tableViewMenuBean.requestParams}&amp;filterType=#{filterId}"
+                                    title="#{tableViewMenuBean.filterNames[filterId]}">
+                                    <span class="colorButton"
+                                        style="background: #{tableViewMenuBean.filterImageNames[filterId]}" /></a>
                             </td>
+                            </c:if>
                         </c:forEach>
+                        <td>
+                            <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=down">
+                                <img src="webresource/images/arrow_open.png"
+                                    title="Less Transparent (#{filterHolder.transparency}%)"/></a>
+                        </td>
+                        <td>
+                            <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=up">
+                                <img src="webresource/images/arrow_close.png"
+                                    title="More Transparent (#{filterHolder.transparency}%)"/></a>
+                        </td>
                         </tr>
-                        <tr>
-                            <td class="menu">
-                                <a href="?#{tableViewMenuBean.requestParamsView}&amp;view=developer">
-                                    <img src="webresource/images/developer-view.png" title="Developer (Full) View" /></a>
-                            </td>
-                            <td class="menu">
-                                <a href="?#{tableViewMenuBean.requestParamsView}&amp;view=business">
-                                    <img src="webresource/images/business-view.png" title="Business View"/></a>
-                            </td>
-                            <td class="menu">
-                                <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=down">
-                                    <img src="webresource/images/brightness_down.png"
-                                        title="Less Transparent (#{filterHolder.transparency}%)"/></a>
-                            </td>
-                            <td class="menu">
-                                <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=up">
-                                    <img src="webresource/images/brightness_up.png"
-                                        title="More Transparent (#{filterHolder.transparency}%)"/></a>
-                            </td>
-                       </tr>
                    </table>
                  </td>
              </tr>
