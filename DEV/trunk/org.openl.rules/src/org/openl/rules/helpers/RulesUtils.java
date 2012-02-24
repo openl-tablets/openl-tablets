@@ -1103,4 +1103,8 @@ public class RulesUtils {
     public static BigDecimal round(BigDecimal value, int scale, int roundingMethod) {
         return value.setScale(scale, roundingMethod);
     }
+    
+    public static Object[] removeNulls(Object[] array) {
+    	return ArrayTool.removeNulls(array);
+    }
 }

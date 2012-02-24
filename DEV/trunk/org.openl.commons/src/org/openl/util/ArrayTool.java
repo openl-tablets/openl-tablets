@@ -839,5 +839,22 @@ public class ArrayTool {
         } 
         return clazz;
     }
+    
+    public static Object[] removeNulls(Object[] array) {
+    	Object[] result = null;
+    	if (noNulls(array)) {
+    		result = array;
+    	} else {
+    		if (array != null) {
+    			result = array.clone();
+        		for (int i = 0; i < array.length; i++) {
+        			if (array[i] == null) {
+        				result = ArrayUtils.removeElement(result, array[i]);
+        			}
+        		}
+    		} 
+    	}
+    	return result;
+    }
 
 }
