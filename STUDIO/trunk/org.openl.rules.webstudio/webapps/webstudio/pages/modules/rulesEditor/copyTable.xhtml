@@ -49,7 +49,7 @@
             <div>
                 <h:panelGroup id="technicalNamePanel">
                     <h:panelGrid columns="3" style="background: #F1F1F1; padding: 3px 0; margin-bottom: 5px">
-                        <h:outputText value="Technical name" styleClass="required2" />
+                        <h:outputText value="Technical name" styleClass="required" />
                         <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
                             disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}" />
                         <a4j:outputPanel ajaxRendered="true">
@@ -113,13 +113,13 @@
                 <span style="cursor: pointer; border-bottom: 1px dashed #777777"
                     onclick="$j('#savePanel').slideDown();$j(this).hide()">#{wizard.workbookName} -> #{wizard.worksheetName}</span>
                 <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
-                    <h:outputText value="Workbook" styleClass="required2" />
+                    <h:outputText value="Workbook" styleClass="required" />
                     <h:selectOneMenu value="#{wizard.workbook}" style="width:100%">
                         <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
                         <f:selectItems value="#{wizard.workbooks}"/>
                     </h:selectOneMenu>
                     <h:outputText value="" />
-                    <h:outputText value="Worksheet" styleClass="required2" />
+                    <h:outputText value="Worksheet" styleClass="required" />
                     <h:panelGroup>
                         <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet" style="width:100%">
                             <f:selectItems value="#{wizard.worksheets}" />

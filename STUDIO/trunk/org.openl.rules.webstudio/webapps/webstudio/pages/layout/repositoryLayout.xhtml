@@ -56,7 +56,7 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else {
-                    alert("Server failed(");
+                    alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
                 }
             }
 
@@ -78,20 +78,6 @@
             }
           //]]>
         </script>
-
-        <style>
-            table.standard {
-                border-bottom: 1px solid #{richSkin.headerBackgroundColor};
-            }
-            table.standard td {
-                border-right-color: #{richSkin.generalBackgroundColor};
-            }
-            table.standard thead td {
-                border-top-color: #{richSkin.headerBackgroundColor};
-                color: #{richSkin.headerTextColor};
-                border-right-color: #{richSkin.generalBackgroundColor};
-            }
-        </style>
 
         <title>
             <ui:insert name="title">OpenL Tablets WebStudio</ui:insert>
