@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,6 +31,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
 
 @ManagedBean
@@ -186,7 +188,9 @@ public class TablePropertiesBean {
             String name = property.getName();
             Object newValue = property.getValue();
             Object oldValue = props.getPropertyValue(name);
-            if (ObjectUtils.notEqual(oldValue, newValue)) {
+            boolean enumArray = property.isEnumArray();
+            if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
+                    || (!enumArray && ObjectUtils.notEqual(oldValue, newValue))) {
                 tableEditorModel.setProperty(name,
                         newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
                 toSave = true;
