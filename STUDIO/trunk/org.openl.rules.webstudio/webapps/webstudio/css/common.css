@@ -203,16 +203,6 @@ fieldset {
     padding: 18px 10px;
 }
 
-.data_cell {
-    background: #eeffee;
-    border: 1px solid;
-}
-
-th.data_header {
-    background: #eeeeff;
-    border: 1px solid;
-}
-
 table.testtable {
     color: #222222;
     background-color: #ffffff;
@@ -226,7 +216,7 @@ table.testtable th {
     border-left: 1px dotted #777777;
     border-right: 1px dotted #777777;
     border-bottom: 1px solid #BBBBBB;
-    background-color: rgb(247,247,250);
+    background-color: #fbfbfb;
     padding: 5px 4px;
 }
 
@@ -243,13 +233,6 @@ table.testtable td {
 span.codeerror {
     color: red;
     font-weight: bold;
-}
-
-.treeOptionsText {
-    text-decoration: underline;
-    font-weight: bold;
-    font-size: larger;
-    color: red;
 }
 
 #userName {
@@ -286,53 +269,23 @@ span.codeerror {
     margin-right: 10px;
 }
 
-.lblSearch {
-  font-size: 13px;
-}
-
-.columnTree {
-  vertical-align: top;
-}
-
-.columnProps {
-  vertical-align: top;
-  width: 100%;
-}
-
-.colDiff {
-  width: 50%;
-  height: 100%;
-  padding: 10px;
-}
-
-.panelDiff {
-  width: 100%;
-  height: 100%;
-}
-
 form .formfields {
-  vertical-align: top;
-  border: none;
-  width: 99%;
+    vertical-align: top;
+    border: none;
+    width: 99%;
 }
 
 .label {
-  color: #002276;
-  padding-right: 5px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  width: 150px;
-  vertical-align: top;
-  font-family: verdana, helvetica, arial, sans-serif;
+    color: #3f3f3f;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    width: 150px;
+    vertical-align: top;
+    font-family: verdana, helvetica, arial, sans-serif;
 }
 
-.required {
-  color: #002276;
-  background: url(../webresource/images/required.gif) top right no-repeat;
-  padding-right: 5px;
-}
-
-.required2:after {
+.required:after {
     color: #ff2722;
     content: "*";
     padding-left: 2px;
@@ -341,13 +294,6 @@ form .formfields {
 form.standard table.buttonPanel {
   margin-top: 10px;
   margin-left: -4px;
-}
-
-.actionLabel {
-  vertical-align: top;
-  text-align: center;
-  display: screen;
-  font-size: 8pt;
 }
 
 .messages {
@@ -382,15 +328,16 @@ form.standard table.buttonPanel {
 }
 
 .noEntries {
-  color: #002276;
-  font-weight: bold;
-  margin-left: 10px;
+    display: inline-block;
+    color: #002276;
+    font-weight: bold;
+    margin: 7px 0 3px 10px;
 }
 
 /* Standard table that should be used to display any tabular data */
 table.standard {
   border: none;
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid #c3c3c3;
 }
 
 table.standard caption {
@@ -404,7 +351,7 @@ table.standard caption {
 table.standard thead td {
   border-color: gray white;
   border-style: solid;
-  border-width: 1px 1px 0px 0px;
+  border-width: 1px 0px 0px 0px;
   color: #052679;
   padding: 5px 8px 6px;
 }
@@ -478,12 +425,20 @@ table.header thead td {
 
 .rf-tab-hdr {
     vertical-align: middle !important;
-    color: #222222 !important;
+    color: #333333 !important;
     background: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-right-color: #eeeeee !important;
+}
+
+.rf-tab-hdr-act {
+    border-bottom: 1px solid orange !important;
+    color: #111111 !important;
 }
 
 .rf-tab-hdr-tabline-vis {
-    height: 21px !important;
+    height: 25px !important;
     border: 0 !important;
     background: none !important;
 }
@@ -506,6 +461,44 @@ table.header thead td {
 .rf-insp-btns {
     border: 0 !important;
     background: #e6e6e6 !important;
+}
+
+.rf-dt-hdr-c, .rf-dt-shdr-c {
+    background: #fbfbfb !important;
+    color: #222222 !important;
+}
+
+.rf-dt-hdr-c {
+    border-right: none !important;
+}
+
+.rf-pp-hdr {
+    background: #f7f7f7 !important;
+    padding: 4px 0 !important;
+    border-bottom: 1px solid #dddddd;
+}
+
+.rf-pp-hdr-cnt {
+    color: #222222 !important;
+}
+
+.rf-pp-cnt-scrlr {
+    background: #fefefe !important;
+}
+
+.rf-fu {
+    background: #fefefe !important;
+}
+
+.rf-fu-hdr {
+    background: #fefefe !important;
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+}
+
+.rf-fu-btn-add, .rf-fu-btn-upl, .rf-fu-btn-clr {
+    height: 21px !important;
+    background: #f7f7f7 !important;
 }
 
 .view_header {

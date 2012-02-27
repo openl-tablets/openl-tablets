@@ -32,7 +32,7 @@
     <c:set var="checkOutMessage" value="Make project available for editing in rules editor and lock it from editing by other users" />
     <c:set var="checkInMessage" value="Save project changes to repository as a new version and make it available for editing by other users" />
     <c:set var="copyMessage" value="Create a new project with identical content and different name in repository" />
-	
+
   <h:panelGroup rendered="#{node.type == 'file'}">
     <h:panelGrid columns="2" cellpadding="3" cellspacing="0">
       <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update" onclick="openUpdateFileDialog();return false;">
