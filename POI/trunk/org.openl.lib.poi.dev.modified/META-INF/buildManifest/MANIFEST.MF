@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: POI 3.7 Modified Plug-in
 Bundle-SymbolicName: org.openl.lib.poi.dev.modified
-Bundle-Version: 5.9.0
+Bundle-Version: 5.9.1
 Bundle-Vendor: OpenL
 Export-Package: java_cup.runtime,
  javax.xml.crypto,
