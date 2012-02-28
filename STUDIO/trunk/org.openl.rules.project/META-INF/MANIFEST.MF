@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Rules Project
 Bundle-SymbolicName: org.openl.rules.project
-Bundle-Version: 5.9.0
+Bundle-Version: 5.9.1
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
  org.openl.rules;visibility:=reexport
