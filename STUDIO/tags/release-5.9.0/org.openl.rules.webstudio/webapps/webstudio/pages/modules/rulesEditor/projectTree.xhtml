@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/pages/layout/view.xhtml">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <ui:define name="toolbar">
+        <style>
+            #nameFilter {
+                position: relative;
+            }
+            #nameFilter input {
+                width: 100%;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+                padding-right: 20px;
+            }
+            #nameFilter img {
+                position: absolute;
+                right: 10px;
+                top: 3px;
+                cursor: pointer;
+                opacity: 0.5;
+            }
+        </style>
+        <div>
+            <span id="nameFilter">
+                <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
+                <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
+            </span>
+        </div>
+    </ui:define>
+
+    <ui:define name="workspace">
+        <style>
+            #projects ul {
+                list-style: none;
+                margin: 0;
+                padding-left: 2px;
+            }
+            #projects a {
+                color: #111111;
+                text-decoration: none;
+            }
+            #projects a:hover {
+                background: #EAF0F8;
+            }
+            #projects .selected {
+                background: #EAF0F8;
+                font-weight: bold;
+            }
+            #projects .projectName {
+                color: #1199EE;
+                font-size: 110%;
+            }
+        </style>
+
+        <h:form prependId="false">
+            <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
+                <ul>
+                    <a4j:repeat value="#{studio.allProjects}" var="project">
+                    <li style="margin-bottom: 5px">
+                        <a class="projectName" href="javascript:void(0)" style="cursor: default;">#{project.name}</a>
+                        <ul style="margin-left: 9px">
+                            <a4j:repeat value="#{project.modules}" var="module">
+                            <li>
+                                <a4j:commandLink action="#{mainBean.selectModule}" onclick="selectModule(this)"
+                                    oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{project.name}') + '/' + encodeURIComponent('#{module.name}'), true)">
+                                    #{module.name}
+                                    <f:param name="project" value="#{module.project.id}" />
+                                    <f:param name="module" value="#{module.name}" />
+                                </a4j:commandLink>
+                            </li>
+                            </a4j:repeat>
+                        </ul>
+                    </li>
+                    </a4j:repeat>
+                </ul>
+
+                <script>
+                  //<![CDATA[
+                    var selected;
+                    var FILTER_PATTERN_ITEM = "filterPattern";
+
+                    var projects = $j("#projects > ul > li");
+
+                    var filterPattern = $j("#nameFilter input").val()
+                        || sessionStorage.getItem(FILTER_PATTERN_ITEM);
+                    if (filterPattern) {
+                        $j("#nameFilter input").val(filterPattern);
+                        filterProjects(filterPattern);
+                    }
+
+                    function selectModule(link) {
+                        if (selected) {
+                            selected.removeClass('selected');
+                        }
+                        $j(link).addClass('selected');
+                        selected = $j(link);
+                    }
+
+                    function filterProjects(pattern) {
+                        sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
+                        projects.each(function() {
+                            var projectName = $j(this).find(">a").text();
+                            $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+                        });
+                    }
+                  //]]>
+                </script>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{empty studio.allProjects}">
+                <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
+                <br />
+                <c:if test="true">
+                    Please go to the
+                    <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
+                        title="Repository"><h:outputText value="Repository" /></a>
+                    to create (upload) a new project
+                </c:if>
+            </h:panelGroup>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
