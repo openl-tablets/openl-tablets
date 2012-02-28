@@ -5,6 +5,9 @@ import java.lang.reflect.Array;
 public class ArrayComparator implements TestResultComparator {
 
     public boolean compareResult(Object actualResult, Object expectedResult) {
+    	if (actualResult == null || expectedResult == null) {
+    		return actualResult == expectedResult;
+    	}
         int len = Array.getLength(actualResult);
         if (len != Array.getLength(expectedResult)) {
             return false;
