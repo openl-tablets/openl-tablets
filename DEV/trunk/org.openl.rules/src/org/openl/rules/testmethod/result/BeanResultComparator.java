@@ -30,26 +30,31 @@ public class BeanResultComparator implements TestResultComparator {
     }
 
     public boolean compareResult(Object actualResult, Object expectedResult) {
-        boolean success = true;
-        for (ComparedResult fieldToCompare : fieldsToCompare) {
-            String fieldName = fieldToCompare.getFieldName();
-            Object actualFieldValue = getFieldValue(actualResult, fieldName);
-            Object expectedFieldValue = getFieldValue(expectedResult, fieldName);
-            
-            TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue, expectedFieldValue);
-            boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
-            
-            fieldToCompare.setActualValue(actualFieldValue);
-            fieldToCompare.setExpectedValue(expectedFieldValue);
-            
-            if (!compare) {
-                fieldToCompare.setStatus(TestStatus.TR_NEQ);
-                success = false;
-            } else {
-                fieldToCompare.setStatus(TestStatus.TR_OK);
+        if (actualResult == null || expectedResult == null) {
+        	return actualResult == expectedResult;
+        } else {
+        	boolean success = true;
+        	for (ComparedResult fieldToCompare : fieldsToCompare) {
+                String fieldName = fieldToCompare.getFieldName();
+                Object actualFieldValue = getFieldValue(actualResult, fieldName);
+                Object expectedFieldValue = getFieldValue(expectedResult, fieldName);
+                
+                TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue, expectedFieldValue);
+                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
+                
+                fieldToCompare.setActualValue(actualFieldValue);
+                fieldToCompare.setExpectedValue(expectedFieldValue);
+                
+                if (!compare) {
+                    fieldToCompare.setStatus(TestStatus.TR_NEQ);
+                    success = false;
+                } else {
+                    fieldToCompare.setStatus(TestStatus.TR_OK);
+                }
             }
+            return success;
         }
-        return success;
+        
     }
     
     private Object getFieldValue(Object target, String fieldName) {
