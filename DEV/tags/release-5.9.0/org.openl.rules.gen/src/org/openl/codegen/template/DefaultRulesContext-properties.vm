@@ -1,0 +1,8 @@
+#foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
+	public $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($contextPropertyDefinition.Name)() {
+		return ($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass)) getValue("$contextPropertyDefinition.Name"); 
+	}
+	public void set$tool.formatAccessorName($contextPropertyDefinition.Name)($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) $contextPropertyDefinition.Name) {
+		setValue("$contextPropertyDefinition.Name", $contextPropertyDefinition.Name);
+	}	
+#end
