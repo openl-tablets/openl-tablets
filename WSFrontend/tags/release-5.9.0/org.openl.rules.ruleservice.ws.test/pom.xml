@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openl.rules</groupId>
+	<artifactId>org.openl.rules.ruleservice.ws.test</artifactId>
+	<packaging>jar</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>OpenL - RuleService - RuleService - Web Services Test</name>
+	<description>OpenL Rules Webservice Test</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<properties>
+		<cxf.version>2.3.2</cxf.version>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>default.val</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
+		</profile>
+		<profile>
+			<id>client</id>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
+			<!-- STUDIO -->
+			<build>
+				<defaultGoal>test</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>test</phase>
+								<goals>
+									<goal>java</goal>
+								</goals>
+								<configuration>
+									<mainClass>org.openl.ruleservice.publish.client.WebServicesExposingTest</mainClass>
+									<classpathScope>test</classpathScope>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+
+			<dependencies>
+				<!-- Other -->
+				<dependency>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-bundle</artifactId>
+					<version>${cxf.version}</version>
+				</dependency>
+
+				<dependency>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-distribution-manifest</artifactId>
+					<version>${cxf.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.5</version>
+		</dependency>
+	</dependencies>
+</project>
