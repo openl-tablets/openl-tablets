@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<import resource="project-resolver-beans.xml"/>
+	
+	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
+	<!-- This implementation based on JCR repository -->
+	<bean id="datasource" class="org.openl.rules.ruleservice.loader.JcrDataSource" />
+
+	<!-- Folders exclude definition bean-->
+	<bean id="excludedFolders" class="java.util.LinkedHashSet">
+		<constructor-arg>
+			<list>
+				<value>.svn</value>
+				<value>CVS</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Files exclude definition bean-->
+	<bean id="excludedFiles" class="java.util.LinkedHashSet">
+		<constructor-arg>
+			<list>
+				<value>.cvsignore</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Folder filter bean -->
+	<bean id="localWorkspaceFolderFilter" class="org.apache.commons.io.filefilter.AndFileFilter">
+		<constructor-arg>
+			<list>
+				<bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
+				<bean class="org.apache.commons.io.filefilter.NotFileFilter">
+					<constructor-arg>
+						<bean class="org.apache.commons.io.filefilter.OrFileFilter">
+							<constructor-arg>
+								<list>
+									<bean class="org.apache.commons.io.filefilter.NameFileFilter">
+										<constructor-arg ref="excludedFolders" />
+									</bean>
+									<bean class="org.apache.commons.io.filefilter.NameFileFilter">
+										<constructor-arg>
+											<list>
+												<value>.studioProps</value>
+											</list>
+										</constructor-arg>
+									</bean>
+								</list>
+							</constructor-arg>
+						</bean>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- File filter bean -->
+	<bean id="localWorkspaceFileFilter" class="org.apache.commons.io.filefilter.OrFileFilter">
+		<constructor-arg>
+			<list>
+				<ref bean="localWorkspaceFolderFilter" />
+				<bean class="org.apache.commons.io.filefilter.AndFileFilter">
+					<constructor-arg>
+						<list>
+							<util:constant
+								static-field="org.apache.commons.io.filefilter.HiddenFileFilter.VISIBLE" />
+							<bean class="org.apache.commons.io.filefilter.NotFileFilter">
+								<constructor-arg>
+									<bean class="org.apache.commons.io.filefilter.DirectoryFileFilter" />
+								</constructor-arg>
+							</bean>
+							<bean class="org.apache.commons.io.filefilter.NotFileFilter">
+								<constructor-arg>
+									<bean class="org.apache.commons.io.filefilter.NameFileFilter">
+										<constructor-arg ref="excludedFiles" />
+									</bean>
+								</constructor-arg>
+							</bean>
+						</list>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Local storage for all projects that is used in services. -->
+	<bean id="localTemporaryDeploymentsStorage"
+		class="org.openl.rules.ruleservice.loader.LocalTemporaryDeploymentsStorage">
+		<constructor-arg name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"></constructor-arg>
+		<constructor-arg name="localWorkspaceFolderFilter"
+			ref="localWorkspaceFolderFilter"></constructor-arg>
+		<property name="directoryToLoadDeploymentsIn" value="${ruleservice.tmp.dir}" />
+	</bean>
+
+	<!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects. 
+	Contains own storage for all projects that is used in services. -->
+	<bean id="rulesLoader" class="org.openl.rules.ruleservice.loader.RulesLoader">
+		<constructor-arg name="dataSource" ref="datasource" />
+		<constructor-arg name="projectResolver" ref="projectResolver" />
+		<constructor-arg name="storage"
+			ref="localTemporaryDeploymentsStorage" />
+	</bean>
+</beans>
