@@ -9,7 +9,7 @@
 
   <dependencySets>
     <dependencySet>
-      <outputFileNameMapping>${artifact.artifactId}_${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputFileNameMapping>${artifact.artifactId}_${artifact.version}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <outputDirectory>libs</outputDirectory>
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <excludes>
