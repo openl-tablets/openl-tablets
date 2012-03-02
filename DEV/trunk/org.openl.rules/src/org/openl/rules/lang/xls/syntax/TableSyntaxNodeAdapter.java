@@ -63,22 +63,18 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     }
 
     public String getName() {
-        String tableName = getTechnicalName();
         ITableProperties properties = getProperties();
         if (properties != null) {
             String name = properties.getName();
-            String version = properties.getVersion();
             if (StringUtils.isNotBlank(name)) {
-                tableName = name;
-            }            
-            if (StringUtils.isNotBlank(version)) { 
-                // version was added for links to target tables.
-                // see showTable.xhtml, Target table section.
-                //
-                return String.format("%s: %s", tableName, version);
+                String version = properties.getVersion();
+                if (StringUtils.isNotBlank(version)) { 
+                    return String.format("%s: %s", name, version);
+                }
+                return name;
             }
         }
-        return tableName;
+        return getTechnicalName();
     }
 
     public boolean isExecutable() {
