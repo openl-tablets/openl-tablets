@@ -3,32 +3,43 @@ package org.openl.rules.ruleservice.publish;
 import java.util.List;
 
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
+import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 
 /**
  * Deployment admin controls the way how the services will be exposed.
  * 
  * @author PUdalau
  */
-public interface IDeploymentAdmin {
+public interface RuleServicePublisher {
 
     /**
      * Deploys the specified service.
      * 
      * @param service Service to deploy.
      * @return
-     * @throws ServiceDeployException
+     * @throws RuleServiceDeployException
      */
-    OpenLService deploy(OpenLService service) throws ServiceDeployException;
+    OpenLService deploy(OpenLService service) throws RuleServiceDeployException;
 
     /**
      * Undeploys currently running service.
      * 
      * @param serviceName Name of the service to undeploy.
      * @return Undeployed service.
-     * @throws ServiceDeployException
+     * @throws RuleServiceDeployException
      */
-    OpenLService undeploy(String serviceName) throws ServiceDeployException;
+    OpenLService undeploy(String serviceName) throws RuleServiceUndeployException;
+    
+    /**
+     * Undeploys currently running service.
+     * 
+     * @param serviceName Name of the service to undeploy.
+     * @return Undeployed service.
+     * @throws RuleServiceDeployException
+     */
+    OpenLService redeploy(OpenLService service) throws RuleServiceRedeployException;
 
     /**
      * Provides info about all currently running services.

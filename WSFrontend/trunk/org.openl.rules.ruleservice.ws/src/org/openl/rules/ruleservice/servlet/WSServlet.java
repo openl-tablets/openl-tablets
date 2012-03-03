@@ -4,7 +4,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.apache.cxf.transport.servlet.CXFServlet;
-import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -23,9 +23,9 @@ public class WSServlet extends CXFServlet {
         ServletContext context = getServletContext();
         WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(context);
 
-        ServiceManager serviceManager;
+        ServiceManagerImpl serviceManager;
         if (applicationContext.containsBean("serviceManager")) {
-            serviceManager = (ServiceManager) applicationContext.getBean("serviceManager");
+            serviceManager = (ServiceManagerImpl) applicationContext.getBean("serviceManager");
         } else {
             throw new ServletException(
                     "Could not instaniate serice manager. Make sure that you have configured bean \"ruleService\"");

@@ -21,13 +21,12 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * File based data source.
- * Thread safe implementation.
+ * File based data source. Thread safe implementation.
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
-public class FileSystemDataSource implements IDataSource {
+public class FileSystemDataSource implements DataSource {
 
     private Log log = LogFactory.getLog(FileSystemDataSource.class);
 
@@ -41,7 +40,7 @@ public class FileSystemDataSource implements IDataSource {
 
     private Object flag = new Object();
 
-    private List<IDataSourceListener> listeners = new ArrayList<IDataSourceListener>();
+    private List<DataSourceListener> listeners = new ArrayList<DataSourceListener>();
 
     /**
      * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
@@ -114,7 +113,7 @@ public class FileSystemDataSource implements IDataSource {
             throw new DataSourceException("Folder doesn't exist. Path: " + getLoadDeploymentsFromDirectory());
         }
     }
-    
+
     /** {@inheritDoc} */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         if (deploymentName == null) {
@@ -154,19 +153,20 @@ public class FileSystemDataSource implements IDataSource {
     }
 
     /** {@inheritDoc} */
-    public List<IDataSourceListener> getListeners() {
+    public List<DataSourceListener> getListeners() {
         return Collections.unmodifiableList(listeners);
     }
 
     /** {@inheritDoc} */
-    public void addListener(IDataSourceListener dataSourceListener) {
+    public void addListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
             listeners.add(dataSourceListener);
             if (log.isInfoEnabled()) {
-                log.info(dataSourceListener.getClass().toString() + " class listener is registered in file system data source");
+                log.info(dataSourceListener.getClass().toString()
+                        + " class listener is registered in file system data source");
             }
         }
 
@@ -175,8 +175,8 @@ public class FileSystemDataSource implements IDataSource {
     /** {@inheritDoc} */
     public void removeAllListeners() {
         synchronized (listeners) {
-            Iterator<IDataSourceListener> itr = listeners.iterator();
-            while(itr.hasNext()){
+            Iterator<DataSourceListener> itr = listeners.iterator();
+            while (itr.hasNext()) {
                 itr.next();
                 itr.remove();
             }
@@ -184,7 +184,7 @@ public class FileSystemDataSource implements IDataSource {
     }
 
     /** {@inheritDoc} */
-    public void removeListener(IDataSourceListener dataSourceListener) {
+    public void removeListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
@@ -258,7 +258,7 @@ public class FileSystemDataSource implements IDataSource {
                 if (current == null) {
                     // new file
                     dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
-                    if (!f){
+                    if (!f) {
                         onChange();
                         f = true;
                     }
@@ -266,7 +266,7 @@ public class FileSystemDataSource implements IDataSource {
                 } else if (current.longValue() != filesArray[i].lastModified()) {
                     // modified file
                     dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
-                    if (!f){
+                    if (!f) {
                         onChange();
                         f = true;
                     }
@@ -281,40 +281,40 @@ public class FileSystemDataSource implements IDataSource {
             while (it.hasNext()) {
                 File deletedFile = (File) it.next();
                 dir.remove(deletedFile);
-                if (!f){
+                if (!f) {
                     onChange();
                     f = true;
                 }
                 onChange(deletedFile, "delete");
             }
         }
-        
+
         /**
          * Executes once on change if change is detected
          */
         protected abstract void onChange();
-        
+
         protected abstract void onChange(File file, String action);
     }
 
     /**
      * TimerTask for check file data source modifications
      * 
-     * @author MKamalov
+     * @author
      * 
      */
     public static class CheckFileSystemChanges extends DirWatcher {
         private FileSystemDataSource fileSystemDataSource;
-        
+
         private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource) {
             super(fileSystemDataSource.getLoadDeploymentsFromDirectory());
             this.fileSystemDataSource = fileSystemDataSource;
         }
-        
+
         @Override
         protected void onChange() {
-            List<IDataSourceListener> listeners = fileSystemDataSource.getListeners();
-            for (IDataSourceListener listener : listeners){
+            List<DataSourceListener> listeners = fileSystemDataSource.getListeners();
+            for (DataSourceListener listener : listeners) {
                 listener.onDeploymentAdded();
             }
         }

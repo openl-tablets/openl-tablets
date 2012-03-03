@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.simple;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
 
 public class JavaClassDeploymentAdminTest {
     private static RulesProjectResolver resolver;
@@ -25,9 +25,11 @@ public class JavaClassDeploymentAdminTest {
 
     private static OpenLService service2;
 
-    private IRulesFrontend frontend;
+    private RulesFrontend frontend;
 
-    private JavaClassDeploymentAdmin javaClassDeploymentAdmin;
+    private JavaClassRuleServicePublisher javaClassRuleServicePublisher;
+    
+    private static RuleServiceOpenLServiceInstantiationFactoryImpl ruleServiceOpenLServiceInstantiationFactory;
 
     private static List<Module> resolveAllModules(File root) {
         List<Module> modules = new ArrayList<Module>();
@@ -42,80 +44,82 @@ public class JavaClassDeploymentAdminTest {
     }
 
     @BeforeClass
-    public static void init() throws ServiceDeployException {
+    public static void init() throws Exception {
         resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        
         List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
-        service1 = new OpenLService("multiModule", "no_url", modules1, null, false);
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false, modules1);
         File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
         ResolvingStrategy tut4ResolvingStrategy = resolver.isRulesProject(tut4Folder);
         assertNotNull(tut4ResolvingStrategy);
-        service2 = new OpenLService("tutorial4", "no_url", tut4ResolvingStrategy.resolveProject(tut4Folder)
-                .getModules(), "org.openl.rules.tutorial4.Tutorial4Interface", false);
+        service2 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("tutorial4", "no_url", "org.openl.rules.tutorial4.Tutorial4Interface", false, tut4ResolvingStrategy.resolveProject(tut4Folder)
+                        .getModules());
     }
 
     @Before
     public void before() {
-        frontend = new RulesFrontend();
-        javaClassDeploymentAdmin = new JavaClassDeploymentAdmin();
-        javaClassDeploymentAdmin.setFrontend(frontend);
+        frontend = new RulesFrontendImpl();
+        javaClassRuleServicePublisher = new JavaClassRuleServicePublisher();
+        javaClassRuleServicePublisher.setFrontend(frontend);
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void getRunningServices() throws ServiceDeployException{
-        List<OpenLService> services = javaClassDeploymentAdmin.getRunningServices();
+    public void getRunningServices() throws Exception {
+        List<OpenLService> services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
-        javaClassDeploymentAdmin.deploy(service1);
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.deploy(service1);
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 1);
-        javaClassDeploymentAdmin.deploy(service2);
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.deploy(service2);
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 2);
         services.add(service2);
     }
 
     @Test
-    public void testDeploy() throws ServiceDeployException{
-        List<OpenLService> services = javaClassDeploymentAdmin.getRunningServices();
+    public void testDeploy() throws Exception {
+        List<OpenLService> services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
-        javaClassDeploymentAdmin.deploy(service1);
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.deploy(service1);
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 1);
-        javaClassDeploymentAdmin.deploy(service2);
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.deploy(service2);
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 2);
     }
 
     @Test
-    public void testUndeploy() throws ServiceDeployException{
-        List<OpenLService> services = javaClassDeploymentAdmin.getRunningServices();
+    public void testUndeploy() throws Exception {
+        List<OpenLService> services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
-        javaClassDeploymentAdmin.deploy(service1);
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.deploy(service1);
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 1);
-        javaClassDeploymentAdmin.undeploy(service1.getName());
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.undeploy(service1.getName());
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
     }
-    
+
     @Test
-    public void testFindServiceByName() throws ServiceDeployException{
-        List<OpenLService> services = javaClassDeploymentAdmin.getRunningServices();
+    public void testFindServiceByName() throws Exception {
+        List<OpenLService> services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
-        javaClassDeploymentAdmin.deploy(service1);
-        services = javaClassDeploymentAdmin.getRunningServices();
+        javaClassRuleServicePublisher.deploy(service1);
+        services = javaClassRuleServicePublisher.getRunningServices();
         assertNotNull(services);
         assertTrue(services.size() == 1);
-        OpenLService service = javaClassDeploymentAdmin.findServiceByName(service1.getName());
+        OpenLService service = javaClassRuleServicePublisher.findServiceByName(service1.getName());
         assertNotNull(service);
         assertEquals(service1.getName(), service.getName());
     }

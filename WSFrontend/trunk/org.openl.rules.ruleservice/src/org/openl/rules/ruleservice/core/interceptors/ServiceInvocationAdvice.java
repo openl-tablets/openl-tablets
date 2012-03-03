@@ -17,10 +17,16 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.springframework.core.Ordered;
 
-public class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
-    
-    //private Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
-    
+/**
+ * Advice for processing method intercepting. For RuleService internal use.
+ * 
+ * @author Marat Kamalov
+ * 
+ */
+public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
+
+    // private Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
+
     private static final String MSG_SEPARATOR = "; ";
 
     private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<Method, List<ServiceMethodBeforeAdvice>>();
@@ -144,16 +150,17 @@ public class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
             if (beanMethod == null) {
                 StringBuilder sb = new StringBuilder();
                 boolean flag = true;
-                for (Class<?> clazz : calledMethod.getParameterTypes()){
-                    if (flag){
+                for (Class<?> clazz : calledMethod.getParameterTypes()) {
+                    if (flag) {
                         flag = false;
-                    }else{
+                    } else {
                         sb.append(", ");
                     }
                     sb.append(clazz.getCanonicalName());
                 }
-                throw new OpenLRuntimeException("Called method not found in service bean. Please, check that excel file contains method with name \""
-                        + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
+                throw new OpenLRuntimeException(
+                        "Called method not found in service bean. Please, check that excel file contains method with name \""
+                                + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
             }
             try {
                 result = beanMethod.invoke(serviceBean, args);

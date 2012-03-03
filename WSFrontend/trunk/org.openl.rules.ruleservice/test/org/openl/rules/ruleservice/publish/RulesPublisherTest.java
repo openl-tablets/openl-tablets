@@ -26,20 +26,20 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
-import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
-import org.openl.rules.ruleservice.simple.IRulesFrontend;
-import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
-import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
+import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class RulesPublisherTest {
-    private static RulesPublisher publisher;
-    private static IRulesFrontend frontend;
+    private static JavaClassRuleServicePublisher publisher;
+    private static RulesFrontend frontend;
     private static RulesProjectResolver resolver;
-    
+    private static RuleServiceOpenLServiceInstantiationFactoryImpl ruleServiceOpenLServiceInstantiationFactory;
+
     private static OpenLService service1;
-    
+
     private static OpenLService service2;
 
     private static List<Module> resolveAllModules(File root) {
@@ -55,26 +55,26 @@ public class RulesPublisherTest {
     }
 
     @BeforeClass
-    public static void init() throws ServiceDeployException{
+    public static void init() throws Exception {
         resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        frontend = new RulesFrontend();
-        JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
-        deploymentAdmin.setFrontend(frontend);
-        publisher = new RulesPublisher();
-        publisher.setDeploymentAdmin(deploymentAdmin);
-        publisher.setInstantiationFactory(new RulesInstantiationFactory());
+        frontend = new RulesFrontendImpl();
+        publisher = new JavaClassRuleServicePublisher();
+        publisher.setFrontend(frontend);
+        ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
 
         List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
-        service1 = new OpenLService("multiModule", "no_url", modules1, null, false);
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false,
+                modules1);
         File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
         ResolvingStrategy tut4ResolvingStrategy = resolver.isRulesProject(tut4Folder);
         assertNotNull(tut4ResolvingStrategy);
-        service2 = new OpenLService("tutorial4", "no_url", tut4ResolvingStrategy
-                .resolveProject(tut4Folder).getModules(), "org.openl.rules.tutorial4.Tutorial4Interface", false);
+        service2 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("tutorial4", "no_url",
+                "org.openl.rules.tutorial4.Tutorial4Interface", false, tut4ResolvingStrategy.resolveProject(tut4Folder)
+                        .getModules());
     }
-    
+
     @Before
-    public void before() throws ServiceDeployException {
+    public void before() throws Exception {
         publisher.undeploy(service1.getName());
         publisher.undeploy(service2.getName());
         publisher.deploy(service1);
@@ -82,15 +82,15 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMultiModuleService() throws MethodInvocationException{
-        assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
+    public void testMultiModuleService() throws Exception {
+        //assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));
         assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
         assertEquals(3, Array.getLength(frontend.getValues("multiModule", "data2")));
     }
 
     @Test
-    public void testMultipleServices() throws Exception{
+    public void testMultipleServices() throws Exception {
         assertEquals(2, publisher.getRunningServices().size());
         assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
         assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
@@ -99,18 +99,18 @@ public class RulesPublisherTest {
         assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
         assertEquals(1, publisher.getRunningServices().size());
     }
-    
-    private int getCount()throws Exception{
+
+    private int getCount() throws Exception {
         Class<?> counter = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
                 .loadClass("org.openl.rules.tutorial4.InvocationCounter");
-        return (Integer)counter.getMethod("getCount").invoke(null);
+        return (Integer) counter.getMethod("getCount").invoke(null);
     }
-    
-    @Test(expected=MethodInvocationException.class)
-    public void testMethodBeforeInterceptors() throws Exception{
+
+    @Test(expected = MethodInvocationException.class)
+    public void testMethodBeforeInterceptors() throws Exception {
         int count = getCount();
         final int executedTimes = 10;
-        for(int i = 0; i < executedTimes; i++){
+        for (int i = 0; i < executedTimes; i++) {
             assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
         }
         assertEquals(executedTimes, getCount() - count);
@@ -120,18 +120,19 @@ public class RulesPublisherTest {
     }
 
     @Test
-    public void testMethodAfterInterceptors() throws Exception{
+    public void testMethodAfterInterceptors() throws Exception {
         Object driver = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
                 .loadClass("org.openl.generated.beans.Driver").newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
-        Class<? extends Object> returnType = frontend.execute("tutorial4", "driverAgeType", new Object[] { driver }).getClass();
+        Class<? extends Object> returnType = frontend.execute("tutorial4", "driverAgeType", new Object[] { driver })
+                .getClass();
         assertTrue(returnType.isEnum());
         assertTrue(returnType.getName().equals("org.openl.rules.tutorial4.DriverAgeType"));
     }
 
     @Test
-    public void testServiceClassResolving() throws Exception{
+    public void testServiceClassResolving() throws Exception {
         Class<?> tutorial4ServiceClass = publisher.findServiceByName("tutorial4").getServiceClass();
         assertTrue(tutorial4ServiceClass.isInterface());
         assertEquals("org.openl.rules.tutorial4.Tutorial4Interface", tutorial4ServiceClass.getName());

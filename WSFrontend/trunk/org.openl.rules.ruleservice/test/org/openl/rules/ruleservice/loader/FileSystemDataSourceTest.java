@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.openl.rules.project.abstraction.Deployment;
 
 public class FileSystemDataSourceTest {
-    private static IDataSource dataSource;
+    private static DataSource dataSource;
 
     private static String FILE_SYSTEM_DATA_SOURCE_DIRECTORY = "test-resources/filesystemdatasource";
 
@@ -51,7 +51,7 @@ public class FileSystemDataSourceTest {
     @Test
     public void testAddListener() {
         assertTrue(dataSource.getListeners().size() == 0);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
             }
         };
@@ -62,7 +62,7 @@ public class FileSystemDataSourceTest {
     @Test
     public void testRemoveListener() {
         assertTrue(dataSource.getListeners().size() == 0);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
             }
         };
@@ -75,7 +75,7 @@ public class FileSystemDataSourceTest {
     @Test
     public void testRemoveAllListeners() {
         assertTrue(dataSource.getListeners().size() == 0);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
             }
         };

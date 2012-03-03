@@ -10,8 +10,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.util.Log;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -21,10 +22,12 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  * FileSystemDataSource. Set depend-on property in bean definition. This class
  * implements InitializingBean.
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
+    private static final Log log = LogFactory.getLog(UnpackClasspathJarToDirectoryBean.class);
+
     private final static String RULES_FILE_NAME = "rules.xml";
 
     private String destinationDirectory;
@@ -109,7 +112,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     public void afterPropertiesSet() throws IOException {
         if (getDestinationDirectory() == null) {
-            throw new IllegalStateException("Distination directory is null. Check bean configuration.");
+            throw new IllegalStateException("Distination directory is null. Please, check bean configuration.");
         }
 
         File desFile = new File(getDestinationDirectory());
@@ -125,31 +128,36 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
         } else {
             if (checkOrCreateFolder(desFile)) {
-                if (Log.isInfoEnabled()) {
-                    Log.info("Destination folder is already exist. Path: " + getDestinationDirectory());
+                if (log.isInfoEnabled()) {
+                    log.info("Destination folder is already exist. Path: " + getDestinationDirectory());
                 }
             } else {
-                if (Log.isInfoEnabled()) {
-                    Log.info("Destination folder was created. Path: " + getDestinationDirectory());
+                if (log.isInfoEnabled()) {
+                    log.info("Destination folder was created. Path: " + getDestinationDirectory());
                 }
             }
         }
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + RULES_FILE_NAME);
-        FolderHelper.clearFolder(new File(getDestinationDirectory()));
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
+                + RULES_FILE_NAME);
+        if (!FolderHelper.clearFolder(new File(getDestinationDirectory()))) {
+            if (log.isWarnEnabled()) {
+                log.warn(String.format("Failed on a folder clear. Path: \"%s\"", getDestinationDirectory()));
+            }
+        }
         for (Resource rulesXmlResource : resources) {
             String path = getPathJar(rulesXmlResource);
             File file = new File(path);
 
             if (!file.exists()) {
-                throw new IOException("File not found. File path: " + path);
+                throw new IOException("File not found. File: " + path);
             }
 
             unpack(file, getDestinationDirectory());
-            
-            if (Log.isInfoEnabled()) {
-                Log.info("Unpacking jars into " + getDestinationDirectory() + " was completed.");
+
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Unpacking jars into \"%s\" was completed", getDestinationDirectory()));
             }
         }
     }

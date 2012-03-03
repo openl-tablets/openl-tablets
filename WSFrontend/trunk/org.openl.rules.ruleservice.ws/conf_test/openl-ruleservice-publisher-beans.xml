@@ -42,20 +42,22 @@
 		</property>
 	</bean>
 
-	<!-- Deploymen admin defines the way to expose services. -->
-	<bean id="deploymentAdmin" class="org.openl.ruleservice.publish.WebServicesDeploymentAdmin">
-		<property name="serverFactory" ref="serverPrototypeFactory" />
-		<property name="baseAddress" value="http://localhost:9000/" />
-	</bean>
-	
+
 	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
-	<bean id="instantiationFactory" class="org.openl.rules.ruleservice.publish.RulesInstantiationFactory"/>
+	<bean id="instantiationStrategyFactory"
+		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl" />
+
+	<bean id="ruleServiceInstantiationFactory"
+		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
+		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
+		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
+		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
+	</bean>
 	
 	<!-- Initializes OpenL Engine instances according to web services configuration description 
 	and calls DeploymentAdmin to expose corresponding web service -->
-	<bean id="rulesPublisher" class="org.openl.rules.ruleservice.publish.RulesPublisher">
-		<property name="deploymentAdmin" ref="deploymentAdmin"/>
-		<!-- <property name="dependencyManager" ref="dependencyManager"/>  -->
-		<property name="instantiationFactory" ref="instantiationFactory"/>
+	<bean id="ruleServiceLoader" class="org.openl.ruleservice.publish.WebServicesRuleServicePublisher">
+		<property name="serverFactory" ref="serverPrototypeFactory" />
+		<property name="baseAddress" value="/" />
 	</bean>
 </beans>

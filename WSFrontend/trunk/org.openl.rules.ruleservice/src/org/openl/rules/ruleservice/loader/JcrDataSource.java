@@ -27,12 +27,12 @@ import org.springframework.beans.factory.DisposableBean;
  * @author Marat Kamalov
  * 
  */
-public class JcrDataSource implements IDataSource, DisposableBean {
+public class JcrDataSource implements DataSource, DisposableBean {
     private Log log = LogFactory.getLog(JcrDataSource.class);
 
     private static final String SEPARATOR = "#";
 
-    private Map<IDataSourceListener, RDeploymentListener> listeners = new HashMap<IDataSourceListener, RDeploymentListener>();
+    private Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
 
     /** {@inheritDoc} */
     public List<Deployment> getDeployments() {
@@ -71,8 +71,8 @@ public class JcrDataSource implements IDataSource, DisposableBean {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Getting deployement with name=" + deploymentName + " and version="
-                    + deploymentVersion.getVersionName());
+            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"", deploymentName,
+                    deploymentVersion.getVersionName()));
         }
 
         try {
@@ -85,20 +85,22 @@ public class JcrDataSource implements IDataSource, DisposableBean {
             return new Deployment(deploymentProject, deploymentName, deploymentVersion);
         } catch (RRepositoryException e) {
             if (log.isWarnEnabled()) {
-                log.warn("Exception has been occured on deployment retriving from repository. Deployment name is "
-                        + deploymentName + ". Deployment version is " + deploymentVersion.getVersionName()
-                        + ". Deployment with this name may be doesn't exists.", e);
+                log.warn(
+                        String.format("Exception has been occured on deployment retriving from repository. "
+                                + "Deployment name is \"%s\". Deployment version is \"%s\". "
+                                + "Deployment with this name may be doesn't exists.", deploymentName,
+                                deploymentVersion.getVersionName()), e);
             }
             throw new DataSourceException(e);
         }
     }
 
     /** {@inheritDoc} */
-    public List<IDataSourceListener> getListeners() {
-        List<IDataSourceListener> tmp = null;
+    public List<DataSourceListener> getListeners() {
+        List<DataSourceListener> tmp = null;
         synchronized (listeners) {
-            Set<IDataSourceListener> dataSourceListeners = listeners.keySet();
-            tmp = new ArrayList<IDataSourceListener>(dataSourceListeners);
+            Set<DataSourceListener> dataSourceListeners = listeners.keySet();
+            tmp = new ArrayList<DataSourceListener>(dataSourceListeners);
         }
         return Collections.unmodifiableList(tmp);
     }
@@ -117,7 +119,7 @@ public class JcrDataSource implements IDataSource, DisposableBean {
     }
 
     /** {@inheritDoc} */
-    public void addListener(IDataSourceListener dataSourceListener) {
+    public void addListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
@@ -143,7 +145,7 @@ public class JcrDataSource implements IDataSource, DisposableBean {
     }
 
     /** {@inheritDoc} */
-    public void removeListener(IDataSourceListener dataSourceListener) {
+    public void removeListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
@@ -171,7 +173,7 @@ public class JcrDataSource implements IDataSource, DisposableBean {
     public void removeAllListeners() {
         synchronized (listeners) {
             RProductionRepository rProductionRepository = getRProductionRepository();
-            for (IDataSourceListener dataSourceListener : listeners.keySet()) {
+            for (DataSourceListener dataSourceListener : listeners.keySet()) {
                 RDeploymentListener listener = listeners.get(dataSourceListener);
                 if (listener != null) {
                     try {
@@ -199,14 +201,14 @@ public class JcrDataSource implements IDataSource, DisposableBean {
         getRProductionRepository().release();
     }
 
-    private RDeploymentListener buildRDeploymentListener(IDataSourceListener dataSourceListener) {
+    private RDeploymentListener buildRDeploymentListener(DataSourceListener dataSourceListener) {
         return new DataSourceListenerWrapper(dataSourceListener);
     }
 
     private static class DataSourceListenerWrapper implements RDeploymentListener {
-        private IDataSourceListener dataSourceListener;
+        private DataSourceListener dataSourceListener;
 
-        public DataSourceListenerWrapper(IDataSourceListener dataSourceListener) {
+        public DataSourceListenerWrapper(DataSourceListener dataSourceListener) {
             if (dataSourceListener == null) {
                 throw new IllegalArgumentException();
             }

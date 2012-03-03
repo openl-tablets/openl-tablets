@@ -1,18 +1,25 @@
 package org.openl.rules.ruleservice.core;
 
-public class RuleServiceSystemException extends Exception{
+/**
+ * Main rule service runtime exception. All exceptions in rule service project
+ * should extend from this exception.
+ * 
+ * @author Marat Kamalov
+ * 
+ */
+public class RuleServiceRuntimeException extends RuntimeException {
 
     private static final long serialVersionUID = -5355895091110317542L;
 
     /**
-     * Constructs a new RuleServiceSystemException
+     * Constructs a new RuleServiceException
      */
-    public RuleServiceSystemException() {
+    public RuleServiceRuntimeException() {
         super();
     }
 
     /**
-     * Constructs a new RuleServiceSystemException with the specified detail message
+     * Constructs a new RuleServiceException with the specified detail message
      * and cause.
      * 
      * @param message the detail message (which is saved for later retrieval by
@@ -22,29 +29,29 @@ public class RuleServiceSystemException extends Exception{
      *            permitted, and indicates that the cause is nonexistent or
      *            unknown.)
      */
-    public RuleServiceSystemException(String message, Throwable cause) {
+    public RuleServiceRuntimeException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructs a new RuleServiceSystemException with the specified detail message
+     * Constructs a new RuleServiceException with the specified detail message
      * 
      * @param message the detail message (which is saved for later retrieval by
      *            the {@link #getMessage()} method).
      */
-    public RuleServiceSystemException(String message) {
+    public RuleServiceRuntimeException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new RuleServiceSystemException with a cause.
+     * Constructs a new RuleServiceException with a cause.
      * 
      * @param cause the cause (which is saved for later retrieval by the
      *            {@link #getCause()} method). (A <tt>null</tt> value is
      *            permitted, and indicates that the cause is nonexistent or
      *            unknown.)
      */
-    public RuleServiceSystemException(Throwable cause) {
+    public RuleServiceRuntimeException(Throwable cause) {
         super(cause);
     }
 }

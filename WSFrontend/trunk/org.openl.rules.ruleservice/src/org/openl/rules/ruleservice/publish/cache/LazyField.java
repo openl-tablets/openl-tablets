@@ -17,8 +17,8 @@ import org.openl.vm.IRuntimeEnv;
 public class LazyField extends LazyMember<IOpenField> implements IOpenField {
     private String fieldName;
 
-    public LazyField(String fieldName, Module module, IDependencyManager dependencyManager,
-            boolean executionMode, ClassLoader classLoader, IOpenField original) {
+    public LazyField(String fieldName, Module module, IDependencyManager dependencyManager, boolean executionMode,
+            ClassLoader classLoader, IOpenField original) {
         super(module, dependencyManager, executionMode, classLoader, original);
         this.fieldName = fieldName;
     }

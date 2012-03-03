@@ -1,7 +1,9 @@
 package org.openl.rules.ruleservice.management;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -12,9 +14,9 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.core.ModuleConfiguration;
+import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.loader.IRulesLoader;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -22,7 +24,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer {
+public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     private Log log = LogFactory.getLog(RulesBasedServiceConfigurer.class);
 
@@ -39,7 +41,7 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
 
     protected abstract RulesInstantiationStrategy getRulesSource();
 
-    private void init(IRulesLoader loader) {
+    private void init(RuleServiceLoader loader) {
         runtimeEnv = new SimpleVM().getRuntimeEnv();
         try {
             rulesOpenClass = getRulesSource().compile(ReloadType.NO).getOpenClass();
@@ -50,15 +52,15 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
         }
     }
 
-    private static ThreadLocal<IRulesLoader> loader = new ThreadLocal<IRulesLoader>();
+    private static ThreadLocal<RuleServiceLoader> loader = new ThreadLocal<RuleServiceLoader>();
 
     /**
      * Utility method that helps to get RulesLoader instance from rules.
      * 
      * @return Rules loader instance.
      */
-    public static IRulesLoader getLoader() {
-        IRulesLoader loader = RulesBasedServiceConfigurer.loader.get();
+    public static RuleServiceLoader getLoader() {
+        RuleServiceLoader loader = RulesBasedServiceConfigurer.loader.get();
         if (loader == null) {
             throw new OpenLRuntimeException("Rules loader have not been specified.");
         }
@@ -76,7 +78,7 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
         return deploymentsList.toArray(deployments);
     }
 
-    public List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader) {
+    public List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         List<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         init(loader);
         try {
@@ -99,25 +101,27 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
         return serviceDescriptions;
     }
 
-    public ServiceDescription createServiceDescription(Object service) {
-        ServiceDescription serviceDescription = new ServiceDescription();
-        serviceDescription.setName(getFieldValue(service, SERVICE_NAME_FIELD, String.class));
-        serviceDescription.setUrl(getFieldValue(service, SERVICE_URL_FIELD, String.class));
-        serviceDescription.setServiceClassName(getFieldValue(service, SERVICE_CLASS_NAME_FIELD, String.class));
-        serviceDescription.setProvideRuntimeContext(getFieldValue(service, RUNTIME_CONTEXT_FIELD, boolean.class));
+    private ServiceDescription createServiceDescription(Object service) {
+        final String serviceName = getFieldValue(service, SERVICE_NAME_FIELD, String.class);
+        final String serviceUrl = getFieldValue(service, SERVICE_URL_FIELD, String.class);
+        final String serviceClassName = getFieldValue(service, SERVICE_CLASS_NAME_FIELD, String.class);
+        final boolean provideRuntimeContext = getFieldValue(service, RUNTIME_CONTEXT_FIELD, boolean.class);
+
         String modulesGetterName = getFieldValue(service, MODULES_GETTER_FIELD, String.class);
         IOpenMethod modulesGetter = rulesOpenClass.getMethod(
                 modulesGetterName,
                 new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
                         JavaOpenClass.getOpenClass(AProject.class), JavaOpenClass.getOpenClass(Module.class) });
-        checkModulesGetter(serviceDescription.getName(), modulesGetter);
-        List<ModuleConfiguration> modulesForService = gatherModules(modulesGetter);
-        serviceDescription.setModulesToLoad(modulesForService);
-        return serviceDescription;
+        checkModulesGetter(serviceName, modulesGetter);
+        Set<ModuleDescription> modulesToLoad = gatherModules(modulesGetter);
+
+        return new ServiceDescription.ServiceDescriptionBuilder().setName(serviceName).setUrl(serviceUrl)
+                .setServiceClassName(serviceClassName).setProvideRuntimeContext(provideRuntimeContext)
+                .setModules(modulesToLoad).build();
     }
 
-    private List<ModuleConfiguration> gatherModules(IOpenMethod modulesGetter) {
-        List<ModuleConfiguration> modulesForService = new ArrayList<ModuleConfiguration>();
+    private Set<ModuleDescription> gatherModules(IOpenMethod modulesGetter) {
+        Set<ModuleDescription> modulesForService = new HashSet<ModuleDescription>();
         for (Deployment deployment : getDeployments()) {
             for (AProject project : deployment.getProjects()) {
                 for (Module module : loader.get().resolveModulesForProject(deployment.getDeploymentName(),
@@ -125,8 +129,11 @@ public abstract class RulesBasedServiceConfigurer implements IServiceConfigurer 
                     Object isSuitable = modulesGetter.invoke(rulesInstance,
                             new Object[] { deployment, project, module }, runtimeEnv);
                     if (isSuitable != null && (Boolean) isSuitable) {
-                        modulesForService.add(new ModuleConfiguration(deployment.getDeploymentName(), deployment
-                                .getCommonVersion(), project.getName(), module.getName()));
+                        ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
+                                .setDeploymentName(deployment.getDeploymentName())
+                                .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
+                                .setProjectName(project.getName()).build();
+                        modulesForService.add(moduleDescription);
                     }
 
                 }

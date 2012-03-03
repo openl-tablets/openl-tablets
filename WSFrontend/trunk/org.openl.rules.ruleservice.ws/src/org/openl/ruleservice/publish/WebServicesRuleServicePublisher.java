@@ -10,18 +10,20 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
-import org.openl.rules.ruleservice.publish.IDeploymentAdmin;
+import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
+import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
-public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
+public class WebServicesRuleServicePublisher implements RuleServicePublisher {
 
-    private static final Log log = LogFactory.getLog(WebServicesDeploymentAdmin.class);
+    private static final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
@@ -50,7 +52,7 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         return new ServerFactoryBean();
     }
 
-    public OpenLService deploy(OpenLService service) throws ServiceDeployException {
+    public OpenLService deploy(OpenLService service) throws RuleServiceDeployException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
         String serviceAddress = getBaseAddress() + service.getUrl();
         svrFactory.setAddress(serviceAddress);
@@ -66,8 +68,8 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
                 log.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
                         serviceAddress));
             }
-        } catch (Throwable t) {
-            throw new ServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
+        } catch (Exception t) {
+            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -87,10 +89,11 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
         return null;
     }
 
-    public OpenLService undeploy(String serviceName) throws ServiceDeployException {
+    public OpenLService undeploy(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = findServiceByName(serviceName);
         if (service == null) {
-            throw new ServiceDeployException(String.format("There is no ruuning service with name \"%s\"", serviceName));
+            throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
+                    serviceName));
         }
         try {
             runningServices.get(service).stop();
@@ -100,8 +103,24 @@ public class WebServicesDeploymentAdmin implements IDeploymentAdmin {
             }
             runningServices.remove(service);
             return service;
-        } catch (Throwable t) {
-            throw new ServiceDeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
+        } catch (Exception t) {
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
+    }
+    
+    public OpenLService redeploy(OpenLService service) throws RuleServiceRedeployException {
+        if (service == null) {
+            throw new IllegalArgumentException("service argument can't be null");
+        }
+
+        try {
+            undeploy(service.getName());
+            return deploy(service);
+        } catch (RuleServiceDeployException e) {
+            throw new RuleServiceRedeployException("Service redeploy was failed", e);
+        } catch (RuleServiceUndeployException e) {
+            throw new RuleServiceRedeployException("Service redeploy was failed", e);
+        }
+
     }
 }

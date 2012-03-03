@@ -1,24 +1,25 @@
 package org.openl.rules.ruleservice.core;
+
 /**
- * Main rule service exception. All exceptions in rule service project should extend this exception.
- *  
- * @author MKamalov
- *
+ * Main exception for rule service
+ * 
+ * @author Marat Kamalov
+ * 
  */
-public class RuleServiceException extends RuntimeException{
+public class RuleServiceException extends Exception {
 
     private static final long serialVersionUID = -5355895091110317542L;
 
     /**
-     * Constructs a new RuleServiceException
+     * Constructs a new RuleServiceSystemException
      */
     public RuleServiceException() {
         super();
     }
 
     /**
-     * Constructs a new RuleServiceException with the specified detail message
-     * and cause.
+     * Constructs a new RuleServiceException with the specified detail
+     * message and cause.
      * 
      * @param message the detail message (which is saved for later retrieval by
      *            the {@link #getMessage()} method).
@@ -32,7 +33,8 @@ public class RuleServiceException extends RuntimeException{
     }
 
     /**
-     * Constructs a new RuleServiceException with the specified detail message
+     * Constructs a new RuleServiceException with the specified detail
+     * message
      * 
      * @param message the detail message (which is saved for later retrieval by
      *            the {@link #getMessage()} method).

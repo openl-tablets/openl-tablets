@@ -11,7 +11,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.ruleservice.loader.IRulesLoader;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 public class RulesBasedServiceConfigurerFactory {
     public Module getModuleByName(List<Module> modules, String moduleName) {
@@ -31,7 +31,7 @@ public class RulesBasedServiceConfigurerFactory {
         }
     }
 
-    public CommonVersion getLastVersionForDeployment(IRulesLoader loader, String deploymentName) {
+    public CommonVersion getLastVersionForDeployment(RuleServiceLoader loader, String deploymentName) {
         CommonVersion lastVersion = null;
         for (Deployment deployment : loader.getDeployments()) {
             if (deployment.getDeploymentName().equals(deploymentName)) {
@@ -43,21 +43,18 @@ public class RulesBasedServiceConfigurerFactory {
         return lastVersion;
     }
 
-    public RulesBasedServiceConfigurer getConfigurerFromDataSource(final IRulesLoader loader,
-            final String deployment,
-            final String project,
-            final String moduleName) {
+    public RulesBasedServiceConfigurer getConfigurerFromDataSource(final RuleServiceLoader loader, final String deployment,
+            final String project, final String moduleName) {
         RulesBasedServiceConfigurer configurer = new RulesBasedServiceConfigurer() {
             @Override
             protected RulesInstantiationStrategy getRulesSource() {
                 CommonVersion lastVersionForDeployment = getLastVersionForDeployment(loader, deployment);
                 if (lastVersionForDeployment == null) {
-                    throw new IllegalArgumentException(String.format("Wrong deployment name has been specified: \"%s\"",
-                        deployment));
+                    throw new IllegalArgumentException(String.format(
+                            "Wrong deployment name has been specified: \"%s\"", deployment));
                 }
                 List<Module> modulesInSpecifiedProject = loader.resolveModulesForProject(deployment,
-                    lastVersionForDeployment,
-                    project);
+                        lastVersionForDeployment, project);
                 return getRulesInstantiationStrategy(moduleName, modulesInSpecifiedProject);
             }
         };
@@ -68,7 +65,8 @@ public class RulesBasedServiceConfigurerFactory {
             List<Module> modulesInSpecifiedProject) {
         Module necessaryModule = getModuleByName(modulesInSpecifiedProject, moduleName);
         if (necessaryModule == null) {
-            throw new IllegalArgumentException("Incorrect source folder for rules based service configurer has been specified.");
+            throw new IllegalArgumentException(
+                    "Incorrect source folder for rules based service configurer has been specified.");
         }
         return RulesInstantiationStrategyFactory.getStrategy(necessaryModule);
     }
@@ -80,13 +78,15 @@ public class RulesBasedServiceConfigurerFactory {
                 RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
                 File sourceFolder = new File(folder);
                 if (!sourceFolder.exists() || !sourceFolder.isDirectory()) {
-                    throw new IllegalArgumentException(String.format("Incorrect source folder for rules based service configurer has been specified: \"%s\"",
-                        folder));
+                    throw new IllegalArgumentException(String.format(
+                            "Incorrect source folder for rules based service configurer has been specified: \"%s\"",
+                            folder));
                 }
                 ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(sourceFolder);
                 if (resolvingStrategy == null) {
-                    throw new IllegalArgumentException(String.format("Incorrect source folder for rules based service configurer has been specified: \"%s\"." + " Can not resolve any OpenL project.",
-                        folder));
+                    throw new IllegalArgumentException(String.format(
+                            "Incorrect source folder for rules based service configurer has been specified: \"%s\"."
+                                    + " Can't resolve any OpenL project.", folder));
                 }
                 ProjectDescriptor descriptor = resolvingStrategy.resolveProject(sourceFolder);
                 return getRulesInstantiationStrategy(moduleName, descriptor.getModules());

@@ -10,7 +10,17 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
 
-public class RulesInstantiationFactory implements IRulesInstantiationFactory {
+/**
+ * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates
+ * decision to RulesInstantiationStrategyFactory if one module in service.
+ * Returns LazyMultiModuleInstantiationStrategy strategy if more than ome module
+ * in service.
+ * 
+ * 
+ * @author Marat Kamalov
+ * 
+ */
+public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 
     private List<InitializingListener> initializingListeners;
 
@@ -34,7 +44,8 @@ public class RulesInstantiationFactory implements IRulesInstantiationFactory {
             initializingListeners.remove(listener);
         }
     }
-
+    
+    /** {@inheritDoc} */
     public RulesInstantiationStrategy getStrategy(List<Module> modules, IDependencyManager dependencyManager) {
         switch (modules.size()) {
             case 0:
@@ -42,7 +53,8 @@ public class RulesInstantiationFactory implements IRulesInstantiationFactory {
             case 1:
                 return RulesInstantiationStrategyFactory.getStrategy(modules.get(0), true, dependencyManager);
             default:
-                LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, true, dependencyManager);
+                LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(
+                        modules, true, dependencyManager);
                 if (initializingListeners != null) {
                     for (InitializingListener listener : initializingListeners) {
                         myInstantiationStrategy.addInitializingListener(listener);
