@@ -15,12 +15,14 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
 
 public class RulesFrontendTest {
-    private IRulesFrontend frontend;
+    private RulesFrontend frontend;
 
     private static RulesProjectResolver resolver;
+
+    private static RuleServiceOpenLServiceInstantiationFactoryImpl ruleServiceOpenLServiceInstantiationFactory;
 
     private static OpenLService service1;
 
@@ -39,20 +41,24 @@ public class RulesFrontendTest {
     }
 
     @BeforeClass
-    public static void init() throws ServiceDeployException{
+    public static void init() throws Exception {
         resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+
         List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
-        service1 = new OpenLService("multiModule", "no_url", modules1, null, false);
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false,
+                modules1);
         File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
         ResolvingStrategy tut4ResolvingStrategy = resolver.isRulesProject(tut4Folder);
         assertNotNull(tut4ResolvingStrategy);
-        service2 = new OpenLService("tutorial4", "no_url", tut4ResolvingStrategy.resolveProject(tut4Folder)
-                .getModules(), "org.openl.rules.tutorial4.Tutorial4Interface", false);
+        service2 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("tutorial4", "no_url",
+                "org.openl.rules.tutorial4.Tutorial4Interface", false, tut4ResolvingStrategy.resolveProject(tut4Folder)
+                        .getModules());
     }
-    
+
     @Before
     public void before() {
-        frontend = new RulesFrontend();
+        frontend = new RulesFrontendImpl();
     }
 
     @Test(expected = UnsupportedOperationException.class)

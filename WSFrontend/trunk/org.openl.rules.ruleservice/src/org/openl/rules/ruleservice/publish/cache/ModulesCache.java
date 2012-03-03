@@ -15,43 +15,46 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
- * Caches instantiation strategies for Modules. Uses EhCache. This is singleton and thread safe class.
+ * Caches instantiation strategies for Modules. Uses EhCache. This is singleton
+ * and thread safe class.
  * 
- * @author PUdalau, MKamalov
+ * @author PUdalau,
  */
 class ModulesCache {
 
     private static final String CACHE_NAME = "modulesCache";
-    
-    private static class ModulesCacheHolder{
-        public static final ModulesCache instance = new ModulesCache(); 
+
+    private static class ModulesCacheHolder {
+        public static final ModulesCache instance = new ModulesCache();
     }
 
-    private ModulesCache(){
+    private ModulesCache() {
     }
-    
+
     /**
      * Returns singleton ModulesCache
+     * 
      * @return
      */
-    public static ModulesCache getInstance(){
-        return ModulesCacheHolder.instance; 
+    public static ModulesCache getInstance() {
+        return ModulesCacheHolder.instance;
     }
-    
+
     private Cache cache = CacheManager.create().getCache(CACHE_NAME);
 
     private RulesInstantiationStrategy getRulesInstantiationStrategyFromCache(Module module) {
         Element element = cache.get(module);
-        if (element == null) return null;
+        if (element == null)
+            return null;
         return (RulesInstantiationStrategy) element.getObjectValue();
     }
 
     private void putToCache(Module module, RulesInstantiationStrategy strategy) {
-        if (module == null){
+        if (module == null) {
             throw new IllegalArgumentException("module argument can't be null");
         }
-        
-        if (strategy == null){
+
+        if (strategy == null) {
             throw new IllegalArgumentException("strategy argument can't be null");
         }
 
@@ -103,7 +106,8 @@ class ModulesCache {
             IDependencyManager dependencyManager, ClassLoader classLoader) {
         RulesInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
         if (strategy == null) {
-            strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager, classLoader);
+            strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager,
+                    classLoader);
             putToCache(module, strategy);
         }
         return strategy;
@@ -136,5 +140,5 @@ class ModulesCache {
         cache.removeAll();
         cache.clearStatistics();
     }
-   
+
 }

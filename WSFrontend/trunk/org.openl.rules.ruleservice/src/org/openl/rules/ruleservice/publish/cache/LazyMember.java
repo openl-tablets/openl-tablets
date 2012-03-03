@@ -26,16 +26,16 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      */
     private ClassLoader classLoader;
 
-    public LazyMember(Module module, IDependencyManager dependencyManager,
-			boolean executionMode, ClassLoader classLoader, T original) {
-		this.module = module;
-		this.dependencyManager = dependencyManager;
-		this.executionMode = executionMode;
-		this.classLoader = classLoader;
-		this.original = original;
-	}
+    public LazyMember(Module module, IDependencyManager dependencyManager, boolean executionMode,
+            ClassLoader classLoader, T original) {
+        this.module = module;
+        this.dependencyManager = dependencyManager;
+        this.executionMode = executionMode;
+        this.classLoader = classLoader;
+        this.original = original;
+    }
 
-	/**
+    /**
      * Compiles method declaring the member and returns it.
      * 
      * @return Real member in compiled module.
@@ -54,7 +54,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     }
 
     /**
-     * @return DependencyManager used for lazy compiling. 
+     * @return DependencyManager used for lazy compiling.
      */
     protected IDependencyManager getDependencyManager() {
         return dependencyManager;
@@ -63,13 +63,13 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     protected boolean isExecutionMode() {
         return executionMode;
     }
-    
+
     /**
-     * @return ClassLoader used for lazy compiling. 
+     * @return ClassLoader used for lazy compiling.
      */
     public ClassLoader getClassLoader() {
-		return classLoader;
-	}
+        return classLoader;
+    }
 
     public T getOriginal() {
         return original;

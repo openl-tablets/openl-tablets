@@ -9,7 +9,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.loader.IRulesLoader;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.LastVersionProjectsServiceConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,13 +19,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-filesystemdatasource.xml" })
 public class LastVersionProjectsServiceConfigurerTest {
     @Autowired
-    private IRulesLoader rulesLoader;
+    private RuleServiceLoader rulesLoader;
 
-    public IRulesLoader getRulesLoader() {
+    public RuleServiceLoader getRulesLoader() {
         return rulesLoader;
     }
 
-    public void setRulesLoader(IRulesLoader rulesLoader) {
+    public void setRulesLoader(RuleServiceLoader rulesLoader) {
         this.rulesLoader = rulesLoader;
     }
 

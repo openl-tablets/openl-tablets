@@ -11,9 +11,9 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.core.ModuleConfiguration;
+import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.loader.IRulesLoader;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 /**
  * Selects the latest deployments and deploys each of their projects as single
@@ -21,17 +21,17 @@ import org.openl.rules.ruleservice.loader.IRulesLoader;
  * 
  * @author PUdalau
  */
-public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer {
+public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
-    
+
     private boolean provideRuntimeContext;
 
     /** {@inheritDoc} */
-    public List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader) {
-        if (loader == null){
+    public List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
+        if (loader == null) {
             throw new IllegalArgumentException("loader argument can't be null");
         }
-        
+
         if (log.isDebugEnabled()) {
             log.debug("Calculate services to be deployed...");
         }
@@ -51,25 +51,28 @@ public class LastVersionProjectsServiceConfigurer implements IServiceConfigurer 
     }
 
     private List<ServiceDescription> createServiceDescriptions(Collection<Deployment> latestDeployments,
-            IRulesLoader loader) {
+            RuleServiceLoader loader) {
         List<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         for (Deployment deployment : latestDeployments) {
             for (AProject project : deployment.getProjects()) {
                 List<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName());
-                List<ModuleConfiguration> moduleConfigurations = new ArrayList<ModuleConfiguration>();
+                ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
+                        .setProvideRuntimeContext(provideRuntimeContext);
+
                 for (Module module : modulesOfProject) {
-                    moduleConfigurations.add(new ModuleConfiguration(deployment.getDeploymentName(), deployment
-                            .getCommonVersion(), project.getName(), module.getName()));
+                    ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
+                            .setDeploymentName(deployment.getDeploymentName())
+                            .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
+                            .setProjectName(project.getName()).build();
+                    serviceDescriptionBuilder.addModule(moduleDescription);
                 }
-                if (!moduleConfigurations.isEmpty()) {
+
+                if (!modulesOfProject.isEmpty()) {
                     String serviceName = String.format("%s_%s", deployment.getDeploymentName(), project.getName());
                     String serviceUrl = String.format("%s/%s", deployment.getDeploymentName(), project.getName());
-                    serviceDescriptions.add(new ServiceDescription(serviceName,
-                        serviceUrl,
-                        null,
-                        provideRuntimeContext,
-                        moduleConfigurations));
+                    serviceDescriptionBuilder.setName(serviceName).setUrl(serviceUrl);
+                    serviceDescriptions.add(serviceDescriptionBuilder.build());
                 }
             }
         }

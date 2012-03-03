@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice;
 
-public class Constants {
+public final class Constants {
 
     private Constants() {
     }

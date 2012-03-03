@@ -16,16 +16,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "classpath:openl-ruleservice-filesystemdatasource-scheduler.xml" })
 public class FileSystemDataSourceListenerTest {
     private static final long SLEEP_TIME = 15000;
-    private boolean f=false;
+    private boolean f = false;
 
     @Autowired
-    private IDataSource dataSource;
+    private DataSource dataSource;
 
-    public IDataSource getDataSource() {
+    public DataSource getDataSource() {
         return dataSource;
     }
 
-    public void setDataSource(IDataSource dataSource) {
+    public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -33,7 +33,7 @@ public class FileSystemDataSourceListenerTest {
     public void fileSystemDataSourceListenerTest() {
         Assert.assertNotNull(dataSource);
         Assert.assertFalse(f);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
                 f = true;
             }

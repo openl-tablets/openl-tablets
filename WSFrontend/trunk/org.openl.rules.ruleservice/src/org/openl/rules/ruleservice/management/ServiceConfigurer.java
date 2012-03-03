@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.management;
 import java.util.List;
 
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.loader.IRulesLoader;
+import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 /**
  * Serves to determine all services to be deployed according to the data source
@@ -11,7 +11,7 @@ import org.openl.rules.ruleservice.loader.IRulesLoader;
  * 
  * @author PUdalau
  */
-public interface IServiceConfigurer {
+public interface ServiceConfigurer {
     /**
      * Compute all service to be deployed according to the projects in the data
      * source state(accessed through the loader)
@@ -19,5 +19,5 @@ public interface IServiceConfigurer {
      * @param loader Loader to access projects.
      * @return List of {@link ServiceDescription} to deployed.
      */
-    List<ServiceDescription> getServicesToBeDeployed(IRulesLoader loader);
+    List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader);
 }

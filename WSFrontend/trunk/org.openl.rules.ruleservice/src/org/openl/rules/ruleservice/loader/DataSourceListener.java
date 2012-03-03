@@ -1,10 +1,12 @@
 package org.openl.rules.ruleservice.loader;
+
 /**
  * Data source listener for IDataSource
- * @author MKamalov
- *
+ * 
+ * @author Marat Kamalov
+ * 
  */
-public interface IDataSourceListener {
+public interface DataSourceListener {
     /**
      * Executes on deployment added to data source
      */

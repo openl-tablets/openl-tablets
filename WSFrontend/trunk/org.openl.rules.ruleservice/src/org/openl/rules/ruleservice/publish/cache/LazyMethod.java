@@ -31,10 +31,8 @@ public class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
 
     public IOpenMethod getMember() {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(),
-                isExecutionMode(),
-                getDependencyManager(),
-                getClassLoader()).compile(ReloadType.NO);
+            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(), isExecutionMode(),
+                    getDependencyManager(), getClassLoader()).compile(ReloadType.NO);
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
         } catch (Exception e) {

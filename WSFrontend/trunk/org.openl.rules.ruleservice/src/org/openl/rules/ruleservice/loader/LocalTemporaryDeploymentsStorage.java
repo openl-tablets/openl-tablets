@@ -12,14 +12,13 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.ruleservice.core.RuleServiceException;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
 /**
  * Local temporary file system storage for deployments. Clears all data on first
- * initialization.
- * Thread safe implementation.
+ * initialization. Thread safe implementation.
  * 
  * @author Marat Kamalov
  * 
@@ -165,15 +164,17 @@ public class LocalTemporaryDeploymentsStorage {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Getting deployement with name=" + deploymentName + " and version=" + version.getVersionName());
+            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"", deploymentName,
+                    version.getVersionName()));
         }
 
         if (containsDeployment(deploymentName, version)) {
             Deployment deployment = cacheForGetDeployment.get(getDeploymentFolderName(deploymentName, version));
             if (deployment != null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Getting deployement with name=" + deploymentName + " and version="
-                            + version.getVersionName() + " has been returned from cache.");
+                    log.debug(String.format(
+                            "Getting deployement with name=\"%s\" and version=\"%s\" has been returned from cache.",
+                            deploymentName, version.getVersionName()));
                 }
                 return deployment;
             }
@@ -184,14 +185,16 @@ public class LocalTemporaryDeploymentsStorage {
             deployment = new Deployment(localFolderAPI);
             cacheForGetDeployment.put(getDeploymentFolderName(deploymentName, version), deployment);
             if (log.isDebugEnabled()) {
-                log.debug("Deployement with name=" + deploymentName + " and version=" + version.getVersionName()
-                        + " has been returned from local storage and putted to cache.");
+                log.debug(String.format(
+                        "Deployement with name=\"%s\" and version=\"%s\" has been returned from local storage "
+                                + "and putted to cache.", deploymentName, version.getVersionName()));
             }
             return deployment;
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Deployement with name=" + deploymentName + " and version=" + version.getVersionName()
-                        + " hasn't been found in local storage.");
+                log.debug(String.format(
+                        "Deployement with name=\"%s\" and version=\"%s\" hasn't been found in local storage.",
+                        deploymentName, version.getVersionName()));
             }
             return null;
         }
@@ -209,8 +212,8 @@ public class LocalTemporaryDeploymentsStorage {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Loading deployement with name=" + deployment.getDeploymentName() + " and version="
-                    + deployment.getVersion().getVersionName());
+            log.debug(String.format("Loading deployement with name=\"%s\" and version=\"%s\"",
+                    deployment.getDeploymentName(), deployment.getVersion().getVersionName()));
         }
 
         File deploymentFolder = getDeploymentFolder(deployment.getDeploymentName(), deployment.getCommonVersion());
@@ -224,17 +227,18 @@ public class LocalTemporaryDeploymentsStorage {
             loadedDeployment.refresh();
         } catch (ProjectException e) {
             if (log.isWarnEnabled()) {
-                log.warn("Exception occurs on loading deployment with name=" + deployment.getDeploymentName()
-                        + " and version=" + deployment.getVersion().getVersionName() + " from data source", e);
+                log.warn(String.format(
+                        "Exception occurs on loading deployment with name=\"%s\" and version=\"%s\" from data source",
+                        deployment.getDeploymentName(), deployment.getVersion().getVersionName()), e);
             }
-            throw new RuleServiceException(e);
+            throw new RuleServiceRuntimeException(e);
         }
 
         cacheForGetDeployment.remove(getDeploymentFolderName(deployment.getDeploymentName(),
                 deployment.getCommonVersion()));
         if (log.isDebugEnabled()) {
-            log.debug("Deployement with name=" + deployment.getDeploymentName() + " and version="
-                    + deployment.getVersion().getVersionName() + " has been removed from cache.");
+            log.debug(String.format("Deployement with name=\"%s\" and version=\"%s\" has been removed from cache.",
+                    deployment.getDeploymentName(), deployment.getVersion().getVersionName()));
         }
         return loadedDeployment;
     }
@@ -255,13 +259,14 @@ public class LocalTemporaryDeploymentsStorage {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Removing deployement with name=" + deploymentName + " and version=" + version.getVersionName());
+            log.debug(String.format("Removing deployement with name=\"%s\" and version=\"%s\"", deploymentName,
+                    version.getVersionName()));
         }
 
         cacheForGetDeployment.remove(getDeploymentFolderName(deploymentName, version));
         if (log.isDebugEnabled()) {
-            log.debug("Deployement with name=" + deploymentName + " and version=" + version.getVersionName()
-                    + " has been removed from cache.");
+            log.debug(String.format("Deployement with name=\"%s\" and version=\"%s\" has been removed from cache.",
+                    deploymentName, version.getVersionName()));
         }
 
         return FolderHelper.clearFolder(getDeploymentFolder(deploymentName, version));

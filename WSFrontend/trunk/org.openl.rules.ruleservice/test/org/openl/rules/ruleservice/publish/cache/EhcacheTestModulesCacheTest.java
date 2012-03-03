@@ -18,28 +18,28 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
-import org.openl.rules.ruleservice.publish.RulesInstantiationFactory;
-import org.openl.rules.ruleservice.publish.RulesPublisher;
-import org.openl.rules.ruleservice.simple.IRulesFrontend;
-import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
+import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class EhcacheTestModulesCacheTest {
-    private static RulesPublisher publisher;
-    
-    private static IRulesFrontend frontend;
-    
+    private static JavaClassRuleServicePublisher publisher;
+
+    private static RulesFrontend frontend;
+
     private static RulesProjectResolver resolver;
-    
+
     private static OpenLService service1;
-    
+
     private static OpenLService service2;
-    
+
     private Cache cache;
 
     private ModulesCache modulesCache;
     
+    private static RuleServiceOpenLServiceInstantiationFactoryImpl ruleServiceOpenLServiceInstantiationFactory;
+
     private static List<Module> resolveAllModules(File root) {
         List<Module> modules = new ArrayList<Module>();
         resolver.setWorkspace(root.getAbsolutePath());
@@ -53,29 +53,28 @@ public class EhcacheTestModulesCacheTest {
     }
 
     @BeforeClass
-    public static void init() throws ServiceDeployException{
+    public static void init() throws Exception {
         resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        frontend = new RulesFrontend();
-        JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
-        deploymentAdmin.setFrontend(frontend);
-        publisher = new RulesPublisher();
-        publisher.setDeploymentAdmin(deploymentAdmin);
-        publisher.setInstantiationFactory(new RulesInstantiationFactory());
-
+        frontend = new RulesFrontendImpl();
+        publisher = new JavaClassRuleServicePublisher();
+        publisher.setFrontend(frontend);
+                
+        ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        
         List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
-        service1 = new OpenLService("multiModule", "no_url", modules1, null, false);
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false, modules1);
         List<Module> modules2 = resolveAllModules(new File("./test-resources/multi-module-2"));
-        service2 = new OpenLService("multiModule2", "no_url", modules2, null, false);
+        service2 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule2", "no_url", null, false, modules2);
     }
-    
+
     @Before
-    public void before() throws ServiceDeployException, NoSuchFieldException, IllegalAccessException {
+    public void before() throws Exception {
         modulesCache = ModulesCache.getInstance();
         modulesCache.reset();
         Class<?> clazz = ModulesCache.class;
         Field field = clazz.getDeclaredField("cache");
         field.setAccessible(true);
-        cache = (Cache)field.get(modulesCache);
+        cache = (Cache) field.get(modulesCache);
         cache.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_GUARANTEED);
         cache.setStatisticsEnabled(true);
         publisher.undeploy(service1.getName());
@@ -83,10 +82,10 @@ public class EhcacheTestModulesCacheTest {
         publisher.deploy(service1);
         publisher.deploy(service2);
     }
-    
-    //Correct usage ehcache in ModulesCache test
+
+    // Correct usage ehcache in ModulesCache test
     @Test
-    public void testModulesCache() throws Exception{
+    public void testModulesCache() throws Exception {
         assertEquals(0, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
         assertEquals(0, cache.getStatistics().getCacheMisses());
@@ -112,4 +111,4 @@ public class EhcacheTestModulesCacheTest {
         assertEquals(1, cache.getStatistics().getCacheHits());
         assertEquals(4, cache.getStatistics().getCacheMisses());
     }
-}    
+}

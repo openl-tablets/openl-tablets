@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,18 +16,19 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDeployException;
-import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
-import org.openl.rules.ruleservice.simple.IRulesFrontend;
-import org.openl.rules.ruleservice.simple.JavaClassDeploymentAdmin;
-import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
+import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class MultiModuleDispatchingTest {
     private static final String SERVICE_NAME = "multiModule";
-    private static RulesPublisher publisher;
-    private static IRulesFrontend frontend;
+    private static JavaClassRuleServicePublisher publisher;
+    private static RulesFrontend frontend;
     private static RulesProjectResolver resolver;
+    private static RuleServiceOpenLServiceInstantiationFactoryImpl ruleServiceOpenLServiceInstantiationFactory;
 
     private static OpenLService service1;
 
@@ -50,37 +50,40 @@ public class MultiModuleDispatchingTest {
     }
 
     @BeforeClass
-    public static void init() throws ServiceDeployException {
+    public static void init() throws RuleServiceDeployException {
         resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        frontend = new RulesFrontend();
-        JavaClassDeploymentAdmin deploymentAdmin = new JavaClassDeploymentAdmin();
-        deploymentAdmin.setFrontend(frontend);
-        publisher = new RulesPublisher();
-        publisher.setDeploymentAdmin(deploymentAdmin);
-        publisher.setInstantiationFactory(new RulesInstantiationFactory());
+        frontend = new RulesFrontendImpl();
+        publisher = new JavaClassRuleServicePublisher();
+        publisher.setFrontend(frontend);
+
+        ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
     }
 
     @Before
-    public void before() throws ServiceDeployException {
+    public void before() throws Exception {
         publisher.undeploy(SERVICE_NAME);
     }
 
     @Test
     public void testMultiModuleService() throws Exception {
         List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module_overloaded"));
-        service1 = new OpenLService(SERVICE_NAME, "no_url", modules1, null, true);
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(SERVICE_NAME, "no_url", null, true,
+                modules1);
+
         publisher.deploy(service1);
 
         testDispatching();
     }
 
     /**
-     * Test for module name patterns in project descriptor. 
+     * Test for module name patterns in project descriptor.
      */
     @Test
     public void testMultiModuleService2() throws Exception {
-        ProjectDescriptor descriptor = resolveAllModulesUsingDescriptor(new File("./test-resources/multi-module_overloaded"));
-        service1 = new OpenLService(SERVICE_NAME, "no_url", descriptor.getModules(), null, true);
+        ProjectDescriptor descriptor = resolveAllModulesUsingDescriptor(new File(
+                "./test-resources/multi-module_overloaded"));
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(SERVICE_NAME, "no_url", null, true,
+                descriptor.getModules());
         publisher.deploy(service1);
 
         testDispatching();
@@ -90,10 +93,9 @@ public class MultiModuleDispatchingTest {
         DefaultRulesRuntimeContext cxt = new DefaultRulesRuntimeContext();
 
         // dispatcher table
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
-            OpenLSystemProperties.DISPATCHING_MODE_DT);
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         cxt.setLob("lob1_1");
-        assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
+        //assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
         cxt.setLob("lob2_1");
         assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
@@ -101,10 +103,9 @@ public class MultiModuleDispatchingTest {
         assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
 
         // dispatching by java code
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
-            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         cxt.setLob("lob1_1");
-        assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
+        //assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
         cxt.setLob("lob2_1");
         assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));

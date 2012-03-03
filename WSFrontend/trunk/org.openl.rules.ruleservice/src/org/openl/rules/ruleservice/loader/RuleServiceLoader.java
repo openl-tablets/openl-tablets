@@ -12,25 +12,26 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
  * OpenL projects/modules inside the projects. Contains own storage for all
  * projects that is used in services.
  * 
- * @author MKamalov
+ * @author Marat Kamalov
  * 
  */
-public interface IRulesLoader {
+public interface RuleServiceLoader {
     /**
      * Gets data source
      * 
      * @return data source
      */
-    IDataSource getDataSource();
+    DataSource getDataSource();
 
     /**
      * 
-     * @return list of deployments. 
+     * @return list of deployments.
      */
     List<Deployment> getDeployments();
 
     /**
      * Gets deployment
+     * 
      * @param deploymentName
      * @param deploymentVersion
      * @return

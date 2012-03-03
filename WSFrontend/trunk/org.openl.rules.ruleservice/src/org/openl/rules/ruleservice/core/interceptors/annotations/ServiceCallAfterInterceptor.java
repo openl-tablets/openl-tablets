@@ -7,8 +7,14 @@ import java.lang.annotation.Target;
 
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 
+/**
+ * Annotation for registering after method interceptors
+ * 
+ * @author Marat Kamalov
+ * 
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ServiceCallAfterInterceptor {
-    Class<? extends ServiceMethodAfterAdvice<?>>[] value(); 
+    Class<? extends ServiceMethodAfterAdvice<?>>[] value();
 }

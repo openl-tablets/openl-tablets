@@ -21,14 +21,16 @@ import org.openl.types.IOpenMethod;
 
 public class LazyMultiModuleEngineFactoryTest {
     private static RulesProjectDependencyManager dependencyManager;
+
     @BeforeClass
-    public static void init(){
+    public static void init() {
         dependencyManager = new RulesProjectDependencyManager();
         List<IDependencyLoader> loaders = new ArrayList<IDependencyLoader>();
-        loaders.add(new RulesModuleDependencyLoader(new SimpleXlsResolvingStrategy().resolveProject(new File("./test-resources/multi-module_overloaded/project3"))
-            .getModules()));
+        loaders.add(new RulesModuleDependencyLoader(new SimpleXlsResolvingStrategy().resolveProject(
+                new File("./test-resources/multi-module_overloaded/project3")).getModules()));
         dependencyManager.setDependencyLoaders(loaders);
     }
+
     /**
      * Test is concluded in module paths.
      */
@@ -47,7 +49,8 @@ public class LazyMultiModuleEngineFactoryTest {
         modules.add(module1_1);
         Module module3_1 = new Module();
         module3_1.setName("Module3_1");
-        module3_1.setRulesRootPath(new PathEntry(new File(".").getAbsolutePath() + "/test-resources/../test-resources/multi-module_overloaded/project3/Module3_1.xlsx"));
+        module3_1.setRulesRootPath(new PathEntry(new File(".").getAbsolutePath()
+                + "/test-resources/../test-resources/multi-module_overloaded/project3/Module3_1.xlsx"));
         module3_1.setProject(projectDescriptor);
         modules.add(module3_1);
         return modules;
@@ -70,9 +73,8 @@ public class LazyMultiModuleEngineFactoryTest {
     }
 
     private List<IOpenMethod> getMethodsFromModule(Module module) throws Exception {
-        ApiBasedEngineFactoryInstantiationStrategy instantiationStrategy = new ApiBasedEngineFactoryInstantiationStrategy(module,
-            false,
-            dependencyManager);
+        ApiBasedEngineFactoryInstantiationStrategy instantiationStrategy = new ApiBasedEngineFactoryInstantiationStrategy(
+                module, false, dependencyManager);
         return instantiationStrategy.compile(ReloadType.NO).getOpenClass().getMethods();
     }
 }

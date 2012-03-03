@@ -17,13 +17,13 @@ import org.openl.rules.project.abstraction.Deployment;
 
 public class JcrDataSourceTest {
 
-    private static IDataSource dataSource;
+    private static DataSource dataSource;
 
     @BeforeClass
-    public static void setDataSource() throws Exception{
+    public static void setDataSource() throws Exception {
         dataSource = new JcrDataSource();
     }
-    
+
     @Test
     public void testJcrDataSource() {
         assertNotNull(dataSource);
@@ -52,7 +52,7 @@ public class JcrDataSourceTest {
     @Test
     public void testAddListener() {
         assertTrue(dataSource.getListeners().size() == 0);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
             }
         };
@@ -63,7 +63,7 @@ public class JcrDataSourceTest {
     @Test
     public void testRemoveListener() {
         assertTrue(dataSource.getListeners().size() == 0);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
             }
         };
@@ -76,7 +76,7 @@ public class JcrDataSourceTest {
     @Test
     public void testRemoveAllListeners() {
         assertTrue(dataSource.getListeners().size() == 0);
-        IDataSourceListener dataSourceListener = new IDataSourceListener() {
+        DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
             }
         };

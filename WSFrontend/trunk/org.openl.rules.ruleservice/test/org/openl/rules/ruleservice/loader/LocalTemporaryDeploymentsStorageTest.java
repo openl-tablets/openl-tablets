@@ -14,12 +14,12 @@ import org.openl.rules.project.abstraction.Deployment;
 
 public class LocalTemporaryDeploymentsStorageTest {
 
-    private static IDataSource dataSource;
+    private static DataSource dataSource;
 
     private Deployment deployment;
 
     @BeforeClass
-    public static void setDataSource() throws Exception{
+    public static void setDataSource() throws Exception {
         dataSource = new JcrDataSource();
     }
 
