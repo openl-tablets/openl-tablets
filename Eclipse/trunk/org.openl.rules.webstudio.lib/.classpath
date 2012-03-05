@@ -51,8 +51,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/javassist-3.12.0.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcr-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgrapht-jdk1.5-0.7.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jsf-api-2.1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jsf-impl-2.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jsontools-core-1.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jstl-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-1.1.jar"/>
@@ -72,5 +70,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0-2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.faces-2.1.7.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
