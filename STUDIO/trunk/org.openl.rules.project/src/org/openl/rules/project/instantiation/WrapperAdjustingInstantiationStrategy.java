@@ -56,7 +56,7 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
      * @return {@link ClassLoader} for the current module.
      */
     @SuppressWarnings("deprecation")
-    protected ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() {
         if (classLoader == null) {
             ClassLoader parent = getModule().getProject().getClassLoader(false);            
             classLoader = new SimpleBundleClassLoader(parent);
