@@ -32,7 +32,7 @@ import java.util.Collection;
  *
  * @author Aleh Bykhavets
  */
-public class OpenLRoleVoter implements AccessDecisionVoter {
+public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
     /**
      * This implementation supports any type of class, because it does not query
      * the presented secure object.
