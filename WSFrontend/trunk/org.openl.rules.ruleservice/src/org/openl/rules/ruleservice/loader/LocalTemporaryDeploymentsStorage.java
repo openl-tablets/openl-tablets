@@ -294,8 +294,12 @@ public class LocalTemporaryDeploymentsStorage {
     public void clear() {
         synchronized (flag) {
             cacheForGetDeployment.clear();
-            FolderHelper.clearFolder(getFolderToLoadDeploymentsIn());
-            if (log.isInfoEnabled()) {
+            File folder = getFolderToLoadDeploymentsIn();
+            if (!FolderHelper.clearFolder(folder)) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format("Failed to clear a folder \"%s\"!", folder.getAbsolutePath()));
+                }
+            } else if (log.isInfoEnabled()) {
                 log.info("Local temprorary folder for downloading deployments was cleared.");
             }
         }
