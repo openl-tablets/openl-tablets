@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.cache;
+package org.openl.rules.ruleservice.publish.cache.dispatcher;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,20 +20,20 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 
 /**
- * Prebinds multimodule openclass and creates LazyMethod and LazyField that will
- * compile neccessary modules on demand.
+ * Multimodule with dispatching. Dispatching is defined by
+ * {@link DispatchedData} and {@link DispatchedMethod} annotations.
  * 
- * @author pudalau
+ * @author PUdalau
  */
-public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStrategy {
-    private static final Log LOG = LogFactory.getLog(LazyMultiModuleInstantiationStrategy.class);
+public class DispatchedMultiModuleInstantiationStrategy extends RulesInstantiationStrategy {
+    private static final Log LOG = LogFactory.getLog(DispatchedMultiModuleInstantiationStrategy.class);
 
-    private LazyMultiModuleEngineFactory factory;
+    private DispatchedMultiModuleEngineFactory factory;
     private ClassLoader classLoader;
-    private Collection<Module> modules;
+    private List<Module> modules;
     private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
 
-    public LazyMultiModuleInstantiationStrategy(Collection<Module> modules, boolean executionMode,
+    public DispatchedMultiModuleInstantiationStrategy(List<Module> modules, boolean executionMode,
             IDependencyManager dependencyManager) {
         super(null, executionMode, createDependencyManager(modules, executionMode, dependencyManager));
         this.modules = modules;
@@ -119,9 +119,9 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
         }
     }
 
-    private LazyMultiModuleEngineFactory getEngineFactory() {
+    private DispatchedMultiModuleEngineFactory getEngineFactory() {
         if (factory == null) {
-            factory = new LazyMultiModuleEngineFactory(modules);
+            factory = new DispatchedMultiModuleEngineFactory(modules, getRulesClass());
             for (Module module : modules) {
                 for (InitializingListener listener : listeners) {
                     listener.afterModuleLoad(module);

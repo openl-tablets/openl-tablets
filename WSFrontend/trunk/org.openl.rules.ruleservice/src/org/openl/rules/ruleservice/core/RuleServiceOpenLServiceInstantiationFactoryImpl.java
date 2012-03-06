@@ -89,18 +89,22 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
+    
+    public ClassLoader getClassLoader(OpenLService service, RulesInstantiationStrategy instantiationStrategy,
+            RulesServiceEnhancer enhancer){
+        if (service.isProvideRuntimeContext()) {
+            return enhancer.getInternalClassLoader();
+        } else {
+            return instantiationStrategy.getClassLoader();
+        }
+    }
+
     private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy,
             RulesServiceEnhancer enhancer) throws InstantiationException, ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
-        Class<?> generatedServiceClass = null;// created by engine factory
-        if (service.isProvideRuntimeContext()) {
-            generatedServiceClass = enhancer.getServiceClass();
-        } else {
-            generatedServiceClass = instantiationStrategy.getServiceClass();
-        }
         Class<?> serviceClass = null;
         if (serviceClassName != null) {
-            ClassLoader serviceClassLoader = generatedServiceClass.getClassLoader();
+            ClassLoader serviceClassLoader = getClassLoader(service, instantiationStrategy, enhancer);
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
                 instantiationStrategy.setRulesInterface(serviceClass);
@@ -115,9 +119,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 log.warn(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
                         service.getName()));
             }
-        }
-        if (serviceClass == null) {
-            serviceClass = generatedServiceClass;
+            if (service.isProvideRuntimeContext()) {
+                serviceClass = enhancer.getServiceClass();
+            } else {
+                serviceClass = instantiationStrategy.getServiceClass();
+            }
         }
         service.setServiceClass(serviceClass);
     }
