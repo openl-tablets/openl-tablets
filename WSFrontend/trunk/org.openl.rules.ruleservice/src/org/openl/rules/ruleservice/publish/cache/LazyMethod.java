@@ -17,22 +17,24 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau
  */
-public class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
     private String methodName;
 
     private Class<?>[] argTypes;
 
-    public LazyMethod(String methodName, Class<?>[] argTypes, Module module, IDependencyManager dependencyManager,
+    public LazyMethod(String methodName, Class<?>[] argTypes, IDependencyManager dependencyManager,
             boolean executionMode, ClassLoader classLoader, IOpenMethod original) {
-        super(module, dependencyManager, executionMode, classLoader, original);
+        super(dependencyManager, executionMode, classLoader, original);
         this.methodName = methodName;
         this.argTypes = argTypes;
     }
 
-    public IOpenMethod getMember() {
+    public IOpenMethod getMember(IRuntimeEnv env) {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(), isExecutionMode(),
-                    getDependencyManager(), getClassLoader()).compile(ReloadType.NO);
+            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(env),
+                isExecutionMode(),
+                getDependencyManager(),
+                getClassLoader()).compile(ReloadType.NO);
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
         } catch (Exception e) {
@@ -49,7 +51,7 @@ public class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return getMember().invoke(target, params, env);
+        return getMember(env).invoke(target, params, env);
     }
 
 }

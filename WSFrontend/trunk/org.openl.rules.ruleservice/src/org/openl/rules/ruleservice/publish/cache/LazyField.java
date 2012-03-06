@@ -14,18 +14,18 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau
  */
-public class LazyField extends LazyMember<IOpenField> implements IOpenField {
+public abstract class LazyField extends LazyMember<IOpenField> implements IOpenField {
     private String fieldName;
 
-    public LazyField(String fieldName, Module module, IDependencyManager dependencyManager, boolean executionMode,
-            ClassLoader classLoader, IOpenField original) {
-        super(module, dependencyManager, executionMode, classLoader, original);
+    public LazyField(String fieldName, IDependencyManager dependencyManager,
+            boolean executionMode, ClassLoader classLoader, IOpenField original) {
+        super(dependencyManager, executionMode, classLoader, original);
         this.fieldName = fieldName;
     }
 
-    public IOpenField getMember() {
+    public IOpenField getMember(IRuntimeEnv env) {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(), isExecutionMode(),
+            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(env), isExecutionMode(),
                     getDependencyManager(), getClassLoader()).compile(ReloadType.NO);
             return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
@@ -34,11 +34,11 @@ public class LazyField extends LazyMember<IOpenField> implements IOpenField {
     }
 
     public Object get(Object target, IRuntimeEnv env) {
-        return getMember().get(target, env);
+        return getMember(env).get(target, env);
     }
 
     public void set(Object target, Object value, IRuntimeEnv env) {
-        getMember().set(target, value, env);
+        getMember(env).set(target, value, env);
     }
 
     public boolean isConst() {

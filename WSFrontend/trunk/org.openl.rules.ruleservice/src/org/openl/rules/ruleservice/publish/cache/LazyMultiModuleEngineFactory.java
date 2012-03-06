@@ -79,12 +79,12 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         OpenL openL = getOpenL();
         previousBinder = openL.getBinder();
         openL.setBinder(new XlsPreBinder(getUserContext(), new IPrebindHandler() {
-
+            
             @Override
             public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
                 return makeLazyMethod(method);
             }
-
+            
             @Override
             public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
                 return makeLazyField(field);
@@ -147,15 +147,16 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
     }
 
-    /* package */Module getModuleForMember(IOpenMember member) {
+    /*package*/ Module getModuleForMember(IOpenMember member){
         String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
         for (Module module : modules) {
             try {
                 // TODO: find proper way of getting module of OpenMember
                 // now URLs comparison is used.
-                if (FilenameUtils.normalize(sourceUrl).equals(
-                        FilenameUtils.normalize(new File(module.getRulesRootPath().getPath()).toURI().toURL()
-                                .toExternalForm()))) {
+                if (FilenameUtils.normalize(sourceUrl)
+                    .equals(FilenameUtils.normalize(new File(module.getRulesRootPath().getPath()).toURI()
+                        .toURL()
+                        .toExternalForm()))) {
                     return module;
                 }
             } catch (MalformedURLException e) {
@@ -164,21 +165,29 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
         throw new RuntimeException("Module not found");
     }
-
+    
     private LazyMethod makeLazyMethod(IOpenMethod method) {
-        Module declaringModule = getModuleForMember(method);
+        final Module declaringModule = getModuleForMember(method);
         Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        return new LazyMethod(method.getName(), argTypes, declaringModule, dependencyManager, true, Thread
-                .currentThread().getContextClassLoader(), method);
+        return new LazyMethod(method.getName(), argTypes, dependencyManager, true, Thread.currentThread().getContextClassLoader(), method){
+            @Override
+            public Module getModule(IRuntimeEnv env) {
+                return declaringModule;
+            }
+        };
     }
 
     private LazyField makeLazyField(IOpenField field) {
-        Module declaringModule = getModuleForMember(field);
-        return new LazyField(field.getName(), declaringModule, dependencyManager, true, Thread.currentThread()
-                .getContextClassLoader(), field);
+        final Module declaringModule = getModuleForMember(field);
+        return new LazyField(field.getName(), dependencyManager, true, Thread.currentThread().getContextClassLoader(), field){
+            @Override
+            public Module getModule(IRuntimeEnv env) {
+                return declaringModule;
+            }
+        };
     }
 
     private CompiledOpenClass initializeOpenClass() {

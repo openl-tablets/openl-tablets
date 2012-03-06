@@ -5,6 +5,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * Lazy IOpenMember that contains info about module where it was declared. When
@@ -14,7 +15,6 @@ import org.openl.types.IOpenMember;
  * @author PUdalau
  */
 public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
-    private Module module;
     private IDependencyManager dependencyManager;
     private boolean executionMode;
     private T original;
@@ -26,21 +26,20 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      */
     private ClassLoader classLoader;
 
-    public LazyMember(Module module, IDependencyManager dependencyManager, boolean executionMode,
-            ClassLoader classLoader, T original) {
-        this.module = module;
-        this.dependencyManager = dependencyManager;
-        this.executionMode = executionMode;
-        this.classLoader = classLoader;
-        this.original = original;
-    }
+    public LazyMember(IDependencyManager dependencyManager,
+			boolean executionMode, ClassLoader classLoader, T original) {
+		this.dependencyManager = dependencyManager;
+		this.executionMode = executionMode;
+		this.classLoader = classLoader;
+		this.original = original;
+	}
 
-    /**
+	/**
      * Compiles method declaring the member and returns it.
      * 
      * @return Real member in compiled module.
      */
-    public abstract T getMember();
+    public abstract T getMember(IRuntimeEnv env);
 
     protected ModulesCache getCache() {
         return ModulesCache.getInstance();
@@ -49,12 +48,10 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     /**
      * @return Module containing current member.
      */
-    protected Module getModule() {
-        return module;
-    }
+    public abstract Module getModule(IRuntimeEnv env);
 
     /**
-     * @return DependencyManager used for lazy compiling.
+     * @return DependencyManager used for lazy compiling. 
      */
     protected IDependencyManager getDependencyManager() {
         return dependencyManager;
@@ -63,13 +60,13 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     protected boolean isExecutionMode() {
         return executionMode;
     }
-
+    
     /**
-     * @return ClassLoader used for lazy compiling.
+     * @return ClassLoader used for lazy compiling. 
      */
     public ClassLoader getClassLoader() {
-        return classLoader;
-    }
+		return classLoader;
+	}
 
     public T getOriginal() {
         return original;
