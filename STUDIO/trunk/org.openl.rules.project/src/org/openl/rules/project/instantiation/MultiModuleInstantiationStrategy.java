@@ -60,7 +60,7 @@ public class MultiModuleInstantiationStrategy extends RulesInstantiationStrategy
     }
 
     @Override
-    protected ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() {
         if (classLoader == null) {
             classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());            
             for (Module module : modules) {

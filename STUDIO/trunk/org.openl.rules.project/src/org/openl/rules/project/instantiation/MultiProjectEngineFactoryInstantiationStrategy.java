@@ -52,7 +52,7 @@ public class MultiProjectEngineFactoryInstantiationStrategy extends RulesInstant
     }
 
     @Override
-    protected ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() {
         if (classLoader == null) {
             classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
             if (modules == null) {

@@ -124,7 +124,7 @@ public abstract class RulesInstantiationStrategy {
      */
     
     @SuppressWarnings("deprecation")
-    protected ClassLoader getClassLoader() {        
+    public ClassLoader getClassLoader() {        
         if (classLoader == null) {
             ClassLoader parent = getModule().getProject().getClassLoader(false);
             URL[] urls = getModule().getProject().getClassPathUrls();          

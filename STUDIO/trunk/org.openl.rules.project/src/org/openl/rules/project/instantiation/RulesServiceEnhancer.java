@@ -67,6 +67,15 @@ public class RulesServiceEnhancer {
         this.instantiationStrategy = instantiationStrategy;
     }
 
+    public static boolean isEnhancedClass(Class<?> rulesInterface){
+        for(Method method: rulesInterface.getMethods()){
+            if(method.getParameterTypes().length == 0 || method.getParameterTypes()[0] != IRulesRuntimeContext.class){
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Gets enhanced service class.
      * 
@@ -148,11 +157,12 @@ public class RulesServiceEnhancer {
         return RulesFactory.generateInterface(className, rulesArray, getInternalClassLoader());
     }
     
-    private ClassLoader getInternalClassLoader() throws ClassNotFoundException {
+    public ClassLoader getInternalClassLoader() {
         if (classLoader == null) {
             ClassLoader originalClassLoader = instantiationStrategy.getClassLoader();
             classLoader = new SimpleBundleClassLoader(originalClassLoader);
-            classLoader.addClassLoader(instantiationStrategy.getServiceClass().getClassLoader());
+            //service class should be loaded by classloader of instantiation strategy
+//            classLoader.addClassLoader(instantiationStrategy.getServiceClass().getClassLoader());
         }
         
         return classLoader;
