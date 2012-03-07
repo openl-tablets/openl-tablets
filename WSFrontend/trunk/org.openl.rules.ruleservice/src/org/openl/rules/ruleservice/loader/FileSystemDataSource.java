@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -139,17 +140,17 @@ public class FileSystemDataSource implements DataSource {
     }
 
     /** {@inheritDoc} */
-    public List<Deployment> getDeployments() {
+    public Collection<Deployment> getDeployments() {
         File loadDeploymentsFromFolder = getLoadDeploymentsFromFolder();
         validateFileSystemDataSourceFolder(loadDeploymentsFromFolder);
-        List<Deployment> deployments = new ArrayList<Deployment>(1);
+        Collection<Deployment> deployments = new ArrayList<Deployment>(1);
         LocalFolderAPI localFolderAPI = new LocalFolderAPI(loadDeploymentsFromFolder, new ArtefactPathImpl(
                 loadDeploymentsFromFolder.getName()), new LocalWorkspaceImpl(null,
                 loadDeploymentsFromFolder.getParentFile(), getLocalWorkspaceFolderFilter(),
                 getLocalWorkspaceFileFilter()));
         Deployment deployment = new Deployment(localFolderAPI);
         deployments.add(deployment);
-        return deployments;
+        return Collections.unmodifiableCollection(deployments);
     }
 
     /** {@inheritDoc} */

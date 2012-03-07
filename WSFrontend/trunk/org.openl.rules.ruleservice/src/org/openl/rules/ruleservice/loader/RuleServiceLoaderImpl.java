@@ -2,9 +2,8 @@ package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,7 +123,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     /** {@inheritDoc} */
-    public List<Deployment> getDeployments() {
+    public Collection<Deployment> getDeployments() {
         return getDataSource().getDeployments();
     }
 
@@ -161,7 +160,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     /** {@inheritDoc} */
-    public List<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
+    public Collection<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
             String projectName) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
@@ -197,7 +196,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     /** {@inheritDoc} */
-    public List<Module> getModulesForService(ServiceDescription serviceDescription) {
+    public Collection<Module> getModulesForService(ServiceDescription serviceDescription) {
         if (serviceDescription == null) {
             throw new IllegalArgumentException("serviceDescription argument can't be null");
         }
@@ -206,8 +205,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             log.debug("Resoliving modules for service with name=" + serviceDescription.getName());
         }
 
-        List<Module> ret = new ArrayList<Module>();
-        Set<ModuleDescription> modulesToLoad = serviceDescription.getModules();
+        Collection<Module> ret = new ArrayList<Module>();
+        Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
         for (ModuleDescription moduleDescription : modulesToLoad) {
             String deploymentName = moduleDescription.getDeploymentName();
             CommonVersion commonVersion = moduleDescription.getDeploymentVersion();
@@ -223,7 +222,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
             if (resolvingStrategy != null) {
                 ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
-                List<Module> modules = projectDescriptor.getModules();
+                Collection<Module> modules = projectDescriptor.getModules();
                 for (Module module : modules) {
                     if (moduleDescription.getModuleName().equals(module.getName())) {
                         ret.add(module);
@@ -231,6 +230,6 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 }
             }
         }
-        return ret;
+        return Collections.unmodifiableCollection(ret);
     }
 }

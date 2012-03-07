@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.management;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -19,5 +19,5 @@ public interface ServiceConfigurer {
      * @param loader Loader to access projects.
      * @return List of {@link ServiceDescription} to deployed.
      */
-    List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader);
+    Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader);
 }

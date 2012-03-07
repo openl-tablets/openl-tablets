@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.simple;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 
@@ -43,26 +43,37 @@ public interface RulesFrontend {
      * @param fieldName Technical name of the rule to execute
      * @return Data stored in field
      */
-    Object getValues(String serviceName, String fieldName) throws MethodInvocationException;
+    Object getValue(String serviceName, String fieldName) throws MethodInvocationException;
 
     /**
      * Registers service to use it in calculations.
      * 
      * @param service Service to register.
      */
-    List<OpenLService> getServices();
+    Collection<OpenLService> getServices();
+
+    /**
+     * Returns service by name
+     * 
+     * @param serviceName
+     * @return
+     */
+    OpenLService findServiceByName(String serviceName);
 
     /**
      * Registers service to use it in calculations.
      * 
      * @param service Service to register.
+     * @return replaced service
+     * 
      */
-    void registerService(OpenLService service);
+    OpenLService registerService(OpenLService service);
 
     /**
-     * Unregisters service.
+     * Unregister service
      * 
-     * @param serviceName Name of the service to unregister.
+     * @param serviceName
+     * @return unregistered service
      */
-    void unregisterService(String serviceName);
+    OpenLService unregisterService(String serviceName);
 }

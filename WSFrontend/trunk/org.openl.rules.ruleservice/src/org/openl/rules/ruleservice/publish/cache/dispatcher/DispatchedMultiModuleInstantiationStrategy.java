@@ -30,10 +30,10 @@ public class DispatchedMultiModuleInstantiationStrategy extends RulesInstantiati
 
     private DispatchedMultiModuleEngineFactory factory;
     private ClassLoader classLoader;
-    private List<Module> modules;
+    private Collection<Module> modules;
     private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
 
-    public DispatchedMultiModuleInstantiationStrategy(List<Module> modules, boolean executionMode,
+    public DispatchedMultiModuleInstantiationStrategy(Collection<Module> modules, boolean executionMode,
             IDependencyManager dependencyManager) {
         super(null, executionMode, createDependencyManager(modules, executionMode, dependencyManager));
         this.modules = modules;

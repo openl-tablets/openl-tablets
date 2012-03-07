@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -18,9 +19,9 @@ import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class MultiModuleDispatchingTest {
@@ -37,8 +38,8 @@ public class MultiModuleDispatchingTest {
         return rulesProject.resolveProject(root);
     }
 
-    private static List<Module> resolveAllModules(File root) {
-        List<Module> modules = new ArrayList<Module>();
+    private static Collection<Module> resolveAllModules(File root) {
+        Collection<Module> modules = new ArrayList<Module>();
         resolver.setWorkspace(root.getAbsolutePath());
         List<ProjectDescriptor> projects = resolver.listOpenLProjects();
         for (ProjectDescriptor project : projects) {
@@ -66,7 +67,7 @@ public class MultiModuleDispatchingTest {
 
     @Test
     public void testMultiModuleService() throws Exception {
-        List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module_overloaded"));
+        Collection<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module_overloaded"));
         service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(SERVICE_NAME, "no_url", null, true,
                 modules1);
 

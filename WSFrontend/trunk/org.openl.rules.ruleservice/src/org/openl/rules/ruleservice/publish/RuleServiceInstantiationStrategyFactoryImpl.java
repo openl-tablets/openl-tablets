@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
@@ -22,13 +22,13 @@ import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStr
  */
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 
-    private List<InitializingListener> initializingListeners;
+    private Collection<InitializingListener> initializingListeners;
 
-    public List<InitializingListener> getInitializingListeners() {
+    public Collection<InitializingListener> getInitializingListeners() {
         return initializingListeners;
     }
 
-    public void setInitializingListeners(List<InitializingListener> initializingListeners) {
+    public void setInitializingListeners(Collection<InitializingListener> initializingListeners) {
         this.initializingListeners = initializingListeners;
     }
 
@@ -46,12 +46,12 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
     }
     
     /** {@inheritDoc} */
-    public RulesInstantiationStrategy getStrategy(List<Module> modules, IDependencyManager dependencyManager) {
+    public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         switch (modules.size()) {
             case 0:
                 throw new RuntimeException("There are no modules to instantiate.");
             case 1:
-                return RulesInstantiationStrategyFactory.getStrategy(modules.get(0), true, dependencyManager);
+                return RulesInstantiationStrategyFactory.getStrategy(modules.iterator().next(), true, dependencyManager);
             default:
                 LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(
                         modules, true, dependencyManager);

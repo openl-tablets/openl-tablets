@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Proxy;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -131,7 +131,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     /** {@inheritDoc} */
     public OpenLService createService(ServiceDescription serviceDescription)
             throws RuleServiceOpenLServiceInstantiationException {
-        List<Module> modules = ruleServiceLoader.getModulesForService(serviceDescription);
+        Collection<Module> modules = ruleServiceLoader.getModulesForService(serviceDescription);
         OpenLService openLService = new OpenLService(serviceDescription.getName(), serviceDescription.getUrl(),
                 serviceDescription.getServiceClassName(), serviceDescription.isProvideRuntimeContext(), modules);
         try {
@@ -151,7 +151,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     /* for internal tests */public OpenLService createOpenLService(String serviceName, String url,
-            String serviceClassName, boolean isProvideRuntimeContext, List<Module> modules)
+            String serviceClassName, boolean isProvideRuntimeContext, Collection<Module> modules)
             throws RuleServiceOpenLServiceInstantiationException {
         OpenLService openLService = new OpenLService(serviceName, url, serviceClassName, isProvideRuntimeContext,
                 modules);

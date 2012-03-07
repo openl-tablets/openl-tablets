@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,57 +29,53 @@ public class RuleServiceImpl implements RuleService {
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
 
     /** {@inheritDoc} */
-    public OpenLService redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException {
+    public void redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException {
         if (log.isDebugEnabled()) {
             log.debug(String.format("Redeploying service method was started. Service name is \"%s\"",
                     serviceDescription.getName()));
         }
         try {
-            OpenLService service = ruleServicePublisher.redeploy(ruleServiceInstantiationFactory
-                    .createService(serviceDescription));
-            return service;
+            ruleServicePublisher.redeploy(ruleServiceInstantiationFactory.createService(serviceDescription));
         } catch (RuleServiceOpenLServiceInstantiationException e) {
             throw new RuleServiceRedeployException("Failed on deploy service", e);
         }
     }
 
     /** {@inheritDoc} */
-    public OpenLService undeploy(String serviceName) throws RuleServiceUndeployException {
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName arg can't be null");
         }
-        OpenLService service = ruleServicePublisher.undeploy(serviceName);
+
+        ruleServicePublisher.undeploy(serviceName);
 
         if (log.isInfoEnabled()) {
             log.info(String.format(String.format("Service with name=\"%s\" was undeployed", serviceName)));
         }
-
-        return service;
     }
 
     /** {@inheritDoc} */
-    public List<OpenLService> getRunningServices() {
-        return ruleServicePublisher.getRunningServices();
+    public Collection<OpenLService> getServices() {
+        return ruleServicePublisher.getServices();
     }
 
     /** {@inheritDoc} */
-    public OpenLService findServiceByName(String serviceName) {
-        return ruleServicePublisher.findServiceByName(serviceName);
+    public OpenLService getServiceByName(String serviceName) {
+        return ruleServicePublisher.getServiceByName(serviceName);
     }
 
     /** {@inheritDoc} */
-    public OpenLService deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
+    public void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
         if (log.isDebugEnabled()) {
             log.debug(String.format("Deploying service method was started. Service name is \"%s\"",
                     serviceDescription.getName()));
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
-            OpenLService service = ruleServicePublisher.deploy(newService);
+            ruleServicePublisher.deploy(newService);
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service with name=\"%s\" deployed", newService.getName()));
             }
-            return service;
         } catch (RuleServiceOpenLServiceInstantiationException e) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Deploying service method failed. Service name is \"%s\"",

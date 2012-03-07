@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
@@ -17,7 +18,7 @@ public interface DataSource {
      * 
      * @return a list of deployments
      */
-    List<Deployment> getDeployments();
+    Collection<Deployment> getDeployments();
 
     /**
      * Gets a deployment from data source

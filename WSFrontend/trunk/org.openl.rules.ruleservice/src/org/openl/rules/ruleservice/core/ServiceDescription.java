@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.core;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Class designed for storing service info.
@@ -17,7 +17,7 @@ public final class ServiceDescription {
     private String url;
     private String serviceClassName;
     private boolean provideRuntimeContext;
-    private Set<ModuleDescription> modules;
+    private Collection<ModuleDescription> modules;
 
     /**
      * Main constructor
@@ -29,13 +29,13 @@ public final class ServiceDescription {
      * @param modules
      */
     ServiceDescription(String name, String url, String serviceClassName, boolean provideRuntimeContext,
-            Set<ModuleDescription> modules) {
+            Collection<ModuleDescription> modules) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         if (modules != null) {
-            this.modules = Collections.unmodifiableSet(modules);
+            this.modules = Collections.unmodifiableCollection(modules);
         } else {
             this.modules = Collections.emptySet();
         }
@@ -87,7 +87,7 @@ public final class ServiceDescription {
      * 
      * @return a set of modules
      */
-    public Set<ModuleDescription> getModules() {
+    public Collection<ModuleDescription> getModules() {
         return modules;
     }
 
@@ -127,7 +127,7 @@ public final class ServiceDescription {
         private String url;
         private String serviceClassName;
         private boolean provideRuntimeContext;
-        private Set<ModuleDescription> modules;
+        private Collection<ModuleDescription> modules;
         
         /**
          * Sets name to the builder
@@ -160,7 +160,7 @@ public final class ServiceDescription {
          * @param modules
          * @return
          */
-        public ServiceDescriptionBuilder setModules(Set<ModuleDescription> modules) {
+        public ServiceDescriptionBuilder setModules(Collection<ModuleDescription> modules) {
             if (modules == null) {
                 this.modules = new HashSet<ModuleDescription>(0);
             } else {
@@ -175,7 +175,7 @@ public final class ServiceDescription {
          * @param modules
          * @return
          */
-        public ServiceDescriptionBuilder addModules(Set<ModuleDescription> modules) {
+        public ServiceDescriptionBuilder addModules(Collection<ModuleDescription> modules) {
             if (modules == null) {
                 this.modules = new HashSet<ModuleDescription>(0);
             }

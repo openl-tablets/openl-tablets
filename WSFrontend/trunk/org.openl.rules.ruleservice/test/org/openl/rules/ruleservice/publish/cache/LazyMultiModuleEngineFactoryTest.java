@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -34,8 +35,8 @@ public class LazyMultiModuleEngineFactoryTest {
     /**
      * Test is concluded in module paths.
      */
-    public static List<Module> resolveAllModules(String root) {
-        List<Module> modules = new ArrayList<Module>();
+    public static Collection<Module> resolveAllModules(String root) {
+        Collection<Module> modules = new ArrayList<Module>();
         ProjectDescriptor projectDescriptor = new ProjectDescriptor();
         Module module1_1 = new Module();
         module1_1.setName("Module1_1");
@@ -58,13 +59,13 @@ public class LazyMultiModuleEngineFactoryTest {
 
     @Test
     public void testModulesMatching() throws Exception {
-        List<Module> modules = resolveAllModules("./test-resources/multi-module_overloaded");
+        Collection<Module> modules = resolveAllModules("./test-resources/multi-module_overloaded");
         LazyMultiModuleEngineFactory factory = new LazyMultiModuleEngineFactory(modules);
         factory.setDependencyManager(dependencyManager);
         checkModules(factory, modules);
     }
 
-    private void checkModules(LazyMultiModuleEngineFactory factory, List<Module> modules) throws Exception {
+    private void checkModules(LazyMultiModuleEngineFactory factory, Collection<Module> modules) throws Exception {
         for (Module module : modules) {
             for (IOpenMethod method : getMethodsFromModule(module)) {
                 assertEquals(factory.getModuleForMember(method), module);

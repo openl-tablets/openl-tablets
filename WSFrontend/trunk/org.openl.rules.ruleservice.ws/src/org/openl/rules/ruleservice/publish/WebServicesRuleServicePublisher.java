@@ -1,8 +1,8 @@
-package org.openl.ruleservice.publish;
+package org.openl.rules.ruleservice.publish;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -52,7 +52,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         return new ServerFactoryBean();
     }
 
-    public OpenLService deploy(OpenLService service) throws RuleServiceDeployException {
+    public void deploy(OpenLService service) throws RuleServiceDeployException {
         ServerFactoryBean svrFactory = getServerFactoryBean();
         String serviceAddress = getBaseAddress() + service.getUrl();
         svrFactory.setAddress(serviceAddress);
@@ -73,14 +73,13 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return service;
     }
 
-    public List<OpenLService> getRunningServices() {
-        return new ArrayList<OpenLService>(runningServices.keySet());
+    public Collection<OpenLService> getServices() {
+        return Collections.unmodifiableCollection(runningServices.keySet());
     }
 
-    public OpenLService findServiceByName(String name) {
+    public OpenLService getServiceByName(String name) {
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(name)) {
                 return service;
@@ -89,8 +88,8 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         return null;
     }
 
-    public OpenLService undeploy(String serviceName) throws RuleServiceUndeployException {
-        OpenLService service = findServiceByName(serviceName);
+    public void undeploy(String serviceName) throws RuleServiceUndeployException {
+        OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
                     serviceName));
@@ -102,20 +101,19 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
                         baseAddress + service.getUrl()));
             }
             runningServices.remove(service);
-            return service;
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
         }
     }
     
-    public OpenLService redeploy(OpenLService service) throws RuleServiceRedeployException {
+    public void redeploy(OpenLService service) throws RuleServiceRedeployException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
         }
 
         try {
             undeploy(service.getName());
-            return deploy(service);
+            deploy(service);
         } catch (RuleServiceDeployException e) {
             throw new RuleServiceRedeployException("Service redeploy was failed", e);
         } catch (RuleServiceUndeployException e) {

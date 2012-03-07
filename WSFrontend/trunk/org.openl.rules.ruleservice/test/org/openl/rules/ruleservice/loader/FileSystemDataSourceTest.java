@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.loader;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,15 +33,15 @@ public class FileSystemDataSourceTest {
 
     @Test
     public void testGetDeployments() {
-        List<Deployment> deployments = dataSource.getDeployments();
+        Collection<Deployment> deployments = dataSource.getDeployments();
         assertTrue(deployments.size() == 1);
     }
 
     @Test
     public void testGetDeployment() {
-        List<Deployment> deployments = dataSource.getDeployments();
+        Collection<Deployment> deployments = dataSource.getDeployments();
         assertTrue(deployments.size() == 1);
-        Deployment tmp = deployments.get(0);
+        Deployment tmp = deployments.iterator().next();
         Deployment deployment = dataSource.getDeployment(tmp.getDeploymentName(), tmp.getCommonVersion());
         assertNotNull(deployment);
         assertEquals(tmp.getName(), deployment.getDeploymentName());

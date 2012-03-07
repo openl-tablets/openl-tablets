@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.management;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
@@ -14,12 +14,12 @@ import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 public class RulesBasedServiceConfigurerFactory {
-    public Module getModuleByName(List<Module> modules, String moduleName) {
+    public Module getModuleByName(Collection<Module> modules, String moduleName) {
         if (modules == null || modules.size() == 0) {
             throw new IllegalArgumentException("There are no any module to get rules based service confiurer.");
         }
         if (moduleName == null) {
-            return modules.get(0);
+            return modules.iterator().next();
         } else {
             Module result = null;
             for (Module module : modules) {
@@ -43,8 +43,8 @@ public class RulesBasedServiceConfigurerFactory {
         return lastVersion;
     }
 
-    public RulesBasedServiceConfigurer getConfigurerFromDataSource(final RuleServiceLoader loader, final String deployment,
-            final String project, final String moduleName) {
+    public RulesBasedServiceConfigurer getConfigurerFromDataSource(final RuleServiceLoader loader,
+            final String deployment, final String project, final String moduleName) {
         RulesBasedServiceConfigurer configurer = new RulesBasedServiceConfigurer() {
             @Override
             protected RulesInstantiationStrategy getRulesSource() {
@@ -53,7 +53,7 @@ public class RulesBasedServiceConfigurerFactory {
                     throw new IllegalArgumentException(String.format(
                             "Wrong deployment name has been specified: \"%s\"", deployment));
                 }
-                List<Module> modulesInSpecifiedProject = loader.resolveModulesForProject(deployment,
+                Collection<Module> modulesInSpecifiedProject = loader.resolveModulesForProject(deployment,
                         lastVersionForDeployment, project);
                 return getRulesInstantiationStrategy(moduleName, modulesInSpecifiedProject);
             }
@@ -62,7 +62,7 @@ public class RulesBasedServiceConfigurerFactory {
     }
 
     public RulesInstantiationStrategy getRulesInstantiationStrategy(final String moduleName,
-            List<Module> modulesInSpecifiedProject) {
+            Collection<Module> modulesInSpecifiedProject) {
         Module necessaryModule = getModuleByName(modulesInSpecifiedProject, moduleName);
         if (necessaryModule == null) {
             throw new IllegalArgumentException(

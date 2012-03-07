@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.management;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +26,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean provideRuntimeContext;
 
     /** {@inheritDoc} */
-    public List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
+    public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         if (loader == null) {
             throw new IllegalArgumentException("loader argument can't be null");
         }
@@ -50,12 +49,12 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         return createServiceDescriptions(latestDeployments.values(), loader);
     }
 
-    private List<ServiceDescription> createServiceDescriptions(Collection<Deployment> latestDeployments,
+    private Collection<ServiceDescription> createServiceDescriptions(Collection<Deployment> latestDeployments,
             RuleServiceLoader loader) {
-        List<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
+        Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         for (Deployment deployment : latestDeployments) {
             for (AProject project : deployment.getProjects()) {
-                List<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
+                Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName());
                 ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                         .setProvideRuntimeContext(provideRuntimeContext);

@@ -1,4 +1,4 @@
-package org.openl.ruleservice.publish;
+package org.openl.rules.ruleservice.publish;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -24,6 +24,7 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceConfigurer;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.WebServicesRuleServicePublisher;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
 import org.springframework.beans.BeansException;
@@ -74,7 +75,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         assertNotNull(serviceManager);
         RuleServiceLoader rulesLoader = serviceManager.getRuleServiceLoader();
         serviceManager.start();
-        OpenLService multimoduleService = serviceManager.getRuleService().findServiceByName("multimodule");
+        OpenLService multimoduleService = serviceManager.getRuleService().getServiceByName("multimodule");
         // OpenLService tutorial4Service =
         // serviceManager.getRuleService().findServiceByName("tutorial4");
         Deployment domainDeployment = rulesLoader.getDeployment("domain",
@@ -86,13 +87,13 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         for (int i = 0; i < 12; i++) {// waiting for redeploying of services
                                       // during.
             Thread.sleep(5000); // notifications come asynchroniously
-            if (multimoduleService != serviceManager.getRuleService().findServiceByName("multimodule")) {
+            if (multimoduleService != serviceManager.getRuleService().getServiceByName("multimodule")) {
                 break;
             }
         }
-        assertEquals(2, applicationContext.getBean(RuleServicePublisher.class).getRunningServices()
+        assertEquals(2, applicationContext.getBean(RuleServicePublisher.class).getServices()
                 .size());
-        assertNotSame(multimoduleService, serviceManager.getRuleService().findServiceByName("multimodule"));
+        assertNotSame(multimoduleService, serviceManager.getRuleService().getServiceByName("multimodule"));
         // uncomment after the smart redeployment will be implemented
         // assertSame(tutorial4Service,
         // serviceManager.getRuleService().findServiceByName("tutorial4"));

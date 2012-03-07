@@ -1,11 +1,11 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,10 +35,10 @@ public class JcrDataSource implements DataSource, DisposableBean {
     private Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
 
     /** {@inheritDoc} */
-    public List<Deployment> getDeployments() {
+    public Collection<Deployment> getDeployments() {
         try {
             List<FolderAPI> deploymentProjects = getRProductionRepository().getDeploymentProjects();
-            List<Deployment> ret = new ArrayList<Deployment>();
+            Collection<Deployment> ret = new ArrayList<Deployment>();
             for (FolderAPI deploymentProject : deploymentProjects) {
                 String deploymentName = deploymentProject.getName();
                 int separatorPosition = deploymentName.lastIndexOf(SEPARATOR);
@@ -99,7 +99,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
     public List<DataSourceListener> getListeners() {
         List<DataSourceListener> tmp = null;
         synchronized (listeners) {
-            Set<DataSourceListener> dataSourceListeners = listeners.keySet();
+            Collection<DataSourceListener> dataSourceListeners = listeners.keySet();
             tmp = new ArrayList<DataSourceListener>(dataSourceListeners);
         }
         return Collections.unmodifiableList(tmp);
