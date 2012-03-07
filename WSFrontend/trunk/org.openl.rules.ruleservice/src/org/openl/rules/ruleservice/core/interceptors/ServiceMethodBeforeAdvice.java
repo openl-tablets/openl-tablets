@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.reflect.Method;
 
 /**
- * Before advice for intercepting method calls
+ * Before advice for intercepting method calls.
  * 
  * @author Marat Kamalov
  * 

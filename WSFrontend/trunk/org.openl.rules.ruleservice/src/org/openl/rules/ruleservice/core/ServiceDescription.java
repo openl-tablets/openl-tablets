@@ -20,7 +20,7 @@ public final class ServiceDescription {
     private Collection<ModuleDescription> modules;
 
     /**
-     * Main constructor
+     * Main constructor.
      * 
      * @param name
      * @param url
@@ -46,7 +46,7 @@ public final class ServiceDescription {
     }
 
     /**
-     * Returns service name
+     * Returns service name.
      * 
      * @return service name
      */
@@ -55,7 +55,7 @@ public final class ServiceDescription {
     }
 
     /**
-     * Returns service URL
+     * Returns service URL.
      * 
      * @return
      */
@@ -64,7 +64,7 @@ public final class ServiceDescription {
     }
 
     /**
-     * Returns service class name
+     * Returns service class name.
      * 
      * @return class name
      */
@@ -83,7 +83,7 @@ public final class ServiceDescription {
     }
 
     /**
-     * Return modules for the service
+     * Return modules for the service.
      * 
      * @return a set of modules
      */
@@ -101,23 +101,28 @@ public final class ServiceDescription {
 
     /** {@inheritDoc} */
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ServiceDescription other = (ServiceDescription) obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         return true;
     }
 
     /**
-     * Builder for ServiceDescription
+     * Builder for ServiceDescription.
      * 
      * @author Marat Kamalov
      * 
@@ -128,9 +133,9 @@ public final class ServiceDescription {
         private String serviceClassName;
         private boolean provideRuntimeContext;
         private Collection<ModuleDescription> modules;
-        
+
         /**
-         * Sets name to the builder
+         * Sets name to the builder.
          * 
          * @param name
          * @return
@@ -144,7 +149,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Sets url to the builder
+         * Sets url to the builder.
          * 
          * @param url
          * @return
@@ -155,7 +160,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Set a new set of modules to the builder
+         * Set a new set of modules to the builder.
          * 
          * @param modules
          * @return
@@ -170,7 +175,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Adds modules to the builder
+         * Adds modules to the builder.
          * 
          * @param modules
          * @return
@@ -184,7 +189,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Add module to the builder
+         * Add module to the builder.
          * 
          * @param module
          * @return
@@ -198,9 +203,9 @@ public final class ServiceDescription {
             }
             return this;
         }
-        
+
         /**
-         * Sets provideRuntimeContext to the builder
+         * Sets provideRuntimeContext to the builder.
          * 
          * @param provideRuntimeContext
          * @return
@@ -211,7 +216,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Sets class name to the builder
+         * Sets class name to the builder.
          * 
          * @param serviceClassName
          * @return
@@ -222,7 +227,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Builds ServiceDesctiption
+         * Builds ServiceDesctiption.
          * 
          * @return
          */

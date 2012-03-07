@@ -19,7 +19,7 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
  * 
  */
 public class JavaClassRuleServicePublisher implements RuleServicePublisher {
-    private Log log = LogFactory.getLog(JavaClassRuleServicePublisher.class);
+    private final Log log = LogFactory.getLog(JavaClassRuleServicePublisher.class);
 
     private RulesFrontend frontend = new RulesFrontendImpl();
 

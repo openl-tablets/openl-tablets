@@ -25,7 +25,7 @@ import org.springframework.aop.framework.ProxyFactory;
  * 
  */
 public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServiceInstantiationFactory {
-    private Log log = LogFactory.getLog(RuleServiceOpenLServiceInstantiationFactoryImpl.class);
+    private final Log log = LogFactory.getLog(RuleServiceOpenLServiceInstantiationFactoryImpl.class);
 
     private RuleServiceLoader ruleServiceLoader;
 
@@ -130,7 +130,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     /** {@inheritDoc} */
     public OpenLService createService(ServiceDescription serviceDescription)
-            throws RuleServiceOpenLServiceInstantiationException {
+            throws RuleServiceInstantiationException {
         Collection<Module> modules = ruleServiceLoader.getModulesForService(serviceDescription);
         OpenLService openLService = new OpenLService(serviceDescription.getName(), serviceDescription.getUrl(),
                 serviceDescription.getServiceClassName(), serviceDescription.isProvideRuntimeContext(), modules);
@@ -140,7 +140,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (log.isWarnEnabled()) {
                 log.warn("Failed to initialiaze service " + openLService.getName(), e);
             }
-            throw new RuleServiceOpenLServiceInstantiationException(String.format(
+            throw new RuleServiceInstantiationException(String.format(
                     "Failed to initialiaze OpenL service \"%s\"", openLService.getName()), e);
         }
 
@@ -152,7 +152,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     /* for internal tests */public OpenLService createOpenLService(String serviceName, String url,
             String serviceClassName, boolean isProvideRuntimeContext, Collection<Module> modules)
-            throws RuleServiceOpenLServiceInstantiationException {
+            throws RuleServiceInstantiationException {
         OpenLService openLService = new OpenLService(serviceName, url, serviceClassName, isProvideRuntimeContext,
                 modules);
         try {
@@ -161,7 +161,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (log.isWarnEnabled()) {
                 log.warn("Failed to initialiaze service " + openLService.getName(), e);
             }
-            throw new RuleServiceOpenLServiceInstantiationException(String.format(
+            throw new RuleServiceInstantiationException(String.format(
                     "Failed to initialiaze OpenL service \"%s\"", openLService.getName()), e);
         }
 

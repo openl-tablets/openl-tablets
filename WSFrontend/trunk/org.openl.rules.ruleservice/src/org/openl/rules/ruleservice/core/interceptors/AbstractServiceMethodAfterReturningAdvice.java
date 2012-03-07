@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 public abstract class AbstractServiceMethodAfterReturningAdvice<T> implements ServiceMethodAfterAdvice<T> {
 
     /** {@inheritDoc} */
-    public T afterThrowing(Method method, Throwable t, Object... args) throws Throwable {
+    public T afterThrowing(Method method, Exception t, Object... args) throws Exception {
         throw t;
     }
 }

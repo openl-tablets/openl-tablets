@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.management;
 
 /**
- * Starts rule service
+ * Starts rule service.
  * 
  * @author Marat Kamalov
  * 

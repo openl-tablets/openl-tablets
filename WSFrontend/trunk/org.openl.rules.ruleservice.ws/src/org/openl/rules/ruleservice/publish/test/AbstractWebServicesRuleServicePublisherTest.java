@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Class designed for testing rules published via
- * WebServicesRuleServicePublisher
+ * WebServicesRuleServicePublisher.
  * 
  * @author Marat Kamalov
  * 

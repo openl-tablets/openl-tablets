@@ -13,7 +13,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
@@ -23,7 +22,7 @@ import org.springframework.beans.factory.ObjectFactory;
  */
 public class WebServicesRuleServicePublisher implements RuleServicePublisher {
 
-    private static final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
+    private final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();

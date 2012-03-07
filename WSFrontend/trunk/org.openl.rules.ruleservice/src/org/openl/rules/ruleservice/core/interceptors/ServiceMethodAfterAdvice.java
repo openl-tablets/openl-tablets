@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.reflect.Method;
 
 /**
- * After advice for intercepting method calls
+ * After advice for intercepting method calls.
  * 
  * @author Marat Kamalov
  * 
@@ -21,9 +21,9 @@ public interface ServiceMethodAfterAdvice<T> {
      * @param result method return value
      * @param args method arguments
      * @return method return value
-     * @throws Throwable
+     * @throws Exception
      */
-    T afterReturning(Method method, Object result, Object... args) throws Throwable;
+    T afterReturning(Method method, Object result, Object... args) throws Exception;
 
     /**
      * If after advice defined for a service method, invokes this method after
@@ -35,8 +35,8 @@ public interface ServiceMethodAfterAdvice<T> {
      * @param result method return value
      * @param args method arguments
      * @return method return value
-     * @throws Throwable
+     * @throws Exception
      */
-    T afterThrowing(Method method, Throwable t, Object... args) throws Throwable;
+    T afterThrowing(Method method, Exception t, Object... args) throws Exception;
 
 }

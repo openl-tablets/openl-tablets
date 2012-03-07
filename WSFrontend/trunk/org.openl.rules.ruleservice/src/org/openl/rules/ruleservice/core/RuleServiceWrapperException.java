@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
 /**
- * Exception for wrapping exceptions for returning them from ruleservice
+ * Exception for wrapping exceptions for returning them from ruleservice.
  * 
  * @author Marat Kamalov
  * 
@@ -11,7 +11,7 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
     private static final long serialVersionUID = 3618613334261575918L;
 
     /**
-     * Constructs a new RuleServiceWrapperException
+     * Constructs a new RuleServiceWrapperException.
      */
     public RuleServiceWrapperException() {
         super();

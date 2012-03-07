@@ -46,7 +46,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
 
-    private static final Log LOG = LogFactory.getLog(LazyMultiModuleEngineFactory.class);
+    private final Log log = LogFactory.getLog(LazyMultiModuleEngineFactory.class);
 
     private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
 
@@ -107,7 +107,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
                         .getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface : %s", className);
-                LOG.error(errorMessage, e);
+                log.error(errorMessage, e);
                 throw new OpenlNotCheckedException(errorMessage, e);
             }
         }
@@ -142,7 +142,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
                     .getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
-            LOG.error(errorMessage, ex);
+            log.error(errorMessage, ex);
             throw new OpenlNotCheckedException(errorMessage, ex);
         }
     }
@@ -160,7 +160,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
                     return module;
                 }
             } catch (MalformedURLException e) {
-                LOG.warn(e);
+                log.warn(e);
             }
         }
         throw new RuntimeException("Module not found");

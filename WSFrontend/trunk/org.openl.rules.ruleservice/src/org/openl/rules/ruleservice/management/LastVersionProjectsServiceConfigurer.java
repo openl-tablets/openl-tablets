@@ -21,7 +21,7 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
  * @author PUdalau
  */
 public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
-    private Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
+    private final Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
 
     private boolean provideRuntimeContext;
 

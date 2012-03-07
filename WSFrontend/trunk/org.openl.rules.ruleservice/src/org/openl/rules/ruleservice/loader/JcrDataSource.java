@@ -28,7 +28,7 @@ import org.springframework.beans.factory.DisposableBean;
  * 
  */
 public class JcrDataSource implements DataSource, DisposableBean {
-    private Log log = LogFactory.getLog(JcrDataSource.class);
+    private final Log log = LogFactory.getLog(JcrDataSource.class);
 
     private static final String SEPARATOR = "#";
 
