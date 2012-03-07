@@ -1,51 +1,66 @@
 package org.openl.rules.security.standalone.dao;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.openl.rules.security.standalone.persistence.PersistentObject;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Convenient base implementation of {@link Dao} using Hibernate.
  *
  * @author Andrey Naumenko
  */
-public abstract class BaseHibernateDao extends HibernateDaoSupport implements Dao {
+public abstract class BaseHibernateDao implements Dao {
+
     private Class persistentClass;
+
+    private SessionFactory sessionFactory;
 
     public BaseHibernateDao(Class persistentClass) {
         this.persistentClass = persistentClass;
     }
 
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public Session getSession() {
+        return sessionFactory.getCurrentSession();
+    }
+
+    @Transactional
     public boolean canBeDeleted(Object obj) {
         return true;
     }
 
+    @Transactional
     public void delete(Object obj) {
-        getHibernateTemplate().delete(getHibernateTemplate().load(obj.getClass(), ((PersistentObject) obj).getId()));
+        getSession().delete(getSession().load(obj.getClass(), ((PersistentObject) obj).getId()));
     }
 
+    @Transactional
     public Object getById(Long id) {
-        return getHibernateTemplate().get(persistentClass, id);
+        return getSession().get(persistentClass, id);
     }
 
-    public List loadAll() {
-        return getHibernateTemplate().loadAll(persistentClass);
-    }
-
+    @Transactional
     public Object loadById(Long id) {
-        return getHibernateTemplate().load(persistentClass, id);
+        return getSession().load(persistentClass, id);
     }
 
+    @Transactional
     public void save(Object obj) {
-        getHibernateTemplate().save(obj);
+        getSession().save(obj);
     }
 
+    @Transactional
     public void saveOrUpdate(Object obj) {
-        getHibernateTemplate().saveOrUpdate(obj);
+        getSession().saveOrUpdate(obj);
     }
 
+    @Transactional
     public void update(Object obj) {
-        getHibernateTemplate().update(obj);
+        getSession().update(obj);
     }
+
 }

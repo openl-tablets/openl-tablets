@@ -4,9 +4,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.hsqldb.Server;
-import org.hsqldb.ServerConfiguration;
 
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.server.ServerConfiguration;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;

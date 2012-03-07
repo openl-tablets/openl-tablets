@@ -1,13 +1,9 @@
 package org.openl.rules.security.standalone.dao;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-
 import org.hibernate.criterion.Restrictions;
 
 import org.openl.rules.security.standalone.persistence.User;
-
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Hibernate implementation of {@link UserDao}.
@@ -19,14 +15,8 @@ public class HibernateUserDao extends BaseHibernateDao implements UserDao {
         super(User.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Transactional
     public User getUserByName(final String name) {
-        return (User) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                return session.createCriteria(User.class).add(Restrictions.eq("loginName", name)).uniqueResult();
-            }
-        });
+        return (User) getSession().createCriteria(User.class).add(Restrictions.eq("loginName", name)).uniqueResult();
     }
 }

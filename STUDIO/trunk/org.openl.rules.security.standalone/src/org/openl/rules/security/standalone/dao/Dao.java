@@ -37,13 +37,6 @@ public interface Dao {
     Object getById(Long id);
 
     /**
-     * Return list of all objects in underlying data source.
-     *
-     * @return list of all objects in underlying data source
-     */
-    List loadAll();
-
-    /**
      * Load object by primary id.
      *
      * @param id primary id
