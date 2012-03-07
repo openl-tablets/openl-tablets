@@ -19,6 +19,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MultiCallMethodBoundNode extends MethodBoundNode {
     
+	/** cached return type for current bound node*/
     private IOpenClass returnType;
     
     /** the index of the argument in the method signature that is an array**/
@@ -97,14 +98,24 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
 
     public IOpenClass getType() {
         if (returnType == null) {
-            // gets the return type of bound node, it will be the single type.
+        	returnType = getReturnType();
+        }        
+        return returnType;
+    }
+    
+    private IOpenClass getReturnType() {
+    	IOpenClass result = null;
+    	if (JavaOpenClass.VOID.equals(super.getType())) {
+    		result = JavaOpenClass.VOID;
+    	} else {
+    		// gets the return type of bound node, it will be the single type.
             //
             IOpenClass singleReturnType = super.getType();
             
             // create an array type.
             //
-            returnType = singleReturnType.getAggregateInfo().getIndexedAggregateType(singleReturnType, 1);
-        }        
-        return returnType;
+            result = singleReturnType.getAggregateInfo().getIndexedAggregateType(singleReturnType, 1);    		 
+    	}
+    	return result;
     }
 }

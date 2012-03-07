@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.TestHelper;
 
-public class ArrayMethodsTest {
+public class MultiCallMethodTest {
     
     private static final String src = "test/rules/binding/ArrayMethodsTest.xlsx";
     
@@ -22,6 +22,7 @@ public class ArrayMethodsTest {
         String[] personsNames();
         String[] personNamesFromArray();
         int[] test2MethodCalls();
+        void TBasicCall();
     }
     
     @Before
@@ -75,5 +76,9 @@ public class ArrayMethodsTest {
         assertEquals(9, a[1]);
     }
     
+    @Test
+    public void testVoidCallFromTBasic() {
+    	instance.TBasicCall();
+    }
 
 }
