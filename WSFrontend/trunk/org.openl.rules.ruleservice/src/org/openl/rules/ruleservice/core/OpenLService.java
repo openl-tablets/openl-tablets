@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.openl.rules.project.model.Module;
 
@@ -24,7 +24,7 @@ public final class OpenLService {
     private Class<?> serviceClass;
     private Object serviceBean;
     private boolean provideRuntimeContext = false;
-    private List<Module> modules;
+    private Collection<Module> modules;
 
     /**
      * Main constructor
@@ -35,14 +35,14 @@ public final class OpenLService {
      * @param provideRuntimeContext define is runtime context should be used
      * @param modules a list of modules for load
      */
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, List<Module> modules) {
+    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, Collection<Module> modules) {
         if (name == null) {
             throw new IllegalArgumentException("name arg can't be null");
         }
         this.name = name;
         this.url = url;
         if (modules != null) {
-            this.modules = Collections.unmodifiableList(modules);
+            this.modules = Collections.unmodifiableCollection(modules);
         } else {
             this.modules = Collections.emptyList();
         }
@@ -73,11 +73,11 @@ public final class OpenLService {
     }
 
     /**
-     * Returns unmodifiable list of modules
+     * Returns unmodifiable collection of modules
      * 
-     * @return a list of modules
+     * @return a collection of modules
      */
-    public List<Module> getModules() {
+    public Collection<Module> getModules() {
         return modules;
     }
 
@@ -155,7 +155,7 @@ public final class OpenLService {
         private String url;
         private String serviceClassName;
         private boolean provideRuntimeContext = false;
-        private List<Module> modules;
+        private Collection<Module> modules;
 
         /**
          * Sets name to the builder
@@ -199,7 +199,7 @@ public final class OpenLService {
          * @param modules
          * @return
          */
-        public OpenLServiceBuilder setModules(List<Module> modules) {
+        public OpenLServiceBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
                 modules = new ArrayList<Module>(0);
             } else {
@@ -214,7 +214,7 @@ public final class OpenLService {
          * @param modules
          * @return
          */
-        public OpenLServiceBuilder addModules(List<Module> modules) {
+        public OpenLServiceBuilder addModules(Collection<Module> modules) {
             if (modules == null) {
                 this.modules = new ArrayList<Module>(0);
             }

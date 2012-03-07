@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -52,9 +53,9 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
     private Class<?> interfaceClass;
     private Class<?> rulesInterface;
     private IDependencyManager dependencyManager;
-    private List<Module> modules;
+    private Collection<Module> modules;
 
-    public DispatchedMultiModuleEngineFactory(List<Module> modules, Class<?> interfaceClass) {
+    public DispatchedMultiModuleEngineFactory(Collection<Module> modules, Class<?> interfaceClass) {
         super(RULES_XLS_OPENL_NAME);
         this.modules = modules;
         if (interfaceClass == null) {
@@ -84,9 +85,8 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
             String className = openClass.getName();
 
             try {
-                rulesInterface = RulesFactory.generateInterface(className,
-                    openClass,
-                    getCompiledOpenClass().getClassLoader());
+                rulesInterface = RulesFactory.generateInterface(className, openClass, getCompiledOpenClass()
+                        .getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface : %s", className);
                 LOG.error(errorMessage, e);
@@ -120,10 +120,8 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
             Object openClassInstance = openClass.newInstance(getRuntimeEnv());
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance,
-                methodMap,
-                getRuntimeEnv(),
-                getCompiledOpenClass().getClassLoader());
+            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+                    .getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
             LOG.error(errorMessage, ex);
@@ -131,8 +129,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
     }
 
-    private void makeLazyMethod(final Method interfaceMethod,
-            final IModuleDispatcherForMethods dispatcher,
+    private void makeLazyMethod(final Method interfaceMethod, final IModuleDispatcherForMethods dispatcher,
             ModuleOpenClass moduleOpenClass) {
         IOpenClass[] paramTypes = new IOpenClass[interfaceMethod.getParameterTypes().length];
         for (int i = 0; i < paramTypes.length; i++) {
@@ -143,9 +140,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
         MethodSignature signature = new MethodSignature(paramTypes);
         OpenMethodHeader header = new OpenMethodHeader(interfaceMethod.getName(),
-            JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()),
-            signature,
-            null);
+                JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()), signature, null);
         AMethod method = new AMethod(header) {
             @Override
             public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -161,18 +156,12 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        moduleOpenClass.addMethod(new LazyMethod(method.getName(),
-            argTypes,
-            dependencyManager,
-            true,
-            Thread.currentThread().getContextClassLoader(),
-            method) {
+        moduleOpenClass.addMethod(new LazyMethod(method.getName(), argTypes, dependencyManager, true, Thread
+                .currentThread().getContextClassLoader(), method) {
             @Override
             public Module getModule(IRuntimeEnv env) {
-                return dispatcher.getResponsibleModule(modules,
-                    interfaceMethod.getName(),
-                    interfaceMethod.getParameterTypes(),
-                    (IRulesRuntimeContext) env.getContext());
+                return dispatcher.getResponsibleModule(modules, interfaceMethod.getName(),
+                        interfaceMethod.getParameterTypes(), (IRulesRuntimeContext) env.getContext());
             }
         });
     }
@@ -184,8 +173,8 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         } else if (!RulesServiceEnhancer.isEnhancedClass(interfaceClass) && numberOfParameters != 0) {
             return false;
         }
-        return method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("get") && method.getName()
-            .length() > 3;
+        return method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("get")
+                && method.getName().length() > 3;
     }
 
     private boolean isSetter(Method method) {
@@ -195,12 +184,11 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         } else if (!RulesServiceEnhancer.isEnhancedClass(interfaceClass) && numberOfParameters != 1) {
             return false;
         }
-        return !method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("set") && method.getName()
-            .length() > 3;
+        return !method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("set")
+                && method.getName().length() > 3;
     }
 
-    private void makeLazyField(final Method interfaceMethod,
-            final IModuleDispatcherForData dispatcher,
+    private void makeLazyField(final Method interfaceMethod, final IModuleDispatcherForData dispatcher,
             ModuleOpenClass moduleOpenClass) {
         IOpenClass fieldType = null;
         if (isGetter(interfaceMethod)) {
@@ -225,12 +213,11 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 }
             };
             moduleOpenClass.addField(new LazyField(field.getName(), dependencyManager, true, Thread.currentThread()
-                .getContextClassLoader(), field) {
+                    .getContextClassLoader(), field) {
                 @Override
                 public Module getModule(IRuntimeEnv env) {
-                    return dispatcher.getResponsibleModule(modules,
-                        field.getName(),
-                        (IRulesRuntimeContext) env.getContext());
+                    return dispatcher.getResponsibleModule(modules, field.getName(),
+                            (IRulesRuntimeContext) env.getContext());
                 }
             });
         }
@@ -269,17 +256,15 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 }
             } catch (Exception e) {
                 // TODO: log and through exception
-                throw new OpenlNotCheckedException("failed to process method" + MethodUtil.printMethod(method.getName(),
-                    method.getParameterTypes()));
+                throw new OpenlNotCheckedException("failed to process method"
+                        + MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
             }
         }
         if (!unannotatedMethos.isEmpty()) {
             checkUnannotatedMethods(unannotatedMethos, moduleOpenClass);
         }
-        return new CompiledOpenClass(moduleOpenClass,
-            new ArrayList<OpenLMessage>(),
-            new SyntaxNodeException[0],
-            new SyntaxNodeException[0]);
+        return new CompiledOpenClass(moduleOpenClass, new ArrayList<OpenLMessage>(), new SyntaxNodeException[0],
+                new SyntaxNodeException[0]);
     }
 
     public void checkUnannotatedMethods(List<Method> unannotatedMethos, ModuleOpenClass moduleOpenClass) {
@@ -288,8 +273,8 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 continue;
             }
             // TODO: log and through exception
-            throw new OpenlNotCheckedException("un annotated failed to process method" + MethodUtil.printMethod(method.getName(),
-                method.getParameterTypes()));
+            throw new OpenlNotCheckedException("un annotated failed to process method"
+                    + MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
         }
     }
 }

@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.managment;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class LastVersionProjectsServiceConfigurerTest {
     @Test
     public void testConfigurer() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
-        List<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
+        Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
         Set<String> serviceNames = new HashSet<String>();
         Set<String> serviceUrls = new HashSet<String>();

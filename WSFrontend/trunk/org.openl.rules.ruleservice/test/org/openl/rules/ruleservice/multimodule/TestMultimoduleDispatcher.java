@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.multimodule;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -9,7 +9,7 @@ import org.openl.rules.ruleservice.publish.cache.dispatcher.IModuleDispatcherFor
 
 public class TestMultimoduleDispatcher implements IModuleDispatcherForMethods {
 
-    public Module findModuleByName(List<Module> modules, String name) {
+    public Module findModuleByName(Collection<Module> modules, String name) {
         for (Module module : modules) {
             if (module.getName().equals(name)) {
                 return module;
@@ -19,7 +19,7 @@ public class TestMultimoduleDispatcher implements IModuleDispatcherForMethods {
     }
 
     @Override
-    public Module getResponsibleModule(List<Module> modules,
+    public Module getResponsibleModule(Collection<Module> modules,
             String methodName,
             Class<?>[] parameterTypes,
             IRulesRuntimeContext context) {

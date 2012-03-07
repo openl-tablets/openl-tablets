@@ -26,6 +26,6 @@ public class RulesBasedServiceConfigurerTest implements ApplicationContextAware 
         RulesBasedServiceConfigurer configurer = applicationContext.getBean(RulesBasedServiceConfigurer.class);
         RuleServiceLoader loader = applicationContext.getBean(RuleServiceLoader.class);
         assertEquals(configurer.getServicesToBeDeployed(loader).size(), 1);
-        assertEquals(configurer.getServicesToBeDeployed(loader).get(0).getModules().size(), 4);
+        assertEquals(configurer.getServicesToBeDeployed(loader).iterator().next().getModules().size(), 4);
     }
 }

@@ -56,7 +56,7 @@
 	
 	<!-- Initializes OpenL Engine instances according to web services configuration description 
 	and calls DeploymentAdmin to expose corresponding web service -->
-	<bean id="ruleServiceLoader" class="org.openl.ruleservice.publish.WebServicesRuleServicePublisher">
+	<bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.publish.WebServicesRuleServicePublisher">
 		<property name="serverFactory" ref="serverPrototypeFactory" />
 		<property name="baseAddress" value="/" />
 	</bean>

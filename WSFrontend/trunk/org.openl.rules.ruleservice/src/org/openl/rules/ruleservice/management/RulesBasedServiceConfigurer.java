@@ -1,9 +1,8 @@
 package org.openl.rules.ruleservice.management;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -73,13 +72,13 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
      * @return Deployments from data source.
      */
     public static Deployment[] getDeployments() {
-        List<Deployment> deploymentsList = getLoader().getDeployments();
+        Collection<Deployment> deploymentsList = getLoader().getDeployments();
         Deployment[] deployments = new Deployment[deploymentsList.size()];
         return deploymentsList.toArray(deployments);
     }
 
-    public List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
-        List<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
+    public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
+        Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
         init(loader);
         try {
             IOpenField servicesField = rulesOpenClass.getField(SERVICES_FIELD_NAME);
@@ -113,15 +112,15 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
                 new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
                         JavaOpenClass.getOpenClass(AProject.class), JavaOpenClass.getOpenClass(Module.class) });
         checkModulesGetter(serviceName, modulesGetter);
-        Set<ModuleDescription> modulesToLoad = gatherModules(modulesGetter);
+        Collection<ModuleDescription> modulesToLoad = gatherModules(modulesGetter);
 
         return new ServiceDescription.ServiceDescriptionBuilder().setName(serviceName).setUrl(serviceUrl)
                 .setServiceClassName(serviceClassName).setProvideRuntimeContext(provideRuntimeContext)
                 .setModules(modulesToLoad).build();
     }
 
-    private Set<ModuleDescription> gatherModules(IOpenMethod modulesGetter) {
-        Set<ModuleDescription> modulesForService = new HashSet<ModuleDescription>();
+    private Collection<ModuleDescription> gatherModules(IOpenMethod modulesGetter) {
+        Collection<ModuleDescription> modulesForService = new HashSet<ModuleDescription>();
         for (Deployment deployment : getDeployments()) {
             for (AProject project : deployment.getProjects()) {
                 for (Module module : loader.get().resolveModulesForProject(deployment.getDeploymentName(),

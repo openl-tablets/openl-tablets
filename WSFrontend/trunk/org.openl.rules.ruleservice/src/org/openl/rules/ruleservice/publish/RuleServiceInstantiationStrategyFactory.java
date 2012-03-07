@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -20,5 +20,5 @@ public interface RuleServiceInstantiationStrategyFactory {
      * @param dependencyManager
      * @return 
      */
-    RulesInstantiationStrategy getStrategy(List<Module> modules, IDependencyManager dependencyManager);
+    RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager);
 }

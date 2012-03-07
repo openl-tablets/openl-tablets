@@ -1,10 +1,9 @@
 package org.openl.rules.ruleservice.simple;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.MethodUtils;
@@ -26,31 +25,41 @@ public class RulesFrontendImpl implements RulesFrontend {
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
 
     /** {@inheritDoc} */
-    public void registerService(OpenLService service) {
+    public OpenLService registerService(OpenLService service) {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
         }
-        OpenLService oldService = runningServices.put(service.getName(), service);
-        if (oldService != null) {
+        OpenLService replacedService = runningServices.put(service.getName(), service);
+        if (replacedService != null) {
             if (log.isWarnEnabled()) {
                 log.warn(String.format(
                         "Service with name \"%s\" has been already registered. Replaced with new service bean.",
                         service.getName()));
             }
         }
+        return replacedService;
     }
 
     /** {@inheritDoc} */
-    public void unregisterService(String serviceName) {
+    public OpenLService unregisterService(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }
-        runningServices.remove(serviceName);
+        return runningServices.remove(serviceName);
     }
 
     /** {@inheritDoc} */
-    public List<OpenLService> getServices() {
-        return Collections.unmodifiableList(new ArrayList<OpenLService>(runningServices.values()));
+    public Collection<OpenLService> getServices() {
+        return Collections.unmodifiableCollection(runningServices.values());
+    }
+
+    /** {@inheritDoc} */
+    public OpenLService findServiceByName(String serviceName) {
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName argument can't be null");
+        }
+
+        return runningServices.get(serviceName);
     }
 
     /** {@inheritDoc} */
@@ -107,7 +116,7 @@ public class RulesFrontendImpl implements RulesFrontend {
     }
 
     /** {@inheritDoc} */
-    public Object getValues(String serviceName, String fieldName) throws MethodInvocationException {
+    public Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }

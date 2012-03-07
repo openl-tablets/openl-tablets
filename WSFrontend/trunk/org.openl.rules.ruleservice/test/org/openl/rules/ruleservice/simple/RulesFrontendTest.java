@@ -5,6 +5,7 @@ import static junit.framework.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -28,8 +29,8 @@ public class RulesFrontendTest {
 
     private static OpenLService service2;
 
-    private static List<Module> resolveAllModules(File root) {
-        List<Module> modules = new ArrayList<Module>();
+    private static Collection<Module> resolveAllModules(File root) {
+        Collection<Module> modules = new ArrayList<Module>();
         resolver.setWorkspace(root.getAbsolutePath());
         List<ProjectDescriptor> projects = resolver.listOpenLProjects();
         for (ProjectDescriptor project : projects) {
@@ -45,7 +46,7 @@ public class RulesFrontendTest {
         resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
 
-        List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
+        Collection<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
         service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false,
                 modules1);
         File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
@@ -63,7 +64,7 @@ public class RulesFrontendTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testGetServices() {
-        List<OpenLService> services = frontend.getServices();
+        Collection<OpenLService> services = frontend.getServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
         frontend.registerService(service1);
@@ -79,7 +80,7 @@ public class RulesFrontendTest {
 
     @Test
     public void testRegisterService() {
-        List<OpenLService> services = frontend.getServices();
+        Collection<OpenLService> services = frontend.getServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
         frontend.registerService(service1);
@@ -94,7 +95,7 @@ public class RulesFrontendTest {
 
     @Test
     public void testUnregisterService() {
-        List<OpenLService> services = frontend.getServices();
+        Collection<OpenLService> services = frontend.getServices();
         assertNotNull(services);
         assertTrue(services.size() == 0);
         frontend.registerService(service1);

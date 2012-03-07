@@ -1,14 +1,14 @@
 package org.openl.rules.ruleservice.management;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.ruleservice.core.RuleService;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
@@ -94,7 +94,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     private void processServices() {
         Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
-
         undeployUnnecessary(newServices);
         redeployExisitng(newServices);
         deployNewServices(newServices);
@@ -103,7 +102,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     @SuppressWarnings("unchecked")
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
-            List<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
+            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
             Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 newServices.put(serviceDescription.getName(), serviceDescription);
@@ -118,7 +117,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     protected void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
-        for (OpenLService runningService : ruleService.getRunningServices()) {
+        for (OpenLService runningService : ruleService.getServices()) {
             String serviceName = runningService.getName();
             if (!newServices.containsKey(serviceName)) {
                 try {
@@ -133,7 +132,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     private boolean isServiceExists(String serviceName) {
-        return ruleService.findServiceByName(serviceName) != null;
+        return ruleService.getServiceByName(serviceName) != null;
     }
 
     protected void redeployExisitng(Map<String, ServiceDescription> newServices) {

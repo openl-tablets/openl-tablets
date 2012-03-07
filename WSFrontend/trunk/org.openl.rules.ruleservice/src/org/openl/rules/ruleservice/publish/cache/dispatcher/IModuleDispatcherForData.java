@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.publish.cache.dispatcher;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.model.Module;
@@ -12,5 +12,5 @@ import org.openl.rules.project.model.Module;
  * @author PUdalau
  */
 public interface IModuleDispatcherForData {
-    Module getResponsibleModule(List<Module> modules, String fieldName, IRulesRuntimeContext context);
+    Module getResponsibleModule(Collection<Module> modules, String fieldName, IRulesRuntimeContext context);
 }

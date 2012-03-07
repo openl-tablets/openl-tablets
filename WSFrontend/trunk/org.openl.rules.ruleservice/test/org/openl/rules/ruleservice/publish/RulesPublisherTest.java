@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.beanutils.MethodUtils;
@@ -27,9 +28,9 @@ import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class RulesPublisherTest {
@@ -42,8 +43,8 @@ public class RulesPublisherTest {
 
     private static OpenLService service2;
 
-    private static List<Module> resolveAllModules(File root) {
-        List<Module> modules = new ArrayList<Module>();
+    private static Collection<Module> resolveAllModules(File root) {
+        Collection<Module> modules = new ArrayList<Module>();
         resolver.setWorkspace(root.getAbsolutePath());
         List<ProjectDescriptor> projects = resolver.listOpenLProjects();
         for (ProjectDescriptor project : projects) {
@@ -62,7 +63,7 @@ public class RulesPublisherTest {
         publisher.setFrontend(frontend);
         ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
 
-        List<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
+        Collection<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
         service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false,
                 modules1);
         File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
@@ -85,23 +86,23 @@ public class RulesPublisherTest {
     public void testMultiModuleService() throws Exception {
         //assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));
-        assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
-        assertEquals(3, Array.getLength(frontend.getValues("multiModule", "data2")));
+        assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
+        assertEquals(3, Array.getLength(frontend.getValue("multiModule", "data2")));
     }
 
     @Test
     public void testMultipleServices() throws Exception {
-        assertEquals(2, publisher.getRunningServices().size());
-        assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
-        assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
+        assertEquals(2, publisher.getServices().size());
+        assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
+        assertEquals(2, Array.getLength(frontend.getValue("tutorial4", "coverage")));
         publisher.undeploy("tutorial4");
-        assertNull(frontend.getValues("tutorial4", "coverage"));
-        assertEquals(2, Array.getLength(frontend.getValues("multiModule", "data1")));
-        assertEquals(1, publisher.getRunningServices().size());
+        assertNull(frontend.getValue("tutorial4", "coverage"));
+        assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
+        assertEquals(1, publisher.getServices().size());
     }
 
     private int getCount() throws Exception {
-        Class<?> counter = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
+        Class<?> counter = publisher.getServiceByName("tutorial4").getServiceClass().getClassLoader()
                 .loadClass("org.openl.rules.tutorial4.InvocationCounter");
         return (Integer) counter.getMethod("getCount").invoke(null);
     }
@@ -111,17 +112,17 @@ public class RulesPublisherTest {
         int count = getCount();
         final int executedTimes = 10;
         for (int i = 0; i < executedTimes; i++) {
-            assertEquals(2, Array.getLength(frontend.getValues("tutorial4", "coverage")));
+            assertEquals(2, Array.getLength(frontend.getValue("tutorial4", "coverage")));
         }
         assertEquals(executedTimes, getCount() - count);
-        Object driver = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
+        Object driver = publisher.getServiceByName("tutorial4").getServiceClass().getClassLoader()
                 .loadClass("org.openl.generated.beans.Driver").newInstance();
         System.out.println(frontend.execute("tutorial4", "driverAgeType", new Object[] { driver }));
     }
 
     @Test
     public void testMethodAfterInterceptors() throws Exception {
-        Object driver = publisher.findServiceByName("tutorial4").getServiceClass().getClassLoader()
+        Object driver = publisher.getServiceByName("tutorial4").getServiceClass().getClassLoader()
                 .loadClass("org.openl.generated.beans.Driver").newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
@@ -133,12 +134,12 @@ public class RulesPublisherTest {
 
     @Test
     public void testServiceClassResolving() throws Exception {
-        Class<?> tutorial4ServiceClass = publisher.findServiceByName("tutorial4").getServiceClass();
+        Class<?> tutorial4ServiceClass = publisher.getServiceByName("tutorial4").getServiceClass();
         assertTrue(tutorial4ServiceClass.isInterface());
         assertEquals("org.openl.rules.tutorial4.Tutorial4Interface", tutorial4ServiceClass.getName());
 
-        Class<?> multiModuleServiceClass = publisher.findServiceByName("multiModule").getServiceClass();
-        List<Module> modules = publisher.findServiceByName("multiModule").getModules();
+        Class<?> multiModuleServiceClass = publisher.getServiceByName("multiModule").getServiceClass();
+        Collection<Module> modules = publisher.getServiceByName("multiModule").getModules();
         for (Module module : modules) {
             RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
             dependencyManager.setExecutionMode(true);

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,9 +25,9 @@ public class LocalTemporaryDeploymentsStorageTest {
 
     @Before
     public void getDeployment() {
-        List<Deployment> deployments = dataSource.getDeployments();
-        assertTrue(deployments.size() > 0);
-        deployment = deployments.get(0);
+        Collection<Deployment> deployments = dataSource.getDeployments();
+        assertTrue(!deployments.isEmpty());
+        deployment = deployments.iterator().next();
     }
 
     @Test

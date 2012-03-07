@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.openl.rules.ruleservice.Constants.DEPLOYMENT_NAME;
 import static org.openl.rules.ruleservice.Constants.VERSION;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -36,7 +36,7 @@ public class JcrDataSourceTest {
 
     @Test
     public void testGetDeployments() {
-        List<Deployment> deployments = dataSource.getDeployments();
+        Collection<Deployment> deployments = dataSource.getDeployments();
         assertTrue(deployments.size() > 0);
     }
 
