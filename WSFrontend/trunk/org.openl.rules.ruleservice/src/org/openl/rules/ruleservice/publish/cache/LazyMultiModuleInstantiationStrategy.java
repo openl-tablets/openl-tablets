@@ -26,7 +26,7 @@ import org.openl.rules.project.model.Module;
  * @author pudalau
  */
 public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStrategy {
-    private static final Log LOG = LogFactory.getLog(LazyMultiModuleInstantiationStrategy.class);
+    private final Log log = LogFactory.getLog(LazyMultiModuleInstantiationStrategy.class);
 
     private LazyMultiModuleEngineFactory factory;
     private ClassLoader classLoader;
@@ -88,7 +88,7 @@ public class LazyMultiModuleInstantiationStrategy extends RulesInstantiationStra
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            LOG.error("Cannot resolve interface", e);
+            log.error("Cannot resolve interface", e);
             return null;
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);

@@ -4,7 +4,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.model.Module;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;

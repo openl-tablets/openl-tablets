@@ -15,7 +15,7 @@ public abstract class AbstractServiceMethodAfterThrowingAdvice<T> implements Ser
 
     /** {@inheritDoc} */
     @SuppressWarnings("unchecked")
-    public T afterReturning(Method method, Object result, Object... args) throws Throwable {
+    public T afterReturning(Method method, Object result, Object... args) throws Exception {
         return (T) result;
     }
 }

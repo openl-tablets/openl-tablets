@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
 /**
- * Exception for issues that occurs while service redeploying
+ * Exception for issues that occurs while service redeploying.
  * 
  * @author Marat Kamalov
  * 
@@ -10,7 +10,7 @@ public class RuleServiceRedeployException extends RuleServiceException {
     private static final long serialVersionUID = -5393130145512014248L;
 
     /**
-     * Constructs a new RuleServiceRedeployException
+     * Constructs a new RuleServiceRedeployException.
      */
     public RuleServiceRedeployException() {
         super();

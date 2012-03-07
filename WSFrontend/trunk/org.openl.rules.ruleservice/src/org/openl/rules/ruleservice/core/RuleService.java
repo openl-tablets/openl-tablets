@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 public interface RuleService {
     /**
-     * Deploys a service
+     * Deploys a service.
      * 
      * @param serviceDescription service description
      * @throws RuleServiceDeployException occurs if deploy process fails
@@ -20,7 +20,7 @@ public interface RuleService {
     void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException;
 
     /**
-     * Redeploys a service
+     * Redeploys a service.
      * 
      * @param serviceDescription service description
      * @throws RuleServiceRedeployException
@@ -28,7 +28,7 @@ public interface RuleService {
     void redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException;
 
     /**
-     * Undeploys a service by name
+     * Undeploys a service by name.
      * 
      * @param serviceName service name
      * @throws RuleServiceDeployException throws exceptions if the service with
@@ -37,7 +37,7 @@ public interface RuleService {
    void undeploy(String serviceName) throws RuleServiceUndeployException;
 
     /**
-     * Returns a collection of deployed OpenL services
+     * Returns a collection of deployed OpenL services.
      * 
      * @return a collection of OpenL services
      */

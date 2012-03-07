@@ -26,7 +26,7 @@ import org.openl.rules.project.model.Module;
  * @author PUdalau
  */
 public class DispatchedMultiModuleInstantiationStrategy extends RulesInstantiationStrategy {
-    private static final Log LOG = LogFactory.getLog(DispatchedMultiModuleInstantiationStrategy.class);
+    private final Log log = LogFactory.getLog(DispatchedMultiModuleInstantiationStrategy.class);
 
     private DispatchedMultiModuleEngineFactory factory;
     private ClassLoader classLoader;
@@ -88,7 +88,7 @@ public class DispatchedMultiModuleInstantiationStrategy extends RulesInstantiati
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            LOG.error("Cannot resolve interface", e);
+            log.error("Cannot resolve interface", e);
             return null;
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);

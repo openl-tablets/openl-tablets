@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 
 /**
- * Main data source exception for wrapping data source exceptions
+ * Main data source exception for wrapping data source exceptions.
  * 
  * @author Marat Kamalov
  * 
@@ -13,7 +13,7 @@ public class DataSourceException extends RuleServiceRuntimeException {
     private static final long serialVersionUID = 6818824565990021295L;
 
     /**
-     * Constructs a new DataSourceException
+     * Constructs a new DataSourceException.
      */
     public DataSourceException() {
         super();

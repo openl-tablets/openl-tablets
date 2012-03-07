@@ -10,14 +10,14 @@ import org.springframework.beans.factory.FactoryBean;
 
 /**
  * 
- * Factory bean for adding binding types from properties to data binding context
+ * Factory bean for adding binding types from properties to data binding context.
  * 
  * @author Marat Kamalov
  * 
  */
 public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>> {
 
-    private static final Log log = LogFactory.getLog(RootClassNamesBindingFactoryBean.class);
+    private final Log log = LogFactory.getLog(RootClassNamesBindingFactoryBean.class);
 
     private String rootClassNames;
 

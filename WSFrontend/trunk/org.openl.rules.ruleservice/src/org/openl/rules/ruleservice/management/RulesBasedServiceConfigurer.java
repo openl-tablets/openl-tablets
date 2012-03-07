@@ -14,6 +14,7 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.ModuleDescription;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.types.IOpenClass;
@@ -25,29 +26,33 @@ import org.openl.vm.SimpleVM;
 
 public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
-    private Log log = LogFactory.getLog(RulesBasedServiceConfigurer.class);
+    private final Log log = LogFactory.getLog(RulesBasedServiceConfigurer.class);
 
-    public static String SERVICE_NAME_FIELD = "name";
-    public static String SERVICE_URL_FIELD = "url";
-    public static String SERVICE_CLASS_NAME_FIELD = "serviceClassName";
-    public static String RUNTIME_CONTEXT_FIELD = "provideRuntimeContext";
-    public static String MODULES_GETTER_FIELD = "modulesGetter";
+    private static final String SERVICE_NAME_FIELD = "name";
+    private static final String SERVICE_URL_FIELD = "url";
+    private static final String SERVICE_CLASS_NAME_FIELD = "serviceClassName";
+    private static final String RUNTIME_CONTEXT_FIELD = "provideRuntimeContext";
+    private static final String MODULES_GETTER_FIELD = "modulesGetter";
+    private static final String SERVICES_FIELD_NAME = "services";
 
-    public static String SERVICES_FIELD_NAME = "services";
     private Object rulesInstance;
     private IRuntimeEnv runtimeEnv;
     private IOpenClass rulesOpenClass;
 
     protected abstract RulesInstantiationStrategy getRulesSource();
 
-    private void init(RuleServiceLoader loader) {
+    private void init(RuleServiceLoader loader) throws RuleServiceInstantiationException {
         runtimeEnv = new SimpleVM().getRuntimeEnv();
         try {
             rulesOpenClass = getRulesSource().compile(ReloadType.NO).getOpenClass();
             rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
             RulesBasedServiceConfigurer.loader.set(loader);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to instantiate rules based service configurer.", e);
+        } catch (ClassNotFoundException e) {
+            throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
+        } catch (IllegalAccessException e) {
+            throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
+        } catch (InstantiationException e) {
+            throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
         }
     }
 
@@ -79,7 +84,13 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
 
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
-        init(loader);
+        try {
+            init(loader);
+        } catch (RuleServiceInstantiationException e) {
+            if (log.isErrorEnabled()) {
+                log.error("Failed to Instantiation rule service.", e);
+            }
+        }
         try {
             IOpenField servicesField = rulesOpenClass.getField(SERVICES_FIELD_NAME);
             Object[] services = (Object[]) servicesField.get(rulesInstance, runtimeEnv);

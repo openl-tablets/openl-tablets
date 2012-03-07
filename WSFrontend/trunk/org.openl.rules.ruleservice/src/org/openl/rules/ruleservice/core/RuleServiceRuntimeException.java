@@ -12,7 +12,7 @@ public class RuleServiceRuntimeException extends RuntimeException {
     private static final long serialVersionUID = -5355895091110317542L;
 
     /**
-     * Constructs a new RuleServiceException
+     * Constructs a new RuleServiceException.
      */
     public RuleServiceRuntimeException() {
         super();

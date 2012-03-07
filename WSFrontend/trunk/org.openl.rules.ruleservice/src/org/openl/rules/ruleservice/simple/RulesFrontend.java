@@ -70,7 +70,7 @@ public interface RulesFrontend {
     OpenLService registerService(OpenLService service);
 
     /**
-     * Unregister service
+     * Unregister service.
      * 
      * @param serviceName
      * @return unregistered service

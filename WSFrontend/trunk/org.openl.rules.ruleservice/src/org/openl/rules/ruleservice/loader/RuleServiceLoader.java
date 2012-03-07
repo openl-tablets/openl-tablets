@@ -17,7 +17,7 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
  */
 public interface RuleServiceLoader {
     /**
-     * Gets data source
+     * Returns data source.
      * 
      * @return data source
      */
@@ -30,7 +30,7 @@ public interface RuleServiceLoader {
     Collection<Deployment> getDeployments();
 
     /**
-     * Gets deployment
+     * Returns deployment.
      * 
      * @param deploymentName
      * @param deploymentVersion

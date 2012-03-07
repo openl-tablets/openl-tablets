@@ -45,7 +45,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
 
-    private static final Log LOG = LogFactory.getLog(DispatchedMultiModuleEngineFactory.class);
+    private final Log log = LogFactory.getLog(DispatchedMultiModuleEngineFactory.class);
 
     private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
 
@@ -89,7 +89,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                         .getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface : %s", className);
-                LOG.error(errorMessage, e);
+                log.error(errorMessage, e);
                 throw new OpenlNotCheckedException(errorMessage, e);
             }
         }
@@ -124,7 +124,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                     .getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
-            LOG.error(errorMessage, ex);
+            log.error(errorMessage, ex);
             throw new OpenlNotCheckedException(errorMessage, ex);
         }
     }
@@ -147,7 +147,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 try {
                     return interfaceMethod.invoke(target, params);
                 } catch (Exception e) {
-                    LOG.error(e);
+                    log.error(e);
                     return null;
                 }
             }

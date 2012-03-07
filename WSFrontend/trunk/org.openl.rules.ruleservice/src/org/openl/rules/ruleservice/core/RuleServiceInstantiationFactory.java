@@ -12,12 +12,12 @@ package org.openl.rules.ruleservice.core;
 public interface RuleServiceInstantiationFactory {
 
     /**
-     * Returns fully instantiated OpenLService object from ServiceDesctiption
+     * Returns fully instantiated OpenLService object from ServiceDesctiption.
      * 
      * @param serviceDescription
      * @return
-     * @throws RuleServiceOpenLServiceInstantiationException
+     * @throws RuleServiceInstantiationException
      */
     OpenLService createService(ServiceDescription serviceDescription)
-            throws RuleServiceOpenLServiceInstantiationException;
+            throws RuleServiceInstantiationException;
 }

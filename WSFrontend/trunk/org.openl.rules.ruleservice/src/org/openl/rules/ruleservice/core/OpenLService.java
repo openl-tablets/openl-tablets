@@ -16,7 +16,7 @@ import org.openl.rules.project.model.Module;
  */
 public final class OpenLService {
     /**
-     * Unique for service
+     * Unique for service.
      */
     private String name;
     private String url;
@@ -27,7 +27,7 @@ public final class OpenLService {
     private Collection<Module> modules;
 
     /**
-     * Main constructor
+     * Main constructor.
      * 
      * @param name service name
      * @param url url
@@ -35,7 +35,8 @@ public final class OpenLService {
      * @param provideRuntimeContext define is runtime context should be used
      * @param modules a list of modules for load
      */
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, Collection<Module> modules) {
+    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext,
+            Collection<Module> modules) {
         if (name == null) {
             throw new IllegalArgumentException("name arg can't be null");
         }
@@ -55,7 +56,7 @@ public final class OpenLService {
     }
 
     /**
-     * Returns service name
+     * Returns service name.
      * 
      * @return service name
      */
@@ -64,7 +65,7 @@ public final class OpenLService {
     }
 
     /**
-     * Returns service URL
+     * Returns service URL.
      * 
      * @return service URL
      */
@@ -73,7 +74,7 @@ public final class OpenLService {
     }
 
     /**
-     * Returns unmodifiable collection of modules
+     * Returns unmodifiable collection of modules.
      * 
      * @return a collection of modules
      */
@@ -82,7 +83,7 @@ public final class OpenLService {
     }
 
     /**
-     * Returns a class name for service
+     * Returns a class name for service.
      * 
      * @return
      */
@@ -101,7 +102,7 @@ public final class OpenLService {
     }
 
     /**
-     * Returns service class
+     * Returns service class.
      * 
      * @return
      */
@@ -121,6 +122,7 @@ public final class OpenLService {
         this.serviceBean = serviceBean;
     }
 
+    /** {@inheritDoc} */
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -128,24 +130,30 @@ public final class OpenLService {
         return result;
     }
 
+    /** {@inheritDoc} */
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         OpenLService other = (OpenLService) obj;
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         return true;
     }
 
     /**
-     * OpenLService builder
+     * OpenLService builder.
      * 
      * @author Marat Kamalov
      * 
@@ -158,7 +166,7 @@ public final class OpenLService {
         private Collection<Module> modules;
 
         /**
-         * Sets name to the builder
+         * Sets name to the builder.
          * 
          * @param name
          * @return
@@ -172,7 +180,7 @@ public final class OpenLService {
         }
 
         /**
-         * Sets class name to the builder
+         * Sets class name to the builder.
          * 
          * @param serviceClassName
          * @return
@@ -183,7 +191,7 @@ public final class OpenLService {
         }
 
         /**
-         * Sets provideRuntimeContext to the builder
+         * Sets provideRuntimeContext to the builder.
          * 
          * @param provideRuntimeContext
          * @return
@@ -194,7 +202,7 @@ public final class OpenLService {
         }
 
         /**
-         * Sets a new set of modules to the builder
+         * Sets a new set of modules to the builder.
          * 
          * @param modules
          * @return
@@ -209,7 +217,7 @@ public final class OpenLService {
         }
 
         /**
-         * Add modules to the builder
+         * Add modules to the builder.
          * 
          * @param modules
          * @return
@@ -223,7 +231,7 @@ public final class OpenLService {
         }
 
         /**
-         * Adds module to the builder
+         * Adds module to the builder.
          * 
          * @param module
          * @return
@@ -239,7 +247,7 @@ public final class OpenLService {
         }
 
         /**
-         * Sets url to the builder
+         * Sets url to the builder.
          * 
          * @param url
          * @return
@@ -250,7 +258,7 @@ public final class OpenLService {
         }
 
         /**
-         * Builds OpenLService
+         * Builds OpenLService.
          * 
          * @return
          */

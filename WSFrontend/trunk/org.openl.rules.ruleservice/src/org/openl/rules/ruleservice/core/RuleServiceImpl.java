@@ -17,9 +17,9 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
  */
 public class RuleServiceImpl implements RuleService {
 
-    private Log log = LogFactory.getLog(RuleServiceImpl.class);
+    private final Log log = LogFactory.getLog(RuleServiceImpl.class);
     /**
-     * Publisher
+     * Publisher.
      */
     private RuleServicePublisher ruleServicePublisher;
 
@@ -36,7 +36,7 @@ public class RuleServiceImpl implements RuleService {
         }
         try {
             ruleServicePublisher.redeploy(ruleServiceInstantiationFactory.createService(serviceDescription));
-        } catch (RuleServiceOpenLServiceInstantiationException e) {
+        } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceRedeployException("Failed on deploy service", e);
         }
     }
@@ -76,7 +76,7 @@ public class RuleServiceImpl implements RuleService {
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service with name=\"%s\" deployed", newService.getName()));
             }
-        } catch (RuleServiceOpenLServiceInstantiationException e) {
+        } catch (RuleServiceInstantiationException e) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Deploying service method failed. Service name is \"%s\"",
                         serviceDescription.getName()));

@@ -29,7 +29,7 @@ import org.springframework.beans.factory.FactoryBean;
  */
 public class FileSystemDataSource implements DataSource {
 
-    private Log log = LogFactory.getLog(FileSystemDataSource.class);
+    private final Log log = LogFactory.getLog(FileSystemDataSource.class);
 
     private String loadDeploymentsFromDirectory;
 
@@ -45,7 +45,7 @@ public class FileSystemDataSource implements DataSource {
 
     /**
      * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
-     * configuration property
+     * configuration property.
      * 
      * @param localWorkspaceFileFilter
      */
@@ -54,7 +54,7 @@ public class FileSystemDataSource implements DataSource {
     }
 
     /**
-     * Gets localWorkspaceFileFilter
+     * Gets localWorkspaceFileFilter.
      */
     public FileFilter getLocalWorkspaceFileFilter() {
         return localWorkspaceFileFilter;
@@ -62,7 +62,7 @@ public class FileSystemDataSource implements DataSource {
 
     /**
      * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
-     * configuration property
+     * configuration property.
      * 
      * @param localWorkspaceFolderFilter
      */
@@ -71,7 +71,7 @@ public class FileSystemDataSource implements DataSource {
     }
 
     /**
-     * Gets localWorkspaceFolderFilter
+     * Gets localWorkspaceFolderFilter.
      */
     public FileFilter getLocalWorkspaceFolderFilter() {
         return localWorkspaceFolderFilter;
@@ -107,10 +107,10 @@ public class FileSystemDataSource implements DataSource {
     }
 
     private void validateFileSystemDataSourceFolder(File fileSystemDataSourceFolder) {
-        if (!loadDeploymentsFromFolder.exists()) {
+        if (!fileSystemDataSourceFolder.exists()) {
             throw new DataSourceException("Folder doesn't exist. Path: " + getLoadDeploymentsFromDirectory());
         }
-        if (!loadDeploymentsFromFolder.isDirectory()) {
+        if (!fileSystemDataSourceFolder.isDirectory()) {
             throw new DataSourceException("Folder doesn't exist. Path: " + getLoadDeploymentsFromDirectory());
         }
     }
@@ -125,12 +125,12 @@ public class FileSystemDataSource implements DataSource {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
 
-        File loadDeploymentsFromFolder = getLoadDeploymentsFromFolder();
-        validateFileSystemDataSourceFolder(loadDeploymentsFromFolder);
-        if (loadDeploymentsFromFolder.getName().equals(deploymentName)) {
-            LocalFolderAPI localFolderAPI = new LocalFolderAPI(loadDeploymentsFromFolder, new ArtefactPathImpl(
-                    loadDeploymentsFromFolder.getName()), new LocalWorkspaceImpl(null,
-                    loadDeploymentsFromFolder.getParentFile(), getLocalWorkspaceFolderFilter(),
+        File folder = getLoadDeploymentsFromFolder();
+        validateFileSystemDataSourceFolder(folder);
+        if (folder.getName().equals(deploymentName)) {
+            LocalFolderAPI localFolderAPI = new LocalFolderAPI(folder, new ArtefactPathImpl(
+                    folder.getName()), new LocalWorkspaceImpl(null,
+                    folder.getParentFile(), getLocalWorkspaceFolderFilter(),
                     getLocalWorkspaceFileFilter()));
             Deployment deployment = new Deployment(localFolderAPI);
             return deployment;
@@ -141,12 +141,12 @@ public class FileSystemDataSource implements DataSource {
 
     /** {@inheritDoc} */
     public Collection<Deployment> getDeployments() {
-        File loadDeploymentsFromFolder = getLoadDeploymentsFromFolder();
-        validateFileSystemDataSourceFolder(loadDeploymentsFromFolder);
+        File folder = getLoadDeploymentsFromFolder();
+        validateFileSystemDataSourceFolder(folder);
         Collection<Deployment> deployments = new ArrayList<Deployment>(1);
-        LocalFolderAPI localFolderAPI = new LocalFolderAPI(loadDeploymentsFromFolder, new ArtefactPathImpl(
-                loadDeploymentsFromFolder.getName()), new LocalWorkspaceImpl(null,
-                loadDeploymentsFromFolder.getParentFile(), getLocalWorkspaceFolderFilter(),
+        LocalFolderAPI localFolderAPI = new LocalFolderAPI(folder, new ArtefactPathImpl(
+                folder.getName()), new LocalWorkspaceImpl(null,
+                folder.getParentFile(), getLocalWorkspaceFolderFilter(),
                 getLocalWorkspaceFileFilter()));
         Deployment deployment = new Deployment(localFolderAPI);
         deployments.add(deployment);
@@ -299,12 +299,12 @@ public class FileSystemDataSource implements DataSource {
     }
 
     /**
-     * TimerTask for check file data source modifications
+     * TimerTask for check file data source modifications.
      * 
      * @author
      * 
      */
-    public static class CheckFileSystemChanges extends DirWatcher {
+    public final static class CheckFileSystemChanges extends DirWatcher {
         private FileSystemDataSource fileSystemDataSource;
 
         private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource) {

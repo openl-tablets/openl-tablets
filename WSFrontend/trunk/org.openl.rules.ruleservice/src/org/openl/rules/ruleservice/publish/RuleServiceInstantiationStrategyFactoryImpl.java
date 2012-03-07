@@ -49,7 +49,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
     public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         switch (modules.size()) {
             case 0:
-                throw new RuntimeException("There are no modules to instantiate.");
+                throw new IllegalStateException("There are no modules to instantiate.");
             case 1:
                 return RulesInstantiationStrategyFactory.getStrategy(modules.iterator().next(), true, dependencyManager);
             default:

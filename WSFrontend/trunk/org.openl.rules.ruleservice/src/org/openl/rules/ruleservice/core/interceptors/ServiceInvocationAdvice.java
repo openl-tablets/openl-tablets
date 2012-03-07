@@ -25,7 +25,7 @@ import org.springframework.core.Ordered;
  */
 public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
 
-    // private Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
+    // private final Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
 
     private static final String MSG_SEPARATOR = "; ";
 
@@ -103,12 +103,12 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    protected Object afterInvocation(Method interfaceMethod, Object result, Throwable t, Object... args)
+    protected Object afterInvocation(Method interfaceMethod, Object result, Exception t, Object... args)
             throws Throwable {
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
         if (postInterceptors != null && postInterceptors.size() > 0) {
             Object ret = result;
-            Throwable lastOccuredException = t;
+            Exception lastOccuredException = t;
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
                 try {
                     if (lastOccuredException == null) {
@@ -117,7 +117,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         ret = interceptor.afterThrowing(interfaceMethod, lastOccuredException, args);
                     }
                     lastOccuredException = null;
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     lastOccuredException = e;
                     ret = null;
                 }
@@ -165,7 +165,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             try {
                 result = beanMethod.invoke(serviceBean, args);
                 result = afterInvocation(interfaceMethod, result, null, args);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 result = afterInvocation(interfaceMethod, null, e, args);
                 // isWrappedException = false;
             }
@@ -203,18 +203,18 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         StringBuilder sb = new StringBuilder();
         sb.append("During OpenL rule execution exception was occured. Method name is \"".toUpperCase());
         sb.append(method.getName());
-        sb.append("\". Arguments types are: ".toUpperCase());
+        sb.append("\". Arguments types are: ");
         sb.append(argsTypes.toString());
-        sb.append(". Arguments values are: ".toUpperCase());
+        sb.append(". Arguments values are: ");
         sb.append(argsValues.toString().replace("\r", "").replace("\n", ""));
-        sb.append(". Exception class is: ".toUpperCase());
+        sb.append(". Exception class is: ");
         sb.append(ex.getClass().toString());
         sb.append(".");
         if (ex.getMessage() != null) {
-            sb.append(" Exception message is: ".toUpperCase());
+            sb.append(" Exception message is: ");
             sb.append(ex.getMessage());
         }
-        sb.append(" OpenL clause messages are: ".toUpperCase());
+        sb.append(" OpenL clause messages are: ");
         Throwable t = ex.getCause();
         boolean isNotFirst = false;
         while (t != null && t.getCause() != t) {

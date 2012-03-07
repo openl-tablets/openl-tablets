@@ -20,7 +20,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
  * 
  * @author PUdalau,
  */
-class ModulesCache {
+final class ModulesCache {
 
     private static final String CACHE_NAME = "modulesCache";
 

@@ -17,13 +17,13 @@ import org.openl.rules.ruleservice.loader.DataSourceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 /**
- * Handles data source modifications and controls all services
+ * Handles data source modifications and controls all services.
  * 
  * @author PUdalau
  * 
  */
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
-    private Log log = LogFactory.getLog(ServiceManagerImpl.class);
+    private final Log log = LogFactory.getLog(ServiceManagerImpl.class);
     private RuleService ruleService;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;

@@ -25,7 +25,7 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
  */
 public class LocalTemporaryDeploymentsStorage {
 
-    private Log log = LogFactory.getLog(LocalTemporaryDeploymentsStorage.class);
+    private final Log log = LogFactory.getLog(LocalTemporaryDeploymentsStorage.class);
 
     private final static String DEPLOYMENTS_TMP_DIRECTORY_DEFAULT = "/tmp/rules-deploy";
 
@@ -59,7 +59,7 @@ public class LocalTemporaryDeploymentsStorage {
 
     /**
      * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
-     * configuration property
+     * configuration property.
      * 
      * @param localWorkspaceFileFilter
      */
@@ -68,7 +68,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets localWorkspaceFileFilter
+     * Gets localWorkspaceFileFilter.
      */
     public FileFilter getLocalWorkspaceFileFilter() {
         return localWorkspaceFileFilter;
@@ -76,7 +76,7 @@ public class LocalTemporaryDeploymentsStorage {
 
     /**
      * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
-     * configuration property
+     * configuration property.
      * 
      * @param localWorkspaceFolderFilter
      */
@@ -85,7 +85,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Gets localWorkspaceFolderFilter
+     * Gets localWorkspaceFolderFilter.
      */
     public FileFilter getLocalWorkspaceFolderFilter() {
         return localWorkspaceFolderFilter;
@@ -105,7 +105,7 @@ public class LocalTemporaryDeploymentsStorage {
 
     /**
      * Sets a path to local temporary storage. Spring bean configuration
-     * property
+     * property.
      * 
      * @param directoryToLoadDeploymentsIn
      */
@@ -117,7 +117,7 @@ public class LocalTemporaryDeploymentsStorage {
 
     /**
      * Generates folder name for deployment by given deployment name and common
-     * verison
+     * version.
      * 
      * @param deployment
      * @return folder name
@@ -201,7 +201,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Loads deployment to local file system from repository
+     * Loads deployment to local file system from repository.
      * 
      * @param deployment
      * @return loaded deployment
@@ -244,7 +244,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Remove deployment to local file system from repository
+     * Remove deployment to local file system from repository.
      * 
      * @param deployment
      * @return true if and only if the file or directory is successfully
@@ -273,7 +273,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Check to existing deployment in local temporary folder
+     * Check to existing deployment in local temporary folder.
      * 
      * @param deployment
      * @return true if and only if the deployment exists; false otherwise
@@ -289,7 +289,7 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Clear storage
+     * Clear storage.
      */
     public void clear() {
         synchronized (flag) {

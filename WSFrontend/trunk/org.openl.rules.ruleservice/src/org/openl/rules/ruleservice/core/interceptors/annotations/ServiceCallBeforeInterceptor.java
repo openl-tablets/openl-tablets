@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
 
 /**
- * Annotation for registering before method intercepters
+ * Annotation for registering before method intercepters.
  * 
  * @author Marat Kamalov
  * 

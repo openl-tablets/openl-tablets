@@ -26,7 +26,7 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
  * 
  */
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
-    private Log log = LogFactory.getLog(RuleServiceLoaderImpl.class);
+    private final Log log = LogFactory.getLog(RuleServiceLoaderImpl.class);
 
     private DataSource dataSource;
 
@@ -74,7 +74,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     /**
-     * Sets data source
+     * Sets data source.
      */
     public void setDataSource(DataSource dataSource) {
         if (dataSource == null) {

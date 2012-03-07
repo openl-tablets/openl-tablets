@@ -14,13 +14,13 @@ import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.util.StringTool;
 
 /**
- * Simple implementation of IRulesFrontend interface
+ * Simple implementation of IRulesFrontend interface.
  * 
  * @author Marat Kamalov
  * 
  */
 public class RulesFrontendImpl implements RulesFrontend {
-    private Log log = LogFactory.getLog(RulesFrontendImpl.class);
+    private final Log log = LogFactory.getLog(RulesFrontendImpl.class);
 
     private Map<String, OpenLService> runningServices = new HashMap<String, OpenLService>();
 
@@ -30,12 +30,10 @@ public class RulesFrontendImpl implements RulesFrontend {
             throw new IllegalArgumentException("service argument can't be null");
         }
         OpenLService replacedService = runningServices.put(service.getName(), service);
-        if (replacedService != null) {
-            if (log.isWarnEnabled()) {
+        if (replacedService != null && log.isWarnEnabled()) {
                 log.warn(String.format(
                         "Service with name \"%s\" has been already registered. Replaced with new service bean.",
                         service.getName()));
-            }
         }
         return replacedService;
     }

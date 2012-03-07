@@ -18,7 +18,7 @@ public final class ModuleDescription {
     private String moduleName;
 
     /**
-     * Main constructor
+     * Main constructor.
      * 
      * @param deploymentName deployment name
      * @param deploymentVersion deployment version
@@ -46,7 +46,7 @@ public final class ModuleDescription {
     }
 
     /**
-     * Constructor for builder
+     * Constructor for builder.
      * 
      * @param deploymentName deployment name
      * @param deploymentVersion deployment version
@@ -58,7 +58,7 @@ public final class ModuleDescription {
     }
 
     /**
-     * Returns a deployment name
+     * Returns a deployment name.
      * 
      * @return deployment name
      */
@@ -67,7 +67,7 @@ public final class ModuleDescription {
     }
 
     /**
-     * Returns the deployment version
+     * Returns the deployment version.
      * 
      * @return deployment version
      */
@@ -76,7 +76,7 @@ public final class ModuleDescription {
     }
 
     /**
-     * Returns the project name
+     * Returns the project name.
      * 
      * @return project name
      */
@@ -85,7 +85,7 @@ public final class ModuleDescription {
     }
 
     /**
-     * Returns the module name
+     * Returns the module name.
      * 
      * @return module name
      */
@@ -93,6 +93,7 @@ public final class ModuleDescription {
         return moduleName;
     }
 
+    /** {@inheritDoc} */
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -103,53 +104,64 @@ public final class ModuleDescription {
         return result;
     }
 
+    /** {@inheritDoc} */
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ModuleDescription other = (ModuleDescription) obj;
         if (deploymentName == null) {
-            if (other.deploymentName != null)
+            if (other.deploymentName != null) {
                 return false;
+            }
         } else if (!deploymentName.equals(other.deploymentName))
             return false;
         if (deploymentVersion == null) {
-            if (other.deploymentVersion != null)
+            if (other.deploymentVersion != null) {
                 return false;
-        } else if (!deploymentVersion.equals(other.deploymentVersion))
+            }
+        } else if (!deploymentVersion.equals(other.deploymentVersion)) {
             return false;
+        }
         if (moduleName == null) {
-            if (other.moduleName != null)
+            if (other.moduleName != null) {
                 return false;
-        } else if (!moduleName.equals(other.moduleName))
+            }
+        } else if (!moduleName.equals(other.moduleName)) {
             return false;
+        }
         if (projectName == null) {
-            if (other.projectName != null)
+            if (other.projectName != null) {
                 return false;
-        } else if (!projectName.equals(other.projectName))
+            }
+        } else if (!projectName.equals(other.projectName)) {
             return false;
+        }
         return true;
     }
 
     /**
-     * Builder for ModuleDescription
+     * Builder for ModuleDescription.
      * 
      * @author Marat Kamalov
      * 
      */
-    public final static class ModuleDescriptionBuilder {
+    public static final class ModuleDescriptionBuilder {
         private String deploymentName;
         private CommonVersion deploymentVersion;
         private String projectName;
         private String moduleName;
 
         /**
-         * Sets deploymentName to the builder
+         * Sets deploymentName to the builder.
          * 
-         * @param deploymentName
+         * @param deploymentName deployment name
          * @return
          */
         public ModuleDescriptionBuilder setDeploymentName(String deploymentName) {
@@ -162,9 +174,9 @@ public final class ModuleDescription {
         }
 
         /**
-         * Sets deployment version to the builder
+         * Sets deployment version to the builder.
          * 
-         * @param deploymentVersion
+         * @param deploymentVersion deployment version
          * @return
          */
         public ModuleDescriptionBuilder setDeploymentVersion(CommonVersion deploymentVersion) {
@@ -177,9 +189,9 @@ public final class ModuleDescription {
         }
 
         /**
-         * Sets project name to the builder
+         * Sets project name to the builder.
          * 
-         * @param projectName
+         * @param projectName project name
          * @return
          */
         public ModuleDescriptionBuilder setProjectName(String projectName) {
@@ -192,9 +204,9 @@ public final class ModuleDescription {
         }
 
         /**
-         * Set module name to the the builder
+         * Set module name to the the builder.
          * 
-         * @param moduleName
+         * @param moduleName module name
          * @return
          */
         public ModuleDescriptionBuilder setModuleName(String moduleName) {
@@ -207,7 +219,7 @@ public final class ModuleDescription {
         }
 
         /**
-         * Builds ModeuleDesctiption
+         * Builds ModuleDesctiption.
          * 
          * @return
          */

@@ -26,7 +26,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  * 
  */
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
-    private static final Log log = LogFactory.getLog(UnpackClasspathJarToDirectoryBean.class);
+    private final Log log = LogFactory.getLog(UnpackClasspathJarToDirectoryBean.class);
 
     private final static String RULES_FILE_NAME = "rules.xml";
 
@@ -42,7 +42,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     /**
-     * Returns directory to unpack path
+     * Returns directory to unpack path.
      * 
      * @return destinationDirectory
      */
@@ -59,7 +59,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     /**
-     * Sets directory to unpack path
+     * Sets directory to unpack path.
      * 
      * @param destinationDirectory
      */

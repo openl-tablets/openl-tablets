@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
 /**
- * Main exception for rule service
+ * Main exception for rule service.
  * 
  * @author Marat Kamalov
  * 
@@ -11,7 +11,7 @@ public class RuleServiceException extends Exception {
     private static final long serialVersionUID = -5355895091110317542L;
 
     /**
-     * Constructs a new RuleServiceSystemException
+     * Constructs a new RuleServiceSystemException.
      */
     public RuleServiceException() {
         super();
