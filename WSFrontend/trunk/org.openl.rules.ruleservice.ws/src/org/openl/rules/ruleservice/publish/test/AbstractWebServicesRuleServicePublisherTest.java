@@ -73,16 +73,16 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         return getApplicationContext().getBean(DataBinding.class);
     }
 
-    protected <T> T getClient(String serviceName) {
+    protected Object getClient(String serviceName) {
         return getClient(serviceName, (String) null);
     }
 
-    protected <T> T getClient(String serviceName, String address) {
+    protected Object getClient(String serviceName, String address) {
         return getClient(serviceName, address, null);
     }
 
     protected <T> T getClient(String serviceName, Class<T> clazz) {
-        return getClient(serviceName, null, clazz);
+        return (T) getClient(serviceName, null, clazz);
     }
 
     protected <T> T getClient(String serviceName, String address, Class<T> clazz) {
