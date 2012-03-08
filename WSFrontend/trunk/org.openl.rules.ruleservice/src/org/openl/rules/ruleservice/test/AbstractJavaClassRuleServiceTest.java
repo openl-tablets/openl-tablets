@@ -62,7 +62,6 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
         return getJavaClassRuleServicePublisher().getFrontend().getValue(serviceName, fieldName);
     }
 
-    @SuppressWarnings("unchecked")
     protected <T> T getService(String serviceName, Class<T> serviceClass) {
         return (T) getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName).getServiceBean();
     }
