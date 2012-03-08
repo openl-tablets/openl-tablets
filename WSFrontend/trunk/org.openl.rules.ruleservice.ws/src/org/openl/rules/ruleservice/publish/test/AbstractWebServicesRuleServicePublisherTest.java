@@ -86,7 +86,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
     }
 
     protected <T> T getClient(String serviceName, String address, Class<T> clazz) {
-        return getClient(serviceName, address, clazz, null);
+        return (T) getClient(serviceName, address, clazz, null);
     }
 
     @SuppressWarnings("unchecked")
