@@ -181,10 +181,11 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder addModules(Collection<ModuleDescription> modules) {
-            if (modules == null) {
-                this.modules = new HashSet<ModuleDescription>(0);
+            if (this.modules == null) {
+                this.modules = new HashSet<ModuleDescription>(modules);
+            }else{
+                this.modules.addAll(modules);
             }
-            this.modules.addAll(modules);
             return this;
         }
 
@@ -195,7 +196,7 @@ public final class ServiceDescription {
          * @return
          */
         public ServiceDescriptionBuilder addModule(ModuleDescription module) {
-            if (modules == null) {
+            if (this.modules == null) {
                 this.modules = new HashSet<ModuleDescription>(0);
             }
             if (module != null) {
