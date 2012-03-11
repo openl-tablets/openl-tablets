@@ -185,7 +185,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String defaultValue = getDefaultValue(row, cxt);
             try {
                 dataType.addField(field);
-                fields.put(fieldName, new FieldDescription(field, defaultValue));
+                FieldDescription fieldDescription = new FieldDescription(field);
+                fieldDescription.setDefaultValueAsString(defaultValue);
+                fields.put(fieldName, fieldDescription);
 
                 if (firstField) {
                     processFirstField(field);
@@ -259,14 +261,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);    
         if (!DatatypeHelper.isCommented(defaultValueSrc.getCode())) {
             IdentifierNode[] idn = getIdentifierNode(defaultValueSrc);
-            if (idn.length > 1) {
-                // only one token is supported as default value.
-                //
-                String errorMessage = String.format("Bad default field value: %s", defaultValueSrc.getCode());
-                throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, defaultValueSrc);
-            } else if (idn.length == 1) {                
-                defaultValue = idn[0].getIdentifier();
-            }           
+            if (idn.length > 0) {
+            	// if there is any valid identifier, consider it is a default value
+            	//
+            	defaultValue = defaultValueSrc.getCode();            	
+            }          
         }
         return defaultValue;
     }

@@ -17,28 +17,17 @@ public class FieldDescription {
     private Object defaultValue;
     
     public FieldDescription(Class<?> type) {
-        this(type, null);
-    }
-    
-    public FieldDescription(Class<?> type, String defaultValue) {
         this.type = type;
-        this.canonicalTypeName = type.getCanonicalName();        
-        this.defaultValueAsString = defaultValue;
+        this.canonicalTypeName = type.getCanonicalName();
     }
     
     public FieldDescription(IOpenField field) {
-       this(field, null);
+        this.canonicalTypeName = getOpenFieldTypeName(field);        
+        this.type = field.getType().getInstanceClass();        
     }
     
-    public FieldDescription(IOpenField field, String defaultValue) {
-        this.canonicalTypeName = processTypeName(field);        
-        this.type = field.getType().getInstanceClass();
-        this.defaultValueAsString = defaultValue;
-    }
-    
-    private String processTypeName(IOpenField field) {
-//        String typeName = null;
-        IOpenClass typeDeclaration = getTypeDeclaration(field);
+    private String getOpenFieldTypeName(IOpenField field) {
+        IOpenClass typeDeclaration = getOpenFieldTypeDeclaration(field);
         if (typeDeclaration instanceof DatatypeOpenClass) {
             if (field.getType().getInstanceClass() == null) {
               /** it means that name of the field has no package. Just datatype can have empty package, in this place.
@@ -53,11 +42,9 @@ public class FieldDescription {
             }
         } 
         return field.getType().getInstanceClass().getCanonicalName();
-        
-//        return typeName;
   }
 
-    private IOpenClass getTypeDeclaration(IOpenField field) {
+    private IOpenClass getOpenFieldTypeDeclaration(IOpenField field) {
         IOpenClass fieldType = field.getType();
         IOpenClass typeDeclaration = null;
         if (fieldType.isArray() && fieldType instanceof ArrayOpenClass) { // Array of datatypes
@@ -70,21 +57,21 @@ public class FieldDescription {
 
     public String getCanonicalTypeName() {
         return canonicalTypeName;
-    }
-
-    public void setCanonicalTypeName(String canonicalTypeName) {
-        this.canonicalTypeName = canonicalTypeName;
-    }
+    }    
 
     public Class<?> getType() {
         return type;
-    }
-
-    public void setType(Class<?> type) {
-        this.type = type;
-    }
+    } 
     
-    public boolean isArray() {
+    public String getDefaultValueAsString() {
+		return defaultValueAsString;
+	}
+
+	public void setDefaultValueAsString(String defaultValueAsString) {
+		this.defaultValueAsString = defaultValueAsString;
+	}
+
+	public boolean isArray() {
         if (type != null && type.isArray()) {
             return true;
         } else if (canonicalTypeName.endsWith("]")){
@@ -121,10 +108,6 @@ public class FieldDescription {
         return defaultValue;
     }
     
-    public String getDefaultValueAsString() {
-        return defaultValueAsString;
-    }
-    
     public static Class<?> getJavaClass(FieldDescription fieldType) {
         Class<?> fieldClass = fieldType.getType();
         if (fieldClass == null) {
@@ -132,6 +115,13 @@ public class FieldDescription {
         } else {
             return fieldClass;
         }
+    }
+    
+    public boolean hasDefaultValue() {
+    	if (StringUtils.isNotBlank(defaultValueAsString) && getDefaultValue() != null) {
+    		return true;
+    	}
+    	return false;
     }
     
 }

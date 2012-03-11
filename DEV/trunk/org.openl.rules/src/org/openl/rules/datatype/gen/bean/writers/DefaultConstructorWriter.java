@@ -2,6 +2,7 @@ package org.openl.rules.datatype.gen.bean.writers;
 
 import java.util.Map;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -53,51 +54,48 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private int writeDefaultFieldValues(MethodVisitor methodVisitor) {
         int result = 1; // the default stack element variable value (if there is no any default values)
         
-        if (isAnyDefaultvalue()) {
-            result = processWritingDefaultValues(methodVisitor);
+        if (isAnyDefaultValue()) {
+            result = writeAtLeast1DefaultValue(methodVisitor);
         } 
         return result;
     }
     
-    private int processWritingDefaultValues(MethodVisitor methodVisitor) {
-        int stackVariable = 2; // if there is any default value, stack trace variable value will be 2.
+    private int writeAtLeast1DefaultValue(MethodVisitor methodVisitor) {
+        int minStackVariable = 2; // as there are at least 1 default value, stack trace variable value will be at least 2.
         
+        int[] stackVariables = new int[getBeanFields().entrySet().size()];
+        int index = 0;
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
-            FieldDescription fieldType = field.getValue();
-            Object defaultValue = fieldType.getDefaultValue();
+            FieldDescription fieldDescription = field.getValue();            
             
-            if (defaultValue != null) {
+            if (fieldDescription.hasDefaultValue()) {
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 
-                if (isPrimitive(fieldType)) {
-                    int stackVariableAfterPrimitive = stackVariable;
-                    TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldType);
-                    if (typeWriter != null) {
-                        stackVariableAfterPrimitive = typeWriter.writeFieldValue(methodVisitor, fieldType);
-                    }
-                    if (stackVariable < 5) {
-                        stackVariable = stackVariableAfterPrimitive;
-                    }                    
-                } else if  (isTypesEquals(String.class, fieldType)){
+                 if  (isTypesEquals(String.class, fieldDescription)) {
                     // write String fields
-                    methodVisitor.visitLdcInsn(defaultValue);
+                    methodVisitor.visitLdcInsn(fieldDescription.getDefaultValue());
+                    stackVariables[index] = minStackVariable;
+                    
                 } else {
-                	TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldType);
+                	TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldDescription);
                 	
-                    stackVariable = typeWriter.writeFieldValue(methodVisitor, fieldType);
+                	stackVariables[index] = typeWriter.writeFieldValue(methodVisitor, fieldDescription);
                 }
-                String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldType);                
+                String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldDescription);                
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
+            } else {
+            	stackVariables[index] = minStackVariable;
             }
+            index++;
         }
-        return stackVariable;
+        return NumberUtils.max(stackVariables);
     }
     
     /**
      * 
      * @return true if there is any default value for any field.
      */
-    private boolean isAnyDefaultvalue() {
+    private boolean isAnyDefaultValue() {
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             Object defaultValue = field.getValue().getDefaultValue();
             if (defaultValue != null) {
@@ -105,11 +103,6 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             }
         }
         return false;
-    }
-    
-    private boolean isPrimitive(FieldDescription fieldType) {
-        Class<?> fieldClass = FieldDescription.getJavaClass(fieldType);
-        return fieldClass.isPrimitive();        
     }
     
     private boolean isTypesEquals(Class<?> clazz, FieldDescription fieldType) {
