@@ -42,7 +42,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
             clazz = Class.forName("org.openl.generated.beans.TestType", true, Thread.currentThread().getContextClassLoader());
             checkTestTypeClass(clazz);           
         } catch (Throwable e) {            
-            fail();        
+            fail(e.getMessage());        
         }  
     }
     
@@ -53,7 +53,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         	clazz = Class.forName("org.openl.generated.beans.TypeWithLong", true, Thread.currentThread().getContextClassLoader());
             checkTypeWithLong(clazz);
         } catch (Throwable e) {            
-            fail();        
+            fail(e.getMessage());        
         }  
     }
     
@@ -65,7 +65,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         	clazz = Class.forName("org.openl.generated.beans.TestType2", true, Thread.currentThread().getContextClassLoader());
             checkTestType2(clazz);
         } catch (Throwable e) {            
-            fail();        
+            fail(e.getMessage());        
         } 
     }
     
@@ -77,7 +77,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         	clazz = Class.forName("org.openl.generated.beans.TestType3", true, Thread.currentThread().getContextClassLoader());
             checkTestType3(clazz);
         } catch (Throwable e) {            
-            fail();        
+            fail(e.getMessage());        
         } 
     }
     
@@ -89,7 +89,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         	clazz = Class.forName("org.openl.generated.beans.TestBigTypes", true, Thread.currentThread().getContextClassLoader());
             checkTestBigTypes(clazz);
         } catch (Throwable e) {            
-            fail();        
+            fail(e.getMessage());        
         } 
     }
     
@@ -207,7 +207,10 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
 		testValue(clazz, instance, methodName, new Integer(1000));
 
 		methodName = "getDVal";
-		testValue(clazz, instance, methodName, new Double(1.26));		
+		testValue(clazz, instance, methodName, new Double(1.26));
+		
+		methodName = "getStr";
+		testValue(clazz, instance, methodName, "Hello World");
 	}
 
     private void testValue(Class<?> clazz, Object instance, String methodName, Object expectedResult) throws NoSuchMethodException,
