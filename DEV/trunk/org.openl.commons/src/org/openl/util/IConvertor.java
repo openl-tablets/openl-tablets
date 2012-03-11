@@ -18,7 +18,7 @@ public interface IConvertor<T, C> {
         }
     }
 
-    IConvertor<Object, Object> SAME_AS = new SameAs<Object>();
+    static IConvertor<?, ?> SAME_AS = new SameAs<Object>();
 
     C convert(T obj);
 
