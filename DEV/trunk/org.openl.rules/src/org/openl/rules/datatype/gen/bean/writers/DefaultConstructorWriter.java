@@ -82,7 +82,8 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
                     // write String fields
                     methodVisitor.visitLdcInsn(defaultValue);
                 } else {
-                    TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(Object.class);
+                	TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldType);
+                	
                     stackVariable = typeWriter.writeFieldValue(methodVisitor, fieldType);
                 }
                 String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldType);                

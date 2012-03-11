@@ -16,7 +16,7 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 
 public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     
-    private static final String src = "test/rules/datatype/DatatypeDefaultValues.xlsx";    
+    private static final String src = "test/rules/datatype/DatatypeDefaultValues.xls";    
 
     public DatatypeDefaultValuesTest() {
         super(src);
@@ -35,28 +35,74 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     }
     
     @Test    
-    public void testDefaultValues() {
+    public void testDefaultValues1() {
         Class<?> clazz = null;
         
         try {
             clazz = Class.forName("org.openl.generated.beans.TestType", true, Thread.currentThread().getContextClassLoader());
-            checkTestTypeClass(clazz);
-            
-            clazz = Class.forName("org.openl.generated.beans.TypeWithLong", true, Thread.currentThread().getContextClassLoader());
-            checkTypeWithLong(clazz);
-
-            clazz = Class.forName("org.openl.generated.beans.TestType2", true, Thread.currentThread().getContextClassLoader());
-            checkTestType2(clazz);
-            
-            clazz = Class.forName("org.openl.generated.beans.TestType3", true, Thread.currentThread().getContextClassLoader());
-            checkTestType3(clazz);
-            
-            clazz = Class.forName("org.openl.generated.beans.TestBigTypes", true, Thread.currentThread().getContextClassLoader());
-            checkTestBigTypes(clazz);
-           
+            checkTestTypeClass(clazz);           
         } catch (Throwable e) {            
             fail();        
         }  
+    }
+    
+    @Test    
+    public void testDefaultValues2() {
+        Class<?> clazz = null;
+        try {
+        	clazz = Class.forName("org.openl.generated.beans.TypeWithLong", true, Thread.currentThread().getContextClassLoader());
+            checkTypeWithLong(clazz);
+        } catch (Throwable e) {            
+            fail();        
+        }  
+    }
+    
+    @Test    
+    public void testDefaultValues3() {
+    	Class<?> clazz = null;
+        
+        try {
+        	clazz = Class.forName("org.openl.generated.beans.TestType2", true, Thread.currentThread().getContextClassLoader());
+            checkTestType2(clazz);
+        } catch (Throwable e) {            
+            fail();        
+        } 
+    }
+    
+    @Test    
+    public void testDefaultValues4() {
+        Class<?> clazz = null;
+        
+        try {
+        	clazz = Class.forName("org.openl.generated.beans.TestType3", true, Thread.currentThread().getContextClassLoader());
+            checkTestType3(clazz);
+        } catch (Throwable e) {            
+            fail();        
+        } 
+    }
+    
+    @Test    
+    public void testDefaultValues5() {
+        Class<?> clazz = null;
+        
+        try {
+        	clazz = Class.forName("org.openl.generated.beans.TestBigTypes", true, Thread.currentThread().getContextClassLoader());
+            checkTestBigTypes(clazz);
+        } catch (Throwable e) {            
+            fail();        
+        } 
+    }
+    
+    @Test    
+    public void testDefaultValues6() {
+        Class<?> clazz = null;
+        
+        try {
+        	clazz = Class.forName("org.openl.generated.beans.TestOpenLGrammar", true, Thread.currentThread().getContextClassLoader());
+        	checkTestOpenLGramar(clazz);
+        } catch (Throwable e) {            
+            fail(e.getMessage());        
+        } 
     }
 
     private void checkTestBigTypes(Class<?> clazz) throws InstantiationException,
@@ -148,6 +194,21 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         methodName = "getFloatVal";
         testValue(clazz, instance, methodName, new Float("12.23"));
     }
+    
+	private void checkTestOpenLGramar(Class<?> clazz)
+			throws InstantiationException, IllegalAccessException,
+			NoSuchMethodException, InvocationTargetException {
+		Object instance = getInstance(clazz);
+
+		String methodName = "getFlag";
+		testValue(clazz, instance, methodName, true);
+
+		methodName = "getIntVal";
+		testValue(clazz, instance, methodName, new Integer(1000));
+
+		methodName = "getDVal";
+		testValue(clazz, instance, methodName, new Double(1.26));		
+	}
 
     private void testValue(Class<?> clazz, Object instance, String methodName, Object expectedResult) throws NoSuchMethodException,
                                                            IllegalAccessException,
