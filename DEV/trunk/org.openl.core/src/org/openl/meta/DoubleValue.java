@@ -269,8 +269,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         double[] primitiveArray = unwrap(values);
         double product = MathUtils.product(primitiveArray);
-        // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+        
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, values);
 	}
 	
 	public static org.openl.meta.DoubleValue mod(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
