@@ -149,6 +149,7 @@
 								<configuration>
 									<tasks>
 										<unzip src="test-resources/production-repository.zip" dest="target/production-repository" overwrite="true" />
+										<unzip src="test-resources/org.openl.tablets.tutorial4.zip" dest="target/filesystemdatasource" overwrite="true" />
 									</tasks>
 								</configuration>
 							</execution>

@@ -7,12 +7,12 @@
 
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 	<context:property-placeholder location="classpath:*-ruleservice-ext.properties" order="-2147483648" ignore-unresolvable="true" system-properties-mode="OVERRIDE"/>
-
+	
+	<import resource="classpath:RESTful/openl-ruleservice-publisher-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-core-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-conf-beans.xml"/>
-	<import resource="classpath:openl-ruleservice-loader-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-datasource-beans.xml"/>
-	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
+	<import resource="classpath:openl-ruleservice-loader-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-override-beans.xml"/>
 	
 </beans>

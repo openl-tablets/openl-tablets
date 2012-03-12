@@ -6,13 +6,6 @@
 
 	<import resource="classpath:project-resolver-beans.xml"/>
 	
-	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
-	<bean id="datasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource">
-		<constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
-		<property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
-		<property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
-	</bean>
-
 	<!-- Folders exclude definition bean-->
 	<bean id="excludedFolders" class="java.util.LinkedHashSet">
 		<constructor-arg>
