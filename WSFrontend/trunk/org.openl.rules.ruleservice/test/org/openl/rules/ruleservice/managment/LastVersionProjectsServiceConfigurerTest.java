@@ -16,7 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-filesystemdatasource.xml" })
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-filesystemdatasource-beans.xml" })
 public class LastVersionProjectsServiceConfigurerTest {
     @Autowired
     private RuleServiceLoader rulesLoader;

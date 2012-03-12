@@ -17,9 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:dispatched-multimodule/openl-ruleservice-beans.xml",
-        "classpath:dispatched-multimodule/openl-ruleservice-loader-beans.xml",
-        "classpath:dispatched-multimodule/openl-ruleservice-publisher-beans.xml" })
+@ContextConfiguration(locations = { "classpath:dispatched-multimodule/openl-ruleservice-beans.xml" })
 public class DispaspatchedMultiModuleTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 

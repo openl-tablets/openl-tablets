@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<!-- Controls instantiation of OpenL modules and creates service beans and 
+		service classes. -->
+	<bean id="instantiationStrategyFactory"
+		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl"/>
+	
+	<bean id="ruleServiceInstantiationFactory"
+		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
+		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
+		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
+		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
+	</bean>
+	
+	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
+	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleServiceImpl">
+		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
+		<property name="ruleServicePublisher" ref="ruleServicePublisher"/>
+	</bean>
+
+	<!-- Controls all services currently exposed.
+	Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->
+	<bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
+		<property name="serviceConfigurer" ref="serviceConfigurer"/>
+		<property name="ruleService" ref="ruleService"/>
+		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
+	</bean>
+</beans>
