@@ -35,7 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-ruleservice-beans.xml" })
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
     private static final String TUTORIAL4_SERVICE_URL = "org.openl.tablets.tutorial4";
 
@@ -101,7 +101,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
 
     public static void main(String[] args) throws Exception {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-                "classpath:test-ruleservice-beans.xml");
+                "classpath:openl-ruleservice-beans.xml");
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         serviceManager.start();
         System.out.print("Press enter for server stop:");

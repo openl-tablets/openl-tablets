@@ -9,16 +9,18 @@
 	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean) -->
 	<!-- Aegis databinding post processor for type mapping customization of 
 		internal OpenL classes. -->
+<!-- 
 	<bean id="rootClassNamesBindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
 		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}" />
 	</bean>
-
 	<bean id="dataBinding"
 		class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
 		<property name="writeXsiTypes" value="true" />
 		<property name="overrideTypes" ref="rootClassNamesBindingFactoryBean" />
 	</bean>
+ -->
+	<bean id="dataBinding" class="org.apache.cxf.jaxb.JAXBDataBinding"/>
 
 	<!-- <bean id="dataBinding" class="org.apache.cxf.jaxb.JAXBDataBinding" 
 		scope="prototype"> <property name="contextProperties"> <map> <entry> <key> 
@@ -27,7 +29,7 @@
 		</entry> </map> </property> </bean> -->
 
 
-	<!-- Main description for the one WebService -->
+	<!-- Main description for the one RESTfulService  -->
 	<!-- All configurations for server (like a data binding type and interceptors) 
 		are represented there. ServerFactoryBean configuration is similar to a CXF 
 		simple frontend configuration(see http://cxf.apache.org/docs/simple-frontend-configuration.html) 
@@ -37,7 +39,9 @@
 		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
 	</bean>
 
-	<bean id="serverPrototype" class="org.apache.cxf.frontend.ServerFactoryBean"
+	<bean id="jaxrsProvider" class="org.apache.cxf.jaxrs.provider.JSONProvider"/>
+
+	<bean id="serverPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
 		scope="prototype">
 		<property name="dataBinding" ref="dataBinding" />
 		<property name="features">
@@ -47,7 +51,7 @@
 				<ref local="loggingFeature" />
 			</list>
 		</property>
-
+		<property name="provider" ref="jaxrsProvider"/>
 	</bean>
 
 	<!-- Prototypes factory. It will create new server prototype for each new 
@@ -60,10 +64,10 @@
 	</bean>
 
 	<!-- Initializes OpenL Engine instances according to web services configuration 
-		description and calls DeploymentAdmin to expose corresponding web service -->
+		description and calls RuleServicePublisher to expose corresponding web service -->
 	<!-- Exposes web services. -->
 	<bean id="ruleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.WebServicesRuleServicePublisher">
+		class="org.openl.rules.ruleservice.publish.RESTServicesRuleServicePublisher">
 		<property name="serverFactory" ref="serverPrototypeFactory" />
 		<property name="baseAddress" value="${ruleservice.baseAddress}" />
 	</bean>
