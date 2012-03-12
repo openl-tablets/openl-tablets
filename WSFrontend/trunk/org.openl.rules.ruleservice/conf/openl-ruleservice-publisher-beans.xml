@@ -6,22 +6,10 @@
 	<!-- Provide information about modules that can be used as dependencies. -->
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/> -->
 
-	<!-- Controls instantiation of OpenL modules and creates service beans and 
-		service classes. -->
-	<bean id="instantiationStrategyFactory"
-		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl" />
-
-	<bean id="ruleServiceInstantiationFactory"
-		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
-		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
-		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
-		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
-	</bean>
-
 	<!-- Initializes OpenL Engine instances according to web services configuration 
 		description and calls DeploymentAdmin to expose corresponding web service. -->
 	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
-		<property name="frontend" ref="frontend"></property>
+		<property name="frontend" ref="frontend"/>
 	</bean>
 	
 	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>

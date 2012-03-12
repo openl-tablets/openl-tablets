@@ -12,11 +12,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-filesystemdatasource.xml",
-        "classpath:openl-ruleservice-filesystemdatasource-scheduler.xml" })
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-filesystemdatasource-beans.xml",
+        "classpath:openl-ruleservice-filesystemdatasource-scheduler-beans.xml" })
 public class FileSystemDataSourceListenerTest {
     private static final long SLEEP_TIME = 15000;
-    private boolean f = false;
+    private boolean flag = false;
 
     @Autowired
     private DataSource dataSource;
@@ -32,10 +32,10 @@ public class FileSystemDataSourceListenerTest {
     @Test
     public void fileSystemDataSourceListenerTest() {
         Assert.assertNotNull(dataSource);
-        Assert.assertFalse(f);
+        Assert.assertFalse(flag);
         DataSourceListener dataSourceListener = new DataSourceListener() {
             public void onDeploymentAdded() {
-                f = true;
+                flag = true;
             }
         };
         dataSource.addListener(dataSourceListener);
@@ -48,6 +48,6 @@ public class FileSystemDataSourceListenerTest {
             Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException e) {
         }
-        Assert.assertTrue(f);
+        Assert.assertTrue(flag);
     }
 }

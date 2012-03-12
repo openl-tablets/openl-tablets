@@ -7,25 +7,11 @@
 
 	<context:property-placeholder location="classpath:openl-ruleservice.properties"/>
 
+	<import resource="classpath:openl-ruleservice-core-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-loader-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-publisher-beans.xml"/>
+	<import resource="classpath:openl-ruleservice-datasource-beans.xml"/>
+	<import resource="classpath:openl-ruleservice-conf-beans.xml"/>	
+	<import resource="classpath:openl-ruleservice-override-beans.xml"/>
 	
-	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->
-	<bean id="ruleService" class="org.openl.rules.ruleservice.core.RuleServiceImpl">
-		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
-		<property name="ruleServicePublisher" ref="ruleServicePublisher"/>
-	</bean>
-
-	<!-- Determines the services that should be exposed using RulesLoader.  -->
-	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.management.LastVersionProjectsServiceConfigurer">
-		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
-	</bean>
-
-	<!-- Controls all services currently exposed.
-	Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->
-	<bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
-		<property name="serviceConfigurer" ref="serviceConfigurer"/>
-		<property name="ruleService" ref="ruleService"/>
-		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
-	</bean>
 </beans>
