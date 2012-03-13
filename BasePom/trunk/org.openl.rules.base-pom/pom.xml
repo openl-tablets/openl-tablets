@@ -100,8 +100,9 @@
 		<org.springsecurity.version>3.1.0.RELEASE</org.springsecurity.version>
 		<org.hibernate.version>4.1.0.Final</org.hibernate.version>
 		<org.richfaces.version>4.2.0.Final</org.richfaces.version>
-		<org.apache.cxf.version>2.4.2</org.apache.cxf.version>
+		<org.apache.cxf.version>2.5.1</org.apache.cxf.version>
 		<openl.mapping.version>1.1.2</openl.mapping.version>
+		<org.slf4j.version>1.6.4</org.slf4j.version>
 	</properties>
 
 	<distributionManagement>
@@ -777,17 +778,35 @@
 				<version>1.2.13</version>
 			</dependency>
 
-			<dependency>
+			<!--<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>1.5.6</version>
+			</dependency>-->
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${org.slf4j.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
-				<version>1.5.6</version>
+				<version>${org.slf4j.version}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<!--<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.5.6</version>
+			</dependency>-->
 
 			<dependency>
 				<groupId>org.apache.jackrabbit</groupId>
