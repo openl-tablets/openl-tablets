@@ -18,10 +18,10 @@ import org.openl.types.IOpenSchema;
 import org.openl.vm.IRuntimeEnv;
 
 public class OpenClassDelegator implements IOpenClass {
-    IOpenClass baseClass;
-    String name;
-    IMetaInfo metaInfo;
-    String nameSpace;
+    private IOpenClass baseClass;
+    private String name;
+    private IMetaInfo metaInfo;
+    private String nameSpace;
 
     public OpenClassDelegator(String name, IOpenClass baseClass, IMetaInfo metaInfo) {
         this.baseClass = baseClass;
