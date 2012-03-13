@@ -345,6 +345,32 @@ public class JavaClassGeneratorHelper {
         }
         return -1;
     }
+    
+    public static String getNameWithoutBrackets(String arrayTypeName) {
+    	if (StringUtils.isNotBlank(arrayTypeName)) {
+            if (isArray(arrayTypeName)) {
+                String[] tokens = arrayTypeName.split("\\[");
+                return tokens[0];
+            } else {
+            	return arrayTypeName;
+            }
+    	}
+        return StringUtils.EMPTY;
+    }
+    
+    public static String getArrayName(String domainName, int dimension) {
+    	if (StringUtils.isNotBlank(domainName)) {
+    		String array = "[]";
+            StringBuffer buf = new StringBuffer();
+            buf.append(domainName);
+            for (int i = 0; i < dimension; i++) {
+            	buf.append(array);	
+            }
+    		return buf.toString();
+    	} else {
+    		return StringUtils.EMPTY;
+    	}
+	}
 
     public static boolean isArray(String arrayTypeName) {
         return StringUtils.contains(arrayTypeName, "[");

@@ -114,7 +114,20 @@ public class JavaClassGeneratorHelperTest {
         assertEquals(1, JavaClassGeneratorHelper.getDimension("org.test.my.Hello[]"));
     }
     
+    @Test
+    public void testGetNameWithoutBrackets() {
+    	assertEquals("String", JavaClassGeneratorHelper.getNameWithoutBrackets("String[][][]"));
+    	assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getNameWithoutBrackets(null));
+    	assertEquals("String", JavaClassGeneratorHelper.getNameWithoutBrackets("String"));
+    }
     
-    
-
+    @Test
+    public void testGetArrayName() {
+    	assertEquals("String", JavaClassGeneratorHelper.getArrayName("String", 0));
+    	assertEquals("String", JavaClassGeneratorHelper.getArrayName("String", -10));
+    	assertEquals("String[][]", JavaClassGeneratorHelper.getArrayName("String", 2));
+    	
+    	assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getArrayName(StringUtils.EMPTY, 0));
+    	assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getArrayName(null, 0));
+    }
 }
