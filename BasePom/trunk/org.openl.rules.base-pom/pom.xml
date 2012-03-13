@@ -99,7 +99,7 @@
 		<org.springframework.version>3.1.1.RELEASE</org.springframework.version>
 		<org.springsecurity.version>3.1.0.RELEASE</org.springsecurity.version>
 		<org.hibernate.version>4.1.0.Final</org.hibernate.version>
-		<org.richfaces.version>4.0.0.Final</org.richfaces.version>
+		<org.richfaces.version>4.2.0.Final</org.richfaces.version>
 		<org.apache.cxf.version>2.4.2</org.apache.cxf.version>
 		<openl.mapping.version>1.1.2</openl.mapping.version>
 	</properties>

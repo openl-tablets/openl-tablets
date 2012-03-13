@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.diff;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.util.FileTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
@@ -15,6 +18,8 @@ import org.richfaces.model.UploadedFile;
 @ManagedBean
 @SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
+
+    private final Log LOG = LogFactory.getLog(UploadExcelDiffController.class);
 
     private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
 
@@ -40,13 +45,16 @@ public class UploadExcelDiffController extends ExcelDiffController {
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
 
             List<File> filesToCompare = new ArrayList<File>();
-            for (UploadedFile uploadedFile : uploadedFiles) {
-                File fileToCompare = FileTool.toTempFile(
-                        uploadedFile.getInputStream(), FilenameUtils.getName(uploadedFile.getName()));
-                filesToCompare.add(fileToCompare);
+            try {
+                for (UploadedFile uploadedFile : uploadedFiles) {
+                    File fileToCompare = FileTool.toTempFile(
+                            uploadedFile.getInputStream(), FilenameUtils.getName(uploadedFile.getName()));
+                    filesToCompare.add(fileToCompare);
+                }
+                compare(filesToCompare);
+            } catch (IOException e) {
+                LOG.error("Could not compare files: ", e);
             }
-
-            compare(filesToCompare);
 
             // Clear uploaded files
             uploadedFiles.clear();
