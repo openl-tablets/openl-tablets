@@ -5,8 +5,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/geronimo-stax-api_1.0_spec-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-api-2.1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-core-2.1.2.jar" sourcepath="C:/work/workspace/jackrabbit_sources/jackrabbit-core-2.1.2-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-jcr-commons-2.1.2.jar" sourcepath="D:/eclipse-SDK-3.5.1-win32/jackrabbit_sources/jackrabbit-jcr-commons-2.1.2-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-core-2.1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-jcr-commons-2.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-jcr-rmi-2.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-jcr-server-2.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-jcr2spi-2.1.2.jar"/>
@@ -14,7 +14,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-spi-commons-2.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-spi2dav-2.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackrabbit-webdav-2.1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jcl-over-slf4j-1.5.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcl-over-slf4j-1.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lucene-core-2.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/metadata-extractor-2.4.0-beta-1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/tagsoup-1.2.jar"/>

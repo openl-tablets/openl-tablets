@@ -9,7 +9,7 @@ Bundle-ClassPath:
  lib/cglib-nodep-2.1_3.jar,
  lib/asm-3.3.jar,
  lib/ehcache-core-2.4.3.jar,
- lib/slf4j-api-1.5.6.jar
+ lib/slf4j-api-1.6.4.jar
 Export-Package: 
  net.sf.cglib.asm,
  net.sf.cglib.asm.attrs,
