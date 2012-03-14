@@ -6,9 +6,9 @@ Bundle-Version: 5.9.2
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: 
- lib/cglib-nodep-2.1_3.jar,
  lib/asm-3.3.jar,
- lib/ehcache-core-2.4.3.jar,
+ lib/cglib-nodep-2.1_3.jar,
+ lib/ehcache-core-2.5.1.jar,
  lib/slf4j-api-1.6.4.jar
 Export-Package: 
  net.sf.cglib.asm,
@@ -61,8 +61,6 @@ Export-Package:
  net.sf.ehcache.store,
  net.sf.ehcache.store.chm,
  net.sf.ehcache.store.compound,
- net.sf.ehcache.store.compound.factories,
- net.sf.ehcache.store.compound.impl,
  net.sf.ehcache.terracotta,
  net.sf.ehcache.transaction,
  net.sf.ehcache.transaction.local,
