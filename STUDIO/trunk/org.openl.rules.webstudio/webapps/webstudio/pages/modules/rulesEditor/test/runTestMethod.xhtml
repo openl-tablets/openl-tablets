@@ -58,9 +58,7 @@
 		                          		<ui:param name="parameter" value="#{runTestMethodBean.result}" />
 		                           	</ui:include>	                                
                                 </h:panelGroup>
-                                
-                                <!-- <h:outputText value="#{runTestMethodBean.stringResult}"
-                                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />-->
+                                                                
                                 <h:outputLink
                                     value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
                                     rendered="#{not empty runTestMethodBean.explanationValueResult}">
