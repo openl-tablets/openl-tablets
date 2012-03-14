@@ -33,6 +33,8 @@ import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.ParameterDeclaration;
 import org.richfaces.component.UIRepeat;
 
 /**
@@ -131,15 +133,25 @@ public class RunAllTestsBean {
 
     /**
      * @return expected result for test
+     * @deprecated should be private
      */
+    @Deprecated
     public Object getExpected() {
         TestUnit testUnit = (TestUnit) testUnits.getRowData();
 
         return testUnit.getExpectedResult();
     }
+    
+    
+    public Object getExpectedParameter() {
+        return new ParameterWithValueDeclaration("expected", getExpected(), IParameterDeclaration.OUT);
+    }
 
     /**
      * @return formatted for UI expected result for test
+     * 
+     * @deprecated should not be used any more, use {@link #getExpectedParameter()}
+     *
      */
     public String getFormattedExpected() {
         return TestResultsHelper.format(getExpected());
@@ -173,6 +185,8 @@ public class RunAllTestsBean {
      */
     /**
      * @return formatted actual result
+     * 
+     * @deprecated should not be used any more, use {@link #getActualParameter()}
      */
     public String getFormattedActualResult() {
         Object result = getActualResultInternal();
@@ -182,6 +196,10 @@ public class RunAllTestsBean {
         }
         // value should be formatted before displaying on UI
         return TestResultsHelper.format(result);
+    }
+    
+    public Object getActualParameter() {
+    	return new ParameterWithValueDeclaration("actual", getActualResultInternal(), IParameterDeclaration.OUT);
     }
 
     public String getFormattedExplanationValueActual() {

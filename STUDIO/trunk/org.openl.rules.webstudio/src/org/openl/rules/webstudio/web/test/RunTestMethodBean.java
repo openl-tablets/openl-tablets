@@ -10,6 +10,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
@@ -19,6 +20,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IParameterDeclaration;
 import org.richfaces.component.UIRepeat;
 
 /**
@@ -103,9 +105,17 @@ public class RunTestMethodBean {
     public Object getCurrentTestResult() {
         return getCurrentTest().getActualResult();
     }
-
+    
+    /**
+     * 
+     * @deprecated use {@link #getResult()}
+     */
     public String getStringResult() {
         return TestResultsHelper.format(getCurrentTestResult());
+    }
+    
+    public Object getResult() {
+    	return new ParameterWithValueDeclaration("run_result", getCurrentTestResult(), IParameterDeclaration.OUT);
     }
 
     public SpreadsheetResult getSpreadsheetResult() {
