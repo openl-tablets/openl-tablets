@@ -34,7 +34,7 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
     }
     
     protected void pushFieldToStack(MethodVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
-        codeVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        codeVisitor.visitVarInsn(Opcodes.ALOAD, fieldOwnerLocalVarIndex);
         codeVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(getAllFields()
                 .get(fieldName)));
     }

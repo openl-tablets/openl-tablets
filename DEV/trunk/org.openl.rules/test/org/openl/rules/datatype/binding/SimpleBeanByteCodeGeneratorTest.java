@@ -2,6 +2,7 @@ package org.openl.rules.datatype.binding;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
@@ -154,6 +155,40 @@ public class SimpleBeanByteCodeGeneratorTest {
         Map<String, FieldDescription> fields = getFields(new FieldDescription(Object[].class));
         
         assertNotNull(getBeanClass(className, fields));
+    }
+    
+    
+    @Test
+    public void testEquals() {
+    	String className = String.format("%s.EqualsTestBean", CLASS_NAMESPACE);
+    	Map<String, FieldDescription> fields = getFields(new FieldDescription(String.class));
+        
+    	Class<?> clazz = getBeanClass(className, fields);
+        assertNotNull(clazz);
+        
+        Object instance1 = null, instance2 = null;
+        Method equalsMethod = null, setFirstField = null;
+        Boolean isEqual = false;
+        try {
+			 instance1 = clazz.newInstance();
+			 instance2 = clazz.newInstance();
+			 equalsMethod = clazz.getMethod("equals", new Class[]{Object.class});
+			 setFirstField = clazz.getMethod("setFirstField", new Class[]{String.class});
+			 isEqual = (Boolean)equalsMethod.invoke(instance1, new Object[]{instance2});
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+        assertTrue(isEqual);
+        
+        //set field value for one of the instances
+        try {
+        	assertNotNull(setFirstField);
+        	setFirstField.invoke(instance1, new Object[]{"TestValue"});
+        	isEqual = (Boolean)equalsMethod.invoke(instance1, new Object[]{instance2});
+        } catch (Exception e) {
+        	fail(e.getMessage());
+		}
+        assertFalse(isEqual);
     }
     
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
