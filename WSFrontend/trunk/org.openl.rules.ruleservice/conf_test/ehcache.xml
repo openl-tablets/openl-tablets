@@ -151,8 +151,15 @@
     name:
     Sets the name of the cache. This is used to identify the cache. It must be unique.
 
-    maxElementsInMemory:
-    Sets the maximum number of objects that will be created in memory (0 == no limit)
+    maxEntriesLocalHeap, maxBytesLocalHeap:
+    Sets the maximum number of cache entries (0 == no limit) or bytes a cache can use in local heap memory.
+    Only one of these attributes can be used.
+    Note: if you use maxBytesLocalHeap attribute, severe performance degradation could 
+    occur while attempting to calculate the size of the object graph. This can be avoided 
+    by setting the CacheManger or Cache <sizeOfPolicy> elements maxDepthExceededBehavior 
+    to "abort" or adding stop points with @IgnoreSizeOf annotations. If performance 
+    degradation is NOT an issue at the configured limit, raise the limit value using the 
+    CacheManager or Cache <sizeOfPolicy> elements maxDepth attribute.
 
 	maxElementsOnDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
@@ -198,7 +205,7 @@
     logging in the DiskStore will show if put back ups are occurring.
 
     memoryStoreEvictionPolicy:
-    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    Policy would be enforced upon reaching the maxEntriesLocalHeap limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -
     First In First Out (specified as FIFO) and Less Frequently Used
     (specified as LFU)
@@ -271,7 +278,7 @@
     created programmtically using CacheManager.add(String cacheName)
     -->
     <defaultCache
-            maxElementsInMemory="1"
+            maxEntriesLocalHeap="1"
             eternal="false"
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
@@ -283,7 +290,7 @@
             />
 
 	<cache 
-		maxElementsInMemory="1"
+		maxEntriesLocalHeap="1"
 		name="modulesCache" 
 		eternal="true" 
 		overflowToDisk="false"
@@ -291,5 +298,24 @@
 		memoryStoreEvictionPolicy="LRU">
 	</cache>
 	
+	<cache 
+		maxEntriesLocalHeap="1"
+		name="elementsRestrictionCache"
+		eternal="true" 
+		overflowToDisk="false"
+		diskPersistent="false"
+		memoryStoreEvictionPolicy="LRU">
+	</cache>
+
+	<cache 
+		maxBytesLocalHeap="20M"
+		name="memoryRestrictionCache" 
+		eternal="true" 
+		overflowToDisk="false"
+		diskPersistent="false"
+		memoryStoreEvictionPolicy="LRU">
+		<sizeOfPolicy maxDepth="25000"/>
+	</cache>
+
 </ehcache>
 
