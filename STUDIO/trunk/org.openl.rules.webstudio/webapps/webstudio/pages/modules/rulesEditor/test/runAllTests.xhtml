@@ -78,22 +78,39 @@
                             </h:panelGroup>
 
                             <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
-                                <td><h:outputText value="#{runAllTestsBean.formattedExpected}"
-                                        rendered="#{empty runAllTestsBean.explanationValueExpected}" /> <h:outputLink
-                                        value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
-                                        rendered="#{not empty runAllTestsBean.explanationValueExpected}">
-                                        <h:outputText value="#{runAllTestsBean.formattedExplanationValueExpected}" />
-                                    </h:outputLink></td>
+                                <td>    
+                                    <!-- Show tree for not explanable values, e.g. java beans -->    
+                                    <h:panelGroup rendered="#{empty runAllTestsBean.explanationValueExpected}">
+	                                    <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+	                                    	<ui:param name="parameter" value="#{runAllTestsBean.expectedParameter}" />
+	                                	</ui:include>
+                                    </h:panelGroup>
+                                    
+                                    <!-- Show link to explanation number value -->     
+                                    <h:outputLink value="javascript: open_explain_win('?rootID=#{runAllTestsBean.expectedExplanatorId}&amp;header=Explanation')"
+                                        rendered="#{not empty runAllTestsBean.explanationValueExpected}">                                     
+                                    	<h:outputText value="#{runAllTestsBean.formattedExplanationValueExpected}" />                                    	
+                                    </h:outputLink>
+                                </td>
                             </h:panelGroup>
-                            <td><h:panelGroup
-                                    rendered="#{runAllTestsBean.compareResult == 0 or runAllTestsBean.compareResult == 1}">
+                            <td>
+                            	<h:panelGroup rendered="#{runAllTestsBean.compareResult == 0 or runAllTestsBean.compareResult == 1}">
                                     <h:graphicImage value="webresource/images/ok.png"
                                         rendered="#{runAllTestsBean.compareResult == 0}" />
                                     <h:graphicImage value="webresource/images/error.png"
                                         rendered="#{runAllTestsBean.compareResult == 1}" />
                                     <h:outputText value=" " />
-                                    <h:outputText value="#{runAllTestsBean.formattedActualResult}"
-                                        rendered="#{empty runAllTestsBean.explanationValueActual and empty runAllTestsBean.spreadsheetResult}" />
+                                    
+                                    <!-- Show tree for not explanable values, e.g. java beans -->
+                                    <h:panelGroup rendered="#{empty runAllTestsBean.explanationValueActual and empty runAllTestsBean.spreadsheetResult}">
+	                                    <div style="display: inline-block;">    
+		                                    <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+		                                    	<ui:param name="parameter" value="#{runAllTestsBean.actualParameter}" />
+		                                	</ui:include>
+	                                	</div>
+                                    </h:panelGroup>
+                                        
+                                    <!-- Show link to explanation number value -->     
                                     <h:outputLink
                                         value="javascript: open_explain_win('?rootID=#{runAllTestsBean.actualExplanatorId}&amp;header=Explanation')"
                                         rendered="#{not empty runAllTestsBean.explanationValueActual}">
@@ -101,12 +118,14 @@
                                     </h:outputLink>
                                     <h:outputText rendered="#{not empty runAllTestsBean.spreadsheetResult}"
                                         value="#{runAllTestsBean.formattedSpreadsheetResult}" escape="false" />
-                                </h:panelGroup> <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
+                                </h:panelGroup> 
+                                <h:panelGroup rendered="#{runAllTestsBean.compareResult == 2}">
                                     <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
                                         <ui:param name="messages" value="#{runAllTestsBean.errors}" />
                                         <ui:param name="editable" value="#{studio.model.editable}" />
                                     </ui:include>
-                                </h:panelGroup></td>
+                                </h:panelGroup>
+                           </td>
                         </tr>
                     </a4j:repeat>
                 </table>

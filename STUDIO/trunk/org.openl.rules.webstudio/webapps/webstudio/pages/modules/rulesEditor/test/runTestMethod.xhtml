@@ -51,8 +51,16 @@
                         </h:panelGroup>
                         <td><c:set var="errors" value="#{runTestMethodBean.errors}" /> <h:panelGroup
                                 rendered="#{empty errors}">
-                                <h:outputText value="#{runTestMethodBean.stringResult}"
-                                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />
+                                
+                                <!-- Show tree for not explanable values, e.g. java beans -->
+                                <h:panelGroup rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}">
+		                      		<ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+		                          		<ui:param name="parameter" value="#{runTestMethodBean.result}" />
+		                           	</ui:include>	                                
+                                </h:panelGroup>
+                                
+                                <!-- <h:outputText value="#{runTestMethodBean.stringResult}"
+                                    rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}" />-->
                                 <h:outputLink
                                     value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
                                     rendered="#{not empty runTestMethodBean.explanationValueResult}">
