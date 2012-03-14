@@ -181,18 +181,8 @@ public class InputArgsBean {
         return argumentTreeNodes;
     }
 
-    private UIRepeat currentArgTreeNode;// FieldDescriptionTreeNode
-
-    public UIRepeat getCurrentArgTreeNode() {
-        return currentArgTreeNode;
-    }
-
-    public void setCurrentArgTreeNode(UIRepeat currentArgTreeNode) {
-        this.currentArgTreeNode = currentArgTreeNode;
-    }
-
-    public TreeNode getRoot() {
-        ParameterDeclarationTreeNode parameter = (ParameterDeclarationTreeNode) currentArgTreeNode.getRowData();
+    public TreeNode getRoot(Object objParameter) {
+        ParameterDeclarationTreeNode parameter = (ParameterDeclarationTreeNode) objParameter;
         TreeNodeImpl root = new TreeNodeImpl();
 
         root.addChild(parameter.getName(), parameter);

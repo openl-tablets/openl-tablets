@@ -22,15 +22,12 @@
         </tr>
 
         <tr style="vertical-align: top; text-align: left">
-            <a4j:repeat var="argumentTreeNode" value="#{inputArgsBean.argumentTreeNodes}"
-                binding="#{inputArgsBean.currentArgTreeNode}">
+            <a4j:repeat var="argumentTreeNode" value="#{inputArgsBean.argumentTreeNodes}">
                 <td><rich:panel id="dynamicTreePanel">
-                        <rich:tree toggleType="client" selectionType="client" value="#{inputArgsBean.root}" var="item"
+                        <rich:tree toggleType="client" selectionType="client"
+                            value="#{inputArgsBean.getRoot(argumentTreeNode)}" var="item"
                             nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}"
-                            styleClass="dynamicTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
-                            <!-- rowKeyConverter is a temporary solution.
-                             After migrating to the newer version of RichFaces it can be removed.
-                             See: https://issues.jboss.org/browse/RF-11102 for details -->
+                            styleClass="dynamicTree">
                             <rich:treeNode type="collection">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
