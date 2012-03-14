@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -27,6 +26,7 @@ import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringTool;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
@@ -100,19 +100,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     }
 
     public String getDisplayName() {
-        String uri = src.getUri(0);
-
-        try {
-            URL url = new URL(uri);
-            String file = url.getFile();
-            int index = file.lastIndexOf('/');
-
-            return index < 0 ? file : file.substring(index + 1);
-
-        } catch (MalformedURLException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
-        }
-
+        String uri = StringTool.decodeURL(src.getUri(0));
+        return FilenameUtils.getName(uri);
     }
 
     public String getIndexedText() {
