@@ -9,7 +9,7 @@ public class EnumUtils {
         return constant.name();
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static Object valueOf(Class enumClass, String constantName) {
         return Enum.valueOf(enumClass, constantName);
     }

@@ -98,7 +98,6 @@ public class GapOverlapValidator extends TablesValidator {
                     domain = condition.getConditionEvaluator().getRuleParameterDomain(condition);
                     IDomainAdaptor adaptor = DomainAdaptorFactory.getAdaptor(domain);
                     domainsMap.put(pd[i].getName(), adaptor);
-
                 }
             }
 

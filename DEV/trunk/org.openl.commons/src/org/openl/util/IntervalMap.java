@@ -42,7 +42,7 @@ import java.util.TreeMap;
 
 public class IntervalMap<T, V> {
 
-    TreeMap<Comparable<T>, List<V>> map = new TreeMap<Comparable<T>, List<V>>();
+    private SortedMap<Comparable<T>, List<V>> map = new TreeMap<Comparable<T>, List<V>>();
 
     public List<V> getInInterval(Comparable<T> key) {
         List<V> res = map.get(key);
@@ -52,7 +52,7 @@ public class IntervalMap<T, V> {
 
         SortedMap<Comparable<T>, List<V>> submap = map.headMap(key);
 
-        if (submap.size() == 0) {
+        if (submap.isEmpty()) {
             return Collections.emptyList();
         }
         return submap.get(submap.lastKey());
@@ -62,9 +62,9 @@ public class IntervalMap<T, V> {
 
         SortedMap<Comparable<T>, List<V>> submap = map.subMap(fromKey, toKey);
 
-        if (submap.size() == 0 || !submap.firstKey().equals(fromKey)) {
+        if (submap.isEmpty() || !submap.firstKey().equals(fromKey)) {
             SortedMap<Comparable<T>, List<V>> head = map.headMap(fromKey);
-            ArrayList<V> firstList = head.size() == 0 ? new ArrayList<V>() : new ArrayList<V>(head.get(head.lastKey()));
+            ArrayList<V> firstList = head.isEmpty() ? new ArrayList<V>() : new ArrayList<V>(head.get(head.lastKey()));
             map.put(fromKey, firstList);
 
             submap = map.subMap(fromKey, toKey);
@@ -85,7 +85,7 @@ public class IntervalMap<T, V> {
     public boolean removeInterval(Comparable<T> fromKey, Comparable<T> toKey, V value) {
         SortedMap<Comparable<T>, List<V>> submap = map.subMap(fromKey, toKey);
         
-        if (submap.size() == 0)
+        if (submap.isEmpty())
         	throw new RuntimeException("Interval not found! " + fromKey + " - " + toKey);        
 
         if (!submap.firstKey().equals(fromKey))
@@ -98,14 +98,14 @@ public class IntervalMap<T, V> {
 			if (removed == false)
 				throw new RuntimeException("Value not found: " + value + " at the Key: " + e.getKey());
 			
-			if (e.getValue().size() == 0)
+			if (e.getValue().isEmpty())
 				removedKeys.add(e.getKey());
 		}
         
         return true;
     }    
 
-    public TreeMap<Comparable<T>, List<V>> treeMap() {
+    public SortedMap<Comparable<T>, List<V>> getMap() {
         return map;
     }
 

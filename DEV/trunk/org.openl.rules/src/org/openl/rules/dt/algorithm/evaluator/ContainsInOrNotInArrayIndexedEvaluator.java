@@ -162,13 +162,11 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return new EqualsIndex(emptyBuilder.makeNode("Empty"), nodeMap);
     }
 
-    public IDomain getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
-        // TODO Auto-generated method stub
+    public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 
-    public IDomain getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
-        // TODO Auto-generated method stub
+    public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
         return null;
     }
 
