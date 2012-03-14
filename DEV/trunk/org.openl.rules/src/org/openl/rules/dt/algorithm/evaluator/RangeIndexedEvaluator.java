@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.SortedMap;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
@@ -72,7 +72,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
             return null;
         }
 
-        IntervalMap<Object, Integer> map = new IntervalMap<Object, Integer>();
+        IntervalMap<Object, Integer> intervalMap = new IntervalMap<Object, Integer>();
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
 
         while (iterator.hasNext()) {
@@ -98,10 +98,10 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements  ICond
                 vTo = adaptor.getMax(indexedparams[i][0]);
             }
 
-            map.putInterval(vFrom, vTo, new Integer(i));
+            intervalMap.putInterval(vFrom, vTo, Integer.valueOf(i));
         }
 
-        TreeMap<Comparable<Object>, List<Integer>> treeMap = map.treeMap();
+        SortedMap<Comparable<Object>, List<Integer>> treeMap = intervalMap.getMap();
 
         List<Comparable<?>> index = new ArrayList<Comparable<?>>();
         List<DecisionTableRuleNode> rules = new ArrayList<DecisionTableRuleNode>();

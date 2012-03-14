@@ -107,7 +107,7 @@ public class OpenLBussinessSearch implements IOpenLSearch{
  
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private int comparePropValues(Object propValueFromSearch, Object propertyValue) {
         int result = -1;
         if(propertyValue instanceof String && propValueFromSearch instanceof String) 
@@ -121,8 +121,8 @@ public class OpenLBussinessSearch implements IOpenLSearch{
         else if(propertyValue instanceof Enum && propValueFromSearch instanceof Enum)
             result = ((Enum)propertyValue).compareTo(((Enum)propValueFromSearch));
         else if(propertyValue.getClass().isArray() && propValueFromSearch.getClass().isArray()) {                        
-            List propertyValueArray = Arrays.asList((Object[])propertyValue);
-            List propertyValueFromSearchArray = Arrays.asList((Object[])propValueFromSearch);
+            List<Object> propertyValueArray = Arrays.asList((Object[])propertyValue);
+            List<Object> propertyValueFromSearchArray = Arrays.asList((Object[])propValueFromSearch);
             if (propertyValueArray.containsAll(propertyValueFromSearchArray)) {
                 result = 0;
             }
