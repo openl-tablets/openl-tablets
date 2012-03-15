@@ -72,7 +72,7 @@
                             </td>
                             </ui:repeat>
                             <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
-                                <td><h:outputText value="#{runAllTestsBean.getUnitDescription(testUnit)}" /></td>
+                                <td><h:outputText value="#{testUnit.getDescription()}" /></td>
                             </h:panelGroup>
 
                             <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
@@ -94,12 +94,12 @@
                                 </td>
                             </h:panelGroup>
                             <td>
-                                <h:panelGroup rendered="#{runAllTestsBean.getCompareResult(testUnit) == 0 or runAllTestsBean.getCompareResult(testUnit) == 1}">
+                                <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
+
+                                <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
                                     <span style="vertical-align: top">
-                                        <h:graphicImage value="webresource/images/ok.png"
-                                            rendered="#{runAllTestsBean.getCompareResult(testUnit) == 0}" />
-                                        <h:graphicImage value="webresource/images/error.png"
-                                            rendered="#{runAllTestsBean.getCompareResult(testUnit) == 1}" />
+                                        <h:graphicImage value="webresource/images/ok.png" rendered="#{compareResult == 0}" />
+                                        <h:graphicImage value="webresource/images/error.png" rendered="#{compareResult == 1}" />
                                     </span>
                                     <h:outputText value=" " />
 
@@ -111,7 +111,7 @@
                                                     <ui:param name="parameter" value="#{actualParam}" />
                                                 </ui:include>
                                             </ui:repeat>
-                                      </div>
+                                        </div>
                                     </h:panelGroup>
 
                                     <!-- Show link to explanation number value -->
@@ -123,7 +123,7 @@
                                     <h:outputText rendered="#{not empty runAllTestsBean.getSpreadsheetResult(testUnit)}"
                                         value="#{runAllTestsBean.getFormattedSpreadsheetResult(testUnit)}" escape="false" />
                                 </h:panelGroup> 
-                                <h:panelGroup rendered="#{runAllTestsBean.getCompareResult(testUnit) == 2}">
+                                <h:panelGroup rendered="#{compareResult == 2}">
                                     <ui:include src="/pages/modules/rulesEditor/messages.xhtml">
                                         <ui:param name="messages" value="#{runAllTestsBean.getErrors(testUnit)}" />
                                         <ui:param name="editable" value="#{studio.model.editable}" />
