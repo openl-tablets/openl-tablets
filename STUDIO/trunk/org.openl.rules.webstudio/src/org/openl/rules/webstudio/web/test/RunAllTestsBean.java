@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -34,8 +35,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
-import org.openl.types.impl.ParameterDeclaration;
-import org.richfaces.component.UIRepeat;
 
 /**
  * Request scope managed bean providing logic for 'Run All Tests' page of OpenL
@@ -45,8 +44,6 @@ import org.richfaces.component.UIRepeat;
 @RequestScoped
 public class RunAllTestsBean {
     private TestUnitsResults[] ranResults;
-
-    private UIRepeat testUnits;
 
     /**
      * URI of tested table
@@ -108,21 +105,12 @@ public class RunAllTestsBean {
         return cnt;
     }
 
-    public UIRepeat getTestItems() {
-        return testUnits;
-    }
-
-    public void setTestItems(UIRepeat testItems) {
-        this.testUnits = testItems;
-    }
-
     /**
      * @return list of errors if there were any during execution of the test. In
      *         other case <code>null</code>.
      */
-    public List<OpenLMessage> getErrors() {
-        Object result = getActualResultInternal();
-
+    public List<OpenLMessage> getErrors(Object objTestUnit) {
+        Object result = getActualResultInternal(objTestUnit);
         return TestResultsHelper.getErrors(result);
     }
 
@@ -133,45 +121,31 @@ public class RunAllTestsBean {
 
     /**
      * @return expected result for test
-     * @deprecated should be private
      */
-    @Deprecated
-    public Object getExpected() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
-
+    private Object getExpected(Object objTestUnit) {
+        TestUnit testUnit = (TestUnit) objTestUnit;
         return testUnit.getExpectedResult();
     }
-    
-    
-    public Object getExpectedParameter() {
-        return new ParameterWithValueDeclaration("expected", getExpected(), IParameterDeclaration.OUT);
+
+    public Object getExpectedParameter(Object objTestUnit) {
+        return Collections.singletonList(
+                new ParameterWithValueDeclaration("expected", getExpected(objTestUnit), IParameterDeclaration.OUT));
     }
 
-    /**
-     * @return formatted for UI expected result for test
-     * 
-     * @deprecated should not be used any more, use {@link #getExpectedParameter()}
-     *
-     */
-    public String getFormattedExpected() {
-        return TestResultsHelper.format(getExpected());
-    }
-
-    public ExplanationNumberValue<?> getExplanationValueExpected() {
-        Object expected = getExpected();
-
+    public ExplanationNumberValue<?> getExplanationValueExpected(Object objTestUnit) {
+        Object expected = getExpected(objTestUnit);
         return TestResultsHelper.getExplanationValueResult(expected);
     }
 
-    public int getExpectedExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getExplanationValueExpected());
+    public int getExpectedExplanatorId(Object objTestUnit) {
+        return TestResultsHelper.getExplanatorId(getExplanationValueExpected(objTestUnit));
     }
 
     /**
      * @return formatted for UI explanation expected value
      */
-    public String getFormattedExplanationValueExpected() {
-        return TestResultsHelper.format(getExplanationValueExpected());
+    public String getFormattedExplanationValueExpected(Object objTestUnit) {
+        return TestResultsHelper.format(getExplanationValueExpected(objTestUnit));
     }
 
     /*
@@ -183,42 +157,29 @@ public class RunAllTestsBean {
      * ------------------------------ ACTUAL VALUE
      * SECTION----------------------------
      */
-    /**
-     * @return formatted actual result
-     * 
-     * @deprecated should not be used any more, use {@link #getActualParameter()}
-     */
-    public String getFormattedActualResult() {
-        Object result = getActualResultInternal();
-        if (result instanceof Throwable) {
-            Throwable rootCause = ExceptionUtils.getRootCause((Throwable) result);
-            return rootCause.getMessage();
-        }
-        // value should be formatted before displaying on UI
-        return TestResultsHelper.format(result);
-    }
-    
-    public Object getActualParameter() {
-    	return new ParameterWithValueDeclaration("actual", getActualResultInternal(), IParameterDeclaration.OUT);
+
+    public Object getActualParameter(Object objTestUnit) {
+        return Collections.singletonList(
+                new ParameterWithValueDeclaration("actual", getActualResultInternal(objTestUnit), IParameterDeclaration.OUT));
     }
 
-    public String getFormattedExplanationValueActual() {
-        return TestResultsHelper.format(getExplanationValueActual());
+    public String getFormattedExplanationValueActual(Object objTestUnit) {
+        return TestResultsHelper.format(getExplanationValueActual(objTestUnit));
     }
 
-    public ExplanationNumberValue<?> getExplanationValueActual() {
-        return TestResultsHelper.getExplanationValueResult(getActualResultInternal());
+    public ExplanationNumberValue<?> getExplanationValueActual(Object objTestUnit) {
+        return TestResultsHelper.getExplanationValueResult(getActualResultInternal(objTestUnit));
     }
 
-    public int getActualExplanatorId() {
-        return TestResultsHelper.getExplanatorId(getExplanationValueActual());
+    public int getActualExplanatorId(Object objTestUnit) {
+        return TestResultsHelper.getExplanatorId(getExplanationValueActual(objTestUnit));
     }
 
     /**
      * @return actual calculated result as Object
      */
-    private Object getActualResultInternal() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+    private Object getActualResultInternal(Object objTestUnit) {
+        TestUnit testUnit = (TestUnit) objTestUnit;
         return testUnit.getActualResult();
     }
 
@@ -232,45 +193,44 @@ public class RunAllTestsBean {
      * 
      * @return see {@link TestUnit#compareResult()}
      */
-    public int getCompareResult() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+    public int getCompareResult(Object objTestUnit) {
+        TestUnit testUnit = (TestUnit) objTestUnit;
         return testUnit.compareResult();
     }
 
-    public ParameterWithValueDeclaration[] getParamDescriptions() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+    public ParameterWithValueDeclaration[] getParamDescriptions(Object objTestUnit) {
+        TestUnit testUnit = (TestUnit) objTestUnit;
         TestDescription testDescription = testUnit.getTest();
         return testDescription.getExecutionParams();
     }
 
-    public String getUnitDescription() {
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+    public String getUnitDescription(Object objTestUnit) {
+        TestUnit testUnit = (TestUnit) objTestUnit;
         return testUnit.getDescription();
     }
     
-    public SpreadsheetResult getSpreadsheetResult() {
-        return TestResultsHelper.getSpreadsheetResult(getActualResultInternal());
+    public SpreadsheetResult getSpreadsheetResult(Object objTestUnit) {
+        return TestResultsHelper.getSpreadsheetResult(getActualResultInternal(objTestUnit));
     }
 
-    public String getFormattedSpreadsheetResult() {
-        SpreadsheetResult spreadsheetResult = getSpreadsheetResult();
-        
+    public String getFormattedSpreadsheetResult(Object objTestUnit) {
+        SpreadsheetResult spreadsheetResult = getSpreadsheetResult(objTestUnit);
+
         if (spreadsheetResult != null) {
-            Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates();
-            
+            Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit);
             return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
         }
         return StringUtils.EMPTY;
     }
 
-    private Map<Point, ComparedResult> getFieldsCoordinates() {
+    private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
-        TestUnit testUnit = (TestUnit) testUnits.getRowData();
+        TestUnit testUnit = (TestUnit) objTestUnit;
         BeanResultComparator comparator = (BeanResultComparator)testUnit.getTestUnitResultComparator().getComparator();
         List<ComparedResult> fieldsToTest = comparator.getFieldsToCompare();
-        
+
         SpreadsheetOpenClass spreadsheetOpenClass = ((Spreadsheet)testUnit.getTest().getTestedMethod()).getSpreadsheetType();
-        
+
         if (fieldsToTest != null) {
             for (ComparedResult fieldToTest : fieldsToTest) {
                 Point fieldCoordinates = DefaultResultBuilder.getAbsoluteSpreadsheetFieldCoordinates(spreadsheetOpenClass.getField(fieldToTest.getFieldName()));
@@ -281,11 +241,11 @@ public class RunAllTestsBean {
         }
         return fieldsCoordinates;
     }
-    
+
     public boolean isExpired(){
         return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
     }
-    
+
     public String getTestedTableUri(){
         return uri;
     }
