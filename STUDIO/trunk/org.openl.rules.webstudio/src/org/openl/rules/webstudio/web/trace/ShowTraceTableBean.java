@@ -67,18 +67,10 @@ public class ShowTraceTableBean {
         ITableTracerObject tto = traceHelper.getTableTracer(traceElementId);
         return new TracerObjectDecorator(tto).getInputParameters();
     }
-
+    
     public ParameterWithValueDeclaration[] getReturnResult() {
-        return new ParameterWithValueDeclaration[]{new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getReturnResult()};
-    }
-
-    public String getFormattedResult() {
-        return new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getFormattedResult();
-    }
-
-    public boolean getSpreadsheetResultReturn() {
-        return new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).isSpreadsheetResult();
-    }
+    	return new ParameterWithValueDeclaration[]{new TracerObjectDecorator(traceHelper.getTableTracer(traceElementId)).getReturnResult()};
+    }    
 
     public List<OpenLMessage> getErrors() {
         Throwable error = traceHelper.getTracerError(traceElementId);
