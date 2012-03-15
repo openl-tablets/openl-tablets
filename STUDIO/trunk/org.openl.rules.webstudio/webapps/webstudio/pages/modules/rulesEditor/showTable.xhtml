@@ -326,7 +326,7 @@
                 <c:if test="#{showTableBean.hasTests}">
                     <td>
                         <h:form>
-                            <a4j:commandLink styleClass="toolbarButton bigButton" title="Run All Tests"
+                            <a4j:commandLink styleClass="toolbarButton bigButton" title="Run Tests"
                                 action="#{showTableBean.runAllTestsForTable}"
                                 oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml?uri=#{showTableBean.encodedUri}')">
                                 <img src="webresource/images/test_ok.gif" />
