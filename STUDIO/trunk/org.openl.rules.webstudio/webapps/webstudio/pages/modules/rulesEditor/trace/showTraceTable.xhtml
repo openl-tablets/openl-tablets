@@ -29,22 +29,13 @@
                 </tr>
                 <tr style="vertical-align: top">
                     <td><b>Returned result: </b></td>
-
-                    <h:panelGroup rendered="#{showTraceTableBean.spreadsheetResultReturn}">
-                    <td>
-                        <h:outputText value="#{showTraceTableBean.formattedResult}" escape="false" />
-                    </td>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{!showTraceTableBean.spreadsheetResultReturn}">
-                        <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
-                        <td>
-                            <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
-                                <ui:param name="parameter" value="#{parameter}" />
-                            </ui:include>
-                        </td>
-                        </ui:repeat>
-                    </h:panelGroup>
+	                <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
+    	            	<td>
+        	            	<ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
+            	            	<ui:param name="parameter" value="#{parameter}" />
+                	        </ui:include>
+                    	</td>
+                    </ui:repeat>
                 </tr>
             </table>
             </div>

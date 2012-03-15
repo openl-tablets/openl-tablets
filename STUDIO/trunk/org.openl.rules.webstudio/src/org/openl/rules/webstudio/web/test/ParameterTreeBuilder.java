@@ -6,9 +6,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.webstudio.web.trace.TracerObjectDecorator;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
@@ -86,6 +87,17 @@ public class ParameterTreeBuilder {
 
     public boolean isDateParameter(Object value) {
         return value instanceof Date;
+    }
+    
+    public boolean isSpreadsheetResult(Object value) {
+    	if (value != null) {
+    		return SpreadsheetResultHelper.isSpreadsheetResult(value.getClass());
+    	} 
+    	return false;
+    }
+    
+    public String formattedResult(Object value) {
+    	return TracerObjectDecorator.format(value);
     }
 
 }

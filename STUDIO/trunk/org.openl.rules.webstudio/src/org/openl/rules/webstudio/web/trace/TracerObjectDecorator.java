@@ -167,18 +167,23 @@ public class TracerObjectDecorator implements ITableTracerObject {
         return getResult() != null && SpreadsheetResultHelper.isSpreadsheetResult(getResult().getClass());
     }
     
-    public String getFormattedResult() {        
-        String str = "NOW I CANNOT FIND RESULT";
+    public String getFormattedResult() {     
         Object result = getResult();
-        if (result != null) {
-            if (SpreadsheetResultHelper.isSpreadsheetResult(result.getClass())) {
-                str = ObjectViewer.displaySpreadheetResultNoFilters((SpreadsheetResult)result);
+        
+        return format(result);
+    }
+    
+    public static String format(Object value) {
+    	String str = "NOW I CANNOT FIND RESULT";
+    	if (value != null) {
+            if (SpreadsheetResultHelper.isSpreadsheetResult(value.getClass())) {
+                str = ObjectViewer.displaySpreadheetResultNoFilters((SpreadsheetResult)value);
             } else {
-                IFormatter f = FormattersManager.getFormatter(result);
-                str = f.format(result);
+                IFormatter f = FormattersManager.getFormatter(value);
+                str = f.format(value);
             }
         }
-        return str;
+    	return str;
     }
 
     public ParameterWithValueDeclaration getReturnResult() {
