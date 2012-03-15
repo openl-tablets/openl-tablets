@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
@@ -188,27 +187,12 @@ public class RunAllTestsBean {
      * ----------------------------
      */
 
-    /**
-     * Compares the expected and actual test results.
-     * 
-     * @return see {@link TestUnit#compareResult()}
-     */
-    public int getCompareResult(Object objTestUnit) {
-        TestUnit testUnit = (TestUnit) objTestUnit;
-        return testUnit.compareResult();
-    }
-
     public ParameterWithValueDeclaration[] getParamDescriptions(Object objTestUnit) {
         TestUnit testUnit = (TestUnit) objTestUnit;
         TestDescription testDescription = testUnit.getTest();
         return testDescription.getExecutionParams();
     }
 
-    public String getUnitDescription(Object objTestUnit) {
-        TestUnit testUnit = (TestUnit) objTestUnit;
-        return testUnit.getDescription();
-    }
-    
     public SpreadsheetResult getSpreadsheetResult(Object objTestUnit) {
         return TestResultsHelper.getSpreadsheetResult(getActualResultInternal(objTestUnit));
     }
