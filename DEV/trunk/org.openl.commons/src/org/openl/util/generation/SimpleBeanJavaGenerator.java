@@ -3,6 +3,8 @@ package org.openl.util.generation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -76,8 +78,16 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         return buf.toString();        
     }
 
-    private void addMethods(StringBuffer buf) {        
-        for (Method method : getClassForGeneration().getDeclaredMethods()) {
+    private void addMethods(StringBuffer buf) {   
+    	Method[] methods = getClassForGeneration().getDeclaredMethods();
+    	Arrays.sort(methods, new Comparator<Method>() {
+    		@Override
+    		public int compare(Method o1, Method o2) {    			
+    			return o1.getName().compareToIgnoreCase(o2.getName());
+    		}
+		});
+    	
+        for (Method method : methods) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
                 addGetter(buf, method, datatypeAllFields.keySet());
             } else if (method.getName().startsWith(JavaGenerator.SET)) {
@@ -142,7 +152,14 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             LOG.error(e);
         } 
         
-        for (Field field : getClassForGeneration().getDeclaredFields()) {
+        Field[] fields = getClassForGeneration().getDeclaredFields();        
+        Arrays.sort(fields, new Comparator<Field>() {
+        	@Override
+        	public int compare(Field o1, Field o2) {
+        		return o1.getName().compareToIgnoreCase(o2.getName());
+        	}
+		});
+        for (Field field : fields) {
             Class<?> fieldType = field.getType();
             Object fieldValue = getFieldValue(datatypeInstance, field.getName());
             
