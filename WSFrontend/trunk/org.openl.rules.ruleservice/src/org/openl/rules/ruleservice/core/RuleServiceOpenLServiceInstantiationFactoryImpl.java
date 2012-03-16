@@ -6,8 +6,8 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
@@ -33,33 +33,25 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private IDependencyManager dependencyManager;
 
-    private void initService(OpenLService service) throws InstantiationException, ClassNotFoundException,
-            IllegalAccessException {
+    private void initService(OpenLService service) throws RulesInstantiationException, ClassNotFoundException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
         }
 
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(),
                 dependencyManager);
-        RulesServiceEnhancer enhancer = null;
         if (service.isProvideRuntimeContext()) {
-            enhancer = new RulesServiceEnhancer(instantiationStrategy);
+            instantiationStrategy = new RulesServiceEnhancer(instantiationStrategy);
         }
-        resolveInterface(service, instantiationStrategy, enhancer);
-        instantiateServiceBean(service, instantiationStrategy, enhancer);
+        resolveInterface(service, instantiationStrategy);
+        instantiateServiceBean(service, instantiationStrategy);
     }
 
-    @SuppressWarnings("deprecation")
-    private void instantiateServiceBean(OpenLService service, RulesInstantiationStrategy instantiationStrategy,
-            RulesServiceEnhancer enhancer) throws InstantiationException, ClassNotFoundException,
-            IllegalAccessException {
+    private void instantiateServiceBean(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
+                                                                                                                ClassNotFoundException {
         Object serviceBean = null;
         Class<?> serviceClass = service.getServiceClass();
-        if (service.isProvideRuntimeContext()) {
-            serviceBean = enhancer.instantiate(ReloadType.NO);
-        } else {
-            serviceBean = instantiationStrategy.instantiate(ReloadType.NO);
-        }
+        serviceBean = instantiationStrategy.instantiate();
         ProxyFactory factory = new ProxyFactory();
         factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
         if (serviceClass.isInterface()) {
@@ -90,24 +82,15 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     
-    public ClassLoader getClassLoader(OpenLService service, RulesInstantiationStrategy instantiationStrategy,
-            RulesServiceEnhancer enhancer){
-        if (service.isProvideRuntimeContext()) {
-            return enhancer.getInternalClassLoader();
-        } else {
-            return instantiationStrategy.getClassLoader();
-        }
-    }
-
-    private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy,
-            RulesServiceEnhancer enhancer) throws InstantiationException, ClassNotFoundException {
+    private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
+                                                                                                         ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
         Class<?> serviceClass = null;
         if (serviceClassName != null) {
-            ClassLoader serviceClassLoader = getClassLoader(service, instantiationStrategy, enhancer);
+            ClassLoader serviceClassLoader = instantiationStrategy.getClassLoader();
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
-                instantiationStrategy.setRulesInterface(serviceClass);
+                instantiationStrategy.setServiceClass(serviceClass);
             } catch (ClassNotFoundException e) {
                 if (log.isWarnEnabled()) {
                     log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
@@ -119,11 +102,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 log.warn(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
                         service.getName()));
             }
-            if (service.isProvideRuntimeContext()) {
-                serviceClass = enhancer.getServiceClass();
-            } else {
-                serviceClass = instantiationStrategy.getServiceClass();
-            }
+            serviceClass = instantiationStrategy.getInstanceClass();
         }
         service.setServiceClass(serviceClass);
     }

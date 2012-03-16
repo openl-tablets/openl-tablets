@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.ModuleDescription;
@@ -44,14 +44,10 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
     private void init(RuleServiceLoader loader) throws RuleServiceInstantiationException {
         runtimeEnv = new SimpleVM().getRuntimeEnv();
         try {
-            rulesOpenClass = getRulesSource().compile(ReloadType.NO).getOpenClass();
+            rulesOpenClass = getRulesSource().compile().getOpenClass();
             rulesInstance = rulesOpenClass.newInstance(runtimeEnv);
             RulesBasedServiceConfigurer.loader.set(loader);
-        } catch (ClassNotFoundException e) {
-            throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
-        } catch (IllegalAccessException e) {
-            throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
-        } catch (InstantiationException e) {
+        } catch (RulesInstantiationException e) {
             throw new RuleServiceInstantiationException("Failed to instantiate rules based service configurer.", e);
         }
     }

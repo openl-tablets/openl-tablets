@@ -9,8 +9,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -42,14 +42,14 @@ final class ModulesCache {
 
     private Cache cache = CacheManager.create().getCache(CACHE_NAME);
 
-    private RulesInstantiationStrategy getRulesInstantiationStrategyFromCache(Module module) {
+    private SingleModuleInstantiationStrategy getRulesInstantiationStrategyFromCache(Module module) {
         Element element = cache.get(module);
         if (element == null)
             return null;
-        return (RulesInstantiationStrategy) element.getObjectValue();
+        return (SingleModuleInstantiationStrategy) element.getObjectValue();
     }
 
-    private void putToCache(Module module, RulesInstantiationStrategy strategy) {
+    private void putToCache(Module module, SingleModuleInstantiationStrategy strategy) {
         if (module == null) {
             throw new IllegalArgumentException("module argument can't be null");
         }
@@ -74,8 +74,8 @@ final class ModulesCache {
      * @param module Module
      * @return Instantiation strategy for the module.
      */
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module) {
-        RulesInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module) {
+        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module);
             putToCache(module, strategy);
@@ -83,8 +83,8 @@ final class ModulesCache {
         return strategy;
     }
 
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
-        RulesInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
+        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
             putToCache(module, strategy);
@@ -92,9 +92,9 @@ final class ModulesCache {
         return strategy;
     }
 
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
             IDependencyManager dependencyManager) {
-        RulesInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
+        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager);
             putToCache(module, strategy);
@@ -102,9 +102,9 @@ final class ModulesCache {
         return strategy;
     }
 
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
             IDependencyManager dependencyManager, ClassLoader classLoader) {
-        RulesInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
+        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager,
                     classLoader);

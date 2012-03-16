@@ -148,7 +148,7 @@ public class RulesPublisherTest {
 
             RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
                     dependencyManager);
-            Class<?> moduleServiceClass = instantiationStrategy.getServiceClass();
+            Class<?> moduleServiceClass = instantiationStrategy.getInstanceClass();
             for (Method method : moduleServiceClass.getMethods()) {
                 assertNotNull(MethodUtils.getMatchingAccessibleMethod(multiModuleServiceClass, method.getName(),
                         method.getParameterTypes()));

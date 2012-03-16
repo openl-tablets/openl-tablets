@@ -13,7 +13,7 @@ import org.openl.rules.project.model.Module;
  * 
  * @author PUdalau
  */
-public interface IModuleDispatcherForMethods {
+public interface ModuleDispatcherForMethods {
 
     Module getResponsibleModule(Collection<Module> modules,
             String methodName,

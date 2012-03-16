@@ -12,8 +12,7 @@ import org.junit.Test;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
-import org.openl.rules.project.instantiation.ApiBasedEngineFactoryInstantiationStrategy;
-import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -74,8 +73,8 @@ public class LazyMultiModuleEngineFactoryTest {
     }
 
     private List<IOpenMethod> getMethodsFromModule(Module module) throws Exception {
-        ApiBasedEngineFactoryInstantiationStrategy instantiationStrategy = new ApiBasedEngineFactoryInstantiationStrategy(
+        ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(
                 module, false, dependencyManager);
-        return instantiationStrategy.compile(ReloadType.NO).getOpenClass().getMethods();
+        return instantiationStrategy.compile().getOpenClass().getMethods();
     }
 }

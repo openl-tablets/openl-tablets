@@ -53,8 +53,8 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
             case 1:
                 return RulesInstantiationStrategyFactory.getStrategy(modules.iterator().next(), true, dependencyManager);
             default:
-                LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(
-                        modules, true, dependencyManager);
+                LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules,
+                    dependencyManager);
                 if (initializingListeners != null) {
                     for (InitializingListener listener : initializingListeners) {
                         myInstantiationStrategy.addInitializingListener(listener);

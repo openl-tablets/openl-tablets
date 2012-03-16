@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DispatchedMethod {
-    Class<? extends IModuleDispatcherForMethods> dispatcher(); 
+    Class<? extends ModuleDispatcherForMethods> dispatcher(); 
 
 }
