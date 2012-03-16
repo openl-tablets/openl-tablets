@@ -32,7 +32,7 @@ public class RulesServiceEnhancerTest {
 
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
@@ -61,7 +61,7 @@ public class RulesServiceEnhancerTest {
 
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
@@ -86,11 +86,11 @@ public class RulesServiceEnhancerTest {
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
         module.setClassname("MyTestClass");
 
-        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module, false, null);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);

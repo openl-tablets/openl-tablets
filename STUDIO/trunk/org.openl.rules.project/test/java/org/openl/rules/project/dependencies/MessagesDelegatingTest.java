@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.project.instantiation.MultiProjectEngineFactory;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
@@ -79,8 +79,8 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules4"));
         forGrouping.add(findModuleByName("Rules5"));
-        MultiProjectEngineFactory factory = new MultiProjectEngineFactory(forGrouping);
-        CompiledOpenClass compiledMultiModule = factory.getCompiledOpenClass();
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping);
+        CompiledOpenClass compiledMultiModule = strategy.compile();
         for(Module module: modules){
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
             compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());

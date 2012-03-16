@@ -9,13 +9,11 @@ import java.util.Calendar;
 
 import org.junit.Test;
 import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.project.instantiation.ApiBasedEngineFactoryInstantiationStrategy;
-import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
@@ -39,12 +37,12 @@ public class ExternalDependenciesTest {
         boolean executionMode = false;
         dependencyManager.setExecutionMode(executionMode);
         
-        ApiBasedEngineFactoryInstantiationStrategy s = 
-            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
+        ApiBasedInstantiationStrategy s = 
+            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
-        Class<?> interfaceClass = s.getServiceClass();
+        Class<?> interfaceClass = s.getInstanceClass();
         Method method = interfaceClass.getMethod("hello", new Class[]{int.class});
-        Object res = method.invoke(s.instantiate(ReloadType.NO), 10);
+        Object res = method.invoke(s.instantiate(), 10);
         
         assertEquals("Good Morning", res);
     }
@@ -63,11 +61,11 @@ public class ExternalDependenciesTest {
         boolean executionMode = false;
         dependencyManager.setExecutionMode(executionMode);
         
-        ApiBasedEngineFactoryInstantiationStrategy s = 
-            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
+        ApiBasedInstantiationStrategy s = 
+            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
-        Class<?> interfaceClass = s.getServiceClass();
-        Object instance = s.instantiate(ReloadType.NO);
+        Class<?> interfaceClass = s.getInstanceClass();
+        Object instance = s.instantiate();
         
         Method method = interfaceClass.getMethod("hello", new Class[]{int.class});
         Object res = method.invoke(instance, 10);
@@ -104,12 +102,12 @@ public class ExternalDependenciesTest {
         boolean executionMode = false;
         dependencyManager.setExecutionMode(executionMode);
         
-        ApiBasedEngineFactoryInstantiationStrategy s = 
-            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
+        ApiBasedInstantiationStrategy s = 
+            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
         Class<?> interfaceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setLob("dependency2");
@@ -152,13 +150,13 @@ public class ExternalDependenciesTest {
         boolean executionMode = false;
         dependencyManager.setExecutionMode(executionMode);
         
-        ApiBasedEngineFactoryInstantiationStrategy s = 
-            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
+        ApiBasedInstantiationStrategy s = 
+            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
 
         Class<?> interfaceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         // Get policy profile.

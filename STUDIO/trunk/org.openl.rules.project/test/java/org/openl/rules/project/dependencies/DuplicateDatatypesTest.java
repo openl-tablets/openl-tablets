@@ -8,8 +8,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
-import org.openl.rules.project.instantiation.ApiBasedEngineFactoryInstantiationStrategy;
-import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
@@ -39,12 +38,12 @@ public class DuplicateDatatypesTest {
         boolean executionMode = false;
         dependencyManager.setExecutionMode(executionMode);
         
-        ApiBasedEngineFactoryInstantiationStrategy s = 
-            new ApiBasedEngineFactoryInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
+        ApiBasedInstantiationStrategy s = 
+            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
         CompiledOpenClass openClass = null;
         try {
-			openClass = s.compile(ReloadType.NO);
+			openClass = s.compile();
 		} catch (Exception e2) {
 			
 		}

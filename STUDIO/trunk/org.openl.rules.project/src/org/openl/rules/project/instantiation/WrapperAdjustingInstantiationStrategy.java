@@ -25,17 +25,12 @@ import org.openl.rules.project.model.Module;
  * 
  * @author PUdalau
  */
-public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStrategy {
+public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantiationStrategy {
     
     private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
     private OpenLWrapper wrapper;
     
-    /**
-     * <code>ClassLoader</code> that is used in strategy to compile and instantiate Openl rules.
-     */
-    private ClassLoader classLoader;
-        
     public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode, 
             IDependencyManager dependencyManager) {
         super(module, executionMode, dependencyManager);
@@ -43,57 +38,72 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
     
     public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode, 
             IDependencyManager dependencyManager, ClassLoader classLoader) {
-        super(module, executionMode, dependencyManager);
-        this.classLoader = classLoader;
+        super(module, executionMode, dependencyManager,classLoader);
     }
     
-    /**
-     * Returns ClassLoader for the current module inside the project.<br>
-     * If classLoader was set during the construction of the strategy - returns it.<br>
-     * If no, creates {@link SimpleBundleClassLoader} with project classLoader of current module as parent. And
-     * extends the classPath of it with all urls from current module project.
-     * 
-     * @return {@link ClassLoader} for the current module.
-     */
     @SuppressWarnings("deprecation")
-    public ClassLoader getClassLoader() {
-        if (classLoader == null) {
-            ClassLoader parent = getModule().getProject().getClassLoader(false);            
-            classLoader = new SimpleBundleClassLoader(parent);
-            // Temporary decision. 
-            // It is done to ensure that wrapper class will be loaded with current classloader.
-            // Don`t need to load all urls from project, just wrapper class.
-            URL[] urls = getModule().getProject().getClassPathUrls();          
-            OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader)classLoader, urls);
+    @Override
+    protected ClassLoader initClassLoader() {
+        ClassLoader parent = getModule().getProject().getClassLoader(false);
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(parent);
+        // Temporary decision.
+        // It is done to ensure that wrapper class will be loaded with current
+        // classloader.
+        // Don`t need to load all urls from project, just wrapper class.
+        URL[] urls = getModule().getProject().getClassPathUrls();
+        OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+        return classLoader;
+    }
+    
+    @Override
+    public void reset() {
+        super.reset();
+        try {
+            reset(getServiceClass());
+            wrapper = null;
+        } catch (Exception e) {
+            LOG.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
         }
-        return classLoader;        
     }
     
     @Override
     public Class<?> getServiceClass() throws ClassNotFoundException {
-        // Service class for current implementation will be wrapper class, previously generated.
-        
-        Class<?> wrapperClass = null;
-        
-        // Ensure that service class (e.g. wrapper class for current strategy implementation) 
-        // will be loaded by strategy classLoader.
-        //
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(getClassLoader());
-        try {
-            wrapperClass = getWrapperClass();
+        if (!super.isServiceClassDefined()) {
+            // Service class for current implementation will be wrapper class,
+            // previously generated.
+
+            Class<?> wrapperClass = null;
+
+            // Ensure that service class (e.g. wrapper class for current
+            // strategy implementation)
+            // will be loaded by strategy classLoader.
+            //
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(getClassLoader());
             try {
-                // Before returning wrapper class, need to compile the project to ensure
-                // that all datatypes will be acessible from strategy classLoader.
-                compile(wrapperClass, true);
-            } catch (Exception e) {
-                String errorMessage = String.format("Cannot compile %s module", getModule().getName());
-                throw new OpenlNotCheckedException(errorMessage, e);
-            } 
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassLoader);
+                wrapperClass = getWrapperClass();
+                try {
+                    // Before returning wrapper class, need to compile the
+                    // project to ensure
+                    // that all datatypes will be acessible from strategy
+                    // classLoader.
+                    compile(wrapperClass);
+                } catch (Exception e) {
+                    String errorMessage = String.format("Cannot compile %s module", getModule().getName());
+                    throw new OpenlNotCheckedException(errorMessage, e);
+                }
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
+            }
+            super.setServiceClass(wrapperClass);
         }
-        return wrapperClass;
+        return super.getServiceClass();
+    }
+    
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        LOG.warn(String.format("Service class changing is not allowed for static wrapper. Defauld static wrapper class will be used insdead of '%s'",
+            serviceClass.getName()));
     }
     
     private Class<?> getWrapperClass() throws ClassNotFoundException {
@@ -135,21 +145,19 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
     }
     
     @Override
-    protected CompiledOpenClass compile(boolean useExisting) throws InstantiationException,
-            IllegalAccessException {
+    public CompiledOpenClass compile() throws RulesInstantiationException {
         try {
-            return compile(getWrapperClass(), useExisting);
+            return compile(getWrapperClass());
         } catch (ClassNotFoundException e) {
             String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
             LOG.error(errorMessage, e);
-            throw new OpenlNotCheckedException(errorMessage, e);
+            throw new RulesInstantiationException(errorMessage, e);
         }
     }
     
     @Override
-    protected OpenLWrapper instantiate(Class<?> wrapperClass, boolean useExisting) throws InstantiationException,
-            IllegalAccessException {
-        
+    public OpenLWrapper instantiate(Class<?> wrapperClass) throws RulesInstantiationException {
+
         // Ensure that instantiation will be done in strategy classloader.
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
@@ -159,16 +167,12 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
             if (wrapper == null) {
                 wrapper = (OpenLWrapper) wrapperNewInstance(wrapperClass);
             } else{
-                if (!useExisting) {
-                    reset(wrapperClass);
-                    wrapper = (OpenLWrapper) wrapperNewInstance(wrapperClass);
-                }
             }
             return wrapper;
         } catch (Exception e) {
             String errorMessage = String.format("Failed to instantiate wrapper %s", wrapperClass.getName());
             LOG.error(errorMessage, e);
-            throw new OpenlNotCheckedException(errorMessage, e);
+            throw new RulesInstantiationException(errorMessage, e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -190,13 +194,13 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
      * @param wrapperClass
      * @param useExisting
      * @return {@link CompiledOpenClass}
+     * @throws RulesInstantiationException 
      * 
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    private CompiledOpenClass compile(Class<?> wrapperClass, boolean useExisting) throws InstantiationException,
-            IllegalAccessException {
-        OpenLWrapper wrapper = instantiate(wrapperClass, useExisting);
+    private CompiledOpenClass compile(Class<?> wrapperClass) throws RulesInstantiationException {
+        OpenLWrapper wrapper = instantiate(wrapperClass);
         return wrapper.getCompiledOpenClass();
     }    
     
@@ -227,5 +231,9 @@ public class WrapperAdjustingInstantiationStrategy extends RulesInstantiationStr
             throw new OpenlNotCheckedException(errorMessage, e);
         }
     }
-    
+
+    @Override
+    public boolean isServiceClassDefined() {
+        return true;
+    }
 }
