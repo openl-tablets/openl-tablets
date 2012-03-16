@@ -15,7 +15,7 @@ public class TestInstantiationFactory implements RuleServiceInstantiationStrateg
         if (modules.size() == 0) {
             throw new RuntimeException("There are no modules to instantiate.");
         } else {
-            return new DispatchedMultiModuleInstantiationStrategy(modules, true, dependencyManager);
+            return new DispatchedMultiModuleInstantiationStrategy(modules, dependencyManager);
         }
     }
 

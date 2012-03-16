@@ -11,6 +11,6 @@ import org.openl.rules.project.model.Module;
  * 
  * @author PUdalau
  */
-public interface IModuleDispatcherForData {
+public interface ModuleDispatcherForData {
     Module getResponsibleModule(Collection<Module> modules, String fieldName, IRulesRuntimeContext context);
 }

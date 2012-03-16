@@ -22,7 +22,7 @@ import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.XlsPreBinder;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
+import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.rules.runtime.RulesFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.runtime.AOpenLEngineFactory;
@@ -194,7 +194,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         // put prebinder to openl
         prepareOpenL();
         IOpenSourceCodeModule mainModule = createMainModule();
-        ApiBasedRulesEngineFactory factory = new ApiBasedRulesEngineFactory(RULES_XLS_OPENL_NAME, mainModule);
+        SimpleEngineFactory factory = new SimpleEngineFactory(mainModule);
         factory.setDependencyManager(dependencyManager);
         factory.setExecutionMode(true);
 

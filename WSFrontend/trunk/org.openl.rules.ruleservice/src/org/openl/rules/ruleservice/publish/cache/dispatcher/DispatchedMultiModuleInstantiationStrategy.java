@@ -1,22 +1,12 @@
 package org.openl.rules.ruleservice.publish.cache.dispatcher;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLClassLoaderHelper;
-import org.openl.classloader.SimpleBundleClassLoader;
-import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
-import org.openl.dependency.loader.IDependencyLoader;
-import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
-import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.Module;
 
 /**
@@ -25,105 +15,67 @@ import org.openl.rules.project.model.Module;
  * 
  * @author PUdalau
  */
-public class DispatchedMultiModuleInstantiationStrategy extends RulesInstantiationStrategy {
-    private final Log log = LogFactory.getLog(DispatchedMultiModuleInstantiationStrategy.class);
-
+public class DispatchedMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
     private DispatchedMultiModuleEngineFactory factory;
-    private ClassLoader classLoader;
-    private Collection<Module> modules;
-    private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
 
-    public DispatchedMultiModuleInstantiationStrategy(Collection<Module> modules, boolean executionMode,
-            IDependencyManager dependencyManager) {
-        super(null, executionMode, createDependencyManager(modules, executionMode, dependencyManager));
-        this.modules = modules;
-    }
-
-    public void addInitializingListener(InitializingListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeInitializingListener(InitializingListener listener) {
-        listeners.remove(listener);
-    }
-
-    private static IDependencyManager createDependencyManager(Collection<Module> modules, boolean executionMode,
-            IDependencyManager dependencyManager) {
-        RulesProjectDependencyManager multiModuleDependencyManager = new RulesProjectDependencyManager();
-        multiModuleDependencyManager.setExecutionMode(executionMode);
-        IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
-        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
-        dependencyLoaders.add(loader);
-        if (dependencyManager instanceof DependencyManager) {
-            dependencyLoaders.addAll(((DependencyManager) dependencyManager).getDependencyLoaders());
-        }
-        multiModuleDependencyManager.setDependencyLoaders(dependencyLoaders);
-        return multiModuleDependencyManager;
+    public DispatchedMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
+        super(modules, dependencyManager);
     }
 
     @Override
-    protected void forcedReset() {
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public ClassLoader getClassLoader() {
-        if (classLoader == null) {
-            classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
-            for (Module module : modules) {
-                URL[] urls = module.getProject().getClassPathUrls();
-                ((SimpleBundleClassLoader) classLoader).addClassLoader(module.getProject().getClassLoader(false));
-                OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
-            }
-        }
-
-        return classLoader;
+    public void reset() {
+        super.reset();
+        factory = null;
     }
 
     @Override
-    public Class<?> getServiceClass() {
+    public Class<?> getGeneratedRulesClass()throws RulesInstantiationException {
         // Using project class loader for interface generation.
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            log.error("Cannot resolve interface", e);
-            return null;
+            throw new RulesInstantiationException("Cannot resolve interface", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     @Override
-    protected CompiledOpenClass compile(boolean useExisting) throws InstantiationException, IllegalAccessException {
+    public CompiledOpenClass compile() throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().getCompiledOpenClass();
+        } catch (ClassNotFoundException e) {
+            throw new RulesInstantiationException("Faield to compile multimodule with dispatcher.",e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     @Override
-    protected Object instantiate(Class<?> rulesClass, boolean useExisting) throws InstantiationException,
-            IllegalAccessException {
+    public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException{
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(rulesClass.getClassLoader());
         try {
-            return getEngineFactory().makeInstance();
+            try {
+                return getEngineFactory().makeInstance();
+            } catch (ClassNotFoundException e) {
+                throw new RulesInstantiationException("Faield to compile multimodule with dispatcher.",e);
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
-    private DispatchedMultiModuleEngineFactory getEngineFactory() {
+    private DispatchedMultiModuleEngineFactory getEngineFactory() throws ClassNotFoundException {
         if (factory == null) {
-            factory = new DispatchedMultiModuleEngineFactory(modules, getRulesClass());
-            for (Module module : modules) {
-                for (InitializingListener listener : listeners) {
+            factory = new DispatchedMultiModuleEngineFactory(getModules(), getServiceClass());
+            for (Module module : getModules()) {
+                for (InitializingListener listener : getInitializingListeners()) {
                     listener.afterModuleLoad(module);
                 }
             }
