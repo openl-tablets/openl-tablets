@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
-import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
+import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -33,7 +33,7 @@ public class PropertiesTableInExecutionModeTest {
 
     @Test
     public void testPropertyTableLoading() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory(__src);
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory(__src);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         IOpenMethod method = compiledOpenClass.getOpenClass().getMethod("hello1",
@@ -68,7 +68,7 @@ public class PropertiesTableInExecutionModeTest {
     
     @Test
     public void testFielsInOpenClass() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory(__src);
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory(__src);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         Map<String, IOpenField> fields = compiledOpenClass.getOpenClass().getFields();
