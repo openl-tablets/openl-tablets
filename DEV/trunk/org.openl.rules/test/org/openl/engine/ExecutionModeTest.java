@@ -17,7 +17,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.overload.OverloadTest.ITestI;
-import org.openl.rules.runtime.ApiBasedRulesEngineFactory;
+import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.runtime.EngineFactory;
@@ -31,7 +31,7 @@ import org.openl.vm.SimpleVM;
 public class ExecutionModeTest {
     @Test
     public void testDTExecution() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory("./test/rules/Tutorial_4_Test.xls");
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory("./test/rules/Tutorial_4_Test.xls");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod method = moduleOpenClass.getMatchingMethod("ageSurcharge", new IOpenClass[] { JavaOpenClass.INT });
@@ -42,7 +42,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testMethodExecution() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory("./test/rules/Tutorial_4_Test.xls");
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory("./test/rules/Tutorial_4_Test.xls");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod method = moduleOpenClass.getMatchingMethod("currentYear", new IOpenClass[] {});
@@ -54,7 +54,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testTBasicExecution() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory(
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory(
                 "./test/rules/algorithm/Test_Factorial.xls");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
@@ -66,7 +66,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testSpreadsheetExecution() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory(
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory(
                 "./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
@@ -78,7 +78,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testColumnMatchExecution() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory("./test/rules/cmatch1/match4-1.xls");
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory("./test/rules/cmatch1/match4-1.xls");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod method = moduleOpenClass.getMatchingMethod("runColumnMatch", new IOpenClass[] { JavaOpenClass.INT,
@@ -120,13 +120,13 @@ public class ExecutionModeTest {
     @Test
     public void testSkipedTables() {
         // in execution mode test tables and run tables have to be skipped
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory(
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory(
                 "./test/rules/testmethod/UserExceptionTest.xlsx");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenField testMethod = moduleOpenClass.getField("driverRiskTest1");
         assertNull(testMethod);
-        ApiBasedRulesEngineFactory engineFactory2 = new ApiBasedRulesEngineFactory(
+        SimpleEngineFactory engineFactory2 = new SimpleEngineFactory(
                 "./test/rules/overload/RunMethodOverloadSupport.xls");
         engineFactory2.setExecutionMode(true);
         IOpenClass moduleOpenClass2 = engineFactory2.getCompiledOpenClass().getOpenClass();
@@ -136,7 +136,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testRuntimeErrors() {
-        ApiBasedRulesEngineFactory engineFactory = new ApiBasedRulesEngineFactory(
+        SimpleEngineFactory engineFactory = new SimpleEngineFactory(
                 "./test/rules/dt/RuntimeErrorTest.xls");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
