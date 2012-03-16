@@ -26,7 +26,7 @@ public class MultiModuleInstantiationTest {
     public void test1() throws Exception {
 
         File root = new File("test/resources/multi-module-support/test1");
-        MultiProjectEngineFactoryInstantiationStrategy strategy = new MultiProjectEngineFactoryInstantiationStrategy(root);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(root);
 
         strategy.addInitializingListener(new InitializingListener() {
 
@@ -65,7 +65,7 @@ public class MultiModuleInstantiationTest {
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setLob("lob3");
@@ -93,10 +93,10 @@ public class MultiModuleInstantiationTest {
 
         File root = new File("test/resources/multi-module-support/test2");
         
-        MultiModuleInstantiationStrategy strategy = new MultiModuleInstantiationStrategy(listModulesInFolder(root), true, null);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(listModulesInFolder(root), null);
 
-        Class<?> serviceClass = strategy.getServiceClass();
-        Object instance = strategy.instantiate(ReloadType.NO);
+        Class<?> serviceClass = strategy.getInstanceClass();
+        Object instance = strategy.instantiate();
 
         Method method = serviceClass.getMethod("worldHello", new Class<?>[] { int.class });
         Object result = method.invoke(instance, new Object[] { 10 });
@@ -119,7 +119,7 @@ public class MultiModuleInstantiationTest {
     public void test3() throws Exception {
 
         File root = new File("test/resources/multi-module-support/test3");
-        MultiProjectEngineFactoryInstantiationStrategy strategy = new MultiProjectEngineFactoryInstantiationStrategy(root);
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(root);
 
         strategy.addInitializingListener(new InitializingListener() {
 
@@ -153,7 +153,7 @@ public class MultiModuleInstantiationTest {
         RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate(ReloadType.NO);
+        Object instance = enhancer.instantiate();
 
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         context.setLob("lob2");

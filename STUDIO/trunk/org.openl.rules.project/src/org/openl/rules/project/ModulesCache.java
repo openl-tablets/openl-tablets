@@ -6,8 +6,8 @@ import java.util.Set;
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -21,7 +21,7 @@ public class ModulesCache {
     /**
      * Memory-sensitive cache.
      */
-    private Map<Module, RulesInstantiationStrategy> moduleInstantiators = new ReferenceMap(AbstractReferenceMap.HARD,
+    private Map<Module, SingleModuleInstantiationStrategy> moduleInstantiators = new ReferenceMap(AbstractReferenceMap.HARD,
             AbstractReferenceMap.SOFT);
 
     public Set<Module> getModules() {
@@ -34,8 +34,8 @@ public class ModulesCache {
      * @param module Module
      * @return Instantiation strategy for the module.
      */
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module) {
-        RulesInstantiationStrategy strategy = moduleInstantiators.get(module);
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module) {
+        SingleModuleInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module);
             moduleInstantiators.put(module, strategy);
@@ -43,8 +43,8 @@ public class ModulesCache {
         return strategy;
     }
     
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
-        RulesInstantiationStrategy strategy = moduleInstantiators.get(module);
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
+        SingleModuleInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
             moduleInstantiators.put(module, strategy);
@@ -52,8 +52,8 @@ public class ModulesCache {
         return strategy;
     }
    
-    public RulesInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
-        RulesInstantiationStrategy strategy = moduleInstantiators.get(module);
+    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+        SingleModuleInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
             strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager);
             moduleInstantiators.put(module, strategy);

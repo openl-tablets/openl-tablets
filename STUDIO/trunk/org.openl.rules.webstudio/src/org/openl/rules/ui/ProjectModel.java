@@ -1001,11 +1001,16 @@ public class ProjectModel {
             XlsCellStyle2.cleareThemesCache(); // Clear cache due to new loaded workbooks
         }
         
-        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(moduleInfo, 
+        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, 
             studio.getDependencyManager());
         
         try {
-            compiledOpenClass = instantiationStrategy.compile(reloadType);
+            if(reloadType == ReloadType.FORCED){
+                instantiationStrategy.forcedReset();
+            }else if(reloadType != ReloadType.NO){
+                instantiationStrategy.reset();
+            }
+            compiledOpenClass = instantiationStrategy.compile();
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
 

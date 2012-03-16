@@ -1,16 +1,15 @@
 package org.openl.rules.project.instantiation;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 
 public class ApiInstantiationTest {
 //    @Test
@@ -31,17 +30,17 @@ public class ApiInstantiationTest {
 //    }
 
     @Test
-    public void testXlsWithErrors(){
+    public void testXlsWithErrors() throws ClassNotFoundException{
         ProjectDescriptor project = new ProjectDescriptor();
         project.setClasspath(new ArrayList<PathEntry>());
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules2.xls"));
 
-        ApiBasedEngineFactoryInstantiationStrategy strategy = new ApiBasedEngineFactoryInstantiationStrategy(module, false, null);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
         assertNull(strategy.getServiceClass());
         try {
-            assertNotNull(strategy.compile(ReloadType.NO));
+            assertNotNull(strategy.compile());
         } catch (Exception e) {
 //            e.printStackTrace();
             assertFalse(true);

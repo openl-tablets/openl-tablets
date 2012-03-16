@@ -10,8 +10,7 @@ import org.junit.Test;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.enumeration.UsStatesEnum;
-import org.openl.rules.project.instantiation.ApiBasedEngineFactoryInstantiationStrategy;
-import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
@@ -27,7 +26,7 @@ public class DependencyMethodDispatchingTest {
 	 * dispatcher and ambigious method exception will be thrown at runtime.
 	 */
 	@Test
-	public void testAmbigiousMethodException() {
+	public void testAmbigiousMethodException() throws Exception {
 		final String MODULES_FOLDER = "test/resources/dependencies/testMethodDispatching";
 		// AmbigiousMethodException can be retrieved in only the dispatching
 		// mode based on methods selecting in java code
@@ -45,10 +44,10 @@ public class DependencyMethodDispatchingTest {
 		boolean executionMode = false;
 		dependencyManager.setExecutionMode(executionMode);
 
-		ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(
+		ApiBasedInstantiationStrategy s = new ApiBasedInstantiationStrategy(
 				descr.getModules().get(0), executionMode, dependencyManager);
 
-		Class<?> interfaceClass = s.getServiceClass();
+		Class<?> interfaceClass = s.getInstanceClass();
 		Method method = null;
 		try {
 			method = interfaceClass.getMethod("hello1",
@@ -58,7 +57,7 @@ public class DependencyMethodDispatchingTest {
 		}
 
 		try {
-			method.invoke(s.instantiate(ReloadType.NO), 10);
+			method.invoke(s.instantiate(), 10);
 			fail("We are waiting for OpenlRuntimeException");
 		} catch (Exception e) {
 			assertTrue(e.getCause().getMessage()
@@ -90,7 +89,7 @@ public class DependencyMethodDispatchingTest {
 		boolean executionMode = true;
 		dependencyManager.setExecutionMode(executionMode);
 
-		ApiBasedEngineFactoryInstantiationStrategy s = new ApiBasedEngineFactoryInstantiationStrategy(
+		ApiBasedInstantiationStrategy s = new ApiBasedInstantiationStrategy(
 				descr.getModules().get(0), executionMode, dependencyManager);
 
 		RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
@@ -121,7 +120,7 @@ public class DependencyMethodDispatchingTest {
 			// check that method from dependency will be invoked
 			//
 			assertEquals(2,
-					method.invoke(enhancer.instantiate(ReloadType.NO), context));
+					method.invoke(enhancer.instantiate(), context));
 			assertTrue(true);
 		} catch (Exception e) {
 			fail("We should get the right result");
