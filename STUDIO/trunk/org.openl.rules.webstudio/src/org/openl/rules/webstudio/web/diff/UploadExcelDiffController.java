@@ -9,8 +9,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.util.FileTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
@@ -19,48 +17,30 @@ import org.richfaces.model.UploadedFile;
 @SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
 
-    private final Log LOG = LogFactory.getLog(UploadExcelDiffController.class);
-
-    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
-
-    public List<UploadedFile> getUploadedFiles() {
-        return uploadedFiles;
-    }
-
-    public void setUploadedFiles(List<UploadedFile> uploadedFiles) {
-        this.uploadedFiles = uploadedFiles;
-    }
+    private List<File> uploadedFiles = new ArrayList<File>();
 
     public int getUploadsSize() {
         return uploadedFiles.size();
     }
 
-    public void uploadListener(FileUploadEvent event) {
+    public void uploadListener(FileUploadEvent event) throws IOException {
         UploadedFile file = event.getUploadedFile();
-        uploadedFiles.add(file);
+        File uploadedFile = FileTool.toTempFile(
+                file.getInputStream(), FilenameUtils.getName(file.getName()));
+        uploadedFiles.add(uploadedFile);
     }
 
     public String compare() {
         // Fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
 
-            List<File> filesToCompare = new ArrayList<File>();
-            try {
-                for (UploadedFile uploadedFile : uploadedFiles) {
-                    File fileToCompare = FileTool.toTempFile(
-                            uploadedFile.getInputStream(), FilenameUtils.getName(uploadedFile.getName()));
-                    filesToCompare.add(fileToCompare);
-                }
-                compare(filesToCompare);
-            } catch (IOException e) {
-                LOG.error("Could not compare files: ", e);
-            }
+            compare(uploadedFiles);
 
             // Clear uploaded files
-            uploadedFiles.clear();
-            for (File file : filesToCompare) {
+            for (File file : uploadedFiles) {
                 file.delete();
             }
+            uploadedFiles.clear();
         }
 
         return null;

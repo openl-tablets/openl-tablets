@@ -25,6 +25,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.UploadedFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
@@ -37,7 +38,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
-import org.richfaces.model.UploadedFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -898,9 +898,14 @@ public class RepositoryTreeController {
         }
     }
 
-    public void uploadListener(FileUploadEvent event) {
-        UploadedFile file = event.getUploadedFile();
-        uploadedFiles.add(file);
+    public void uploadListener(FileUploadEvent event) throws IOException {
+        org.richfaces.model.UploadedFile file = event.getUploadedFile();
+
+        UploadedFile uploadedFile = new UploadedFile();
+        uploadedFile.setName(file.getName());
+        uploadedFile.setInputStream(file.getInputStream());
+
+        uploadedFiles.add(uploadedFile);
     }
 
     public void setFileName(String fileName) {
