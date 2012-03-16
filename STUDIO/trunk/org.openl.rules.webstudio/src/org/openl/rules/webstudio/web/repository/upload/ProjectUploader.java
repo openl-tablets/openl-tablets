@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.zip.ZipException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.openl.rules.webstudio.UploadedFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
 import org.openl.util.FileTypeHelper;
-import org.richfaces.model.UploadedFile;
 
 public class ProjectUploader {
 
