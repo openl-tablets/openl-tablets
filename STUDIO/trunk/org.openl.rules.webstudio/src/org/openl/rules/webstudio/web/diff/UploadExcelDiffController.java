@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.diff;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +8,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.util.FileTool;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
@@ -17,30 +18,42 @@ import org.richfaces.model.UploadedFile;
 @SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
 
-    private List<File> uploadedFiles = new ArrayList<File>();
+    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+
+    public List<UploadedFile> getUploadedFiles() {
+        return uploadedFiles;
+    }
+
+    public void setUploadedFiles(List<UploadedFile> uploadedFiles) {
+        this.uploadedFiles = uploadedFiles;
+    }
 
     public int getUploadsSize() {
         return uploadedFiles.size();
     }
 
-    public void uploadListener(FileUploadEvent event) throws IOException {
+    public void uploadListener(FileUploadEvent event) {
         UploadedFile file = event.getUploadedFile();
-        File uploadedFile = FileTool.toTempFile(
-                file.getInputStream(), FilenameUtils.getName(file.getName()));
-        uploadedFiles.add(uploadedFile);
+        uploadedFiles.add(file);
     }
 
     public String compare() {
         // Fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
 
-            compare(uploadedFiles);
+            List<File> filesToCompare = new ArrayList<File>();
+            for (UploadedFile uploadedFile : uploadedFiles) {
+                File fileToCompare = FileTool.toTempFile(
+                        uploadedFile.getInputStream(), FilenameUtils.getName(uploadedFile.getName()));
+                filesToCompare.add(fileToCompare);
+            }
+            compare(filesToCompare);
 
             // Clear uploaded files
-            for (File file : uploadedFiles) {
+            uploadedFiles.clear();
+            for (File file : filesToCompare) {
                 file.delete();
             }
-            uploadedFiles.clear();
         }
 
         return null;
