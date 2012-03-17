@@ -2,6 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +126,14 @@ public abstract class WizardBase extends BaseWizardBean {
         for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
             items.add(new SelectItem(i, workbook.getSheetName(i)));
         }
+
+        Collections.sort(items, new Comparator<SelectItem>() {
+            @Override
+            public int compare(SelectItem item1, SelectItem item2) {
+                return item1.getLabel().compareToIgnoreCase(item2.getLabel());
+            }
+        });
+
         return items;
     }
 
