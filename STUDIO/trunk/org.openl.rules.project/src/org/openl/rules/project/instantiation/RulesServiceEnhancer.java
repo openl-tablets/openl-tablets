@@ -124,8 +124,14 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
         if (classLoader == null) {
             ClassLoader originalClassLoader = instantiationStrategy.getClassLoader();
             classLoader = new SimpleBundleClassLoader(originalClassLoader);
-            //service class should be loaded by classloader of instantiation strategy
-//            classLoader.addClassLoader(instantiationStrategy.getServiceClass().getClassLoader());
+            try {
+                Class<?> serviceClass = instantiationStrategy.getServiceClass();
+                if (serviceClass != null) {
+                    classLoader.addClassLoader(serviceClass.getClassLoader());
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
+            }
         }
         
         return classLoader;
@@ -191,6 +197,7 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (RulesServiceEnhancerHelper.isEnhancedClass(serviceClass)) {
+            reset();
             this.serviceClass = serviceClass;
             try {
                 instantiationStrategy.setServiceClass(RulesServiceEnhancerHelper.undecorateMethods(serviceClass,

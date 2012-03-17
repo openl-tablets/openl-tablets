@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,11 +57,16 @@ public abstract class RulesServiceEnhancerHelper {
 
         return undecorateInterface(className, clazz, classLoader);
     }
+    
+    private static InputStream getClassAsStream(Class<?> clazz, ClassLoader classLoader){
+        String name = clazz.getName().replace('.', '/') + ".class";
+        return clazz.getClassLoader().getResourceAsStream(name);
+    }
 
     private static Class<?> undecorateInterface(String className, Class<?> original, ClassLoader classLoader) throws Exception {
 
-        ClassWriter classWriter = new UndecoratingClassWriter(0, className.replace('.', '/'));
-        ClassReader classReader = new ClassReader(original.getName());
+        ClassWriter classWriter = new UndecoratingClassWriter(0, className);
+        ClassReader classReader = new ClassReader(getClassAsStream(original, classLoader));
         classReader.accept(classWriter, 0);
         // classWriter.visitEnd();
 
@@ -163,7 +169,7 @@ public abstract class RulesServiceEnhancerHelper {
 
         @Override
         public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-            super.visit(arg0, arg1, className, arg3, arg4, arg5);
+            super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
         }
 
         @Override
