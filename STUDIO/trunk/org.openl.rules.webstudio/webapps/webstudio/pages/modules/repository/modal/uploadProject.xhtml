@@ -20,10 +20,10 @@
             <h:form id="uploadProjectForm">
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="file" styleClass="required" value="File" />
-
+            
                 <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                     acceptedTypes="zip, xls, xlsx, xlsm" />
-
+            
                 <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                 <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
             </h:panelGrid>

@@ -16,7 +16,7 @@ public class ExcelDiffController extends AbstractDiffController {
      */
     protected static final int MAX_FILES_COUNT = 2;
 
-    protected List<File> filesToCompare;
+    private List<File> filesToCompare;
 
     public List<File> getFilesToCompare() {
         return filesToCompare;
