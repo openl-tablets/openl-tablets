@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.util;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -10,14 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.main.OpenLVersion;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
-
-import edu.stanford.ejalbert.BrowserLauncher;
-
-/*
- * Created on Jul 11, 2004
- *
- * Developed by OpenRules Inc 2003-2004
- */
 
 /**
  * @author snshor
@@ -40,34 +33,9 @@ public class StartTomcat {
             }
 
             try {
-                Class<?> desktop = null;
-                try {
-                    desktop = Class.forName("java.awt.Desktop");
-                } catch (ClassNotFoundException cnfe) {
-                    // NOTICE: The desktop support is available beginning from
-                    // JDK 1.6
-                }
-
-                boolean isDesktopSupported = false;
-
-                if (desktop != null) {
-                    Method isDesktopSupportedMethod = desktop.getMethod("isDesktopSupported", new Class[] {});
-
-                    isDesktopSupported = (Boolean) isDesktopSupportedMethod.invoke(null, new Object[] {});
-
-                    if (isDesktopSupported) {
-                        Method getDesktop = desktop.getMethod("getDesktop", new Class[] {});
-
-                        Object desktopObject = getDesktop.invoke(null, new Object[] {});
-
-                        Method browse = desktop.getMethod("browse", new Class[] { URI.class });
-
-                        browse.invoke(desktopObject, new Object[] { new URI(browserURL) });
-                    }
-                }
-                if (desktop == null || !isDesktopSupported) {
-                    BrowserLauncher browserLauncher = new BrowserLauncher();
-                    browserLauncher.openURLinBrowser(browserURL);
+                if (Desktop.isDesktopSupported()) {
+                    Desktop desktop = Desktop.getDesktop();
+                    desktop.browse(new URI(browserURL));
                 }
             } catch (Exception ex) {
                 Log.error("Could not start a browser. Error: {0}", ex, ex.getMessage());
@@ -75,6 +43,7 @@ public class StartTomcat {
         }
 
     }
+
     private static final String BROWSER_URL_PROPERTY = "browser.url";
 
     private static final String DEFAULT_BROWSER_URL = "http://localhost:8080/webstudio/";
@@ -140,17 +109,15 @@ public class StartTomcat {
             chome = getProperty(args, "catalina.home");
         }
         if (chome == null) {
-            // chome = "../org.openl.rules.tomcat.lib/apache-tomcat-5.5.17";
             chome = findChome();
         }
         File catalinaHome = new File(chome);
 
         if (!catalinaHome.exists()) {
             throw new Exception(
-                    MessageFormat
-                            .format(
-                                    "\nYou did not set up correctly catalina.home variable. It was \"{0}\".\n Please refer to OpenL Tablets document 'Web Programming and OpenL Tablets'. Chapter - Web Develoment Setup",
-                                    chome));
+                    MessageFormat.format(
+                            "\nYou did not set up correctly catalina.home variable. It was \"{0}\".\n Please refer to OpenL Tablets document 'Web Programming and OpenL Tablets'. Chapter - Web Develoment Setup",
+                                chome));
         }
 
         System.setProperty("catalina.home", catalinaHome.getCanonicalPath());
