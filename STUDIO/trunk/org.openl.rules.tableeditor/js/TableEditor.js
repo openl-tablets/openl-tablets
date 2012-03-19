@@ -134,9 +134,12 @@ var TableEditor = Class.create({
         });
         // Handle Table Editor events END
 
+        this.computeTableInfo();
+
         this.modFuncSuccess = function(response) {
             response = eval(response.responseText);
-            if (response.status) alert(response.status);
+            if (response.status)
+                alert(response.status);
             else {
                 if (response.response) {
                     this.renderTable(response.response);
@@ -177,16 +180,17 @@ var TableEditor = Class.create({
     renderTable: function(data) {
         this.tableContainer.innerHTML = data.stripScripts();
         new ScriptLoader().evalScripts(data);
-        var table = $(this.tableContainer.childNodes[0]);
 
-        this.computeTableInfo(table);
+        this.computeTableInfo();
     },
 
     /**
      * Computes table width in rows, and height in columns (that is sum of all rowSpans in a column
      * and sum of all colSpans in a row).
      */
-    computeTableInfo: function(table) {
+    computeTableInfo: function() {
+        var table = $(this.tableContainer.childNodes[0]);
+
         this.rows = 0;
         this.columns = 0;
 
