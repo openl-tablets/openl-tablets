@@ -203,7 +203,7 @@
 
     <dependency>
       <groupId>edu.stanford.ejalbert</groupId>
-      <artifactId>BrowserLauncher</artifactId>
+      <artifactId>BrowserLauncher2</artifactId>
     </dependency>
 
     <dependency>
