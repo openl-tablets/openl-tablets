@@ -593,13 +593,6 @@
 				</exclusions>
 			</dependency>
 
-			<!-- Other -->
-			<dependency>
-				<groupId>edu.stanford.ejalbert</groupId>
-				<artifactId>BrowserLauncher2</artifactId>
-				<version>1.3</version>
-			</dependency>
-
 			<!-- Spring Framework -->
 
 			<!-- Core utilities used by other modules. Define this if you use Spring 
