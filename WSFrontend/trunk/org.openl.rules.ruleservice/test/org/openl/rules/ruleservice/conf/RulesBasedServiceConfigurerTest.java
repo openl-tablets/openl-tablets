@@ -1,11 +1,11 @@
-package org.openl.rules.ruleservice.managment;
+package org.openl.rules.ruleservice.conf;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.rules.ruleservice.conf.RulesBasedServiceConfigurer;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.openl.rules.ruleservice.management.RulesBasedServiceConfigurer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

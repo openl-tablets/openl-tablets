@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.management;
+package org.openl.rules.ruleservice.conf;
 
 import java.util.ArrayList;
 import java.util.Collection;

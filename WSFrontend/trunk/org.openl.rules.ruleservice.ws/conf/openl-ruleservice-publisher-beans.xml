@@ -6,14 +6,13 @@
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 
-	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean) -->
-	<!-- Aegis databinding post processor for type mapping customization of 
-		internal OpenL classes. -->
+	<!-- Bean helps to read configuration and apply it to override types -->
 	<bean id="rootClassNamesBindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.RootClassNamesBindingFactoryBean">
 		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}" />
 	</bean>
-
+	
+	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean) -->
 	<bean id="dataBinding"
 		class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
 		<property name="writeXsiTypes" value="true" />
@@ -47,7 +46,6 @@
 				<ref local="loggingFeature" />
 			</list>
 		</property>
-
 	</bean>
 
 	<!-- Prototypes factory. It will create new server prototype for each new 
