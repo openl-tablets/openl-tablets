@@ -17,15 +17,15 @@
         }
 
         #tableToolbarPanel {
-            padding: 2px 0 1px;
+            padding-top: 1px;
             border-bottom: 1px solid #dddddd;
-            height: 58px;
+            height: 55px;
         }
 
         #tablePanel {
             overflow: auto;
             position: absolute;
-            top: 62px;
+            top: 57px;
             bottom: 0;
             left: 0;
             right: 0;
@@ -63,7 +63,7 @@
         .bigButton {
             padding: 4px 7px;
             text-align: center;
-            margin-right: 8px;
+            margin: 0 2px;
         }
         .bigMenuButton {
             padding: 4px 3px;
@@ -103,7 +103,7 @@
                             <tr>
                                 <td>
                                     <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml"
-                                        title="Edit Table" target="content" styleClass="toolbarButton">
+                                        title="Edit Table" target="content" styleClass="toolbarButton bigButton">
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <f:param name="mode" value="edit" />
                                         <img src="webresource/images/editTable.gif" />
@@ -111,28 +111,26 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                                        oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')" title="Copy Table"
-                                        styleClass="toolbarButton">
-                                        <img src="webresource/images/copyTable.gif" />
-                                        <span>Copy</span>
-                                    </a4j:commandLink>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
+                                    <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton bigButton"
                                         title="Open Table In Excel - #{showTableBean.uri}" target="hidden" >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <img src="webresource/images/excel.png" />
-                                        <span>Open in Excel</span>
+                                        <span>Open</span>
                                     </h:outputLink>
+                                </td>
+                                <td>
+                                    <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
+                                        oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')" title="Copy Table"
+                                        styleClass="toolbarButton bigButton">
+                                        <img src="webresource/images/copyTable.gif" />
+                                        <span>Copy</span>
+                                    </a4j:commandLink>
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
-                                        styleClass="toolbarButton">
+                                        styleClass="toolbarButton bigButton">
                                         <img src="webresource/images/delete.gif" />
                                         <span>Remove</span>
                                     </a4j:commandLink>
