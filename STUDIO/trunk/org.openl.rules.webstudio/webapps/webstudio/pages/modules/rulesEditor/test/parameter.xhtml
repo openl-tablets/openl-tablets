@@ -5,7 +5,7 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich">
 
-    <h:panelGroup rendered="#{parameter.type.simple}">
+    <h:panelGroup rendered="#{not empty parameter and parameter.type.simple}">
         <h:outputText value="#{parameter.value}"
             rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />
 
@@ -15,12 +15,12 @@
         </h:outputText>
     </h:panelGroup>
     
-    <h:panelGroup rendered="#{parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
+    <h:panelGroup rendered="#{not empty parameter and parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
         <h:outputText value="#{parameterTreeBuilder.formattedResult(parameter.value)}" escape="false" />
     </h:panelGroup>
 
     <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="item"
-        rendered="#{!parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client">
+        rendered="#{not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client">
         <rich:treeNode>#{item.treeText}</rich:treeNode>
     </rich:tree>
 
