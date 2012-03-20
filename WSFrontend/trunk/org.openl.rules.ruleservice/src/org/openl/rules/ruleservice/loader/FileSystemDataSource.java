@@ -193,7 +193,7 @@ public class FileSystemDataSource implements DataSource {
             listeners.remove(dataSourceListener);
             if (log.isInfoEnabled()) {
                 log.info(dataSourceListener.getClass().toString()
-                        + " class listener is unregistered from jcr data source");
+                        + " class listener is unregistered from file system data source");
             }
         }
     }

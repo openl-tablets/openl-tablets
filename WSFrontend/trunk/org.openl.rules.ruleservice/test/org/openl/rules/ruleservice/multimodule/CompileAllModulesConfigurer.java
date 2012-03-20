@@ -9,10 +9,10 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.openl.rules.ruleservice.management.ServiceConfigurer;
 import org.openl.rules.ruleservice.publish.cache.dispatcher.DispatchedMethod;
 
 public class CompileAllModulesConfigurer implements ServiceConfigurer {

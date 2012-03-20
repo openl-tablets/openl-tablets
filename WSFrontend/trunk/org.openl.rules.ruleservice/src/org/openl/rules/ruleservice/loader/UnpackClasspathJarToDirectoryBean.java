@@ -73,6 +73,9 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private static String getPathJar(Resource resource) throws IllegalStateException, IOException {
         URL location = resource.getURL();
         String jarPath = location.getPath();
+        if (jarPath.lastIndexOf("!") == -1) {
+            return null;
+        }
         return jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
     }
 
@@ -148,16 +151,18 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
         for (Resource rulesXmlResource : resources) {
             String path = getPathJar(rulesXmlResource);
-            File file = new File(path);
+            if (path != null) {
+                File file = new File(path);
 
-            if (!file.exists()) {
-                throw new IOException("File not found. File: " + path);
-            }
+                if (!file.exists()) {
+                    throw new IOException("File not found. File: " + path);
+                }
 
-            unpack(file, getDestinationDirectory());
+                unpack(file, getDestinationDirectory());
 
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Unpacking jars into \"%s\" was completed", getDestinationDirectory()));
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("Unpacking jars into \"%s\" was completed", getDestinationDirectory()));
+                }
             }
         }
     }

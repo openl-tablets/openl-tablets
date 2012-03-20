@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationContextAware;
 // @ContextConfiguration
 public class AbstractWebServicesRuleServicePublisherTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
-    private boolean logEnabled = false;
     private static boolean initialized = false;
 
     @Before
@@ -36,68 +35,131 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
             initialized = true;
         }
     }
-
-    protected final boolean isLogEnabled() {
-        return logEnabled;
-    }
-
-    protected final void setLogEnabled(boolean logEnabled) {
-        this.logEnabled = logEnabled;
-    }
-
+    
     @Override
     public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-
+    
+    /**
+     * Returns ApplicationContext.
+     * 
+     * @return application context
+     */
     public final ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
+    /**
+     * Returns WebServicesRuleServicePublisher.
+     * 
+     * @return WebServicesRuleServicePublisher
+     */
     protected WebServicesRuleServicePublisher getRuleServicePublisher() {
         return getApplicationContext().getBean(WebServicesRuleServicePublisher.class);
     }
-
+    
+    /**
+     * Returns all deployed services.
+     * 
+     * @return a collection of deployed services
+     */
     protected Collection<OpenLService> getServices() {
         return getRuleServicePublisher().getServices();
     }
 
-    protected OpenLService getServiceByName(String serviceName) {
-        if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName arg can't be null");
-        }
-        return getRuleServicePublisher().getServiceByName(serviceName);
-    }
-
-    protected DataBinding getDataBinding() {
-        return getApplicationContext().getBean(DataBinding.class);
-    }
-
-    protected Object getClient(String serviceName) {
-        return getClient(serviceName, (String) null);
-    }
-
-    protected Object getClient(String serviceName, String address) {
-        return getClient(serviceName, address, null);
-    }
-
-    protected <T> T getClient(String serviceName, Class<T> clazz) {
-        return (T) getClient(serviceName, null, clazz);
-    }
-
-    protected <T> T getClient(String serviceName, String address, Class<T> clazz) {
-        return (T) getClient(serviceName, address, clazz, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T getClient(String serviceName, String address, Class<T> clazz, DataBinding dataBinding) {
+    /**
+     * Returns deployed service by name.
+     * 
+     * @param serviceName deployed service name
+     * @return service 
+     * @throws ServiceNotFoundException occurs if service with specified name not deployed
+     */
+    protected OpenLService getServiceByName(String serviceName) throws ServiceNotFoundException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName arg can't be null");
         }
         OpenLService service = getRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
-            throw new IllegalStateException(String.format("Service with name=\"%s\"", serviceName));
+            throw new ServiceNotFoundException(String.format("Service with name=\"%s\" was not found", serviceName));
         }
+        return service;
+    }
+
+    /**
+     * Return dataBinding. This data binding is used in tests by default.
+     * 
+     * @return data binding
+     */
+    protected DataBinding getDataBinding() {
+        return getApplicationContext().getBean(DataBinding.class);
+    }
+
+    /**
+     * Creates and returns client for specified service.
+     * 
+     * @param serviceName deployed service name
+     * @return client object
+     * @throws ServiceNotFoundException occurs if service with specified name not deployed
+     */
+    protected Object getClient(String serviceName) throws ServiceNotFoundException {
+        return getClient(serviceName, (String) null);
+    }
+
+    /**
+     * Creates and returns client for specified service address by deployed service name 
+     * 
+     * @param serviceName deployed service name
+     * @param address address
+     * @return client
+     * @throws ServiceNotFoundException occurs if service with specified name not deployed
+     */
+    protected Object getClient(String serviceName, String address) throws ServiceNotFoundException {
+        return getClient(serviceName, address, null);
+    }
+
+    /**
+     * Creates and returns client by deployed service name. Result object casts to defined type.
+     * 
+     * @param serviceName deployed service name
+     * @param clazz service type
+     * @return client 
+     * @throws ServiceNotFoundException occurs if service with specified name not deployed
+     */
+    protected <T> T getClient(String serviceName, Class<T> clazz) throws ServiceNotFoundException {
+        return (T) getClient(serviceName, null, clazz);
+    }
+
+    /**
+     * Creates and returns client with specified address and type by deployed service name
+     * 
+     * @param serviceName deployed service name
+     * @param address service address
+     * @param clazz service type
+     * @return client 
+     * @throws ServiceNotFoundException occurs if service with specified name not deployed
+     */
+    protected <T> T getClient(String serviceName, String address, Class<T> clazz) throws ServiceNotFoundException {
+        return (T) getClient(serviceName, address, clazz, null);
+    }
+
+    /**
+     * Creates and returns client with specified address, data binding and type by deployed service name.
+     * 
+     * @param serviceName deployed service name
+     * @param address service address
+     * @param clazz service type
+     * @param dataBinding databiding
+     * @return client
+     * @throws ServiceNotFoundException
+     */
+    @SuppressWarnings("unchecked")
+    protected <T> T getClient(String serviceName, String address, Class<T> clazz, DataBinding dataBinding)
+            throws ServiceNotFoundException {
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName arg can't be null");
+        }
+        OpenLService service = getServiceByName(serviceName);
         DataBinding dataBindingForClient = null;
         Class<?> clazzForClient = null;
         String addressForClient = null;
@@ -125,14 +187,18 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         return (T) clientFactoryBean.create();
     }
 
-    protected Client getDynamicClientByServiceName(String serviceName) {
+    /**
+     * Creates and returns dynamic client for service by deployed service name
+     * 
+     * @param serviceName service name
+     * @return dynamic client
+     * @throws ServiceNotFoundException occurs if service with specified name not deployed
+     */
+    protected Client getDynamicClientByServiceName(String serviceName) throws ServiceNotFoundException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName arg can't be null");
         }
-        OpenLService service = getRuleServicePublisher().getServiceByName(serviceName);
-        if (service == null) {
-            throw new IllegalStateException(String.format("Service with name=\"%s\"", serviceName));
-        }
+        OpenLService service = getServiceByName(serviceName);
 
         String wsdlLocation = buildWsdlLocation(getRuleServicePublisher().getBaseAddress(), service.getUrl());
         return getDynamicClient(wsdlLocation);
@@ -142,7 +208,16 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         return baseUrl + serviceUrl + "?wsdl";
     }
 
+    /**
+     * Creates and returns service 
+     * 
+     * @param wsdlLocation wsdl location url
+     * @return
+     */
     protected Client getDynamicClient(String wsdlLocation) {
+        if (wsdlLocation == null) {
+            throw new IllegalArgumentException("wsdlLocation can't be null");
+        }
         JaxWsDynamicClientFactory clientFactory = JaxWsDynamicClientFactory.newInstance();
         Client client = clientFactory.createClient(wsdlLocation);
         return client;

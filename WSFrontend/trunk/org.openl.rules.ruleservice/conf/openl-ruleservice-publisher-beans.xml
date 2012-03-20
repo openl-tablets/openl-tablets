@@ -6,11 +6,13 @@
 	<!-- Provide information about modules that can be used as dependencies. -->
 	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/> -->
 
+	<!-- Simple front end to access all services. -->
+	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>
+
 	<!-- Initializes OpenL Engine instances according to web services configuration 
 		description and calls DeploymentAdmin to expose corresponding web service. -->
 	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
 		<property name="frontend" ref="frontend"/>
 	</bean>
 	
-	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>
 </beans>
