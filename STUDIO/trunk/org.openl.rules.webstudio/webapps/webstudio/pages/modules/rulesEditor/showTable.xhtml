@@ -41,17 +41,18 @@
             display: inline-block;
             text-decoration: none;
             color: #313131;
-            padding: 4px 8px 4px 24px;
+            padding: 4px 7px;
+            text-align: center;
+            margin: 0 2px;
         }
         .toolbarButton:hover {
             color: #000000;
             box-shadow: 0 0 1px #99BBFF;
             background: #E8EFF7;
         }
-        .toolbarButton img {
-            position: absolute;
-            left: 4px;
-            top: 2px;
+        .toolbarButton > span {
+            display: block;
+            margin-top: 3px;
         }
         .toolbarButton .arrow {
             background: url('webresource/images/arrow_down.png') no-repeat center;
@@ -60,21 +61,9 @@
         .toolbarButton .arrow:hover {
             background-color: #BBCCDD;
         }
-        .bigButton {
-            padding: 4px 7px;
-            text-align: center;
-            margin: 0 2px;
-        }
-        .bigMenuButton {
+        .menuButton {
             padding: 4px 3px;
             margin: 0;
-        }
-        .bigButton img {
-            position: static;
-        }
-        .bigButton > span {
-            display: block;
-            margin-top: 3px;
         }
         #tableToolbarPanel .delimeter {
             border-left: 1px solid white;
@@ -103,7 +92,7 @@
                             <tr>
                                 <td>
                                     <h:outputLink value="#{contextPath}/faces/pages/modules/rulesEditor/showTable.xhtml"
-                                        title="Edit Table" target="content" styleClass="toolbarButton bigButton">
+                                        title="Edit Table" target="content" styleClass="toolbarButton">
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <f:param name="mode" value="edit" />
                                         <img src="webresource/images/editTable.gif" />
@@ -111,7 +100,7 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton bigButton"
+                                    <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
                                         title="Open Table In Excel - #{showTableBean.uri}" target="hidden" >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <img src="webresource/images/excel.png" />
@@ -121,7 +110,7 @@
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
                                         oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')" title="Copy Table"
-                                        styleClass="toolbarButton bigButton">
+                                        styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
                                     </a4j:commandLink>
@@ -130,7 +119,7 @@
                                     <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
-                                        styleClass="toolbarButton bigButton">
+                                        styleClass="toolbarButton">
                                         <img src="webresource/images/delete.gif" />
                                         <span>Remove</span>
                                     </a4j:commandLink>
@@ -190,7 +179,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <a4j:commandLink id="runLink" action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton bigButton bigMenuButton"
+                                    <a4j:commandLink id="runLink" action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
                                         onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
@@ -215,7 +204,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="traceLink" action="#{showTableBean.makeTestSuite}" title="Trace" styleClass="toolbarButton bigButton bigMenuButton"
+                                    <a4j:commandLink id="traceLink" action="#{showTableBean.makeTestSuite}" title="Trace" styleClass="toolbarButton menuButton"
                                         onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
@@ -240,7 +229,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="benchmarkLink" action="#{showTableBean.makeTestSuite}" title="Benchmark" styleClass="toolbarButton bigButton bigMenuButton"
+                                    <a4j:commandLink id="benchmarkLink" action="#{showTableBean.makeTestSuite}" title="Benchmark" styleClass="toolbarButton menuButton"
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
@@ -280,12 +269,12 @@
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/rulesEditor/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/rulesEditor/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
-                                <a class="toolbarButton bigButton" title="Run" href="javascript:void(0)"
+                                <a class="toolbarButton" title="Run" href="javascript:void(0)"
                                     onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
                                 </a>
-                                <a class="toolbarButton bigButton" title="Trace" href="javascript:void(0)"
+                                <a class="toolbarButton" title="Trace" href="javascript:void(0)"
                                     onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
                                     <img src="webresource/images/trace.gif" />
                                     <span>Trace</span>
@@ -306,12 +295,12 @@
                                 </div>
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
-                                <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="toolbarButton bigButton" title="Run"
+                                <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="toolbarButton" title="Run"
                                     oncomplete="goTo('#{runLink}')">
                                     <img src="webresource/images/run.gif" />
                                     <span>Run</span>
                                 </a4j:commandLink>
-                                <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="toolbarButton bigButton"
+                                <a4j:commandLink action="#{showTableBean.makeTestSuite}" styleClass="toolbarButton"
                                     oncomplete="open_win('#{traceUrl}', 'trace_win')" title="Trace">
                                     <img src="webresource/images/trace.gif" />
                                     <span>Trace</span>
@@ -324,7 +313,7 @@
                 <c:if test="#{showTableBean.hasTests}">
                     <td>
                         <h:form>
-                            <a4j:commandLink styleClass="toolbarButton bigButton" title="Run Tests"
+                            <a4j:commandLink styleClass="toolbarButton" title="Run Tests"
                                 action="#{showTableBean.runAllTestsForTable}"
                                 oncomplete="goTo('#{rulesEditor}/test/runAllTests.xhtml?uri=#{showTableBean.encodedUri}')">
                                 <img src="webresource/images/test_ok.gif" />
@@ -338,7 +327,7 @@
                 <td>
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton bigButton" title="Create new Test"
+                            styleClass="toolbarButton" title="Create new Test"
                             oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')">
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
