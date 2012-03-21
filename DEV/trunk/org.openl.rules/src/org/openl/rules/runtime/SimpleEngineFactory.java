@@ -4,10 +4,13 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
+import org.openl.rules.datatype.gen.BeanByteCodeGenerator;
 import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -21,13 +24,18 @@ import org.openl.types.IOpenMember;
  * @author PUdalau
  */
 public class SimpleEngineFactory extends ASourceCodeEngineFactory {
+    private final Log LOG = LogFactory.getLog(SimpleEngineFactory.class);
     private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
 
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;
 
     public SimpleEngineFactory(String sourceFile) {
-        super(RULES_XLS_OPENL_NAME, sourceFile);
+        this(new File(sourceFile));
+    }
+
+    public SimpleEngineFactory(String sourceFile, String userHome) {
+        super(RULES_XLS_OPENL_NAME, sourceFile, userHome);
     }
 
     public SimpleEngineFactory(File file) {
@@ -36,6 +44,10 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
 
     public SimpleEngineFactory(IOpenSourceCodeModule sourceCodeModule) {
         super(RULES_XLS_OPENL_NAME, sourceCodeModule);
+    }
+
+    public SimpleEngineFactory(IOpenSourceCodeModule source, String userHome) {
+        super(RULES_XLS_OPENL_NAME, source, userHome);
     }
 
     public void reset(boolean resetInterface) {
@@ -54,10 +66,15 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
         if (interfaceClass == null) {
             IOpenClass openClass = getCompiledOpenClass().getOpenClass();
             String className = openClass.getName();
+            ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
-                interfaceClass = RulesFactory.generateInterface(className,
-                    openClass,
-                    getCompiledOpenClass().getClassLoader());
+                if (BeanByteCodeGenerator.isClassLoaderContainsClass(classLoader, className)) {
+                    LOG.warn(String.format("Previously generated  interface '%s' will be used as service class.",
+                        className));
+                    interfaceClass = classLoader.loadClass(className);
+                } else {
+                    interfaceClass = RulesFactory.generateInterface(className, openClass, classLoader);
+                }
             } catch (Exception e) {
                 throw new OpenLRuntimeException("Failed to create interface : " + className, e);
             }

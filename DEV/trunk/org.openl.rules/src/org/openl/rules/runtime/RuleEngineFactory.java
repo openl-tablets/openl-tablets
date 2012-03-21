@@ -84,6 +84,10 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
         super(RULE_OPENL_NAME, source, engineInterface);
     }
 
+    public RuleEngineFactory(String userHome, IOpenSourceCodeModule source, Class<T> engineInterface) {
+        super(RULE_OPENL_NAME, userHome, source, engineInterface);
+    }
+
     @Override
     protected Class<?>[] getInstanceInterfaces() {
         List<Class<?>> interfaces = new ArrayList<Class<?>>();

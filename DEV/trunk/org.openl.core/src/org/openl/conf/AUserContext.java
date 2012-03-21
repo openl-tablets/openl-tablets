@@ -22,6 +22,13 @@ public abstract class AUserContext implements IUserContext {
         return properties != null ? properties : PropertyFileLoader.NO_PROPERTIES;
     }
 
+    // Classloader is important part of user context, commonly each executable
+    // instance of rules is made in separate classloader that serves an
+    // identifier of this instance.
+    // For example two files with rules placed into the same folder(common user
+    // home) and java beans are shared between these rules,
+    // in this case classloader of each rules instance helps to distinguish
+    // usercontexts of modules.
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof IUserContext)) {
@@ -31,7 +38,7 @@ public abstract class AUserContext implements IUserContext {
 
         return new EqualsBuilder()
         // .append(name, k.name)
-//                .append(getUserClassLoader(), c.getUserClassLoader())
+                .append(getUserClassLoader(), c.getUserClassLoader())
                 .append(getUserHome(), c.getUserHome()).append(
                         getUserProperties(), c.getUserProperties()).isEquals();
     }
@@ -39,7 +46,7 @@ public abstract class AUserContext implements IUserContext {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-//        .append(getUserClassLoader())
+        .append(getUserClassLoader())
         .append(getUserHome())
                 .append(getUserProperties()).toHashCode();
     }

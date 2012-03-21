@@ -114,6 +114,11 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     }
 
     
+    public EngineFactory(String openlName, String userHome, IOpenSourceCodeModule source, Class<T> engineInterface) {
+        super(openlName, source, userHome);
+        this.engineInterface = engineInterface;
+    }
+
     public EngineFactory(String openlName, IOpenSourceCodeModule source, Class<T> engineInterface) {
         super(openlName, source);
         this.engineInterface = engineInterface;
