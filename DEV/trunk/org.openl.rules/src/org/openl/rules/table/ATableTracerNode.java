@@ -15,6 +15,9 @@ import org.openl.vm.trace.SimpleTracerObject;
 public abstract class ATableTracerNode extends SimpleTracerObject implements ITableTracerObject {
 
     public static final String ERROR_RESULT = "ERROR";
+    
+    /** cloner is thread safety by its description, see documentation*/
+    private static final InputArgumentsCloner CLONER = new InputArgumentsCloner();
 
     private Object params[];
     private Object result;
@@ -32,7 +35,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
          */
 
         super(traceObject);
-        this.params = params != null ? params : new Object[0];
+        this.params = params != null ? CLONER.deepClone(params) : new Object[0];
     }
     
     protected String asString(IOpenMethod method, int mode) {
@@ -147,8 +150,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
         // add '=' symbol if not void
         //
         buf.append("= ");
-        IFormatter formatter = FormattersManager.getFormatter(value);
-        String strValue = null;
+        IFormatter formatter = FormattersManager.getFormatter(value);        
         if (formatter != null) {
             buf.append(formatter.format(value));
         } else {
