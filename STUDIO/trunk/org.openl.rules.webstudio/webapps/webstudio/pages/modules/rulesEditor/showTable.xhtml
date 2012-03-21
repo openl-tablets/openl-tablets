@@ -500,8 +500,8 @@
         }
 
         function search() {
-           	var searchQuery = $j(PopupMenu.lastTarget).text();
-            goTo("search/simpleSearch.xhtml?searchQuery=" + searchQuery);
+            var searchQuery = $j(PopupMenu.lastTarget).text();
+            goTo("search/simpleSearch.xhtml?searchQuery=" + encodeURIComponent(searchQuery));
         }
 
         function editInExcel(f) {
