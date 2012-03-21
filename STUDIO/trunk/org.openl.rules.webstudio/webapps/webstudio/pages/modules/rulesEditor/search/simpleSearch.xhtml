@@ -9,12 +9,12 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <div class="view_header">Search Results</div>
+    <div class="view_header">Search Results: <b>#{param.searchQuery}</b></div>
 
     <div id="searchResults" class="content">
         <h:outputText value="No results found" rendered="#{empty simpleSearchBean.searchResults}"
             style="font-weight: bold" />
-        <h:panelGroup rendered="#{not empty simpleSearchBean.searchResults}">
+        <h:panelGroup rendered="#{!empty simpleSearchBean.searchResults}">
             <a4j:repeat var="sr" value="#{simpleSearchBean.searchResults}"
                 binding="#{simpleSearchBean.searchResultsData}">
 
