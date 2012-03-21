@@ -194,7 +194,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         // put prebinder to openl
         prepareOpenL();
         IOpenSourceCodeModule mainModule = createMainModule();
-        SimpleEngineFactory factory = new SimpleEngineFactory(mainModule);
+        SimpleEngineFactory factory = new SimpleEngineFactory(mainModule, AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
         factory.setDependencyManager(dependencyManager);
         factory.setExecutionMode(true);
 
