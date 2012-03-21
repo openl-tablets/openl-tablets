@@ -108,7 +108,8 @@ public abstract class BeanByteCodeGenerator {
         }
     }
     
-    private boolean isClassLoaderContainsClass(ClassLoader classLoader, String className){
+    //TODO move to some utility class
+    public static boolean isClassLoaderContainsClass(ClassLoader classLoader, String className){
         try {
             return classLoader.loadClass(className) != null;
         } catch (ClassNotFoundException e) {

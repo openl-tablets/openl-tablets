@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
 
-    private static final String DEFAULT_USER_HOME = ".";
+    public static final String DEFAULT_USER_HOME = ".";
     
     private OpenL openl;
     private IUserContext userContext;
