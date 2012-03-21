@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.junit.Test;
@@ -33,6 +34,7 @@ public class ApiInstantiationTest {
     public void testXlsWithErrors() throws ClassNotFoundException{
         ProjectDescriptor project = new ProjectDescriptor();
         project.setClasspath(new ArrayList<PathEntry>());
+        project.setProjectFolder(new File("test/resources/excel/"));
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules2.xls"));

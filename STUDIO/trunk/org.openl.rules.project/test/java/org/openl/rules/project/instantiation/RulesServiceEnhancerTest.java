@@ -24,6 +24,7 @@ public class RulesServiceEnhancerTest {
 
         ProjectDescriptor project = new ProjectDescriptor();
         project.setClasspath(new ArrayList<PathEntry>());
+        project.setProjectFolder(new File("test/resources/excel/"));
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
@@ -81,6 +82,7 @@ public class RulesServiceEnhancerTest {
 
         ProjectDescriptor project = new ProjectDescriptor();
         project.setClasspath(new ArrayList<PathEntry>());
+        project.setProjectFolder(new File("test/resources/excel/"));
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));

@@ -44,13 +44,14 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
     @SuppressWarnings("unchecked")
     private EngineFactory<?> getEngineFactory(Class<?> clazz) {
         if(engineFactory == null){
-            File sourceFile = new File(getModule().getProject().getProjectFolder(), getModule().getRulesRootPath()
-                    .getPath());
+            File sourceFile = new File(getModule().getRulesRootPath().getPath());
             
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
             source.setParams(getModule().getProperties());
 
-            engineFactory = new RuleEngineFactory(source, clazz);
+            engineFactory = new RuleEngineFactory(getModule().getProject().getProjectFolder().getAbsolutePath(),
+                source,
+                clazz);
             engineFactory.setExecutionMode(isExecutionMode());
             engineFactory.setDependencyManager(getDependencyManager());
         }
@@ -69,6 +70,8 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
     @Override
     public void forcedReset() {
         super.forcedReset();
+        setServiceClass(null);// it will cause reloading of service class with
+                              // new classloader later
         engineFactory = null;
     }
     
