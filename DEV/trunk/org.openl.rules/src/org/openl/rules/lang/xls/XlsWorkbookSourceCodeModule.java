@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -24,11 +26,12 @@ import org.openl.source.impl.ASourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
+
+    private static Log LOG = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
 
     private Workbook workbook;
 
@@ -62,7 +65,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
                 }
 
             } catch (Throwable e) {
-                Log.error("Error trying close input stream:", e);
+                LOG.error("Error trying close input stream:", e);
             }
         }
     }
@@ -131,19 +134,23 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             File sourceFile = null;
             if (src instanceof FileSourceCodeModule) {
                 sourceFile = ((FileSourceCodeModule) src).getFile();
-            } else if (src instanceof URLSourceCodeModule) {
-                sourceFile = new File(((URLSourceCodeModule) src).getUrl().getFile());
             } else {
                 try {
-                    sourceFile = new File(new URI(getUri()));
+                    URI uri = null;
+                    if (src instanceof URLSourceCodeModule) {
+                        uri = ((URLSourceCodeModule) src).getUrl().toURI();
+                    } else {
+                        uri = new URI(getUri());
+                    }
+                    sourceFile = new File(uri);
                 } catch (URISyntaxException me) {
-                    Log.warn("The xls source is not file based");
+                    LOG.warn("Can not get source file");
                 }
             }
             return sourceFile;
         }
     }
-    
+
     public void save() throws IOException {
         File sourceFile = getSourceFile();
         String fileName = sourceFile.getCanonicalPath();
