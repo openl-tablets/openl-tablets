@@ -125,6 +125,11 @@
 		<groupId>org.mockito</groupId>
 		<artifactId>mockito-all</artifactId>
 	</dependency>
+	
+	<dependency>
+        <groupId>uk.com.robust-it</groupId>
+        <artifactId>cloning</artifactId>    	
+    </dependency>
 
   </dependencies>
 
