@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.openl.lib
 Bundle-Version: 5.9.2
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
-Export-Package: net.sf.cglib.asm,
+Export-Package: com.rits.cloning,
+ com.rits.perspectives,
+ net.sf.cglib.asm,
  net.sf.cglib.asm.attrs,
  net.sf.cglib.beans,
  net.sf.cglib.core,
@@ -184,7 +186,8 @@ Bundle-ClassPath: lib/asm-3.3.jar,
  lib/jgrapht-jdk1.5-0.7.3.jar,
  lib/joda-time-1.6.2.jar,
  lib/commons-beanutils-1.8.3.jar,
- lib/commons-math-2.1.jar.
- lib/mockito-all-1.8.5.jar
+ lib/commons-math-2.1.jar,
+ lib/mockito-all-1.8.5.jar,
+ lib/cloning-1.7.9.jar
 Require-Bundle: org.openl.poi.lib;visibility:=reexport,
  org.openl.lib.poi.dev.modified;visibility:=reexport
