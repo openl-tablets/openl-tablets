@@ -14,6 +14,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
+import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -117,7 +118,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
 
     private SimpleEngineFactory getEngineFactory() {
         if (factory == null) {
-            factory = new SimpleEngineFactory(createMainModule());
+            factory = new SimpleEngineFactory(createMainModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
 
             for (Module module : getModules()) {
                 for (InitializingListener listener : getInitializingListeners()) {
