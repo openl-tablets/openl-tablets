@@ -8,6 +8,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.types.IDynamicObject;
 import org.openl.types.impl.DelegatedDynamicObject;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -36,8 +37,8 @@ public class AlgorithmInvoker extends RulesMethodInvoker {
 
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(getInvokableMethod().getThisClass(), (IDynamicObject) target);
-
-        TBasicVM algorithmVM = new TBasicVM(getInvokableMethod().getAlgorithmSteps(), getInvokableMethod().getLabels());
+    
+        TBasicVM algorithmVM = new TBasicVM(getInvokableMethod().getType(), getInvokableMethod().getAlgorithmSteps(), getInvokableMethod().getLabels());
 
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
@@ -47,7 +48,7 @@ public class AlgorithmInvoker extends RulesMethodInvoker {
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(getInvokableMethod().getThisClass(), (IDynamicObject) target);
 
-        TBasicVM algorithmVM = new TBasicVM(getInvokableMethod().getAlgorithmSteps(),getInvokableMethod().getLabels());
+        TBasicVM algorithmVM = new TBasicVM(getInvokableMethod().getType(), getInvokableMethod().getAlgorithmSteps(),getInvokableMethod().getLabels());
 
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 

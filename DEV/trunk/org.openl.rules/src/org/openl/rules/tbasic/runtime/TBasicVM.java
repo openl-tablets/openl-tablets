@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.openl.binding.impl.ControlSignal;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution
@@ -15,6 +17,8 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 public class TBasicVM {
     private TBasicVMDataContext mainContext;
     private TBasicVMDataContext currentContext;
+    
+    private IOpenClass tbasicType;
 
     /**
      * Create an instance of <code>TBasicVM</code> initialized with main
@@ -23,11 +27,12 @@ public class TBasicVM {
      * @param operations
      * @param labels
      */
-    public TBasicVM(List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
-        mainContext = new TBasicVMDataContext(operations, labels, true);
+    public TBasicVM(IOpenClass tbasicType, List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
+    	this.tbasicType = tbasicType;
+        this.mainContext = new TBasicVMDataContext(operations, labels, true);
 
         // in the first turn only main can be called
-        currentContext = mainContext;
+        this.currentContext = mainContext;
     }
 
     /**
@@ -104,13 +109,15 @@ public class TBasicVM {
 
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
+        
+        boolean errorOccured = false;
         try {
-
             returnResult = runAll(environment, debugMode);
 
         } catch (OpenLAlgorithmErrorSignal signal) {
             if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(signal.getCause(), environment);
+                errorOccured = true;
             } else {
                 throw signal;
             }
@@ -120,9 +127,14 @@ public class TBasicVM {
         } catch (Throwable error) {
             if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(error, environment);
+                errorOccured = true;
             } else {
                 throw new OpenLAlgorithmErrorSignal(error);
             }
+        }
+        
+        if (tbasicType.equals(JavaOpenClass.VOID) && !errorOccured) {
+        	returnResult = null;
         }
 
         return returnResult;
