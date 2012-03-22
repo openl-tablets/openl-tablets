@@ -37,6 +37,7 @@ public class LazyMultiModuleEngineFactoryTest {
     public static Collection<Module> resolveAllModules(String root) {
         Collection<Module> modules = new ArrayList<Module>();
         ProjectDescriptor projectDescriptor = new ProjectDescriptor();
+        projectDescriptor.setProjectFolder(new File("./test-resources/multi-module_overloaded/"));
         Module module1_1 = new Module();
         module1_1.setName("Module1_1");
         module1_1.setRulesRootPath(new PathEntry("./test-resources/multi-module_overloaded/project1/Module1_1.xlsx"));
