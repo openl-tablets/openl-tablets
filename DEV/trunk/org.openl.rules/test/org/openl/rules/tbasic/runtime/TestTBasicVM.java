@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.openl.rules.tbasic.runtime.operations.NopOperation;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.impl.DelegatedDynamicObject;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -21,7 +22,7 @@ public class TestTBasicVM {
 
         operations.add(new NopOperation());
 
-        TBasicVM tvm = new TBasicVM(operations, labels);
+        TBasicVM tvm = new TBasicVM(JavaOpenClass.STRING, operations, labels);
 
         DelegatedDynamicObject thisTarget = null;
         Object[] params = {};
