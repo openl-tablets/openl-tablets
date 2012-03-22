@@ -135,24 +135,23 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public Object getValue(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
         if (isTraceOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
-            getValueTraced(row, column);
-        }
-        
-        Object result = null;
-        
-        if (cacheResult) {
+            getValueTraced(row, column);        
+        } else {
+        	Object result = null;
+            
+            if (cacheResult) {
 
-            result = results[row][column];
-        
-            if (result != null) {
-                return result;
+                result = results[row][column];
+            
+                if (result != null) {
+                    return result;
+                }
             }
+
+            result = spreadsheetCell.calculate(this, targetModule, params, env);
+            results[row][column] = result;            
         }
-
-        result = spreadsheetCell.calculate(this, targetModule, params, env);
-        results[row][column] = result;
-
-        return result;
+        return results[row][column];
     }
 
     public Object getValueTraced(int row, int column) {
@@ -165,25 +164,24 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         Object result = null;
         
         try {
-            
-        if (cacheResult) {
-
-            result = results[row][column];
-        
-            if (result != null) {
-                spreadsheetTraceLeaf.setValue(result);
-                return result;
-            }
+	        if (cacheResult) {
+	
+	            result = results[row][column];
+	        
+	            if (result != null) {
+	                spreadsheetTraceLeaf.setValue(result);
+	                return result;
+	            }
+	        }
+	
+	        result = spreadsheetCell.calculate(this, targetModule, params, env);
+	        results[row][column] = result;
+	
+	        spreadsheetTraceLeaf.setValue(result);
+	        return result;
+        } finally {
+        	tracer.pop();
         }
-
-        result = spreadsheetCell.calculate(this, targetModule, params, env);
-        results[row][column] = result;
-
-        spreadsheetTraceLeaf.setValue(result);
-        return result;
-    } finally {
-        tracer.pop();
-    }
     }
 
     public final int height() {
