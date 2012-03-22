@@ -16,9 +16,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public static final String ERROR_RESULT = "ERROR";
     
-    /** cloner is thread safety by its description, see documentation*/
-    private static final InputArgumentsCloner CLONER = new InputArgumentsCloner();
-
     private Object params[];
     private Object result;
     private Throwable error;
@@ -29,13 +26,25 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
 
     public ATableTracerNode(IMemberMetaInfo traceObject, Object[] params) {
     	/**
-         * why traceObject is instnceof IMemberMetaInfo? don`t need it!
+         * Why traceObject is instanceof IMemberMetaInfo? don`t need it!
          * TODO: refactor change traceObject instance. Seems it should be ExecutableRulesMethod instance.
          * @author DLiauchuk
          */
-
         super(traceObject);
-        this.params = params != null ? CLONER.deepClone(params) : new Object[0];
+        InputArgumentsCloner cloner = new InputArgumentsCloner();
+        if (params != null) {
+        	Object[] clonedParams = null;
+            try {
+            	clonedParams = cloner.deepClone(params);
+            } catch (Exception ex) {
+            	// ignore cloning exception if any, use params itself
+            	//
+            	clonedParams = params;
+            }
+            this.params = clonedParams;
+        } else {
+        	this.params = new Object[0];
+        }        
     }
     
     protected String asString(IOpenMethod method, int mode) {
