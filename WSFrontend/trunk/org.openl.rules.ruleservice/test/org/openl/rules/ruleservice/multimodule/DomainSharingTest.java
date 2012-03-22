@@ -18,7 +18,7 @@ import org.openl.rules.ruleservice.core.ModuleDescription.ModuleDescriptionBuild
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription.ServiceDescriptionBuilder;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.openl.rules.ruleservice.management.ServiceConfigurer;
+import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.table.properties.ITableProperties;
