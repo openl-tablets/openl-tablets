@@ -32,14 +32,7 @@
       </resource>
     </resources>
     
-    <testResources>
-	  <testResource>
-        <directory>test/java</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </testResource>
-    </testResources>
+    <testSourceDirectory>test/java</testSourceDirectory>
   </build>
 
   <dependencies>

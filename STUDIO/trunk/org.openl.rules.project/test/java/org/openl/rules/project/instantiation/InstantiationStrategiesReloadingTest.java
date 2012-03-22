@@ -14,7 +14,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -218,7 +217,6 @@ public class InstantiationStrategiesReloadingTest {
                 GET_STRING_FIELD }, new MethodDescription[0]);
     }
     
-    @Ignore
     @Test
     public void testForsedReset() throws Exception {
         checkOriginal(apiStrategy.instantiate());
