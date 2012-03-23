@@ -72,12 +72,19 @@
             // Handle JSF / Richfaces AJAX errors
             jsf.ajax.addOnError(function (data) {
                 if (typeof console != "undefined") console.error(data);
+
                 // @Deprecated
-                // TODO Create mechanism to disable editing in UI when Excel file is opened.
-                if (data.errorMessage && data.errorMessage.indexOf(".xls") > -1) {
-                    alert("Failed to save changes. Please close module Excel file and try again.");
+                var errorMessage = data.errorMessage;
+                if (errorMessage) {
+                    // TODO Create mechanism to disable editing in UI when Excel file is opened.
+                    if (errorMessage.indexOf(".xls") > -1) {
+                        alert("Failed to save changes. Please close module Excel file and try again.");
+                    } else if (errorMessage.indexOf("ViewExpiredException") > -1) {
+                        reloadCurrent();
+                    }
                     return;
                 }
+
                 handleError(data.responseCode);
             });
 
