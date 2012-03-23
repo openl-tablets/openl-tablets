@@ -264,9 +264,9 @@ public class JavaWrapperAntTask extends Task {
     private IOpenClass makeOpenClass() throws Exception {
         
         ClassLoader applicationClassLoader = getApplicationClassLoader();        
-        UserContext ucxt = getUserContext(applicationClassLoader);
         
         SimpleBundleClassLoader bundleClassLoader = new SimpleBundleClassLoader(applicationClassLoader);
+        UserContext ucxt = getUserContext(applicationClassLoader);
         Thread.currentThread().setContextClassLoader(bundleClassLoader);
         
         long start = System.currentTimeMillis();
