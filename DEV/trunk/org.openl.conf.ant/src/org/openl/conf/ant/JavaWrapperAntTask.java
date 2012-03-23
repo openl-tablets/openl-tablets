@@ -266,7 +266,7 @@ public class JavaWrapperAntTask extends Task {
         ClassLoader applicationClassLoader = getApplicationClassLoader();        
         
         SimpleBundleClassLoader bundleClassLoader = new SimpleBundleClassLoader(applicationClassLoader);
-        UserContext ucxt = getUserContext(applicationClassLoader);
+        UserContext ucxt = getUserContext(bundleClassLoader);
         Thread.currentThread().setContextClassLoader(bundleClassLoader);
         
         long start = System.currentTimeMillis();
