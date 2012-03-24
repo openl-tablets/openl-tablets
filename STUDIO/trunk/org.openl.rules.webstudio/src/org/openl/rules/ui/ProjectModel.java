@@ -114,7 +114,7 @@ public class ProjectModel {
 
     // FIXME last test suite should have temporary location(such as Flash scope)
     // but now it placed to session bean due to WebStudio navigation specific
-    // TODO move this object to the correctplace
+    // TODO move this object to the correct place
     private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
 
     public boolean hasTestSuitesToRun() {
@@ -249,7 +249,6 @@ public class ProjectModel {
             BenchmarkUnit bu = null;
 
             try {
-
                 if (m instanceof IBenchmarkableMethod) {
                     final IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
                     bu = new BenchmarkUnit() {

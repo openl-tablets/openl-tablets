@@ -124,7 +124,7 @@ public class ShowTableBean {
         recentlyVisitedTables.add(table);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void initParams() {
         Map paramMap = new HashMap(FacesUtils.getRequestParameterMap());
         for (Map.Entry entry : (Set<Map.Entry>) paramMap.entrySet()) {
@@ -405,7 +405,7 @@ public class ShowTableBean {
         studio.rebuildModel();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public boolean updateSystemProperties() {
         boolean result = true;
         if (table.isCanContainProperties()) {
