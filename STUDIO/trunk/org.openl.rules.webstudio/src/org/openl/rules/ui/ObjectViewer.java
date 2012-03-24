@@ -31,22 +31,22 @@ public class ObjectViewer {
 
     public ObjectViewer() {
     }
-    
+
     /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/ 
     public static String displaySpreadsheetResult(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest) {
         return display(res, spreadsheetCellsForTest, true);
     }
-    
+
     /** Display SpreadsheetResult with filter for links to explanation for values*/
     public static String displaySpreadsheetResult(final SpreadsheetResult res) {
         return display(res, null, true);
     }
-    
+
     /** Display SpreadsheetResult without any filters in the table**/
     public static String displaySpreadheetResultNoFilters(final SpreadsheetResult res) {
         return display(res, null, false);
     }
-    
+
     private static String display(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest, boolean filter) {
         ILogicalTable table = res.getLogicalTable();        
 
@@ -70,15 +70,15 @@ public class ObjectViewer {
             }
 
         };
-        
+
         IGridTable gridtable = table.getSource();        
         TableValueFilter tableValueFilter = new TableValueFilter(gridtable, model);       
         CollectionCellFilter collectionFilter = new CollectionCellFilter();
-        
+
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(tableValueFilter);
         filters.add(collectionFilter);
-        
+
         if (filter) {            
             filters.add(new LinkMaker(tableValueFilter));
             

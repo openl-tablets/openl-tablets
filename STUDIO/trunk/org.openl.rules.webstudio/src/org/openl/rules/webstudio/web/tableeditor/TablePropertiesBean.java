@@ -31,7 +31,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.EnumUtils;
 import org.openl.util.StringTool;
 
 @ManagedBean

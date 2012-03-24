@@ -38,11 +38,12 @@ import org.openl.util.Log;
 /**
  * Handles Word and Excel files for indexing. Check if files where changed in time. If true,
  * reindex it. 
+ *
  * @author snshor
  *
  */
 public class FileIndexer {
-    
+
     private long[] updateTimes;
 
     private String[] files = null;
@@ -112,7 +113,7 @@ public class FileIndexer {
         }
 
     }
-    
+
     /**
      * Gets the last times of file modifications.
      * 
@@ -129,10 +130,10 @@ public class FileIndexer {
     }
 
     public static String showElementHeader(String uri) {
-        Map map = SourceCodeURLTool.parseUrl(uri);
+        Map<String, String> map = SourceCodeURLTool.parseUrl(uri);
 
-        String file = (String) map.get(SourceCodeURLConstants.FILE);
-        String sheet = (String) map.get(XlsURLConstants.SHEET);
+        String file = map.get(SourceCodeURLConstants.FILE);
+        String sheet = map.get(XlsURLConstants.SHEET);
 
         return getFileName(file) + (sheet == null ? "" : " : " + sheet);
     }
@@ -167,16 +168,16 @@ public class FileIndexer {
      * @return Array of {@link TokenBucket}
      */
     public TokenBucket[] getBuckets(String charStr) {
-        TreeMap tm = getIndex().getFirstCharMap().get(charStr);
+        TreeMap<String, TokenBucket> tm = getIndex().getFirstCharMap().get(charStr);
 
         TokenBucket[] tokenBucket = new TokenBucket[tm.size()];
         int i = 0;
-        for (Iterator iter = tm.values().iterator(); iter.hasNext(); ++i) {
-            tokenBucket[i] = (TokenBucket) iter.next();
+        for (Iterator<TokenBucket> iter = tm.values().iterator(); iter.hasNext(); ++i) {
+            tokenBucket[i] = iter.next();
         }
         return tokenBucket;
     }
-    
+
     /**
      * Gets the index. If null index existing files.
      * @return index
@@ -194,15 +195,15 @@ public class FileIndexer {
      */
     public String[] getLetters() {
         Index idx = getIndex();
-        Vector result = new Vector();
+        Vector<String> result = new Vector<String>();
 
-        for (Iterator iter = idx.getFirstCharMap().keySet().iterator(); iter.hasNext();) {
+        for (Iterator<String> iter = idx.getFirstCharMap().keySet().iterator(); iter.hasNext();) {
             String s = (String) iter.next();
             if (Character.isLetter(s.charAt(0))) {
                 result.add(s);
             }
         }
-        return (String[]) result.toArray(new String[result.size()]);
+        return result.toArray(new String[result.size()]);
     }
     
     /**
@@ -215,7 +216,7 @@ public class FileIndexer {
     public String[][] getResultsForIndex(String searchQuery) {        
         TokenBucket tb = getIndex().findEqualsTokenBucket(searchQuery);
 
-        Vector v = new Vector();
+        Vector<String[]> v = new Vector<String[]>();
 
         String[] tokens = new String[tb.getTokens().size()];
         int i = 0;
@@ -225,17 +226,17 @@ public class FileIndexer {
         }
 
         i = 1;
-        for (Iterator iter = tb.getIndexElements().values().iterator(); iter.hasNext(); ++i) {
-            HitBucket hb = (HitBucket) iter.next();
+        for (Iterator<HitBucket> iter = tb.getIndexElements().values().iterator(); iter.hasNext(); ++i) {
+            HitBucket hb = iter.next();
             String[] s1 = new String[3]; 
             s1[0] = hb.getElement().getUri();
             s1[1] = HTMLHelper.htmlStringWithSelections(hb.getElement().getIndexedText(), tokens);
             v.add(s1);
         }
 
-        return (String[][]) v.toArray(new String[v.size()][]);
+        return v.toArray(new String[v.size()][]);
     }
-    
+
     /**
      * Gets the result from indexed files satisfying search query request and filtered 
      * with uri filter.
@@ -248,21 +249,21 @@ public class FileIndexer {
      */
     public String[][] getResultsForQuery(String searchQuery, int maxRes, IStringFilter uriFilter) {        
         IndexQuery indexQuery = IndexQueryParser.parse(searchQuery);
-                
+
         TreeSet<HitBucket> searchRes = indexQuery.executeSearch(getIndex());
 
         String[] tokens = tokens(indexQuery.getTokensInclude(), index);
 
         int size = Math.min(maxRes, searchRes.size());
 
-        Vector result = new Vector(size);
+        Vector<String[]> result = new Vector<String[]>(size);
 
         int cnt = 0;
         for (HitBucket hb : searchRes) {
             if (cnt >= size) {
                 break;
             }
-            
+
             if (uriFilter != null && !uriFilter.matchString(hb.getElement().getUri())) {
                 continue;
             }            
@@ -273,7 +274,7 @@ public class FileIndexer {
             result.add(res);
             ++cnt;
         }
-        return (String[][]) result.toArray(new String[0][]);
+        return result.toArray(new String[0][]);
     }
     
     /**

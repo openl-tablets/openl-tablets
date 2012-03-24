@@ -11,7 +11,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
 public class BussinessSearchResultBean {  
-    
+
     private static final String EMPTY_VALUE = "--EMPTY--";    
     private TableBusSearchResult[] tableRes = null;
     private OpenLBussinessSearchResult busSearchRes = null;
@@ -42,7 +42,7 @@ public class BussinessSearchResultBean {
     public void setTableRes(TableBusSearchResult[] tableRes) {
         this.tableRes = tableRes;
     }
-    
+
     public BussinessSearchResultBean(List<TableProperty> propForSearch) {
         this.propsForSearch = propForSearch;        
     }
@@ -71,7 +71,7 @@ public class BussinessSearchResultBean {
         this.busSearchRes = busSearchRes;
         initTableResList();
     }
-    
+
     private void initTableResList() {
         tableRes = new TableBusSearchResult[busSearchRes.getFoundTables().size()];
         for(TableSyntaxNode tableSearch : busSearchRes.getFoundTables()) {
@@ -115,11 +115,9 @@ public class BussinessSearchResultBean {
     public void setValues(List<String> values) {
         this.values = values;
     }
-    
+
     public String getColumnValue(int index) {
-        int k = index;
         return null;
     }
-    
-    
+
 }
