@@ -146,14 +146,3 @@
     -moz-box-shadow: 3px 3px 3px #DDDDDD;
     -webkit-box-shadow: 3px 3px 3px #DDDDDD;
 }
-
-/* The iframe hack to cover selectlists in Internet Explorer 6 */
-iframe.tooltip_ie6Popup {
-    position: absolute;
-    z-index: 9100;
-    background: #fff;
-    margin: 0px;
-    padding: 0px;
-    border: 0px;
-    display: none;
-}

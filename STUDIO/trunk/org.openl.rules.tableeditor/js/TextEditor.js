@@ -21,7 +21,7 @@ var TextEditor = Class.create(BaseTextEditor, {
     handleKeyPress: function (event) {
         switch (event.keyCode) {
             case 13:
-                if ((Prototype.Browser.Opera || Prototype.Browser.IE) ? event.ctrlKey : event.altKey) {
+                if (Prototype.Browser.IE ? event.ctrlKey : event.altKey) {
                     this.switchTo("multiline");
                 }
                 break;

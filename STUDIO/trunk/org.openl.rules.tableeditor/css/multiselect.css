@@ -39,14 +39,3 @@
 .multiselect_container div:hover {
     background: #CBE5FF;
 }
-
-/* The iframe hack to cover selectlists in Internet Explorer 6 */
-iframe.ms_ie6Popup {
-    position: absolute;
-    z-index: 9000;
-    background: #fff;
-    margin: 0px;
-    padding: 0px;
-    border: 0px;
-    display: none;
-}
