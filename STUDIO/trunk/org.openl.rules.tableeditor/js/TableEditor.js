@@ -4,6 +4,7 @@
  * @requires Prototype v1.6.1+ library
  *
  * @author Andrey Naumenko
+ * @author Andrei Astrouski
  */
 
 var TableEditor = Class.create({
@@ -329,7 +330,7 @@ var TableEditor = Class.create({
                 case 27: this.editor.cancelEdit(); break;
                 case 13: if (this.editor.__do_nothing_on_enter !== true) {
                     this.setCellValue(
-                            HTMLHelper.unescapeHTML(this.currentElement.innerHTML.replace(/<br>/ig, "\n")).strip());
+                            this.unescapeHTML(this.currentElement.innerHTML.replace(/<br>/ig, "\n")).strip());
                 }
                 break;
             }
@@ -453,7 +454,7 @@ var TableEditor = Class.create({
                 initialValue = response.initValue;
             } else {
                 // Get initial value from table cell
-                initialValue = HTMLHelper.unescapeHTML(
+                initialValue = this.unescapeHTML(
                         cell.innerHTML.replace(/<br>/ig, "\n")).strip();
             }
         }
@@ -483,30 +484,22 @@ var TableEditor = Class.create({
 
         // Increase height of multiline editor
         if (editorName == 'multiline') {
-        	var input = this.editor.getInputElement();
+            var input = this.editor.getInputElement();
             var inputHeight = input.getHeight();
             input.style.height = (inputHeight + 20) + 'px';
         }
 
         var availableEditors = this.getAvailableEditors(editorName);
         if (availableEditors.size() > 0) {
-            var switchEditorMenuHandler = function(e) {
-                // Uncomment after migration on Prototype 1.7
-                // Prototype 1.6.1 has issue with Chrome browser
-                // if (Event.isRightClick(e)) {
-                if (HTMLHelper.isRightClick(e)) {
-                    if (self.switchEditorMenu) {
-                        return true;
-                    }
+            this.editor.input.oncontextmenu = function(e) {
+                if (!self.switchEditorMenu) {
                     self.switchEditorMenu = self.createSwitchEditorMenu(availableEditors);
-                    // Disable browser context menu
-                    e.target.oncontextmenu = function() { return false; };
                     self.switchEditorMenu.left = e.clientX + 2;
                     self.switchEditorMenu.top = e.clientY;
                     self.switchEditorMenu.show();
+                    return false;
                 }
             };
-            this.editor.bind("mousedown", switchEditorMenuHandler);
         }
     },
 
@@ -1015,6 +1008,10 @@ var TableEditor = Class.create({
         });
     },
 
+    unescapeHTML: function(html) {
+        return html.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
+    },
+
     hasSelection : function() {
         return this.selectionPos && this.currentElement;
     },
@@ -1036,6 +1033,7 @@ var TableEditor = Class.create({
             }
         } catch(ex) {}
     },
+
     // Callback functions
     undoStateUpdated : Prototype.emptyFunction,
     redoStateUpdated : Prototype.emptyFunction,
@@ -1108,10 +1106,8 @@ var Decorator = Class.create({
 
 // @Deprecated
 function openMenu(menuId, td, event) {
-    if (HTMLHelper.isRightClick(event)) {
-        td.oncontextmenu = function() { return false; };
-        PopupMenu.sheduleShowMenu(menuId, event, 150);
-    }
+    event.preventDefault();
+    PopupMenu.sheduleShowMenu(menuId, event, 150);
 }
 
 // @Deprecated
