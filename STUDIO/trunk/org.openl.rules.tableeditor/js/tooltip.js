@@ -7,12 +7,7 @@
  */
 var Tooltip = Class.create({
 
-    ie6: Prototype.Browser.IE
-        && parseInt(navigator.userAgent.substring(
-                navigator.userAgent.indexOf("MSIE") + 5)) == 6,
-
     firedTooltips: $H(),
-    firedIE6Popups: $H(),
 
     initialize: function(id, content, params) {
         var self = this;
@@ -59,18 +54,6 @@ var Tooltip = Class.create({
             var pos = this.calculateInitPosition(tooltip, position);
             tooltip.style.left = pos[0] + "px";
             tooltip.style.top = pos[1] + "px";
-
-            // The iframe hack to cover selectlists in Internet Explorer 6.
-            // Selectlists are always on top in IE 6, so they should be covered by iframe.
-            if (this.ie6) {
-                var ie6Popup = this.createIE6Popup();
-                this.openIE6Popup(ie6Popup,
-                        tooltip.style.left,
-                        tooltip.style.top,
-                        tooltip.offsetWidth + "px",
-                        tooltip.offsetHeight + "px");
-            }
-            this.firedIE6Popups.set(this.element.id, ie6Popup);
         }
     },
 
@@ -166,44 +149,6 @@ var Tooltip = Class.create({
         if (currentTooltip) {
             this.firedTooltips.unset(this.element.id);
             document.body.removeChild(currentTooltip);
-
-            // Hide iframe in IE 6
-            if (this.ie6) {
-                var currentIE6Popup = this.firedIE6Popups.get(this.element.id);
-                if (currentIE6Popup) {
-                    this.firedIE6Popups.unset(this.element.id);
-                    this.destroyIE6Popup(currentIE6Popup);
-                }
-            }
-        }
-    },
-
-    createIE6Popup: function() {
-        var ie6Popup = new Element("iframe");
-        ie6Popup.src = "javascript:'<html></html>';";
-        ie6Popup.setAttribute('className','tooltip_ie6Popup');
-        // Remove iFrame from tabIndex                                        
-        ie6Popup.setAttribute("tabIndex", -1);                              
-        ie6Popup.scrolling = "no";
-        ie6Popup.frameBorder = "0";
-        return ie6Popup;
-    },
-
-    openIE6Popup: function(ie6Popup, left, top, width, height) {
-        if (ie6Popup) {
-            ie6Popup.style.left = left;
-            ie6Popup.style.top = top;
-            ie6Popup.style.width = width;
-            ie6Popup.style.height = height;
-            ie6Popup.style.display = "block";
-
-            document.body.appendChild(ie6Popup);
-        }
-    },
-
-    destroyIE6Popup: function(ie6Popup) {
-        if (ie6Popup) {
-            Element.remove(ie6Popup);
         }
     }
 
