@@ -7,6 +7,7 @@
  * @author Andrei Astrouski
  */
 var MultiselectEditor = Class.create(BaseTextEditor, {
+
     multiselectPanel: null,
     entries: null,
     choices: null,
@@ -131,7 +132,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     },
 
     finishEdit: function() {
-        HTMLHelper.setInputValue(this.input, this.combineValue());
+        this.setValue(this.combineValue());
         this.handleF3();
         this.destroy();
     },

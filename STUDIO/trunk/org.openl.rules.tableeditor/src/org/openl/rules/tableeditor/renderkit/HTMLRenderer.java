@@ -35,11 +35,11 @@ public class HTMLRenderer {
     public static final int MAX_NUM_CELLS = 1500;
 
     @SuppressWarnings("unchecked")
-    protected Set getResourcesWritten() {
+    protected Set<String> getResourcesWritten() {
         Map<String, Object> requestMap = FacesUtils.getRequestMap();
-        Set resources = (Set) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
+        Set<String> resources = (Set<String>) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
         if (resources == null) {
-            resources = new HashSet();
+            resources = new HashSet<String>();
             requestMap.put(Constants.TABLE_EDITOR_RESOURCES, resources);
         }
         return resources;
@@ -68,7 +68,6 @@ public class HTMLRenderer {
         }
         result.append(renderJS("js/tooltip.js"))
             .append(renderJS("js/ScriptLoader.js"))
-            .append(renderJS("js/HTMLHelper.js"))
             .append(renderJS("js/TableEditor.js"))
             .append(renderJS("js/popup/popupmenu.js"));
             if (editor.isEditable()) {
@@ -168,9 +167,8 @@ public class HTMLRenderer {
         return result.toString();
     }
 
-    @SuppressWarnings("unchecked")
     public String renderCSS(String cssPath) {
-        Set resources = getResourcesWritten();
+        Set<String> resources = getResourcesWritten();
         if (resources.add(cssPath)) {
             StringBuilder result = new StringBuilder();
             result.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(WebUtil.internalPath(cssPath))
@@ -311,9 +309,8 @@ public class HTMLRenderer {
         return result.toString();
     }
 
-    @SuppressWarnings("unchecked")
     public String renderJS(String jsPath) {
-        Set resources = getResourcesWritten();
+        Set<String> resources = getResourcesWritten();
         if (resources.add(jsPath)) {
             StringBuilder result = new StringBuilder();
             result.append("<script type=\"text/javascript\" src=\"").append(WebUtil.internalPath(jsPath)).append(
@@ -323,9 +320,8 @@ public class HTMLRenderer {
         return "";
     }
 
-    @SuppressWarnings("unchecked")
     public String renderJSBody(String jsBody) {
-        Set resources = getResourcesWritten();
+        Set<String> resources = getResourcesWritten();
         if (resources.add(jsBody)) {
             StringBuilder result = new StringBuilder();
             result.append("<script type=\"text/javascript\">").append(jsBody).append("</script>");
@@ -459,7 +455,7 @@ public class HTMLRenderer {
 
         public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
             menuId = menuId == null ? "" : menuId;
-            String eventHandlers = "onmousedown=\"openMenu('" + menuId + "',this,event)\"";
+            String eventHandlers = "oncontextmenu=\"openMenu('" + menuId + "',this,event)\"";
             return render(eventHandlers, editor.isShowFormulas(), errorCell, editor.getId());
         }
     }

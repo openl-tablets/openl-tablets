@@ -12,7 +12,6 @@ var BaseEditor = Class.create({
     tableEditor: null,
     parentElement: null,
     input: null,
-    input: null,
     initialValue: null,
     stoppedEvents: null,
     focus: null,
@@ -50,8 +49,11 @@ var BaseEditor = Class.create({
      * Obtains current value from HTML editor control.
      */
     getValue: function() {
-        var input = this.getInputElement();
-        return input ? HTMLHelper.getInputValue(input).toString().replace(/\u00A0/g, ' ') : null;
+        return this.input ? this.input.value.toString().replace(/\u00A0/g, ' ') : null;
+    },
+
+    setValue: function(value) {
+        this.input.value = value;
     },
 
     getDisplayValue: function() {
@@ -72,7 +74,7 @@ var BaseEditor = Class.create({
         if (this.input) {
             this.parentElement.innerHTML = "";
             this.parentElement.appendChild(this.input);
-            HTMLHelper.setInputValue(this.getInputElement(), value);
+            this.setValue(value);
             if (this.focus) {
                 this.input.focus();
             }
