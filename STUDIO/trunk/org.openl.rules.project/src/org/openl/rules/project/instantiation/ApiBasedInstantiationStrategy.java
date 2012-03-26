@@ -40,7 +40,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
             source.setParams(getModule().getProperties());
             
-            factory = new SimpleEngineFactory(source, getModule().getProject().getProjectFolder().getAbsolutePath());
+            factory = new SimpleEngineFactory(source);
             factory.setExecutionMode(isExecutionMode());
             factory.setDependencyManager(getDependencyManager());
         }

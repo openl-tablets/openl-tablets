@@ -49,9 +49,7 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
             source.setParams(getModule().getProperties());
 
-            engineFactory = new RuleEngineFactory(getModule().getProject().getProjectFolder().getAbsolutePath(),
-                source,
-                clazz);
+            engineFactory = new RuleEngineFactory(source, clazz);
             engineFactory.setExecutionMode(isExecutionMode());
             engineFactory.setDependencyManager(getDependencyManager());
         }
