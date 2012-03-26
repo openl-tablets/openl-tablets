@@ -57,7 +57,7 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException{
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(rulesClass.getClassLoader());
+        Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().makeInstance();
         } finally {
