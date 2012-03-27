@@ -29,12 +29,12 @@
                 opacity: 0.5;
             }
         </style>
-        <div>
+        <h:panelGroup rendered="#{not empty studio.allProjects}" layout="block">
             <span id="nameFilter">
                 <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
                 <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
             </span>
-        </div>
+        </h:panelGroup>
     </ui:define>
 
     <ui:define name="workspace">
