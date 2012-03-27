@@ -7,6 +7,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.algorithm.FailOnMissException;
+import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
@@ -43,20 +44,10 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
         boolean atLeastOneRuleFired = false;
 
         while (rules.hasNext()) {
-
             atLeastOneRuleFired = true;
             int ruleN = rules.nextInt();
 
-            for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
-
-                Object actionResult = getInvokableMethod().getActionRows()[j].executeAction(ruleN, target, params, env);
-
-                if (getInvokableMethod().getActionRows()[j].isReturnAction() && returnValue == null 
-                        && (actionResult != null || (getInvokableMethod().getActionRows()[j].getParamValues()!= null 
-                                && getInvokableMethod().getActionRows()[j].getParamValues()[ruleN] != null))) {
-                    returnValue = actionResult;
-                }
-            }
+            returnValue = getReturn(target, params, env, ruleN);
             if (returnValue != null) {
                 return returnValue;
             }
@@ -81,7 +72,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
             return invokeOptimized(target, params, env);
         }
 
-        Object ret = null;
+        Object returnValue = null;
 
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject)getTraceObject(params);
         tracer.push(traceObject);
@@ -96,20 +87,10 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                 try {
                     tracer.push(traceObject.traceRule(ruleN));
 
-                    for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
-                        Object actionResult = 
-                            getInvokableMethod().getActionRows()[j].executeAction(ruleN, target, params, env);
-
-                        if (getInvokableMethod().getActionRows()[j].isReturnAction() && ret == null
-                                && (actionResult != null 
-                                        || (getInvokableMethod().getActionRows()[j].getParamValues()!= null
-                                        && getInvokableMethod().getActionRows()[j].getParamValues()[ruleN] != null))) {
-                            ret = actionResult;
-                        }
-                    }
-                    if (ret != null) {
-                        traceObject.setResult(ret);
-                        return ret;
+                    returnValue = getReturn(target, params, env, ruleN);
+                    if (returnValue != null) {
+                        traceObject.setResult(returnValue);
+                        return returnValue;
                     }
                 } finally {
                     tracer.pop();
@@ -121,8 +102,23 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
             tracer.pop();
         }
 
-        return ret;
+        return returnValue;
     }
+
+	protected Object getReturn(Object target, Object[] params, IRuntimeEnv env, int ruleN) {
+		Object returnValue = null;
+		for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
+			IAction action = getInvokableMethod().getActionRows()[j];
+			
+		    Object actionResult = action.executeAction(ruleN, target, params, env);
+
+		    if (action.isReturnAction() && returnValue == null && (actionResult != null || (action.getParamValues()!= null
+		                    && action.getParamValues()[ruleN] != null))) {
+		        returnValue = actionResult;
+		    }
+		}
+		return returnValue;
+	}
     
     private void addErrorToTrace(DecisionTableTraceObject traceObject, Throwable e) {
         traceObject.setError(e);
@@ -136,6 +132,5 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
     
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         return invokeOptimized(target, params, env);
-    }
-
+    }    
 }
