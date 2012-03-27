@@ -468,5 +468,9 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         return new ParameterDeclaration(type, name);
     }
-
+    
+    @Override
+    public String toString() {    	 
+    	return String.format("%s : %s", name, codeTable.toString());
+    }
 }
