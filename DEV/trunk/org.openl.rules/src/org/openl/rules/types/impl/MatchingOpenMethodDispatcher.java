@@ -38,9 +38,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private XlsModuleOpenClass moduleOpenClass;
 
-    private ATableTracerNode traceObject;
-
     private List<IOpenMethod> candidatesSorted;
+    
+    private ATableTracerNode traceObject;
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super();
@@ -66,7 +66,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 getCandidates().set(pos, candidate);
             }
         }
-
     }
 
     /**
@@ -83,9 +82,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         return -1;
     }
+    
 
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        traceObject = null;
+    	Object returnResult = null;
+    	traceObject = null;
         Tracer tracer = Tracer.getTracer();
 
         /**
@@ -98,14 +99,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         traceObject = getTracedObject(selected, params);
         tracer.push(traceObject);
         try {
-            return super.invoke(target, params, env);
-        } catch (Exception e) {
-            traceObject.setError(e);
-            return null;
+        	returnResult = super.invoke(target, params, env);
+        } catch (RuntimeException e) {
+            traceObject.setError(e);            
+            throw e;
         } finally {
             tracer.pop();
         }
-
+        return returnResult;
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -145,12 +146,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
-        selectCandidates(selected, (IRulesRuntimeContext) context);
-
-        if (Tracer.isTracerOn()) {
-            traceObject.setResult(selected);
-        }
-
+        selectCandidates(selected, (IRulesRuntimeContext) context);        
+        
         maxMinSelectCandidates(selected, (IRulesRuntimeContext) context);
 
         switch (selected.size()) {
@@ -163,7 +160,17 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         context.toString()));
 
             case 1:
-                return selected.iterator().next();
+            	
+            	IOpenMethod matchingMethod = selected.iterator().next();
+            	// TODO : refactor
+            	// traceObject shouldn`t be the field of the class.
+            	// trace information should be set only into trace method.
+            	//
+            	if (Tracer.isTracerOn()) {
+                    traceObject.setResult(matchingMethod);
+                }
+            	
+                return matchingMethod;
 
             default:
                 // TODO add more detailed information about error, consider
