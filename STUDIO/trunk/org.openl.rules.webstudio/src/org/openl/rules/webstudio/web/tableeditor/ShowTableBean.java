@@ -93,8 +93,8 @@ public class ShowTableBean {
             studio.setTableUri(uri);
         }
 
-        if (table == null) {
-            try {
+        if (table != null) {
+            /*try {
                 String infoLink = 
                     String.format("message.xhtml?summary=%s", 
                         INFO_MESSAGE);
@@ -103,13 +103,13 @@ public class ShowTableBean {
             } catch (IOException e) {                
                 LOG.error("Can`t redirect to info message page", e);
             }
-        } else {
+        } else {*/
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
                     || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
                 targetTables = model.getTargetTables(uri);
             }
-            
+
             initProblems();
             initTests(model);        
             initParams();

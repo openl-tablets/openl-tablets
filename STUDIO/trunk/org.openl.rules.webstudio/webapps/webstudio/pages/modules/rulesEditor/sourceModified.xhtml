@@ -19,8 +19,7 @@
             }
         </script>
 
-        <a4j:jsFunction name="reload" action="#{mainBean.reload}"
-            oncomplete="top.location.href='#{contextPath}'" />
+        <a4j:jsFunction name="reload" action="#{mainBean.reload}" oncomplete="top.reloadCurrent()" />
 
         <h:form>
             <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000"
