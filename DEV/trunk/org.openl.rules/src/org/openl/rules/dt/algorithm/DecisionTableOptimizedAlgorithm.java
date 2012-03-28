@@ -245,33 +245,35 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    private static IRangeAdaptor<? extends Object, ? extends Object> getRangeAdaptor(IOpenClass methodType, IOpenClass paramType) {
+    private static IRangeAdaptor<? extends Object, ? extends Object> getRangeAdaptor(IOpenClass methodType,
+            IOpenClass paramType) {
         if (isMethodTypeNumber(methodType)) {
             if (isParameterIntRange(paramType)) {
-                return new IntRangeAdaptor();
+                return IntRangeAdaptor.getInstance();
             } else if (isParameterDoubleRange(paramType)) {
-                return new DoubleRangeAdaptor();
+                return DoubleRangeAdaptor.getInstance();
             }
         }
         return null;
     }
 
-	private static boolean isParameterDoubleRange(IOpenClass paramType) {
-		return org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass());
-	}
+    private static boolean isParameterDoubleRange(IOpenClass paramType) {
+        return org.openl.rules.helpers.DoubleRange.class.equals(paramType.getInstanceClass());
+    }
 
-	private static boolean isParameterIntRange(IOpenClass paramType) {
-		return org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass());
-	}
+    private static boolean isParameterIntRange(IOpenClass paramType) {
+        return org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass());
+    }
 
-	private static boolean isMethodTypeNumber(IOpenClass methodType) {
-		return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true);
-	}
+    private static boolean isMethodTypeNumber(IOpenClass methodType) {
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true);
+    }
 
     // TODO to do - fix _NO_PARAM_ issue
 
     @SuppressWarnings("unchecked")
-    public static IConditionEvaluator makeEvaluator(ICondition condition, IOpenClass methodType) throws SyntaxNodeException {
+    public static IConditionEvaluator makeEvaluator(ICondition condition, IOpenClass methodType)
+            throws SyntaxNodeException {
 
         IParameterDeclaration[] params = condition.getParams();
 
@@ -283,27 +285,28 @@ public class DecisionTableOptimizedAlgorithm {
                 if (methodType.equals(paramType) || methodType.getInstanceClass().equals(paramType.getInstanceClass())) {
                     return new EqualsIndexedEvaluator();
                 }
-                
+
                 if (methodType instanceof JavaOpenClass && ((JavaOpenClass) methodType).equalsAsPrimitive(paramType)) {
                     return new EqualsIndexedEvaluator();
                 }
 
-
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
 
-                if (aggregateInfo.isAggregate(paramType) && aggregateInfo.getComponentType(paramType)
-                    .isAssignableFrom(methodType)) {
+                if (aggregateInfo.isAggregate(paramType)
+                        && aggregateInfo.getComponentType(paramType).isAssignableFrom(methodType)) {
 
                     return new ContainsInArrayIndexedEvaluator();
                 }
 
-                IRangeAdaptor<Object, Object> rangeAdaptor = (IRangeAdaptor<Object, Object>) getRangeAdaptor(methodType, paramType);
+                IRangeAdaptor<Object, Object> rangeAdaptor = (IRangeAdaptor<Object, Object>) getRangeAdaptor(
+                        methodType, paramType);
 
                 if (rangeAdaptor != null) {
                     return new RangeIndexedEvaluator(rangeAdaptor);
                 }
 
-                if (JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class).equals(methodType)) {
+                if (JavaOpenClass.BOOLEAN.equals(methodType)
+                        || JavaOpenClass.getOpenClass(Boolean.class).equals(methodType)) {
                     return new DefaultConditionEvaluator();
 
                 }
@@ -319,11 +322,13 @@ public class DecisionTableOptimizedAlgorithm {
 
                     Class<?> clazz = methodType.getInstanceClass();
 
-                    if (clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class && !Comparable.class.isAssignableFrom(clazz)) {
+                    if (clazz != int.class && clazz != long.class && clazz != double.class && clazz != float.class
+                            && !Comparable.class.isAssignableFrom(clazz)) {
 
                         String message = String.format("Type '%s' is not Comparable", methodType.getName());
 
-                        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
+                        throw SyntaxNodeExceptionUtils
+                                .createError(message, null, null, condition.getSourceCodeModule());
                     }
 
                     return new RangeIndexedEvaluator(null);
@@ -354,8 +359,7 @@ public class DecisionTableOptimizedAlgorithm {
         String parametersString = StringUtils.join(names, ",");
 
         String message = String.format("Can not make a Condition Evaluator for parameter %s and [%s]",
-            methodType.getName(),
-            parametersString);
+                methodType.getName(), parametersString);
 
         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
     }
@@ -405,8 +409,8 @@ public class DecisionTableOptimizedAlgorithm {
         // we do not need dependencies after clearing conditions
         dependencies = null;
     }
-    
-    private boolean isDependecyOnConditionExists(ICondition condition){
+
+    private boolean isDependecyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {
             if (field instanceof ConditionOrActionParameterField
                     && ((ConditionOrActionParameterField) field).getConditionOrAction() == condition) {
@@ -529,7 +533,7 @@ public class DecisionTableOptimizedAlgorithm {
 
                     if (value instanceof IOpenMethod) {
                         throw SyntaxNodeExceptionUtils.createError("Can not index conditions with formulas",
-                            table.getSyntaxNode());
+                                table.getSyntaxNode());
                     }
                     values[j] = value;
                 }

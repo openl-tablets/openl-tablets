@@ -22,13 +22,14 @@ public class HitBucket implements Comparable<HitBucket> {
     }
 
     public int compareTo(HitBucket hb) {
-
-        if (weight == hb.weight) {
-           return element.getUri().compareTo(hb.getElement().getUri()); 
-        } else if (weight > hb.weight) {
+        if (weight > hb.weight) {
             return -1;
         } else {
-            return 1;
+            if (weight < hb.weight){
+                return 1;
+            }else{
+                return element.getUri().compareTo(hb.getElement().getUri()); 
+            }
         }
     }
 

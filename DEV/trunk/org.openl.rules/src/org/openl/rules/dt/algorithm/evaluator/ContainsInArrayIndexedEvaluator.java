@@ -102,10 +102,10 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
         for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
 
             Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
-            nodeMap.put(element.getKey(), ((DecisionTableRuleNodeBuilder) element.getValue()).makeNode(element.getKey()));
+            nodeMap.put(element.getKey(), ((DecisionTableRuleNodeBuilder) element.getValue()).makeNode());
         }
 
-        return new EqualsIndex(emptyBuilder.makeNode("Empty"), nodeMap);
+        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
 

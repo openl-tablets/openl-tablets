@@ -1,10 +1,11 @@
 package org.openl.rules.dt;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DecisionTableRuleNodeBuilder {
 
-    private ArrayList<Integer> rules;
+    private List<Integer> rules;
 
     public DecisionTableRuleNodeBuilder() {
         this.rules = new ArrayList<Integer>();
@@ -15,10 +16,10 @@ public class DecisionTableRuleNodeBuilder {
     }
 
     public void addRule(int rule) {
-        rules.add(new Integer(rule));
+        rules.add(Integer.valueOf(rule));
     }
 
-    public DecisionTableRuleNode makeNode(Object value) {
+    public DecisionTableRuleNode makeNode() {
         return new DecisionTableRuleNode(makeRulesAry());
     }
 

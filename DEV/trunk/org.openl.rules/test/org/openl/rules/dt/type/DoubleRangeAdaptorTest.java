@@ -9,7 +9,7 @@ public class DoubleRangeAdaptorTest {
 	
 	@Test
 	public void testMax() {
-		DoubleRangeAdaptor adaptor = new DoubleRangeAdaptor();
+	    IRangeAdaptor<DoubleRange, Double> adaptor = DoubleRangeAdaptor.getInstance();
 		
 		DoubleRange range = new DoubleRange("[1;15]");		
 		assertEquals(Double.valueOf(15), (Double)adaptor.getMax(range), Math.ulp(Double.valueOf(15)));

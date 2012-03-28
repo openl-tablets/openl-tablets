@@ -17,8 +17,6 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
     public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
         return indexedDomain(condition);
     }
-    
-    
 
     protected abstract IDomain<? extends Object> indexedDomain(ICondition condition) throws DomainCanNotBeDefined;    
     

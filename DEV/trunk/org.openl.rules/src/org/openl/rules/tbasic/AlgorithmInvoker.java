@@ -8,7 +8,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.types.IDynamicObject;
 import org.openl.types.impl.DelegatedDynamicObject;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -20,7 +19,7 @@ import org.openl.vm.trace.Tracer;
  */
 public class AlgorithmInvoker extends RulesMethodInvoker {
 
-    private final Log LOG = LogFactory.getLog(AlgorithmInvoker.class);
+    private final Log log = LogFactory.getLog(AlgorithmInvoker.class);
 
     public AlgorithmInvoker(Algorithm algorithm) {
         super(algorithm);
@@ -61,7 +60,7 @@ public class AlgorithmInvoker extends RulesMethodInvoker {
             algorithmTracer.setResult(resultValue);
         } catch (RuntimeException e) {
             algorithmTracer.setError(e);
-            LOG.error("Error when tracing TBasic table", e);
+            log.error("Error when tracing TBasic table", e);
             throw e;
         } finally {
             Tracer.getTracer().pop();

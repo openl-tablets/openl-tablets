@@ -20,7 +20,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
  */
 public class TableIndexParser implements IIndexParser {
     
-    private static final Log LOG = LogFactory.getLog(TableIndexParser.class);
+    private final Log log = LogFactory.getLog(TableIndexParser.class);
 
     public String getCategory() {
         return IDocumentType.WORKSHEET_TABLE.getCategory();
@@ -57,7 +57,7 @@ public class TableIndexParser implements IIndexParser {
                     cell = table.getCell(j, i); 
                     cellValue = cell.getStringValue();
                 } catch (RuntimeException e) {
-                    LOG.warn("There is an error in cell in table:["+tableSrc.getDisplayName()+"]", e);
+                    log.warn("There is an error in cell in table:["+tableSrc.getDisplayName()+"]", e);
                 }
                 
                 if (cellValue != null) {                    

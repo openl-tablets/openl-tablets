@@ -24,7 +24,7 @@ import org.openl.types.IOpenMember;
  * @author PUdalau
  */
 public class SimpleEngineFactory extends ASourceCodeEngineFactory {
-    private final Log LOG = LogFactory.getLog(SimpleEngineFactory.class);
+    private final Log log = LogFactory.getLog(SimpleEngineFactory.class);
     private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
 
     private CompiledOpenClass compiledOpenClass;
@@ -69,7 +69,7 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
                 if (BeanByteCodeGenerator.isClassLoaderContainsClass(classLoader, className)) {
-                    LOG.warn(String.format("Previously generated  interface '%s' will be used as service class.",
+                    log.warn(String.format("Previously generated  interface '%s' will be used as service class.",
                         className));
                     interfaceClass = classLoader.loadClass(className);
                 } else {

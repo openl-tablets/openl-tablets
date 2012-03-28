@@ -156,10 +156,10 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
         for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
             Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
-            nodeMap.put(element.getKey(), element.getValue().makeNode(element.getKey()));
+            nodeMap.put(element.getKey(), element.getValue().makeNode());
         }
 
-        return new EqualsIndex(emptyBuilder.makeNode("Empty"), nodeMap);
+        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
     public IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined {
