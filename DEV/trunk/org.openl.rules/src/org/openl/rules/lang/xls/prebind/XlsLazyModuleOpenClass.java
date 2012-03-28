@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenField;
@@ -24,17 +25,19 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             String name,
             XlsMetaInfo metaInfo,
             OpenL openl,
+            IDataBase dbase,
             IPrebindHandler prebindHandler) {
-        this(schema, name, metaInfo, openl, prebindHandler, null);
+        this(schema, name, metaInfo, openl, dbase, prebindHandler,   null);
     }
 
     public XlsLazyModuleOpenClass(IOpenSchema schema,
             String name,
             XlsMetaInfo metaInfo,
             OpenL openl,
-            IPrebindHandler prebindHandler,
+            IDataBase dbase,
+            IPrebindHandler prebindHandler, 
             Set<CompiledOpenClass> usingModules) {
-        super(schema, name, metaInfo, openl, usingModules);
+        super(schema, name, metaInfo, openl, dbase, usingModules);
         this.prebindHandler = prebindHandler;
     }
 

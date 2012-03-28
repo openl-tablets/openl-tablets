@@ -15,8 +15,10 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 	
 	private IRuntimeContext context;
 	
-	public MockRuntimeEnv() {
+	public MockRuntimeEnv(MockRuntimeEnv mockRuntimeEnv) {
 		this(new MockRunner(), 0, new Object[] {});
+		this.pushThis(mockRuntimeEnv.getThis());
+		this.pushLocalFrame(this.getLocalFrame());
 	}
 	
 	public MockRuntimeEnv(IOpenRunner runner, int frameSize, Object[] params) {
@@ -79,4 +81,10 @@ public class MockRuntimeEnv implements IRuntimeEnv {
     public void pushContext(IRuntimeContext context) {
         throw new NotImplementedException();
     }
+
+	@Override
+	public IRuntimeEnv cloneEnvForMT() {
+		return new MockRuntimeEnv(this);
+	
+	}
 }

@@ -34,11 +34,18 @@ public class DataBase implements IDataBase {
             throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
         }
 
-        table = new Table(tableName, tsn);
+        table = makeNewTable(tableName, tsn);
         tables.put(tableName, table);
 
         return table;
     }
+    
+    
+    protected ITable makeNewTable(String tableName, TableSyntaxNode tsn)
+    {
+    	return new Table(tableName, tsn);
+    }
+    
 
     public void preLoadTable(ITable table,
             ITableModel dataModel,

@@ -8,6 +8,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import org.openl.OpenL;
@@ -139,6 +140,8 @@ public class ColumnDescriptor {
             if (!valuesAnArray) {
                 Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
 
+                
+                
                 if (res != null) {
                     field.set(literal, res, getRuntimeEnv());
                 }
@@ -149,7 +152,7 @@ public class ColumnDescriptor {
         } else {
             /**
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during preparing column descriptor. 
+             * processed during prepDaring column descriptor. 
              * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
              * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
              * boolean hasColumnTytleRow)}

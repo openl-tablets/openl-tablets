@@ -304,7 +304,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
-    public void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
+    public synchronized void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
         CellKey ck = new CellKey(col, row);
         if (meta == null) {
             metaInfoMap.remove(ck);

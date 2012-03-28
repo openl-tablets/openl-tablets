@@ -27,7 +27,7 @@ public class String2DateConvertor extends LocaleDependConvertor implements IStri
         return parseDate(data, format);
     }
 
-    public Date parseDate(String data, String format) {
+    public synchronized Date parseDate(String data, String format) {
         DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, getLocale());
 
         try {

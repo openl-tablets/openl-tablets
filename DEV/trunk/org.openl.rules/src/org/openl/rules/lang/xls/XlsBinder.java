@@ -40,7 +40,9 @@ import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
+import org.openl.rules.data.DataBase;
 import org.openl.rules.data.DataNodeBinder;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.dt.DecisionTableNodeBinder;
@@ -81,6 +83,8 @@ public class XlsBinder implements IOpenBinder {
     private static final Log LOG = LogFactory.getLog(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
+    public static final String DEFAULT_OPENL_NAME = "org.openl.rules.java";
+    
     private static final String[][] BINDERS = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_DT.toString(), DecisionTableNodeBinder.class.getName() },
@@ -201,14 +205,18 @@ public class XlsBinder implements IOpenBinder {
      */
     private IBoundNode bindWithDependencies(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext,
             Set<CompiledOpenClass> moduleDependencies) {
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, moduleDependencies);        
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), moduleDependencies);        
         
         RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode, 
             bindingContext, moduleDependencies, moduleOpenClass);
         return processBinding(moduleNode, openl, moduleContext, moduleOpenClass);
     }
     
-    /**
+    protected IDataBase getModuleDatabase() {
+		return new DataBase();
+	}
+
+	/**
      * Creates {@link RulesModuleBindingContext} and populates it with types from dependent modules.
      * 
      * @param moduleNode just for processing error
@@ -258,7 +266,7 @@ public class XlsBinder implements IOpenBinder {
 
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
 
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, null);
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(),  null);
         
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
 
@@ -278,6 +286,9 @@ public class XlsBinder implements IOpenBinder {
             OpenL openl,
             RulesModuleBindingContext moduleContext,
             XlsModuleOpenClass moduleOpenClass) {
+    	
+    	
+//    	StopWatch.start("xlsbinding-"+moduleOpenClass.getName());
         processExtensions(moduleOpenClass, moduleNode, moduleNode.getExtensionNodes(), moduleContext);
         
         IVocabulary vocabulary = makeVocabulary(moduleNode);
@@ -320,6 +331,9 @@ public class XlsBinder implements IOpenBinder {
             moduleContext);
         dispTableBuilder.build();
 
+//    	StopWatch.end("xlsbinding-"+moduleOpenClass.getName(), true);
+        
+        
         return topNode;
     }
 
@@ -348,16 +362,17 @@ public class XlsBinder implements IOpenBinder {
      * @param dependencies set of dependent modules for creating module.
      * @return
      */
-    protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl,
+    protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl, 
+    	IDataBase dbase,	
         Set<CompiledOpenClass> moduleDependencies) {
 
         XlsModuleOpenClass module = null;
         if (moduleDependencies == null) {
             module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
-                openl);
+                openl, dbase);
         } else {
             module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
-                openl, moduleDependencies);
+                openl, dbase, moduleDependencies);
         }
         
         return module;
@@ -517,8 +532,15 @@ public class XlsBinder implements IOpenBinder {
         return binder.preBind(tableSyntaxNode, openl, bindingContext, moduleOpenClass);
     }
 
+    
+    protected String getDefaultOpenLName()
+    {
+    	return DEFAULT_OPENL_NAME;
+    }
+    
+    
     private String getOpenLName(OpenlSyntaxNode osn) {
-        return osn == null ? "org.openl.rules.java" : osn.getOpenlName();
+        return osn == null ? getDefaultOpenLName()  : osn.getOpenlName();
     }
 
     private TableSyntaxNode[] getTableSyntaxNodes(XlsModuleSyntaxNode moduleSyntaxNode,
