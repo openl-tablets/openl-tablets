@@ -119,7 +119,7 @@ public class TestDescription {
         return executionParams;
     }
 
-    public TestUnit runTest(Object target, IRuntimeEnv env, int ntimes) {
+    public TestUnit runTest(Object target, IRuntimeEnv env, long ntimes) {
         if (ntimes <= 0) {
             return runTest(target, env, 1);
         } else {

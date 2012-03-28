@@ -46,7 +46,7 @@ public class Benchmark {
     RunInfo makeRun(BenchmarkUnit bu, int minRuns, int ms) throws Exception {
 
         int minMillis = ms == -1 ? bu.getMinms() : ms;
-        int runs = minRuns;
+        long runs = minRuns;
         while (true) {
             long time = 0;
             if (bu.isTestMemory()) {
@@ -73,7 +73,7 @@ public class Benchmark {
 
             double mult = Math.min(200, (minMillis) * 1.1 / time);
 
-            int newRuns = (int) Math.ceil(runs * mult);
+            long newRuns = (long) Math.ceil(runs * mult);
             runs = Math.max(runs + 1, newRuns);
 
         }

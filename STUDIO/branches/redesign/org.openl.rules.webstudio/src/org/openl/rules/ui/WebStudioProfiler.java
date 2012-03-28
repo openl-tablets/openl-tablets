@@ -35,7 +35,7 @@ public class WebStudioProfiler extends Profiler.Unit {
         }
 
         @Override
-        public void runNtimes(int times) throws Exception {
+        public void runNtimes(long times) throws Exception {
             ((IBenchmarkableMethod) m).invokeBenchmark(instance, params, env, times);
         }
 
