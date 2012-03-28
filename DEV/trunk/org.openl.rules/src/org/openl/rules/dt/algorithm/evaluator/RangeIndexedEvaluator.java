@@ -186,7 +186,10 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 continue;
             }
             if (idx == rules.length) {
-                result[i] = itr.next();
+                result[i] = current;
+                if (itr.hasNext()){
+                    current = itr.next();
+                }
                 continue;
             }
 
