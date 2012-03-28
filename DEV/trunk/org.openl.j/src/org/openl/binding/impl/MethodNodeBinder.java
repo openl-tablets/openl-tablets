@@ -62,6 +62,14 @@ public class MethodNodeBinder extends ANodeBinder {
         return new MethodBoundNode(node, children, methodCaller);
     }
     
+    
+    protected IBoundNode makeArraParametersMethod(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
+            IOpenClass[] argumentTypes, IBoundNode[] children) throws Exception
+    {
+    	return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children)
+        .bind(methodNode, bindingContext);
+    }
+    
     private IBoundNode bindWithAdditionalBinders(ISyntaxNode methodNode, IBindingContext bindingContext, String methodName,
             IOpenClass[] argumentTypes, IBoundNode[] children, int childrenCount) throws Exception {
         
@@ -69,8 +77,7 @@ public class MethodNodeBinder extends ANodeBinder {
         // array argument (but the component type of it on the same place). And call it several times on runtime 
         // for collecting results.
         //
-        IBoundNode arrayParametersMethod = new ArrayArgumentsMethodBinder(methodName, argumentTypes, children)
-            .bind(methodNode, bindingContext);
+        IBoundNode arrayParametersMethod = makeArraParametersMethod(methodNode, bindingContext, methodName, argumentTypes, children);
         
         if (arrayParametersMethod != null) {
             String bindingType = ARRAY_ARGUMENT_METHOD;

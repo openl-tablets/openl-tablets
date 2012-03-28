@@ -7,6 +7,8 @@ import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.data.DataBase;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.AliasDatatypeBoundNode;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.XlsBinder;
@@ -60,11 +62,13 @@ public class XlsPreBinder extends XlsBinder {
     @Override
     protected XlsLazyModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
+            IDataBase dbase,
             Set<CompiledOpenClass> moduleDependencies) {
         return new XlsLazyModuleOpenClass(null,
             XlsHelper.getModuleName(moduleNode),
             new XlsMetaInfo(moduleNode),
             openl,
+            dbase,
             prebindHandler,
             moduleDependencies);
     }

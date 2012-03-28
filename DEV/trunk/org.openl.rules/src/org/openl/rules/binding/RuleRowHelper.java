@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaHolder;
@@ -422,7 +421,7 @@ public class RuleRowHelper {
 
     @SuppressWarnings("unchecked")
     private static void validateValue(Object value, IOpenClass paramType) throws Exception {        
-        IDomain domain = paramType.getDomain();
+        IDomain<Object> domain = (IDomain<Object>)paramType.getDomain();
 
         if (domain == null) {
             // there is no domain so nothing to validate.

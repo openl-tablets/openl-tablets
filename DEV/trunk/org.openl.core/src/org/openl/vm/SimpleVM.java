@@ -106,6 +106,13 @@ public class SimpleVM implements IOpenVM {
 			
 		}
 		
+		public SimpleRuntimeEnv(SimpleRuntimeEnv env) {
+			this();
+			pushThis(env.getThis());
+			pushContext(env.getContext());
+			pushLocalFrame(env.getLocalFrame());
+		}
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -170,6 +177,11 @@ public class SimpleVM implements IOpenVM {
         public boolean isContextManagingSupported() {
             return true;
         }
+
+		@Override
+		public IRuntimeEnv cloneEnvForMT() {
+			return new SimpleRuntimeEnv(this);
+		}
 	}
 	
 	/*

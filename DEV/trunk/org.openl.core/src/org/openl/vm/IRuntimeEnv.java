@@ -48,4 +48,12 @@ public interface IRuntimeEnv {
 	IRuntimeContext popContext();
 
     void pushContext(IRuntimeContext context);
+    
+    
+    /**
+     * 
+     * @return cloned copy to be used in multi-threaded environment 
+     */
+    IRuntimeEnv cloneEnvForMT();
+    
 }

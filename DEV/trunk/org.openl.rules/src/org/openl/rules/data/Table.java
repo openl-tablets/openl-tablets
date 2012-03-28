@@ -20,16 +20,16 @@ import org.openl.util.BiMap;
 
 public class Table implements ITable {
 
-    private ILogicalTable logicalTable;
-    private ITableModel dataModel;
+    protected ILogicalTable logicalTable;
+    protected ITableModel dataModel;
 
-    private String tableName;
-    private TableSyntaxNode tableSyntaxNode;
+    protected String tableName;
+    protected TableSyntaxNode tableSyntaxNode;
 
-    private Object dataArray;
+    protected Object dataArray;
 
-    private BiMap<Integer, Object> rowIndexMap = new BiMap<Integer, Object>();
-    private BiMap<Integer, String> primaryIndexMap = new BiMap<Integer, String>();
+    protected BiMap<Integer, Object> rowIndexMap = new BiMap<Integer, Object>();
+    protected BiMap<Integer, String> primaryIndexMap = new BiMap<Integer, String>();
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -225,7 +225,7 @@ public class Table implements ITable {
         }
     }
 
-    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException 
+    protected void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException 
         {
         
         boolean constructor = isConstructor();
@@ -255,7 +255,7 @@ public class Table implements ITable {
         Array.set(dataArray, rowNum - startRow, literal);
     }
 
-    private Object processColumn(OpenlToolAdaptor openlAdapter, boolean constructor, int rowNum, Object literal,
+    protected Object processColumn(OpenlToolAdaptor openlAdapter, boolean constructor, int rowNum, Object literal,
             int columnNum) throws SyntaxNodeException {
         
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
@@ -313,7 +313,7 @@ public class Table implements ITable {
      *         if table has or no column title row.
      * @see {@link DataNodeBinder#getDataWithTitleRows}
      */
-    private int getStartRowForData() {
+    protected int getStartRowForData() {
 
         if (dataModel.hasColumnTitleRow()) {
             return 1;

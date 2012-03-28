@@ -117,4 +117,9 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
     public void pushContext(IRuntimeContext context) {
         env.pushContext(context);
     }
+
+	@Override
+	public IRuntimeEnv cloneEnvForMT() {
+		return new TBasicContextHolderEnv(env.cloneEnvForMT(), tbasicTarget, tbasicParams, tbasicVm);
+	}
 }

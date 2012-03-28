@@ -31,19 +31,20 @@ import org.openl.types.impl.MethodKey;
  */
 public class XlsModuleOpenClass extends ModuleOpenClass {
 
-    private IDataBase dataBase = new DataBase();
+    private IDataBase dataBase = null;
 	
-	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl) {
-        this(schema, name, metaInfo, openl, null);
+	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase) {
+        this(schema, name, metaInfo, openl, dbase, null);
 	}
 	
 	/**
 	 * Constructor for module with dependent modules
 	 *
 	 */
-	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, 
+	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase, 
           Set<CompiledOpenClass> usingModules) {
 	    super(schema, name, openl, usingModules);
+	    this.dataBase = dbase;
 	    this.metaInfo = metaInfo;
 	}
 	

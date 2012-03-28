@@ -8,3 +8,4 @@ Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.lib,
  org.openl.grammars;visibility:=reexport
+Export-Package: org.openl.binding.impl
