@@ -120,7 +120,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return invokeBenchmark(target, params, env, 1);
     }
 
-    public TestUnitsResults invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, int ntimes) {
+    public TestUnitsResults invokeBenchmark(Object target, Object[] params, IRuntimeEnv env, long ntimes) {
         return new TestSuite(this).invoke(target, env, ntimes);
     }
 

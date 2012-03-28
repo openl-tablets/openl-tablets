@@ -57,7 +57,7 @@ public abstract class BenchmarkUnit {
         return ((end - start) + 500L * 1000) / 1000000;
     }
 
-    public long millisecondsToRun(int times) throws Exception {
+    public long millisecondsToRun(long times) throws Exception {
         long start = System.nanoTime();
         runNtimes(times);
         long end = System.nanoTime();
@@ -98,8 +98,8 @@ public abstract class BenchmarkUnit {
      */
     protected abstract void run() throws Exception;
 
-    public void runNtimes(int times) throws Exception {
-        for (int i = 0; i < times; ++i) {
+    public void runNtimes(long times) throws Exception {
+        for (long i = 0; i < times; ++i) {
             run();
         }
     }

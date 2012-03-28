@@ -38,7 +38,7 @@ public class TestSuite implements INamedThing {
         return tests[testNumber];
     }
 
-    public TestUnitsResults invoke(Object target, IRuntimeEnv env, int ntimes) {
+    public TestUnitsResults invoke(Object target, IRuntimeEnv env, long ntimes) {
         TestUnitsResults testUnitResults = new TestUnitsResults(this);
 
         for (int i = 0; i < getNumberOfTests(); i++) {
