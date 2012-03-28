@@ -2,7 +2,15 @@ package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.IntRange;
 
-public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
+public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
+    private final static IntRangeAdaptor INSTANCE = new IntRangeAdaptor();
+
+    private IntRangeAdaptor() {
+    }
+
+    public static IRangeAdaptor<IntRange, Integer> getInstance() {
+        return INSTANCE;
+    }
 
     /**
      * {@inheritDoc}
@@ -25,7 +33,7 @@ public class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
         return Integer.valueOf(range.getMin());
     }
 
-    public Integer adaptValueType(Number value) {        
+    public Integer adaptValueType(Number value) {
         return Integer.valueOf(value.intValue());
     }
 

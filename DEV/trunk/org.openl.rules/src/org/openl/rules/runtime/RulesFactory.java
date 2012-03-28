@@ -5,14 +5,12 @@ import java.util.List;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.impl.component.ComponentOpenClass.GetOpenClass;
 import org.openl.binding.impl.component.ComponentOpenClass.ThisField;
-import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;

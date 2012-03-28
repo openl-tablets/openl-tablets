@@ -19,7 +19,15 @@ import org.openl.types.IOpenClass;
  * @author snshor
  * 
  */
-public class DecisionTableValidator implements IValidator {
+public final class DecisionTableValidator implements IValidator {
+    private static final DecisionTableValidator INSTANCE = new DecisionTableValidator();
+    
+    private DecisionTableValidator(){
+    }
+    
+    public static DecisionTableValidator getInstance(){
+        return INSTANCE;
+    }
 
     public static DesionTableValidationResult validateTable(DecisionTable decisionTable,
             Map<String, IDomainAdaptor> domains,
@@ -28,13 +36,12 @@ public class DecisionTableValidator implements IValidator {
         DecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
         OpenL openl = ((XlsModuleOpenClass) type).getOpenl();
 
-        return (DesionTableValidationResult) new DecisionTableValidator().validate(validatedObject, openl);
+        return (DesionTableValidationResult) getInstance().validate(validatedObject, openl);
     }
 
     public IValidationResult validate(IValidatedObject validatedObject, OpenL openl) {
         return new ValidationAlgorithm((IDecisionTableValidatedObject) validatedObject, openl).validate();
     }
-
     
     /**
      * Provides unique name for Condition parameters
@@ -47,7 +54,4 @@ public class DecisionTableValidator implements IValidator {
     static public String getUniqueConditionParamName(ICondition condition, String pname) {
         return condition.getName() + "_" + pname;
     }
-
-    
-
 }

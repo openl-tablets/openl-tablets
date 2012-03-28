@@ -2,10 +2,9 @@ package org.openl.rules.utils.exception;
 
 import org.openl.exception.OpenLRuntimeException;
 
-public class ExceptionUtils {
+public final class ExceptionUtils {
     
     private ExceptionUtils(){}
-    
     
     private static String parseNumberFormatExceptionMessage(Throwable t) {
         String[] splittedMessage = t.getMessage().split(" ");            

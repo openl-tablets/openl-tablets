@@ -101,20 +101,6 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
         return true;
     }
 
-    /**
-     * @param max the max to set
-     */
-    protected void setMax(int max) {
-        this.max = max;
-    }
-
-    /**
-     * @param min the min to set
-     */
-    protected void setMin(int min) {
-        this.min = min;
-    }
-
     public int size() {
         return max - min + 1;
     }

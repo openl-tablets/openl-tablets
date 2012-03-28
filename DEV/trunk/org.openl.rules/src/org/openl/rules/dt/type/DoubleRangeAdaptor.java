@@ -3,11 +3,19 @@ package org.openl.rules.dt.type;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.util.RangeWithBounds.BoundType;
 
-public class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
+public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
+    private final static DoubleRangeAdaptor INSTANCE = new DoubleRangeAdaptor();
+    
+    private DoubleRangeAdaptor(){
+    }
+    
+    public static IRangeAdaptor<DoubleRange, Double> getInstance(){
+        return INSTANCE;
+    }
 
     public Comparable<Double> getMax(DoubleRange range) {
         double max = range.getUpperBound();
-        if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() != BoundType.INCLUDING) {
+        if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() == BoundType.EXCLUDING) {
         	// the max should be moved to the left,
         	// to ensure that range.getUpperBound() won`t get to the interval
         	//

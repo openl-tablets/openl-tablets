@@ -33,7 +33,7 @@ public class RangeIndexedEvaluatorTest {
 		params[1] = new Object[]{range2};
 		params[2] = new Object[]{range3};
 		
-		IRangeAdaptor adaptor = new DoubleRangeAdaptor();
+		IRangeAdaptor adaptor = DoubleRangeAdaptor.getInstance();
 		RangeIndexedEvaluator eval = new RangeIndexedEvaluator(adaptor);
 		RangeIndex rangeIndex = (RangeIndex)eval.makeIndex(params, new IntRangeDomain(0, params.length - 1).intIterator());
 		
@@ -62,7 +62,7 @@ public class RangeIndexedEvaluatorTest {
 	
 	@Test
 	public void testIntRangeIncluding() {
-		IRangeAdaptor adaptor1 = new IntRangeAdaptor();
+		IRangeAdaptor adaptor1 = IntRangeAdaptor.getInstance();
 		RangeIndexedEvaluator eval1 = new RangeIndexedEvaluator(adaptor1);
 		IntRange range1 = new IntRange("1-12");
 		IntRange range2 = new IntRange("16-18");

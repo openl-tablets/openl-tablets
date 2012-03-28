@@ -81,10 +81,10 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
             Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
 
-            nodeMap.put(element.getKey(), element.getValue().makeNode(element.getKey()));
+            nodeMap.put(element.getKey(), element.getValue().makeNode());
         }
 
-        EqualsIndex index = new EqualsIndex(emptyBuilder.makeNode("Empty"), nodeMap);
+        EqualsIndex index = new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
 
         return index;
 
