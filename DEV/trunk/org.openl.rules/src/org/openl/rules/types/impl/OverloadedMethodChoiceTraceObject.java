@@ -2,6 +2,7 @@ package org.openl.rules.types.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
@@ -31,32 +32,29 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     public DecisionTable getDispatcherTable() {
         return (DecisionTable) getTraceObject();
     }
-
-    @SuppressWarnings("unchecked")
-    public Collection<IOpenMethod> getSelectedMethods() {
-        return (Collection<IOpenMethod>) getResult();
-    }
-
+    
     @Override
     public String getUri() {
         return getDispatcherTable().getSourceUrl();
     }
 
     public List<IGridRegion> getGridRegions() {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        for (IOpenMethod method : getSelectedMethods()) {
-            int methodIndex = methodCandidates.indexOf(method);
-            ILogicalTable ruleTable = getDispatcherTable().getRuleTable(methodIndex);
+		List<IGridRegion> regions = new ArrayList<IGridRegion>();
+		IOpenMethod method = (IOpenMethod) getResult();
+		int methodIndex = methodCandidates.indexOf(method);
+		ILogicalTable ruleTable = getDispatcherTable().getRuleTable(methodIndex);
 
-            ICell cell = null;
-            for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell.getHeight()) {
-                for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell.getWidth()) {
-                    cell = ruleTable.getSource().getCell(column, row);
-                    regions.add(cell.getAbsoluteRegion());
-                }
-            }
-        }
-        return regions;
+		ICell cell = null;
+		for (int row = 0; row < ruleTable.getSource().getHeight(); row += cell
+				.getHeight()) {
+			for (int column = 0; column < ruleTable.getSource().getWidth(); column += cell
+					.getWidth()) {
+				cell = ruleTable.getSource().getCell(column, row);
+				regions.add(cell.getAbsoluteRegion());
+			}
+		}
+
+		return regions;
     }
 
     public String getType() {
