@@ -3,8 +3,10 @@
  */
 package org.openl.main;
 
+import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.openl.util.Log;
 
 /**
@@ -32,11 +34,17 @@ public class OpenLVersion {
     static synchronized Properties getProperties() {
         if (props == null) {
             props = new Properties();
-
+            
+            InputStream propertiesFile = null;
             try {
-                props.load(OpenLVersion.class.getResourceAsStream(PROP_FILE_NAME));
+            	propertiesFile = OpenLVersion.class.getResourceAsStream(PROP_FILE_NAME);
+                props.load(propertiesFile);
             } catch (Throwable t) {
                 Log.warn(PROP_FILE_NAME + " not found", t);
+            } finally {
+            	if (propertiesFile != null) {
+            		IOUtils.closeQuietly(propertiesFile);
+            	}
             }
         }
 
