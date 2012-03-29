@@ -145,7 +145,7 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     if (__initialized)
       return;
 
-    IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
+    IUserContext ucxt = UserContext.getCurrentContextOrCreateNew(Thread.currentThread().getContextClassLoader(), __userHome);
     IOpenSourceCodeModule source = OpenClassJavaWrapper.getSourceCodeModule(__src, ucxt);
     if (source != null) {
          source.setParams(__externalParams);
