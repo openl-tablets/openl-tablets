@@ -49,7 +49,7 @@ public class Algorithm1Wrapper implements org.openl.main.OpenLWrapper {
             return;
         }
 
-        IUserContext ucxt = UserContext.makeOrLoadContext(Thread.currentThread().getContextClassLoader(), __userHome);
+        IUserContext ucxt = UserContext.getCurrentContextOrCreateNew(Thread.currentThread().getContextClassLoader(), __userHome);
         OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt, __src, __srcModuleClass);
         __compiledClass = wrapper.getCompiledClass();
         __class = wrapper.getOpenClassWithErrors();

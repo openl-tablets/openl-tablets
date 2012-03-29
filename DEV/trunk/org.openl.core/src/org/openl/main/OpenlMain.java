@@ -32,7 +32,7 @@ import org.openl.util.text.TextInfo;
  *
  * @author sam
  */
-public class OpenlMain implements SourceCodeURLConstants {
+public class OpenLMain implements SourceCodeURLConstants {
     public static final String ORG_OPENL = "org.openl";
 
     static public final String ARG_SOURCE_FILE_NAME = "-file";
@@ -111,14 +111,14 @@ public class OpenlMain implements SourceCodeURLConstants {
         System.out.println("OpenL main(),  Version " + OpenLVersion.getVersion() + " Build " + OpenLVersion.getBuild()
                 + " " + OpenLVersion.getURL() + " (c) " + OpenLVersion.getCopyrightYear());
 
-        new OpenlMain(null).run(args);
+        new OpenLMain(null).run(args);
     }
 
     // TextInfo openlTextInfo;
 
     // SourceLocator openlSourceLocator;
 
-    public OpenlMain(String openlName) {
+    public OpenLMain(String openlName) {
         this.openlName = openlName;
     }
 

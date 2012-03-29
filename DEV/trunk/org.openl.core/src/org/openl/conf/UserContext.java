@@ -12,19 +12,22 @@ import java.util.Properties;
 import java.util.Stack;
 
 /**
+ * The class is designed as immutable, but not immutable because contains
+ * ClassLoader.
+ * 
  * @author snshor
- *
+ * 
  */
-public class UserContext extends AUserContext {
+public final class UserContext extends AUserContext {
 
     static ThreadLocal<Stack<IUserContext>> contextStack = new ThreadLocal<Stack<IUserContext>>();
 
-    protected ClassLoader userClassLoader;
+    private ClassLoader userClassLoader;
 
-    protected String userHome;
+    private String userHome;
 
-    protected Properties userProperties;
-    
+    private Properties userProperties;
+
     public static IUserContext currentContext() {
         Stack<IUserContext> stack = contextStack.get();
         if (stack == null || stack.size() == 0) {
@@ -33,7 +36,12 @@ public class UserContext extends AUserContext {
         return stack.peek();
     }
 
+    @Deprecated
     public static IUserContext makeOrLoadContext(ClassLoader cl, String home) {
+        return UserContext.getCurrentContextOrCreateNew(cl, home);
+    }
+
+    public static IUserContext getCurrentContextOrCreateNew(ClassLoader cl, String home) {
         IUserContext cxt = currentContext();
         if (cxt != null) {
             return cxt;
@@ -63,7 +71,7 @@ public class UserContext extends AUserContext {
         this.userHome = userHome;
         this.userProperties = userProperties;
     }
-    
+
     public Object execute(IExecutable exe) {
         try {
             pushCurrentContext(this);
@@ -82,7 +90,7 @@ public class UserContext extends AUserContext {
     }
 
     public Properties getUserProperties() {
-        return userProperties;
+        return new Properties(userProperties);
     }
 
     private String printClassloader(ClassLoader ucl) {
@@ -104,7 +112,9 @@ public class UserContext extends AUserContext {
 
     @Override
     public String toString() {
-        return "home=" + userHome + " cl=" + printClassloader(userClassLoader);
+        StringBuilder sb = new StringBuilder();
+        sb.append("home=").append(userHome).append("cl=").append(printClassloader(userClassLoader));
+        return sb.toString();
     }
 
 }

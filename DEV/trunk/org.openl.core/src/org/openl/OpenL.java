@@ -41,7 +41,7 @@ public class OpenL {
 
     private static OpenLConfigurator config = new OpenLConfigurator();
 
-    private static Map<Object, OpenL> openlCache = new HashMap<Object, OpenL>();
+    private static Map<Object, OpenL> openLCache = new HashMap<Object, OpenL>();
 
     private IOpenParser parser;
 
@@ -52,6 +52,9 @@ public class OpenL {
     private ICompileContext compileContext;
 
     private String name;
+    
+    public OpenL() {
+    }
 
     /**
      * Gets instance of <code>OpenL</code> with given name.
@@ -100,14 +103,14 @@ public class OpenL {
     public static synchronized OpenL getInstance(String name, IUserContext userContext)
             throws OpenConfigurationException {
 
-        Object key = CacheUtils.makeKey(name, userContext);
-        OpenL openl = openlCache.get(key);
+        Object key = CacheUtils.buildKey(name, userContext);
+        OpenL openl = openLCache.get(key);
 
         if (openl == null) {
             IOpenLBuilder builder = config.getBuilder(name, userContext);
             openl = createInstance(name, userContext, builder);
 
-            openlCache.put(key, openl);
+            openLCache.put(key, openl);
         }
 
         return openl;
@@ -128,13 +131,13 @@ public class OpenL {
      */
     public static OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
 
-        Object key = CacheUtils.makeKey(name, userContext);
-        OpenL openl = openlCache.get(key);
+        Object key = CacheUtils.buildKey(name, userContext);
+        OpenL openl = openLCache.get(key);
 
         if (openl == null) {
             openl = createInstance(name, userContext, builder);
 
-            openlCache.put(key, openl);
+            openLCache.put(key, openl);
         }
 
         return openl;
@@ -195,23 +198,24 @@ public class OpenL {
      */
     public static synchronized OpenL remove(String name, IUserContext userContext) {
 
-        Object key = CacheUtils.makeKey(name, userContext);
-        OpenL openl = openlCache.get(key);
+        Object key = CacheUtils.buildKey(name, userContext);
+        /*OpenL openl = openlCache.get(key);
 
         if (openl == null) {
             return null;
-        }
+        }*/
 
-        openlCache.remove(key);
+        return openLCache.remove(key);
 
-        return openl;
+        //return openl;
     }
 
     /**
      * Resets OpenL internal cache.
      */
-    public static void reset() {
-        openlCache = new HashMap<Object, OpenL>();
+    public static synchronized void reset() {
+        //openlCache = new HashMap<Object, OpenL>();
+        openLCache.clear();
     }
 
     /**
