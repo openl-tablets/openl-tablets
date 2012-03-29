@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
-import org.openl.main.OpenlMain;
+import org.openl.main.OpenLMain;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.java.JavaOpenClass;
 
@@ -39,7 +39,7 @@ public class MemoryTest extends TestCase {
             System.out.println("############### " + "GC" + "   ##########");
             System.gc();
 
-            new OpenlMain("org.openl.xls").safeRunOpenl("org.openl.xls", new FileSourceCodeModule(url.getPath(), null),
+            new OpenLMain("org.openl.xls").safeRunOpenl("org.openl.xls", new FileSourceCodeModule(url.getPath(), null),
                     "hello", new Object[] { new Integer(10) });
         }
 
@@ -61,7 +61,7 @@ public class MemoryTest extends TestCase {
             System.out.println("############### " + "GC" + "   ##########");
             System.gc();
 
-            new OpenlMain("org.openl.rules.lang.xls").safeRunOpenl("org.openl.rules.lang.xls",
+            new OpenLMain("org.openl.rules.lang.xls").safeRunOpenl("org.openl.rules.lang.xls",
                     new FileSourceCodeModule(url.getPath(), url.getPath()), "hello", new Object[] { new Integer(10) });
         }
 

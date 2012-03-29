@@ -75,7 +75,7 @@ public class CastFactory implements ICastFactory {
      * @return cast operation if it have been found; null - otherwise
      */
     public synchronized IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        Object key = CacheUtils.makeKey(from, to);
+        Object key = CacheUtils.buildKey(from, to);
         IOpenCast cast = castCache.get(key);
 
         if (cast == null) {

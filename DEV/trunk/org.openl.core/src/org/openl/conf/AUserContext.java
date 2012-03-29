@@ -33,6 +33,10 @@ public abstract class AUserContext implements IUserContext {
     // UserContexts with different Classloaders(LazyMultimodule)
     @Override
     public boolean equals(Object obj) {
+        if (this == obj){
+            return true;
+        }
+        
         if (obj == null || !(obj instanceof IUserContext)) {
             return false;
         }

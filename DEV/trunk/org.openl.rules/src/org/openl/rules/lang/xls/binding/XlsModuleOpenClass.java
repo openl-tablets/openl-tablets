@@ -14,7 +14,6 @@ import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.data.DataBase;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
