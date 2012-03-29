@@ -32,7 +32,7 @@ import org.openl.util.text.TextInfo;
  *
  * @author sam
  */
-public class OpenLMain implements SourceCodeURLConstants {
+public class OpenLMain implements SourceCodeURLConstants { 
     public static final String ORG_OPENL = "org.openl";
 
     static public final String ARG_SOURCE_FILE_NAME = "-file";
