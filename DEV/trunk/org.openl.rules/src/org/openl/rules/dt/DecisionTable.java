@@ -28,6 +28,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -82,7 +83,11 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     public String getDisplayName(int mode) {
-        return getHeader().getInfo().getDisplayName(mode);
+    	IMemberMetaInfo metaInfo = getHeader().getInfo();
+    	if (metaInfo != null) {
+    		return metaInfo.getDisplayName(mode);
+    	}
+        return toString();
     }
 
     public IOpenMethod getMethod() {
