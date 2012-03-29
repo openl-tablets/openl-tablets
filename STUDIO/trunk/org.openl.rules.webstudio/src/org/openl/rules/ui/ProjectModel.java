@@ -171,7 +171,7 @@ public class ProjectModel {
                         }
 
                         @Override
-                        public void runNtimes(int times) throws Exception {
+                        public void runNtimes(long times) throws Exception {
                             testSuite.invoke(target, env, times);
                         }
 
@@ -214,7 +214,7 @@ public class ProjectModel {
             }
 
             @Override
-            public void runNtimes(int times) throws Exception {
+            public void runNtimes(long times) throws Exception {
                 try {
                     testSuite.getTest(testIndex).runTest(target, env, times);
                 } catch (Throwable t) {
@@ -268,7 +268,7 @@ public class ProjectModel {
                         }
 
                         @Override
-                        public void runNtimes(int times) throws Exception {
+                        public void runNtimes(long times) throws Exception {
                             bm.invokeBenchmark(target, params, env, times);
                         }
 
