@@ -39,7 +39,14 @@ import org.openl.types.java.JavaOpenClass;
 
 public class SpreadsheetStructureBuilder {
     
-    public static final String DOLLAR_SIGN = "$";
+    private static final String EMPTY_ROW_NAME = "$rowName";
+
+	private static final String EMPTY_COLUMN_NAME = "$columnName";
+
+	public static final String DOLLAR_SIGN = "$";
+    
+    private static final String COLUMN_FIELD = String.format("%scolumn", DOLLAR_SIGN);
+    private static final String ROW_FIELD = String.format("%srow", DOLLAR_SIGN);
     
     private SpreadsheetComponentsBuilder componentsBuilder;
     
@@ -224,7 +231,7 @@ public class SpreadsheetStructureBuilder {
      * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g. $Value$Final
      */
     private String getSpreadsheetCellFieldName(String columnName, String rowName) {
-        return String.format("%s%s%s%s", DOLLAR_SIGN, columnName, DOLLAR_SIGN, rowName);
+        return String.format("%s%s%s%s", DOLLAR_SIGN, columnName, DOLLAR_SIGN, rowName).intern();
     }
 
     private SpreadsheetCell buildCell(int rowIndex, int columnIndex) {        
@@ -344,20 +351,20 @@ public class SpreadsheetStructureBuilder {
             SpreadsheetCell cell = cells[rowIndex][columnIndex];
 
             for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
-                String fieldName = String.format("%s%s", DOLLAR_SIGN, typeDefinition.getName().getIdentifier());
+                String fieldName = String.format("%s%s", DOLLAR_SIGN, typeDefinition.getName().getIdentifier()).intern();
                 SpreadsheetCellField field = new SpreadsheetCellField(columnOpenClass, fieldName, cell);
 
                 columnOpenClass.addField(field);
             }
         }
-        String nameOpenField = String.format("%scolumn", DOLLAR_SIGN);
+        String nameOpenField = COLUMN_FIELD;
         IOpenField columnField = new ConstOpenField(nameOpenField, columnIndex, JavaOpenClass.INT);
         columnOpenClass.addField(columnField);
         SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(columnIndex);
         if (shd != null) {
             String columnName = shd.getFirstname();
             if (columnName != null) {
-                IOpenField columnNameField = new ConstOpenField("$columnName", columnName, JavaOpenClass.STRING);
+                IOpenField columnNameField = new ConstOpenField(EMPTY_COLUMN_NAME, columnName, JavaOpenClass.STRING);
                 columnOpenClass.addField(columnNameField);
             }
         }
@@ -385,14 +392,14 @@ public class SpreadsheetStructureBuilder {
             SpreadsheetCell cell = cells[rowIndex][columnIndex];
 
             for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
-                String fieldName = String.format("%s%s", DOLLAR_SIGN, typeDefinition.getName().getIdentifier());
+                String fieldName = String.format("%s%s", DOLLAR_SIGN, typeDefinition.getName().getIdentifier()).intern();
                 SpreadsheetCellField field = new SpreadsheetCellField(rowOpenClass, fieldName, cell);
 
                 rowOpenClass.addField(field);
             }
         }
         
-        String nameOpenField = String.format("%srow", DOLLAR_SIGN);
+        String nameOpenField = ROW_FIELD;
         IOpenField rowField = new ConstOpenField(nameOpenField, rowIndex, JavaOpenClass.INT);
         rowOpenClass.addField(rowField);
 
@@ -400,7 +407,7 @@ public class SpreadsheetStructureBuilder {
         if (shd != null) {
             String rowName = shd.getFirstname();
             if (rowName != null) {
-                IOpenField rowNameField = new ConstOpenField("$rowName", rowName, JavaOpenClass.STRING);
+                IOpenField rowNameField = new ConstOpenField(EMPTY_ROW_NAME, rowName, JavaOpenClass.STRING);
                 rowOpenClass.addField(rowNameField);
             }
         }

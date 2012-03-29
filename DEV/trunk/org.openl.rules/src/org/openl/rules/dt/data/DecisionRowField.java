@@ -1,5 +1,6 @@
 package org.openl.rules.dt.data;
 
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -64,7 +65,7 @@ public class DecisionRowField implements IOpenField {
     }
 
     public String getName() {
-        return "$" + conditionOrAction.getName();
+        return String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, conditionOrAction.getName()).intern();
     }
 
 }
