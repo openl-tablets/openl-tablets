@@ -51,7 +51,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
         TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
 
-        return IProjectTypes.PT_TABLE + "." + tsn.getType();
+        return String.format("%s.%s", IProjectTypes.PT_TABLE, tsn.getType()).intern();
     }
 
     /**

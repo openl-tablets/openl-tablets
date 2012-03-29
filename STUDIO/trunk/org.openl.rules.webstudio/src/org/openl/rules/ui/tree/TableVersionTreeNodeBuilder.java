@@ -41,7 +41,7 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public String getType(Object nodeObject) {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return IProjectTypes.PT_TABLE + "." + tsn.getType();
+        return String.format("%s.%s", IProjectTypes.PT_TABLE, tsn.getType()).intern();       
     }
 
     @Override
