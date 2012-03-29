@@ -61,7 +61,7 @@ public class XlsSheetGridHelper {
     }
     
     private static String getDefaultFileName(Sheet sheet) {
-        return String.format("%s%s", sheet.getSheetName(), VIRTUAL_EXCEL_FILE);
+        return String.format("%s%s", sheet.getSheetName(), VIRTUAL_EXCEL_FILE).intern();
     }
 
 }

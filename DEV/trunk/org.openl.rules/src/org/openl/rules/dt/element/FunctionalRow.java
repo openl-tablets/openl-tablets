@@ -355,7 +355,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     private String makeParamName() {
         noParamsIndex += 1;
 
-        return NO_PARAM + noParamsIndex;
+        return String.format("%s%d", NO_PARAM, noParamsIndex).intern();
     }
 
     private CompositeMethod generateMethod(IMethodSignature signature,
