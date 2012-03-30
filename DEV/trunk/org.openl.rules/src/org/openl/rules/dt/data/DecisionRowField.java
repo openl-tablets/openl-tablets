@@ -65,7 +65,7 @@ public class DecisionRowField implements IOpenField {
     }
 
     public String getName() {
-        return String.format("%s%s", SpreadsheetStructureBuilder.DOLLAR_SIGN, conditionOrAction.getName()).intern();
+        return (SpreadsheetStructureBuilder.DOLLAR_SIGN + conditionOrAction.getName()).intern();
     }
 
 }

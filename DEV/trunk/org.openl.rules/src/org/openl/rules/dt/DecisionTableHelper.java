@@ -210,8 +210,7 @@ public class DecisionTableHelper {
         }
         // write return column
         //
-        grid.setCellValue(columnsForConditions, 0, 
-            String.format("%s1", DecisionTableColumnHeaders.RETURN.getHeaderKey()).intern());
+        grid.setCellValue(columnsForConditions, 0, (DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1").intern());
         int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
         if (mergedColumnsCounts > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
@@ -235,13 +234,11 @@ public class DecisionTableHelper {
             if (i < numberOfConditions - numberOfHcondition) {
                 // write simple condition
                 //
-                grid.setCellValue(column, 0, String.format("%s%s", DecisionTableColumnHeaders.CONDITION.getHeaderKey(),
-                    (i + 1)).intern());
+                grid.setCellValue(column, 0, (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + (i + 1)).intern());
             } else {
                 // write horizontal condition
                 //
-                grid.setCellValue(column, 0, String.format("%s%s", 
-                    DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey(), (i + 1)).intern());
+                grid.setCellValue(column, 0, (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern());
             }
             
             grid.setCellValue(column, 1, decisionTable.getSignature().getParameterName(i));

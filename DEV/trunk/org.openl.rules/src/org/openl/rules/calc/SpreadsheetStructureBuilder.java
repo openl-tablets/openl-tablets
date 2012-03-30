@@ -45,8 +45,8 @@ public class SpreadsheetStructureBuilder {
 
 	public static final String DOLLAR_SIGN = "$";
     
-    private static final String COLUMN_FIELD = String.format("%scolumn", DOLLAR_SIGN);
-    private static final String ROW_FIELD = String.format("%srow", DOLLAR_SIGN);
+    private static final String COLUMN_FIELD = "$column";
+    private static final String ROW_FIELD = "$row";
     
     private SpreadsheetComponentsBuilder componentsBuilder;
     
@@ -231,7 +231,7 @@ public class SpreadsheetStructureBuilder {
      * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g. $Value$Final
      */
     private String getSpreadsheetCellFieldName(String columnName, String rowName) {
-        return String.format("%s%s%s%s", DOLLAR_SIGN, columnName, DOLLAR_SIGN, rowName).intern();
+        return (DOLLAR_SIGN + columnName + DOLLAR_SIGN + rowName).intern();
     }
 
     private SpreadsheetCell buildCell(int rowIndex, int columnIndex) {        
@@ -351,7 +351,7 @@ public class SpreadsheetStructureBuilder {
             SpreadsheetCell cell = cells[rowIndex][columnIndex];
 
             for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
-                String fieldName = String.format("%s%s", DOLLAR_SIGN, typeDefinition.getName().getIdentifier()).intern();
+                String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
                 SpreadsheetCellField field = new SpreadsheetCellField(columnOpenClass, fieldName, cell);
 
                 columnOpenClass.addField(field);
@@ -392,7 +392,7 @@ public class SpreadsheetStructureBuilder {
             SpreadsheetCell cell = cells[rowIndex][columnIndex];
 
             for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
-                String fieldName = String.format("%s%s", DOLLAR_SIGN, typeDefinition.getName().getIdentifier()).intern();
+                String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
                 SpreadsheetCellField field = new SpreadsheetCellField(rowOpenClass, fieldName, cell);
 
                 rowOpenClass.addField(field);
