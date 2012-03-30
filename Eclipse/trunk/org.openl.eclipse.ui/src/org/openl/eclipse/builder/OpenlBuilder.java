@@ -29,7 +29,7 @@ import org.openl.eclipse.util.Debug;
 import org.openl.eclipse.util.JDTUtil;
 import org.openl.eclipse.util.UrlUtil;
 import org.openl.engine.OpenLManager;
-import org.openl.main.OpenlMain;
+import org.openl.main.OpenLMain;
 import org.openl.rules.lang.xls.XlsLoader;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.types.java.JavaOpenClass;
@@ -99,7 +99,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
     }
 
     static public String getDefaultOpenlName(String fileURL) {
-        return OpenlMain.getOpenlName(fileURL);
+        return OpenLMain.getOpenlName(fileURL);
     }
 
     static public int getEndOfLineIndex(String s) {
@@ -146,9 +146,9 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
 
     protected void intiialize() {
         for (String ext : fixedExtensions) {
-            OpenlMain.registerExtension(ext, ext);
-            OpenlMain.registerExtension(".xlsx", ".xls");
-            OpenlMain.registerExtension(".xlsm", ".xls");
+            OpenLMain.registerExtension(ext, ext);
+            OpenLMain.registerExtension(".xlsx", ".xls");
+            OpenLMain.registerExtension(".xlsm", ".xls");
         }
     }
 
@@ -288,7 +288,7 @@ public class OpenlBuilder extends IncrementalProjectBuilder {
     }
 
     boolean isOpenlExtension(IFile file) {
-        for (String ext: OpenlMain.getExtensionsMap().keySet()) {
+        for (String ext: OpenLMain.getExtensionsMap().keySet()) {
 
             if (file.getName().endsWith(ext)) {
                 return true;

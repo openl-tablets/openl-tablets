@@ -10,7 +10,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
-import org.openl.main.OpenlMain;
+import org.openl.main.OpenLMain;
 
 /**
  *
@@ -58,7 +58,7 @@ public class OpenlModuleLaunchTarget extends ALaunchTarget {
             throws Exception {
         module.initDefaultLaunchConfiguration(wc, request);
 
-        OpenlMain main = new OpenlMain(module.getOpenlName());
+        OpenLMain main = new OpenLMain(module.getOpenlName());
 
         module.setOpenlMainArgs(main);
         main.methodName = methodName;
