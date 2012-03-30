@@ -15,7 +15,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.openl.eclipse.builder.OpenlBuilder;
 import org.openl.eclipse.util.UrlUtil;
-import org.openl.main.OpenlMain;
+import org.openl.main.OpenLMain;
 
 /**
  *
@@ -89,12 +89,12 @@ public class OpenlLaunchTarget extends ALaunchTarget {
     }
 
     /**
-     * Set launch parameters to launch target with OpenlMain.
+     * Set launch parameters to launch target with OpenLMain.
      */
     @Override
     public void initDefaultLaunchConfiguration(ILaunchConfigurationWorkingCopy wc, ILaunchRequest request)
             throws Exception {
-        OpenlMain main = new OpenlMain(getOpenlName());
+        OpenLMain main = new OpenLMain(getOpenlName());
 
         setOpenlMainArgs(main);
 
@@ -132,14 +132,14 @@ public class OpenlLaunchTarget extends ALaunchTarget {
             String attrProject = c.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
             String attrArgs = c.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROGRAM_ARGUMENTS, "");
 
-            return project.equals(attrProject) && OpenlMain.class.getName().equals(attrMain)
+            return project.equals(attrProject) && OpenLMain.class.getName().equals(attrMain)
                     && attrArgs.indexOf(sourceUrl) >= 0;
         } catch (Exception e) {
             return false;
         }
     }
 
-    public void setOpenlMainArgs(OpenlMain main) {
+    public void setOpenlMainArgs(OpenLMain main) {
         main.sourceFileName = getSourceFileName();
     }
 

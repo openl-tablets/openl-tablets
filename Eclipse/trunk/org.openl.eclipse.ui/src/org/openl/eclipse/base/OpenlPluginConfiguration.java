@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.openl.eclipse.util.Debug;
 import org.openl.eclipse.util.UtilBase;
-import org.openl.main.OpenlMain;
+import org.openl.main.OpenLMain;
 
 /**
  * Responsibilities: - Editor/Viewer tools factories. - Document factories. -
@@ -81,7 +81,7 @@ public class OpenlPluginConfiguration extends UtilBase {
     }
 
     public String getDefaultOpenlName(String fileURL) {
-        return OpenlMain.getOpenlName(fileURL);
+        return OpenLMain.getOpenlName(fileURL);
     }
 
     // public synchronized IUserContext getUserContext(IEProject project)
