@@ -18,6 +18,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.data.DataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyField;
@@ -218,7 +219,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private CompiledOpenClass initializeOpenClass() {
         // FIXME name
-        XlsModuleOpenClass moduleOpenClass = new XlsModuleOpenClass(null, "lazy dispatched", null, getOpenL());
+        XlsModuleOpenClass moduleOpenClass = new XlsModuleOpenClass(null, "lazy dispatched", null, getOpenL(), new DataBase());
         List<Method> unannotatedMethos = new ArrayList<Method>();
         for (Method method : interfaceClass.getMethods()) {
             try {
