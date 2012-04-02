@@ -28,7 +28,7 @@ public interface IOpenSourceCodeModule {
     String getUri(int textpos);
 
     boolean isModified();
-    
+
     /**
      * External parameters for current source code module.<br>
      * It can be external properties or dependencies.

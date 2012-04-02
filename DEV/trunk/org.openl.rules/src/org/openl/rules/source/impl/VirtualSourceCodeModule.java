@@ -43,6 +43,6 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
     }
 
     @Override
-    public void reset() {
+    public void resetModified() {
     } 
 }

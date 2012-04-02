@@ -2,11 +2,9 @@
 <html
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    xmlns:a4j="http://richfaces.org/a4j">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="sourceModified" value="#{studio.model.sourceModified}" />
+    <ui:param name="sourceModified" value="#{studio.model.sourceModified}" />
 
     <h:head></h:head>
 
@@ -15,12 +13,16 @@
             function sourceModified() {
                 if (confirm('Project source file was modified.\nClick \'OK\' to reload WebStudio with changes, and \'Cancel\' to ignore changes.')) {
                     reload();
+                } else {
+                    resetChecking();
                 }
             }
         </script>
 
         <a4j:jsFunction name="reload" action="#{mainBean.reload}" render="poll"
             oncomplete="top.reloadCurrent()" />
+
+        <a4j:jsFunction name="resetChecking" action="#{studio.model.resetSourceModified}" render="poll" />
 
         <h:form>
             <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000" render="poll"
