@@ -19,11 +19,12 @@
             }
         </script>
 
-        <a4j:jsFunction name="reload" action="#{mainBean.reload}" oncomplete="top.reloadCurrent()" />
+        <a4j:jsFunction name="reload" action="#{mainBean.reload}" render="poll"
+            oncomplete="top.reloadCurrent()" />
 
         <h:form>
-            <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000"
-                oncomplete="#{sourceModified ? 'sourceModified()' : ''}"  render="poll" />
+            <a4j:poll id="poll" enabled="#{!sourceModified}" interval="4000" render="poll"
+                oncomplete="#{sourceModified ? 'sourceModified()' : ''}" />
         </h:form>
     </h:body>
 
