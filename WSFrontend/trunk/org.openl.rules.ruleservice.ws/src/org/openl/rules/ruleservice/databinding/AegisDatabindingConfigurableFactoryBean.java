@@ -9,7 +9,25 @@ import javax.xml.transform.dom.DOMSource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
+import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.common.util.XMLSchemaQNames;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.rules.ruleservice.context.BigDecimalValueType;
+import org.openl.rules.ruleservice.context.BigIntegerValueType;
+import org.openl.rules.ruleservice.context.ByteValueType;
+import org.openl.rules.ruleservice.context.DoubleValueType;
+import org.openl.rules.ruleservice.context.FloatValueType;
+import org.openl.rules.ruleservice.context.IntValueType;
+import org.openl.rules.ruleservice.context.LongValueType;
 import org.openl.rules.ruleservice.context.RuntimeContextBeanType;
+import org.openl.rules.ruleservice.context.ShortValueType;
 import org.springframework.beans.factory.FactoryBean;
 
 public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<AegisDatabinding> {
@@ -63,11 +81,23 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
             aegisDatabinding.setSchemas(getSchemas());
         }
 
-        aegisDatabinding
-                .getAegisContext()
-                .getTypeMapping()
-                .register(RuntimeContextBeanType.TYPE_CLASS, RuntimeContextBeanType.QNAME, new RuntimeContextBeanType());
+        fillDefaultOpenLTypesMappings(aegisDatabinding);
         return aegisDatabinding;
+    }
+
+    protected void fillDefaultOpenLTypesMappings(AegisDatabinding aegisDatabinding) {
+        TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
+        typeMapping.register(RuntimeContextBeanType.TYPE_CLASS,
+            RuntimeContextBeanType.QNAME,
+            new RuntimeContextBeanType());
+        typeMapping.register(ShortValue.class, XMLSchemaQNames.XSD_SHORT, new ShortValueType());
+        typeMapping.register(LongValue.class, XMLSchemaQNames.XSD_LONG, new LongValueType());
+        typeMapping.register(IntValue.class, XMLSchemaQNames.XSD_INT, new IntValueType());
+        typeMapping.register(FloatValue.class, XMLSchemaQNames.XSD_FLOAT, new FloatValueType());
+        typeMapping.register(DoubleValue.class, XMLSchemaQNames.XSD_DOUBLE, new DoubleValueType());
+        typeMapping.register(ByteValue.class, XMLSchemaQNames.XSD_BYTE, new ByteValueType());
+        typeMapping.register(BigIntegerValue.class, XMLSchemaQNames.XSD_INTEGER, new BigIntegerValueType());
+        typeMapping.register(BigDecimalValue.class, XMLSchemaQNames.XSD_DECIMAL, new BigDecimalValueType());
     }
 
     @Override
