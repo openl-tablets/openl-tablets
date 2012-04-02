@@ -7,7 +7,7 @@ import java.util.Map;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
-    
+
     protected IOpenSourceCodeModule src;
     private Map<String, Object> params;
 
@@ -50,4 +50,5 @@ public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
     public boolean isModified() {
         return src.isModified();
     }
+
 }

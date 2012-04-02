@@ -126,7 +126,7 @@ public class FileSourceCodeModule extends ASourceCodeModule {
     }
 
     @Override
-    public void reset() {
+    public void resetModified() {
         lastModified = file.lastModified();
     }
 

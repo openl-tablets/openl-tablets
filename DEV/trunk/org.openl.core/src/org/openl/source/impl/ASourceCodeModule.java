@@ -20,7 +20,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     protected String code;
     protected String uri;
     protected int tabSize = 2;
-    
+
     private Map<String, Object> params;
 
     public synchronized String getCode() {
@@ -77,5 +77,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-    public abstract void reset();
+
+    public abstract void resetModified();
+
 }

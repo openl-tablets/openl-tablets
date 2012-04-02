@@ -125,7 +125,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
     /**
      * Synch object for file accessing. It is necessary to prevent getting
-     * isMofified info before save operation will be finished.
+     * isModified info before save operation will be finished.
      */
     private Object fileAccessLock = new Object();
 
@@ -156,9 +156,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         String fileName = sourceFile.getCanonicalPath();
         synchronized (fileAccessLock) {
             saveAs(fileName);
-            if (getSource() instanceof ASourceCodeModule) {
-                ((ASourceCodeModule) getSource()).reset();
-            }
+            resetModified();
         }
     }
 
@@ -166,6 +164,14 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     public boolean isModified() {
         synchronized (fileAccessLock) {
             return super.isModified();
+        }
+    }
+
+    public void resetModified() {
+        synchronized (fileAccessLock) {
+            if (getSource() instanceof ASourceCodeModule) {
+                ((ASourceCodeModule) getSource()).resetModified();
+            }
         }
     }
 
@@ -181,7 +187,6 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         for (XlsWorkbookListener wl : listeners) {
             wl.afterSave(this);
         }
-        //workbook = loadWorkbook(src, false);
     }
 
     public IOpenSourceCodeModule getSource() {

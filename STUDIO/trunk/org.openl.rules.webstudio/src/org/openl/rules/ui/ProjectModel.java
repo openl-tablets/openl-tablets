@@ -678,6 +678,15 @@ public class ProjectModel {
         return false;
     }
 
+    public void resetSourceModified() {
+        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        if (workbookNodes != null) {
+            for (WorkbookSyntaxNode node : workbookNodes) {
+                node.getWorkbookSourceCodeModule().resetModified();
+            }
+        }
+    }
+
     public CompiledOpenClass getCompiledOpenClass() {
         return compiledOpenClass;
     }

@@ -31,34 +31,34 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         this.url = url;
         lastModified = getLastModified();
     }
-    
+
     public URL getUrl() {
         return url;
     }
-    
+
     public long getLastModified() {
-    	InputStream is = null;
+        InputStream is = null;
         try {
-        	URLConnection conn = url.openConnection();
-        	long lastModified = conn.getLastModified();
-        	
-        	// FileURLConnection#getLastModified() opens an input stream to get the last modified date.
-        	// It should be closed explicitly.
-        	//
-        	is = conn.getInputStream();
-        	
+            URLConnection conn = url.openConnection();
+            long lastModified = conn.getLastModified();
+
+            // FileURLConnection#getLastModified() opens an input stream to get the last modified date.
+            // It should be closed explicitly.
+            //
+            is = conn.getInputStream();
+
             return lastModified;
         } catch (IOException e) {
             LOG.warn(String.format("Failed to open connection for URL \"%s\"", url.toString()), e);
             return -1;
         } finally {
-        	if (is != null) {
-        		try { 
-        			is.close();
-        		} catch (IOException e) {
-					// ignore
-				}
-        	}
+            if (is != null) {
+                try { 
+                    is.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
     }
 
@@ -78,14 +78,14 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     protected String makeUri() {
         return url.toExternalForm();
     }
-    
+
     @Override    
     public boolean equals(Object obj) {
-        
+
         if (!(obj instanceof URLSourceCodeModule)) {
             return false;
         }
-        
+
         URLSourceCodeModule urlSource = (URLSourceCodeModule) obj;
 
         return new EqualsBuilder()
@@ -101,7 +101,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         
         return hashCode;
     }
-    
+
     @Override
     public String toString() {
         return url.toString();
@@ -112,7 +112,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     }
 
     @Override
-    public void reset() {
+    public void resetModified() {
         lastModified = getLastModified();
     }
 
