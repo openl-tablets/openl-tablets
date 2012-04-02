@@ -59,16 +59,29 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
     public void reset() {
         super.reset();
         try {
-            reset(getServiceClass());
+            if (isWrapperClassLoaded()) {
+                reset(getServiceClass());
+            }
             wrapper = null;
         } catch (Exception e) {
             LOG.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
         }
     }
+
+    protected boolean isWrapperClassLoaded() {
+        return super.isServiceClassDefined();
+    }
     
     @Override
+    public void forcedReset() {
+        super.forcedReset();
+        super.setServiceClass(null);// it will cause reloading of service class with
+                              // new classloader later
+    }
+
+    @Override
     public Class<?> getServiceClass() throws ClassNotFoundException {
-        if (!super.isServiceClassDefined()) {
+        if (!isWrapperClassLoaded()) {
             // Service class for current implementation will be wrapper class,
             // previously generated.
 
@@ -147,7 +160,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
     @Override
     public CompiledOpenClass compile() throws RulesInstantiationException {
         try {
-            return compile(getWrapperClass());
+            return compile(getServiceClass());
         } catch (ClassNotFoundException e) {
             String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
             LOG.error(errorMessage, e);
