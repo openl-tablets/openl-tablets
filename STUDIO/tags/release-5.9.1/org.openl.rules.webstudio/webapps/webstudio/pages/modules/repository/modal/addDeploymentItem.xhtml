@@ -1,0 +1,60 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:set var="availableProjects" value="#{deploymentController.projects}" />
+
+  <rich:popupPanel id="addDeployEntry" width="400" autosized="true">
+    <f:facet name="header">
+        <h:outputText value="Add deployment descriptor" />
+    </f:facet>
+      <f:facet name="controls">
+            <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('addDeployEntry').hide();" alt="Close" />
+        </f:facet>
+    <h:form id="addDeployEntryForm">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{not empty availableProjects}">
+            <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
+                <f:selectItems value="#{deploymentController.projects}" />
+                <f:ajax event="change" render="projectVersion" execute="@this" />
+            </h:selectOneMenu>
+
+            <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
+            <h:selectOneMenu id="projectVersion" value="#{deploymentController.version}">
+                <f:selectItems value="#{deploymentController.projectVersions}" />
+            </h:selectOneMenu>
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" styleClass="formfields" rendered="#{empty availableProjects}">
+            <h:outputText value="There is no more projects to add" />
+            <br/>
+        </h:panelGrid>
+
+        <hr />
+
+        <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0" rendered="#{not empty availableProjects}">
+          <h:commandButton value="Add" action="#{deploymentController.addItem}" />
+          <input type="button" value="Cancel" onclick="#{rich:component('addDeployEntry')}.hide();" />
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4" cellspacing="0" rendered="#{empty availableProjects}">
+            <input type="button" value="OK" onclick="#{rich:component('addDeployEntry')}.hide();" />
+        </h:panelGrid>
+    </h:form>
+
+  </rich:popupPanel>
+
+  <script>
+    function showAddDeployEntry() {
+      var projectSelector = document.getElementById('addDeployEntryForm:projectName');
+      if(projectSelector){
+    	projectSelector.onchange();  
+      }
+      RichFaces.$('addDeployEntry').show();
+    }
+  </script>
+</ui:composition>
