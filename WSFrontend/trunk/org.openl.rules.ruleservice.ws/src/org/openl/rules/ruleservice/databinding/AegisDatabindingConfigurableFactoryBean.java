@@ -22,8 +22,10 @@ import org.openl.meta.ShortValue;
 import org.openl.rules.ruleservice.context.BigDecimalValueType;
 import org.openl.rules.ruleservice.context.BigIntegerValueType;
 import org.openl.rules.ruleservice.context.ByteValueType;
+import org.openl.rules.ruleservice.context.DoubleRangeBeanType;
 import org.openl.rules.ruleservice.context.DoubleValueType;
 import org.openl.rules.ruleservice.context.FloatValueType;
+import org.openl.rules.ruleservice.context.IntRangeBeanType;
 import org.openl.rules.ruleservice.context.IntValueType;
 import org.openl.rules.ruleservice.context.LongValueType;
 import org.openl.rules.ruleservice.context.RuntimeContextBeanType;
@@ -87,9 +89,9 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
 
     protected void fillDefaultOpenLTypesMappings(AegisDatabinding aegisDatabinding) {
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
-        typeMapping.register(RuntimeContextBeanType.TYPE_CLASS,
-            RuntimeContextBeanType.QNAME,
-            new RuntimeContextBeanType());
+        typeMapping.register(new RuntimeContextBeanType());
+        typeMapping.register(new IntRangeBeanType());
+        typeMapping.register(new DoubleRangeBeanType());
         typeMapping.register(ShortValue.class, XMLSchemaQNames.XSD_SHORT, new ShortValueType());
         typeMapping.register(LongValue.class, XMLSchemaQNames.XSD_LONG, new LongValueType());
         typeMapping.register(IntValue.class, XMLSchemaQNames.XSD_INT, new IntValueType());
