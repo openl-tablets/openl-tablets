@@ -36,7 +36,6 @@ import org.openl.util.StringTool;
 @ManagedBean
 @ViewScoped
 public class TablePropertiesBean {
-
     private IOpenLTable table;
     private ITableProperties props;
     private List<TableProperty> listProperties;
@@ -200,6 +199,7 @@ public class TablePropertiesBean {
             toSave = true;
         }
         if (toSave) {
+        	EditHelper.updateSystemProperties(table, tableEditorModel);
             this.newTableUri = tableEditorModel.save();
             studio.rebuildModel();
         }
