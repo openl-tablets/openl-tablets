@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +12,6 @@ import javax.faces.bean.RequestScoped;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.message.OpenLMessage;
@@ -27,9 +24,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -39,7 +33,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
-import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.test.InputArgsBean;
 import org.openl.rules.webstudio.web.trace.TraceIntoFileBean;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -53,11 +46,9 @@ import org.openl.util.StringTool;
  */
 @ManagedBean
 @RequestScoped
-public class ShowTableBean {
-
-    private static final Log LOG = LogFactory.getLog(ShowTableBean.class);
+public class ShowTableBean {    
     
-    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
+//    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; //test units
@@ -198,26 +189,6 @@ public class ShowTableBean {
 
     public boolean isDispatcherValidationNode() {
         return table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
-    }
-
-    private boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition sysProperty) {
-        boolean result = false;
-        Object systemValue = null;
-
-        if (sysProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-            systemValue = SystemValuesManager.getInstance().getSystemValue(
-                    sysProperty.getSystemValueDescriptor());
-            if (systemValue != null) {
-                try {
-                    editorModel.setProperty(sysProperty.getName(), systemValue);
-                    result = true;
-                } catch (Exception e) {
-                    LOG.error(String.format("Can`t update system property '%s' with value '%s'", sysProperty.getName(),
-                            systemValue), e);
-                }
-            }
-        }
-        return result;
     }
 
     public String getEncodedUri() {
@@ -396,7 +367,15 @@ public class ShowTableBean {
     }
 
     public boolean beforeSaveAction() {
-        return updateSystemProperties();
+    	String editorId = FacesUtils.getRequestParameter(
+                org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
+
+        Map<?, ?> editorModelMap = (Map<?, ?>) FacesUtils.getSessionParam(
+                org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+
+        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);    	
+    	
+    	return EditHelper.updateSystemProperties(table, editorModel);
     }
 
     public void afterSaveAction(String newUri) {
@@ -404,27 +383,6 @@ public class ShowTableBean {
         studio.setTableUri(newUri);
         studio.rebuildModel();
     }
-
-    @SuppressWarnings("rawtypes")
-    public boolean updateSystemProperties() {
-        boolean result = true;
-        if (table.isCanContainProperties()) {
-            String editorId = FacesUtils.getRequestParameter(
-                    org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
-
-            Map editorModelMap = (Map) FacesUtils.getSessionParam(
-                    org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
-
-            TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
-
-            List<TablePropertyDefinition> sysProps = TablePropertyDefinitionUtils.getSystemProperties();
-
-            for (TablePropertyDefinition sysProperty : sysProps) {
-                result = updateSystemValue(editorModel, sysProperty);
-            }
-        } 
-        return result;
-    }    
 
     public String getTreeNodeId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
