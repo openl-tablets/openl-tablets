@@ -129,10 +129,9 @@ public class LaunchFileServlet extends HttpServlet {
             }
             String filePath = new File(path, fileName).getAbsolutePath();
 
-            String query = "filename=" + filePath;
+            String query = "filename=" + StringTool.encodeURL(filePath);
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/action/download?" + query);
             dispatcher.forward(request,response);
         }
     }
-
 }
