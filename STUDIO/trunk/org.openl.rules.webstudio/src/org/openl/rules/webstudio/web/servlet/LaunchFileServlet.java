@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +17,8 @@ import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.rules.table.word.WordUrlParser;
 import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.util.WordLauncher;
 import org.openl.util.FileTypeHelper;
@@ -106,7 +109,17 @@ public class LaunchFileServlet extends HttpServlet {
         if (local) { // local mode
             try {
                 if (isExcel) {
+                    WebStudio ws = getWebStudio(request);
+                    if (ws == null)
+                        return;
+                    
+                    ProjectModel project = ws.getModel();
+                    project.openWorkbookForEdit(wbName);
+                    
                     ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
+                    
+                    project.afterOpenWorkbookForEdit(wbName);
+                    
                     return;
                 } else if (isWord) {
                     WordLauncher.launch(wordScriptPath, wdPath, wdName, wdParStart, wdParEnd);
@@ -133,5 +146,10 @@ public class LaunchFileServlet extends HttpServlet {
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/action/download?" + query);
             dispatcher.forward(request,response);
         }
+    }
+
+    private static WebStudio getWebStudio(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        return (WebStudio) (session == null ? null : session.getAttribute("studio"));
     }
 }
