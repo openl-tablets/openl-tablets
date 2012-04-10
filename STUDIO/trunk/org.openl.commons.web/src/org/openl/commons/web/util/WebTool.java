@@ -1,17 +1,18 @@
 package org.openl.commons.web.util;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.openl.util.StringTool;
-
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.util.StringTool;
 
 /**
  * DOCUMENT ME!
@@ -75,6 +76,22 @@ public class WebTool {
             LOG.info("Cannot check '" + ip + "'.", e);
             return false;
         }
+    }
+    
+    /**
+     * Set content disposition HTTP header with a given file name.
+     * To support non-ASCII symbols in filenames we must use RFC 2231
+     * But old browsers and Safari still doesn't support it, so we mix old and new approach
+     * 
+     * @param response servlet response
+     * @param fileName file name that can contain non-ascii symbols
+     * @see <a href="http://www.ietf.org/rfc/rfc2231.txt">RFC 2231</a>
+     * @see <a href="http://kbyanc.blogspot.com/2010/07/serving-file-downloads-with-non-ascii.html">serving-file-downloads-with-non-ascii</a>
+     * @see <a href="http://stackoverflow.com/questions/93551/how-to-encode-the-filename-parameter-of-content-disposition-header-in-http/6745788#6745788">Stackoverflow post</a>
+     */
+    public static void setContentDisposition(HttpServletResponse response, String fileName) {
+        String encodedfileName = StringTool.encodeURL(fileName).replace("+", "%20");
+        response.setHeader("Content-Disposition", "attachment; filename=" + encodedfileName + "; filename*=UTF-8''" + encodedfileName);
     }
 
 }

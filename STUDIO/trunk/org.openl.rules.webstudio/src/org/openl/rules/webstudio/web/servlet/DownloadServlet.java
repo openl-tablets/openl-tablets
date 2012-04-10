@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.ui.WebStudio;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
@@ -76,18 +77,26 @@ public class DownloadServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
+        boolean found = false;
         String filename = request.getParameter("filename");
+        
         if (filename != null) {
             File file = new File(filename);
             if (file.isFile() && checkFile(request, file)) {
+                found = true;
+                
                 response.setContentType("application/octet-stream");
-                response.setHeader("Content-Disposition", "attachment;filename=\"" + file.getName() + "\"");
-
+                WebTool.setContentDisposition(response, file.getName());
+                
                 ServletOutputStream outputStream = response.getOutputStream();
                 dumpFile(file, outputStream);
                 outputStream.flush();
                 outputStream.close();
             }
+        }
+        
+        if (!found) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
@@ -1136,7 +1137,7 @@ public class RepositoryTreeController {
             res.setHeader("Pragma", "no-cache");
             res.setDateHeader("Expires", 0);
             res.setContentType("application/zip");
-            res.setHeader("Content-disposition", "attachment; filename=" + theFilename);
+            WebTool.setContentDisposition(res, theFilename);
 
             input = new FileInputStream(content);
             IOUtils.copy(input, res.getOutputStream());

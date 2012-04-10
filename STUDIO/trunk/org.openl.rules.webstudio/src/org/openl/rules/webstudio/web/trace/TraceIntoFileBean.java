@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.commons.web.util.WebTool;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.vm.trace.DefaultTracePrinter;
@@ -82,7 +83,7 @@ public class TraceIntoFileBean {
     }
 
     private void initResponse(HttpServletResponse response, String outputFileName) {
-        response.setHeader("Content-disposition", "attachment; filename=" + outputFileName);
+        WebTool.setContentDisposition(response, outputFileName);
 
         String contentType = new MimetypesFileTypeMap().getContentType(outputFileName);
         response.setContentType(contentType);

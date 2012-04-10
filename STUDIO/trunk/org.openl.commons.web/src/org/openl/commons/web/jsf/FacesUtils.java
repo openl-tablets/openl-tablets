@@ -138,19 +138,25 @@ public abstract class FacesUtils {
      *         otherwise.
      * TODO: this method should be used only for uri decoding
      * in other cases use method without decoding        
+     * @deprecated Set URIEncoding="UTF-8" on the &lt;Connector&gt; element in server.xml on Tomcat and use {@link #getRequestParameterClean(String)} instead
      */
+    @Deprecated
     public static String getRequestParameter(String parameterName) {
         String param = getRequestParameterClean(parameterName);
 
-        if (StringUtils.isNotBlank(param)) {
-            try {
-            	// If a character encoding is not specified, the Servlet specification requires that an encoding of ISO-8859-1 is used.
-            	// see http://wiki.apache.org/tomcat/FAQ/CharacterEncoding
-            	// http://blogs.warwick.ac.uk/kieranshaw/entry/utf-8_internationalisation_with/ (section tomcat)
-            	//
-                param = new String(param.getBytes("ISO-8859-1"), "UTF-8");
-            } catch (Exception e) {}
-        }
+        // !!! Set URIEncoding="UTF-8" on the <Connector> element in server.xml on Tomcat instead of commented below code.
+        // !!! Fore other servlet containers there should be same setting.
+        
+//        if (StringUtils.isNotBlank(param)) {
+//            try {
+//            	// If a character encoding is not specified, the Servlet specification requires that an encoding of ISO-8859-1 is used.
+//            	// see http://wiki.apache.org/tomcat/FAQ/CharacterEncoding
+//            	// http://blogs.warwick.ac.uk/kieranshaw/entry/utf-8_internationalisation_with/ (section tomcat)
+//            	//
+//                param = new String(param.getBytes("ISO-8859-1"), "UTF-8");
+//            } catch (Exception e) {}
+//        }
+        
         return param;
     }
     
