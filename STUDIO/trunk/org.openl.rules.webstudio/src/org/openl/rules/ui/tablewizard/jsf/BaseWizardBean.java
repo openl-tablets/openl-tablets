@@ -40,8 +40,9 @@ public abstract class BaseWizardBean {
 
     public String next() {
         setStep(getStep() + 1);
-        if (getStep() == getMaxVisitedStep()) {
-            onStepFirstVisit(getStep() + 1);
+        if (getStep() > getMaxVisitedStep()) {
+            onStepFirstVisit(getStep());
+            maxVisitedStep = Math.max(step, maxVisitedStep);
         }
         return "next";
     }
@@ -69,7 +70,6 @@ public abstract class BaseWizardBean {
 
     public void setStep(int step) {
         this.step = step;
-        maxVisitedStep = Math.max(step, maxVisitedStep);
     }
 
     public int getStepsCount() {
