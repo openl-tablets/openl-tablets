@@ -33,12 +33,24 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
 
     private static Log LOG = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
 
+    /**
+     * Delegates modification checking to parent
+     */
+    public final ModificationChecker DEFAULT_MODIDFICATION_CHECKER = new ModificationChecker() {
+        @Override
+        public boolean isModified() {
+            return XlsWorkbookSourceCodeModule.super.isModified();
+        }
+    };
+
     private Workbook workbook;
 
 	private Set<Short> wbColors = new TreeSet<Short>();
 
     private Collection<XlsWorkbookListener> listeners = new ArrayList<XlsWorkbookListener>();
-
+    
+    private ModificationChecker modificationChecker = DEFAULT_MODIDFICATION_CHECKER;
+    
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
         this(src, loadWorkbook(src));
     }
@@ -159,11 +171,19 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             resetModified();
         }
     }
+    
+    public ModificationChecker getModificationChecker() {
+        return modificationChecker;
+    }
+
+    public void setModificationChecker(ModificationChecker modificationChecker) {
+        this.modificationChecker = modificationChecker;
+    }
 
     @Override
     public boolean isModified() {
         synchronized (fileAccessLock) {
-            return super.isModified();
+            return modificationChecker.isModified();
         }
     }
 
@@ -197,4 +217,17 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
         return wbColors;
     }
 
+    /**
+     * Interface that provides modification checking
+     * 
+     * @author NSamatov
+     */
+    public static interface ModificationChecker {
+        /**
+         * Returns a modification status
+         * 
+         * @return true if a workbook is modified
+         */
+        boolean isModified();
+    }
 }
