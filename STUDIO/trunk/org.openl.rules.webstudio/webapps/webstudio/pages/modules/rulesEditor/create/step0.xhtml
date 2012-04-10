@@ -19,6 +19,7 @@
                     layout="pageDirection" onchange="setPageAlias(this.value);">
                     <f:selectItem itemValue="DATATYPE" itemLabel="Datatype Table" />
                     <f:selectItem itemValue="DATATYPE_ALIAS" itemLabel="Datatype Alias Table" />
+                    <f:selectItem itemValue="DATA" itemLabel="Data Table" />
                     <f:selectItem itemValue="TEST" itemLabel="Test Method" />
                     <f:selectItem itemValue="PROPERTY" itemLabel="Properties Table" />
                 </h:selectOneRadio>
@@ -37,6 +38,9 @@
                             break;
                         case "DATATYPE_ALIAS":
                             pageAlias = "datatypeAlias";
+                            break;
+                        case "DATA":
+                            pageAlias = "data";
                             break;
                         case "TEST":
                             pageAlias = "test";

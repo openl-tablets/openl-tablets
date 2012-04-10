@@ -17,6 +17,7 @@ public class TableWizardManager extends TableWizard{
         DECISION,
         DATATYPE,
         DATATYPE_ALIAS,
+        DATA,
         TEST,
         TEST_DIRECT,
         PROPERTY
@@ -64,6 +65,10 @@ public class TableWizardManager extends TableWizard{
                 break;
             case DATATYPE_ALIAS:
                 wizard = new DatatypeAliasTableCreationWizard();
+                wizard.setStepsCount(4);
+                break;
+            case DATA:
+                wizard = new DataTableCreationWizard();
                 wizard.setStepsCount(4);
                 break;
             case TEST:
