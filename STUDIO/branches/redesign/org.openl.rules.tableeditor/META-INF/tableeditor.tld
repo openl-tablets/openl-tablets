@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+    http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+    <tlib-version>1.0</tlib-version>
+    <short-name>tableEditor</short-name>
+    <uri>http://openl-tablets.sourceforge.net/jsf</uri>
+
+    <tag>
+        <name>tableViewer</name>
+        <tag-class>
+            org.openl.rules.tableeditor.taglib.TableViewerTag
+        </tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <description>The client id of this component</description>
+            <name>id</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Component binding</description>
+            <name>binding</name>
+            <deferred-value>
+                <type>javax.faces.component.UIComponent</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>Is this component rendered?</description>
+            <name>rendered</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>The table grid</description>
+            <name>table</name>
+            <required>true</required>
+            <deferred-value>
+                <type>org.openl.rules.table.ITable</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>The table view - Business or Developer</description>
+            <name>view</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>The table filter</description>
+            <name>filter</name>
+            <deferred-value>
+                <type>org.openl.rules.table.ui.IGridFilter</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
+            <name>showFormulas</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>If true the table properties are collapsed. The default is 'false'.</description>
+            <name>collapseProps</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>
+                Comma-separated list of javascript libraries to exclude from TableEditor html
+                to prevent conflicts with already used on page another versions of this libraries.
+                Available options: 'prototype'.
+            </description>
+            <name>excludeScripts</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+    </tag>
+    <tag>
+        <name>tableEditor</name>
+        <tag-class>
+            org.openl.rules.tableeditor.taglib.TableEditorTag
+        </tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <description>The client id of this component</description>
+            <name>id</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Component binding</description>
+            <name>binding</name>
+            <deferred-value>
+                <type>javax.faces.component.UIComponent</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>Is this component rendered?</description>
+            <name>rendered</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>The table grid</description>
+            <name>table</name>
+            <required>true</required>
+            <deferred-value>
+                <type>org.openl.rules.table.ITable</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>The table view - Business or Developer</description>
+            <name>view</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>The table filter</description>
+            <name>filter</name>
+            <deferred-value>
+                <type>org.openl.rules.table.ui.IGridFilter</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
+            <name>showFormulas</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>If true the table properties are collapsed. The default is 'false'.</description>
+            <name>collapseProps</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>"view" or "edit" mode of representation. The default is 'view'.</description>
+            <name>mode</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>If true the table is editable. The default is 'true'.</description>
+            <name>editable</name>
+            <deferred-value>
+                <type>boolean</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>Before Save action.</description>
+            <name>beforeSaveAction</name>
+            <deferred-method>
+                <method-signature>boolean beforeSaveAction()</method-signature>
+            </deferred-method>
+        </attribute>
+        <attribute>
+            <description>After Save action.</description>
+            <name>afterSaveAction</name>
+            <deferred-method>
+                <method-signature>void afterSaveAction()</method-signature>
+            </deferred-method>
+        </attribute>
+        <attribute>
+            <description>Before Save JS action.</description>
+            <name>onBeforeSave</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>After Save JS action.</description>
+            <name>onAfterSave</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>Save failure JS action.</description>
+            <name>onSaveFailure</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>
+                Comma-separated list of javascript libraries to exclude from TableEditor html
+                to prevent conflicts with already used on page another versions of this libraries.
+                Available options: 'prototype'.
+            </description>
+            <name>excludeScripts</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <name>linkBase</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <name>linkTarget</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+    </tag>
+</taglib>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/poi-3.5-beta5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-3.5-beta5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-scratchpad-3.5-beta5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ooxml-schemas-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-api-1.0.4.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

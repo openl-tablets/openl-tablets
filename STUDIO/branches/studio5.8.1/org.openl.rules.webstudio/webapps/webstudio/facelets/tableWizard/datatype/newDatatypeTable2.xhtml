@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/wizardBase.xhtml">
+
+    <ui:define name="title">Enter technical name and parent type</ui:define>
+
+    <ui:define name="page">
+        <h:form>
+            <h:panelGrid columns="3">
+                <h:outputText value="Technical Name" />
+                <h:inputText id="technicalName" value="#{tableWizard.technicalName}">
+                    <rich:validator />
+                </h:inputText>
+                <h:message for="technicalName" styleClass="error" />
+            </h:panelGrid>
+
+            <br />
+            <h:panelGrid columns="3">
+                <h:outputText value="Parent type:" />
+                <h:selectOneMenu value="#{tableWizard.parent}">
+                    <f:selectItems value="#{tableWizard.definedDatatypes}" />
+                </h:selectOneMenu>
+            </h:panelGrid>
+            <br />
+            <hr />
+
+            <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true" />
+            <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" />
+            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true" />
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

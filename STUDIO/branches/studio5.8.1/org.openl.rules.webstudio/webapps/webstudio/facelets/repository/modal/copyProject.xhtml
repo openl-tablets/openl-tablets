@@ -1,0 +1,51 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalCopyProject" width="400" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Copy Project" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+      onclick="RichFaces.$('modalCopyProject').hide();" alt="Close" />
+    </f:facet>
+
+    <h:form id="copyProjectForm">
+      <h:panelGroup id="modalCopyProjectData">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+          <h:outputText value="Project Name" />
+          <input id="projectName1" value="#{artefact.name}" type="text" size="35"
+              readonly="readonly" title="#{artefact.name}"/>
+          <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
+          <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
+        </h:panelGrid>
+  
+        <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
+      </h:panelGroup>
+
+      <hr />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton id="sbt" value="Copy" action="#{repositoryTreeController.copyProject}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalCopyProject')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+  </rich:popupPanel>
+
+  <script>
+    function openCopyProjectDialog(projectName) {
+      if (projectName) {
+        document.getElementById('projectName1').value = projectName;
+        document.getElementById('projectName1').title = projectName;
+      }
+      RichFaces.$('modalCopyProject').show();
+      focusElement('copyProjectForm:newProjectName');
+      document.getElementById('copyProjectForm:hiddenProjectName').value = document.getElementById('projectName1').value;
+    }
+  </script>
+</ui:composition>

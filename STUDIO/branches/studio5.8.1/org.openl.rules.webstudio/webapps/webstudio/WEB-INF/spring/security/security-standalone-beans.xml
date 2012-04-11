@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:security="http://www.springframework.org/schema/security"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.0.4.xsd">
+
+  <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
+    of "securityContextPersistenceFilter" in the list below -->
+
+  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+    <security:filter-chain-map path-type="ant">
+      <security:filter-chain pattern="/faces/facelets/login.xhtml" filters="none" />
+      <security:filter-chain pattern="/css/**" filters="none" />
+      <security:filter-chain pattern="/**"
+        filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,localUserFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
+    </security:filter-chain-map>
+  </bean>
+
+  <!-- ======================== AUTHENTICATION ======================= -->
+
+  <bean id="securityContextPersistenceFilter"
+    class="org.springframework.security.web.context.SecurityContextPersistenceFilter" />
+
+  <bean id="loginUrl" class="java.lang.String">
+    <constructor-arg value="/faces/facelets/login.xhtml" />
+  </bean>
+  <bean id="loginCheckUrl" class="java.lang.String">
+    <constructor-arg value="/security_login_check" />
+  </bean>
+  <bean id="logoutUrl" class="java.lang.String">
+    <constructor-arg value="/security_logout" />
+  </bean>
+
+  <bean id="localUserFilter" class="org.openl.rules.security.LocalUserFilter">
+    <property name="userDetailsService" ref="userDetailsService" />
+    <property name="autoLogin" value="#{systemConfig['security.login.auto']}" />
+    <property name="ignoredUrls">
+      <list>
+        <ref bean="logoutUrl" />
+        <ref bean="loginUrl" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+    <property name="providers">
+      <list>
+        <ref local="daoAuthenticationProvider" />
+        <ref local="rememberMeAuthenticationProvider" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
+  <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService" ref="userDetailsService" />
+    <property name="passwordEncoder" ref="passwordEncoder" />
+    <property name="hideUserNotFoundExceptions" value="false" />
+  </bean>
+
+  <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">
+    <property name="userDao" ref="openlUserDao"/>
+  </bean>
+
+  <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+    <property name="authenticationManager" ref="authenticationManager"/>
+    <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+  </bean>
+
+  <bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+    <property name="realmName" value="WebStudio Realm" />
+  </bean>
+
+  <bean id="usernamePasswordAuthenticationFilter"
+    class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="authenticationFailureHandler">
+      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+        <property name="defaultFailureUrl" ref="loginUrl" />
+      </bean>
+    </property>
+    <property name="authenticationSuccessHandler">
+      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
+        <property name="defaultTargetUrl" value="/" />
+      </bean>
+    </property>
+    <property name="filterProcessesUrl" ref="loginCheckUrl" />
+    <property name="rememberMeServices" ref="rememberMeServices" />
+  </bean>
+
+  <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint" />
+    <property name="accessDeniedHandler">
+      <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+        <property name="errorPage" value="/accessDenied.jsp" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="loginUrlAuthenticationEntryPoint"
+    class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    <property name="loginFormUrl" ref="loginUrl" />
+    <property name="forceHttps" value="false" />
+  </bean>
+
+  <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
+    The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
+    Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
+  <bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="accessDecisionManager" ref="accessDecisionManager" />
+    <property name="securityMetadataSource">
+      <security:filter-security-metadata-source lowercase-comparisons="true">
+        <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
+      </security:filter-security-metadata-source>
+    </property>
+  </bean>
+
+  <!-- ======================== RememberMe ========================== -->
+
+  <bean id="rememberMeAuthenticationFilter" class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
+    <property name="rememberMeServices" ref="rememberMeServices" />
+    <property name="authenticationManager" ref="authenticationManager" />
+  </bean>
+
+  <bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+    <property name="userDetailsService" ref="userDetailsService" />
+    <property name="key" value="WebStudio_rememberme" />
+    <property name="parameter" value="rememberMe" />
+    <!-- The same as in localeFilter -->
+  </bean>
+
+  <bean id="rememberMeAuthenticationProvider"
+    class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
+    <property name="key" value="WebStudio_rememberme" />
+  </bean>
+
+  <!-- ======================== Logout ========================== -->
+  <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+    <constructor-arg ref="loginUrl" />
+    <constructor-arg>
+      <list>
+        <ref bean="rememberMeServices" />
+        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+      </list>
+    </constructor-arg>
+    <property name="filterProcessesUrl" ref="logoutUrl" />
+  </bean>
+
+  <!-- ======================== Roles ========================== -->
+  <bean id="roleVoter" class="org.openl.rules.security.standalone.OpenLRoleVoter" />
+  <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+    <property name="allowIfAllAbstainDecisions" value="false" />
+    <property name="decisionVoters">
+      <list>
+        <ref bean="roleVoter" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="securityMetadataSource" class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
+  <bean id="openlManagerSecurity" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+    <property name="validateConfigAttributes" value="false" />
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="accessDecisionManager" ref="accessDecisionManager" />
+    <property name="securityMetadataSource" ref="securityMetadataSource" />
+  </bean>
+</beans>

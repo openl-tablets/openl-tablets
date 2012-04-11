@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+                              "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+<faces-config>
+
+  <managed-bean>
+    <managed-bean-name>rulesUserSession</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.servlet.RulesUserSession</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>workspaceManager</property-name>
+      <value>#{workspaceManager}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>user</property-name>
+      <value>#{currentUserInfo.user}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>diff</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DiffFormController</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>deploymentController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DeploymentController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>deploymentManager</property-name>
+      <value>#{deploymentManager}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repositoryTreeState</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeState</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{rulesUserSession.userWorkspace}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repositoryTreeController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{rulesUserSession.userWorkspace}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>uploadService</property-name>
+      <value>#{uploadService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>dependencyController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DependencyController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>smartRedeployController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.SmartRedeployController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>deploymentManager</property-name>
+      <value>#{deploymentManager}</value>
+    </managed-property>
+  </managed-bean>
+
+  <navigation-rule>
+    <from-view-id>/repository/main.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>index</from-outcome>
+      <to-view-id>/index-jcr.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>search.advanced</from-outcome>
+      <to-view-id>/repository/search/advanced.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-action>#{diff.compare}</from-action>
+      <to-view-id>/repository/diff.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>success</from-outcome>
+      <to-view-id>/repository/main.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>failure</from-outcome>
+      <to-view-id>/repository/main.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/repository/search/advanced.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>index</from-outcome>
+      <to-view-id>/index-jcr.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>cancel</from-outcome>
+      <to-view-id>/repository/main.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/repository/diff.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>jcrMain</from-outcome>
+      <to-view-id>/repository/main.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-action>#{diff.revertTo}</from-action>
+      <to-view-id>/repository/main.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+  </navigation-rule>
+
+</faces-config>

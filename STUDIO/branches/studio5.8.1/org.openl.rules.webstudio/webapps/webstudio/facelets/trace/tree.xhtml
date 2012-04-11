@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <link href="#{contextPath}/css/tree.css" rel="stylesheet" type="text/css"></link>
+    </ui:define>
+
+    <ui:define name="page">
+        <br />
+
+        <!-- Tree BEGIN -->
+        <rich:tree styleClass="tree" value="#{traceTreeBean.tree}" toggleType="client" var="node"
+            nodeType="#{node.type}">
+            <rich:treeNode type="decisiontable"
+                iconExpanded="webresource/images/ruleset.gif"
+                iconCollapsed="webresource/images/ruleset.gif"
+                iconLeaf="webresource/images/ruleset.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="rule"
+                iconExpanded="webresource/images/test_ok.gif"
+                iconCollapsed="webresource/images/test_ok.gif"
+                iconLeaf="webresource/images/test_ok.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="cmatch"
+                iconExpanded="webresource/images/cmatch.gif"
+                iconCollapsed="webresource/images/cmatch.gif"
+                iconLeaf="webresource/images/cmatch.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="cmResult"
+                iconExpanded="webresource/images/cmatch-check.gif"
+                iconCollapsed="webresource/images/cmatch-check.gif"
+                iconLeaf="webresource/images/cmatch-check.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="cmMatch"
+                iconExpanded="webresource/images/cmatch-match.gif"
+                iconCollapsed="webresource/images/cmatch-match.gif"
+                iconLeaf="webresource/images/cmatch-match.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="wcmatch"
+                iconExpanded="webresource/images/cmatch.gif"
+                iconCollapsed="webresource/images/cmatch.gif"
+                iconLeaf="webresource/images/cmatch.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="wcmScore"
+                iconExpanded="webresource/images/cmatch.gif"
+                iconCollapsed="webresource/images/cmatch.gif"
+                iconLeaf="webresource/images/cmatch.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="tbasic"
+                iconExpanded="webresource/images/tbasic.gif"
+                iconCollapsed="webresource/images/tbasic.gif"
+                iconLeaf="webresource/images/tbasic.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="tbasicMethod"
+                iconExpanded="webresource/images/method.gif"
+                iconCollapsed="webresource/images/method.gif"
+                iconLeaf="webresource/images/method.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="tbasicOperation"
+                iconExpanded="webresource/images/tbasic-operation.gif"
+                iconCollapsed="webresource/images/tbasic-operation.gif"
+                iconLeaf="webresource/images/tbasic-operation.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+
+            <!-- TODO: icons for spreadsheet, method, overloadedMethodChoise in trace -->
+            <rich:treeNode type="spreadsheet"
+                iconExpanded="webresource/images/spreadsheet.gif"
+                iconCollapsed="webresource/images/spreadsheet.gif"
+                iconLeaf="webresource/images/spreadsheet.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="spreadsheetCell"
+                iconExpanded="webresource/images/value.gif"
+                iconCollapsed="webresource/images/value.gif"
+                iconLeaf="webresource/images/value.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="method"
+                iconExpanded="webresource/images/method.gif"
+                iconCollapsed="webresource/images/method.gif"
+                iconLeaf="webresource/images/method.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="overloadedMethodChoice"
+                iconExpanded="webresource/images/tableview.gif"
+                iconCollapsed="webresource/images/tableview.gif"
+                iconLeaf="webresource/images/tableview.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+        </rich:tree>
+        <!-- Tree END -->
+
+    </ui:define>
+</ui:composition>

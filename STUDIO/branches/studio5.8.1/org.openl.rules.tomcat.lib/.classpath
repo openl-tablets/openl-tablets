@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-7.0.8/lib/annotations-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-7.0.8/lib/el-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-7.0.8/bin/bootstrap.jar"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-7.0.8/lib/jsp-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="apache-tomcat-7.0.8/lib/servlet-api.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="apache-tomcat-7.0.8/bin/tomcat-juli.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

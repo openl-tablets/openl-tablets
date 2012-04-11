@@ -1,0 +1,23 @@
+body {
+    background: #eceef8;
+}
+
+.treeMenu {
+    width: 100%;
+    border-bottom: 1px dotted rgb(150,150,150);
+    padding-bottom: 4px;
+}
+
+.treeMenu a {
+    margin-right: 2px;
+}
+
+.tree a {
+    text-decoration: none;
+    color: #111111 !important;
+}
+
+.treeNodeInactive {
+    opacity: 0.35;
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 35);
+}

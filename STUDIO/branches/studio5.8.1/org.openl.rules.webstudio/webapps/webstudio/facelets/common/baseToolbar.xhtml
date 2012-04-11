@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:authz="http://rules.openl.org/taglibs/acegi"
+                template="/facelets/common/base.xhtml">
+
+  <ui:define name="page">
+    <c:set var="node" value="#{repositoryTreeState.selectedNode}"/>
+    <c:set var="artefact" value="#{node.data}"/>
+
+    <h:form id="mainForm">
+      <span id="userName" title="Current user" style="position: absolute; top: 52px; right: 85px;">
+        <authz:authentication operation="username" />
+      </span>
+
+      <div id="iconbar">
+        <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/guide/html/#{versionProperties['openl.version']}/OpenLWebStudio_UserGuide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;" title="Help">
+          <h:graphicImage url="/webresource/images/help.png" styleClass="actionImage" alt="Help" />
+        </a>
+
+        <h:commandLink action="#{studioOpener.openStudio}" title="Open Rules Editor">
+            <h:graphicImage url="/webresource/images/openWebStudio.gif" styleClass="actionImage" alt="Open Rules Editor" />
+        </h:commandLink>
+
+        <c:if test="#{not systemConfig['security.logout.hidden']}">
+        <a href="#{contextPath}/security_logout"
+          title="Log out" onclick="return confirm('Are you sure you want to Log out?')">
+          <h:graphicImage url="/webresource/images/logout.gif" styleClass="actionImage" alt="Log out" />
+        </a>
+        </c:if>
+      </div>
+
+      <div id="colorScheme">
+        <h:panelGrid columns="1" cellpadding="0" cellspacing="0">
+          <h:outputText value="Color scheme" />
+          <h:selectOneMenu value="#{skinBean.skin}" onchange="submit()">
+            <f:selectItems value="#{skinBean.skins}"/>
+          </h:selectOneMenu>
+        </h:panelGrid>
+      </div>
+
+      <ui:insert name="body" />
+    </h:form>
+  </ui:define>
+</ui:composition>

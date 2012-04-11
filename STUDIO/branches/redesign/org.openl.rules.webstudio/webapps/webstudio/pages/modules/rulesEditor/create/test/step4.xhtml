@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/pages/modules/rulesEditor/create/selectSheet.xhtml">
+
+    <ui:define name="controlButtons">
+        <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"
+            immediate="true" oncomplete="go('test/step3.xhtml')" />
+        <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableUri}"
+            oncomplete="if(event.data) goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
+        <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+            oncomplete="goTo('create/index.xhtml')" />
+    </ui:define>
+
+</ui:composition>
