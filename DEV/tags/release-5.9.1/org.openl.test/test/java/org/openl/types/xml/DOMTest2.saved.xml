@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<test1 value="t1.value">
-
-  <ary name="a0.name"/>
-
-  <ary name="a1.name"/>
-</test1>

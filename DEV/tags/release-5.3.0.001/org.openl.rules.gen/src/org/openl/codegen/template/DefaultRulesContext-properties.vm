@@ -1,8 +1,0 @@
-#foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-	public $contextPropertyDefinition.Type.InstanceClass.Name get#upperFirstChar($contextPropertyDefinition.Name)() {
-		return ($contextPropertyDefinition.Type.InstanceClass.Name) internalMap.get("$contextPropertyDefinition.Name"); 
-	}
-	public void set#upperFirstChar($contextPropertyDefinition.Name)($contextPropertyDefinition.Type.InstanceClass.Name $contextPropertyDefinition.Name) {
-		internalMap.put("$contextPropertyDefinition.Name", $contextPropertyDefinition.Name);
-	}	
-#end

@@ -1,1 +1,0 @@
-This is not a runnable app, but it is easy to add to an existing JSF web application.

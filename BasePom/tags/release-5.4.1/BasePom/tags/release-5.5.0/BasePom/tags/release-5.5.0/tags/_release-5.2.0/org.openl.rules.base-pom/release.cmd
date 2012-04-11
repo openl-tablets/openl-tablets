@@ -1,1 +1,0 @@
-ant -f release.xml fullRelease
