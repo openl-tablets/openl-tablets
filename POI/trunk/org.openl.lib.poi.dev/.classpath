@@ -15,6 +15,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/xmlsec-1.4.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="var" path="M2_REPO/junit/junit/4.5/junit-4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

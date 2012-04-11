@@ -44,7 +44,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/../lib</outputDirectory>
-              <excludeArtifactIds>junit,org.openl.poi.lib</excludeArtifactIds>
+              <excludeArtifactIds>org.openl.poi.lib</excludeArtifactIds>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
               <excludeTransitive>true</excludeTransitive>
@@ -121,6 +121,12 @@
         <artifactId>joda-time</artifactId>
     </dependency>
     
+
+	<dependency>
+		<groupId>org.apache.velocity</groupId>
+		<artifactId>velocity</artifactId>
+	</dependency>
+
     <dependency>
 		<groupId>org.mockito</groupId>
 		<artifactId>mockito-all</artifactId>
