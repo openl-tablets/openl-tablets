@@ -1,8 +1,0 @@
-#if ($tool.length($validatorsDefinitions) > 0)
-	{
-#foreach( $validatorsDefinition in $validatorsDefinitions )
-#foreach( $validatorClass in $validatorsDefinition.ValidatorClasses )
-		addValidator(new ${validatorClass.Name}("${validatorsDefinition.PropertyName}"));
-#end#end
-	}
-#end

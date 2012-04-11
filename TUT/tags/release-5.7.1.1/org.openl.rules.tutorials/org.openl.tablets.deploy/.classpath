@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" output="webapps/demo/WEB-INF/classes" path="webapps/demo/WEB-INF/java"/>
-	<classpathentry kind="var" path="JRE_LIB"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
