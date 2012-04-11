@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns="http://annox.dev.java.net"
+	xmlns:ann="http://annox.dev.java.net/javax.xml.bind.annotation">
+
+	<method name="getCompiledOpenClass">
+		<ann:XmlTransient/>
+	</method>
+
+	<method name="getOpenClass">
+		<ann:XmlTransient/>
+	</method>
+
+</class>

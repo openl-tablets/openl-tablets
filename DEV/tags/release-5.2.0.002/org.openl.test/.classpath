@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins">
+		<accessrules>
+			<accessrule kind="accessible" pattern="*/**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry excluding="**/.svn/" kind="src" path="tst"/>
+	<classpathentry excluding="**/.svn/" kind="src" path="gen"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.5/junit-4.5.jar"/>
+	<classpathentry excluding="**/.svn/" kind="src" path="tst_openl"/>
+	<classpathentry excluding="**/.svn/" kind="src" path="tst_openl.j"/>
+	<classpathentry excluding="**/.svn/" kind="src" path="tst.org.openl.conf.ant"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

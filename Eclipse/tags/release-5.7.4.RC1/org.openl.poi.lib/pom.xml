@@ -1,0 +1,133 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.eclipse-pom</artifactId>
+		<version>5.7.4.RC1</version>
+		<relativePath>../org.openl.rules.eclipse-pom</relativePath>
+	</parent>
+
+	<groupId>org.openl</groupId>
+	<artifactId>org.openl.poi.lib</artifactId>
+	<packaging>jar</packaging>
+	<name>OpenL - DEV - POI - Libraries</name>
+	<description>POI Libraries to read/write Excel files</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>
+								${project.build.directory}/../lib
+							</directory>
+							<includes>
+								<include>**/*.jar</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								${project.build.directory}/../lib
+							</outputDirectory>
+							<excludeArtifactIds>
+								junit
+							</excludeArtifactIds>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>
+								true
+							</overWriteSnapshots>
+							<excludeTransitive>true</excludeTransitive>
+							<type>jar</type>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<resources>
+			<resource>
+				<directory>${project.build.directory}/..</directory>
+				<includes>
+					<include>lib/**/*.jar</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>ooxml-schemas</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax-api</artifactId>
+		</dependency>
+
+
+		<!-- OPENL MODIFIED POI 
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.lib.poi35.dev.modified</artifactId>
+		</dependency>
+		-->
+
+		<!-- ORIGINAL POI ARTIFACTS -->
+			
+			
+			<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			</dependency>
+			<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			</dependency>
+			
+			<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			</dependency>
+		
+	</dependencies>
+
+</project>

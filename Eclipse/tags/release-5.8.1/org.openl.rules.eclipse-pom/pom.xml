@@ -1,0 +1,598 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.base-pom</artifactId>
+		<version>5.8.1</version>
+		<relativePath /><!-- Workaround to prevent warning. See: http://jira.codehaus.org/browse/MNG-4687 -->
+	</parent>
+
+	<groupId>org.openl.rules</groupId>
+	<artifactId>org.openl.rules.eclipse-pom</artifactId>
+	<version>5.8.1</version>
+	<packaging>pom</packaging>
+	<name>OpenL - Eclipse</name>
+	<description>Eclipse related projects</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<scm>
+		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags/release-5.8.1/trunk</connection>
+		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/Eclipse/tags/release-5.8.1/trunk</developerConnection>
+		<url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.8.1/openl-tablets</url>
+	</scm>
+
+	<modules>
+		<!-- LIBS -->
+		<module>../org.openl.lib</module>
+		<module>../org.openl.poi.lib</module>
+		<module>../org.openl.rules.webstudio.lib</module>
+		<module>../org.openl.rules.repository.jcr.jackrabbit.lib</module>
+		<module>../org.openl.rules.ruleservice.lib</module>
+		<module>../org.openl.rules.ruleservice.ws.lib</module>
+
+		<module>../org.openl.rules.eclipse.site</module>
+		<module>../org.openl.eclipse.ui</module>
+		<module>../org.openl.rules.eclipse.ui</module>
+		<module>../org.openl.rules.eclipse.ui.wizard</module>
+		<module>../org.openl.eclipse.ui.wizard</module>
+		<module>../org.openl.eclipse.ui.util</module>
+		<module>../org.openl.eclipse.ui.eclipse.feature</module>
+		<module>../org.openl.rules.source.eclipse.feature</module>
+		<module>../org.openl.rules.all.eclipse.feature</module>
+		<module>../org.openl.rules.eclipse.feature</module>
+		<module>../org.openl.rules.webstudio.eclipse.feature</module>
+		<module>../org.openl.rules.ruleservice.eclipse.feature</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>local-eclipse-repo</id>
+			<url>file://${basedir}/../org.openl.rules.eclipse-pom/m2_repo</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>local-eclipse-plugin-repo</id>
+			<url>file://${basedir}/../org.openl.rules.eclipse-pom/m2_repo</url>
+		</pluginRepository>
+
+	</pluginRepositories>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<configuration>
+					<configLocation>../org.openl.rules.eclipse-pom/checkstyle.xml</configLocation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<profiles>
+		<profile>
+			<id>internal-deploy</id>
+			<distributionManagement>
+				<site>
+					<id>internal-minsk</id>
+					<url>file://d:/reports/org.openl.rules.eclipse-pom</url>
+				</site>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>cobertura-summary-report</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<inherited>true</inherited>
+						<configuration>
+							<tasks>
+								<taskdef resource="tasks.properties" />
+
+								<cobertura-merge datafile="target\cobertura-merged-file.ser">
+									<fileset dir="..">
+										<include name="org.openl.eclipse.ui\target\cobertura\cobertura.ser" />
+										<include name="org.openl.eclipse.ui.util\target\cobertura\cobertura.ser" />
+										<include name="org.openl.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.eclipse.ui\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.eclipse.ui.wizard\target\cobertura\cobertura.ser" />
+									</fileset>
+								</cobertura-merge>
+
+								<cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+									<fileset dir="..\org.openl.eclipse.ui\src\">
+										<include name="**\*.java" />
+									</fileset>
+									<fileset dir="..\org.openl.eclipse.ui.util\src\">
+										<include name="**\*.java" />
+									</fileset>
+									<fileset dir="..\org.openl.eclipse.ui.wizard\src\">
+										<include name="**\*.java" />
+									</fileset>
+									<fileset dir="..\org.openl.rules.eclipse.ui\src\">
+										<include name="**\*.java" />
+									</fileset>
+									<fileset dir="..\org.openl.rules.eclipse.ui.wizard\src\">
+										<include name="**\*.java" />
+									</fileset>
+								</cobertura-report>
+							</tasks>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui.wizard</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui.util</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.eclipse.ui</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.rules.eclipse.site</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<!-- Features -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.eclipse.feature</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.webstudio.eclipse.feature</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.eclipse.feature</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.source.eclipse.feature</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.all.eclipse.feature</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<!-- LIBs -->
+			<!-- OPENL MODIFIED POI -->
+			<!--dependency> <groupId>org.openl.rules</groupId> <artifactId>org.openl.lib.poi35.dev.modified</artifactId> 
+				<version>${openl.version.maven}</version> </dependency -->
+
+			<!-- ORIGINAL POI ARTIFACTS -->
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.poi.lib</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.lib</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.webstudio.lib</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository.jcr.jackrabbit.lib</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.lib</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws.lib</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+
+			<!-- DEV -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.core</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.commons</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.grammars</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.j</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.j.science</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.constrainer</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.conf.ant</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+
+			<!-- STUDIO -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.tableeditor</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository.jcr</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.workspace</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.webstudio</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.commons.web</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.security</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.security.standalone</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.diff</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.tomcat.lib</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.project</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<!-- WSFrontend -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+
+			<!--SOURCES -->
+			<!-- DEV -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.core</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.commons</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.j</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.grammars</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.j.science</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.constrainer</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.conf.ant</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<!-- STUDIO -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.tableeditor</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio</artifactId>
+                <classifier>sources</classifier>
+                <version>${openl.version.maven}</version>
+            </dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository.jcr</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.workspace</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.commons.web</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.security</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.security.standalone</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.diff</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.tomcat.lib</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.project</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<!-- WSFrontend -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws</artifactId>
+				<classifier>sources</classifier>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+			<!-- Eclipse -->
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui.util</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui.wizard</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl</groupId>
+				<artifactId>org.openl.eclipse.ui</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.eclipse.ui.wizard</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.eclipse.ui</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<!-- OPENL MODIFIED POI -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
+				<version>${openl.version.maven}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+</project>

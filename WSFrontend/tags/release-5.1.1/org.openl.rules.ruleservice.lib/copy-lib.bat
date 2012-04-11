@@ -1,0 +1,1 @@
+mvn antrun:run org.openl.rules:maven-libsupport-plugin:copy-lib

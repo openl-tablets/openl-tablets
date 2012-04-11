@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Select table</ui:define>
+
+    <ui:define name="data">
+        <h:form>
+            <h:panelGrid columns="2" rendered="#{not empty wizard.decisionTables}" cellspacing="5">
+                <h:outputText value="Table" styleClass="required2" />
+                <h:selectOneMenu value="#{wizard.selectedTable}">
+                    <f:selectItems value="#{wizard.decisionTables}" />
+                </h:selectOneMenu>
+            </h:panelGrid>
+            <h:outputText value="There is no any available table for tests"
+                rendered="#{empty wizard.decisionTables}" styleClass="error" />
+
+            <hr />
+            <br />
+
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('step0.xhtml')" />
+            <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
+                rendered="#{not empty wizard.decisionTables}"
+                oncomplete="go('test/step2.xhtml')">
+            </a4j:commandButton>
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
+        </h:form>
+    </ui:define>
+
+</ui:composition>

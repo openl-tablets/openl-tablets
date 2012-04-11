@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.openl.tablets.deploy_tutorial4
+Bundle-SymbolicName: org.openl.tablets.deploy_tutorial4
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Bundle-Vendor: OpenL Tablets

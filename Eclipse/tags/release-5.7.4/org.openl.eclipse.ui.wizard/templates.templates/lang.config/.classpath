@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry exported="true" kind="var" path="org.openl.core_HOME/lib/commons-lang-1.0.1/commons-lang-1.0.1.jar"/>
+    <classpathentry exported="true" kind="var" path="org.openl.core_HOME/lib/commons-logging-1.0.3/commons-logging-api.jar"/>
+    <classpathentry exported="true" kind="var"
+        path="org.openl.core_HOME/lib/org.openl.core.jar" sourcepath="org.openl.core_HOME/lib/org.openl.core.jar"/>
+    <classpathentry kind="output" path="classes"/>
+</classpath>

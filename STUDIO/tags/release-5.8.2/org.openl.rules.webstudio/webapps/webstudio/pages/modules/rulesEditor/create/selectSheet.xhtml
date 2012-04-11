@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">Select destination</ui:define>
+
+    <ui:define name="data">
+
+    <h:form id="destForm" prependId="false">
+      <h:panelGrid columns="2">
+        <h:outputText value="Workbook" styleClass="required2" />
+        <h:selectOneMenu value="#{wizard.workbook}">
+          <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
+          <f:selectItems value="#{wizard.workbooks}"/>
+        </h:selectOneMenu>
+        </h:panelGrid>
+
+        <br/>
+
+      <fieldset>
+      <legend class="required2">Worksheet</legend>
+      <h:panelGrid columns="2">
+        <h:selectOneRadio id="newSheet" onclick="updateControls()" value="#{wizard.newWorksheet}"
+            layout="pageDirection">
+          <f:selectItem itemValue="existing" itemLabel="Existing" />
+          <f:selectItem itemValue="new" itemLabel="New" />
+        </h:selectOneRadio>
+        <h:panelGrid columns="2">
+          <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet">
+            <f:selectItems value="#{wizard.worksheets}" />
+          </h:selectOneMenu>
+          <h:outputText value="" />
+          <h:inputText value="#{wizard.newWorksheetName}" id="newSheetName" />
+          <a4j:outputPanel ajaxRendered="true">
+              <h:message for="newSheetName" errorClass="error" />
+          </a4j:outputPanel>
+        </h:panelGrid>
+      </h:panelGrid>
+      </fieldset>
+
+      <hr />
+      <br />
+
+      <ui:insert name="controlButtons" />
+    </h:form>
+
+    <script>
+      function updateControls() {
+          var e = document.forms['destForm']['newSheet'][0];
+          var newSheet = e.value == 'new' ? e.checked : !e.checked;
+          $j('#sheet').attr("disabled", newSheet);
+          $j('#newSheetName').attr("disabled", !newSheet);
+      }
+
+      updateControls();
+    </script>
+
+  </ui:define>
+</ui:composition>

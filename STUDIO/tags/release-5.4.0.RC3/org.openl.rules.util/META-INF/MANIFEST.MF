@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL WebStudio Utility Classes
+Bundle-SymbolicName: org.openl.rules.util;singleton:=true
+Bundle-Version: 5.4.0.RC3
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.openl.rules.webstudio.lib,
+ org.openl.lib.apache.tomcat
+Export-Package: org.openl.rules.util.net,
+ org.openl.rules.util.spring,
+ org.openl.rules.web.jsf.facelets.acegi,
+ org.openl.rules.web.jsf.facelets.fn,
+ org.openl.rules.web.jsf.util

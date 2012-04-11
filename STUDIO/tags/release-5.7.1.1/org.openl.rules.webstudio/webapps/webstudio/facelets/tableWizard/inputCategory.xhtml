@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                template="/facelets/common/wizardBase.xhtml">
+
+    <ui:define name="header">
+        <a4j:loadScript src="resource:///js/prototype/prototype-1.6.1.js" />
+        <a4j:loadScript src="resource:///javascript/common.js" />
+        <a4j:loadScript src="resource:///javascript/validator.js" />
+        <style>
+            #categoryNameModule table tr {
+                 vertical-align: top;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">Select category</ui:define>
+
+    <ui:define name="page">
+
+    	<h:form id="categoryForm">
+  	   	  <div id="categoryNameModule">
+              <h:panelGrid columns="2">
+                  <h:selectOneRadio id="categoryNameSelector" value="#{tableWizard.categoryNameSelector}"
+                      layout="pageDirection" onchange="updateCategoryNameControls()">
+      			    <f:selectItem itemValue="existing" itemLabel="Existing" />
+      			    <f:selectItem itemValue="new" itemLabel="New" />
+      			    <f:selectItem itemValue="sheetName" itemLabel="As sheet name" />
+      			</h:selectOneRadio>
+                  <h:panelGrid>
+                      <h:selectOneMenu id="categoryNamesList" value="#{tableWizard.categoryName}">
+                          <f:selectItems value="#{tableWizard.categoryNamesList}" />
+                      </h:selectOneMenu>
+                      <h:inputText id="newCategoryName" value="#{tableWizard.newCategoryName}" />
+                  </h:panelGrid>
+              </h:panelGrid>
+  	   	  </div>
+
+  	    <hr />
+
+  	    <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" />
+  	    <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}" onclick="return validate();" />
+        <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" />
+      </h:form>
+
+    <f:verbatim>
+    <script type="text/javascript">
+
+      function updateCategoryNameControls() {
+          var selectorCheckedValue = getRadioCheckedValue('categoryForm', 'categoryForm:categoryNameSelector');
+          $('categoryForm:categoryNamesList').disabled = (selectorCheckedValue != 'existing');
+          $('categoryForm:newCategoryName').disabled = (selectorCheckedValue != 'new');
+      }
+
+      function validate() {
+          return validateNewCategoryName();
+      }
+
+      function validateNewCategoryName() {
+          var selectorCheckedValue = getRadioCheckedValue('categoryForm', 'categoryForm:categoryNameSelector');
+          if (selectorCheckedValue == 'new') {
+              return validateRequired('categoryForm:newCategoryName', true);
+          }
+          return true;
+      }
+
+      updateCategoryNameControls();
+    </script>
+
+    </f:verbatim>
+
+  </ui:define>
+
+</ui:composition>

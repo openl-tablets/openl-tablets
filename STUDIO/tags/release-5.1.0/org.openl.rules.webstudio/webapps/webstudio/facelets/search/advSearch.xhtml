@@ -1,0 +1,269 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+        xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jstl/core"
+        template="/facelets/common/webstudioBase.xhtml">
+
+  <ui:define name="header">
+    <a4j:loadStyle src="resource:///css/openl/advSearch.css" />
+    <a4j:loadScript src="resource:///javascript/search/advSearch.js" />
+  </ui:define>
+
+  <ui:define name="page">
+
+<table><tr><td>
+<h:form id="advSearchForm">
+  <h:panelGrid columns="3" cellspacing="5" >
+    <h:selectManyCheckbox value="#{advancedSearch.selectedTableTypes}" layout="lineDirection" id="tableType" style="display:inline">
+      <f:selectItems value="#{advancedSearch.tableTypes}"/>
+    </h:selectManyCheckbox>
+
+    <h:outputLink value="javascript: void(0)" onclick="jsSetTableTypes(true)">Select All</h:outputLink>
+    <h:outputLink value="javascript: void(0)" onclick="jsSetTableTypes(false)">Deselect All</h:outputLink>
+  </h:panelGrid>
+
+<fieldset><legend>Table Selector</legend>
+  <table class="search-table">
+    <th/>
+    <th class="search" colspan='3'>Table Attribute</th>
+    <th class="search">Condition</th>
+    <th class="search">Value</th>
+
+    <c:forEach items="#{advancedSearch.tableElements}" var="se" varStatus="status">
+      <c:if test="#{status.index > 0}">
+        <tr>
+          <td colspan="7" align="#{se.operator.group ? 'center' : 'value'}" class="#{se.operator.group ? 'search-group' : 'search-element'}">
+             <h:selectOneMenu value="#{se.groupOperatorName}" onchange="alignGop(this)" styleClass="#{se.operator.group ? 'search-group' : 'search-element'}">
+               <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
+             </h:selectOneMenu>
+          </td>
+        </tr>
+      </c:if>
+      <tr>
+        <td> </td>
+        <td>
+          <h:selectOneMenu value="#{se.notFlag}">
+            <f:selectItems value="#{advancedSearch.notFlagValues}"/>
+          </h:selectOneMenu>
+        </td>
+
+        <td>
+          <h:selectOneMenu value="#{se.type}" id="type1_#{status.index}" onchange="makeValue1Visible(this, #{status.index})">
+            <f:selectItems value="#{advancedSearch.typeValues}"/>
+          </h:selectOneMenu>
+        </td>
+
+        <td>
+          <h:inputText value="#{se.value1}" id="v1_#{status.index}" styleClass="search-input" onclick="jscleanAny(this)"/>
+        </td>
+
+        <td>
+          <h:selectOneMenu value="#{se.opType2}">
+            <f:selectItems value="#{advancedSearch.opTypeValues}"/>
+          </h:selectOneMenu>
+        </td>
+
+        <td>
+          <h:inputText value="#{se.value2}" styleClass="search-input" onclick="jscleanAny(this)"/>
+        </td>
+
+        <td>
+          <h:commandLink title="Add Condition" action="#{advancedSearch.addCondition}">
+            <f:param name="index" value="#{status.index}" />
+            <h:graphicImage url="/webresource/images/add_obj.gif" />
+          </h:commandLink>
+
+          <c:if test="#{status.index > 0}">
+            <rich:spacer />
+            <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteCondition}">
+              <f:param name="index" value="#{status.index}" />
+              <h:graphicImage url="/webresource/images/delete.gif"/>
+            </h:commandLink>
+          </c:if>
+        </td>
+
+      </tr>
+    </c:forEach>
+
+  </table>
+
+</fieldset>
+
+<fieldset><legend>Column Selector</legend>
+<table class="search-table">
+<th/>
+<th class="search" colspan ='3'>Column Attribute</th>
+<th class="search" colspan="2">Condition</th>
+<th class="search">Value</th>
+
+<c:forEach items="#{advancedSearch.columnElements}" var="se" varStatus="status">
+  <c:if test="#{status.index > 0}">
+    <tr>
+      <td colspan="7" align="#{se.operator.group ? 'center' : 'value'}" class="#{se.operator.group ? 'search-group' : 'search-element'}">
+         <h:selectOneMenu value="#{se.groupOperatorName}" onchange="alignGop(this)" styleClass="#{se.operator.group ? 'search-group' : 'search-element'}">
+           <f:selectItems value="#{advancedSearch.groupOperationValues}"/>
+         </h:selectOneMenu>
+      </td>
+    </tr>
+  </c:if>
+
+  <tr>
+    <td> </td>
+    <td>
+      <h:selectOneMenu value="#{se.notFlag}">
+        <f:selectItems value="#{advancedSearch.notFlagValues}"/>
+      </h:selectOneMenu>
+    </td>
+
+     <td>
+       <h:selectOneMenu value="#{se.type}">
+         <f:selectItems value="#{advancedSearch.columnTypeValues}"/>
+       </h:selectOneMenu>
+     </td>
+
+    <td>
+      <h:selectOneMenu value="#{se.opType1}">
+        <f:selectItems value="#{advancedSearch.opTypeValues}"/>
+      </h:selectOneMenu>
+    </td>
+
+    <td>
+      <h:inputText value="#{se.value1}" styleClass="search-input" onclick="jscleanAny(this)"/>
+    </td>
+
+    <td>
+      <h:selectOneMenu value="#{se.opType2}">
+        <f:selectItems value="#{advancedSearch.opTypeValues}"/>
+      </h:selectOneMenu>
+    </td>
+
+    <td>
+      <h:inputText value="#{se.value2}" styleClass="search-input" onclick="jscleanAny(this)"/>
+    </td>
+
+     <td>
+        <h:commandLink title="Add Condition" action="#{advancedSearch.addColCondition}">
+          <f:param name="index" value="#{status.index}" />
+          <h:graphicImage url="/webresource/images/add_obj.gif" />
+        </h:commandLink>
+
+        <c:if test="#{status.index > 0}">
+            <rich:spacer />
+            <h:commandLink title="Remove Condition" action="#{advancedSearch.deleteColCondition}">
+              <f:param name="index" value="#{status.index}" />
+              <h:graphicImage url="/webresource/images/delete.gif"/>
+            </h:commandLink>
+        </c:if>
+      </td>
+  </tr>
+
+</c:forEach>
+</table>
+
+
+</fieldset>
+
+
+<h:commandButton value="Search" action="#{advancedSearchRequest.search}"/>
+</h:form></td>
+<c:if test="#{advancedSearch.showSearches}"><td class="search"><h:form>
+    <h2><u>Saved Searches</u></h2>
+    <ul class="search">
+      <c:forEach items="#{advancedSearch.savedSearches}" var="ss" varStatus="status">
+        <li>
+          <h:commandLink value="#{ss.name}" action="#{advancedSearch.applySearch}">
+            <f:param name="index" value="#{status.index}"/>
+          </h:commandLink>
+        </li>
+      </c:forEach>
+    </ul>
+</h:form></td></c:if>
+</tr></table>
+
+
+<h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
+
+<c:if test="#{not advancedSearch.ready}">
+  <p class="warning">There is no valid projects in workspace. Or your session have expired and you need to reload project</p>
+</c:if>
+
+<c:if test="#{advancedSearchRequest.searching}">
+  <h:form id="saveAdvSearchForm">
+    <h:inputHidden value="#{advancedSearch.newSearchName}" id="searchName" />
+    <h:commandLink value="Save this search" action="#{advancedSearch.save}" onclick="if (!inputSearchName()) return false"/>
+  </h:form>
+
+  <h:outputText value="#{advancedSearchRequest.searchResult}" escape="false" />
+</c:if>
+
+<script>
+  function fixValue1Enabled() {
+    var ind = 0;
+    var el = document.getElementById("searchForm:type1_" + ind);
+    for (;el; el=document.getElementById("searchForm:type1_" + (++ind)))
+          makeValue1Visible(el, ind)
+  }
+
+  fixValue1Enabled();
+</script>
+
+<a4j:loadScript src="resource:///javascript/popup/popupmenu.js" />
+
+<f:verbatim>
+<script type="text/javascript">
+  function cellMouseOver(td, event) {
+    PopupMenu.sheduleShowMenu('contextMenu', event, 700);
+  }
+
+  function cellMouseOut(td) {
+    PopupMenu.cancelShowMenu();
+  }
+  function triggerEdit(f) {
+    var lastTarget = $(PopupMenu.lastTarget)
+    var uri = lastTarget.down('input').value;
+    f.elementID.value = lastTarget.id.split("-")[1];
+    f.cell.value = uri.toQueryParams().cell;
+    f.submit();
+  }
+  function triggerEditXls(f) {
+    f.uri.value = $(PopupMenu.lastTarget).down('input').value;
+    f.submit();
+  }
+  function triggerSearch(f) {
+    f.searchQuery.value = $A($(PopupMenu.lastTarget).childNodes).find(function(s) {
+      return s.nodeName == "#text"
+    })
+            .nodeValue.sub(/^[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, "").split(/[.;,! \t\n()^&amp;*%=?\-'"+&lt;>]+/, 3)
+            .reject(function(s) {
+      return !s
+    }).join(" ");
+    f.submit();
+  }
+</script>
+
+<form name="editForm" action="../tableeditor/showTableEditor.xhtml">
+<input type="hidden" name="elementID" value=""> </input>
+<input type="hidden" name="cell" value=""> </input>
+<input type="hidden" name="view" value="#{advancedSearch.studioView}" />
+</form>
+<form name="editFormXls" action="../../jsp/showLinks.jsp" target="show_app_hidden">
+    <input type="hidden" name="uri" value=""> </input>
+</form>
+<form name="searchForm" action="../../jsp/search/search.jsp">
+    <input type="hidden" name="searchQuery" value=""> </input>
+</form>
+
+</f:verbatim>
+
+<div id="contextMenu" style="display:none;">
+  <table cellpadding="1px">
+      <c:if test="#{not advancedSearch.studioReadOnly}"><tr><td><a href="javascript:triggerEdit(document.forms.editForm)">Edit</a></td></tr></c:if>
+      <tr><td><a href="javascript:triggerEditXls(document.forms.editFormXls)">Edit in Excel</a></td></tr>
+      <tr><td><a href="javascript:triggerSearch(document.forms.searchForm)">Search</a></td></tr>
+  </table>
+</div>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/aopalliance-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-2.2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk14-136.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-api-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-bundle-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-common-utilities-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-distribution-manifest-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-core-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-databinding-aegis-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-frontend-jaxws-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-frontend-js-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-transports-http-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-transports-http-jetty-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-transports-jms-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-ws-security-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-tools-common-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-tools-wsdlto-core-2.0.3-incubator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-activation_1.1_spec-1.0-M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-annotation_1.0_spec-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-javamail_1.4_spec-1.0-M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-jms_1.1_spec-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-servlet_2.5_spec-1.1-M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-ws-metadata_2.0_spec-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxb-api-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxb-impl-2.0.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxb-xjc-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxen-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxws-api-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdom-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jettison-1.0-RC2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-6.1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-util-6.1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/js-1.6R5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/neethi-2.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saaj-api-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/saaj-impl-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-jdk14-1.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-beans-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-context-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-core-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/stax-utils-20060502.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/velocity-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/velocity-dep-1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wsdl4j-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wss4j-1.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/wstx-asl-3.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xalan-2.7.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xbean-2.2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-resolver-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/XmlSchema-1.3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlsec-1.3.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

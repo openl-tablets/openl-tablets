@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.rules.ruleservice.eclipse.feature"
+      label="Rule Service Feature"
+      version="5.8.0"
+      provider-name="OpenL Tablets">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import plugin="org.junit"/>
+      <import plugin="org.openl.core"/>
+      <import plugin="org.openl.rules"/>
+      <import plugin="org.openl.rules.repository"/>
+      <import plugin="org.openl.rules.repository.jcr"/>
+      <import plugin="org.openl.rules.workspace"/>
+   </requires>
+
+   <plugin
+         id="org.openl.rules.ruleservice"
+         download-size="0"
+         install-size="0"
+         version="5.8.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.ruleservice.lib"
+         download-size="0"
+         install-size="0"
+         version="5.8.0"/>
+
+   <plugin
+         id="org.openl.rules.ruleservice.ws"
+         download-size="0"
+         install-size="0"
+         version="5.8.0"
+         unpack="false"/>
+
+ 	<plugin
+         id="org.openl.rules.ruleservice.ws.lib"
+         download-size="0"
+         install-size="0"
+         version="5.8.0"/>
+</feature>

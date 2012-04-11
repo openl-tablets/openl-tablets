@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.openl.tablets.tutorial2
+Bundle-SymbolicName: org.openl.tablets.tutorial2
+Require-Bundle: org.openl.core;visibility:=reexport,
+ org.openl.rules.helpers;visibility:=reexport,
+ org.openl.conf.ant,
+ org.openl.j;visibility:=reexport,
+ org.openl.rules;visibility:=reexport
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin

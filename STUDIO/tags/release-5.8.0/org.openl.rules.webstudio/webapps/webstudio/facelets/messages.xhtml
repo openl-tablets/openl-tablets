@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jstl/core"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+        <c:set var="editable" value="#{editable == null ? false : editable}" />
+
+        <a4j:repeat value="#{messages}" var="message" binding="#{messagesBean.messages}">
+            <c:set var="messageBoxClass"
+                value="#{message.severity == 'ERROR' ? 'error_box' : (message.severity == 'WARN' ? 'warning_box' : 'info_box')}" />
+
+            <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
+            <div class="#{messageBoxClass}">
+
+                <h:outputText id="summary" value="#{messagesBean.summary}" />
+                <script type="text/javascript">
+                    var summary = #{rich:element('summary')};
+                    summary.innerHTML = summary.innerHTML.replace(/&amp;lt;br&amp;gt;/ig, '&lt;br/&gt;');
+                </script>
+
+                <h:panelGroup rendered="#{message.severity == 'ERROR' and not empty messagesBean.errorCode}">
+                    <br />
+                    <br />
+
+                    <span class="code">
+                        <h:outputText value="#{messagesBean.errorCode[0]}" />
+                        <h:outputText value=" #{messagesBean.errorCode[1]}" styleClass="codeerror" />
+                        <h:outputText value=" #{messagesBean.errorCode[2]}" />
+                    </span>
+
+                    <h:panelGroup rendered="#{editable}">
+                        <h:outputLink title="Edit cell containing error"
+                            value="#{contextPath}/faces/facelets/tableeditor/showTable.xhtml">
+                            <f:param name="uri" value="#{messagesBean.tableUri}" />
+                            <f:param name="cell" value="#{messagesBean.errorCell}" />
+                            <f:param name="mode" value="edit" />
+                            <h:graphicImage url="/webresource/images/edit2.gif" />
+                        </h:outputLink>
+                    </h:panelGroup>
+
+                </h:panelGroup>
+            </div>
+            </td></tr></table>
+
+        </a4j:repeat>
+
+    </ui:define>
+
+</ui:composition>

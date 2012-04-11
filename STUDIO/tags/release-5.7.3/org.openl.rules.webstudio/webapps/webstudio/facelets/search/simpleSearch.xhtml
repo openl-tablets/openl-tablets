@@ -1,0 +1,39 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+
+        <br />
+
+        <div class="menuPanel">
+            <h:outputLink value="#{contextPath}/faces/facelets/search/indexSearch.xhtml"
+                target="_self">Index Search</h:outputLink>
+            <h:outputLink value="#{contextPath}/faces/facelets/search/busSearch.xhtml"
+                target="_self">Business Search</h:outputLink>
+            <h:outputLink value="#{contextPath}/faces/facelets/search/advSearch.xhtml"
+                target="_self">Advanced Search</h:outputLink>
+        </div>
+
+        <br />
+
+        <h:form>
+            <h:inputText size="50" value="#{simpleSearchBean.searchQuery}"
+                style="width: 300px; margin-right: 3px;" />
+            <h:commandButton value="Search" action="#{simpleSearchBean.search}" />
+        </h:form>
+
+        <br />
+
+        <h:outputText value="No results found" rendered="#{empty simpleSearchBean.searchResults}"
+            style="font-weight: bold" />
+        <h:panelGroup rendered="#{not empty simpleSearchBean.searchResults}">
+            <ui:include src="searchResults.xhtml">
+                <ui:param name="searchResults" value="#{simpleSearchBean.searchResults}" />
+            </ui:include>
+        </h:panelGroup>
+
+    </ui:define>
+</ui:composition>

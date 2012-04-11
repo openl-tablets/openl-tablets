@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.studio-pom</artifactId>
+    <version>5.7.4</version>
+    <relativePath>../org.openl.rules.studio-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.project</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - Rules - Project</name>
+  <description>Classes and utilities to work with OpenL Rules Project</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>project-resolver-beans.xml</include>
+        </includes>
+      </resource>
+	  <resource>
+        <directory>templates</directory>
+        <includes>
+          <include>**/*.xls</include>
+        </includes>
+      </resource>
+    </resources>
+    
+    <testResources>
+	  <testResource>
+        <directory>test/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
+  </build>
+
+  <dependencies>
+  	<dependency>
+    	<groupId>com.thoughtworks.xstream</groupId>
+    	<artifactId>xstream</artifactId>
+	</dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+	<dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+
+  </dependencies>
+
+</project>

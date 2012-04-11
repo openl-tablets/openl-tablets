@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+    default-autowire="no">
+
+  <bean id="webstudioProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+        <prop key="webstudio.workspacesRoot">/openl/user-workspaces/</prop>
+        <prop key="webstudio.deployer">production</prop>
+        <prop key="webstudio.hideLogout">false</prop>
+      </props>
+    </property>
+  </bean>
+
+  <util:properties id="versionProperties" location="classpath:org/openl/main/openl.version.properties" />
+
+  <bean id="systemPropertiesPlaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="placeholderPrefix" value="@{" />
+    <property name="ignoreResourceNotFound" value="true" />
+    <property name="propertiesArray">
+      <list>
+        <ref bean="securityProperties" />
+        <ref bean="webstudioProperties" />
+      </list>
+    </property>
+    <property name="locations">
+      <list>
+        <value>WEB-INF/conf/system.properties</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
+
+  <bean id="formatPatterns" class="org.openl.rules.webstudio.web.util.FormatPatterns" />
+
+  <bean id="contextExporter" class="org.springframework.web.context.support.ServletContextAttributeExporter">
+    <property name="attributes">
+      <map>
+        <entry key="autoLogin" value-ref="autoLogin"/>
+        <entry key="hideLogout" value-ref="hideLogout"/>
+      </map>
+    </property>
+  </bean>
+
+  <bean id="hideLogout" class="java.lang.Boolean">
+    <constructor-arg value="@{webstudio.hideLogout}" />
+  </bean>
+
+  <bean id="autoLogin" class="java.lang.Boolean">
+    <constructor-arg value="@{security.autoLogin}"/>
+  </bean>
+
+</beans>

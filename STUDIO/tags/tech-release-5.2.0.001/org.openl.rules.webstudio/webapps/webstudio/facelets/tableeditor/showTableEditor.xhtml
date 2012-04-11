@@ -1,0 +1,234 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+        xmlns:a4j="https://ajax4jsf.dev.java.net/ajax"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jstl/core"
+        template="/facelets/common/webstudioBase.xhtml">
+
+<ui:define name="header">
+  <a4j:loadStyle src="resource:///css/openl/tableEditor.css"/>
+
+  <style type="text/css">
+    .editor_invalid {
+      background-color: lightcoral;
+    }
+
+    .bt_disabled {
+      filter: gray( ) alpha( opacity = 30 ); /* IE */
+      opacity: 0.15; /* Safari, Opera and Mozilla */
+    }
+
+    img {border: 0;}
+  </style>
+
+<script type="text/javascript">
+  function open_win(url) {window.open(url, "_blank", "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")}
+</script>
+</ui:define>
+
+<c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+
+<ui:define name="page">
+<f:view>
+  <table>
+<tr>
+<td>
+  <img src="#{contextPath}/webresource/images/excel-workbook.png"/>
+  <h:outputLink value="#{contextPath}/jsp/showLinks.jsp?#{showTableBean.url}" title="#{showTableBean.uri}"
+                target="show_app_hidden">
+    <h:outputText value="#{showTableBean.text}:#{showTableBean.name}"/>
+  </h:outputLink>
+
+  <c:if test="#{showTableBean.runnable and !showTableBean.hasErrors}">
+    <h:outputLink value="#{contextPath}/jsp/runMethod.jsp?elementID=#{showTableBean.elementID}" title="Run">
+      <h:graphicImage url="/webresource/images/test.gif" alt="test"/>
+    </h:outputLink>
+
+    <c:set var="tgUrl" value="#{contextPath}/treeview.jsp?title=Trace&amp;treejsp=tracetree.jsp&amp;relwidth=70&amp;mainjsp=jsp/showTraceTable.jsp&amp;elementID=#{showTableBean.elementID}&amp;first=true" />
+    <a onClick="open_win('#{tgUrl}', 800, 600)" href="#"  title="Trace"><img border="0" src="webresource/images/trace.gif" alt="trace"/></a>
+
+    <h:outputLink value="#{contextPath}/faces/facelets/studio/benchmarkMethod.xhtml?elementID=#{showTableBean.elementID}" title="Benchmark">
+      <h:graphicImage url="/webresource/images/clock-icon.png" alt="benchmark" style="padding-left:5px;"/>
+    </h:outputLink>
+  </c:if>
+
+  <c:if test="#{showTableBean.testable and !showTableBean.hasErrors}">
+    <h:outputLink value="#{contextPath}/jsp/runAllTests.jsp?elementID=#{showTableBean.elementID}" title="Test">
+      <h:graphicImage url="/webresource/images/test_ok.gif" alt="test"/>
+    </h:outputLink>
+  </c:if>
+</td><td>
+
+<h:outputLink value="?#{showTableBean.notViewParams}">
+    <f:param value="view.business" name="view"/>
+    <f:param value="true" name="switch"/>
+    <h:graphicImage url="/webresource/images/business-view.png" title="Business View" alt="Business View"/>
+  </h:outputLink>
+
+  <h:outputLink value="?#{showTableBean.notViewParams}">
+    <f:param value="view.developer" name="view"/>
+    <f:param value="true" name="switch"/>
+    <h:graphicImage url="/webresource/images/developer-view.png" title="Developer (Full) View" alt="Full View" style="padding-left:5px;"/>
+  </h:outputLink>
+  </td></tr>
+</table>
+
+<ui:include src="/WEB-INF/include/facelets/errorDisplay.xhtml">
+    <ui:param name="tableID" value="#{showTableBean.elementID}" />
+</ui:include>
+
+<c:if test="#{showTableBean.tsnHasErrors}">
+<h3>Problems</h3>
+<table border="1"><tr><td><h:outputText value="#{showTableBean.errorString}" escape="false"/></td></tr></table>
+<p/>
+</c:if>
+
+  <a4j:form id="menu_form">
+    <br />
+    <br />
+    <rich:toolBar itemSeparator="square"><rich:toolBarGroup style="padding: 2px;">
+      <h:panelGroup style="display:block;"><h:graphicImage id="save_all" style="vertical-align:bottom;" value="webresource/images/editor/Save.gif" onclick="tableEditor.save()"/></h:panelGroup>
+      <h:panelGroup style="display:block;"><h:graphicImage id="validate" value="webresource/images/editor/Validation.gif" /></h:panelGroup>
+   </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+     <h:panelGroup style="display:block;"><h:graphicImage id="undo" value="webresource/images/editor/Undo.gif" onclick="tableEditor.undoredo()"/></h:panelGroup>
+     <h:panelGroup style="display:block;"><h:graphicImage id="redo" value="webresource/images/editor/Redo.gif" onclick="tableEditor.undoredo(true)"/></h:panelGroup>
+   </rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+     <rich:dropDownMenu>
+     <f:facet name="label">
+         <h:panelGrid cellpadding="0" cellspacing="0" columns="3" style="vertical-align:middle">
+             <h:graphicImage value="webresource/images/editor/b_row_ins.gif" />
+             <rich:spacer width="5" height="5" title=""/>
+             <h:outputText value="Rows" style="font-weight:bold;"/>
+         </h:panelGrid>
+     </f:facet>
+       <rich:menuItem submitMode="none"  id="add_row_before_button" value="Add row" onclick="tableEditor.doRowOperation(TableEditor.Constants.ADD_BEFORE)" >
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem  submitMode="none" id="remove_row_button" onclick="tableEditor.doRowOperation(TableEditor.Constants.REMOVE)"  value="Remove row" >
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/row_del.gif" /></f:facet>
+       </rich:menuItem>
+        <rich:menuItem submitMode="none"  id="move_row_down_button" value="Move row down" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_DOWN)" >
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem submitMode="none"  id="move_row_up_button" value="Move row up" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+     </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+     <rich:dropDownMenu>
+     <f:facet name="label">
+         <h:panelGrid cellpadding="0" cellspacing="0" columns="3" style="vertical-align:middle">
+             <h:graphicImage value="webresource/images/editor/b_col_ins.gif"/>
+             <rich:spacer width="5" height="5" title=""/>
+             <h:outputText value="Columns" style="font-weight:bold;"/>
+         </h:panelGrid>
+     </f:facet>
+       <rich:menuItem submitMode="none" id="add_column_before_button" value="Add column" onclick="tableEditor.doColOperation(TableEditor.Constants.ADD_BEFORE)">
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_col_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem  submitMode="none" id="remove_column_button" value="Remove column" onclick="tableEditor.doColOperation(TableEditor.Constants.REMOVE)">
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/col_del.gif" /></f:facet>
+       </rich:menuItem>
+        <rich:menuItem submitMode="none"  id="move_column_right_button" value="Move column right" onclick="tableEditor.doColOperation(TableEditor.Constants.MOVE_DOWN)" >
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       <rich:menuItem submitMode="none"  id="move_column_left_button" value="Move column left" onclick="tableEditor.doRowOperation(TableEditor.Constants.MOVE_UP)" >
+         <f:facet name="icon"><h:graphicImage value="webresource/images/editor/b_row_ins.gif" /></f:facet>
+       </rich:menuItem>
+       </rich:dropDownMenu></rich:toolBarGroup><rich:toolBarGroup style="padding: 2px;">
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_left" value="webresource/images/editor/alLeft.gif" onclick="tableEditor.setAlignment('left')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_center" value="webresource/images/editor/alCenter.gif" onclick="tableEditor.setAlignment('center')"/></h:panelGroup>
+        <h:panelGroup style="display:block;"><h:graphicImage id="align_right" value="webresource/images/editor/alRight.gif" onclick="tableEditor.setAlignment('right')"/></h:panelGroup>
+       </rich:toolBarGroup><rich:toolBarGroup location="right"><h:panelGroup>
+        <f:verbatim><a href="webresource/docs/editor.html" title="editor help"><img style="border:0;" src="webresource/images/help.gif" alt="help" /></a></f:verbatim>
+    </h:panelGroup></rich:toolBarGroup>
+   </rich:toolBar>
+  </a4j:form>
+  <br />
+
+<f:verbatim>
+  <script type="text/javascript">var jsPath = 'webresource/javascript/';</script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/studio.js"> </script>
+
+  <script type="text/javascript">
+    var jsPath = 'webresource/javascript/';
+    var im = new IconManager('dr-menu-label dr-menu-label-unselect rich-ddmenu-label rich-ddmenu-label-unselect',
+          'dr-menu-label dr-menu-label-select rich-ddmenu-label rich-ddmenu-label-select', 'bt_disabled');
+
+function setEnabled(who) {im.enable("menu_form:" + who)}
+function setDisabled(who) {im.disable("menu_form:" + who)}
+
+function disableMenu(which){
+    var v = $("menu_form:" + which);
+
+    v.className = "dr-menu-item dr-menu-item-disabled rich-menu-item rich-menu-item-disabled";
+    v.down("span").className = "dr-menu-icon rich-menu-item-icon dr-menu-icon-disabled rich-menu-item-icon-disabled";
+    v.down("span", 1).className = "rich-menu-item-label rich-menu-item-label-disabled";
+    v.down("img").style.visibility = "hidden";
+
+    v._mouseover = v.onmouseover;
+    v._mouseout = v.onmouseout;
+    v.onmouseover = v.onmouseout = Prototype.emptyFunction;
+
+    v._onclick = v.onclick;
+    v.onclick = function(event) { Event.stop(event || window.event)}
+}
+
+function enableMenu(which){
+    var v = $("menu_form:" + which);
+
+    v.className = "dr-menu-item dr-menu-item-enabled rich-menu-item rich-menu-item-enabled";
+    v.down("span").className = "dr-menu-icon rich-menu-item-icon dr-menu-icon-enabled rich-menu-item-icon-enabled";
+    v.down("span", 1).className = "rich-menu-item-label rich-menu-item-label-enabled";
+    v.down("img").style.visibility = "";
+
+    v.onmouseover = v._mouseover;
+    v.onmouseout = v._mouseout;
+    v.onclick = v._onclick;
+}
+
+    var align_buttons = ["align_left", "align_center", "align_right"];
+    ["save_all", "validate", "undo", "redo", align_buttons].flatten().each(function(who) {im.init("menu_form:" + who)});
+
+    ["move_row_down_button", "move_row_up_button", "move_column_right_button", "move_column_left_button"].each(disableMenu);
+    var menu_items = ["add_row_before_button", "remove_row_button", "add_column_before_button", "remove_column_button"];
+    menu_items.each(disableMenu);
+</script>
+
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/TableEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/BaseEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/TextEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/DropdownEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/SuggestEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/MultiLineEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/DateEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/PriceEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/NumericEditor.js"> </script>
+<script type="text/javascript" src="#{contextPath}/webresource/javascript/MultipleChoiceEditor.js"> </script>
+
+
+  <div id="tableEditor"/>
+
+<script type="text/javascript">
+    var tableEditor = new TableEditor("tableEditor", "#{contextPath}/faces/ajax/", "#{showTableBean.elementID}","#{showTableBean.editCell}");
+    tableEditor.undoStateUpdated = function(hasItems) {
+      ["save_all","undo"].each(hasItems?setEnabled:setDisabled);
+      if (hasItems) {
+        window.onbeforeunload = function() { return "Your changes have not been saved."; }
+      } else {
+        window.onbeforeunload = function() {}
+      }
+    }
+    tableEditor.redoStateUpdated = function(hasItems) {(hasItems?setEnabled:setDisabled)("redo")}
+    tableEditor.isSelectedUpdated = function(selected) {
+        align_buttons.each(selected?setEnabled:setDisabled);
+        menu_items.each(selected?enableMenu:disableMenu);
+    }
+</script>
+</f:verbatim>
+  
+</f:view>
+</ui:define>
+
+</ui:composition>

@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.eclipse-pom</artifactId>
+    <version>5.7.3</version>
+    <relativePath>../org.openl.rules.eclipse-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl</groupId>
+  <artifactId>org.openl.eclipse.ui.util</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - Eclipse - Eclipse UI Util</name>
+  <description>OpenL Eclipse Utilities</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <build>
+    <resources>
+       <resource>
+        <directory>.</directory>
+        <includes>
+          <include>templates/</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openl</groupId>
+      <artifactId>org.openl.eclipse.ui.wizard</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>org.eclipse.core.runtime</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.core</groupId>
+      <artifactId>org.eclipse.core.resources</artifactId>
+    </dependency>
+	
+	<dependency>
+	  <groupId>org.eclipse.equinox</groupId>
+	  <artifactId>org.eclipse.equinox.common</artifactId>
+	</dependency>
+	
+	<dependency>
+	  <groupId>org.eclipse.osgi</groupId>
+	  <artifactId>org.eclipse.osgi</artifactId>
+	</dependency>
+  </dependencies>
+
+</project>

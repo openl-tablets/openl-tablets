@@ -1,0 +1,69 @@
+/*
+ * Created on 29.10.2004
+ */
+package org.openl.eclipse.wizard.base;
+
+import java.util.Properties;
+
+import org.osgi.framework.Bundle;
+
+/**
+ * @author smesh
+ */
+public class NewProjectFromTemplateWizardCustomizer
+	extends UtilBase
+	implements
+		INewProjectFromTemplateWizardCustomizer,
+		INewProjectFromTemplateWizardCustomizerConstants {
+
+	Bundle descriptor;
+
+	String propertyKeyPrefix;
+
+	public NewProjectFromTemplateWizardCustomizer(
+		Bundle descriptor,
+		String propertyKeyPrefix) {
+		this.descriptor = descriptor;
+		this.propertyKeyPrefix = propertyKeyPrefix;
+	}
+
+	public String getAntBuildFileLocation() {
+		String buildFile = getString(KEY_BUILD_FILE);
+
+		return toCanonicalUrl(descriptor, buildFile);
+	}
+
+	public String getTemplateProjectDir() {
+		String templateProjectDir = getString(KEY_TEMPLATE_PROJECT_DIR);
+
+		String result = toCanonicalUrl(descriptor, templateProjectDir);
+
+		if (result == null) {
+			throw new RuntimeException(
+				"Template project directory does not exist. OpenlWizardPlugin installation URL: <"
+					+ toCanonicalUrl(descriptor, "")
+					+ ">. Template project sub-directory: <"
+					+ templateProjectDir
+					+ ">");
+		}
+
+		return result;
+	}
+
+	public void setAntBuildFileProperties(Properties properties) {
+		properties.setProperty(PROP_SRC_DIR, getTemplateProjectDir());
+	}
+
+	public String getPropertyKeyPrefix() {
+		return propertyKeyPrefix;
+	}
+
+	public String getString(String key, String defaultValue) {
+		return super.getString(
+			getPropertyKeyPrefix() == null
+				? key
+				: getPropertyKeyPrefix() + "." + key,
+			defaultValue);
+	}
+
+}

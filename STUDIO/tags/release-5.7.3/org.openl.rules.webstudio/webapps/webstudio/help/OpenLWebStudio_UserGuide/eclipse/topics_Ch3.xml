@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<toc label="Chapter 2: Getting Started">
+<topic label="Logging In to OpenL Web Studio" href="LoggingInToOpenLWebStudio.html"></topic>
+<topic label="Understanding the User Interface" href="UnderstandingTheUserInterface.html"><topic label="Rule Editor" href="RuleEditor.html"></topic>
+<topic label="Repository Editor" href="RepositoryEditor.html"></topic>
+</topic>
+</toc>

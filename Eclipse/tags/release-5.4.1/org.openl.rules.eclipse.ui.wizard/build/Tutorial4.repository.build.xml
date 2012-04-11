@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<project name="build" default="copy.demo.project" basedir="..">
+
+<property name="project_name" value="org.openl.tablets.deploy"/>
+	
+<property name="project.in.the.same.wspace" value="../${project_name}"/>
+<property name="dst_root" value="templates/${project_name}"/>
+
+<target name = "copy.demo.project">
+	
+	
+	<available file="${project.in.the.same.wspace}" property="src_root" value="${project.in.the.same.wspace}"/>
+
+
+	
+	<echo message="Using ${src_root}"/>
+	
+	<defaultexcludes remove="**/.svn/**"/>
+	<defaultexcludes remove="**/.svn"/>
+	<defaultexcludes echo="true"/>
+	
+	
+	<copy preservelastmodified="true" todir="${dst_root}" verbose="true">
+		<fileset dir="${src_root}">
+			<exclude name="**/CVS/**" />
+			<exclude name="**/.svn/**" />
+			<exclude name="**/bin/**" />
+			<exclude name="**/work/**" />
+		</fileset>
+	</copy>
+	
+	<sync todir="${dst_root}" verbose="true" includeemptydirs="true">
+	  <fileset dir="${src_root}">
+		<exclude name="**/CVS/**" />
+		<exclude name="**/.svn/**" />
+		<exclude name="**/bin/**" />
+		<exclude name="**/work/**" />
+	  </fileset>
+	  <preserveintarget>
+	    <include name="**/CVS/**"/>
+		<include name="**/.svn/**" />
+	  </preserveintarget>
+	</sync>
+	
+</target>	
+
+</project>

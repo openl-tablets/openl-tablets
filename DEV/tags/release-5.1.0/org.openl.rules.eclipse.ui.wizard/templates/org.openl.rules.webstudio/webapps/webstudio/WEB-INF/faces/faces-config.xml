@@ -1,0 +1,456 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN" "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<faces-config>
+  <application>
+    <view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
+    <variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
+
+    <locale-config>
+      <default-locale>en</default-locale>
+      <supported-locale>en</supported-locale>
+    </locale-config>
+  </application>
+
+  <managed-bean>
+    <managed-bean-name>skinBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.jsf.SkinBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <!-- Special date converter to suppress rich:calendar conversion errors -->
+  <converter>
+    <converter-id>org.openl.DateConverter</converter-id>
+    <converter-class>org.openl.rules.webstudio.web.jsf.DateConverter</converter-class>
+  </converter>
+
+  <component>
+    <component-type>org.openl.rules.web.jsf.facelets.acegi.Authentication</component-type>
+    <component-class>org.openl.rules.web.jsf.facelets.acegi.AuthenticationComponent</component-class>
+  </component>
+
+  <!-- ====================================================================
+    This two rederers were added because of migrating to Tomahawk 1.1.3.
+    See http://wiki.apache.org/myfaces/Upgrading_to_Tomahawk_1.1.3
+    ===================================================================== -->
+  <render-kit>
+    <renderer>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>javax.faces.Button</renderer-type>
+      <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>javax.faces.Link</renderer-type>
+      <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer</renderer-class>
+    </renderer>
+  </render-kit>
+  
+  <!-- repository config -->
+  <managed-bean>
+    <managed-bean-name>rulesUserSession</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.servlet.RulesUserSession</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>workspaceManager</property-name>
+      <value>#{workspaceManager}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>user</property-name>
+      <value>#{currentUserInfo.user}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>deploymentController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DeploymentController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>deploymentManager</property-name>
+      <value>#{deploymentManager}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repositoryTreeState</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeState</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{rulesUserSession.userWorkspace}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repositoryArtefactPropsHolder</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryArtefactPropsHolder</managed-bean-class>
+    <managed-bean-scope>none</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>repositoryTreeController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.RepositoryTreeController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{rulesUserSession.userWorkspace}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>uploadService</property-name>
+      <value>#{uploadService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryArtefactPropsHolder</property-name>
+      <value>#{repositoryArtefactPropsHolder}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>dependencyController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.DependencyController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>smartRedeployController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.SmartRedeployController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>deploymentManager</property-name>
+      <value>#{deploymentManager}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>diffState</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffState</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>diffController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.diff.StructuredDiffController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>userWorkspace</property-name>
+      <value>#{rulesUserSession.userWorkspace}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>id</property-name>
+      <value>#{param.id}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>treeId</property-name>
+      <value>#{param.treeId}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>repositoryTreeState</property-name>
+      <value>#{repositoryTreeState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>designTimeRepository</property-name>
+      <value>#{designTimeRepository}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>diffState</property-name>
+      <value>#{diffState}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>init</property-name>
+      <value>true</value>
+    </managed-property>
+  </managed-bean>
+
+  <navigation-rule>
+    <from-view-id>/facelets/repository/main.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>search.advanced</from-outcome>
+      <to-view-id>/facelets/repository/search/advanced.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>success</from-outcome>
+      <to-view-id>/facelets/repository/main.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>failure</from-outcome>
+      <to-view-id>/facelets/repository/main.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/repository/search/advanced.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>cancel</from-outcome>
+      <to-view-id>/facelets/repository/main.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- studio config -->
+  <lifecycle>
+    <phase-listener>org.openl.rules.webstudio.web.tableeditor.TableEditorAjaxDispatcher</phase-listener>
+  </lifecycle>
+
+  <managed-bean>
+    <managed-bean-name>tableEditorController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableEditorController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>tableViewController</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.JSFTableViewController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>elementID</property-name>
+      <value>#{param.elementID}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>view</property-name>
+      <value>#{param.view}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>tableWriterBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TableWriterBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>editorBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.EditorBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>topEditorBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.TopEditorBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>popupEditorBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.PopupEditorBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>studioOpener</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.studio.StudioFromLWSController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>localWorkspaceManager</property-name>
+      <value>#{localWorkspaceManager}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>localUpload</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.repository.LocalUploadController</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>advancedSearchRequest</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.search.OpenLAdvancedSearchBean$SearchRequest</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+
+    <managed-property>
+      <property-name>advancedSearchBean</property-name>
+      <value>#{advancedSearch}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>advancedSearch</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.search.OpenLAdvancedSearchBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>showTableBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.ShowTableBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>headerBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.tableeditor.HeaderBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>hideLogout</property-name>
+      <value>#{applicationScope.hideLogout}</value>
+    </managed-property>
+  </managed-bean>
+
+  <navigation-rule>
+    <navigation-case>
+      <from-outcome>tableEditor_success</from-outcome>
+      <to-view-id>/facelets/tableeditor/tableEditorResponse.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/repository/main.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>webstudio</from-outcome>
+      <to-view-id>/index.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+
+  <!-- wizard config -->
+  <managed-bean>
+    <managed-bean-name>OpenLTypes</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.OpenLTypes</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+    <managed-property>
+      <property-name>options</property-name>
+      <list-entries>
+        <value>int</value>
+        <value>String</value>
+        <value>Date</value>
+      </list-entries>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>counter</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.jsf.Counter</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>tableWizard</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.WizardBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>wizardPainter</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.WizardPainter</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+
+    <managed-property>
+      <property-name>wizardBean</property-name>
+      <value>#{tableWizard}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>domainTreePath</managed-bean-name>
+    <managed-bean-class>org.openl.rules.ui.tablewizard.DomainTreePath</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+
+    <managed-property>
+      <property-name>domainTree</property-name>
+      <value>#{tableWizard.domainTree}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>parameters</property-name>
+      <value>#{tableWizard.parameters}</value>
+    </managed-property>
+  </managed-bean>
+
+  <navigation-rule>
+    <navigation-case>
+      <from-outcome>newTable</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>newTableCancel</from-outcome>
+      <to-view-id>/html/ws-intro.html</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable0.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable1.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable1.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable2.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable0.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable2.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable3.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable1.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable3.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable4.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable2.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable4.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable3.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+  <navigation-rule>
+    <from-view-id>/facelets/tableWizard/newTable5.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>next</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable5.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>prev</from-outcome>
+      <to-view-id>/facelets/tableWizard/newTable4.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+
+</faces-config>

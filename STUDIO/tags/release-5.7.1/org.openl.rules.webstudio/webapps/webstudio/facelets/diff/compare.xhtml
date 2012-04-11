@@ -1,0 +1,158 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/facelets/common/baseToolbar.xhtml"
+  xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+
+  <ui:define name="title">Excel Structured Diff</ui:define>
+
+  <ui:define name="page">
+    <style>
+      .fileEntry {
+        height: 40px;
+      }
+    </style>
+
+    <a4j:loadStyle src="resource:///css/openl/flexTree.css" />
+    <a4j:loadScript src="resource:///javascript/flexTree/prototype-1.6.0.2.js" />
+    <a4j:loadScript src="resource:///javascript/flexTree/dataLoader.js" />
+    <a4j:loadScript src="resource:///javascript/flexTree/flexTree.js" />
+
+    <h:form id="diffForm">
+      <h:panelGrid columns="2">
+        <h:outputText value="Select 2 Excel Files" />
+        <rich:fileUpload uploadData="#{excelDiffController.filesToCompare}"
+            maxFilesQuantity="2" immediateUpload="true" acceptedTypes="xls, xlsx, xlsm"
+            allowFlash="true" listHeight="85px" fileEntryClass="fileEntry" />
+
+        <h:outputText value="Show equal elements" />
+        <h:selectBooleanCheckbox value="#{excelDiffController.showEqualElements}" />
+
+        <h:commandButton value="Compare" action="#{excelDiffController.compare}" />
+      </h:panelGrid>
+    </h:form>
+
+    <table>
+      <tr>
+        <td valign="top">
+
+      <a4j:form id="diffTreeForm" ajaxSingle="true" ajaxSubmit="true" reRender="tableEditor1,tableEditor2">
+        <input type="hidden" name="id" value=""  />
+        <table>
+          <tr>
+            <td colspan="2" style="height:16px;">
+                <a4j:status>
+                    <f:facet name="start">
+                        <h:graphicImage value="/webresource/images/ajax-loader.gif" />
+                        Loading...
+                    </f:facet>
+                </a4j:status>
+            </td>
+          </tr>
+          <tr>
+            <td valign="top">
+              <div id="treeboxbox_tree1"
+                style="width: 450px; height: 480px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            </td>
+            <td valign="top">
+              <div id="treeboxbox_tree2"
+                style="width: 450px; height: 480px; background-color: #f5f5f5; border: 1px solid Silver;"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p />
+              	<a4j:outputPanel ajaxRendered="true">
+           			<rules:tableEditor id="tableEditor1"
+           				table="#{excelDiffController.table1}" 
+           				mode="view" 
+           				collapseProps="true" />
+           		</a4j:outputPanel>
+            </td>
+            <td>
+              <p />
+              	<a4j:outputPanel ajaxRendered="true">
+	           		<rules:tableEditor id="tableEditor2"
+    	       			table="#{excelDiffController.table2}" 
+        	   			mode="view" 
+           				collapseProps="true"
+              			filter="#{excelDiffController.filter2}" />
+              	</a4j:outputPanel>
+            </td>
+          </tr>
+        </table>
+
+      </a4j:form>
+      <br />
+
+        </td>
+      </tr>
+   </table>
+
+    <script>
+      function onClickHandler1(key) {
+        tree2.selectItem(key);
+        selectTable(key);
+      }
+
+      function onClickHandler2(key) {
+        tree1.selectItem(key);
+        selectTable(key);
+      }
+
+      function selectTable(key) {
+        var form = $('diffTreeForm');
+        form.id.value = key;
+        form.submit();
+      }
+
+      function onOpenHandler1(key, state) {
+        if (state==-1 || state==0) {
+          tree2.openItem(key);
+        } else {
+          tree2.closeItem(key);
+        }
+        return true;
+      }
+
+      function onOpenHandler2(key, state) {
+        if (state==-1 || state==0) {
+          tree1.openItem(key);
+        } else {
+          tree1.closeItem(key);
+        }
+        return true;
+      }
+
+      var tree1=new flexTree("treeboxbox_tree1","100%","100%",1);
+      var tree2=new flexTree("treeboxbox_tree2","100%","100%",2);
+
+      tree1.setImagePath("#{contextPath}/images/flexTree/");
+      //tree.enableDragAndDrop(0);
+      //tree.enableTreeLines(false);
+      //tree.setImageArrays("plus","","","","plus.gif");
+      //tree.setImageArrays("minus","","","","minus.gif");
+      //tree.setStdImages("book.gif","books_open.gif","books_close.gif");
+      tree1.setOnClickHandler(onClickHandler1);
+      tree1.setOnOpenHandler(onOpenHandler1);
+      tree1.setOnDblClickHandler(onOpenHandler1);
+      tree1.setShowNodeTooltips(true);
+      tree1.treeContainerElement.onscroll = function() { tree2.treeContainerElement.scrollTop=tree1.treeContainerElement.scrollTop; }
+      tree1.setXMLAutoLoading("#{contextPath}/faces/facelets/diff/loadTree.xhtml?treeId=1");
+      tree1.loadXML("#{contextPath}/faces/facelets/diff/loadTree.xhtml?treeId=1");
+
+      tree2.setOnClickHandler(onClickHandler2);
+      tree2.setOnOpenHandler(onOpenHandler2);
+      tree2.setOnDblClickHandler(onOpenHandler2);
+      //tree2.treeContainerElement.onscroll = function() { tree1.treeContainerElement.scrollTop=tree2.treeContainerElement.scrollTop; }
+      tree2.setImagePath("#{contextPath}/images/flexTree/");
+      tree2.setXMLAutoLoading("#{contextPath}/faces/facelets/diff/loadTree.xhtml?treeId=2");
+      tree2.loadXML("#{contextPath}/faces/facelets/diff/loadTree.xhtml?treeId=2");
+
+    </script>
+
+  </ui:define>
+</ui:composition>

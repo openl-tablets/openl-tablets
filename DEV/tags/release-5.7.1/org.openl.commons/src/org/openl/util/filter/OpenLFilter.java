@@ -1,0 +1,16 @@
+package org.openl.util.filter;
+
+import org.openl.util.ISelector;
+
+/**
+ * Base interface for filters.
+ */
+public interface OpenLFilter<T> extends ISelector<T> {
+    /**
+     * If given class is supported by this filter.
+     *
+     * @param aClass a class to check.
+     * @return if <code>aClass</code> is supported.
+     */
+    boolean supports(Class<?> aClass);
+}

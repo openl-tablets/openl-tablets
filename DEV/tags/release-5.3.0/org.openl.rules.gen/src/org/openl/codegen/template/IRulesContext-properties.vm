@@ -1,0 +1,4 @@
+#foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
+	$contextPropertyDefinition.Type.InstanceClass.Name get#upperFirstChar($contextPropertyDefinition.Name)();
+	void set#upperFirstChar($contextPropertyDefinition.Name)($contextPropertyDefinition.Type.InstanceClass.Name $contextPropertyDefinition.Name);	
+#end

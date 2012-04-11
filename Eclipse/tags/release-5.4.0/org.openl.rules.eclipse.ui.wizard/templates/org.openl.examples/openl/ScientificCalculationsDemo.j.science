@@ -1,0 +1,13 @@
+// openl
+
+String time_sec = (5[h] + 25[min] + 30[s]).printAs(s,"[sec]");
+
+System.out.println("5[h] + 25[min] + 30[s] =" + time_sec);
+
+String time_min = (5[h] + 25[min] + 30[s]).printAs(min,"[min]");
+
+System.out.println("5[h] + 25[min] + 30[s] = " + time_min);
+
+String time_hour = (5[h] + 25[min] + 30[s]).printAs(h,"[h]");
+
+System.out.println("5[h] + 25[min] + 30[s] = " + time_hour);

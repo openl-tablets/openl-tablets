@@ -1,0 +1,16 @@
+<project name="zz" default="aaa" basedir="../../">
+
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	
+<property name="aa" value="${zopa}2"/>	
+	
+<target name="aaa">
+<openlgen openlName="org.openl.j" userHome="." 
+	srcFile="openl/Hello.j"
+    targetClass="openl.Hello"
+	targetSrcDir="gen"
+>
+</openlgen>	
+
+</target>
+</project>

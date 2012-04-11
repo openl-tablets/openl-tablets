@@ -1,0 +1,42 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:modalPanel id="modalNewDProject" width="400" minWidth="400" height="120" minHeight="120">
+    <f:facet name="header">
+      <h:outputText value="New Deployment Project" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+        onclick="#{rich:component('modalNewDProject')}.hide();" />
+    </f:facet>
+
+    <h:form id="newDProjectForm">
+      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"/>
+      </h:panelGrid>
+
+      <br />
+      <rich:separator height="1" />
+      <br/>
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Create" action="#{repositoryTreeController.createDeploymentProject}" />
+        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalNewDProject')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+  </rich:modalPanel>
+
+  <script>
+    function openNewDeploymentProjectDialog() {
+      Richfaces.showModalPanel('modalNewDProject');
+      focusElement("newDProjectForm:projectName");
+    }
+  </script>
+
+</ui:composition>

@@ -1,0 +1,238 @@
+<a href="ws-toc401.shtml">Table of Contents</a>
+<p><br/>
+
+<i>I don't think anyone really captures their requirements as Decision tables, but many requirements are captured as Excel tables</i><br/><br/>
+<a class="left" href="http://brmsblog.com/category/decision-tables/" target="_blank">The BRMS Blog</a>
+
+
+
+
+<h1>Web Studio Overview</h1>
+
+<p>The Webstudio allows users to browse OpenL Project structure, 
+select Project Components, edit Project Components directly in Excel; 
+in addition it can Run and Trace the Executable Components. The results of 
+Run are displayed in the browser and are available to inspect. 
+
+
+
+<p>
+This document demonstrates and briefly explains how to use OpenL Tablets Web Studio. Starting with version 4.0.1 
+Web Studio provides a better interface for developers to work with OpenL Tablets projects than the Eclipse plugin. 
+It provides better error display, advanced features like visualizing unit test results, tracing and explanation.
+
+ 
+<p>
+We still use Eclipse to do some of work, in paticular - organize OpenL projects, compile java code, run Ant scripts, 
+provide an interface to CVS etc. For all the activities related to the editing of the project's files, fixing errors, running, testing, 
+benchmarking etc. we highly recommend using OpenL Web Studio.
+
+
+<h2>General View</h2>
+
+<p>
+Web Studio General View consists of the three frames: 
+<a href="#topmenu">Top Menu</a>, <a href="#pexplorer">Project Explorer</a> and <a href="#mainarea">Project Component View</a>
+</p>
+
+ 
+<img src="images/site/ws-general.png"/>
+
+
+
+<h2><a name="topmenu">Top Menu</a></h2>
+
+<p>
+Top Menu Provides controls over Studio's most general tasks. It consists of  the following items: 
+
+<p>
+<ul>
+<li>Project Selector combobox - allows to select any available OpenL Project in Web Studio workspace. 
+If used with Eclipse IDE, Web Studio workspace coincides with Eclipse workspace. 
+In this case combobox should contain all OpenL Projects. It is possible to use Web Studio in standalone mode(no Eclipse IDE).
+In standalone mode the user will not have an option to recompile java classes of the project (we use Eclipse for this) but all 
+other Studio's features will be available. 
+ </li>
+
+<li>
+Studio Control Buttons:
+<ul>
+<li>
+	<img border=0 src="images/business-view.png"> Business Mode - provides "business user friendly" view of the project. 
+	It should be noted that Business Mode hides some of the project parts and table parts from the user. For more details on 
+	Business Mode and how to control it's appearance look <a href="ws-modes401.shtml">here</a>   
+</li>
+<li>
+	<img border=0 src="images/developer-view.png"> Developer Mode - provides full view of the project. 
+	It is more suitable for a project developer/administartor.
+</li>
+<li>
+	<img border=0 src="images/search.png"> Search - link to the project Search Page. OpenL will automatically index all 
+	the documents in project's folder and provide an instant access to them via familiar internet-like search interface.
+	In addition to the text search Web Studio now provides Advanced Search that provides table-specific search capabilities.
+</li>
+<li>
+	<img border=0 src="images/refresh.gif"> Refresh - use this button if you a) changed any of the project files 
+	b) recompiled any of the project's java classes using Eclipse IDE. Studio will reload the project, validate it 
+	and display the new version.  
+</li>
+<li>
+	<img border=0 src="images/help.gif"> Help - displays Studio online Help
+</li>
+</ul>
+</li>
+
+</ul>
+
+
+
+<h2><a name="pexplorer">Project Explorer</a></h2>
+
+
+<p>
+The Project Explorer provides familiar tree-like view that allows users to browse project components. 
+Usually one project component correspond to the one table in Excel. In the <a href="ws-modes401.shtml">Business Mode</a>
+components are organized by <a href="ws-modes401.shtml#category">categories</a>. In the Developer Mode the components are organized 
+by component's type or by component's location.  
+
+<h4>&nbsp;&nbsp;&nbsp;&nbsp;Project menu</h4>
+<p>
+On top of the Project Tree there is a Project Menu. It contains the following buttons:
+
+<ul>
+<li>
+	<img border=0 src="images/test_ok.gif"/> Run All Tests - this button runs and displays all the <a href="ws-unit-tests401.shtml">unit tests</a> (if any) contained in the project. 
+	It is recommended to run all the unit tests after you made any changes.    
+</li>
+
+<li>
+	<img border=0 src="images/refresh.gif"> Refresh - use this button if you a) changed any of the project files 
+	b) recompiled any of the project's java classes using Eclipse IDE. Studio will reload the project, validate it 
+	and display the new version.  
+</li>
+
+<li>
+	<img border=0 src="images/expandall.gif"/> Expand All - expands all tree branches
+</li>
+<li>
+	<img border=0 src="images/collapseall.gif"/> Collapse All - collapses all tree branches to the first level
+</li>
+</ul> 
+
+<h4>&nbsp;&nbsp;&nbsp;&nbsp;Project Component Types and Icons</h4>
+<p>
+
+<ul>
+<li>
+	<img border=0 src="images/dt3.png"/> Decision Table,
+	 
+	<img border=0 src="images/dt3-error.png"/><span> Decision Table With Error,
+	
+	<img border=0 src="images/dt3-check.png"/><span> Decision Table With Unit Test(s)
+</li>
+<li>
+	<img border=0 src="images/data.gif"/> Data Table, 
+	<img border=0 src="images/data-error.png"/> Data Table With Error 
+</li>
+<li>
+	<img border=0 src="images/dataobject.gif"/> Datatype Table, 
+	<img border=0 src="images/dataobject-error.png"/> Datatype Table With Error 
+</li>
+<li>
+	<img border=0 src="images/method.gif"/> Method Table, 
+	<img border=0 src="images/method-error.png"/> Method Table With Error 
+</li>
+<li>
+	<img border=0 src="images/test_ok.gif"/> Unit Test Table, 
+	<img border=0 src="images/test_ok-error.gif"/>  Unit Test Table With Error 
+</li>
+<li>
+	<img border=0 src="images/test.gif"/> Run Method Table, 
+	<img border=0 src="images/test-error.png"/> Run Method Table With Error 
+</li>
+<li>
+	<img border=0 src="images/config_obj.gif"/> Environment Table, 
+	<img border=0 src="images/config_obj-error.png"/> Environment Table With Error 
+</li>
+<li>
+	<img border=0 src="images/reg-text.png"/> Other - tables that do not correspond any of the defined above Component Types. They are considered as comments or text, 
+	but no validation checks are generally provided for these tables
+</li>
+
+</ul>
+
+<p>
+To display Project Component in <a href="#mainarea">Project Component View</a> click on it's link.
+
+<h4>&nbsp;&nbsp;&nbsp;&nbsp;Project Folders</h4>
+<ul>
+<li>
+	<img border=0 src="images/folder-c-n.gif"/> Closed Folder, 
+	<img border=0 src="images/folder-c-error.png"/> Closed Folder With Errors Inside 
+</li>
+<li>
+	<img border=0 src="images/folder-o-n.gif"/> Open Folder, 
+	<img border=0 src="images/folder-o-error.png"/> Open Folder With Errors Inside 
+</li>
+
+<li>
+	<img border=0 src="images/excel-workbook.png"/> Excel Workbook, 
+	<img border=0 src="images/excel-workbook-error.png"/> Excel Workbook With Errors Inside 
+</li>
+<li>
+	<img border=0 src="images/worksheet.gif"/> Excel Worksheet, 
+	<img border=0 src="images/worksheet-error.png"/> Excel Worksheet With Errors Inside 
+</li>
+
+
+</ul>
+
+<p>
+
+To open or close any of the project folders click on it's icon. You can also use <i>Expand All</i> and <i>Collapse All</i> icons
+in Project Menu to open or close folders.   
+
+
+<p>
+
+<h2><a name="mainarea">Project Component View</a></h2>
+<p>
+This view is used to display project components (mostly tables), 
+results of unit tests and runs and search results
+
+<p>
+
+The Table View consist of the following components:
+
+<ul>
+<li>
+The link to the original document in format: &lt;Document Name&gt;:&lt;Worksheet Name&gt;:&lt;Table Name&gt;
+<li>
+The set of functional buttons with the following functionality:
+<ul>
+<li>
+	<img border=0 src="images/test.gif"/> Run - runs Unit Tests and Runnable Methods (optional) 
+<li>
+	<img border=0 src="images/trace.gif"/> Trace - produces a viewable trace of the Run (optional)
+<li>
+	<img border=0 src="images/test_ok.gif"/> Test - runs all the Unit Tests (if any) applicable to this component (optional)
+
+<li>
+	<img border=0 src="images/business-view.png"> Business Mode - provides a "business user friendly" view of the component, 
+	usually by hiding it's technical details. 
+</li>
+<li>
+	<img border=0 src="images/developer-view.png"> Developer Mode - provides a full view of the component. 
+</li>
+</ul>
+
+<li>
+Error View - if the component contains any errors they will be displayed next (optional) 
+<li>
+Component View - usually a table, displayed as close as possible to it's original Excel look
+<li>
+Run List - if the component has any Named Runs associated with it they will be displayed as a group of hyperlinks (optional)
+
+</ul>
+
+<p>

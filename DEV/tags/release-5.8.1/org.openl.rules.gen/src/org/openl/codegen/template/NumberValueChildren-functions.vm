@@ -1,0 +1,326 @@
+#if (${primitiveType.isPrimitive()}) 	
+	// generate zero for types that are wrappers over primitives
+	private static final $tool.getTypeName($type) ZERO1 = new $tool.getTypeName($type)(($tool.getTypeName($primitiveType))0);
+#else
+	// generate zero for big types
+	private static final $tool.getTypeName($type) ZERO1 = new $tool.getTypeName($type)("0");
+#end
+
+	private $tool.getTypeName($primitiveType) value;
+
+#foreach ($formula in $formulas)
+	public static $tool.getTypeName($type) ${formula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		validate(value1, value2, ${formula.FullName}.toString());
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${formula.Name}(value1.getValue(), value2.getValue()), 
+			${formula.FullName});		
+	}
+#end
+
+#foreach ($logicalExpression in $logicalExpressions)
+	public static boolean ${logicalExpression.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		validate(value1, value2, ${logicalExpression.FullName}.toString());
+		
+		return Operators.${logicalExpression.Name}(value1.getValue(), value2.getValue());		
+	}
+#end
+
+#foreach ($mathFunction in $mathFunctions1)
+	public static $tool.getTypeName($type) ${mathFunction.Name}($tool.getTypeName($type)[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+		$tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
+		$tool.getTypeName($primitiveType) ${mathFunction.Name} = MathUtils.${mathFunction.Name}(primitiveArray);
+		return new $tool.getTypeName($type)(new $tool.getTypeName($type)(${mathFunction.Name}), ${mathFunction.FullName}, values);
+	}
+#end
+
+#foreach ($mathFunction in $mathFunctions2)
+	public static $tool.getTypeName($type) ${mathFunction.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		validate(value1, value2, ${mathFunction.FullName}.toString());
+		
+		return new $tool.getTypeName($type)(MathUtils.${mathFunction.Name}(value1.getValue(), value2.getValue()) ? value1 : value2,
+            ${mathFunction.FullName},
+            new $tool.getTypeName($type)[] { value1, value2 });
+	}
+#end
+
+#foreach ($mathFunction in $mathFunctions3)
+	public static $tool.getTypeName($type) ${mathFunction.toString()}($tool.getTypeName($type)[] values) {
+		$tool.getTypeName($type) result = ($tool.getTypeName($type)) MathUtils.${mathFunction.toString()}(values); 		
+		
+		return new $tool.getTypeName($type)(($tool.getTypeName($type)) getAppropriateValue(values, result), 
+            ${mathFunction.FullName}, values);
+	}
+#end
+
+	public static $tool.getTypeName($type) ${copyFunction.Name}($tool.getTypeName($type) value, String name) {
+		if (value.getName() == null) {
+            value.setName(name);
+
+            return value;
+        } else if (!value.getName().equals(name)) {
+        	$tool.getTypeName($type) result = new $tool.getTypeName($type) (value, ${copyFunction.FullName}, 
+        		new $tool.getTypeName($type)[] { value });
+        	result.setName(name);
+
+            return result;
+        }
+        return value;
+	}
+	
+	//REM
+	public static $tool.getTypeName($type) ${remFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		validate(value1, value2, ${remFormula.FullName}.toString());
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${remFormula.Name}(value1.getValue(), value2.getValue()), 
+			${remFormula.FullName});		
+	}
+	 	
+	
+	//ADD
+	public static $tool.getTypeName($type) ${addFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.ADD.toString());
+#if (${primitiveType.isPrimitive()})
+		//conditions for classes that are wrappers over primitives
+		if (value1 == null || value1.getValue() == 0) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == 0) {
+            return value1;
+        }
+#else
+		//conditions big types
+		if (value1 == null || value1.getValue() == ${tool.getTypeName($primitiveType)}.ZERO) {
+            return value2;
+        }
+
+        if (value2 == null || value2.getValue() == ${tool.getTypeName($primitiveType)}.ZERO) {
+            return value1;
+        }
+#end
+        
+		return new $tool.getTypeName($type)(value1, value2, Operators.${addFormula.Name}(value1.getValue(), value2.getValue()), 
+			${addFormula.FullName});	
+	}
+	
+	// MULTIPLY
+	public static $tool.getTypeName($type) ${multiplyFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.MULTIPLY.toString());
+		if (value1 == null) {
+			return value2;
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${multiplyFormula.Name}(value1.getValue(), value2.getValue()), 
+			${multiplyFormula.FullName});		
+	}
+	
+	//SUBTRACT
+	public static $tool.getTypeName($type) ${subtractFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
+		if (value1 == null) {
+			return negative(value2);
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${subtractFormula.Name}(value1.getValue(), value2.getValue()), 
+			${subtractFormula.FullName});		
+	}
+	
+	// DIVIDE
+	public static $tool.getTypeName($type) ${divideFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
+		if (value1 == null) {
+			if (value2 != null && value2.doubleValue() != 0) {
+				return new $tool.getTypeName($type)(value1, value2, ${divideFormula.Name}(new $tool.getTypeName($type)("1"), value2).getValue(), ${divideFormula.FullName});
+			}
+		}
+		
+		if (value2 == null) {
+			return new $tool.getTypeName($type)(value1, value2, value1.getValue(), ${divideFormula.FullName});
+		}
+		
+		if (value2.doubleValue() == 0) {
+			throw new OpenlNotCheckedException("Division by zero");
+		}
+		
+		return new $tool.getTypeName($type)(value1, value2, Operators.${divideFormula.Name}(value1.getValue(), value2.getValue()), 
+			${divideFormula.FullName});		
+	}
+	
+	
+	// QUAOTIENT
+	public static LongValue ${quaotientFunction.Name}($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        if (number != null && divisor != null) {
+            LongValue result = new LongValue(MathUtils.${quaotientFunction.Name}(number.getValue(), divisor.getValue()));
+            return new LongValue(result, NumberOperations.QUOTIENT, null);
+        }
+        return null;
+    }
+	
+#if (${primitiveType.isPrimitive()}) 
+	// generated product function for types that are wrappers over primitives
+	public static DoubleValue ${productFunction.Name}($tool.getTypeName($type)[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        $tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
+        double ${productFunction.Name} = MathUtils.${productFunction.Name}(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(${productFunction.Name}), ${productFunction.FullName}, null);
+	}
+#else 
+	// generated product function for big types
+	public static $tool.getTypeName($type) ${productFunction.Name}($tool.getTypeName($type)[] values) {
+		if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        $tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
+        $tool.getTypeName($primitiveType) ${productFunction.Name} = MathUtils.${productFunction.Name}(primitiveArray);
+        // we loose the parameters, but not the result of computation.
+        return new $tool.getTypeName($type)(new $tool.getTypeName($type)(${productFunction.Name}), ${productFunction.FullName}, null);
+	}
+#end	
+	
+	public static $tool.getTypeName($type) ${modFunction.Name}($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        if (number != null && divisor != null) {
+            $tool.getTypeName($type) result = new $tool.getTypeName($type)(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new $tool.getTypeName($type)(result, ${modFunction.FullName}, new $tool.getTypeName($type)[]{number, divisor} );
+        }
+        return null;
+    }
+    
+    public static $tool.getTypeName($type) ${smallFunction.Name}($tool.getTypeName($type)[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        $tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
+        $tool.getTypeName($primitiveType) small = MathUtils.${smallFunction.Name}(primitiveArray, position);
+        return new $tool.getTypeName($type)(($tool.getTypeName($type)) getAppropriateValue(values, new $tool.getTypeName($type)(small)), 
+            ${smallFunction.FullName}, values);
+    }
+    
+    public static $tool.getTypeName($type) ${bigFunction.Name}($tool.getTypeName($type)[] values, int position) {
+        if (ArrayUtils.isEmpty(values)) {
+            return null;
+        }
+        $tool.getTypeName($primitiveType)[] primitiveArray = unwrap(values);
+        $tool.getTypeName($primitiveType) big = MathUtils.${bigFunction.Name}(primitiveArray, position);
+        return new $tool.getTypeName($type)(($tool.getTypeName($type)) getAppropriateValue(values, new $tool.getTypeName($type)(big)), 
+            ${bigFunction.FullName}, values);
+    }
+    
+    public static $tool.getTypeName($type) ${powFunction.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
+        validate(value1, value2, ${powFunction.FullName});
+        
+        return new $tool.getTypeName($type)(new $tool.getTypeName($type)(Operators.${powFunction.Name}(value1.getValue(), value2.getValue())), 
+            ${powFunction.FullName}, new $tool.getTypeName($type)[] { value1, value2 });
+    }
+    
+    public static $tool.getTypeName($type) ${absFunction.Name}($tool.getTypeName($type) value) {
+        validate(value, ${absFunction.FullName});
+        // evaluate result
+        $tool.getTypeName($type) result = new $tool.getTypeName($type)(Operators.abs(value.getValue()));
+        // create instance with information about last operation
+        return new $tool.getTypeName($type)(result, ${absFunction.FullName}, new $tool.getTypeName($type)[] { value });
+    }
+    
+    public static $tool.getTypeName($type) ${negativeFunction.Name}($tool.getTypeName($type) value) {
+        return multiply(value, new $tool.getTypeName($type)("-1"));
+    }
+    
+    public static $tool.getTypeName($type) ${incFunction.Name}($tool.getTypeName($type) value) {
+        return add(value, new $tool.getTypeName($type)("1"));
+    }
+    
+    public static $tool.getTypeName($type) ${positiveFunction.Name}($tool.getTypeName($type) value) {
+        return value;
+    }
+    
+    public static $tool.getTypeName($type) ${decFunction.Name}($tool.getTypeName($type) value) {
+        return subtract(value, new $tool.getTypeName($type)("1"));
+    }
+    
+    // Autocasts
+    
+#foreach ($primitiveNumericType in $primitiveNumericTypes)
+	public static $tool.getTypeName($type) autocast($tool.getTypeName($primitiveNumericType) x, $tool.getTypeName($type) y) {
+#if (${primitiveType.isPrimitive()})
+		return new $tool.getTypeName($type)(($primitiveType) x);
+#else 		
+		return new $tool.getTypeName($type)(String.valueOf(x));
+#end
+	}		
+#end
+    
+    // Constructors
+    public ${type.SimpleName}($tool.getTypeName($primitiveType) value) {
+        this.value = value;
+    }    
+
+    public ${type.SimpleName}($tool.getTypeName($primitiveType) value, String name) {
+        super(name);
+        this.value = value;
+    }
+
+    public ${type.SimpleName}($tool.getTypeName($primitiveType) value, IMetaInfo metaInfo) {
+        super(metaInfo);
+        this.value = value;        
+    }    
+
+    /**Formula constructor**/
+    public ${type.SimpleName}($tool.getTypeName($type) lv1, $tool.getTypeName($type) lv2, $tool.getTypeName($primitiveType) value, Formulas operand) {
+        super(lv1, lv2, operand);
+        this.value = value;
+    }    
+
+    @Override
+    public $tool.getTypeName($type) copy(String name) {
+        return copy(this, name);        
+    }    
+    
+    public String printValue() {        
+        return String.valueOf(value);
+    }
+    
+    public $tool.getTypeName($primitiveType) getValue() {        
+        return value;
+    }
+    
+    public void setValue($tool.getTypeName($primitiveType) value) {
+        this.value = value;
+    }
+	
+	
+	
+
+
+	
+	 
+      
+        

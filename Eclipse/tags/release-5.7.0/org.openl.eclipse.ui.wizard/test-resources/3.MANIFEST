@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.openl.tablets.tutorial2
+Bundle-SymbolicName: org.openl.tablets.tutorial2
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin

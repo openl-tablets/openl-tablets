@@ -1,0 +1,49 @@
+---------------------------------------------------------------------------
+                                 Release Notes
+                                 OpenL Tablets
+			          %month_year%
+   
+             © 2007-%year% Exigen Properties, Inc. All rights reserved.
+                              www.exigengroup.com
+                            support@exigengroup.com
+                    -------------------------------------
+                         North America: 1-866-4EXIGEN 
+        	     All other countries: 1-506-674-4025      
+	       Australia (within Australia only): 1-800-508-192
+	     New Zealand (within New Zealand only): 0-800-448-898
+                    -------------------------------------
+
+This package and all its contents are protected by copyright.
+
+Exigen and Exigen Process Backbone are registered trademarks and
+trademarks of Exigen Properties, Inc. in the United States and/or other
+countries.
+
+All other trademarks, service marks, or registered trademarks are the
+property of their respective companies.
+
+
+-----------------
+TABLE OF CONTENTS
+-----------------
+SECTION 1: New in this release 
+SECTION 2: Known problems and workarounds
+SECTION 3: Previously released
+
+---------------------------------------------------------------------------
+SECTION 1: New in this release
+---------------------------------------------------------------------------
+Release %version% Build %build_number% 
+
+
+---------------------------------------------------------------------------
+SECTION 2: Known problems and workarounds
+---------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------
+SECTION 3: Previously released
+---------------------------------------------------------------------------
+
+
+Document number: TP_EPB_7.0.2_OpenLTablets_RNote_0.1_JO

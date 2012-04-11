@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
+    template="/facelets/common/view.xhtml">
+
+    <ui:define name="workspace">
+        <c:set var="recentlyVisitedTables" value="#{studio.model.recentlyVisitedTables.tables}" />
+
+        <h:dataTable value="#{recentlyVisitedTables}" var="table">
+            <h:column>
+                <h:graphicImage value="webresource/images/dt3.png" rendered="#{table.type == 'xls.dt'}" />
+                <h:graphicImage value="webresource/images/spreadsheet.gif" rendered="#{table.type == 'xls.spreadsheet'}" />
+                <h:graphicImage value="webresource/images/tbasic.gif" rendered="#{table.type == 'xls.tbasic'}" />
+                <h:graphicImage value="webresource/images/cmatch.gif" rendered="#{table.type == 'xls.columnmatch'}" />
+                <h:graphicImage value="webresource/images/data.gif" rendered="#{table.type == 'xls.data'}" />
+                <h:graphicImage value="webresource/images/dataobject.gif" rendered="#{table.type == 'xls.datatype'}" />
+                <h:graphicImage value="webresource/images/config_obj.gif" rendered="#{table.type == 'xls.environment'}" />
+                <h:graphicImage value="webresource/images/method.gif" rendered="#{table.type == 'xls.method'}" />
+                <h:graphicImage value="webresource/images/test_ok.gif" rendered="#{table.type == 'xls.test.method'}" />
+                <h:graphicImage value="webresource/images/test.gif" rendered="#{table.type == 'xls.run.method'}" />
+                <h:graphicImage value="webresource/images/data.gif" rendered="#{table.type == 'xls.properties'}" />
+            </h:column>
+            <h:column>
+                <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
+                <h:outputLink value="#{contextPath}/faces/openTable.xhtml?uri=#{encodedTableUri}">
+                    <h:outputText value="#{table.name}" />
+                    <h:panelGroup rendered="#{empty table.name}">
+                        <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
+                        <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
+                    </h:panelGroup>
+                </h:outputLink>
+            </h:column>
+        </h:dataTable>
+    </ui:define>
+
+</ui:composition>

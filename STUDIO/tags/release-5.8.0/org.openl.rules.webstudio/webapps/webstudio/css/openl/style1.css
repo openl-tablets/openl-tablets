@@ -1,0 +1,214 @@
+body {
+    font-size: 70%;
+    color: #171717;
+    background-color: #f1f1f1;
+    margin: 0px;
+}
+
+body,p,h1,h2,h3,table,td,th,ul,ol,textarea,input {
+    font-family: verdana, helvetica, arial, sans-serif;
+}
+
+table,input,textarea {
+    font-size: 100%;
+}
+
+input[type='text'], input[type='password'], textarea, select {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-left-color: rgb(150,150,150) !important;
+    border-top-color: rgb(150,150,150) !important;
+    border-right-color: rgb(230,230,230) !important;
+    border-bottom-color: rgb(230,230,230) !important;
+    border-radius: 1px;
+    outline: none;
+}
+
+input[type='text'], input[type='password'], textarea {
+    padding: 2px 3px;
+}
+
+img {
+    border: 0px;
+}
+
+.info_box {
+    padding: 12px 7px 13px 43px;
+    background: url(webresource/images/info32.png) no-repeat 5px #D8E3F8;
+    border: 1px solid;
+    border-color: #5C8ADB #8EBCFF;
+    border-radius: 1px;
+    -webkit-animation: info_box_anm 1s;
+    -moz-animation: info_box_anm 1s;
+}
+
+@-webkit-keyframes info_box_anm {
+    from { background-color: #EDF2FC; }
+    to { background-color: #D8E3F8; }
+}
+
+@-moz-keyframes info_box_anm {
+    from { background-color: #EDF2FC; }
+    to { background-color: #D8E3F8; }
+}
+
+.warning_box {
+    padding: 12px 7px 12px 43px;
+    background: url(webresource/images/warning32.png) no-repeat 5px #FFF4AD;
+    border: 1px solid;
+    border-color: #DFA660 #EFCAA3;
+    border-radius: 1px;
+    -webkit-animation: warning_box_anm 1s;
+    -moz-animation: warning_box_anm 1s;
+}
+
+@-webkit-keyframes warning_box_anm {
+    from { background-color: #FFFAD6; }
+    to { background-color: #FFF4AD; }
+}
+
+@-moz-keyframes warning_box_anm {
+    from { background-color: #FFFAD6; }
+    to { background-color: #FFF4AD; }
+}
+
+.error_box {
+    padding: 12px 7px 12px 43px;
+    background: url(webresource/images/error32.png) no-repeat 5px #FFE7E1;
+    border: 1px solid;
+    border-color: #DC6E6E #FFAFAF;
+    border-radius: 1px;
+    -webkit-animation: error_box_anm 1s;
+    -moz-animation: error_box_anm 1s;
+}
+
+@-webkit-keyframes error_box_anm {
+    from { background-color: #FFF7F5; }
+    to { background-color: #FFE7E1; }
+}
+
+@-moz-keyframes error_box_anm {
+    from { background-color: #FFF7F5; }
+    to { background-color: #FFE7E1; }
+}
+
+.data_cell {
+    background: #eeffee;
+    border: 1px solid;
+}
+
+.ov-matrix {
+    background: #ffffff;
+    border: 1px solid rgb(0, 0, 0);
+    padding: 4px;
+}
+
+th.data_header {
+    background: #eeeeff;
+    border: 1px solid;
+}
+
+table.testtable {
+    color: #222222;
+    background-color: #ffffff;
+    font-size: 100%;
+    border: 1px solid #888895;
+    empty-cells: show;
+    border-collapse: collapse;
+}
+
+table.testtable th {
+    border-left: 1px dotted #777777;
+    border-right: 1px dotted #777777;
+    border-bottom: 1px solid #BBBBBB;
+    background-color: rgb(247,247,250);
+    padding: 5px 4px;
+}
+
+table.testtable td {
+    border: 1px dotted #BBBBBB;
+    padding: 2px 4px;
+}
+
+h1 {
+    font-size: 160%;
+}
+
+h2 {
+    font-size: 120%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 110%;
+}
+
+h1,h2,h3 {
+    background-color: transparent;
+    color: #000000;
+}
+
+hr {
+    background-color: transparent;
+    color: #000000;
+    height: 1px;
+}
+
+a.nounderline {
+    text-decoration: none;
+}
+
+a:link,a:visited {
+    color: #900B09;
+    background-color: transparent;
+}
+
+a:active,a:hover {
+    color: #FF0000;
+    background-color: transparent;
+}
+
+div.footer {
+    text-align: center;
+    font-size: 110%;
+    color: #8B4513;
+    background-color: transparent;
+    margin: 20px 0px 20px 0px;
+}
+
+table.main {
+    color: #000000;
+    font-size: 100%;
+    padding: 3px;
+}
+
+.code {
+    font-family: Courier New, monospace;
+    font-size: 110%;
+}
+
+span.codeerror {
+    color: red;
+    font-weight: bold;
+}
+
+.treeOptionsText {
+    text-decoration: underline;
+    font-weight: bold;
+    font-size: larger;
+    color: red;
+}
+
+#userName {
+    background: url(../webresource/images/user.gif) no-repeat right;
+    color: black;
+    font-size: 11px;
+    font-weight: bold;
+    padding-right: 17px;
+    margin-right: 10px;
+}
+
+.menuPanel a {
+    margin-right: 10px;
+}

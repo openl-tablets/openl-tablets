@@ -1,0 +1,47 @@
+<!-- This file is for releasing OpenL version with maven-release-plugin -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.openl.rules</groupId>
+  <artifactId>openl-base-svn-pom</artifactId>
+  <packaging>pom</packaging>
+  <version>5.7.3</version>
+  <name>OpenL BasePom SVN root pom</name>
+  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags/release-5.7.3</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/BasePom/tags/release-5.7.3</developerConnection>
+  </scm>
+
+  <modules>
+    <module>org.openl.rules.base-pom</module>
+  </modules>
+
+  <distributionManagement>
+    <repository>
+      <id>exigen-repo-release</id>
+      <name>Exigen Release Repository</name>
+      <url>file:////bldrix02.exigengroup.lv/maven-repo/exigen-repo-release</url>
+    </repository>
+  </distributionManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.0-beta-8</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

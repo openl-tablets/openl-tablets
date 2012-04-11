@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <a4j:loadScript src="resource:///javascript/jquery-1.4.4.min.js" />
+        <a4j:loadScript src="resource:///javascript/jquery.easytabs.min.js" />
+
+        <style>
+            #tab-container { border: 1px solid rgb(195,195,195); border-width: 1px 0; height: 350px; background: #F7F7F7; margin: 13px 3px; }
+            #tab-container ul { height: 350px; list-style: none; margin: 0; padding: 0; background: #DDDDDD; float: left; border-right: 1px solid rgb(190,190,190); }
+            #tab-container ul li { width: 100px; margin: 0; padding: 0; text-align: center; }
+            #tab-container ul li a { display: block; padding: 15px 0; outline: none; text-decoration: none; color: rgb(31,31,31); }
+            #tab-container ul li a span { display: block; }
+            #tab-container ul li.selected-tab {
+                background: #F7F7F7; font-weight: bold; position: relative; left: 1px; border: 1px solid rgb(195,195,195); border-left: 0; border-right: 1px dashed rgb(230,230,230); box-shadow: -2px 1px 2px rgb(210,210,210);
+                background: -moz-linear-gradient(left center , #FEFEFE, #F7F7F7);
+                background: -webkit-linear-gradient(left center , #FEFEFE, #F7F7F7);
+                background: -ms-linear-gradient(left center , #FEFEFE, #F7F7F7);
+                background: linear-gradient(left center , #FEFEFE, #F7F7F7);
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=1);
+            }
+            #tab-container ul li:first-child.selected-tab { border-top: 0; }
+            #tab-container .data-container { padding: 1px 0 0 100px; }
+
+            .propsPage { padding: 15px 25px; }
+            .propsPage .propsSection { margin-bottom: 31px; }
+            .propsPage .propsSection h3 { margin: 5px 0px; font-size: 110%; font-weight: bold; border-bottom: 1px solid #EBCF89; color: #EC9D0F; padding-bottom: 3px; }
+            .propsPage .propsSection div { margin-left: 11px; color: rgb(71,71,71); }
+            .propsPage .propsSection div table tr { margin-bottom: 20px; }
+            .propsPage .propsSection div .titleColumn { width: 153px; padding: 5px 0; }
+
+            .restartMessage { position: absolute; top: 7px; right: 33px; -moz-animation: restartMessage_anm 0.6s; -webkit-animation: restartMessage_anm 1.3s; }
+            @-moz-keyframes restartMessage_anm {
+                0% { right: 33px; }
+                50% { right: 47px; }
+                100% { right: 33px; }
+            }
+            @-webkit-keyframes restartMessage_anm {
+                from { right: 55px; }
+                to { right: 33px; }
+            }
+
+            .pathInput { width: 211px; }
+        </style>
+
+        <script type="text/javascript">
+          $(document).ready(function() {
+              $('#tab-container').easytabs({
+                  animate: false,
+                  tabActiveClass: "selected-tab",
+                  panelActiveClass: "displayed"
+              });
+          });
+        </script>
+    </ui:define>
+
+    <ui:define name="page">
+
+        <h2>System Settings</h2>
+
+        <h:form>
+
+        <h:panelGroup id="restartMessage" layout="block" styleClass="restartMessage">
+            <h:panelGroup rendered="#{studio.needRestart}" layout="block" styleClass="warning_box">
+                <b>System settings were changed!</b>
+                <br/>You must restart WebStudio
+                <br/>to apply the changes.
+            </h:panelGroup>
+        </h:panelGroup>
+
+        <div id="tab-container">
+            <ul>
+                <li>
+                    <a href="#common">
+                        <h:graphicImage url="/webresource/images/admin/systemSettings/common.png" alt="Common" />
+                        <span>Common</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#security">
+                        <h:graphicImage url="/webresource/images/admin/systemSettings/security.png" alt="Security" />
+                        <span>Security</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#repository">
+                        <h:graphicImage url="/webresource/images/admin/systemSettings/repository.png" alt="Repository" />
+                        <span>Repository</span>
+                    </a>
+                </li>
+
+                <br style="clear:both;" />
+            </ul>
+            <div class="data-container">
+                <div id="common">
+                    <h:panelGroup id="commonProps" class="propsPage" layout="block">
+                        <div class="propsSection">
+                            <h3>User Workspace</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Workspaces Directory:" />
+                                    <h:inputText value="#{systemSettingsBean.workspacesRoot}" styleClass="pathInput"
+                                        disabled="#{jsffn:isSystemProp('workspace.root')}" />
+                                    <h:outputText value="Local Directory:" />
+                                    <h:inputText value="#{systemSettingsBean.localWorkspace}" styleClass="pathInput"
+                                        disabled="#{jsffn:isSystemProp('workspace.local.home')}" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                        <div class="propsSection">
+                            <h3>History</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="History Directory:" />
+                                    <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
+                                        disabled="#{jsffn:isSystemProp('project.history.home')}" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                        <div class="propsSection">
+                            <h3>Other</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Date Format:" />
+                                    <h:inputText value="#{systemSettingsBean.datePattern}"
+                                        disabled="#{jsffn:isSystemProp('data.format.date')}" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                <div id="security">
+                    <h:panelGroup id="securityProps" class="propsPage" layout="block">
+                        <div class="propsSection">
+                            <h3>Security</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Auto Login:" />
+                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}"
+                                        disabled="#{jsffn:isSystemProp('security.login.auto')}" />
+                                    <h:outputText value="Hide Logout link:" />
+                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}"
+                                        disabled="#{jsffn:isSystemProp('security.logout.hidden')}" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+                <div id="repository">
+                    <h:panelGroup id="repositoryProps" class="propsPage" layout="block">
+                        <div class="propsSection">
+                            <h3>Design Repository</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Repository Name:" />
+                                    <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
+                                    <h:outputText value="Repository Type:" />
+                                    <h:selectOneMenu value="#{systemSettingsBean.designRepositoryType}">
+                                        <a4j:support event="onchange" ajaxSingle="true"
+                                            reRender="designRepositoryPathTitle, designRepositoryPath" />
+                                        <f:selectItem itemValue="local" itemLabel="Local" />
+                                        <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                                        <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                    </h:selectOneMenu>
+                                    <h:outputText id="designRepositoryPathTitle"
+                                        value="Repository #{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
+                                    <h:inputText id="designRepositoryPath"
+                                        value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
+                                            disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                        <div class="propsSection">
+                            <h3>Production Repository</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Repository Name:" />
+                                    <h:inputText value="#{systemSettingsBean.productionRepositoryName}" disabled="true" />
+                                    <h:outputText value="Repository Type:" />
+                                    <h:selectOneMenu value="#{systemSettingsBean.productionRepositoryType}">
+                                        <a4j:support event="onchange" ajaxSingle="true"
+                                            reRender="productionRepositoryPathTitle, productionRepositoryPath" />
+                                        <f:selectItem itemValue="local" itemLabel="Local" />
+                                        <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                                        <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                    </h:selectOneMenu>
+                                    <h:outputText id="productionRepositoryPathTitle"
+                                        value="Repository #{systemSettingsBean.productionRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
+                                    <h:inputText id="productionRepositoryPath"
+                                        value="#{systemSettingsBean.productionRepositoryPath}" styleClass="pathInput"
+                                        disabled="#{systemSettingsBean.productionRepositoryPathSystem}" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </div>
+
+        <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
+            ajaxSingle="true" reRender="commonProps,securityProps,repositoryProps,restartMessage"
+            onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
+        <h:outputText value=" " />
+        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" reRender="restartMessage" />
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

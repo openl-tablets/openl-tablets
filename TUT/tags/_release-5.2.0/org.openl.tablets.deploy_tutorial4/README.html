@@ -1,0 +1,33 @@
+<pre>
+Prerequisites:
+
+You need to have OpenL plugins installed in eclipse
+
+Replace next properties in build file:
+<property name="plugin.base.path" value="C:/Eclipse/plugins" />
+<property name="openl.plugin.version" value="_5.0.6" />
+
+with values valid for your environment:
+<property name="plugin.base.path" value="<path to eclipse plugins directory where OpenL plugins are located>" />
+<property name="openl.plugin.version" value="_<version of OpenL installed>" />
+
+Notice: version should be with "_" (underscore) prefix.
+
+Using:
+ant start_tomcat      - starts tomcat server with webstudio and demo web applications
+ant start_ruleservice - starts ruleservice
+
+Note:
+  Start ruleservice a after tomcat have been started(the message 
+  "Server start in 12345 ms" is displayed in server console window) 
+  as it hosts a JCR production repository available through 
+RMI, to which both webstudio and ruleservice connect.
+
+
+Web Studio is available at url <a href="http://NNN.NNN.NNN.NNN:8080/webstudio">http://NNN.NNN.NNN.NNN:8080/webstudio</a>, 
+where NNN.NNN.NNN.NNN is your computer's IP address (due to the known issue with localhost you can not use "localhost" name )
+To get your computer's IP address run <code>ipconfig</code> in command console 
+
+Demo Web Application (very simple) ia at url   <a href="http://localhost:8080/demo">http://localhost:8080/demo</a>
+
+</pre>

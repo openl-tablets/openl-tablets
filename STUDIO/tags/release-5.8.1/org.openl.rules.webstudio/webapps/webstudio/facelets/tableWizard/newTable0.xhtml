@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+        <h2>Select table type</h2>
+        <h:form>
+            <h:panelGroup style="text-align:left;">
+                    <h:messages showDetail="true" globalOnly="true" tooltip="true" errorClass="error" />
+            </h:panelGroup>
+            <div align="left">
+                <h:selectOneRadio value="#{tableCreatorWizardManager.tableType}" layout="pageDirection">
+                    <f:selectItem itemValue="DECISION" itemLabel="Decision Table" />
+                    <f:selectItem itemValue="DATATYPE" itemLabel="Datatype Table" />
+                    <f:selectItem itemValue="DATATYPE_ALIAS" itemLabel="Datatype Alias Table" />
+                    <f:selectItem itemValue="DATA" itemLabel="Data Table" itemDisabled="true" />
+                    <f:selectItem itemValue="TEST" itemLabel="Test Method" />
+                    <f:selectItem itemValue="PROPERTY" itemLabel="Properties Table" />
+                </h:selectOneRadio>
+                <hr/>
+            </div>
+    
+            <h:commandButton value="Next" action="#{tableCreatorWizardManager.startWizard}" />
+            <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" />
+        </h:form>
+    </ui:define>
+</ui:composition>

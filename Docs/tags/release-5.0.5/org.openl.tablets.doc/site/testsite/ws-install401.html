@@ -1,0 +1,64 @@
+<a href="ws-toc401.shtml">Table of Contents</a>
+
+
+<h1>OpenL Tablets Web Studio Installation</h1>
+
+<p>
+Web Studio 4.0.1 installation procedure remained the same as for 3.1.0.7.
+<p>
+Web Studio is still available only as Eclipse project from OpenL Tablets CVS. We will think out other packaging
+options for server-based Studio when browser-based edior becomes available.
+
+
+<p>
+1. Install <a href="gstart.shtml">OpenL Tablets Plugin</a> version 4.0.1 Build 1 or higher
+
+<p>
+2. In Eclipse create a Repository Location using the following credentials:
+<p>
+<code>:pserver:anonymous@openl-tablets.cvs.sourceforge.net:/cvsroot/openl-tablets</code>
+
+<li>copy the above line into the clipboard
+<li>select <i>CVS Repository Exploring</i> from Eclipse <i>Select Perspective</i> menu
+<li>Using the right mouse button menu create <i>New->Repository</i>
+<li>Paste (ctrl-V) into the first line of the New Repository form. You should see this:
+
+<p><img src="images/site/ws-install-cvs.png"/> 
+
+<li>Press Finish
+
+
+<p>
+3. Check Out the following projects from the folder <code>/PROTOTYPE</code>:
+<code>
+<li>org.openl.lib.apache.tomcat</li>
+<li>org.openl.rules.webtools</li>
+<li>org.openl.rules.webstudio</li>
+</code>
+
+<p><img src="images/site/ws-install-cvs2.png"/> 
+
+
+<h2>Running Web Studio</h2>
+
+<p>
+<li>In Eclipse Run menu locate command <code>StartTomcat Webstudio</code>
+
+<p><img src="images/site/ws-eclipse-run.png"/> 
+
+<p>
+<li>Point your browser to <a href="http://localhost:8080/webstudio/" target="_blank">http://localhost:8080/webstudio/</a> or
+just click this link
+
+
+<h3>Other Notes</h3>
+<p>
+OpenL Tablets Web Studio was developed under Mozilla Firefox 2 and also tested with IE Explorer 7. 
+We used Office 2000 for office-related testing. In case if you have problems using Web Studio with other
+configurations (unlikely) please report them to the <a href="http://sourceforge.net/projects/openl-tablets/" target="_new"> project forums</a>.
+<p>
+Vista Users will need to save MS Office documents in MS Office 2000-3 format (POI library that we use to parse Office documents 
+does not support new Office 2007 file format) 
+
+
+

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                template="/facelets/common/wizardBase.xhtml"
+        >
+  <ui:define name="page">
+    <h:messages errorClass="error" showSummary="true" showDetail="true"/>
+    
+    <h2>Style templates</h2>
+
+    <h:outputText value="#{wizardPainter.tableHTML}" escape="false" />
+
+    <br/>
+
+    <h:form>
+      <h:inputHidden value="6" id="step" binding="#{tableWizardManager.hiddenStep}"/>
+      <h:commandButton value="Prev" action="#{tableWizardManager.prev}"/>
+      <h:commandButton value="Cancel" action="#{tableWizardManager.cancel}"/>
+
+      <h:commandButton value="Save" action="#{tableWizard.save}"/>
+    </h:form>
+  </ui:define>
+</ui:composition>

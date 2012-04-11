@@ -1,0 +1,22 @@
+html,body {
+    height: 100%;
+    margin: 0px;
+}
+
+#rulesDepsPanel {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    overflow: hidden;
+    background-color: #1b1b1b;
+    color: #cccccc;
+}
+
+#rulesDepsPanel a {
+    color: white;
+    text-decoration: none;
+}
+
+#rulesDepsPanel a:hover {
+    text-decoration: underline;
+}

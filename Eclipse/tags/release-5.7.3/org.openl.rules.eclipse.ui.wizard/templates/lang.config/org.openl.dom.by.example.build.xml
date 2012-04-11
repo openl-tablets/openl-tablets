@@ -1,0 +1,29 @@
+<project default="build.org.openl.dom.by.example">
+
+<taskdef name="openl" classname="org.openl.conf.ant.AntOpenLTask"/>
+
+<property file="OpenL.properties"/>
+
+
+<target name="build.org.openl.dom.by.example">
+<!--	
+   <echo message="Building org.openl.dom.by.example ... "/>	
+--> 
+   <ant antfile="../lang.config/org.openl.j.build.xml" target="build.org.openl.j"/>	
+  
+   <openl category="org.openl.dom.by.example" extendscategory="org.openl.j"
+   	 classpath="${org.openl.dom.by.example.cp}"  
+     description="This is an extension of a org.openl.j">
+ 
+ 	<typefactory name="dom.factory" implementingclass="org.openl.types.dom.by.example.DOMOpenFactory"/>
+ 
+  <libraries>
+    <library namespace="org.openl.this">
+    </library>
+  </libraries>  
+  
+ </openl>
+ 	
+</target>
+
+</project>

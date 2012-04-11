@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="test"/>
+	<classpathentry kind="src" path="conf_test"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry including="**/*.java" kind="src" path="src"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

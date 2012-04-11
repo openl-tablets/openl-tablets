@@ -1,0 +1,48 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="header">
+        <link rel="stylesheet" type="text/css" href="#{contextPath}/css/rulesDependencies.css"></link>
+        <script language="javascript" type="text/javascript" src="#{contextPath}/javascript/jit-yc.js"></script>
+        <!--[if IE]><script language="javascript" type="text/javascript" src="#{contextPath}/javascript/excanvas.js"></script><![endif]-->
+        <script language="javascript" type="text/javascript" src="#{contextPath}/javascript/rulesDependencies.js"></script>
+    </ui:define>
+
+    <ui:define name="page">
+        <div id="rulesDepsPanel"></div>
+
+        <script type="text/javascript">
+            <c:set var="tables" value="#{rulesDependenciesBean.tablesWithDependencies}"></c:set>
+            <h:panelGroup rendered="#{not empty tables}">
+
+            var nodes = [];
+            <ui:repeat var="table" value="#{tables}">
+                var node = {
+                    id: '<h:outputText value="#{table.uri}" />',
+                    name: '<h:outputText value="#{table.name}" />',
+                    adjacencies: []
+                }
+
+                var adjacencies = [];
+                <ui:repeat var="depUri" value="#{table.dependencies}">
+                    var adjacency = {
+                        nodeTo: '<h:outputText value="#{depUri}" />'
+                    }
+                    adjacencies.push(adjacency);
+                </ui:repeat>
+
+                node.adjacencies = adjacencies;
+
+                nodes.push(node);
+            </ui:repeat>
+
+            init(nodes);
+
+            </h:panelGroup>
+        </script>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,70 @@
+<script type="text/javascript">
+function showmenu(elmnt)
+{
+document.getElementById(elmnt).style.visibility="visible"
+}
+function hidemenu(elmnt)
+{
+document.getElementById(elmnt).style.visibility="hidden"
+}
+</script>
+
+<%
+	ColorFilterHolder fh  = studio.getModel().getFilterHolder();
+	String ft = request.getParameter("filterType");
+	if (ft != null)
+	{
+	  int ftype = Integer.parseInt(ft);
+	  fh.setFilterType(ftype);
+	}
+
+	String transparency = request.getParameter("transparency");
+	if ("up".equals(transparency))
+	{
+	  fh.setTransparency(fh.getTransparency() + 10);
+	}
+	if ("down".equals(transparency))
+	{
+	  fh.setTransparency(fh.getTransparency() - 10);
+	}
+
+	String[] menuParams = {"transparency", "filterType"};
+	String pars = WebTool.listRequestParams(request, menuParams);
+
+	String[] menuParamsView = {"transparency", "filterType", "view"};
+	String parsView = WebTool.listRequestParams(request, menuParamsView);
+
+
+	view = studio.getModel().getTableView(request.getParameter("view"));
+%>
+
+
+<div class="menudiv">
+    <td width="120">
+<table class="top">
+ <tr bgcolor="#FF8080">
+ <td onmouseover="showmenu('blends')" onmouseout="hidemenu('blends')" title="<%=fh.getFilterName()%>">
+ 	<img src="../images/<%=fh.getImageName()%>"><br/>
+   <table class="menu" id="blends">
+   <tr>
+<%
+
+	for(int f = 0; f < ColorFilterHolder.imageNames.length; ++f)
+	{
+%>
+
+   	<td class="menu"><a href="?<%=pars%>&filterType=<%=f%>"><img src="../images/<%=ColorFilterHolder.imageNames[f]%>" title="<%=ColorFilterHolder.filterNames[f]%>"/></a></td>
+
+ <%
+ 	}
+ %>
+   </tr>
+   <tr>
+   	<td class="menu"><a href="?<%=parsView%>&view=view.developer"><img src="webresource/images/developer-view.png" title="Developer (Full) View"/></a></td>
+   	<td class="menu"><a href="?<%=parsView%>&view=view.business"><img src="webresource/images/business-view.png" title="Business View"/></a></td>
+   	<td class="menu"><a href="?<%=pars%>&transparency=down"><img src="webresource/images/brightness_down.png" title="Less Transparent (<%=fh.getTransparency()%>%)"/></a></td>
+   	<td class="menu"><a href="?<%=pars%>&transparency=up"><img src="webresource/images/brightness_up.png" title="More Transparent (<%=fh.getTransparency()%>%)"/></a></td>
+
+   </tr>
+   </table>
+ </td></tr></table></td></div>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webappext:WebAppExtension xmi:version="2.0" 
+	xmlns:xmi="http://www.omg.org/XMI" 
+	xmlns:webappext="webappext.xmi" 
+	xmlns:webapplication="webapplication.xmi" 
+	xmi:id="WebAppExtension_1" 
+	reloadInterval="9" 
+	reloadingEnabled="true" 
+	additionalClassPath="" 
+	fileServingEnabled="true" 
+	directoryBrowsingEnabled="false" 
+	serveServletsByClassnameEnabled="true" 
+	autoRequestEncoding="true" 
+	autoResponseEncoding="false">
+<webApp href="WEB-INF/web.xml#WebApp_1"/>
+<jspAttributes xmi:id="JSPAttribute_1" name="useThreadTagPool" value="true"/>
+<jspAttributes xmi:id="JSPAttribute_2" name="verbose" value="false"/>
+<jspAttributes xmi:id="JSPAttribute_3" name="deprecation" value="false"/>
+<jspAttributes xmi:id="JSPAttribute_4" name="reloadEnabled" value="true"/>
+<jspAttributes xmi:id="JSPAttribute_5" name="reloadInterval" value="5"/>
+<jspAttributes xmi:id="JSPAttribute_6" name="keepgenerated" value="true"/>
+<jspAttributes xmi:id="JSPAttribute_7" name="jdkSourceLevel" value="15"/>
+<!-- <jspAttributes xmi:id="JSPAttribute_7" name="trackDependencies" value="true"/> -->
+</webappext:WebAppExtension>

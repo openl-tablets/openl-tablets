@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL WebStudio TableEditor component
+Bundle-SymbolicName: org.openl.rules.tableeditor;singleton:=true
+Bundle-Version: 5.8.2
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.openl.rules.tomcat.lib;visibility:=reexport,
+ org.openl.core;visibility:=reexport,
+ org.openl.rules;visibility:=reexport,
+ org.openl.rules.workspace;visibility:=reexport,
+ org.openl.commons.web;visibility:=reexport,
+ org.openl.rules.security.standalone;visibility:=reexport,
+ org.openl.rules.webstudio.lib;visibility:=reexport
+Export-Package: org.openl.rules.tableeditor.component,
+ org.openl.rules.tableeditor.event,
+ org.openl.rules.tableeditor.model,
+ org.openl.rules.tableeditor.model.ui,
+ org.openl.rules.tableeditor.model.ui.util,
+ org.openl.rules.tableeditor.renderkit,
+ org.openl.rules.tableeditor.taglib,
+ org.openl.rules.tableeditor.util

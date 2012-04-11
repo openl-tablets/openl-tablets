@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.rules.source.eclipse.feature"
+      label="OpenL Sources"
+      version="5.7.1"
+      provider-name="OpenL">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.gnu.org/copyleft/lesser.html">
+      %license
+   </license>
+
+   <plugin
+         id="org.openl.rules.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.core.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.commons.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.j.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.grammars.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.j.science.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.constrainer.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.conf.ant.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.project"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.tableeditor.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.repository.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.repository.jcr.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+
+   <plugin
+         id="org.openl.rules.repository.jcr.jackrabbit.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.workspace.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.webstudio.java.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+
+   <plugin
+         id="org.openl.commons.web.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.security.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.security.standalone.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+
+   <plugin
+         id="org.openl.rules.diff.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.ruleservice.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.ruleservice.ws.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.util.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.wizard.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.eclipse.ui.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.eclipse.ui.wizard.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.eclipse.ui.source"
+         download-size="0"
+         install-size="0"
+         version="5.7.1"
+         unpack="false"/>
+</feature>

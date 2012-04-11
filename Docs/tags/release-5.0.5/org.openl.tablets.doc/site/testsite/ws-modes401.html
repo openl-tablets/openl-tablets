@@ -1,0 +1,89 @@
+<a href="ws-toc401.shtml">Table of Contents</a>
+
+<h1>Web Studio Modes</h1>
+
+OpenL Tablets Project can contain a lot of information, 
+some of it is relevant for one category of the users, 
+some of it for another. The goal of the OpenL Web Studio is
+to provide an environment for the real collaboration between 
+business and IT people. To achieve this, we introduced 
+two different view modes, namely Business User's Mode <img border=0 src="images/business-view.png"> and Developer's Mode 
+<img border=0 src="images/developer-view.png">. In a future we may allow user to create customizable view modes, but for now
+we will use these two pre-defined modes. 
+
+
+<h2>Business Mode</h2>
+
+<p>By default the project will start in the Business Mode. This decision is <b>not</b> based on the assumption that 
+it is easier to teach a Developer to switch to the Developer's Mode than Business User to the Business Mode
+(no research have been done in this area and we can not base our judgement on some anecdotal evidence). 
+The decision owes more to the fact that Business Mode is more convenient for both Developers and Business Users. 
+
+<p>
+Here is comparison table between two modes:
+<p>
+<table class="ex" cellspacing="0" border="1" width="80%" cellpadding="3">
+<th>Feature</th><th>Business Mode</th><th>Developer's Mode</th>
+<tr>
+<td>Level of Detail</td><td>Less technical</td><td>More technical</td>
+</tr>
+<tr>
+<td>Project Tree</td><td>By user-defined categories</td><td>By component type, by physical location</td>
+</tr>
+<tr>
+<td>Component Name</td><td>User-friendly display name</td><td>Technical name</td>
+</tr>
+<tr>
+<td>Table View</td><td>Without Technical Details</td><td>Full View with all the technical details</td>
+</tr>
+<tr>
+<td>Show Components</td><td>Only if property <i>name</i> is defined</td><td>All</td>
+</tr>
+</table>
+<p>
+<h3>Business Modes 1,2,3</h3>
+<p>
+Currently, there are 3 slightly different Business Modes. 
+To switch between modes one needs to repeatedly press Business Mode icon.
+Modes differ in the way they display user-defined categories.
+
+<p>
+Here is how the Tutorial 4 Project looks like in the Business Mode 1
+
+<p>
+<img border=0 src="images/site/ws-modes-b1.png"/>
+
+<p>
+Here is how the same Project looks like in the Business Mode 2
+
+<p>
+<img border=0 src="images/site/ws-modes-b2.png"/>
+
+<p>
+The only difference between the Business Mode 1 and Business Mode 2 is the depth of the Category Tree.
+
+<p>
+<h2><a name="category">User-defined names and categories</a></h2>
+<p>
+Each OpenL project component can have optional user-defined properties. For example:
+
+<p><img border=0 src="images/site/ws-modes-prop.png"/><p>
+
+This table has 2 user-defined properties: name=Vehicle Eligibility Score Table and category=Auto-Scoring.<br>
+OpenL Tablets Studio uses these properties to display Project Component in user-friendly way. If property <i>category</i> 
+is not defined the Studio will use the name of the Excel Worksheet where the Project Component table is located. 
+Only the components where the property <i>name</i> is defined will be displayed in the Business Mode. 
+
+<h2>Developer's Mode</h2>
+
+<p>
+In this mode, Project Tree contains two different hierarchies: 
+<li>By Type - By Component Type
+<li>By File - By Component Location, such as Workbook or Worksheet
+<p>
+The main difference with the Business Mode lies in the level of technical details. It should be understood that different modes
+are better suitable for different activities and different audiences. You are encouraged to try them all and submit your 
+suggestions on how to improve eixsting modes.  
+
+
+

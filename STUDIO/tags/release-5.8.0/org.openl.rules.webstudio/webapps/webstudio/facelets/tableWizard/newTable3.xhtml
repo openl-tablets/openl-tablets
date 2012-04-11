@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich"
+                template="/facelets/common/wizardBase.xhtml">
+
+    <ui:define name="title">Conditions configuration</ui:define>
+
+  <ui:define name="page">
+    <h:form id="newTableWiz3">
+
+      <h:panelGroup>
+        <h:outputText value="Conditions: #{tableWizard.conditionCount}"/>
+        <h:commandLink action="#{tableWizard.addCondition}"><h:graphicImage value="/images/add_obj.gif" alt="Add more" /></h:commandLink>
+        <br/>
+
+        <h:dataTable var="row" id="conditionTable" value="#{tableWizard.conditions}">
+          <h:column>
+            <f:facet name="header"><h:outputText value="Name"/></f:facet>
+            <h:outputText value="#{row.name}"
+                          styleClass="#{tableWizard.selectedCondition == counter.current ? 'wz_selected_list_item' : 'wz_list_item'}"/>
+          </h:column>
+          <h:column>
+            <h:commandLink action="#{tableWizard.removeCondition}">
+              <f:param name="index" value="#{counter.current}"/>
+              <h:graphicImage value="/images/delete.gif"/>
+            </h:commandLink>
+            <h:commandLink action="#{tableWizard.selectCondition}">
+              <f:param name="index" value="#{counter.count}"/>
+              <h:graphicImage value="/images/edit.gif"/>
+            </h:commandLink>
+          </h:column>
+        </h:dataTable>
+      </h:panelGroup>
+
+      <hr/>
+      <c:set var="cond" value="#{tableWizard.currentCondition}" />
+      <h:panelGroup rendered="#{cond != null}">
+        <h3>Condition Logic: <h:outputText value=" " />
+          <h:commandLink value="Use editor" action="#{tableWizard.useEditorLogicCondition}" rendered="#{not cond.logicEditor}"/>
+          <h:commandLink value="Enter manually" action="#{tableWizard.useManualLogicCondition}" rendered="#{cond.logicEditor}"/>
+          
+          <h:commandLink action="#{tableWizard.addConditionClause}" rendered="#{cond.logicEditor}">
+            <h:graphicImage value="/images/add_obj.gif" alt="add clause" />
+          </h:commandLink>
+        </h3>
+
+        <h:panelGroup rendered="#{not cond.logicEditor}">
+          <h:inputTextarea value="#{cond.logic}"/>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{cond.logicEditor and counter.reset}">
+          <c:set var="logicClauses" value="#{cond.logicClauses}" />
+          <c:set var="paramNames" value="#{cond.paramNames}" />
+          
+          <h:dataTable var="row" value="#{logicClauses}">
+            <h:column>
+              <h:selectOneMenu value="#{row.paramName}" onchange="this.form.submit()">
+                <f:selectItems value="#{paramNames}"/>
+              </h:selectOneMenu>
+            </h:column>
+
+            <h:column>
+              <h:selectOneMenu value="#{row.variantId}">
+                <f:selectItems value="#{row.variantOptions}"/>
+              </h:selectOneMenu>
+            </h:column>
+
+            <h:column>
+              <h:inputText value="#{row.conditionExpression}"/>
+              <a href="#" onclick="showDomainTree(this)">..</a><f:verbatim>&amp;nbsp;</f:verbatim>
+              <h:commandLink action="#{tableWizard.removeConditionClause}" rendered="#{cond.logicClauseCount > 1}">
+                <f:param name="index" value="#{counter.count}"/>
+                <h:graphicImage value="/images/delete.gif"/>
+              </h:commandLink>
+            </h:column>
+          </h:dataTable>
+        </h:panelGroup>
+      </h:panelGroup>
+
+      <hr/>
+      <h3>Condition Parameters:</h3>
+
+      <h:panelGroup rendered="#{cond != null and counter.reset}">
+        <h:commandLink value="Add more" action="#{tableWizard.addConditionParameter}"><h:graphicImage value="/images/add_obj.gif" alt="" /></h:commandLink>
+        <h:dataTable var="p" value="#{cond.parameters}" id="paramTable">
+          <h:column>
+            <f:facet name="header"><h:outputText value="Business Name"/></f:facet>
+            <h:inputText value="#{p.businessName}" id="pname"/>
+          </h:column>
+          <h:column>
+            <f:facet name="header"><h:outputText value="Technical Name"/></f:facet>
+            <h:inputText value="#{p.name}" id="tname"/>
+          </h:column>
+          <h:column>
+            <f:facet name="header"><h:outputText value="Type"/></f:facet>
+            <h:selectOneMenu value="#{p.type}" id="type">
+              <f:selectItems value="#{tableWizard.domainTypes}"/>
+            </h:selectOneMenu>
+          </h:column>
+          <h:column>
+            <h:commandLink action="#{tableWizard.removeConditionParameter}" rendered="#{cond.paramsCount > 1}">
+              <f:param name="index" value="#{counter.count}"/>
+              <h:graphicImage value="/images/delete.gif"/>
+            </h:commandLink>
+
+            <h:graphicImage value="/images/moveup.gif" rendered="#{counter.prev &gt; 0}" onclick='wiz_moveup(this, #{counter.prev})'/>
+            <h:graphicImage value="/images/empty.gif" rendered="#{counter.prev == 0}" width="16"/>
+            <h:graphicImage value="/images/movedown.gif" rendered="#{cond.paramsCount > 1 and counter.current &lt; cond.paramsCount}"
+                            onclick='wiz_moveup(this, #{counter.current})'/>
+          </h:column>
+          <h:column><h:message for="pname" errorClass="error" showSummary="true" showDetail="true"/></h:column>
+        </h:dataTable>
+      </h:panelGroup>
+
+      <br />
+      <hr/>
+
+      <h:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}"/>
+      <h:commandButton value="Next" action="#{tableCreatorWizardManager.next}"/>
+      <h:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}"/>
+    </h:form>
+
+<rich:modalPanel id="modalDomainTreePanel" minHeight="350">
+  <f:facet name="header"><h:outputText value="Compose expression"/></f:facet>
+
+  <f:facet name="controls">
+    <h:graphicImage value="/webresource/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalDomainTreePanel');"/>
+  </f:facet>
+
+  <a4j:outputPanel id="domainTreePanel">
+    <a4j:form id="dtForm">
+      Dot path: <f:verbatim>&amp;nbsp;</f:verbatim><h:outputText value="#{domainTreePath.dotExpression}" styleClass="treeOptionsText"/>
+      <f:verbatim>&amp;nbsp;</f:verbatim>
+      <a href="javascript: void(0);" onclick="removeLastDotPart()"><h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" rendered="#{not empty domainTreePath.dotExpression}"/></a>
+      <h:inputHidden id="currentExpression" value="#{domainTreePath.dotExpression}"/>
+      <h:inputHidden id="newDotPart" value="#{domainTreePath.newDotPart}"/>
+      <div style="display:none;"><a4j:commandLink value="update" reRender="domainTreePanel" id="dtLink"/>
+      <a4j:commandLink value="init" reRender="domainTreePanel" id="dtLink2" oncomplete="Richfaces.showModalPanel('modalDomainTreePanel');"/></div>
+    </a4j:form>
+
+    <div style="height:200px;">
+    <ul class="treeOptions">
+      <h:dataTable value="#{domainTreePath.subExpressions}"  var="t">
+        <h:column><h:outputLink value="#{t}" onclick="addDotPart('#{t}'); return false" /></h:column>
+      </h:dataTable>
+    </ul>
+    </div>
+  </a4j:outputPanel>
+
+  <br />
+  <rich:separator height="1" />
+  <br />
+
+  <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+    <input type="button" class="button" value="Select" onclick="hideDomainTree();" />
+    <input type="button" class="button" value="Cancel" onclick="Richfaces.hideModalPanel('modalDomainTreePanel');" />
+  </h:panelGrid>
+</rich:modalPanel>
+
+    <script type="text/javascript">
+      var wiz_ids = ['pname', 'tname','type']
+      var baseId = "newTableWiz3:paramTable:";
+      function wiz_swap(e1, e2) {var tmp = e1.value;e1.value = e2.value;e2.value = tmp;}
+      function wiz_moveup(el, pos) {
+        if (pos &lt;= 0) return;
+        var base1 = baseId+pos+":", base2 = baseId+(pos-1)+":"
+        for (var i=0; i &lt; wiz_ids.length; ++i) wiz_swap(document.getElementById(base1 + wiz_ids[i]), document.getElementById(base2 + wiz_ids[i]))
+      }
+
+      var destInputElement;
+      function showDomainTree(anchorElement) {
+        destInputElement  = $(anchorElement).up().down('INPUT');
+        $('dtForm:currentExpression').value = destInputElement.value.gsub(' ', '').sub(/\.+$/, '');
+        $('dtForm:newDotPart').value = '';
+        $('dtForm:dtLink2').onclick();
+      }
+
+      function addDotPart(text) {
+        $('dtForm:newDotPart').value = text;
+        $('dtForm:dtLink').onclick();
+      }
+
+      function removeLastDotPart() {
+        var parts = $('dtForm:currentExpression').value.split('.');
+        parts.pop();
+        $('dtForm:currentExpression').value = parts.join('.');
+        $('dtForm:newDotPart').value = '';
+        $('dtForm:dtLink').onclick();
+      }
+
+      function hideDomainTree() {
+        Richfaces.hideModalPanel('modalDomainTreePanel');
+        destInputElement.value = $('dtForm:currentExpression').value; 
+      }
+
+    </script>
+  </ui:define>
+</ui:composition>

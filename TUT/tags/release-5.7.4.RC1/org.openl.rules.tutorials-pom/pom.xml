@@ -1,0 +1,57 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.base-pom</artifactId>
+    <version>5.7.4.RC1</version>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.tutorials-pom</artifactId>
+  <version>5.7.4.RC1</version>
+  <packaging>pom</packaging>
+  <name>OpenL - Tutorials Pom</name>
+  <description>Tutorials Pom Project</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.7.4.RC1</connection>
+    <developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/TUT/tags/release-5.7.4.RC1</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.7.4.RC1</url>
+  </scm>
+
+  <modules>
+    <module>../org.openl.rules.tutorials</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.core</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.constrainer</artifactId>
+        <version>${openl.version.maven}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

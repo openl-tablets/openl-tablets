@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Tablets Wizard Plug-in
+Bundle-SymbolicName: org.openl.rules.eclipse.ui.wizard; singleton:=true
+Bundle-Version: 5.0.5
+Bundle-Activator: org.openl.rules.eclipse.wizard.RulesWizardPlugin
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.core.resources,
+ org.openl.eclipse.ui.wizard
+Eclipse-LazyStart: true
+Export-Package: org.openl.rules.eclipse.wizard

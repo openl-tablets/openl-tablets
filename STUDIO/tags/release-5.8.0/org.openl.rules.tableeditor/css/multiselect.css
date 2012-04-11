@@ -1,0 +1,52 @@
+.multiselect_container_outer {
+    position: absolute;
+    background: #FAFAFA;
+    border: 1px solid #D7D7D7;
+    border-radius: 1px;
+    padding-top: 3px;
+    width: 240px;
+    z-index: 9001;
+    box-shadow: 0 0 7px #DADADA;
+}
+
+.multiselect_container_outer .multiselect_buttons {
+    padding: 1px 6px;
+}
+
+.multiselect_container_outer .multiselect_buttons input {
+    border: 1px solid #A5C5EE;
+    border-radius: 1px;
+    background: #CBE5FF;
+    color: #333333;
+    box-shadow: 0 0 1px rgb(230,230,230);
+}
+
+.multiselect_container_outer .multiselect_buttons input:hover {
+    box-shadow: 0 0 4px rgb(170,190,220);
+    cursor: pointer;
+    color: #111111;
+}
+
+.multiselect_container {
+    overflow: auto;
+    max-height: 300px;
+    border-top: 1px dashed #D7D7D7;
+    padding: 2px 3px;
+    margin-top: 5px;
+    //height: expression(this.scrollHeight > 300 ? '300px' : 'auto'); /* IE */
+}
+
+.multiselect_container div:hover {
+    background: #CBE5FF;
+}
+
+/* The iframe hack to cover selectlists in Internet Explorer 6 */
+iframe.ms_ie6Popup {
+    position: absolute;
+    z-index: 9000;
+    background: #fff;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    display: none;
+}

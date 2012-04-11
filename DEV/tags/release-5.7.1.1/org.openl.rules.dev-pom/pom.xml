@@ -1,0 +1,205 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.base-pom</artifactId>
+    <version>5.7.1.1</version>
+  </parent>
+
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.dev-pom</artifactId>
+  <version>5.7.1.1</version>
+  <packaging>pom</packaging>
+  <name>OpenL - DEV</name>
+  <description>OpenL Tablets rules engine and related frameworks</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <scm>
+    <connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags/release-5.7.1.1</connection>
+	<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/DEV/tags/release-5.7.1.1</developerConnection>
+    <url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/tags/release-5.7.1.1</url>
+  </scm>
+
+  <modules>
+    <module>../org.openl.commons</module>
+    <module>../org.openl.core</module>
+    <module>../org.openl.grammars</module>
+    <module>../org.openl.j</module>
+    <module>../org.openl.j.science</module>
+    <module>../org.openl.rules</module>
+    <module>../org.openl.rules.constrainer</module>
+    <module>../org.openl.conf.ant</module>    
+    <module>../org.openl.rules.gen</module>
+	
+    <!-- Tests -->
+    <module>../org.openl.test</module>
+    <module>../org.openl.rules.test</module>
+
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>local</id>
+      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>local</id>
+      <url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>../org.openl.rules.dev-pom/checkstyle.xml</configLocation>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <profiles>
+    <profile>
+      <id>internal-deploy</id>
+      <distributionManagement>
+        <site>
+          <id>internal-minsk</id>
+          <url>file://d:/reports/org.openl.rules.dev-pom</url>
+        </site>
+      </distributionManagement>
+    </profile>
+
+    <profile>
+      <id>cobertura-summary-report</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <tasks>
+                <taskdef resource="tasks.properties" />
+
+                <cobertura-merge datafile="target\cobertura-merged-file.ser">
+                  <fileset dir="..">
+                    <include name="org.openl.rules.constrainer\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.commons\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.conf.ant\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.core\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.j\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.j.science\target\cobertura\cobertura.ser" />
+                    <include name="org.openl.rules\target\cobertura\cobertura.ser" />
+                  </fileset>
+                </cobertura-merge>
+
+                <cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
+                  <fileset dir="..\org.openl.rules.constrainer\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.commons\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.conf.ant\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.core\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.j\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.grammars\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.j.science\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules\src\">
+                    <include name="**\*.java" />
+                  </fileset>
+                  <fileset dir="..\org.openl.rules\poi\">
+                    <include name="**\*.java" />
+                  </fileset>
+                </cobertura-report>
+              </tasks>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- DEV -->
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.core</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.commons</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.grammars</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.j</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.j.science</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.constrainer</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.conf.ant</artifactId>
+        <version>${version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl</groupId>
+        <artifactId>org.openl.test</artifactId>
+        <version>${version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

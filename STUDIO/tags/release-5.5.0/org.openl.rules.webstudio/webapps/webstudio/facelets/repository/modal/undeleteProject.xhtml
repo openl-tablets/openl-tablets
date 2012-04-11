@@ -1,0 +1,41 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:modalPanel id="modalUndeleteProject" minHeight="110" minWidth="400" height="110" width="400" zindex="2000">
+    <f:facet name="header">
+      <h:outputText value="Confirm Undelete" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="Richfaces.hideModalPanel('modalUndeleteProject');" />
+    </f:facet>
+
+    <h:form id="modalUndeleteProjectForm">
+      <h:outputText value="Are you sure you want to undelete the project?" />
+
+      <br />
+      <br />
+      <rich:separator height="1" />
+      <br />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
+        <h:commandButton styleClass="button" value="Undelete" action="#{repositoryTreeController.undeleteProject}" />
+        <input type="button" class="button" value="Cancel" onclick="#{rich:component('modalUndeleteProject')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+
+  </rich:modalPanel>
+
+  <script>
+    function confirmUndeleteProject() {
+      submitMainForm(function() {
+        Richfaces.showModalPanel('modalUndeleteProject');
+      });
+    }
+  </script>
+
+</ui:composition>

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Tablets Eclipse UI Plug-in
+Bundle-SymbolicName: org.openl.rules.eclipse.ui;singleton:=true
+Bundle-Version: 5.7.4
+Bundle-Activator: org.openl.rules.eclipse.ui.OpenlRulesPlugin
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.console,
+ org.eclipse.debug.ui,
+ org.eclipse.jface.text,
+ org.eclipse.core.resources,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.workbench.texteditor,
+ org.openl.eclipse.ui;visibility:=reexport,
+ org.openl.rules;visibility:=reexport,
+ org.openl.lib
+Eclipse-AutoStart: true

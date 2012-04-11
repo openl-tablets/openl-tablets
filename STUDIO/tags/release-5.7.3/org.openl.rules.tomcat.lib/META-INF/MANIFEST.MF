@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tomcat Plug-in
+Bundle-SymbolicName: org.openl.rules.tomcat.lib
+Bundle-Version: 5.7.3
+Bundle-Localization: plugin
+Bundle-Vendor: OpenL Tablets
+Bundle-ClassPath: apache-tomcat-6.0.20/lib/jsp-api.jar,
+ apache-tomcat-6.0.20/lib/servlet-api.jar,
+ apache-tomcat-6.0.20/bin/bootstrap.jar,
+ apache-tomcat-6.0.20/lib/el-api.jar,
+ apache-tomcat-6.0.20/lib/annotations-api.jar
+Export-Package: javax.annotation,
+ javax.annotation.security,
+ javax.ejb,
+ javax.el,
+ javax.persistence,
+ javax.servlet,
+ javax.servlet.http,
+ javax.servlet.jsp,
+ javax.servlet.jsp.el,
+ javax.servlet.jsp.tagext,
+ javax.xml.ws,
+ org.apache.catalina.loader,
+ org.apache.catalina.security,
+ org.apache.catalina.startup,
+ org.apache.naming

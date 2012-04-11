@@ -1,0 +1,59 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/common/base.xhtml">
+
+    <ui:define name="title">Structured Diff</ui:define>
+
+  <ui:define name="body">
+
+  <br/>
+
+  <ui:include src="/repository/messages.xhtml" />
+
+    <h:panelGrid
+      columns="2" cellspacing="0"
+      style="width:100%;height:600px;"
+    columnClasses="colDiff,colDiff"
+    >
+      <h:panelGroup>
+      <h:commandButton
+        styleClass="button"
+        value="Back"
+        action="jcrMain"
+      />
+
+      <rich:panel styleClass="panelDiff">
+            <f:facet name="header">
+              <h:outputText value="Current Version (#{diff.baseVersionName})"/>
+            </f:facet>
+
+        <h:outputText value="#{diff.baseVersionContent}"/>
+        </rich:panel>
+      </h:panelGroup>
+
+      <h:panelGroup>
+      <h:commandButton
+        styleClass="button"
+        value="Revert to"
+        action="#{diff.revertTo}"
+      />
+
+      <rich:panel styleClass="panelDiff">
+            <f:facet name="header">
+              <h:outputText value="Comparing Version (#{diff.comparingVersionName})"/>
+            </f:facet>
+
+        <h:outputText value="#{diff.comparingVersionContent}"/>
+        </rich:panel>
+      </h:panelGroup>
+
+  </h:panelGrid>
+
+  </ui:define>
+
+  <ui:define name="special">
+  </ui:define>
+</ui:composition>

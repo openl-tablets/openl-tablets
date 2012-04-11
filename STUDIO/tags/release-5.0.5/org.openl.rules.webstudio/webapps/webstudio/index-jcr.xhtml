@@ -1,0 +1,22 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.ajax4jsf.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  template="/common/base.xhtml">
+
+  <ui:define name="body">
+
+    <div>
+      1. Return to OpenL Web Studio
+      <button onclick="window.location='/webstudio/';">back</button>
+    </div>
+
+    <div>
+      2. Show Repository Screens
+      <h:commandButton value="JCR-170" action="jcrMain"/>
+    </div>
+
+  </ui:define>
+
+</ui:composition>

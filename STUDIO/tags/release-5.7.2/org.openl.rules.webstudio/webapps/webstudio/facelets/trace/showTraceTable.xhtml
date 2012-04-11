@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jstl/core"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+
+        <br />
+
+        <h:panelGroup rendered="#{not empty param.first}">
+            <b>Select  a Trace Element on the left side and you will see it's trace here</b>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{empty param.first}">
+            <table>
+                <tr>
+                    <td>
+                        <h:outputLink rendered="#{not empty showTraceTableBean.tracerUri and studio.model.editable}"
+                            value="#{contextPath}/jsp/showLinks.jsp"
+                            target="show_app_hidden">
+                            <f:param name="uri" value="#{showTraceTableBean.tracerUri}" />
+                            <h:graphicImage url="/webresource/images/excel.png"
+                                alt="Edit in Excel" title="Edit in Excel" />
+                        </h:outputLink>
+                        <h:outputText value=" #{showTraceTableBean.tracerName}" />
+                    </td>
+                    <td>
+                        <ui:include src="/facelets/tableViewMenu.xhtml" />
+                    </td>
+                </tr>
+            </table>
+
+            <br />
+
+            <c:set var="errors" value="#{showTraceTableBean.errors}" />
+            <h:panelGroup rendered="#{not empty errors}">
+                <ui:include src="/facelets/messages.xhtml">
+                    <ui:param name="messages" value="#{errors}" />
+                </ui:include>
+                <p />
+            </h:panelGroup>
+
+            <h:outputText value="#{showTraceTableBean.traceTable}" escape="false" />
+
+        </h:panelGroup>
+
+    </ui:define>
+
+</ui:composition>

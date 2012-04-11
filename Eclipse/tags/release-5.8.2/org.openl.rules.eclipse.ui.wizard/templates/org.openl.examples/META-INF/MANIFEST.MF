@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Examples
+Bundle-SymbolicName: org.openl.examples
+Bundle-Version: 5.8.2
+Bundle-Localization: plugin
+Require-Bundle: org.openl.core

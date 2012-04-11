@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html
+   xmlns:f="http://java.sun.com/jsf/core"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:a4j="http://richfaces.org/a4j"
+   xmlns:rich="http://richfaces.org/rich"
+   xmlns:c="http://java.sun.com/jstl/core"
+   xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+
+  <head>
+    <a4j:loadStyle src="resource:///css/openl/style1.css" />
+    <style type="text/css">
+      .error {color:red;}
+      img {border:0;}
+      body {
+          margin: 0px 4px;
+      }
+    </style>
+    <ui:insert name="header" />
+  </head>
+
+  <body>
+    <ui:insert name="page" />
+  </body>
+</html>

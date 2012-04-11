@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<toc label="Chapter 3: Using Rule Editor">
+<topic label="Opening a Module" href="OpeningAModule.html"></topic>
+<topic label="Managing Projects" href="ManagingProjects.html"><topic label="Checking Out and Checking In a Project" href="CheckingOutAndCheckingInAProject.html"></topic>
+<topic label="Uploading Projects to Design Time Repository" href="UploadingProjectsToDesignTimeRepository.html"></topic>
+</topic>
+<topic label="Viewing Tables" href="ViewingTables.html"></topic>
+<topic label="Modifying Tables" href="ModifyingTables.html"></topic>
+<topic label="Performing a Search" href="PerformingASearch.html"><topic label="Simple Search" href="SimpleSearch.html"></topic>
+<topic label="Business Search" href="BusinessSearch.html"></topic>
+<topic label="Advanced Search" href="AdvancedSearch.html"></topic>
+<topic label="Index" href="Index.html"></topic>
+</topic>
+<topic label="Creating New Table" href="CreatingNewTable.html"><topic label="Datatype table wizard" href="DatatypeTableWizard.html"></topic>
+</topic>
+</toc>

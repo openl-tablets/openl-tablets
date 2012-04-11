@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Eclipse Wizard
+Bundle-SymbolicName: org.openl.eclipse.ui.wizard; singleton:=true
+Bundle-Version: 5.7.4.RC1
+Bundle-Activator: org.openl.eclipse.wizard.OpenlWizardPlugin
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport,
+ org.eclipse.ant.core;visibility:=reexport,
+ org.eclipse.ui;visibility:=reexport,
+ org.eclipse.ui.ide;visibility:=reexport,
+ org.openl.eclipse.ui;visibility:=reexport,
+ org.openl.lib,
+ org.eclipse.pde.core
+Eclipse-AutoStart: true
+Export-Package: org.openl.eclipse.wizard,
+ org.openl.eclipse.wizard.base

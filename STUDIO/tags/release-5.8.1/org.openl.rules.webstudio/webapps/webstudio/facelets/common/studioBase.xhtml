@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:ui="http://java.sun.com/jsf/facelets"
+   xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+  <h:head>
+    <link href="#{contextPath}/css/openl/style1.css" rel="stylesheet" type="text/css"></link>
+    <style type="text/css">
+      body {
+          margin: 0px 5px;
+      }
+    </style>
+    <ui:insert name="header" />
+  </h:head>
+
+  <h:body>
+    <ui:insert name="page" />
+  </h:body>
+</html>

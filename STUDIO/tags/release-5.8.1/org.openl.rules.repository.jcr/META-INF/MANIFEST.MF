@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Repository Jcr
+Bundle-SymbolicName: org.openl.rules.repository.jcr;singleton:=true
+Bundle-Version: 5.8.1
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Require-Bundle: org.openl.rules.repository;visibility:=reexport,
+ org.openl.rules.webstudio.lib
+Export-Package: org.openl.rules.repository.factories,
+ org.openl.rules.repository.jcr

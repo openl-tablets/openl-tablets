@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Repository Abstraction Layer
+Bundle-SymbolicName: org.openl.rules.repository
+Bundle-Version: 5.0.5
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Export-Package: org.openl.rules.repository,
+ org.openl.rules.repository.exceptions

@@ -1,0 +1,11 @@
+<project>
+	<id>test</id>
+	<name>test ?</name>
+	<modules>
+		<module>
+			<name>testmodule</name>
+			<type>api</type>
+			<rules-root path="dependencies/test3/module/dependency-module?/dependency?.xls"/>
+		</module>	
+	</modules>
+</project>

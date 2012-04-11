@@ -1,0 +1,55 @@
+package org.openl.rules.lang.xls.syntax;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.types.IOpenMethod;
+import org.openl.types.impl.AOpenClass.MethodKey;
+
+/**
+ * Key to check identity of tables represented by TableSyntaxNodes. Tables are
+ * identical when they have the same method signature and the same business
+ * dimension properties.
+ * 
+ * @author PUdalau
+ */
+public class TableSyntaxNodeKey {
+    private TableSyntaxNode tsn;
+
+    public TableSyntaxNodeKey(TableSyntaxNode tsn) {
+        this.tsn = tsn;
+    }
+
+    private TableSyntaxNode getTsn() {
+        return tsn;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TableSyntaxNodeKey)) {
+            return false;
+        }
+        TableSyntaxNodeKey key = (TableSyntaxNodeKey) obj;
+
+        EqualsBuilder equalsBuilder = new EqualsBuilder();
+        equalsBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()), new MethodKey((IOpenMethod) key.getTsn()
+                .getMember()));
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
+            equalsBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]), key.getTsn()
+                    .getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
+        }
+        return equalsBuilder.isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+        hashCodeBuilder.append(new MethodKey((IOpenMethod) tsn.getMember()));
+        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
+            hashCodeBuilder.append(tsn.getTableProperties().getPropertyValue(dimensionalPropertyNames[i]));
+        }
+        return hashCodeBuilder.toHashCode();
+    }
+}

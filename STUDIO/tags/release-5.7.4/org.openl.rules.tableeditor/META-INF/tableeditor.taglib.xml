@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE facelet-taglib PUBLIC  
+   "-//Sun Microsystems, Inc.//DTD Facelet Taglib 1.0//EN"  
+   "http://java.sun.com/dtd/facelet-taglib_1_0.dtd">
+
+<facelet-taglib>
+    <namespace>http://openl-tablets.sourceforge.net/jsf</namespace>
+    <tag>
+        <tag-name>tableViewer</tag-name>
+        <component>
+            <component-type>org.openl.rules.tableeditor.TableViewer</component-type>
+            <renderer-type>org.openl.rules.tableeditor.TableViewer</renderer-type>
+        </component>
+    </tag>
+    <tag>
+        <tag-name>tableEditor</tag-name>
+        <component>
+            <component-type>org.openl.rules.tableeditor.TableEditor</component-type>
+            <renderer-type>org.openl.rules.tableeditor.TableEditor</renderer-type>
+        </component>
+    </tag>
+</facelet-taglib>

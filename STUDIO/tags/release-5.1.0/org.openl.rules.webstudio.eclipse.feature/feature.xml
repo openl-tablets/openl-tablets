@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.openl.rules.webstudio.eclipse.feature"
+      label="WebStudio Eclipse Feature"
+      version="5.1.0">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import feature="org.openl.eclipse.feature" version="5.1.0"/>
+      <import feature="org.openl.lib.eclipse.feature" version="5.1.0"/>
+      <import feature="org.openl.rules.eclipse.feature" version="5.1.0"/>
+   </requires>
+
+   <plugin
+         id="org.openl.rules.repository"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.repository.jcr"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.repository.jcr.jackrabbit"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.webtools"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.workspace"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.webstudio.lib"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"/>
+
+   <plugin
+         id="org.openl.rules.webstudio"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"/>
+
+   <plugin
+         id="org.openl.rules.security"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.security.standalone"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.webstudio.java"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.rules.diff"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <!--
+   <plugin
+         id="org.openl.rules.runtime.deployer"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+   -->
+
+   <plugin
+         id="org.openl.rules.util"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.openl.lib.apache.tomcat"
+         download-size="0"
+         install-size="0"
+         version="5.1.0"/>
+
+</feature>

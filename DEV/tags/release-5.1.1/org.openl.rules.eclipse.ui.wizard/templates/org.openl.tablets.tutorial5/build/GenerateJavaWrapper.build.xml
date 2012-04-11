@@ -1,0 +1,20 @@
+<project name="GenJavaWrapper" default="generate" basedir="../">
+
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	
+	
+<target name="generate">
+	<echo message="Generating org.openl.tablets.tutorial5 Wrapper"/>
+
+	<openlgen openlName="org.openl.xls" userHome="." 
+		srcFile="rules/Tutorial_5.xls"
+	    targetClass="org.openl.tablets.tutorial5.Tutorial_5Wrapper"
+		displayName="Tutorial 5 - DT Performance Optimization"
+		targetSrcDir="gen"
+	>
+	</openlgen>	
+	
+	
+	
+</target>
+</project>

@@ -1,0 +1,22 @@
+package org.openl.rules.convertor;
+
+import org.openl.binding.IBindingContext;
+import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.IOpenClass;
+
+public class String2ClassConvertor implements IString2DataConvertor {
+
+    public String format(Object data, String format) {
+        return String.valueOf(data);
+    }
+
+    public Object parse(String data, String format, IBindingContext cxt) {
+        IOpenClass c = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, data);
+
+        if (c == null) {
+            throw new RuntimeException("Type " + data + " is not found");
+        }
+
+        return c.getInstanceClass();
+    }
+}

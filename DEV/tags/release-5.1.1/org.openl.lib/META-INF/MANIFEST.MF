@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenL Apache Commons Library
+Bundle-SymbolicName: org.openl.lib
+Bundle-Version: 5.1.1
+Bundle-Vendor: OpenL
+Bundle-Localization: plugin
+Export-Package: org.apache.commons.lang,
+ org.apache.commons.lang.builder,
+ org.apache.commons.lang.enums,
+ org.apache.commons.lang.exception,
+ org.apache.commons.lang.math,
+ org.apache.commons.lang.mutable,
+ org.apache.commons.lang.text,
+ org.apache.commons.lang.time,
+ org.apache.commons.logging,
+ org.apache.commons.logging.impl
+Bundle-ClassPath: lib/commons-lang-2.3.jar,
+ lib/commons-logging-1.1.jar,
+ lib/commons-logging-api-1.0.4.jar

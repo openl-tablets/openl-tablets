@@ -1,0 +1,49 @@
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    template="/facelets/common/studioBase.xhtml">
+
+    <ui:define name="page">
+        <div style="padding-left: 5px;">
+            <h:form>
+                <h2><span class="success">Upload selected Projects</span></h2>
+    
+                <rich:dataTable value="#{localUpload.projects4Upload}"
+                    rendered="#{not empty localUpload.projects4Upload}"
+                    var="item" width="600" styleClass="standard" rowClasses="odd,even">
+                    <f:facet name="header">
+                        <rich:columnGroup>
+                            <rich:column>
+                                <h:outputText value="Selected" />
+                            </rich:column>
+                            <rich:column>
+                                <h:outputText value="Name" />
+                            </rich:column>
+                        </rich:columnGroup>
+                    </f:facet>
+    
+                    <rich:column style="text-align:center; width: 20px;">
+                        <h:selectBooleanCheckbox value="#{item.selected}" />
+                    </rich:column>
+                    <rich:column>
+                        <h:outputText value="#{item.projectName}" />
+                    </rich:column>
+                </rich:dataTable>
+    
+                <br />
+                <h:commandButton action="#{localUpload.upload}"
+                    rendered="#{not empty localUpload.projects4Upload}"
+                    value="Upload" />
+                <h:outputText value="All projects are already in repository"
+                    rendered="#{empty localUpload.projects4Upload}" />
+    
+            </h:form>
+            <h:messages infoClass="success" errorClass="error"
+                showDetail="true" showSummary="false" tooltip="true" />
+        </div>
+    </ui:define>
+
+</ui:composition>

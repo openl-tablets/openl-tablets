@@ -1,0 +1,61 @@
+<%@page import="org.openl.rules.webtools.indexer.FileIndexer"%>
+<%@page import="org.openl.rules.webtools.WebTool"%>
+<%@page import="org.openl.util.StringTool"%>
+<%
+String contextPath = request.getContextPath();
+
+for(int i = 0; i < values.length; ++i) {
+    String uri = values[i][0];
+    String result = values[i][1];
+    String index = request.getParameter("value");
+	String icon = null;
+    boolean canOpenTable = studio.getModel().getNode(uri) == null;
+	if (uri.indexOf(".xls") >= 0) {
+	    icon="../../images/excel-workbook.png";
+    } else if (uri.indexOf(".doc") >= 0) {
+	    icon="../../images/word-doc.png";
+    }
+%>
+<table cellspacing=0 width=80%>
+<tr>
+<td width="16"><%if (icon!=null){%> <img src="<%=icon%>"/>  <%}%></td>
+<td valign=top>
+<%
+    String elementHeader = FileIndexer.showElementHeader(uri);
+    if (!studio.getModel().isReadOnly() || canOpenTable) {
+%>
+    <a
+        href="<%=contextPath%>/jsp/showLinks.jsp?<%if (index != null && !index.equals("")) {%>value=<%=StringTool.encodeHTMLBody(index)%><% } %><%=WebTool.makeXlsOrDocUrl(uri)%>"
+        target="show_app_hidden"
+        title="View Table"><%=elementHeader%></a>
+<%} else { %>
+    <%=elementHeader%>
+<% } %>
+</td>
+</tr>
+
+<%
+  if (uri.indexOf(".xls") >= 0 && !canOpenTable) {
+%>
+  <tr>
+    <td width="16"><img src="<%=contextPath%>/images/viewTable.gif" /></td>
+    <td valign="top">
+        <a href="<%=contextPath%>/faces/facelets/tableeditor/showTable.xhtml?uri=<%=StringTool.encodeURL(uri)%>"
+            title="View Table in Table Editor">View Table</a>
+    </td>
+  </tr>
+<% } %>
+</tr>
+<tr><td/>
+<td><font size=-1><%=result%><font></td>
+</tr>
+</table><p/>
+
+<%
+}
+%>
+
+
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns="http://annox.dev.java.net"
+	xmlns:ann="http://annox.dev.java.net/javax.xml.bind.annotation">
+
+	<method name="getCategoryPropertiesTable">
+		<ann:XmlTransient/>
+	</method>
+
+	<method name="getModulePropertiesTable">
+		<ann:XmlTransient/>
+	</method>
+
+	<method name="getPropertiesSection">
+		<ann:XmlTransient/>
+	</method>
+
+	<method name="getType">
+		<ann:XmlTransient/>
+	</method>
+</class>

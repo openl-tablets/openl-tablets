@@ -1,0 +1,32 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.eclipse-pom</artifactId>
+    <version>5.8.1</version>
+    <relativePath>../org.openl.rules.eclipse-pom</relativePath>
+  </parent>
+
+  <groupId>org.openl</groupId>
+  <artifactId>org.openl.eclipse.ui.eclipse.feature</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - Eclipse - Eclipse UI Feature</name>
+  <description>OpenL WebStudio feature for Eclipse</description>
+  <url>http://openl-tablets.sf.net/</url>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>feature.xml</include>
+          <include>feature.properties</include>
+          <include>openl.gif</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+</project>

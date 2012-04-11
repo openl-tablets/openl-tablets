@@ -1,0 +1,99 @@
+<project default="build.org.openl.j">
+
+	<taskdef name="openl" classname="org.openl.conf.ant.AntOpenLTask" />
+
+	<property file="OpenL.properties" />
+
+	<target name="build.org.openl.j">
+		<!--	
+   <echo message="Building org.openl.j ..."/>	
+   
+-->
+		<openl category="org.openl.j" classpath="${org.openl.j.cp}" shared="true" description="This is a first example of our little language">
+
+
+
+			<grammar classname="org.openl.grammars.jgrammar.JGrammar" />
+
+			<bindings>
+				<binder node="literal" classname="org.openl.binding.impl.LiteralNodeBinder" />
+				<binder node="literal.integer" classname="org.openl.binding.impl.IntNodeBinder" />
+				<binder node="literal.real" classname="org.openl.binding.impl.DoubleNodeBinder" />
+				<binder node="literal.string" classname="org.openl.binding.impl.StringNodeBinder" />
+				<binder node="literal.char" classname="org.openl.binding.impl.CharNodeBinder" />
+				<binder node="array.init" classname="org.openl.binding.impl.ArrayInitializationBinder" />
+
+				<binder node="module.top" classname="org.openl.binding.impl.module.ModuleNodeBinder" />
+				<binder node="method.header" classname="org.openl.binding.impl.MethodHeaderNodeBinder" />
+				<binder node="method.parameters" classname="org.openl.binding.impl.module.MethodParametersNodeBinder" />
+				<binder node="method.declaration" classname="org.openl.binding.impl.module.MethodDeclarationNodeBinder" />
+				<binder node="var.declaration" classname="org.openl.binding.impl.module.VarDeclarationNodeBinder" />
+				<binder node="parameter.declaration" classname="org.openl.binding.impl.module.ParameterDeclarationNodeBinder" />
+
+				<binder node="block" classname="org.openl.binding.impl.BlockBinder" />
+				<binder node="op.binary" classname="org.openl.binding.impl.BinaryOperatorNodeBinder" />
+				<binder node="op.binary.and" classname="org.openl.binding.impl.BinaryOperatorAndNodeBinder" />
+				<binder node="op.binary.or" classname="org.openl.binding.impl.BinaryOperatorOrNodeBinder" />
+				<binder node="op.unary" classname="org.openl.binding.impl.UnaryOperatorNodeBinder" />
+				<binder node="op.prefix" classname="org.openl.binding.impl.PrefixOperatorNodeBinder" />
+				<binder node="op.suffix" classname="org.openl.binding.impl.SuffixOperatorNodeBinder" />
+				<binder node="op.assign" classname="org.openl.binding.impl.AssignOperatorNodeBinder" />
+				<binder node="op.new.object" classname="org.openl.binding.impl.NewNodeBinder" />
+				<binder node="op.new.array" classname="org.openl.binding.impl.NewArrayNodeBinder" />
+				<binder node="op.index" classname="org.openl.binding.impl.IndexNodeBinder" />
+
+
+				<binder node="local.var.declaration" classname="org.openl.binding.impl.LocalVarBinder" />
+				<binder node="type.declaration" classname="org.openl.binding.impl.TypeBinder" />
+				<binder node="type.cast" classname="org.openl.binding.impl.TypeCastBinder" />
+
+				<binder node="function" classname="org.openl.binding.impl.MethodNodeBinder" />
+				<binder node="identifier" classname="org.openl.binding.impl.IdentifierBinder" />
+				<binder node="chain" classname="org.openl.binding.impl.ChainBinder" />
+
+				<binder node="control.for" classname="org.openl.binding.impl.ForNodeBinder" />
+				<binder node="control.if" classname="org.openl.binding.impl.IfNodeBinder" />
+				<binder node="control.while" classname="org.openl.binding.impl.WhileNodeBinder" />
+				<binder node="control.return" classname="org.openl.binding.impl.ReturnNodeBinder" />
+			</bindings>
+
+			<libraries>
+				<library namespace="org.openl.operators">
+					<javalib classname="org.openl.binding.impl.Operators" />
+				</library>
+
+				<library namespace="org.openl.this">
+					<javalib classname="java.lang.Math" />
+				</library>
+			</libraries>
+
+
+			<typefactory name="java.factory" implementingClass="org.openl.types.java.JavaOpenFactory" />
+
+			<types>
+				<typelibrary namespace="org.openl.this">
+					<javatype classname="org.openl.types.java.JavaPrimitiveTypeLibrary" />
+					<javatype classname="org.openl.types.java.JavaLang" />
+					<javaimport>
+						<import>java.util</import>
+						<import>org.openl.j.util</import>
+					</javaimport>
+				</typelibrary>
+			</types>
+
+			<typecast>
+				<javacast libraryclassname="org.openl.binding.impl.Operators" classname="org.openl.binding.impl.ACastFactory" />
+			</typecast>
+
+		</openl>
+
+	</target>
+
+
+
+
+
+
+
+
+</project>

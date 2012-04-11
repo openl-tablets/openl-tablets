@@ -1,0 +1,54 @@
+<html>
+
+<head>
+<title>OpenL Tablets - Download</title>
+
+<!--#include virtual="header_includes.shtml" -->
+
+
+
+
+
+<body>
+<div id="leftbox">
+
+<!--#include virtual="menuleft.html" -->
+
+</div>
+
+
+<div id="centerbox">
+
+<table class="main" cellpadding="3"  width="90%">
+<tr>
+<td>
+
+<h1>Downloads</h1>
+
+<p>
+Stable versions of OpenL Tablets plugin available from the download area 
+of <a href="http://sourceforge.net/projects/openl-tablets">our project</a> on sourceforge.net 
+</p>
+
+<h2>Online Installation</h2>
+<p>
+The latest version is also available for online installation as <b>Remote Eclipse Site</b> from
+<a href="site">http://openl-tablets.sourceforge.net/site/</a>.  
+This version may be less stable than the ones released for download.
+</p>
+<p>
+The latest online version is 5.0.5 Build 34.
+<p/>
+
+<!--#include virtual="footer_includes.shtml" -->
+
+
+
+
+</td>
+</tr>
+</table>
+
+</div>
+</body>
+</html>

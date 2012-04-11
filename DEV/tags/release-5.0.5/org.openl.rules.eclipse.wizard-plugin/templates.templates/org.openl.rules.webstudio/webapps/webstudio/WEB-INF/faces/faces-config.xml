@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN" "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+
+<faces-config>
+
+  <application>
+    <view-handler>com.sun.facelets.FaceletViewHandler</view-handler>
+    <variable-resolver>org.springframework.web.jsf.DelegatingVariableResolver</variable-resolver>
+
+    <locale-config>
+      <default-locale>en</default-locale>
+      <supported-locale>en</supported-locale>
+    </locale-config>
+  </application>
+
+  <managed-bean>
+    <managed-bean-name>skinBean</managed-bean-name>
+    <managed-bean-class>org.openl.rules.webstudio.web.jsf.SkinBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+
+  <!-- Special date converter to suppress rich:calendar conversion errors -->
+  <converter>
+    <converter-id>org.openl.DateConverter</converter-id>
+    <converter-class>org.openl.rules.webstudio.web.jsf.DateConverter</converter-class>
+  </converter>
+
+  <!-- ====================================================================
+    This two rederers were added because of migrating to Tomahawk 1.1.3.
+    See http://wiki.apache.org/myfaces/Upgrading_to_Tomahawk_1.1.3
+    ===================================================================== -->
+  <render-kit>
+    <renderer>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>javax.faces.Button</renderer-type>
+      <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlButtonRenderer</renderer-class>
+    </renderer>
+
+    <renderer>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>javax.faces.Link</renderer-type>
+      <renderer-class>org.apache.myfaces.renderkit.html.jsf.ExtendedHtmlLinkRenderer</renderer-class>
+    </renderer>
+  </render-kit>
+
+</faces-config>

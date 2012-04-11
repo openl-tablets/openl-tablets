@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="no">
+
+  <bean id="securityProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+        <prop key="security.standalone.db.driver">org.hsqldb.jdbcDriver</prop>
+        <!-- prop key="security.standalone.db.url">jdbc:hsqldb:mem:webstudio</prop-->
+        <prop key="security.standalone.db.url">jdbc:hsqldb:hsql://localhost:9102/webstudiodb</prop>
+        <prop key="security.standalone.db.user">sa</prop>
+        <prop key="security.standalone.db.password" />
+        <prop key="security.standalone.db.schema" />
+        <prop key="security.standalone.db.hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+        <prop key="security.standalone.db.hibernate.show_sql">false</prop>
+        <prop key="security.standalone.db.hibernate.format_sql">false</prop>
+        <prop key="security.standalone.db.hibernate.use_sql_comments">false</prop>
+        <prop key="security.standalone.db.hibernate.batch_size">0</prop>
+        <prop key="security.standalone.db.hibernate.generate_statistics">true</prop>
+
+        <!--
+          Create tables automatically for HSQLDB.
+          You should set this property to empty string if you are using standalone DB
+          During development it is useful to set this property to "update"
+        -->
+        <prop key="security.standalone.db.hibernate.hbm2ddl.auto">create</prop>
+
+        <!--
+          Does database need to be filled at application startup
+        -->
+        <prop key="security.standalone.db.populateDatabase">true</prop>
+
+        <prop key="security.autoLogin">true</prop>
+      </props>
+    </property>
+  </bean>
+
+</beans>
