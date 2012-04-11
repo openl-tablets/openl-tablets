@@ -47,9 +47,6 @@
 							<outputDirectory>
 								${project.build.directory}/../lib
 							</outputDirectory>
-							<excludeArtifactIds>
-								junit
-							</excludeArtifactIds>
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>
 								true

@@ -9,7 +9,8 @@ Bundle-ClassPath:
  lib/asm-3.3.jar,
  lib/cglib-nodep-2.1_3.jar,
  lib/ehcache-core-2.5.1.jar,
- lib/slf4j-api-1.6.4.jar
+ lib/slf4j-api-1.6.4.jar,
+ lib/spring-test-3.1.1.RELEASE.jar
 Export-Package: 
  net.sf.cglib.asm,
  net.sf.cglib.asm.attrs,
@@ -80,6 +81,23 @@ Export-Package:
  org.objectweb.asm.signature,
  org.slf4j,
  org.slf4j.helpers,
- org.slf4j.spi
+ org.slf4j.spi,
+ org.springframework.mock.env,
+ org.springframework.mock.jndi,
+ org.springframework.mock.web,
+ org.springframework.mock.web.portlet,
+ org.springframework.test,
+ org.springframework.test.annotation,
+ org.springframework.test.context,
+ org.springframework.test.context.junit38,
+ org.springframework.test.context.junit4,
+ org.springframework.test.context.junit4.statements,
+ org.springframework.test.context.support,
+ org.springframework.test.context.testng,
+ org.springframework.test.context.transaction,
+ org.springframework.test.jdbc,
+ org.springframework.test.jpa,
+ org.springframework.test.util,
+ org.springframework.test.web
 Require-Bundle: org.openl.rules;visibility:=reexport
 

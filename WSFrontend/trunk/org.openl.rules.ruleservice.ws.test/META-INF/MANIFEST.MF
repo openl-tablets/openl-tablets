@@ -6,5 +6,6 @@ Bundle-Version: 5.9.3
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Require-Bundle: 
- org.openl.rules.ruleservice.ws.lib;bundle-version="5.8.1"
+ org.openl.rules.ruleservice.ws.lib,
+ org.openl.rules.ruleservice.ws
 Export-Package: org.openl.rules.ruleservice
