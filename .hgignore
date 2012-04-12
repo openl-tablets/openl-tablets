@@ -11,5 +11,8 @@ Eclipse/trunk/org.openl.rules.ruleservice.lib/lib
 Eclipse/trunk/org.openl.rules.ruleservice.ws.lib/lib
 Eclipse/trunk/org.openl.rules.webstudio.lib/lib
 POI/trunk/org.openl.lib.poi.dev/lib
+POI/trunk/org.openl.lib.poi.dev/bin
+POI/trunk/org.openl.lib.poi.dev.modified/bin
+STUDIO/trunk/org.openl.rules.webstudio/webapps/webstudio/WEB-INF/classes/**
 
 
