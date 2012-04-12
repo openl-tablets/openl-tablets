@@ -1,2 +1,15 @@
 syntax: glob
-target/**
+**/target
+DEV/trunk/org.openl.rules.ce/bin
+DEV/trunk/org.openl.rules.gen/bin
+DEV/trunk/org.openl.rules.test/bin
+DEV/trunk/org.openl.test/bin
+Eclipse/trunk/org.openl.lib/lib
+Eclipse/trunk/org.openl.poi.lib/lib
+Eclipse/trunk/org.openl.rules.repository.jcr.jackrabbit.lib/lib
+Eclipse/trunk/org.openl.rules.ruleservice.lib/lib
+Eclipse/trunk/org.openl.rules.ruleservice.ws.lib/lib
+Eclipse/trunk/org.openl.rules.webstudio.lib/lib
+POI/trunk/org.openl.lib.poi.dev/lib
+
+

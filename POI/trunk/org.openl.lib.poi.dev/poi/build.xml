@@ -1,0 +1,1014 @@
+<?xml version="1.0"?>
+<!-- 
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<!--
+    POI Build System.  Written by:
+
+        Glen Stampoultzis   glens at apache.org
+
+    Modified by:
+
+        Rainer Klute        klute@rainer-klute.de
+        Bruno Girin         brunogirin@gmail.com
+        Yegor Kozlov        yegor at apache.org
+
+    This build was tested with ant 1.6.2 although it will probably work with
+    other versions.  The following jar files should be available on the 
+    classpath when running ant:
+
+    LIBRARY         LOCATION
+    =======         ========
+    junit(3.8+)     http://www.junit.org
+
+    To build the documentation you will need to install forrest and set
+    the FORREST_HOME environment variable.  Forrest 0.5.1 required.
+
+    Since POI 3.5 you will need JDK 1.5 or newer to build POI. 
+
+    Some people may find the tests hang when run through Ant. If this
+    happens to you, try giving Ant some more memory when you run it, eg:
+          ANT_OPTS="-Xmx1024m -XX:MaxPermSize=256m" ant test
+
+ -->
+<project name="POI Build" default="help" basedir="." xmlns:mvn="antlib:org.apache.maven.artifact.ant">
+
+    <description>The Apache POI project Ant build.</description>
+
+    <property name="version.id" value="3.7"/>
+
+    <property environment="env"/>
+    <!-- the repository to download jars from -->
+    <property name="repository.m2" value="http://repo1.maven.org"/>
+
+    <property name="main.lib" location="lib"/>
+    <property name="ooxml.lib" location="ooxml-lib"/>
+    <property name="forrest.home" value="${env.FORREST_HOME}"/>
+
+    <!-- compiler options options -->
+    <property name="jdk.version.source" value="1.5" description="JDK version of source code"/>
+    <property name="jdk.version.class" value="1.5" description="JDK version of generated class files"/>
+    <property name="compile.debug" value="true"/>
+
+    <!-- issue warnings if source code contains unmappable characters for encoding ASCII  -->
+    <property name="java.source.encoding" value="ASCII"/>
+
+    <!--
+      JVM system properties for running tests,
+      user.language and user.country are required as we have locale-sensitive formatters
+    -->
+    <property name="poi.test.locale" value="-Duser.language=en -Duser.country=US"/>
+    <property name="POI.testdata.path" value="test-data"/>
+    <property name="java.awt.headless" value="true"/>
+    
+    <!-- Main: -->
+    <property name="main.resource1.dir" value="src/resources/main"/>
+    <property name="main.src" location="src/java"/>
+    <property name="main.src.test" location="src/testcases"/>
+    <property name="main.documentation" value="src/documentation"/>
+    <property name="main.output.dir" location="build/classes"/>
+    <property name="main.output.test.dir" location="build/test-classes"/>
+    <property name="main.reports.test" location="build/test-results"/>
+    <property name="main.testokfile" location="build/main-testokfile.txt"/>
+
+    <!-- Scratchpad: -->
+    <property name="scratchpad.resource1.dir" value="src/resources/scratchpad"/>
+    <property name="scratchpad.src" location="src/scratchpad/src"/>
+    <property name="scratchpad.src.test" location="src/scratchpad/testcases"/>
+    <property name="scratchpad.reports.test" location="build/scratchpad-test-results"/>
+    <property name="scratchpad.output.dir" location="build/scratchpad-classes"/>
+    <property name="scratchpad.output.test.dir" location="build/scratchpad-test-classes"/>
+    <property name="scratchpad.testokfile" location="build/scratchpad-testokfile.txt"/>
+
+    <!-- Examples: -->
+    <property name="examples.src" location="src/examples/src"/>
+    <property name="examples.output.dir" location="build/examples-classes"/>
+
+    <!-- OOXML support: -->
+    <property name="ooxml.src" location="src/ooxml/java"/>
+    <property name="ooxml.src.test" location="src/ooxml/testcases"/>
+    <property name="ooxml.reports.test" location="build/ooxml-test-results"/>
+    <property name="ooxml.output.dir" location="build/ooxml-classes"/>
+    <property name="ooxml.output.test.dir" location="build/ooxml-test-classes"/>
+    <property name="ooxml.testokfile" location="build/ooxml-testokfile.txt"/>
+    <property name="ooxml.lite.output.dir" location="build/ooxml-lite-classes"/>
+
+    <!-- jars in the /lib directory, see the fetch-jars target-->
+    <property name="main.commons-logging.jar" location="${main.lib}/commons-logging-1.1.jar"/>
+    <property name="main.commons-logging.url"
+              value="${repository.m2}/maven2/commons-logging/commons-logging/1.1/commons-logging-1.1.jar"/>
+    <property name="main.log4j.jar" location="${main.lib}/log4j-1.2.13.jar"/>
+    <property name="main.log4j.url" value="${repository.m2}/maven2/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+    <property name="main.junit.jar" location="${main.lib}/junit-3.8.1.jar"/>
+    <property name="main.junit.url" value="${repository.m2}/maven2/junit/junit/3.8.1/junit-3.8.1.jar"/>
+
+    <!-- jars in the lib-ooxml directory, see the fetch-ooxml-jars target-->
+    <property name="ooxml.dom4j.jar" location="${ooxml.lib}/dom4j-1.6.1.jar"/>
+    <property name="ooxml.dom4j.url" value="${repository.m2}/maven2/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
+    <property name="ooxml.xmlbeans.jar" location="${ooxml.lib}/xmlbeans-2.3.0.jar"/>
+    <property name="ooxml.xmlbeans.url"
+              value="${repository.m2}/maven2/org/apache/xmlbeans/xmlbeans/2.3.0/xmlbeans-2.3.0.jar"/>
+    <property name="ooxml.jsr173.jar" location="${ooxml.lib}/geronimo-stax-api_1.0_spec-1.0.jar"/>
+    <property name="ooxml.jsr173.url"
+              value="${repository.m2}/maven2/org/apache/geronimo/specs/geronimo-stax-api_1.0_spec/1.0/geronimo-stax-api_1.0_spec-1.0.jar"/>
+
+    <!-- See http://www.ecma-international.org/publications/standards/Ecma-376.htm -->
+    <!-- "Copy these file(s), free of charge" -->
+    <property name="ooxml.xsds.ozip" location="${ooxml.lib}/OfficeOpenXML-Part4.zip"/>
+    <property name="ooxml.xsds.izip" location="${ooxml.lib}/OfficeOpenXML-XMLSchema.zip"/>
+    <property name="ooxml.xsds.url"
+              value="http://www.ecma-international.org/publications/files/ECMA-ST/Office%20Open%20XML%201st%20edition%20Part%204%20(PDF).zip"/>
+    <property name="ooxml.xsds.src.dir" location="build/ooxml-xsds-src"/>
+    <property name="ooxml.xsds.src.jar" location="${ooxml.lib}/ooxml-schemas-src-1.1.jar"/>
+    <property name="ooxml.xsds.jar" location="${ooxml.lib}/ooxml-schemas-1.1.jar"/>
+
+    <property name="maven.ooxml.xsds.version.id" value="1.0"/>
+    <property name="maven.ooxml.xsds.jar" value="ooxml-schemas-${maven.ooxml.xsds.version.id}.jar"/>
+
+    <!-- build and distro settings -->
+    <property name="jar.name" value="poi"/>
+    <property name="build.site" location="build/tmp/site/build/site"/>
+    <property name="build.site.src" location="build/tmp/site"/>
+    <property name="apidocs.report.dir" location="${build.site}/apidocs"/>
+    <property name="dist.dir" location="build/dist"/>
+    <property name="halt.on.test.failure" value="true"/>
+
+    <propertyset id="junit.properties">
+        <propertyref name="POI.testdata.path"/>
+        <propertyref name="java.awt.headless"/>
+    </propertyset>
+
+    <path id="main.classpath">
+        <fileset dir="${main.lib}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="scratchpad.classpath">
+        <path refid="main.classpath"/>
+        <pathelement location="${main.output.dir}"/>
+    </path>
+
+    <path id="ooxml.classpath">
+        <pathelement location="${ooxml.jsr173.jar}"/>
+        <pathelement location="${ooxml.dom4j.jar}"/>
+        <pathelement location="${ooxml.xmlbeans.jar}"/>
+        <pathelement location="${ooxml.xsds.jar}"/>
+        <path refid="main.classpath"/>
+        <pathelement location="${main.output.dir}"/>
+        <pathelement location="${scratchpad.output.dir}"/>
+    </path>
+
+    <path id="test.classpath">
+        <path refid="main.classpath"/>
+        <pathelement location="${main.output.dir}"/>
+        <pathelement location="${main.output.test.dir}"/>
+    </path>
+
+    <path id="test.scratchpad.classpath">
+        <path refid="scratchpad.classpath"/>
+        <pathelement location="${main.output.test.dir}"/>
+        <pathelement location="${scratchpad.output.dir}"/>
+        <pathelement location="${scratchpad.output.test.dir}"/>
+    </path>
+
+    <path id="test.ooxml.classpath">
+        <path refid="ooxml.classpath"/>
+        <pathelement location="${ooxml.output.dir}"/>
+        <pathelement location="${ooxml.output.test.dir}"/>
+        <pathelement location="${main.output.test.dir}"/>
+    </path>
+
+    <path id="ooxml-lite.classpath">
+        <pathelement location="${ooxml.jsr173.jar}"/>
+        <pathelement location="${ooxml.dom4j.jar}"/>
+        <pathelement location="${ooxml.xmlbeans.jar}"/>
+        <pathelement location="build/ooxml-xsds-lite"/> <!-- instead of ooxml-xsds.jar use the filtered classes-->
+        <path refid="main.classpath"/>
+        <pathelement location="${main.output.dir}"/>
+        <pathelement location="${scratchpad.output.dir}"/>
+        <path refid="ooxml.classpath"/>
+        <pathelement location="${ooxml.output.dir}"/>
+        <pathelement location="${ooxml.output.test.dir}"/>
+        <pathelement location="${main.output.test.dir}"/>
+    </path>
+
+
+    <path id="examples.classpath">
+        <path refid="main.classpath"/>
+        <pathelement location="${main.output.dir}"/>
+        <pathelement location="${scratchpad.output.dir}"/>
+    </path>
+
+
+    <!-- Prints POI's Ant usage help -->
+    <target name="help" description="Prints Apache POI's Ant usage help">
+      <echo>
+  This is POI ${version.id}
+  Java Version ${ant.java.version}      
+  Timestamp ${DSTAMP}
+  The main targets of interest are:
+    - clean       Erase all build work products (ie. everything in the build directory)
+    - compile     Compile all files from main, ooxml and scratchpad
+    - test        Run all unit tests from main, ooxml and scratchpad
+    - jar         Produce jar files
+    - site        Generate all documentation (Requires Apache Forrest)
+    - dist        Create a distribution (Requires Apache Forrest)
+        </echo>
+    </target>
+
+    <tstamp>
+        <format property="tstamp.year" pattern="yyyy"/>
+    </tstamp>
+
+    <target name="init" depends="fetch-jars,fetch-ooxml-jars">
+        <mkdir dir="build"/>
+        <mkdir dir="${main.output.dir}"/>
+        <mkdir dir="${main.output.test.dir}"/>
+        <mkdir dir="${main.reports.test}"/>
+        <mkdir dir="${scratchpad.output.dir}"/>
+        <mkdir dir="${scratchpad.output.test.dir}"/>
+        <mkdir dir="${scratchpad.reports.test}"/>
+        <mkdir dir="${ooxml.output.dir}"/>
+        <mkdir dir="${ooxml.output.test.dir}"/>
+        <mkdir dir="${ooxml.reports.test}"/>
+        <mkdir dir="${examples.output.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${build.site}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="testexist">
+        <echo message="Testing  for ${destfile}" level="debug"/>
+        <available file="${destfile}" property="exist"/>
+    </target>
+    <target name="downloadfile" unless="exist" depends="testexist">
+        <get src="${sourcefile}" dest="${destfile}"/>
+    </target>
+
+    <target name="check-jars">
+        <condition property="jars.present">
+            <or>
+                <and>
+                    <available file="${main.commons-logging.jar}"/>
+                    <available file="${main.log4j.jar}"/>
+                    <available file="${main.junit.jar}"/>
+                </and>
+                <isset property="disconnected"/>
+            </or>
+        </condition>
+    </target>
+
+    <target name="fetch-jars" depends="check-jars" unless="jars.present"
+            description="Fetches needed JAR files from the Internet">
+        <mkdir dir="${main.lib}"/>
+        <antcall target="downloadfile">
+            <param name="sourcefile" value="${main.commons-logging.url}"/>
+            <param name="destfile" value="${main.commons-logging.jar}"/>
+        </antcall>
+        <antcall target="downloadfile">
+            <param name="sourcefile" value="${main.log4j.url}"/>
+            <param name="destfile" value="${main.log4j.jar}"/>
+        </antcall>
+        <antcall target="downloadfile">
+            <param name="sourcefile" value="${main.junit.url}"/>
+            <param name="destfile" value="${main.junit.jar}"/>
+        </antcall>
+    </target>
+
+    <target name="check-ooxml-jars">
+        <condition property="ooxml.jars.present">
+            <or>
+                <and>
+                    <available file="${ooxml.dom4j.jar}"/>
+                    <available file="${ooxml.xmlbeans.jar}"/>
+                    <available file="${ooxml.jsr173.jar}"/>
+                    <available file="${ooxml.xsds.jar}"/>
+                </and>
+                <isset property="disconnected"/>
+            </or>
+        </condition>
+    </target>
+    <target name="fetch-ooxml-jars" depends="check-ooxml-jars" unless="ooxml.jars.present">
+        <mkdir dir="${ooxml.lib}"/>
+        <antcall target="downloadfile">
+            <param name="sourcefile" value="${ooxml.dom4j.url}"/>
+            <param name="destfile" value="${ooxml.dom4j.jar}"/>
+        </antcall>
+        <antcall target="downloadfile">
+            <param name="sourcefile" value="${ooxml.xmlbeans.url}"/>
+            <param name="destfile" value="${ooxml.xmlbeans.jar}"/>
+        </antcall>
+        <antcall target="downloadfile">
+            <param name="sourcefile" value="${ooxml.jsr173.url}"/>
+            <param name="destfile" value="${ooxml.jsr173.jar}"/>
+        </antcall>
+    </target>
+
+    <target name="check-ooxml-xsds">
+        <condition property="ooxml-xsds.present">
+            <or>
+                <and>
+                    <available file="${ooxml.xsds.izip}"/>
+                </and>
+                <isset property="disconnected"/>
+            </or>
+        </condition>
+    </target>
+    <target name="fetch-ooxml-xsds" unless="ooxml-xsds.present"
+            depends="check-ooxml-xsds"
+            description="Fetches needed OOXML xsd files from the Internet">
+        <get src="${ooxml.xsds.url}" dest="${ooxml.xsds.ozip}"/>
+        <unzip src="${ooxml.xsds.ozip}" dest="${ooxml.lib}">
+            <patternset>
+                <include name="OfficeOpenXML-XMLSchema.zip"/>
+            </patternset>
+        </unzip>
+    </target>
+    <target name="check-compiled-ooxml-xsds" depends="fetch-ooxml-xsds">
+        <condition property="ooxml-compiled-xsds.present">
+            <or>
+                <and>
+                    <available file="${ooxml.xsds.jar}"/>
+                </and>
+                <isset property="disconnected"/>
+            </or>
+        </condition>
+    </target>
+    <target name="compile-ooxml-xsds" unless="ooxml-compiled-xsds.present"
+            depends="check-jars,fetch-jars,check-compiled-ooxml-xsds"
+            description="Unpacks the OOXML xsd files, and compiles them into XmlBeans">
+        <property name="ooxml.xsds.tmp.dir" location="build/ooxml-xsds"/>
+        <mkdir dir="${ooxml.xsds.tmp.dir}"/>
+
+        <taskdef name="xmlbean"
+                 classname="org.apache.xmlbeans.impl.tool.XMLBean"
+                 classpath="${ooxml.xmlbeans.jar}:${ooxml.jsr173.jar}"/>
+
+        <!-- We need a fair amount of memory to compile the xml schema, -->
+        <!--  but limit it in case it goes wrong! -->
+        <!-- Pick the right amount based on 32 vs 64 bit jvm -->
+        <condition property="ooxml.memory" value="768m" else="512m">
+           <equals arg1="${sun.arch.data.model}" arg2="64" />
+        </condition>
+
+        <unzip src="${ooxml.xsds.izip}" dest="${ooxml.xsds.tmp.dir}"/>
+        <!--
+              schema="build/ooxml-xsds/"
+              schema="build/ooxml-xsds/sml-workbook.xsd"
+          -->
+        <xmlbean
+                schema="${ooxml.xsds.tmp.dir}"
+                srcgendir="${ooxml.xsds.src.dir}"
+                optimize="yes"
+                destfile="${ooxml.xsds.jar}"
+                javasource="1.5"
+                failonerror="true"
+                fork="true"
+                memoryMaximumSize="${ooxml.memory}"
+                >
+            <classpath refid="ooxml.classpath"/>
+        </xmlbean>
+
+        <!-- Now make a jar of the schema sources -->
+        <jar
+                basedir="${ooxml.xsds.src.dir}"
+                destfile="${ooxml.xsds.src.jar}"
+                />
+    </target>
+
+    <target name="compile" depends="init, compile-main,
+    compile-scratchpad, compile-examples"
+            description="Compiles the POI main classes, scratchpad and examples"/>
+
+    <target name="compile-all" depends="compile,compile-ooxml-lite"/>
+
+    <target name="compile-main">
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${main.output.dir}"
+               srcdir="${main.src}"
+               debug="${compile.debug}"
+               encoding="${java.source.encoding}"
+               fork="yes">
+            <classpath refid="main.classpath"/>
+        </javac>
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${main.output.test.dir}"
+               srcdir="${main.src.test}"
+               debug="${compile.debug}"
+               encoding="${java.source.encoding}"
+               fork="yes">
+            <classpath>
+                <path refid="main.classpath"/>
+                <pathelement path="${main.output.dir}"/>
+            </classpath>
+        </javac>
+        <copy todir="${main.output.dir}">
+            <fileset dir="${main.resource1.dir}"/>
+        </copy>
+    </target>
+
+    <target name="compile-scratchpad" depends="compile-main">
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${scratchpad.output.dir}"
+               srcdir="${scratchpad.src}"
+               debug="${compile.debug}"
+               encoding="${java.source.encoding}"
+               fork="yes">
+            <classpath refid="scratchpad.classpath"/>
+        </javac>
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${scratchpad.output.test.dir}"
+               srcdir="${scratchpad.src.test}"
+               debug="${compile.debug}"
+               encoding="${java.source.encoding}"
+               fork="yes">
+            <classpath>
+                <path refid="scratchpad.classpath"/>
+                <pathelement location="${scratchpad.output.dir}"/>
+                <pathelement location="${main.output.test.dir}"/>
+            </classpath>
+        </javac>
+        <copy todir="${scratchpad.output.dir}">
+            <fileset dir="${scratchpad.resource1.dir}"/>
+        </copy>
+    </target>
+
+    <target name="compile-examples" depends="compile-main,compile-scratchpad,compile-ooxml">
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${examples.output.dir}"
+               srcdir="${examples.src}"
+               debug="${compile.debug}"
+               encoding="${java.source.encoding}"
+               fork="yes">
+            <classpath>
+                <path refid="ooxml.classpath"/>
+                <pathelement path="${ooxml.output.dir}"/>
+            </classpath>
+        </javac>
+        <copy todir="${examples.output.dir}">
+          <fileset dir="${examples.src}">
+            <include name="**/*.css"/>
+          </fileset>
+        </copy>
+    </target>
+
+    <target name="compile-ooxml" depends="compile-main,compile-scratchpad,compile-ooxml-xsds">
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${ooxml.output.dir}"
+               srcdir="${ooxml.src}"
+               encoding="${java.source.encoding}"
+               debug="${compile.debug}">
+            <classpath refid="ooxml.classpath"/>
+        </javac>
+        <javac target="${jdk.version.class}"
+               source="${jdk.version.source}"
+               destdir="${ooxml.output.test.dir}"
+               srcdir="${ooxml.src.test}"
+               debug="${compile.debug}"
+               encoding="${java.source.encoding}"
+               fork="yes">
+            <classpath>
+                <path refid="ooxml.classpath"/>
+                <pathelement path="${ooxml.output.dir}"/>
+                <pathelement path="${main.output.test.dir}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="compile-version" depends="init"
+            description="Compiles the version class">
+        <!-- Generate the .java file -->
+        <property name="version.java" value="${main.output.dir}/org/apache/poi/Version.java"/>
+        <delete file="${version.java}"/>
+        <copy
+                file="src/resources/version/Version.java.template"
+                tofile="${version.java}">
+            <filterset>
+                <filter token="VERSION" value="${version.id}"/>
+                <filter token="DSTAMP" value="${DSTAMP}"/>
+            </filterset>
+        </copy>
+
+        <!-- Compile -->
+        <javac target="${jdk.version.class}" source="${jdk.version.source}"
+               failonerror="true" destdir="${main.output.dir}" debug="on" fork="yes"
+               srcdir="${main.output.dir}"
+               encoding="${java.source.encoding}">
+        </javac>
+        <!-- Tidy up -->
+        <delete file="${version.java}"/>
+    </target>
+
+    <target name="test" depends="compile,test-main,test-scratchpad,test-ooxml"
+            description="Tests main, scratchpad and ooxml"/>
+    <target name="test-all" depends="test,test-ooxml-lite"/>
+
+    <target name="-test-main-check">
+        <uptodate property="main.test.notRequired" targetfile="${main.testokfile}">
+            <srcfiles dir="${main.src}"/>
+            <srcfiles dir="${main.src.test}"/>
+        </uptodate>
+    </target>
+
+    <target name="test-main" unless="main.test.notRequired"
+            depends="compile-main, -test-main-check">
+        <junit fork="yes" forkmode="once" printsummary="yes" haltonfailure="${halt.on.test.failure}"
+               failureproperty="main.test.failed" showoutput="true">
+            <classpath refid="test.classpath"/>
+            <syspropertyset refid="junit.properties"/>
+            <jvmarg value="${poi.test.locale}"/>
+            <formatter type="plain"/>
+            <batchtest todir="${main.reports.test}">
+                <fileset dir="${main.src.test}">
+                    <include name="**/Test*.java"/>
+                    <exclude name="**/All*Tests.java"/>
+                    <exclude name="**/TestUnfixedBugs.java"/>
+                    <exclude name="**/TestcaseRecordInputStream.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <delete file="${main.testokfile}"/>
+        <antcall target="-test-main-write-testfile"/>
+    </target>
+
+    <target name="-test-property-check" unless="testcase">
+        <echo message="Please use -Dtestcase=org.your.testcase to run a single test"/>
+        <fail/>
+    </target>
+
+    <target name="-test-main-write-testfile" unless="main.test.failed">
+        <echo file="${main.testokfile}" append="false" message="testok"/>
+    </target>
+
+    <target name="-test-scratchpad-check">
+        <uptodate property="scratchpad.test.notRequired" targetfile="${scratchpad.testokfile}">
+            <srcfiles dir="${scratchpad.src}"/>
+            <srcfiles dir="${scratchpad.src.test}"/>
+        </uptodate>
+    </target>
+
+    <target name="test-scratchpad" depends="compile-main,compile-scratchpad,-test-scratchpad-check"
+            unless="scratchpad.test.notRequired">
+        <junit printsummary="yes" fork="yes" forkmode="once" haltonfailure="${halt.on.test.failure}"
+               failureproperty="scratchpad.test.failed">
+            <classpath refid="test.scratchpad.classpath"/>
+            <syspropertyset refid="junit.properties"/>
+            <jvmarg value="${poi.test.locale}"/>
+            <formatter type="plain"/>
+            <batchtest todir="${scratchpad.reports.test}">
+                <fileset dir="${scratchpad.src.test}">
+                    <include name="**/Test*.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <delete file="${scratchpad.testokfile}"/>
+        <antcall target="-test-scratchpad-write-testfile"/>
+    </target>
+
+    <target name="-test-scratchpad-write-testfile" unless="scratchpad.test.failed">
+        <echo file="${scratchpad.testokfile}" append="false" message="testok"/>
+    </target>
+
+    <target name="-test-ooxml-check">
+        <uptodate property="ooxml.test.notRequired" targetfile="${ooxml.testokfile}">
+            <srcfiles dir="${ooxml.src}"/>
+            <srcfiles dir="${ooxml.src.test}"/>
+        </uptodate>
+    </target>
+
+    <macrodef name="ooxml-test-runner">    
+        <attribute name="classpath"/>
+        <sequential>
+          <junit printsummary="yes" fork="yes" forkmode="once" haltonfailure="${halt.on.test.failure}"
+                 failureproperty="ooxml.test.failed">
+              <classpath refid="@{classpath}"/>
+              <syspropertyset refid="junit.properties"/>
+              <jvmarg value="${poi.test.locale}"/>
+              <formatter type="plain"/>
+              <batchtest todir="${ooxml.reports.test}">
+                  <fileset dir="${ooxml.src.test}">
+                      <include name="**/Test*.java"/>
+                      <exclude name="**/All*Tests.java"/>
+                  </fileset>
+              </batchtest>
+          </junit>
+        </sequential>
+    </macrodef>    
+
+    <target name="test-ooxml" depends="compile-main,compile-ooxml,-test-ooxml-check" unless="ooxml.test.notRequired">
+        <ooxml-test-runner classpath="test.ooxml.classpath"/>
+        <delete file="${ooxml.testokfile}"/>
+        <antcall target="-test-ooxml-write-testfile"/>
+    </target>
+
+    <target name="-test-ooxml-write-testfile" unless="ooxml.test.failed">
+        <echo file="${ooxml.testokfile}" append="false" message="testok"/>
+    </target>
+
+    <target name="compile-ooxml-lite" depends="compile-ooxml">
+        <java classname="org.apache.poi.util.OOXMLLite" fork="yes">
+            <classpath refid="test.ooxml.classpath"/>
+            <syspropertyset refid="junit.properties"/>
+            <jvmarg value="${poi.test.locale}"/>
+            <arg line="-ooxml ${ooxml.xsds.jar} -test ${ooxml.output.test.dir} -dest ${ooxml.lite.output.dir}"/>
+        </java>
+    </target>
+
+    <target name="test-ooxml-lite">
+        <delete file="${ooxml.testokfile}"/>
+        <echo message="Running ooxml tests against 'poi-ooxml-schemas'"/>
+        <ooxml-test-runner classpath="ooxml-lite.classpath"/>
+    </target>
+    
+    <target name="-check-docs">
+        <uptodate property="main.docs.notRequired" targetfile="${build.site}/index.html">
+            <srcfiles dir="${build.site.src}"/>
+        </uptodate>
+    </target>
+
+    <target name="-check-forrest-installed" unless="env.FORREST_HOME">
+        <echo>Please install Apache Forrest (see
+            &lt;http://forrest.apache.org/index.html&gt;) and set the
+            FORREST_HOME environment variable!
+        </echo>
+        <fail message="Apache Forrest is not installed."/>
+    </target>
+
+    <target name="docs" depends="init, -check-forrest-installed, -check-docs"
+            unless="main.docs.notRequired" description="Builds the POI website">
+
+        <mkdir dir="${build.site.src}/${main.documentation}"/>
+        <copy todir="${build.site.src}/${main.documentation}">
+            <fileset dir="${main.documentation}"/>
+        </copy>
+        <copy file="forrest.properties" tofile="${build.site.src}/forrest.properties"/>
+
+        <move
+                file="${build.site.src}/src/documentation/content/xdocs/status.xml"
+                tofile="${build.site.src}/status.xml"/>
+
+        <ant antfile="${env.FORREST_HOME}/forrest.antproxy.xml" target="site">
+            <property name="project.home" location="${build.site.src}"/>
+        </ant>
+
+        <echo>Broken links:</echo>
+        <echo file="${build.site}/../tmp/brokenlinks.txt"/>
+
+        <touch>
+            <fileset dir="${build.site}"/>
+        </touch>
+    </target>
+
+    <!-- Generates the API documentation. -->
+    <target name="javadocs"
+            description="Generates the API documentation">
+        <javadoc verbose="false" author="true" destdir="${apidocs.report.dir}"
+                 windowtitle="POI API Documentation" use="true" version="true" maxmemory="256M">
+
+            <packageset dir="${main.src}" defaultexcludes="yes">
+                <include name="org/apache/poi/**"/>
+            </packageset>
+            <packageset dir="${scratchpad.src}" defaultexcludes="yes">
+                <include name="org/apache/poi/**"/>
+                <exclude name="org/apache/poi/hdf/**"/>
+            </packageset>
+            <packageset dir="${ooxml.src}" defaultexcludes="yes">
+                <include name="org/apache/poi/**"/>
+            </packageset>
+
+            <classpath id="javadoc.classpath">
+                <path refid="main.classpath"/>
+                <path refid="scratchpad.classpath"/>
+                <path refid="ooxml.classpath"/>
+                <path path="${env.CLASSPATH}"/>
+            </classpath>
+
+            <doctitle><![CDATA[<h1>POI API Documentation</h1>]]></doctitle>
+            <bottom>
+                <![CDATA[<i>Copyright ${tstamp.year} The Apache Software Foundation or
+        its licensors, as applicable.</i>]]>
+            </bottom>
+            <group>
+                <title>DDF - Dreadful Drawing Format</title>
+                <package name="org.apache.poi.ddf*"/>
+            </group>
+            <group>
+                <title>HPSF - Horrible Property Set Format</title>
+                <package name="org.apache.poi.hpsf*"/>
+            </group>
+            <group>
+                <title>HSSF - Horrible Spreadsheet Format</title>
+                <package name="org.apache.poi.hssf*"/>
+            </group>
+            <group>
+                <title>HWPF - Horrible Word Processor Format</title>
+                <package name="org.apache.poi.hwpf*"/>
+            </group>
+            <group>
+                <title>POIFS - POI File System</title>
+                <package name="org.apache.poi.poifs*"/>
+            </group>
+            <group>
+                <title>Utilities</title>
+                <package name="org.apache.poi.util*"/>
+            </group>
+            <group>
+                <title>Examples</title>
+                <package name="org.apache.poi.hpsf.examples*"/>
+                <package name="org.apache.poi.hssf.usermodel.examples*"/>
+            </group>
+        </javadoc>
+
+    </target>
+
+
+    <!-- Generates documentation and reports -->
+    <target name="site" depends="docs,javadocs"
+            description="Generates POI's website's contents"/>
+
+
+    <target name="maven-poms"
+            description="Builds the POM files for a maven distribution, and copies these and the jars to the appropriate locations">
+
+        <!-- Build the org.apache.poi poms -->
+        <copy file="maven/poi.pom" tofile="${dist.dir}/poi-${version.id}.pom">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${version.id}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <copy file="maven/poi-scratchpad.pom" tofile="${dist.dir}/poi-scratchpad-${version.id}.pom">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${version.id}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <copy file="maven/poi-ooxml.pom" tofile="${dist.dir}/poi-ooxml-${version.id}.pom">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${version.id}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <copy file="maven/poi-examples.pom" tofile="${dist.dir}/poi-examples-${version.id}.pom">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${version.id}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <copy file="maven/poi-ooxml-schemas.pom" tofile="${dist.dir}/poi-ooxml-schemas-${version.id}.pom">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${version.id}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <copy file="maven/mvn-deploy.sh" todir="${dist.dir}">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${version.id}"/>
+                    <token key="DSTAMP" value="${DSTAMP}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <echo>Maven POMs are located in ${dist.dir}</echo>
+        <echo>Use mvn-deploy.sh to deploy the artifacts in the remote repository</echo>
+    </target>
+
+    <target name="jar" depends="compile-all, compile-version" description="Creates jar files for distribution">
+        <manifest file="build/poi-manifest.mf">
+            <attribute name="Built-By" value="${user.name}"/>
+            <attribute name="Specification-Title" value="Apache POI"/>
+            <attribute name="Specification-Version" value="${version.id}"/>
+            <attribute name="Specification-Vendor" value="The Apache Software Foundation"/>
+            <attribute name="Implementation-Title" value="Apache POI"/>
+            <attribute name="Implementation-Version" value="${version.id}"/>
+            <attribute name="Implementation-Vendor-Id" value="org.apache.poi"/>
+            <attribute name="Implementation-Vendor" value="The Apache Software Foundation"/>
+        </manifest>
+        <jar destfile="${dist.dir}/${jar.name}-${version.id}-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${main.output.dir}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-scratchpad-${version.id}-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${scratchpad.output.dir}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-ooxml-${version.id}-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${ooxml.output.dir}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-examples-${version.id}-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${examples.output.dir}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-ooxml-schemas-${version.id}-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${ooxml.lite.output.dir}"/>
+            <metainf dir="legal/"/>
+        </jar>
+    </target>
+
+    <target name="jar-src" description="Sources for Maven">
+        <jar destfile="${dist.dir}/${jar.name}-${version.id}-sources-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${main.src}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-scratchpad-${version.id}-sources-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${scratchpad.src}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-ooxml-${version.id}-sources-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${ooxml.src}"/>
+            <metainf dir="legal/"/>
+        </jar>
+        <jar destfile="${dist.dir}/${jar.name}-examples-${version.id}-sources-${DSTAMP}.jar"
+             manifest="build/poi-manifest.mf">
+            <fileset dir="${examples.src}"/>
+            <metainf dir="legal/"/>
+        </jar>
+    </target>
+
+    <target name="assemble" depends="jar,jar-src">
+         <!-- jars to include in binary assemblies -->         
+         <patternset id="bin.dist.jars">
+            <include name="${jar.name}-${version.id}-${DSTAMP}.jar"/>
+            <include name="${jar.name}-scratchpad-${version.id}-${DSTAMP}.jar"/>
+            <include name="${jar.name}-ooxml-${version.id}-${DSTAMP}.jar"/>
+            <include name="${jar.name}-examples-${version.id}-${DSTAMP}.jar"/>
+            <include name="${jar.name}-ooxml-schemas-${version.id}-${DSTAMP}.jar"/>
+         </patternset>  
+
+        <!-- patterns to exclude from source assemblies -->         
+        <patternset id="src.dist.patterns"
+            excludes="build/**,
+                      maven/**,
+                      lib/**,
+                      ooxml-lib/**,
+                      scripts/**,
+                      TEST*,
+                      *.ipr,
+                      *.iml,
+                      *.iws,
+                      *.lnk,
+                      *.rdf,
+                      *.swp,
+                      .settings/**,
+                      .classpath,
+                      .settings/**,
+                      .project"/>
+         
+        <property name="zipdir" value="${jar.name}-${version.id}"/>
+
+        <zip destfile="${dist.dir}/${jar.name}-bin-${version.id}-${DSTAMP}.zip">
+            <zipfileset dir="legal/" prefix="${zipdir}"/>
+            <zipfileset dir="${main.lib}" prefix="${zipdir}/lib" includes="*.jar"/>
+            <zipfileset dir="${ooxml.lib}" prefix="${zipdir}/ooxml-lib">
+              <include name="dom4j-*.jar"/>
+              <include name="geronimo-stax-*.jar"/>
+              <include name="xmlbeans-*.jar"/>
+            </zipfileset>
+            <zipfileset dir="${dist.dir}" prefix="${zipdir}">
+                <patternset refid="bin.dist.jars"/>
+            </zipfileset>
+            <zipfileset dir="${build.site}" prefix="${zipdir}/docs"/>
+        </zip>
+
+        <zip destfile="${dist.dir}/${jar.name}-src-${version.id}-${DSTAMP}.zip">
+            <zipfileset dir="legal/" prefix="${zipdir}" />
+            <zipfileset dir="${build.site}" prefix="${zipdir}/docs"/>
+            <zipfileset dir="." prefix="${zipdir}">
+                <patternset refid="src.dist.patterns"/>
+            </zipfileset>
+        </zip>
+        
+        <tar destfile="${dist.dir}/${jar.name}-bin-${version.id}-${DSTAMP}.tar.gz"
+               longfile="gnu"
+               compression="gzip">
+            <tarfileset dir="legal/" prefix="${zipdir}"/>
+            <tarfileset dir="${main.lib}" prefix="${zipdir}/lib" includes="*.jar"/>
+            <tarfileset dir="${ooxml.lib}" prefix="${zipdir}/ooxml-lib">
+              <include name="dom4j-*.jar"/>
+              <include name="geronimo-stax-*.jar"/>
+              <include name="xmlbeans-*.jar"/>
+            </tarfileset>
+            <tarfileset dir="${build.site}" prefix="${zipdir}/docs"/>
+            <tarfileset dir="${dist.dir}" prefix="${zipdir}">
+                <patternset refid="bin.dist.jars"/>
+            </tarfileset>
+        </tar>
+
+        <tar destfile="${dist.dir}/${jar.name}-src-${version.id}-${DSTAMP}.tar.gz"
+             longfile="gnu"
+             compression="gzip">
+            <tarfileset dir="legal/" prefix="${zipdir}" />
+            <tarfileset dir="${build.site}" prefix="${zipdir}/docs"/>
+            <tarfileset dir="." prefix="${zipdir}">
+                <patternset refid="src.dist.patterns"/>
+            </tarfileset>
+        </tar>
+         
+        <!-- script to create signatures and hashes -->
+        <copy file="maven/multisign.sh" todir="${dist.dir}"/>
+
+        <echo>Creating Maven POMs</echo>
+        <antcall target="maven-poms"/>
+
+        <echo>Distribution located in ${dist.dir}</echo>
+        <echo>Use ${dist.dir}/multisign.sh to create md5 checksums and GPG signatures</echo>
+    </target>
+
+    <target name="dist" depends="clean, compile-all, test-all, site, jar, assemble"
+            description="Creates the entire distribution into build/dist, from scratch">
+    </target>
+
+    <target name="gump" depends="compile-all, test-all, jar"/>
+
+    <available property="maven.ant.tasks.present" classname="org.apache.maven.artifact.ant.Pom"/>
+    <target name="maven.ant.tasks-check">
+      <fail unless="maven.ant.tasks.present">
+      Maven ant tasks not found.
+      Please make sure the maven-ant-tasks jar is in ANT_HOME/lib, or made 
+      available to Ant using other mechanisms like -lib or CLASSPATH.
+      
+      You can download the Maven Ant Tasks from http://maven.apache.org/ant-tasks/download.html
+      </fail>
+    </target>
+
+    <macrodef name="m2-install">
+      <attribute name="artifactId"/>
+      
+      <sequential>
+        <mvn:install file="${dist.dir}/@{artifactId}-${version.id}-${DSTAMP}.jar">
+          <pom file="${dist.dir}/@{artifactId}-${version.id}.pom"/>
+        </mvn:install>
+      </sequential>
+    </macrodef>  
+
+    <!--
+      Install POI artifacts into the local repository. 
+      Invoking this command is equivalent to 'mvn install' in Maven-driven projects.
+    -->
+    <target name="mvn-install" depends="maven.ant.tasks-check,jar,maven-poms">
+      <m2-install artifactId="poi"/>
+      <m2-install artifactId="poi-scratchpad"/>
+      <m2-install artifactId="poi-ooxml"/>
+      <m2-install artifactId="poi-examples"/>
+      <m2-install artifactId="poi-ooxml-schemas"/>
+    </target>
+    
+    <!-- Runs Apache Rat against the source code, to spot any files -->
+    <!--  which are missing the correct license headers -->
+    <!-- You need to download rat from http://incubator.apache.org/rat/ -->
+    <!--  and place the Rat jar into your ant lib before running -->
+    <target name="rat-check">
+       <typedef resource="org/apache/rat/anttasks/antlib.xml"
+             uri="antlib:org.apache.rat.anttasks"/>
+       <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
+           <fileset dir="src/">
+              <exclude name="documentation/content/xdocs/dtd/" />
+              <exclude name="documentation/content/xdocs/entity/" />
+              <exclude name="scratchpad/testcases/dummy.txt" />
+              <exclude name="examples/lib/dummy.txt" />
+           </fileset>
+       </rat:report>
+    </target>
+</project>
+
