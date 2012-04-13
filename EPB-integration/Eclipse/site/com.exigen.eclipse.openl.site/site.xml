@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/com.exigen.eclipse.openl_%com.exigen.eclipse.openl_feature_version%.jar" id="com.exigen.eclipse.openl" version="%com.exigen.eclipse.openl_feature_version%">
-      <category name="Integration"/>
-   </feature>
-   <category-def name="Integration" label="OpenL integration"/>
-</site>

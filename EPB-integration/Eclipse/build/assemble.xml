@@ -1,8 +1,0 @@
-<project name="Assemble of all features" default="noDefault" basedir=".">
-	<target name="assemble.com.exigen.eclipse.openl">
-  		<ant antfile="${assembleScriptName}" dir="${buildDirectory}">
- 			<property name="zipargs" value="" />
-  		</ant>
-	</target>
-	
-</project>
