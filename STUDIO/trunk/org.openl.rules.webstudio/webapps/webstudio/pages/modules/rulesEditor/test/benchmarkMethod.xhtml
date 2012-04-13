@@ -36,7 +36,7 @@
         <h:form id="BMForm">
             <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
                 binding="#{benchmarkMethodBean.htmlDataTableBM}" styleClass="matrix"
-                columnClasses="none,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn">
+                columnClasses="none,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn">
                 <h:column>
                     <h:outputText value="#{benchmarkMethodBean.i}." />
                 </h:column>
@@ -85,6 +85,16 @@
                     </f:facet>
                     <h:outputText
                         value="#{benchmarkMethodBean.runsunitsec}" />
+                </h:column>
+                <h:column>
+                    <f:facet name="header">
+                        <h:outputText value="URL" />
+                    </f:facet>
+                    
+			        <h:outputLink value="#showTable.xhtml" target="content">
+			            <f:param name="uri" value="#{benchmarkMethodBean.uri}" />
+			            <h:outputText value="#{benchmarkMethodBean.tableName}" />
+			        </h:outputLink>
                 </h:column>
                 <h:column>
                     <f:facet name="header">
