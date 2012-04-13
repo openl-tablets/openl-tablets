@@ -138,18 +138,27 @@ public class RepositoryTreeController {
         AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
         String errorMessage = null;
         if (projectArtefact instanceof AProjectFolder) {
-            if (NameChecker.checkName(folderName)) {
-                AProjectFolder folder = (AProjectFolder) projectArtefact;
-                try {
-                    AProjectFolder addedFolder = folder.addFolder(folderName);
-                    repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
-                    resetStudioModel();
-                } catch (ProjectException e) {
-                    LOG.error("Failed to create folder '" + folderName + "'.", e);
-                    errorMessage = e.getMessage();
-                }
-            } else {
-                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+        	if(folderName != null && !folderName.isEmpty()){
+	        	if (NameChecker.checkName(folderName)){
+	            		if(!NameChecker.isFolderPresent((AProjectFolder) projectArtefact, folderName)){     
+			            	AProjectFolder folder = (AProjectFolder) projectArtefact;
+			            	
+			            	try {
+			                    AProjectFolder addedFolder = folder.addFolder(folderName);
+			                    repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
+			                    resetStudioModel();
+			                } catch (ProjectException e) {
+			                    LOG.error("Failed to create folder '" + folderName + "'.", e);
+			                    errorMessage = e.getMessage();
+			                }
+	            		} else {
+	            			errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_EXISTS;
+	            		}
+	            } else {
+	                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+	            }
+        	} else {
+                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_NAME_EMPTY;
             }
         }
 
