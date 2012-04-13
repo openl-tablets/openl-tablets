@@ -1,7 +1,0 @@
-<ResourceSetConfigModel xmlns="http://exigengroup.com/common/emf/resourceSetCfg">
-	<configuration>
-		<fileExtension extension="openl" className="org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl"/>
-	</configuration>
-
-	<package uri="http://exigengroup.com/openl" className="com.exigen.openl.model.openl.OpenlPackage"/>
-</ResourceSetConfigModel>
