@@ -1,0 +1,7 @@
+"NONE",	0.82
+"NWHOME",	0.82
+"HO-3",	0.82
+"HO-5",	0.82
+"CONDO",	0.82
+"TENANT",	0.95
+"TENNANT",	0.95

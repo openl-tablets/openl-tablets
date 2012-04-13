@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<serviceModel>
+    <types>
+       <complex>false</complex>
+        <name>argument</name>
+    </types>
+    <functions>
+        <arguments>
+            <description>X</description>
+            <inputArea>A1:B3</inputArea>
+	    <typeName>numeric</typeName>
+            <ordination>0</ordination>
+        </arguments>
+        <arguments>
+            <description>Y</description>
+            <inputArea>C1</inputArea>
+	    <typeName>numeric</typeName>
+            <ordination>1</ordination>
+        </arguments>
+        <arguments>
+            <description>Z</description>
+            <inputArea>D1:F2</inputArea>
+	    <typeName>numeric</typeName>
+            <ordination>0</ordination>
+        </arguments>
+
+        <excel>mosaic</excel>
+        <functionDescription>Test Mosaic=X+y+Z</functionDescription>
+        <name>mosaic</name>
+        <returnArea>B10</returnArea>
+        <service>true</service>
+        <sheet>Sheet1</sheet>
+    </functions>
+</serviceModel>

@@ -1,0 +1,51 @@
+1,"BASE", "Frequency", 0.52
+2,"BASE", "Frequency", 0.62
+3,"BASE", "Frequency", 0.72
+4,"BASE", "Frequency", 0.81
+5,"BASE", "Frequency", 1.06
+6,"BASE", "Frequency", 1.17
+7,"BASE", "Frequency", 1.19
+8,"BASE", "Frequency", 1.48
+9,"BASE", "Frequency", 1.30
+10,"BASE", "Frequency", 1.67
+11,"BASE", "Frequency", 0.91
+12,"BASE", "Frequency", 1.01
+1, "COLL", "Frequency",	0.79
+2, "COLL", "Frequency",	0.94
+3, "COLL", "Frequency",	0.98
+4, "COLL", "Frequency",	1.07
+5, "COLL", "Frequency",	1.17
+6, "COLL", "Frequency",	1.28
+7, "COLL", "Frequency",	1.36
+8, "COLL", "Frequency",	1.54
+9, "COLL", "Frequency",	1.56
+10, "COLL", "Frequency", 1.03
+11, "COLL", "Frequency", 0.86
+12, "COLL", "Frequency", 1.11
+1, "BASE","Severity", 0.59
+2, "BASE","Severity", 0.82
+3, "BASE","Severity", 1.04
+4, "BASE","Severity", 1.35
+5, "BASE","Severity", 1.25
+6, "BASE","Severity", 1.65
+7, "BASE","Severity", 1.97
+8, "BASE","Severity", 2.29
+9, "BASE","Severity", 2.47
+10, "BASE","Severity",	2.56
+11, "BASE","Severity",	0.94
+12, "BASE","Severity",	1.12
+1, "COLL","Severity", 0.83
+2, "COLL","Severity", 0.87
+3, "COLL","Severity", 0.92
+4, "COLL","Severity", 1.00
+5, "COLL","Severity",1.01
+6, "COLL","Severity", 0.95
+7, "COLL","Severity", 0.97
+8, "COLL","Severity", 1.07
+9, "COLL","Severity", 1.03
+10, "COLL","Severity",1.04
+11, "COLL","Severity", 1.10
+12, "COLL","Severity", 1.16
+
+
+

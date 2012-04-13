@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<serviceModel>
+    <functions>
+        <arguments>
+            <description>Argument 1</description>
+            <inputArea>B3</inputArea>
+            <type>
+                <complex>false</complex>
+                <name>numeric</name>
+            </type>
+        </arguments>
+        <arguments>
+            <description>Argument 2</description>
+            <inputArea>B4</inputArea>
+            <type>
+                <complex>false</complex>
+                <name>string</name>
+            </type>
+        </arguments>
+        <!-- excel>Header</excel -->
+        <excel>Header</excel>
+        <functionDescription>Lookup simplest table</functionDescription>
+        <name>service_calcSimplestTable</name>
+        <returnArea>B5</returnArea>
+        <service>true</service>
+        <sheet>Simplest</sheet>
+    </functions>
+    <tables>
+        <name>TT</name>
+        <paramDescs>
+            <additional>false</additional>
+            <interval>true</interval>
+            <leftIncluded>true</leftIncluded>
+            <maxLength>50</maxLength>
+            <rightIncluded>true</rightIncluded>
+            <type>DOUBLE</type>
+        </paramDescs>
+        <paramDescs>
+            <additional>false</additional>
+            <interval>false</interval>
+            <leftIncluded>true</leftIncluded>
+            <maxLength>10</maxLength>
+            <rightIncluded>true</rightIncluded>
+            <type>STRING</type>
+        </paramDescs>
+        <valueDesc>
+            <additional>false</additional>
+            <interval>false</interval>
+            <leftIncluded>true</leftIncluded>
+            <maxLength>35</maxLength>
+            <rightIncluded>true</rightIncluded>
+            <type>STRING</type>
+        </valueDesc>
+    </tables>
+    <types>
+        <complex>false</complex>
+        <name>numeric</name>
+    </types>
+    <types>
+        <complex>false</complex>
+        <name>string</name>
+    </types>
+</serviceModel>

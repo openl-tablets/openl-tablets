@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://exigen.com/le/schemas">
+	<beans>
+		<bean name="Insurance">
+			<fields>
+				<field name="d" type="Per" collection="false">
+					<mapping property="driver" />
+				</field>
+			</fields>
+			<beans>
+				<bean name="Per">
+					<fields>
+						<field name="s1" type="numeric" collection="false">
+							<mapping property="age" />
+						</field>
+						<field name="s2" type="string" collection="false">
+							<mapping property="experience[1].company" />
+						</field>
+					</fields>
+				</bean>
+			</beans>
+		</bean>
+	</beans>
+</root>

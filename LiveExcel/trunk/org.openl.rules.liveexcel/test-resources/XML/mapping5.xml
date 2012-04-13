@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="http://exigen.com/le/schemas">
+	<beans>
+		<bean name="Insurance">
+			<fields>
+				<field name="driver" type="Person" collection="false" />
+				<field name="policy" type="Policy" collection="true" />
+			</fields>
+		</bean>
+		<bean name="Person">
+			<fields>
+				<field name="age" type="numeric" collection="false" />
+				<field name="firstName" type="string" collection="false" />
+				<field name="married" type="boolean" collection="false" />
+				<field name="DOB" type="date" collection="false" />
+				<field name="experience" type="Experience" collection="true"
+					embedded="true" />
+				<field name="friends" type="Person" collection="true" />
+			</fields>
+				<bean name="Experience">
+					<fields>
+						<field name="company" type="string" collection="false" />
+						<field name="dateFrom" type="date" collection="false" />
+						<field name="dateTo" type="date" collection="false" />
+					</fields>
+				</bean>
+		</bean>
+		<bean name="Policy">
+			<fields>
+				<field name="support" type="boolean" collection="false" />
+				<field name="years" type="numeric" collection="true" />
+			</fields>
+		</bean>
+	</beans>
+</root>
