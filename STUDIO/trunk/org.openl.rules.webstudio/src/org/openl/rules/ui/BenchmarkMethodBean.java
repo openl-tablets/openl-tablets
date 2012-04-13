@@ -16,7 +16,7 @@ import org.openl.util.benchmark.BenchmarkOrder;
 @SessionScoped
 public class BenchmarkMethodBean {
     private WebStudio studio;
-    private ArrayList<BenchmarkInfo> benchmarkResults = new ArrayList<BenchmarkInfo>();
+    private ArrayList<BenchmarkInfoView> benchmarkResults = new ArrayList<BenchmarkInfoView>();
     private BenchmarkInfo[] comparedBenchmarks = new BenchmarkInfo[0];
     private BenchmarkOrder[] benchmarkOrders;
     private boolean[] bencmarkSelected;
@@ -39,8 +39,9 @@ public class BenchmarkMethodBean {
         if (isTestForOverallTestSuiteMethod(testSuite)) {
             try {
                 BenchmarkInfo buLast = studio.getModel().benchmarkTestsSuite(testSuite, 3000);
-                studio.addBenchmark(buLast);
-                benchmarkResults.add(buLast);
+                BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuite.getUri());
+                studio.addBenchmark(biv);
+                benchmarkResults.add(biv);
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -48,8 +49,9 @@ public class BenchmarkMethodBean {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
                 try {
                     BenchmarkInfo buLast = studio.getModel().benchmarkSingleTest(testSuite, i, 3000);
-                    studio.addBenchmark(buLast);
-                    benchmarkResults.add(buLast);
+                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuite.getUri());
+                    studio.addBenchmark(biv);
+                    benchmarkResults.add(biv);
                 } catch (Exception e) {
                     e.printStackTrace(System.out);
                 }
@@ -59,17 +61,27 @@ public class BenchmarkMethodBean {
         comparedBenchmarks = new BenchmarkInfo[0];
     }
 
+    public String getTableName() {
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
+        return bi.getName();
+    }
+
+    public String getUri() {
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
+        return bi.getUri();
+    }
+
     public String compare() {
         compareBenchmarks();
         return null;
     }
 
     private void compareBenchmarks() {
-        BenchmarkInfo[] benchmarks = studio.getBenchmarks();
+        BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
         comparedBenchmarks = new BenchmarkInfo[benchmarks.length];
         for (int i = 0; i < benchmarks.length; ++i) {
             if (bencmarkSelected[benchmarkResults.indexOf(benchmarks[i])]) {
-                comparedBenchmarks[i] = benchmarks[i];
+                comparedBenchmarks[i] = benchmarks[i].getBenchmarkInfo();
             }
         }
         benchmarkOrders = BenchmarkInfo.order(comparedBenchmarks);
@@ -81,7 +93,7 @@ public class BenchmarkMethodBean {
     }
 
     private void deleteBenchmark() {
-        BenchmarkInfo[] benchmarks = studio.getBenchmarks();
+        BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
         for (int i = benchmarks.length - 1; i >= 0; i--) {
             int indexOfBenchmark = benchmarkResults.indexOf(benchmarks[i]);
             if (bencmarkSelected[indexOfBenchmark]) {
@@ -96,14 +108,14 @@ public class BenchmarkMethodBean {
         return benchmarkResults.size() + 1;
     }
 
-    public List<BenchmarkInfo> getBenchmarks() {
+    public List<BenchmarkInfoView> getBenchmarks() {
         studio = WebStudioUtils.getWebStudio();
         if (studio.getModel().hasTestSuitesToRun()) {
             addLastBenchmark();
         }
-        BenchmarkInfo[] benchmarks = studio.getBenchmarks();
+        BenchmarkInfoView[] benchmarks = studio.getBenchmarks();
         benchmarkResults.clear();
-        for (BenchmarkInfo bi : benchmarks) {
+        for (BenchmarkInfoView bi : benchmarks) {
             benchmarkResults.add(bi);
         }
         bencmarkSelected = new boolean[benchmarkResults.size()];
@@ -111,7 +123,7 @@ public class BenchmarkMethodBean {
     }
 
     public boolean getBencmarkSelected() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bencmarkSelected[benchmarkResults.indexOf(bi)];
     }
 
@@ -127,17 +139,17 @@ public class BenchmarkMethodBean {
 
     public int getComparedI() {
         BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBMCompared.getRowData();
-        return benchmarkResults.indexOf(bi) + 1;
+        return getBenchmarkResultIndex(bi) + 1;
     }
 
     public int getComparedOrder() {
         BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBMCompared.getRowData();
-        return benchmarkOrders[benchmarkResults.indexOf(bi)].getOrder();
+        return benchmarkOrders[getBenchmarkResultIndex(bi)].getOrder();
     }
 
     public String getComparedRatio() {
         BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBMCompared.getRowData();
-        double ratio = benchmarkOrders[benchmarkResults.indexOf(bi)].getRatio();
+        double ratio = benchmarkOrders[getBenchmarkResultIndex(bi)].getRatio();
         return BenchmarkInfo.printDouble(ratio, 2);
     }
 
@@ -155,33 +167,33 @@ public class BenchmarkMethodBean {
     }
 
     public int getI() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return benchmarkResults.indexOf(bi) + 1;
     }
 
     public String getMsrun() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bi.msrun();
     }
 
     public String getMsrununit() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bi.msrununit();
     }
 
     public String getRunssec() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bi.runssec();
     }
 
     public String getRunsunitsec() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bi.runsunitsec();
     }
 
     public String getStyleForOrder() {
         BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBMCompared.getRowData();
-        switch (benchmarkOrders[benchmarkResults.indexOf(bi)].getOrder()) {
+        switch (benchmarkOrders[getBenchmarkResultIndex(bi)].getOrder()) {
             case 1:
                 return "color: red; font-size: large;";
             case 2:
@@ -193,17 +205,17 @@ public class BenchmarkMethodBean {
     }
 
     public String getUnitName() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bi.unitName();
     }
 
     public int getUnitRuns() {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bi.getUnit().nUnitRuns();
     }
 
     public void setBencmarkSelected(boolean bencmarkSelected) {
-        BenchmarkInfo bi = (BenchmarkInfo) htmlDataTableBM.getRowData();
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         this.bencmarkSelected[benchmarkResults.indexOf(bi)] = bencmarkSelected;
     }
 
@@ -213,6 +225,17 @@ public class BenchmarkMethodBean {
 
     public void setHtmlDataTableBMCompared(HtmlDataTable htmlDataTableBMComapre) {
         htmlDataTableBMCompared = htmlDataTableBMComapre;
+    }
+
+    private int getBenchmarkResultIndex(BenchmarkInfo bi) {
+        int index = -1;
+        for (int i = 0; i < benchmarkResults.size(); i++) {
+            BenchmarkInfoView biv = benchmarkResults.get(i);
+            if (biv.getBenchmarkInfo().equals(bi)) {
+                return i;
+            }
+        }
+        return index;
     }
 
 }
