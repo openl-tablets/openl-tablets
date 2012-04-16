@@ -6,19 +6,16 @@
 
     <h:panelGroup id="topPanel" layout="block">
         <div class="buttonPanel">
-            <h:outputLink onclick="openNewProjectDialog();return false;" styleClass="actionButton">
+            <h:outputLink onclick="openNewProjectDialog();return false;" styleClass="actionButton" title="Create new project">
                 <h:outputText value="Create New" />
-                <rich:tooltip showDelay="500">Create new project</rich:tooltip>
             </h:outputLink>
 
-            <h:outputLink onclick="openUploadProjectDialog();return false;" styleClass="button">
+            <h:outputLink onclick="openUploadProjectDialog();return false;" styleClass="button" title="Upload existing project or Excel file with rules to repository">
                 <h:outputText value="Upload" />
-                <rich:tooltip showDelay="500">Upload existing project or Excel file with rules to repository</rich:tooltip>
             </h:outputLink>
 
-            <h:outputLink onclick="openNewDeploymentProjectDialog();return false;" styleClass="button">
+            <h:outputLink onclick="openNewDeploymentProjectDialog();return false;" styleClass="button" title="Create new deployment" >
                 <h:outputText value="Create Deployment" />
-                <rich:tooltip showDelay="500">Create new deployment</rich:tooltip>
             </h:outputLink>
         </div>
     </h:panelGroup>
