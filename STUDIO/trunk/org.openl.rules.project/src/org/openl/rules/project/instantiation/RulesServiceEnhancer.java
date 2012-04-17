@@ -151,7 +151,7 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
             this.serviceClass = serviceClass;
             try {
                 getOriginalInstantiationStrategy().setServiceClass(RulesServiceEnhancerHelper.undecorateMethods(serviceClass,
-                    getClassLoader()));
+                    getOriginalInstantiationStrategy().getClassLoader()));
             } catch (Exception e) {
                 throw new OpenlNotCheckedException("Failed to set service class to enhancer. Failed to get undecorated class.",
                     e);

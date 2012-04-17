@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -30,6 +32,8 @@ import org.openl.syntax.impl.IdentifierNode;
  * 
  */
 public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
+    private final Log log = LogFactory.getLog(SimpleMultiModuleInstantiationStrategy.class);
+
     private SimpleEngineFactory factory;
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
@@ -117,7 +121,16 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     }
 
     private SimpleEngineFactory getEngineFactory() {
-        if (factory == null) {
+    	Class<?> serviceClass = null;
+    	try {
+			serviceClass = getServiceClass();
+		} catch (ClassNotFoundException e) {
+			log.debug("Failed to get service class.", e);
+			serviceClass = null;
+		}
+		if (factory == null
+				|| (serviceClass != null && !factory.getInterfaceClass()
+						.equals(serviceClass))) {
             factory = new SimpleEngineFactory(createMainModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
 
             for (Module module : getModules()) {
@@ -126,6 +139,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
                 }
             }
             factory.setDependencyManager(getDependencyManager());
+            factory.setInterfaceClass(serviceClass);
         }
 
         return factory;

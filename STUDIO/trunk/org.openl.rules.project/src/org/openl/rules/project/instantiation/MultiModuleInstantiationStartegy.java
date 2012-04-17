@@ -47,10 +47,10 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         multiModuleDependencyManager.setExecutionMode(true);
         IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
         List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
-        dependencyLoaders.add(loader);
         if (dependencyManager instanceof DependencyManager) {
             dependencyLoaders.addAll(((DependencyManager) dependencyManager).getDependencyLoaders());
         }
+        dependencyLoaders.add(loader);
         multiModuleDependencyManager.setDependencyLoaders(dependencyLoaders);
         return multiModuleDependencyManager;
     }
