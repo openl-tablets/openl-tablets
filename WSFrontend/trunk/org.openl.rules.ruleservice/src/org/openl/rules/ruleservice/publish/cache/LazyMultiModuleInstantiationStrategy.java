@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.publish.cache;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
@@ -16,6 +18,8 @@ import org.openl.rules.project.model.Module;
  * @author pudalau
  */
 public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
+    private final Log log = LogFactory.getLog(LazyMultiModuleInstantiationStrategy.class);
+
     private LazyMultiModuleEngineFactory factory;
 
     public LazyMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
@@ -66,7 +70,16 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
     }
 
     private LazyMultiModuleEngineFactory getEngineFactory() {
-        if (factory == null) {
+    	Class<?> serviceClass = null;
+    	try {
+			serviceClass = getServiceClass();
+		} catch (ClassNotFoundException e) {
+			log.debug("Failed to get service class.", e);
+			serviceClass = null;
+		}
+		if (factory == null
+				|| (serviceClass != null && !factory.getInterfaceClass()
+						.equals(serviceClass))) {
             factory = new LazyMultiModuleEngineFactory(getModules());
             for (Module module : getModules()) {
                 for (InitializingListener listener : getInitializingListeners()) {
@@ -74,6 +87,7 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
                 }
             }
             factory.setDependencyManager(getDependencyManager());
+            factory.setInterfaceClass(serviceClass);
         }
 
         return factory;

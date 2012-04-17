@@ -57,6 +57,9 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
         }
     }
 
+    public void setInterfaceClass(Class<?> interfaceClass) {
+		this.interfaceClass = interfaceClass;
+	}
     /**
      * Creates java interface for rules project.
      * 

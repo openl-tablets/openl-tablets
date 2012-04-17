@@ -1,9 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -28,6 +25,7 @@ import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
+import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
 import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -88,6 +86,20 @@ public class RulesPublisherTest {
         assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));
         assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
         assertEquals(3, Array.getLength(frontend.getValue("multiModule", "data2")));
+    }
+
+    public static interface SimpleInterface{
+    	String worldHello(int hour);
+    }
+
+    @Test
+    public void testMultiModuleServiceClass() throws Exception {
+        Collection<Module> modules = resolveAllModules(new File("./test-resources/multi-module"));
+        LazyMultiModuleInstantiationStrategy instantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, null);
+        instantiationStrategy.setServiceClass(SimpleInterface.class);
+        Object instance = instantiationStrategy.instantiate();
+        assertNotNull(instance);
+        assertTrue(instance instanceof SimpleInterface);
     }
 
     @Test

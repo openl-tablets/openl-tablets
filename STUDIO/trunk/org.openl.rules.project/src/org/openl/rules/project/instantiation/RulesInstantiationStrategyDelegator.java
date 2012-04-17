@@ -16,7 +16,7 @@ import org.openl.rules.project.model.Module;
  */
 public abstract class RulesInstantiationStrategyDelegator implements RulesInstantiationStrategy {
 
-    private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyDelegator.class);
+    private final Log log = LogFactory.getLog(RulesInstantiationStrategyDelegator.class);
 
     /**
      * Instantiation strategy delegate.
@@ -52,7 +52,7 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
                 classLoader.addClassLoader(serviceClass.getClassLoader());
             }
         } catch (Exception e) {
-            LOG.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
+            log.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
         }
         return classLoader;
     }
