@@ -73,7 +73,7 @@
                     #{prop.displayName}
                 </td>
                 <td class="propData" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
-                    <span class="propValue">#{prop.displayValue}</span>
+                    <h:outputText class="propValue" value="#{prop.displayValue}"/>
 
                     <h:panelGroup rendered="#{editable}">
                     <span class="propEditor#{!empty prop.value ? ' propHide' : ''}">

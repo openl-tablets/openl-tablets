@@ -121,8 +121,7 @@ public class TableProperty {
      * @return
      */
     public String getDisplayValue() {
-        return StringEscapeUtils.escapeHtml(
-                getStringValue());
+    	return getStringValue();
     }
 
     /**
