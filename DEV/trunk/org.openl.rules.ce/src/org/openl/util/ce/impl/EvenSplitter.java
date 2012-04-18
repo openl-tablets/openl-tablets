@@ -5,16 +5,16 @@ import java.util.List;
 
 import org.openl.util.ce.IActivity;
 
-public class EvenSplitter {
+public class EvenSplitter<T extends IActivity> {
 	
-	IActivity<?>[] all; 
+	T[] all; 
 	int n;
 	long[] sizes;
 	long runningMax;
-	List<IActivity<?>>[] res; 
+	List<T>[] res; 
 
 	@SuppressWarnings("unchecked")
-	public EvenSplitter(IActivity<?>[] all, int n) {
+	public EvenSplitter(T[] all, int n) {
 		super();
 		this.all = all;
 		this.n = n;
@@ -25,13 +25,13 @@ public class EvenSplitter {
 	
 
 	
-	static  public List<IActivity<?>>[] split(IActivity<?>[] all, int n)
+	static  public <V  extends IActivity> List<V>[] split(V[] all, int n)
 	{
-		return new EvenSplitter(all, n).split();
+		return new EvenSplitter<V>(all, n).split();
 	}
 
 
-	private List<IActivity<?>>[] split() {
+	private List<T>[] split() {
 		
 		
 		int index = 0;
@@ -66,7 +66,7 @@ public class EvenSplitter {
 	private void put(int index, int i) {
 		if (res[index] == null)
 		{
-			res[index] = new ArrayList<IActivity<?>>();
+			res[index] = new ArrayList<T>();
 		}
 		
 		res[index].add(all[i]);
@@ -79,13 +79,13 @@ public class EvenSplitter {
 	
 	public static void main(String[] args) {
 		int[] x = {24, 12, 8, 7 , 6, 5, 4, 3, 2, 1};
-		IActivity<?>[] all = new IActivity[x.length]; 
+		IActivity[] all = new IActivity[x.length]; 
 		
 		for (int i = 0; i < x.length; i++) {
 			all[i] = makeA(x[i]);
 		}
 		
-		List<IActivity<?>>[] res = split(all, 2);
+		List<IActivity>[] res = split(all, 2);
 		
 		for (int i = 0; i < res.length; i++) {
 			System.out.println(res[i]);
@@ -106,12 +106,6 @@ public class EvenSplitter {
 	return new IActivity() {
 
 		@Override
-		public Object call() throws Exception {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
 		public List dependsOn() {
 			// TODO Auto-generated method stub
 			return null;
@@ -128,6 +122,8 @@ public class EvenSplitter {
 			
 			return ""+ duration();
 		}
+
+
 		
 		
 		

@@ -5,8 +5,9 @@ import org.openl.util.ce.IServiceMTConfiguration;
 public class ServiceMTConfiguration implements IServiceMTConfiguration {
 
 	int parallelLevel = Runtime.getRuntime().availableProcessors();
-	int errorLimit = 10;
-	long minSequenceLengthNs = 500000;
+	int errorLimit = 0;
+	long minSequenceLengthNs = 50000;
+//	long minSequenceLengthNs = 2000000;
 	
 	
 	public int getParallelLevel() {

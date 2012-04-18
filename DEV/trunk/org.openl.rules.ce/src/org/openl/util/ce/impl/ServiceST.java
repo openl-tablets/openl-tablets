@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IMTConvertorFactory;
+import org.openl.util.ce.IScheduler;
 import org.openl.util.ce.IServiceMTConfiguration;
 
 /**
@@ -108,5 +109,25 @@ public class ServiceST extends ServiceBase {
 		// nothing to do
 		
 	}
+
+
+
+
+	@Override
+	public long executeAll(Runnable[] tasks) throws ArrayExecutionException {
+		return executeAllSequential(tasks, 0, tasks.length);
+	}
+
+
+
+
+	@Override
+	public IScheduler getScheduler(long singleCellLength) {
+		return new Scheduler(config, singleCellLength);
+	}
+
+
+
+
 	
 }

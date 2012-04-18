@@ -24,6 +24,7 @@ public abstract class ServiceBase implements IServiceMT {
 	}
 	
 
+	
 	public <T> long executeAllSequential(Callable<T>[] calls, T[] result, int from, int to)
 			throws ArrayExecutionException {
 
@@ -128,6 +129,29 @@ public abstract class ServiceBase implements IServiceMT {
 		return System.nanoTime() - startTime;
 	}
 	
+	public long executeAllSequential(Runnable[] tasks, int from, int to) {
+		SortedMap<Integer, Throwable> errs = null;
+		long startTime = System.nanoTime();
+		
+		for (int i = from; i < to; i++) {
+			try {
+				tasks[i].run();
+			} catch (Throwable t) {
+				
+				if (errs == null)
+					errs = new TreeMap<Integer, Throwable>();
+				errs.put(i, t);
+				if (errs.size() >= config.getErrorLimit())
+					throw new ArrayExecutionException("Error Limit exceeded " + config.getErrorLimit() , errs);
+			}
+		}
+		
+		if (errs != null)
+			throw new ArrayExecutionException("Caught " + errs.size() + " error(s)", errs);
+		
+		
+		return System.nanoTime() - startTime;
+	}
 	
 	
 }
