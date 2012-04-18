@@ -19,6 +19,7 @@ import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.element.CellLoader;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -214,7 +215,7 @@ public class SpreadsheetStructureBuilder {
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
                 
                 /** create spreadsheet cell field*/
-                SpreadsheetCellField field = new SpreadsheetCellField(spreadsheetType, fieldname, spreadsheetCell);
+                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(spreadsheetType, fieldname, spreadsheetCell);
                 
                 /** add spreadsheet cell field to its open class*/
                 spreadsheetType.addField(field);
@@ -252,12 +253,21 @@ public class SpreadsheetStructureBuilder {
         String cellCode = sourceCell.getStringValue();
         IOpenClass cellType = deriveCellType(cell, columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
         spreadsheetCell.setType(cellType);
+        if (cellCode == null || cellCode.isEmpty())
+        	spreadsheetCell.setKind(SpreadsheetCellType.EMPTY);
+        else if (CellLoader.isFormula(cellCode))
+        	spreadsheetCell.setKind(SpreadsheetCellType.METHOD);
+        else spreadsheetCell.setKind(SpreadsheetCellType.VALUE);
+        	
         
         return spreadsheetCell;
     }   
     
     private IOpenClass deriveCellType(ILogicalTable cell, SpreadsheetHeaderDefinition columnHeader, 
             SpreadsheetHeaderDefinition rowHeader, String cellValue) {
+    	
+    	
+    	
         if (columnHeader != null && columnHeader.getType() != null) {
             return columnHeader.getType();
         } else if (rowHeader != null && rowHeader.getType() != null) {
@@ -352,7 +362,7 @@ public class SpreadsheetStructureBuilder {
 
             for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
                 String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = new SpreadsheetCellField(columnOpenClass, fieldName, cell);
+                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(columnOpenClass, fieldName, cell);
 
                 columnOpenClass.addField(field);
             }
@@ -393,7 +403,7 @@ public class SpreadsheetStructureBuilder {
 
             for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
                 String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = new SpreadsheetCellField(rowOpenClass, fieldName, cell);
+                SpreadsheetCellField field = SpreadsheetCellField.createSpreadsheetCellField(rowOpenClass, fieldName, cell);
 
                 rowOpenClass.addField(field);
             }

@@ -1,12 +1,11 @@
 package org.openl.rules.calc;
 
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetHeaderField extends ASpreadsheetField {
 
 //    private IdentifierNode name;
-    private SpreadsheetHeaderDefinition header;
+     SpreadsheetHeaderDefinition header;
 
     public SpreadsheetHeaderField(SpreadsheetOpenClass declaringClass,
             IdentifierNode name,
