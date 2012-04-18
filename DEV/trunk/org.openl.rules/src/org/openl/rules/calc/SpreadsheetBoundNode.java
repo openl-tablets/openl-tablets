@@ -40,9 +40,16 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
      * {@link Spreadsheet} is being created after {@link #preBind(IBindingContext)} phase.
      * See {@link XlsBinder#bindInternal(XlsModuleSyntaxNode, XlsModuleOpenClass, TableSyntaxNode[], OpenL, RulesModuleBindingContext)} method
      */
+
+    protected Spreadsheet createSpreadsheet()
+    {
+    		return new Spreadsheet(getHeader(), this);
+    }		
+    
+    
     @Override
     protected ExecutableRulesMethod createMethodShell() {
-        Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this);
+        Spreadsheet spreadsheet = createSpreadsheet();
         spreadsheet.setSpreadsheetType(builder.getPopulatedSpreadsheetOpenClass());
         
         // As custom spreadsheet result is being generated at runtime,

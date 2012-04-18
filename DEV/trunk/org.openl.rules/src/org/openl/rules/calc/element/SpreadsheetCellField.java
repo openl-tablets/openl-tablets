@@ -8,47 +8,82 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCellField extends ASpreadsheetField {
 
-    private SpreadsheetCell cell;
+	protected SpreadsheetCell cell;
 
-    public SpreadsheetCellField(IOpenClass declaringClass, String name, SpreadsheetCell cell) {
-        super(declaringClass, name, cell.getType());
-        
-        this.cell = cell;
-    }
+	public static SpreadsheetCellField createSpreadsheetCellField(
+			IOpenClass declaringClass, String name, SpreadsheetCell cell) {
+		if (cell.getKind() == SpreadsheetCellType.METHOD)
+			return new SpreadsheetCellField(declaringClass, name, cell);
+		return new ConstSpreadsheetCellField(declaringClass, name, cell);
+	}
 
-    @Override
-    public Object get(Object target, IRuntimeEnv env) {
+	SpreadsheetCellField(IOpenClass declaringClass, String name,
+			SpreadsheetCell cell) {
+		super(declaringClass, name, cell.getType());
 
-        SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
+		this.cell = cell;
+	}
 
-        return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
-    }
+	@Override
+	public Object get(Object target, IRuntimeEnv env) {
 
-    public SpreadsheetCell getCell() {
-        return cell;
-    }
+		if (cell.getKind() == SpreadsheetCellType.METHOD) {
+			SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
 
-    @Override
-    public IOpenClass getType() {
-        return cell.getType();
-    }
+			return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
+		}
 
-    @Override
-    public boolean isWritable() {
-        return false;
-    }
+		return cell.getValue();
 
-    @Override
-    public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
-    }
-    
-    public Point getRelativeCoordinates() {        
-        return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
-    }
-    
-    public Point getAbsoluteCoordinates() {       
-        return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
-    }
+	}
+
+	public SpreadsheetCell getCell() {
+		return cell;
+	}
+
+	@Override
+	public IOpenClass getType() {
+		return cell.getType();
+	}
+
+	@Override
+	public boolean isWritable() {
+		return false;
+	}
+
+	@Override
+	public void set(Object target, Object value, IRuntimeEnv env) {
+		throw new UnsupportedOperationException(
+				"Can not write to spreadsheet cell result");
+	}
+
+	public Point getRelativeCoordinates() {
+		return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
+	}
+
+	public Point getAbsoluteCoordinates() {
+		return new Point(getCell().getSourceCell().getAbsoluteColumn(),
+				getCell().getSourceCell().getAbsoluteRow());
+	}
+
+	static class ConstSpreadsheetCellField extends SpreadsheetCellField {
+
+		Object value;
+
+		ConstSpreadsheetCellField(IOpenClass declaringClass, String name,
+				SpreadsheetCell cell) {
+			super(declaringClass, name, cell);
+			this.value = cell.getValue();
+		}
+
+		@Override
+		public Object get(Object target, IRuntimeEnv env) {
+			if (cell.getKind() == SpreadsheetCellType.METHOD)
+				return super.get(target, env);
+
+			return cell.getValue();
+		}
+
+	}
 
 }
