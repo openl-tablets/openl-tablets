@@ -1,20 +1,51 @@
 package org.openl.util.ce.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openl.util.IdObject;
 import org.openl.util.ce.IActivity;
 import org.openl.util.ce.IScheduledActivity;
 
-public class ScheduledActivity<T> implements IScheduledActivity<T> {
+public class ScheduledActivity extends IdObject implements IScheduledActivity {
 
-	private IActivity<T> activity;
+	@Override
+	public String toString() {
+		
+		
+		return super.toString() + "/" + criticalDistance + "/" + activity + "/" 
+//		+ isOnCriticalPath 
+//		+ dependents;
+				+ printDepIds(dependents);
+	}
+
+
+	private String printDepIds(List<IScheduledActivity> deps) {
+		StringBuffer buf = new StringBuffer();
+		boolean first = true;
+		
+		buf.append('{');
+		for (IScheduledActivity act : deps) {
+			if (!first) buf.append(",");
+			buf.append(act.getId());
+			first = false;
+		}
+		buf.append('}');
+		
+		return buf.toString();
+	}
+
+
+	private IActivity activity;
 	private long criticalDistance;
 	private boolean isOnCriticalPath;
 
-	public ScheduledActivity(IActivity<T> activity) {
+	public ScheduledActivity(IActivity activity) {
 		this.activity = activity;
 	}
 
 	@Override
-	public IActivity<T> activity() {
+	public IActivity activity() {
 		return activity;
 	}
 
@@ -53,6 +84,23 @@ public class ScheduledActivity<T> implements IScheduledActivity<T> {
 		}
 		
 		return false;
+	}
+
+
+	List<IScheduledActivity> dependents = new ArrayList<IScheduledActivity>();
+	
+	public List<IScheduledActivity> getDependents() {
+		return dependents;
+	}
+
+	public void addDependent(ScheduledActivity dep) {
+		dependents.add(dep);
+	}
+
+
+	@Override
+	public int getPrecedentSize() {
+		return activity.dependsOn().size();
 	}
 	
 	

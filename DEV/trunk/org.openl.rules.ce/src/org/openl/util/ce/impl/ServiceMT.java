@@ -49,7 +49,7 @@ public abstract class ServiceMT extends ServiceBase {
 	}
 
 
- 	protected long calcTotalEstimate(IActivity<?>[] all) {
+ 	protected long calcTotalEstimate(IActivity[] all) {
  		
  		long sum = 0;
  		for (int i = 0; i < all.length; i++) {
