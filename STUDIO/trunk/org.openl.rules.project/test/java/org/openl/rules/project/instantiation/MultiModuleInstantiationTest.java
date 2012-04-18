@@ -1,6 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -115,6 +115,24 @@ public class MultiModuleInstantiationTest {
         assertEquals(3, ((Object[]) result).length);
     }
     
+	public static interface MultimoduleInterface {
+		String worldHello(int hour);
+
+		String helloWorld(int hour);
+	}
+
+	@Test
+	public void testServiceClass() throws Exception {
+		File root = new File("test/resources/multi-module-support/test2");
+
+		SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
+				listModulesInFolder(root), null);
+		strategy.setServiceClass(MultimoduleInterface.class);
+		Object instantiate = strategy.instantiate();
+		assertNotNull(instantiate);
+		assertTrue(instantiate instanceof MultimoduleInterface);
+	}
+
     @Test 
     public void test3() throws Exception {
 

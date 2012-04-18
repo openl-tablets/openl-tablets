@@ -95,7 +95,12 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-math</artifactId>
     </dependency>
-	
+
+    <dependency>
+      <groupId>commons-jxpath</groupId>
+      <artifactId>commons-jxpath</artifactId>
+    </dependency>
+
 	<dependency>
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>

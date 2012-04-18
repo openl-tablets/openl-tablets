@@ -16,37 +16,51 @@ import org.openl.vm.trace.Tracer;
 
 public class SpreadsheetResultCalculator implements IDynamicObject {
 
-    private Spreadsheet spreadsheet;
+	public static final Object NEED_TO_CALCULATE_VALUE = new Object();
+
+	private Spreadsheet spreadsheet;
 
     private boolean cacheResult = true;
     private SpreadsheetTraceObject spreadsheetTraceObject;
     /**
      * OpenL module
      */
-    private IDynamicObject targetModule;
+    protected IDynamicObject targetModule;
     /**
      * Copy of the spreadsheet call parameters.
      */
-    private Object[] params; 
+    protected Object[] params; 
     /**
      * Copy of the call environment.
      */
-    private IRuntimeEnv env;
+    protected IRuntimeEnv env;
 
     private Object[][] results;
 
     public SpreadsheetResultCalculator(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params,
-            IRuntimeEnv env) {
+            IRuntimeEnv env, Object[][] preCalculatedResult) {
         super();
 
         this.spreadsheet = spreadsheet;
         this.targetModule = targetModule;
         this.params = params;
         this.env = env;
-        this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
+        if (preCalculatedResult == null)
+        	this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
+        else 
+    		this.results = clonePrecalculatedResults(preCalculatedResult);
     }
 
-    public SpreadsheetResultCalculator(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params,
+    private Object[][] clonePrecalculatedResults(Object[][] preCalculatedResult) {
+    	Object[][] res = preCalculatedResult.clone();
+    	for (int i = 0; i < res.length; i++) {
+			res[i] = preCalculatedResult[i].clone();
+		}
+    	
+		return res;
+	}
+
+	public SpreadsheetResultCalculator(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params,
             IRuntimeEnv env, SpreadsheetTraceObject spreadsheetTraceObject) {
         super();
 
@@ -143,7 +157,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
                 result = results[row][column];
             
-                if (result != null) {
+                if (result != NEED_TO_CALCULATE_VALUE) {
                     return result;
                 }
             }
@@ -153,6 +167,12 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         }
         return results[row][column];
     }
+    
+	public void setValue(int row, int column, Object res) {
+		results[row][column] = res;
+	}
+   
+    
 
     public Object getValueTraced(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
@@ -189,6 +209,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
 
     public void setFieldValue(String name, Object value) {
+        throw new UnsupportedOperationException("Should not be called in SpreadsheetResult");
     }
 
     @Override
