@@ -114,7 +114,11 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         return interfaceClass;
     }
 
-    @Override
+    public void setInterfaceClass(Class<?> interfaceClass) {
+		this.interfaceClass = interfaceClass;
+	}
+
+	@Override
     protected Class<?>[] getInstanceInterfaces() {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
