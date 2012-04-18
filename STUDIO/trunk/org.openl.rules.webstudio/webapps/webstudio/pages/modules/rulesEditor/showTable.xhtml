@@ -110,6 +110,7 @@
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
                                         oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')" title="Copy Table"
+                                        onclick="return canLeavePage()"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
@@ -435,7 +436,7 @@
                 <input type="hidden" name="uri" value="" />
             </form>
 
-            <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
+            <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
                 linkBase="showTable.xhtml" linkTarget="content"
                 mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
                 showFormulas="#{studio.showFormulas}"
@@ -530,6 +531,21 @@
 
             alert('No tests selected');
             return false;
+        }
+        
+        function canLeavePage() {
+            // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
+            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId
+            
+            if (t.hasChanges) {
+                var isOk = confirm('Table is not saved. Do you want to rollback all changes?');
+                if (isOk) {
+                    t.rollback();
+                } else {
+                    return false;
+                }
+            }
+            return true;
         }
       //]]>
     </script>
