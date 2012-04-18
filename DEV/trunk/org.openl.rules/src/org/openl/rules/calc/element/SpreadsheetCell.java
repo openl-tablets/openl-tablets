@@ -79,13 +79,13 @@ public class SpreadsheetCell {
     public void setValue(Object value) {
 
         if (value == null) {
-            this.kind = SpreadsheetCellType.EMPTY;
+//            this.kind = SpreadsheetCellType.EMPTY;
         } else if (value instanceof IOpenMethod) {
-            this.kind = SpreadsheetCellType.METHOD;
+//            this.kind = SpreadsheetCellType.METHOD;
             this.method = (IOpenMethod) value;
         } else {
             this.value = value;
-            this.kind = SpreadsheetCellType.VALUE;
+//            this.kind = SpreadsheetCellType.VALUE;
         }
     }
 
