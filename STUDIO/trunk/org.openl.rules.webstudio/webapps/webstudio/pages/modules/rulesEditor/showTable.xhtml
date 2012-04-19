@@ -348,7 +348,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
@@ -364,7 +364,7 @@
                         <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
@@ -383,7 +383,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -400,7 +400,7 @@
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -437,7 +437,7 @@
             </form>
 
             <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
-                linkBase="showTable.xhtml" linkTarget="content"
+                linkBase="#showTable.xhtml" linkTarget="content"
                 mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}"
@@ -515,7 +515,7 @@
         }
 
         function onAfterSave(newUri) {
-            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
+            goTo("#showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
             hideLoader();
         }
 
