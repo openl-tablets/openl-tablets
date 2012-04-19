@@ -32,7 +32,7 @@ import org.openl.util.StringTool;
  */
 public class ComponentBindingContext extends BindingContextDelegator {
 	
-	private static final Log LOG = LogFactory.getLog(ComponentBindingContext.class); 
+	private final Log log = LogFactory.getLog(ComponentBindingContext.class); 
     
     private ComponentOpenClass componentOpenClass;
     
