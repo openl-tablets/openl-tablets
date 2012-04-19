@@ -1320,16 +1320,4 @@ public class RulesUtils {
     	return Math.ulp(f);
     }
     
-    public static double toRadians(double angdeg){
-    	return Math.toRadians(angdeg);
-    }
-    
-    public static double ulp(double d){
-    	return Math.ulp(d);
-    }
-    
-    public static float ulp(float f){
-    	return Math.ulp(f);
-    }
-    
 }
