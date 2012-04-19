@@ -62,4 +62,6 @@ public abstract class AbstractRulesBasedServiceConfigurerFactoryBean implements 
         }
         return RulesInstantiationStrategyFactory.getStrategy(necessaryModule);
     }
+
+
 }
