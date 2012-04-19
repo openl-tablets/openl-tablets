@@ -28,4 +28,16 @@ public class PathUtils {
 		}
       return hewExtension(file);
    }
+   public static String extractFile(String path){
+		// Extract file from possible absolute path and resolve it from resource
+		// TODO - need solution when path to resource is more complex
+		
+		String file = path;
+		for(int i=0;i<2;i++){
+			int lastpos  = file.lastIndexOf(new String("/\\").charAt(i));
+			if(lastpos != (-1))
+				 file = file.substring(lastpos+1);
+		}
+     return hewExtension(file);
+  }
 }
