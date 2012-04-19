@@ -41,7 +41,7 @@ public abstract class AbstractRulesBasedServiceConfigurerFactoryBean implements 
         }
     }
 
-    1231231protected CommonVersion getLastVersionForDeployment(RuleServiceLoader loader, String deploymentName) {
+    protected CommonVersion getLastVersionForDeployment(RuleServiceLoader loader, String deploymentName) {
         CommonVersion lastVersion = null;
         for (Deployment deployment : loader.getDeployments()) {
             if (deployment.getDeploymentName().equals(deploymentName)) {
