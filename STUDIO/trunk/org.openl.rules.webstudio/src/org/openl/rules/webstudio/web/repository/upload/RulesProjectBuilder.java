@@ -14,7 +14,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import java.io.InputStream;
 
 public class RulesProjectBuilder {
-    private static final Log LOG = LogFactory.getLog(RulesProjectBuilder.class);
+    private final Log log = LogFactory.getLog(RulesProjectBuilder.class);
     private final RulesProject project;
     
 
@@ -61,15 +61,15 @@ public class RulesProjectBuilder {
     public void cancel() {
         // it was created it will be perish
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Canceling uploading of new project");
+            if (log.isDebugEnabled()) {
+                log.debug("Canceling uploading of new project");
             }
 
             project.close();
             project.delete();
             project.erase();
         } catch (ProjectException e) {
-            LOG.error("Failed to cancel new project", e);
+            log.error("Failed to cancel new project", e);
         }
     }
 

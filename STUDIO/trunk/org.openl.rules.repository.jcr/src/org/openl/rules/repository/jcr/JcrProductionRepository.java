@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
-    private static final Log log = LogFactory.getLog(JcrProductionRepository.class);
+    private final Log log = LogFactory.getLog(JcrProductionRepository.class);
 
     public static class JCR_SQL2QueryBuilder{
         private boolean firstCondition = true;

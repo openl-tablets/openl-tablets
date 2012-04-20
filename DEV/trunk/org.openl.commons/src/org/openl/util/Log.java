@@ -25,58 +25,64 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Log {
 
-    static org.apache.commons.logging.Log logger = LogFactory.getLog(Log.class);
-
     public static void debug(Object message) {
-        logger.debug(message);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.debug(message);
     }
 
     public static void debug(Object message, Throwable t) {
-        logger.debug(message, t);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.debug(message, t);
     }
 
     public static void debug(String pattern, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isDebugEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.debug(message);
+        log.debug(message);
     }
 
     public static void debug(String pattern, Throwable t, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isDebugEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.debug(message, t);
+        log.debug(message, t);
     }
 
     public static void error(Object message) {
-        logger.error(message);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.error(message);
     }
 
     public static void error(Object message, Throwable t) {
-        logger.error(message, t);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.error(message, t);
     }
 
     public static void error(String pattern, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isErrorEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.error(message);
+        log.error(message);
     }
 
     public static void error(String pattern, Throwable t, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isErrorEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.error(message, t);
+        log.error(message, t);
     }
 
     private static String format(String pattern, Object... params) {
@@ -84,100 +90,117 @@ public class Log {
     }
 
     public static void info(Object message) {
-        logger.info(message);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.info(message);
     }
 
     public static void info(Object message, Throwable t) {
-        logger.info(message, t);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.info(message, t);
     }
 
     public static void info(String pattern, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isInfoEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.info(message);
+        log.info(message);
     }
 
     public static void info(String pattern, Throwable t, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isInfoEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.info(message, t);
+        log.info(message, t);
     }
 
     public static boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        return log.isDebugEnabled();
     }
 
     public static boolean isErrorEnabled() {
-        return logger.isErrorEnabled();
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        return log.isErrorEnabled();
     }
 
     public static boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        return log.isInfoEnabled();
     }
 
     public static boolean isTraceEnabled() {
-        return logger.isTraceEnabled();
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        return log.isTraceEnabled();
     }
 
     public static boolean isWarnEnabled() {
-        return logger.isWarnEnabled();
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        return log.isWarnEnabled();
     }
 
     public static void trace(Object message) {
-        logger.trace(message);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.trace(message);
     }
 
     public static void trace(Object message, Throwable t) {
-        logger.trace(message, t);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.trace(message, t);
     }
 
     public static void trace(String pattern, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isTraceEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.trace(message);
+        log.trace(message);
     }
 
     public static void trace(String pattern, Throwable t, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isTraceEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.trace(message, t);
+        log.trace(message, t);
     }
 
     public static void warn(Object message) {
-        logger.warn(message);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.warn(message);
     }
 
     public static void warn(Object message, Throwable t) {
-        logger.warn(message, t);
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
+        log.warn(message, t);
     }
 
     public static void warn(String pattern, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isWarnEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.warn(message);
+        log.warn(message);
     }
 
     public static void warn(String pattern, Throwable t, Object... params) {
+    	final org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
         if (!isWarnEnabled()) {
             return;
         }
 
         String message = format(pattern, params);
-        logger.warn(message, t);
+        log.warn(message, t);
     }
 }

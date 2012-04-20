@@ -11,7 +11,7 @@ import org.openl.util.StringTool;
 
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     
-    private static final Log LOG = LogFactory.getLog(SpreadsheetColumnExtractor.class);
+    private final Log log = LogFactory.getLog(SpreadsheetColumnExtractor.class);
     
     public SpreadsheetColumnExtractor(ColumnToExtract column, boolean mandatory) {        
         this.column = column;
@@ -58,12 +58,12 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         	try {  
                 setterMethod.invoke(step, value);
             } catch (Exception e) {
-                 LOG.warn(e);
+                 log.warn(e);
             } 
         } else {
         	String message = String.format("Cannot find setter in %s class for [%s] column", 
     				step.getClass().getName(), column.getColumnName());
-        	LOG.warn(message);
+        	log.warn(message);
         }
     }
     
@@ -82,7 +82,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             	setterName = getSetterName(column.getColumnName());
                 setterMethod = step.getClass().getMethod(setterName, column.getExpectedType());
             } catch (Exception e1) {               
-            	LOG.warn(e1);
+            	log.warn(e1);
             }
         } 
         return setterMethod;
@@ -101,7 +101,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             	return convertor.convert(x, null);
             } catch (Exception e) {
             	String message = String.format("Cannot convert value %s to %s", x, column.getExpectedType().getName());
-            	LOG.warn(message, e);
+            	log.warn(message, e);
 			}
         } 
         return x;

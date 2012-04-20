@@ -12,7 +12,7 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClass;
 
 public class ProjectDescriptor {
-    private static final Log LOG = LogFactory.getLog(ProjectDescriptor.class);
+    private final Log log = LogFactory.getLog(ProjectDescriptor.class);
     private String id;
     private String name;
     private String comment;
@@ -127,7 +127,7 @@ public class ProjectDescriptor {
                 }
                 i++;
             } catch (MalformedURLException e) {
-                LOG.error("Bad URL in classpath \"" + entry.getPath() + "\"");
+                log.error("Bad URL in classpath \"" + entry.getPath() + "\"");
             }
         }
         return urls;

@@ -36,7 +36,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class JcrEntity extends JcrCommonArtefact implements REntity {
-    private static Log LOG = LogFactory.getLog(JcrEntity.class);
+    private final Log log = LogFactory.getLog(JcrEntity.class);
     private static final String[] ALLOWED_PROPS = {};
 
     private Map<String, org.openl.rules.common.Property> properties;
@@ -394,10 +394,10 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
             version.updateRevision(n);
             n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
             n.save();
-            LOG.info("Checking in... " + n.getPath());
+            log.info("Checking in... " + n.getPath());
             n.checkin();
         } else if (mustBeSaved) {
-            LOG.info("Saving... " + n.getPath());
+            log.info("Saving... " + n.getPath());
             n.save();
         }
     }

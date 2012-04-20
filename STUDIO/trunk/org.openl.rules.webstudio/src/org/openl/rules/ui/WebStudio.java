@@ -50,7 +50,7 @@ public class WebStudio {
         void studioReset();
     }
 
-    private static final Log LOG = LogFactory.getLog(WebStudio.class);
+    private final Log log = LogFactory.getLog(WebStudio.class);
 
     public static final String TRACER_NAME = "tracer";
 
@@ -183,13 +183,13 @@ public class WebStudio {
             reset(ReloadType.FORCED);
             model.getProjectTree();
         } catch (Exception e) {
-            LOG.error("Can not check in!", e);
+            log.error("Can not check in!", e);
             try {
                 String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
                         e.getMessage());
                 FacesUtils.redirect(redirectLink);
             } catch (IOException e1) {
-                LOG.error("Can`t redirect to with message page", e);
+                log.error("Can`t redirect to with message page", e);
             }
         }
     }
@@ -204,13 +204,13 @@ public class WebStudio {
             reset(ReloadType.FORCED);
             model.getProjectTree();
         } catch (Exception e) {
-            LOG.error("Can not check out!", e);
+            log.error("Can not check out!", e);
             try {
                 String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
                         e.getMessage());
                 FacesUtils.redirect(redirectLink);
             } catch (IOException e1) {
-                LOG.error("Can`t redirect to with message page", e);
+                log.error("Can`t redirect to with message page", e);
             }
         }
     }
@@ -230,7 +230,7 @@ public class WebStudio {
                 RulesProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
                 return project;
             } catch (Exception e) {
-                LOG.error("Error when trying to get current project", e);
+                log.error("Error when trying to get current project", e);
             }
         }
         return null;
@@ -322,7 +322,7 @@ public class WebStudio {
                 listener.studioReset();
             }
         } catch (Exception e) {
-            LOG.error("Error when trying to reset studio model", e);
+            log.error("Error when trying to reset studio model", e);
         }
     }
 

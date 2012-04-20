@@ -29,7 +29,7 @@ public class MethodNodeBinder extends ANodeBinder {
     private static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
     private static final String NO_PARAMETERS = "no parameters";
     
-    private static final Log LOG = LogFactory.getLog(MethodNodeBinder.class);
+    private final Log log = LogFactory.getLog(MethodNodeBinder.class);
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
@@ -113,10 +113,10 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
-        if (LOG.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
             String message = String.format("Method '%s' with parameters '%s' was binded as %s", 
                 methodName, getArgumentsAsString(argumentTypes), bindingType);
-            LOG.trace(message);
+            log.trace(message);
         }
     }   
     

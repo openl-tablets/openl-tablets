@@ -46,7 +46,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * 
  */
 public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
-    private static Log LOG = LogFactory.getLog(JcrEntityAPI.class);
+    private final Log log = LogFactory.getLog(JcrEntityAPI.class);
     private static final String[] ALLOWED_PROPS = {ArtefactProperties.PROP_EFFECTIVE_DATE, ArtefactProperties.PROP_EXPIRATION_DATE, ArtefactProperties.PROP_LINE_OF_BUSINESS};
 
     private Map<String, org.openl.rules.common.Property> properties;
@@ -329,7 +329,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             }
 
         } catch (RRepositoryException e) {
-            LOG.error("Failed to get version history!", e);
+            log.error("Failed to get version history!", e);
         }
         return vers;
     }
@@ -339,7 +339,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         try {
             return getLock();
         } catch (RRepositoryException e) {
-            LOG.error("getLockInfo", e);
+            log.error("getLockInfo", e);
             return RLock.NO_LOCK;
         }
     }
@@ -355,12 +355,12 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
 
             if (NodeUtil.isVersionable(n)) {
-                LOG.info("Checking in... " + n.getPath());
+                log.info("Checking in... " + n.getPath());
                 n.save();
                 n.checkin();
             } else {
                 n.save();
-                LOG.info("Saving... " + n.getPath());
+                log.info("Saving... " + n.getPath());
             }
         } catch (RepositoryException e) {
             throw new ProjectException("Failed to check in artefact ''{0}''!", e, getPath());

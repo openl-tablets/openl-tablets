@@ -19,7 +19,6 @@ import org.openl.rules.runtime.RulesFactory;
 
 public abstract class RulesServiceEnhancerHelper {
 
-    private static final Log LOG = LogFactory.getLog(RulesServiceEnhancerHelper.class);
     /**
      * Suffix of enhanced class name.
      */
@@ -50,10 +49,11 @@ public abstract class RulesServiceEnhancerHelper {
      * @throws Exception
      */
     public static Class<?> undecorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-
+    	final Log log = LogFactory.getLog(RulesServiceEnhancerHelper.class);
+    	
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
-        LOG.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
+        log.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
 
         return undecorateInterface(className, clazz, classLoader);
     }
@@ -107,14 +107,15 @@ public abstract class RulesServiceEnhancerHelper {
      * @throws Exception
      */
     public static Class<?> decorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-
+    	final Log log = LogFactory.getLog(RulesServiceEnhancerHelper.class);
+    	
         Method[] methods = clazz.getMethods();
         List<RuleInfo> rules = getRulesDecorated(methods);
 
         String className = clazz.getName() + ENHANCED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
-        LOG.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
+        log.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
 
         return RulesFactory.generateInterface(className, rulesArray, classLoader);
     }
