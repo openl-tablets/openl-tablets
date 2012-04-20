@@ -518,11 +518,11 @@ public class XlsBinder implements IOpenBinder {
             RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass moduleOpenClass) throws Exception {
 
-        String type = syntaxNode.getType();
-        AXlsTableBinder binder = getBinderFactory().get(type);
+        String tableSyntaxNodeType = syntaxNode.getType();
+        AXlsTableBinder binder = findBinder(tableSyntaxNodeType);
 
         if (binder == null) {
-            String message = String.format("Unknown table type '%s'", type);
+            String message = String.format("Unknown table type '%s'", tableSyntaxNodeType);
             log.debug(message);
 
             return null;
@@ -533,7 +533,11 @@ public class XlsBinder implements IOpenBinder {
     }
 
     
-    protected String getDefaultOpenLName()
+    protected AXlsTableBinder findBinder(String tableSyntaxNodeType) {
+		return getBinderFactory().get(tableSyntaxNodeType);
+	}
+
+	protected String getDefaultOpenLName()
     {
     	return DEFAULT_OPENL_NAME;
     }

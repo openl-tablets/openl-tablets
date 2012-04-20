@@ -16,6 +16,7 @@ import org.openl.rules.table.Point;
 public class SpreadsheetResult implements Serializable {
     
     private static final long serialVersionUID = 8704762477153429384L;
+
     
     private Object[][] results;
     private int height;

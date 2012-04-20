@@ -65,7 +65,7 @@
                     <ui:repeat value="#{testUnitsResults.testUnits}" var="testUnit">
                         <tr>
                             <ui:repeat value="#{runAllTestsBean.getParamDescriptions(testUnit)}" var="parameter">
-                            <td>
+                            <td width="100 px" >
                                 <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
                                 </ui:include>

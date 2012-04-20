@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.util;
 
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+
 /*
  * Checks whether specified string can be used to name project artefact.
  *
@@ -10,7 +14,9 @@ public class NameChecker {
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name must not contain forbidden characters ("
             + NameChecker.getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
-
+    public static final String FOLDER_EXISTS = "Cannot create folder because folder with such name already exists.";
+    public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
+    
     protected static boolean checkForbiddenChars(String artefactName) {
         // check for forbidden chars
         for (char c : FORBIDDEN_CHARS) {
@@ -43,6 +49,11 @@ public class NameChecker {
         }
         if (artefactName.endsWith(".")) {
             return false;
+        }
+        
+        //check empty name
+        if(artefactName.isEmpty()){
+        	return false;
         }
 
         // seems OK
@@ -79,4 +90,21 @@ public class NameChecker {
 
         return forbiddenChars;
     }
+    
+    public static boolean checkIsFolderPresent(AProjectFolder folder, String folderName) {
+		try {
+        	AProjectArtefact artefact = folder.getArtefact(folderName);
+        	
+        	if(artefact instanceof AProjectFolder){
+				//Such folder is present
+        		return true;
+			}
+        	
+        	return false;
+		} catch (ProjectException e1) {
+			//Such folder isn't present
+			return false;
+		}
+	}
+    
 }

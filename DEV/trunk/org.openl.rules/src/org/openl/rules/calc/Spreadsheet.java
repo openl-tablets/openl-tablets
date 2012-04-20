@@ -144,10 +144,22 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        return getInvoker().invoke(target, params, env);
+    }
+    
+
+    protected Invokable createInvoker()
+    {
+    	return new SpreadsheetInvoker(this);
+    }
+    
+    synchronized protected Invokable getInvoker()
+    {
         if (invoker == null) {
-            invoker = new SpreadsheetInvoker(this);
+        	invoker = createInvoker();
         } 
-        return invoker.invoke(target, params, env);
+        return invoker;
+    	
     }
     
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
@@ -185,5 +197,9 @@ public class Spreadsheet extends ExecutableRulesMethod {
     {
         return getWidth();
     }
+
+	public void setInvoker(SpreadsheetInvoker invoker) {
+		this.invoker = invoker;
+	}
 
 }
