@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
  * @author PUdalau
  */
 public class VariationsResult<T> {
-    private final Log LOG = LogFactory.getLog(VariationsResult.class);
+    private final Log log = LogFactory.getLog(VariationsResult.class);
     private LinkedHashMap<String, T> variationResults;
     private LinkedHashMap<String, Exception> variationFailures;
 
@@ -37,14 +37,14 @@ public class VariationsResult<T> {
      */
     /* package */void registerResults(String variationID, T result) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
-            LOG.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
+            log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }
         variationResults.put(variationID, result);
     }
 
     /* package */void registerFailure(String variationID, Exception exception) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
-            LOG.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
+            log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }
         variationFailures.put(variationID, exception);
     }

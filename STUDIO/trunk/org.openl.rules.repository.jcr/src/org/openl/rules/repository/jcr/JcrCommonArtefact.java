@@ -15,7 +15,7 @@ import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonArtefact {
-    private final static Log log = LogFactory.getLog(JcrCommonArtefact.class);
+    private final Log log = LogFactory.getLog(JcrCommonArtefact.class);
 
     private String name;
     private Node node;

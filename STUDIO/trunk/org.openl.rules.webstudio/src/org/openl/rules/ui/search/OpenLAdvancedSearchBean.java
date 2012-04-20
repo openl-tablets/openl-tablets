@@ -35,7 +35,7 @@ import org.openl.util.AStringBoolOperator;
 @SessionScoped
 public class OpenLAdvancedSearchBean {
 
-    private static final Log LOG = LogFactory.getLog(OpenLAdvancedSearchBean.class);
+    private final Log log = LogFactory.getLog(OpenLAdvancedSearchBean.class);
 
     private static final SelectItem[] tableTypes;
     private static final SelectItem[] columnTypeValues;
@@ -195,7 +195,7 @@ public class OpenLAdvancedSearchBean {
                 webStudio.getModel().saveSearch(savedSearch);
             } catch (Exception e) {
                 FacesUtils.addErrorMessage("Failed to save search", e.getMessage());
-                LOG.error("failed to save search", e);
+                log.error("failed to save search", e);
             }
         }
         return null;

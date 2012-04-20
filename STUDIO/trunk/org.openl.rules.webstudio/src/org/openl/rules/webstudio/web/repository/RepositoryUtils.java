@@ -22,8 +22,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  *
  */
 public class RepositoryUtils {
-    private static final Log LOG = LogFactory.getLog(RepositoryUtils.class);
-
     public static final Comparator<ProjectVersion> VERSIONS_REVERSE_COMPARATOR = new Comparator<ProjectVersion>() {
         public int compare(ProjectVersion o1, ProjectVersion o2) {
             return o2.compareTo(o1);
@@ -61,10 +59,11 @@ public class RepositoryUtils {
      * @return user's workspace or <code>null</code>
      */
     public static UserWorkspace getWorkspace() {
+    	final Log log = LogFactory.getLog(RepositoryUtils.class);
         try {
             return getRulesUserSession().getUserWorkspace();
         } catch (Exception e) {
-            LOG.error("Error obtaining user workspace", e);
+            log.error("Error obtaining user workspace", e);
         }
         return null;
     }

@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
  */
 class VariationsInvocationHandler implements InvocationHandler {
 
-    private final Log LOG = LogFactory.getLog(VariationsInvocationHandler.class);
+    private final Log log = LogFactory.getLog(VariationsInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Object serviceClassInstance;
@@ -32,12 +32,12 @@ class VariationsInvocationHandler implements InvocationHandler {
 
         Method member = methodsMap.get(method);
         if (VariationsEnhancerHelper.isEnhancedMethod(method)) {
-            LOG.debug(String.format("Invoking service class method with variations: %s -> %s",
+            log.debug(String.format("Invoking service class method with variations: %s -> %s",
                 method.toString(),
                 member.toString()));
             return calculateWithVariations(method, args, member);
         } else {
-            LOG.debug(String.format("Invoking service class method without variations: %s -> %s",
+            log.debug(String.format("Invoking service class method without variations: %s -> %s",
                 method.toString(),
                 member.toString()));
             return calculateWithoutVariations(args, member);
@@ -94,7 +94,7 @@ class VariationsInvocationHandler implements InvocationHandler {
                 try {
                     variation.revertModifications(modifiedArguments, stack);
                 } catch (Exception e) {
-                    LOG.error("Failed to revert modifications in variation \"" + variation.getVariationID() + "\"");
+                    log.error("Failed to revert modifications in variation \"" + variation.getVariationID() + "\"");
                 }
             }
         }

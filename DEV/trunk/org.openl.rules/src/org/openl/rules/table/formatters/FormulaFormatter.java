@@ -11,8 +11,6 @@ import org.openl.util.formatters.IFormatter;
  */
 public class FormulaFormatter implements IFormatter {
 
-    //private static final Log LOG = LogFactory.getLog(XlsFormulaFormatter.class);
-
     //private static final String FORMULA_PREFIX = "=";
     private IFormatter formulaResultFormatter;
 

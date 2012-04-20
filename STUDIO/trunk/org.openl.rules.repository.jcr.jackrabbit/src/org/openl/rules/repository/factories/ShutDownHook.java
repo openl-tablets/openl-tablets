@@ -12,7 +12,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  */
 public class ShutDownHook extends Thread {
-    private static Log log = LogFactory.getLog(ShutDownHook.class);
+    private final Log log = LogFactory.getLog(ShutDownHook.class);
 
     /**
      * Without WeakReference GC will never finalize repository factory.

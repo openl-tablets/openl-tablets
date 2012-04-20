@@ -38,7 +38,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DatatypeOpenClass extends ADynamicClass {
     
-    private static final Log LOG = LogFactory.getLog(DatatypeOpenClass.class);
+    private final Log log = LogFactory.getLog(DatatypeOpenClass.class);
     
     private IOpenClass superClass;
     
@@ -121,13 +121,13 @@ public class DatatypeOpenClass extends ADynamicClass {
         try {
             instance = getInstanceClass().newInstance();
         } catch (InstantiationException e) {            
-            LOG.error(this, e);
+            log.error(this, e);
         } catch (IllegalAccessException e) {            
-            LOG.error(this, e);
+            log.error(this, e);
         } catch (Throwable e) {
         	// catch e.g. NoClassDefFoundError
         	//
-        	LOG.error(this, e);
+        	log.error(this, e);
 		}
         return instance;
     }

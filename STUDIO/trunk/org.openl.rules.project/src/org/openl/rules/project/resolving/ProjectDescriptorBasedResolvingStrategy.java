@@ -9,7 +9,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
     
-    private static final Log LOG = LogFactory.getLog(ProjectDescriptorBasedResolvingStrategy.class);
+    private final Log log = LogFactory.getLog(ProjectDescriptorBasedResolvingStrategy.class);
 
     public final static String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
 
@@ -17,11 +17,11 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
 
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         if (descriptorFile.exists()) {
-            LOG.debug(String.format(
+            log.debug(String.format(
                 "Project in %s folder was resolved as Project descriptor based project", folder.getPath()));
             return true;
         } else {
-            LOG.debug(String.format("Project descriptor based strategy failed to resolve project folder %s:" +
+            log.debug(String.format("Project descriptor based strategy failed to resolve project folder %s:" +
             		"there is no file %s in folder", folder.getPath(), PROJECT_DESCRIPTOR_FILE_NAME));
             return false;
         }

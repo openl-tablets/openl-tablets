@@ -20,7 +20,7 @@ import java.util.Collection;
  * @author Andrey Naumenko
  */
 public class DeploymentManager {
-    private static final Log LOG = LogFactory.getLog(DeploymentManager.class);
+    private final Log log = LogFactory.getLog(DeploymentManager.class);
 
     private ProductionDeployer deployer;
 
@@ -36,9 +36,9 @@ public class DeploymentManager {
 
         DeployID id = RepositoryUtils.getDeployID(project);
         deployer.deploy(project, id, projects);
-        if (LOG.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             String msg = "Project '" + project.getName() + "' successfully deployed with id:" + id.getName();
-            LOG.debug(msg);
+            log.debug(msg);
         }
 
         return id;

@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileStorage {
 
-    private static final Log LOG = LogFactory.getLog(FileStorage.class);
+    private final Log log = LogFactory.getLog(FileStorage.class);
 
     private final String storagePath;
     private final boolean versioning;
@@ -63,7 +63,7 @@ public class FileStorage {
             destFile.setLastModified(currentDate);
             added = true;
         } catch (Exception e) {
-            LOG.error("Can't add file " + srcFile.getName(), e);
+            log.error("Can't add file " + srcFile.getName(), e);
         }
 
         return added;
@@ -101,7 +101,7 @@ public class FileStorage {
             FileUtils.forceDelete(file);
             deleted = true;
         } catch (Exception e) {
-            LOG.error("Can't delete file " + file.getName(), e);
+            log.error("Can't delete file " + file.getName(), e);
         }
         return deleted;
     }
@@ -112,7 +112,7 @@ public class FileStorage {
             try {
                 FileUtils.cleanDirectory(storageDir);
             } catch (Exception e) {
-                LOG.error("Can't clean folder " + storageDir.getName(), e);
+                log.error("Can't clean folder " + storageDir.getName(), e);
             }
         }
     }

@@ -12,7 +12,6 @@ import org.openl.util.MsgHelper;
  * @author Aleh Bykhavets
  */
 public class FolderHelper {
-    private static final Log log = LogFactory.getLog(FolderHelper.class);
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
     public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
@@ -36,6 +35,7 @@ public class FolderHelper {
      * @return true if all content is deleted and false if at least one file or sub-folder cannot be deleted.
      */
     public static boolean clearFolder(File folder) {
+    	final Log log = LogFactory.getLog(FolderHelper.class);
         if (log.isDebugEnabled()) {
             log.debug(MsgHelper.format("Clearing folder ''{0}''", folder));
         }
@@ -75,6 +75,7 @@ public class FolderHelper {
      * @return true if the folder is deleted and false if the folder cannot be deleted.
      */
     public static boolean deleteFolder(File folder) {
+    	final Log log = LogFactory.getLog(FolderHelper.class);
         if (log.isDebugEnabled()) {
             log.debug(MsgHelper.format("Deleting folder ''{0}''", folder));
         }

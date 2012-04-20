@@ -13,7 +13,7 @@ import org.openl.rules.table.InputArgumentsCloner;
  * @author PUdalau
  */
 public class DeepCloninigVariaion extends Variation {
-    private final Log LOG = LogFactory.getLog(DeepCloninigVariaion.class);
+    private final Log log = LogFactory.getLog(DeepCloninigVariaion.class);
 
     /**
      * Suffix for generated variation ID if it have not been specified.
@@ -51,7 +51,7 @@ public class DeepCloninigVariaion extends Variation {
             try {
                 clonedParams = cloner.deepClone(originalArguments);
             } catch (Exception ex) {
-                LOG.error("Faield to clone arguments in variation \"" + getVariationID() + "\". Original arguments will be used.");
+                log.error("Faield to clone arguments in variation \"" + getVariationID() + "\". Original arguments will be used.");
                 clonedParams = originalArguments;
             }
         } else {

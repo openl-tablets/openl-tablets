@@ -43,7 +43,7 @@ import javax.faces.model.SelectItem;
 @ManagedBean
 @SessionScoped
 public class RepositoryDiffController extends AbstractDiffController {
-    private static Log log = LogFactory.getLog(RepositoryDiffController.class);
+    private final Log log = LogFactory.getLog(RepositoryDiffController.class);
 
     @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;

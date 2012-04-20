@@ -13,8 +13,6 @@ import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 public final class EditHelper {
 	
-	private static final Log LOG = LogFactory.getLog(EditHelper.class);
-	
 	private EditHelper(){}
 	
 	public static boolean updateSystemProperties(IOpenLTable table, TableEditorModel tableEditorModel) {
@@ -29,7 +27,8 @@ public final class EditHelper {
     } 
 	
 	private static boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition systemProperty) {
-        boolean result = false;
+		final Log log = LogFactory.getLog(EditHelper.class);
+		boolean result = false;
         Object systemValue = null;
 
         if (systemProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
@@ -41,7 +40,7 @@ public final class EditHelper {
                         result = true;
                 	}                    
                 } catch (Exception e) {
-                    LOG.error(String.format("Can`t update system property '%s' with value '%s'", systemProperty.getName(),
+                    log.error(String.format("Can`t update system property '%s' with value '%s'", systemProperty.getName(),
                             systemValue), e);
                 }
             }
