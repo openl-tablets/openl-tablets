@@ -35,7 +35,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class RulesModuleBindingContext extends ModuleBindingContext {
-    private static final Log LOG = LogFactory.getLog(RulesModuleBindingContext.class);
+    private final Log log = LogFactory.getLog(RulesModuleBindingContext.class);
 
     public static String MODULE_PROPERTIES_KEY = "Properties:Module";
     public static String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
@@ -99,7 +99,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             try {
                 return context.clone();
             } catch (CloneNotSupportedException e) {
-                LOG.warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
+                log.warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
                 return context;
             }
         }
@@ -184,7 +184,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if(env.isContextManagingSupported()){
                 env.popContext();
             } else {
-                LOG.warn("Failed to restore runtime context. Runtime context does not support context modifications.");
+                log.warn("Failed to restore runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -230,7 +230,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 IRulesRuntimeContext runtimeContext =  (IRulesRuntimeContext)params[0];
                 env.pushContext(runtimeContext);
             } else {
-                LOG.warn("Failed to set runtime context. Runtime context does not support context modifications.");
+                log.warn("Failed to set runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -283,7 +283,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 runtimeContext.setValue((String)params[0], params[1]);
                 env.pushContext(runtimeContext);
             } else {
-                LOG.warn("Failed to modify runtime context. Runtime context does not support context modifications.");
+                log.warn("Failed to modify runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }

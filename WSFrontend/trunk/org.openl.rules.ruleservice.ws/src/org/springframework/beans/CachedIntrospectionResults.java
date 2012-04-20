@@ -58,7 +58,7 @@ import org.springframework.util.StringUtils;
  */
 public class CachedIntrospectionResults {
 
-    private static final Log logger = LogFactory.getLog(CachedIntrospectionResults.class);
+    private final Log log = LogFactory.getLog(CachedIntrospectionResults.class);
 
     /**
      * Set of ClassLoaders that this CachedIntrospectionResults class will always
@@ -130,6 +130,7 @@ public class CachedIntrospectionResults {
      * @throws BeansException in case of introspection failure
      */
     static CachedIntrospectionResults forClass(Class beanClass) throws BeansException {
+    	final Log log = LogFactory.getLog(CachedIntrospectionResults.class);
         CachedIntrospectionResults results;
         Object value = classCache.get(beanClass);
         if (value instanceof Reference) {
@@ -150,8 +151,8 @@ public class CachedIntrospectionResults {
                 classCache.put(beanClass, results);
             }
             else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Not strongly caching class [" + beanClass.getName() + "] because it is not cache-safe");
+                if (log.isDebugEnabled()) {
+                    log.debug("Not strongly caching class [" + beanClass.getName() + "] because it is not cache-safe");
                 }
                 results = new CachedIntrospectionResults(beanClass, true);
                 classCache.put(beanClass, new WeakReference<CachedIntrospectionResults>(results));
@@ -218,8 +219,8 @@ public class CachedIntrospectionResults {
      */
     private CachedIntrospectionResults(Class beanClass, boolean cacheFullMetadata) throws BeansException {
         try {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Getting BeanInfo for class [" + beanClass.getName() + "]");
+            if (log.isTraceEnabled()) {
+                log.trace("Getting BeanInfo for class [" + beanClass.getName() + "]");
             }
 //            this.beanInfo = new ExtendedBeanInfo(Introspector.getBeanInfo(beanClass));
             // ExtendedBeanInfo is skipped because there some problems with
@@ -238,8 +239,8 @@ public class CachedIntrospectionResults {
             }
             while (classToFlush != null);
 
-            if (logger.isTraceEnabled()) {
-                logger.trace("Caching PropertyDescriptors for class [" + beanClass.getName() + "]");
+            if (log.isTraceEnabled()) {
+                log.trace("Caching PropertyDescriptors for class [" + beanClass.getName() + "]");
             }
             this.propertyDescriptorCache = new LinkedHashMap<String, PropertyDescriptor>();
 
@@ -250,8 +251,8 @@ public class CachedIntrospectionResults {
                     // Ignore Class.getClassLoader() method - nobody needs to bind to that
                     continue;
                 }
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Found bean property '" + pd.getName() + "'" +
+                if (log.isTraceEnabled()) {
+                    log.trace("Found bean property '" + pd.getName() + "'" +
                             (pd.getPropertyType() != null ? " of type [" + pd.getPropertyType().getName() + "]" : "") +
                             (pd.getPropertyEditorClass() != null ?
                                     "; editor [" + pd.getPropertyEditorClass().getName() + "]" : ""));

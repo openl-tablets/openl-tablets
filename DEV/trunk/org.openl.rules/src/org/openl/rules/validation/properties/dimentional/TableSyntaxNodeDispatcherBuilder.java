@@ -59,7 +59,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
     private static String VIRTUAL_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
     
-    private static Log LOG = LogFactory.getLog(TableSyntaxNodeDispatcherBuilder.class);
+    private final Log log = LogFactory.getLog(TableSyntaxNodeDispatcherBuilder.class);
     
     //LinkedHashMap to save the sequence of params
     public static final LinkedHashMap<String, IOpenClass> incomeParams;
@@ -341,7 +341,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         try {
             dtLoader.loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());            
         } catch (Exception e) {            
-            LOG.error(e);
+            log.error(e);
             OpenLMessagesUtils.addWarn(e.getMessage(), tsn);
         }
         return tsn;

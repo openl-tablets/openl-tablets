@@ -20,7 +20,7 @@ import javax.jcr.Session;
 
 public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory {
 
-    private static Log LOG = LogFactory.getLog(LocalJackrabbitProductionRepositoryFactory.class);
+    private final Log log = LogFactory.getLog(LocalJackrabbitProductionRepositoryFactory.class);
 
     private final ConfigPropertyString confRepositoryHome = new ConfigPropertyString(
             "production-repository.local.home", "../local-repository");
@@ -92,7 +92,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
             //FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
-            LOG.info("Converting production repository. Please, be patient.");
+            log.info("Converting production repository. Please, be patient.");
             repositoryConvertor.convert(repositoryInstance);
         } catch (Exception e) {
             throw new RRepositoryException("Failed to convert repository.", e);

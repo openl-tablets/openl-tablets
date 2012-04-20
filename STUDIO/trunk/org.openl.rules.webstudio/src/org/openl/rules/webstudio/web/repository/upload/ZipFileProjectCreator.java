@@ -17,7 +17,7 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class ZipFileProjectCreator extends AProjectCreator {
-    private static final Log LOG = LogFactory.getLog(ZipFileProjectCreator.class);
+    private final Log log = LogFactory.getLog(ZipFileProjectCreator.class);
     
     private ZipFile zipFile;
     
@@ -47,7 +47,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 sortedNames.add(item.getName());
             } catch (Exception e) {
                 // TODO message on UI
-                LOG.warn("Can not extract zip entry.", e);
+                log.warn("Can not extract zip entry.", e);
             }
         }
         return sortedNames;
@@ -73,7 +73,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 }
             } catch (Exception e) {
                 // TODO message on UI
-                LOG.warn(String.format("Bad zip entry name [%s].", name));
+                log.warn(String.format("Bad zip entry name [%s].", name));
             }
         }
         return projectBuilder;

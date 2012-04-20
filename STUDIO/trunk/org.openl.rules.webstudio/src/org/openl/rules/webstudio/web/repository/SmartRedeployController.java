@@ -31,7 +31,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 @RequestScoped
 public class SmartRedeployController {
 
-    private static final Log LOG = LogFactory.getLog(SmartRedeployController.class);
+    private final Log log = LogFactory.getLog(SmartRedeployController.class);
 
     /** A controller which contains pre-built UI object tree. */
     @ManagedProperty(value="#{repositoryTreeState}")
@@ -81,7 +81,7 @@ public class SmartRedeployController {
                     latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(
                             deploymentProject.getName());
                 } catch (RepositoryException e) {
-                    LOG.error("Failed to get latest version for deployment project '" + deploymentProject.getName()
+                    log.error("Failed to get latest version for deployment project '" + deploymentProject.getName()
                             + "'", e);
                 }
             }
@@ -197,7 +197,7 @@ public class SmartRedeployController {
                                 + "' successfully deployed with id: " + id.getName());
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
-                LOG.error(msg, e);
+                log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
         }
@@ -244,7 +244,7 @@ public class SmartRedeployController {
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deployment project '" + deploymentName + "'";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg);
         }
 

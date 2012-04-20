@@ -15,7 +15,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class ProductionRepositoryFactoryProxy {
-    private static final Log log = LogFactory.getLog(ProductionRepositoryFactoryProxy.class);
 
     public static final String DEFAULT_PROP_FILE = "rules-production.properties";
     /** default value is <code>null</code> -- fail first */
@@ -41,6 +40,7 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     private static void initFactory() throws RRepositoryException {
+    	final Log log = LogFactory.getLog(ProductionRepositoryFactoryProxy.class);
         if (config == null) {
             config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
         }

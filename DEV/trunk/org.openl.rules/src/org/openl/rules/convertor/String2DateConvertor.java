@@ -13,7 +13,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 public class String2DateConvertor extends LocaleDependConvertor implements IString2DataConvertor {
 
-    private static final Log LOG = LogFactory.getLog(String2DateConvertor.class);
+    private final Log log = LogFactory.getLog(String2DateConvertor.class);
     private static final int YEAR_START_COUNT = 1900;
 
     private DateFormat defaultFormat = DateFormat.getDateInstance(DateFormat.SHORT, getLocale());
@@ -41,7 +41,7 @@ public class String2DateConvertor extends LocaleDependConvertor implements IStri
                 return cc.getTime();
 
             } catch (NumberFormatException t) {
-                LOG.debug(t);
+                log.debug(t);
             }
             throw RuntimeExceptionWrapper.wrap(e);
         }

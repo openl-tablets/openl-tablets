@@ -17,7 +17,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class JcrLock implements RLock {
     private static final String LOCK_NODE_NAME_PREFIX = "lock~";
 
-    private static final Log log = LogFactory.getLog(JcrLock.class);
+    private final Log log = LogFactory.getLog(JcrLock.class);
 
     private Node lockNode;
     private Node forNode;

@@ -24,7 +24,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyDelegator
  */
 public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
 
-    private final Log LOG = LogFactory.getLog(VariationsEnhancer.class);
+    private final Log log = LogFactory.getLog(VariationsEnhancer.class);
 
     /**
      * Internal generated class at runtime which used as service class.
@@ -102,7 +102,7 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) throws Exception{
 
-        LOG.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = interfaceClass.getDeclaredMethods();
@@ -117,7 +117,7 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
             }
         }
 
-        LOG.debug(methodMap.toString());
+        log.debug(methodMap.toString());
 
         return methodMap;
     }

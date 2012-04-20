@@ -230,7 +230,7 @@
 				<dependency>
 					<groupId>org.springframework</groupId>
 					<artifactId>spring-test</artifactId>
-					<version>${org.springframework.version}</version>
+					<scope>compile</scope>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -336,7 +336,7 @@
 				<dependency>
 					<groupId>org.springframework</groupId>
 					<artifactId>spring-test</artifactId>
-					<version>${org.springframework.version}</version>
+					<scope>compile</scope>
 				</dependency>
 				
 				<dependency>

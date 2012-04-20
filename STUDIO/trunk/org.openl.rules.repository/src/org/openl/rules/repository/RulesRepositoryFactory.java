@@ -16,7 +16,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class RulesRepositoryFactory {
-    private static final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
 
     public static final String DEFAULT_PROP_FILE = "rules-repository.properties";
 
@@ -45,6 +44,7 @@ public class RulesRepositoryFactory {
     }
 
     private static void initFactory() throws RRepositoryException {
+    	final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
         if (config == null) {
             config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
         }

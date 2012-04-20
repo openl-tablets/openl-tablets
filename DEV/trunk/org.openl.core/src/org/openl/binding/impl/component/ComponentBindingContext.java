@@ -3,8 +3,6 @@ package org.openl.binding.impl.component;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -32,7 +30,7 @@ import org.openl.util.StringTool;
  */
 public class ComponentBindingContext extends BindingContextDelegator {
 	
-	private static final Log LOG = LogFactory.getLog(ComponentBindingContext.class); 
+	//private final Log log = LogFactory.getLog(ComponentBindingContext.class); 
     
     private ComponentOpenClass componentOpenClass;
     

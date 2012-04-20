@@ -12,7 +12,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 
 public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
-    private static final Log LOG = LogFactory.getLog(SimpleParameterTreeNode.class);
+    private final Log log = LogFactory.getLog(SimpleParameterTreeNode.class);
 
     public static final String SIMPLE_TYPE = "simple";
 
@@ -55,7 +55,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
                 setValueForced(convertor.parse(value, null, null));
             } catch (Exception e) {
                 // TODO message on UI
-                LOG.warn(String.format("Failed to set \"%s\" value to field [%s]", value, getName()), e);
+                log.warn(String.format("Failed to set \"%s\" value to field [%s]", value, getName()), e);
             }
         }
     }

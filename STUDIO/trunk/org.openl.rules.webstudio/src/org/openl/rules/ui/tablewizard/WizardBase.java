@@ -50,7 +50,7 @@ public abstract class WizardBase extends BaseWizardBean {
     /** New table identifier */
     private String newTableUri;
 
-    private static final Log LOG = LogFactory.getLog(WizardBase.class);
+    private final Log log = LogFactory.getLog(WizardBase.class);
 
     protected XlsSheetSourceCodeModule getDestinationSheet() {
         XlsSheetSourceCodeModule sourceCodeModule;
@@ -186,7 +186,7 @@ public abstract class WizardBase extends BaseWizardBean {
             doSave();
             success = true;
         } catch (Exception e) {
-            LOG.error("Could not save table: ", e);
+            log.error("Could not save table: ", e);
             throw e;
         }
         if (success) {

@@ -5,8 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
-
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
@@ -22,7 +20,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
     private String methodName;    
     private IBoundNode[] children;
     
-    private static final Log LOG = LogFactory.getLog(FieldAccessMethodBinder.class);
+    private final Log log = LogFactory.getLog(FieldAccessMethodBinder.class);
     
     public FieldAccessMethodBinder(String methodName, IBoundNode[] children) {
         this.methodName = methodName;        
@@ -45,7 +43,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
         }
         
         if (accessorChain == null) {          
-            LOG.warn(String.format("Can`t bind as field access method the method with name %s", methodName));
+            log.warn(String.format("Can`t bind as field access method the method with name %s", methodName));
         }
         
         return accessorChain;

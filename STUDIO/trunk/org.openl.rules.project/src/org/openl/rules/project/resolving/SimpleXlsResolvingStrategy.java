@@ -23,7 +23,7 @@ import org.openl.util.FileTypeHelper;
  */
 public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
-    private static final Log LOG = LogFactory.getLog(SimpleXlsResolvingStrategy.class);
+    private final Log log = LogFactory.getLog(SimpleXlsResolvingStrategy.class);
 
     public boolean isRulesProject(File folder) {
         if (!folder.isDirectory()) {
@@ -32,12 +32,12 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         for (File f : folder.listFiles()) {
             if (!f.isHidden()
                     && FileTypeHelper.isExcelFile(f.getName())) {
-                LOG.debug(String.format(
+                log.debug(String.format(
                     "Project in %s folder was resolved as simple xls project", folder.getPath()));
                 return true;                
             }
         }
-        LOG.debug(String.format("Simple xls strategy failed to resolve project folder:" +
+        log.debug(String.format("Simple xls strategy failed to resolve project folder:" +
             "there is no excel files in given folder %s", folder.getPath()));
         return false;
     }
@@ -55,7 +55,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                     Module module = createModule(project, rootPath, name);
                     modules.put(name, module);
                 } else {
-                    LOG.error("A module with this name already exists: " + name);
+                    log.error("A module with this name already exists: " + name);
                 }
             }
         }
