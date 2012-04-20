@@ -36,7 +36,7 @@ import javax.faces.model.SelectItem;
 @ManagedBean
 @ViewScoped
 public class DeploymentController {
-    private static final Log LOG = LogFactory.getLog(DeploymentController.class);
+    private final Log log = LogFactory.getLog(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
     private String projectName;
     private String version;
@@ -57,7 +57,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(newDescriptors);
         } catch (ProjectException e) {
-            LOG.error("Failed to add project descriptor!", e);
+            log.error("Failed to add project descriptor!", e);
             FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
 
@@ -80,7 +80,7 @@ public class DeploymentController {
             getSelectedProject().checkIn();
             items = null;
         } catch (ProjectException e) {
-            LOG.error("Failed to check-in!", e);
+            log.error("Failed to check-in!", e);
             FacesUtils.addErrorMessage("failed to check in", e.getMessage());
         }
 
@@ -92,7 +92,7 @@ public class DeploymentController {
             getSelectedProject().checkOut();
             items = null;
         } catch (ProjectException e) {
-            LOG.error("Failed to check-out!", e);
+            log.error("Failed to check-out!", e);
             FacesUtils.addErrorMessage("failed to check out", e.getMessage());
         }
 
@@ -104,7 +104,7 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            LOG.error("Failed to close!", e);
+            log.error("Failed to close!", e);
             FacesUtils.addErrorMessage("failed to close deployment project", e.getMessage());
         }
 
@@ -118,7 +118,7 @@ public class DeploymentController {
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
-            LOG.error("Failed to delete project descriptor!", e);
+            log.error("Failed to delete project descriptor!", e);
             FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
         return null;
@@ -133,7 +133,7 @@ public class DeploymentController {
                                 + "' successfully deployed with id: " + id.getName());
             } catch (Exception e) {
                 String msg = "Failed to deploy '" + project.getName() + "'";
-                LOG.error(msg, e);
+                log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
         }
@@ -164,7 +164,7 @@ public class DeploymentController {
         try {
             checkConflicts(items);
         } catch (ProjectException e) {
-            LOG.error("Failed to check conflicts!", e);
+            log.error("Failed to check conflicts!", e);
             FacesUtils.addErrorMessage(e.getMessage());
         }
 
@@ -212,7 +212,7 @@ public class DeploymentController {
                 }
                 return selectItems.toArray(new SelectItem[selectItems.size()]);
             } catch (ProjectException e) {
-                LOG.error("Failed to get project versions!", e);
+                log.error("Failed to get project versions!", e);
             }
         }
         return new SelectItem[0];
@@ -250,7 +250,7 @@ public class DeploymentController {
                     }
                     repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(projectName));
                 } catch (ProjectException e) {
-                    LOG.error("Failed to open project '" + projectName + "'!", e);
+                    log.error("Failed to open project '" + projectName + "'!", e);
                 }
             }
             item.setSelected(false);

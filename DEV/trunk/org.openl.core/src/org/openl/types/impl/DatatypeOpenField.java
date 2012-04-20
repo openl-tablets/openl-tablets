@@ -19,7 +19,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DatatypeOpenField extends AOpenField {
     
-    private final Log LOG = LogFactory.getLog(DatatypeOpenField.class);
+    private final Log log = LogFactory.getLog(DatatypeOpenField.class);
 
     private IOpenClass declaringClass;
 
@@ -97,13 +97,13 @@ public class DatatypeOpenField extends AOpenField {
     }
 
     private void processError(Throwable e1) {
-        LOG.error(this, e1);
+        log.error(this, e1);
         OpenLMessagesUtils.addError(e1);  
     }
     
     private void processError(String errorMessage, Throwable e1) {
-    	LOG.error(errorMessage);
-        LOG.error(this, e1);
+    	log.error(errorMessage);
+        log.error(this, e1);
         // add business friendly error description
         //
         OpenLMessagesUtils.addError(errorMessage);  

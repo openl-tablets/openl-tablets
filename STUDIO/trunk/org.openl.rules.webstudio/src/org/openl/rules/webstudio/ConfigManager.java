@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ConfigManager {
 
-    private static final Log LOG = LogFactory.getLog(ConfigManager.class);
+    private final Log log = LogFactory.getLog(ConfigManager.class);
 
     private boolean useSystemProperties;
     private String propsLocation;
@@ -82,7 +82,7 @@ public class ConfigManager {
                     configuration = new PropertiesConfiguration(configLocation);
                 }
             } catch (Exception e) {
-                LOG.error("Error when initializing configuration: " + configLocation, e);
+                log.error("Error when initializing configuration: " + configLocation, e);
             }
         }
         return configuration;
@@ -144,7 +144,7 @@ public class ConfigManager {
                 configurationToSave.save();
                 return true;
             } catch (Exception e) {
-                LOG.error("Error when saving configuration: " + configurationToSave.getBasePath(), e);
+                log.error("Error when saving configuration: " + configurationToSave.getBasePath(), e);
             }
         }
         return false;

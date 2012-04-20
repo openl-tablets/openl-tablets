@@ -72,9 +72,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private XlsDataFormatterFactory dataFormatterFactory = new XlsDataFormatterFactory(Locale.US);
 
-    // private final static Log LOG =
-    // LogFactory.getLog(XlsSheetGridModel.class);
-
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
         sheet = sheetSource.getSheet();

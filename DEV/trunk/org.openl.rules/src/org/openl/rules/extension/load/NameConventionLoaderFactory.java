@@ -5,7 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class NameConventionLoaderFactory implements ILoaderFactory {
-    private static final Log LOG = LogFactory.getLog(NameConventionLoaderFactory.class);
+    private final Log log = LogFactory.getLog(NameConventionLoaderFactory.class);
 
     public static ILoaderFactory INSTANCE = new NameConventionLoaderFactory();
 
@@ -14,7 +14,7 @@ public class NameConventionLoaderFactory implements ILoaderFactory {
         try {
             return (IExtensionLoader) Class.forName(className).newInstance();
         } catch (Exception e) {
-            LOG.warn(String.format("Can't create loader: %s", className));
+            log.warn(String.format("Can't create loader: %s", className));
         }
         return null;
     }

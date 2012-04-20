@@ -21,7 +21,7 @@ import org.openl.util.formatters.IFormatter;
  */
 public class FormattedCell implements ICell {
     
-    private final static Log LOG = LogFactory.getLog(FormattedCell.class); 
+    private final Log log = LogFactory.getLog(FormattedCell.class); 
     
     private ICell delegate;
 
@@ -70,7 +70,7 @@ public class FormattedCell implements ICell {
 
     public void setFilter(IGridFilter filter) {
         if (this.filter != null) {
-            LOG.warn("More than one filter set on cell");
+            log.warn("More than one filter set on cell");
         }
         this.filter = filter;
     }

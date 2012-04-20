@@ -34,7 +34,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class JcrRepository extends BaseJcrRepository {
-    private static final Log LOG = LogFactory.getLog(JcrRepository.class);
+    private final Log log = LogFactory.getLog(JcrRepository.class);
     private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
     private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@"
             + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]";
@@ -109,7 +109,7 @@ public class JcrRepository extends BaseJcrRepository {
                 JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
                 result.add(ddp);
             } catch (RepositoryException e) {
-                LOG.debug("Failed to add deployment project.");
+                log.debug("Failed to add deployment project.");
             }
         }
 
@@ -142,7 +142,7 @@ public class JcrRepository extends BaseJcrRepository {
                 JcrProject p = new JcrProject(n);
                 result.add(p);
             } catch (RepositoryException e) {
-                LOG.debug("Failed to add rules project.");
+                log.debug("Failed to add rules project.");
             }
         }
 
@@ -159,7 +159,7 @@ public class JcrRepository extends BaseJcrRepository {
                 JcrProject p = new JcrProject(n);
                 result.add(p);
             } catch (RepositoryException e) {
-                LOG.debug("Failed to add rules project for deletion.");
+                log.debug("Failed to add rules project for deletion.");
             }
         }
 
@@ -258,7 +258,7 @@ public class JcrRepository extends BaseJcrRepository {
                     result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
                 }
             } catch (RepositoryException e) {
-                LOG.debug("Failed to add deployment project.");
+                log.debug("Failed to add deployment project.");
             }
         }
 
@@ -294,7 +294,7 @@ public class JcrRepository extends BaseJcrRepository {
                     result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
                 }
             } catch (RepositoryException e) {
-                LOG.debug("Failed to add rules project.");
+                log.debug("Failed to add rules project.");
             }
         }
 
@@ -311,7 +311,7 @@ public class JcrRepository extends BaseJcrRepository {
             try {
                 result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[] { n.getName() })));
             } catch (RepositoryException e) {
-                LOG.debug("Failed to add rules project for deletion.");
+                log.debug("Failed to add rules project for deletion.");
             }
         }
 
@@ -362,7 +362,7 @@ public class JcrRepository extends BaseJcrRepository {
                     }
                 }
             } catch (RepositoryException e) {
-                LOG.error(e);
+                log.error(e);
             }
         }
     }

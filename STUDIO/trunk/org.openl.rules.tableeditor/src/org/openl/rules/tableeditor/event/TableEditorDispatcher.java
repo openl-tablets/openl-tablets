@@ -24,7 +24,7 @@ public class TableEditorDispatcher implements PhaseListener {
 
     private static final long serialVersionUID = 8617343432886373802L;
 
-    private static final Log LOG = LogFactory.getLog(TableEditorDispatcher.class);
+    private final Log log = LogFactory.getLog(TableEditorDispatcher.class);
 
     private static final String AJAX_MATCH = "ajax/";
 
@@ -65,7 +65,7 @@ public class TableEditorDispatcher implements PhaseListener {
             writer.close();
             context.responseComplete();
         } catch (IOException e) {
-            LOG.error("Could not handle Ajax request", e);
+            log.error("Could not handle Ajax request", e);
         }
     }
 
@@ -92,7 +92,7 @@ public class TableEditorDispatcher implements PhaseListener {
             out.close();
             context.responseComplete();
         } catch (IOException e) {
-            LOG.error("Could not handle Resource request", e);
+            log.error("Could not handle Resource request", e);
         }
     }
 

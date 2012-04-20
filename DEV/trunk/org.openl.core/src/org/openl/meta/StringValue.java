@@ -9,7 +9,7 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    private static final Log LOG = LogFactory.getLog(StringValue.class);
+    private final Log log = LogFactory.getLog(StringValue.class);
     private ValueMetaInfo metaInfo;
     private String value;
 
@@ -86,7 +86,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
                         metaInfo.getDisplayName(IMetaInfo.LONG), new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 setMetaInfo(valueMetaInfo);
             } catch (Exception e) {
-                LOG.debug(String.format("Failed to set meta info for StringValue \"%s\"", value), e);
+                log.debug(String.format("Failed to set meta info for StringValue \"%s\"", value), e);
                 setMetaInfo((ValueMetaInfo)null);
             }
         }

@@ -48,7 +48,7 @@ import javax.faces.bean.SessionScoped;
 @SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
-    private static final Log LOG = LogFactory.getLog(RepositoryTreeState.class);
+    private final Log log = LogFactory.getLog(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
     /** Root node for RichFaces's tree. It is not displayed. */
@@ -91,8 +91,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         if (root != null) {
             return;
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Starting buildTree()");
+        if (log.isDebugEnabled()) {
+            log.debug("Starting buildTree()");
         }
 
         root = new TreeRepository("", "", filter, "root");
@@ -123,14 +123,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         try {
             deploymentsProjects = userWorkspace.getDDProjects();
         } catch (ProjectException e) {
-            LOG.error("Cannot get deployment projects", e);
+            log.error("Cannot get deployment projects", e);
         }
 
         for (ADeploymentProject project : deploymentsProjects) {
             addDeploymentProjectToTree(project);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Finishing buildTree()");
+        if (log.isDebugEnabled()) {
+            log.debug("Finishing buildTree()");
         }
 
         if (selectedNode == null || UiConst.TYPE_REPOSITORY.equals(selectedNode.getType())) {
@@ -304,7 +304,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                 try {
                     addRulesProjectToTree(userWorkspace.getProject(projectName));
                 } catch (ProjectException e) {
-                    LOG.error("Failed to add new project to the repository tree.", e);
+                    log.error("Failed to add new project to the repository tree.", e);
                 }
             }
         } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)
@@ -315,7 +315,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                 rulesProject.setData(userWorkspace.getProject(projectName));
                 refreshNode(rulesProject);
             } catch (ProjectException e) {
-                LOG.error(String.format("Failed to refresh project \"%s\" in the repository tree.", projectName), e);
+                log.error(String.format("Failed to refresh project \"%s\" in the repository tree.", projectName), e);
             }
         }
     }
@@ -327,7 +327,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
                 try {
                     addDeploymentProjectToTree(userWorkspace.getDDProject(event.getProjectName()));
                 } catch (ProjectException e) {
-                    LOG.error("Failed to add new project to the repository tree.", e);
+                    log.error("Failed to add new project to the repository tree.", e);
                 }
             }
         }else{

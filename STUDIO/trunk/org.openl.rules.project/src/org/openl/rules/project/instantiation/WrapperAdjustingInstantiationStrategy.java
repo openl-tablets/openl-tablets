@@ -27,7 +27,7 @@ import org.openl.rules.project.model.Module;
  */
 public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantiationStrategy {
     
-    private static final Log LOG = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
+    private final Log log = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
     private OpenLWrapper wrapper;
     
@@ -64,7 +64,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             }
             wrapper = null;
         } catch (Exception e) {
-            LOG.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
+            log.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
         }
     }
 
@@ -115,7 +115,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
     
     @Override
     public void setServiceClass(Class<?> serviceClass) {
-        LOG.warn(String.format("Service class changing is not allowed for static wrapper. Defauld static wrapper class will be used insdead of '%s'",
+        log.warn(String.format("Service class changing is not allowed for static wrapper. Defauld static wrapper class will be used insdead of '%s'",
             serviceClass.getName()));
     }
     
@@ -152,7 +152,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
                 String.format("Cannot find method in wrapper class %s. " +
                 		"You are using older version of OpenL Wrapper, please run Generate ... Wrapper", 
                     wrapperClass.getName());
-            LOG.error(errorMessage, e);
+            log.error(errorMessage, e);
             throw new OpenlNotCheckedException(errorMessage, e);
         }
     }
@@ -163,7 +163,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             return compile(getServiceClass());
         } catch (ClassNotFoundException e) {
             String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
-            LOG.error(errorMessage, e);
+            log.error(errorMessage, e);
             throw new RulesInstantiationException(errorMessage, e);
         }
     }
@@ -184,7 +184,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             return wrapper;
         } catch (Exception e) {
             String errorMessage = String.format("Failed to instantiate wrapper %s", wrapperClass.getName());
-            LOG.error(errorMessage, e);
+            log.error(errorMessage, e);
             throw new RulesInstantiationException(errorMessage, e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -229,7 +229,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
         } else {
             String errorMessage = String.format("Field %s is not static in %s", userHomeField.getName(), 
                 userHomeField.getDeclaringClass().getName());
-            LOG.error(errorMessage);
+            log.error(errorMessage);
             throw new OpenlNotCheckedException(errorMessage);
         }
         try {
@@ -240,7 +240,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             }
         } catch (Exception e) {
             String errorMessage = "Failed to set up __src";
-            LOG.error(errorMessage, e);
+            log.error(errorMessage, e);
             throw new OpenlNotCheckedException(errorMessage, e);
         }
     }

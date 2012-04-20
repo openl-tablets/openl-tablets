@@ -32,7 +32,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     private static final String PROJECT_FILE = ".project";
     private static final String TEXT_TO_SEARCH = "openlbuilder";
 
-    private static final Log LOG = LogFactory.getLog(EclipseBasedResolvingStrategy.class);
+    private final Log log = LogFactory.getLog(EclipseBasedResolvingStrategy.class);
 
     /**
      * {@link FileTreeAdaptor} that have to be used for file search inside the
@@ -54,31 +54,31 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean isRulesProject(File folder) {
         try {
             if (!folder.exists() || !folder.isDirectory()) {
-                LOG.debug(String.format(
+                log.debug(String.format(
                     "Eclipse based project strategy failed to resolve project folder: " +
                     "folder %s doesn`t exists of is not a directory", 
                     folder.getPath()));
                 return false;
             }
             if (!FileTool.containsFile(folder, PROJECT_FILE, false)) {
-                LOG.debug(String.format(
+                log.debug(String.format(
                     "Eclipse based project strategy failed to resolve project folder %s: " +
                     "there is no file %s in the folder", folder.getPath(), PROJECT_FILE));
                 return false;
             }
             if (!FileTool.containsFileText(folder, PROJECT_FILE, TEXT_TO_SEARCH)) {
-                LOG.debug(String.format(
+                log.debug(String.format(
                     "Eclipse based project strategy failed to resolve project folder %s:" +
                     " %s file doen`t contains %s", folder.getPath(), PROJECT_FILE, TEXT_TO_SEARCH));
                 return false;
             }
             if(listPotentialOpenLWrappersClassNames(folder).length == 0){
-                LOG.debug(String.format(
+                log.debug(String.format(
                     "Eclipse based project strategy failed to resolve project folder %s:" +
                     " there is no potential Openl wrappers", folder.getPath()));
                 return false; //no modules.
             }
-            LOG.debug(String.format(
+            log.debug(String.format(
                 "Project in %s folder was resolved as Eclipse based project", folder.getPath()));
             return true;
         } catch (IOException e) {

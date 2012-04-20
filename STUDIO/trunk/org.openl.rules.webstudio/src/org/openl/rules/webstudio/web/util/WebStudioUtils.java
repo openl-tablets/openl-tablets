@@ -21,8 +21,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public abstract class WebStudioUtils {
 
-    private static final Log LOG = LogFactory.getLog(WebStudioUtils.class);
-
     private static final String STUDIO_ATTR = "studio";
 
     public static RulesUserSession getRulesUserSession(HttpSession session) {
@@ -87,12 +85,13 @@ public abstract class WebStudioUtils {
     }
 
     public static UserWorkspace getUserWorkspace(HttpSession session) {
+    	final Log log = LogFactory.getLog(WebStudioUtils.class);
         UserWorkspace userWorkspace = null;
         try {
             RulesUserSession rulesUserSession = getRulesUserSession(session, true);
             userWorkspace = rulesUserSession.getUserWorkspace();
         } catch (Exception e) {
-            LOG.error("Failed to get user workspace", e);
+            log.error("Failed to get user workspace", e);
         }
         return userWorkspace;
     }

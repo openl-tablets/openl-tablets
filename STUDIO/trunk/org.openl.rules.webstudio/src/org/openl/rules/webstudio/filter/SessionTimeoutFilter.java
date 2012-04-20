@@ -16,7 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class SessionTimeoutFilter implements Filter {
-    private static final Log LOG = LogFactory.getLog(SessionTimeoutFilter.class);
+    private final Log log = LogFactory.getLog(SessionTimeoutFilter.class);
 
     private static final int REDIRECT_ERROR_CODE = 399;
 
@@ -45,7 +45,7 @@ public class SessionTimeoutFilter implements Filter {
         if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             String redirectUrl = request.getContextPath() + redirectPage;
-            LOG.info("Session Expired: redirect to " + redirectPage + " page");
+            log.info("Session Expired: redirect to " + redirectPage + " page");
 
             // Handle Ajax requests
             if (StringUtils.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")       // jQuery / Prototype
@@ -66,7 +66,7 @@ public class SessionTimeoutFilter implements Filter {
         redirectPage = config.getInitParameter("redirectPage");
         if (redirectPage == null) {
             redirectPage = "";
-            LOG.warn("Session Timeout filter: could not get an initial parameter 'redirectPage'");
+            log.warn("Session Timeout filter: could not get an initial parameter 'redirectPage'");
         }
         String excludePagesStr = config.getInitParameter("excludePages");
         if (excludePagesStr != null) {

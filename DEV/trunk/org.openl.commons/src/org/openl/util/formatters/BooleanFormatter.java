@@ -6,11 +6,11 @@ import org.openl.util.BooleanUtils;
 
 public class BooleanFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(BooleanFormatter.class);
+    private final Log log = LogFactory.getLog(BooleanFormatter.class);
 
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
-            LOG.debug("Should be Boolean: " + value);
+            log.debug("Should be Boolean: " + value);
             return null;
         }
 
@@ -21,7 +21,7 @@ public class BooleanFormatter implements IFormatter {
     public Object parse(String value) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
         if (boolValue == null) {
-            LOG.debug("Could not parse Boolean: " + value);
+            log.debug("Could not parse Boolean: " + value);
         }
         return boolValue;
     }

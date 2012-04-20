@@ -17,7 +17,7 @@ import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrCommonProject extends JcrEntity implements RCommonProject {
-    private static Log log = LogFactory.getLog(JcrCommonProject.class);
+    private final Log log = LogFactory.getLog(JcrCommonProject.class);
 
     private JcrVersion version;
 

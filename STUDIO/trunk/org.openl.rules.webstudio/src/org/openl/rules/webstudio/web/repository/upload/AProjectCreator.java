@@ -7,7 +7,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 
 public abstract class AProjectCreator {
     
-    private static final Log LOG = LogFactory.getLog(AProjectCreator.class);
+    private final Log log = LogFactory.getLog(AProjectCreator.class);
     
     private String projectName; 
     private UserWorkspace userWorkspace;
@@ -41,7 +41,7 @@ public abstract class AProjectCreator {
             if (projectBuilder != null) {
                 projectBuilder.cancel();
             }
-            LOG.error("Error creating project.", e);
+            log.error("Error creating project.", e);
             errorMessage = e.getMessage();
         }
         return errorMessage;
