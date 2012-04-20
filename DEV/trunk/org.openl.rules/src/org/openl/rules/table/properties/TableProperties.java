@@ -22,8 +22,6 @@ import org.openl.util.EnumUtils;
 
 public class TableProperties extends DynamicObject implements ITableProperties {
     
-    //private final Log LOG = LogFactory.getLog(TableProperties.class);
-
     private String currentTableType;
     /**
      * Table section that contains properties in appropriate table in data

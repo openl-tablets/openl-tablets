@@ -26,7 +26,7 @@ import org.openl.util.formatters.IFormatter;
  */
 public class ArrayFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(ArrayFormatter.class);
+    private final Log log = LogFactory.getLog(ArrayFormatter.class);
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It
@@ -66,7 +66,7 @@ public class ArrayFormatter implements IFormatter {
         String result = null;
         if (value != null) {
             if (!(value.getClass().isArray())) {
-                LOG.debug(String.format("Should be an array: %s", value.toString()));
+                log.debug(String.format("Should be an array: %s", value.toString()));
                 return result;
             }
             

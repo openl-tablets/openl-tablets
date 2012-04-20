@@ -28,7 +28,7 @@ public class LaunchFileServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Log LOG = LogFactory.getLog(LaunchFileServlet.class);
+    private final Log log = LogFactory.getLog(LaunchFileServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -82,7 +82,7 @@ public class LaunchFileServlet extends HttpServlet {
                     isWord = true;
                 }
             } catch (Exception e) {
-                LOG.error("Can't parse file uri", e);
+                log.error("Can't parse file uri", e);
                 return;
             }
 
@@ -126,7 +126,7 @@ public class LaunchFileServlet extends HttpServlet {
                     return;
                 }
             } catch (Exception e) {
-                LOG.error("Can't launch file", e);
+                log.error("Can't launch file", e);
             }
 
         } else { // remote mode

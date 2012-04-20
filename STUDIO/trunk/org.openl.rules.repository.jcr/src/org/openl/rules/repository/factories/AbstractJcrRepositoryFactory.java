@@ -12,8 +12,6 @@ import javax.jcr.nodetype.PropertyDefinition;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
@@ -35,7 +33,6 @@ import org.xml.sax.InputSource;
  *
  */
 public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
-    private static final Log log = LogFactory.getLog(AbstractJcrRepositoryFactory.class);
 
     public static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 

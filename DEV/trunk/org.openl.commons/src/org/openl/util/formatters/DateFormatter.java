@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DateFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(DateFormatter.class);
+    private final Log log = LogFactory.getLog(DateFormatter.class);
 
     private DateFormat format;
 
@@ -37,7 +37,7 @@ public class DateFormatter implements IFormatter {
         try {
             this.format = new SimpleDateFormat(format);
         } catch (Exception e) {
-            LOG.error("Could not create format: " + format);
+            log.error("Could not create format: " + format);
             this.format = new SimpleDateFormat();
         }
     }
@@ -46,7 +46,7 @@ public class DateFormatter implements IFormatter {
         try {
             this.format = new SimpleDateFormat(format, locale);
         } catch (Exception e) {
-            LOG.error("Could not create format: " + format);
+            log.error("Could not create format: " + format);
             this.format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
                     locale == null ? Locale.getDefault() : locale);
         }
@@ -54,7 +54,7 @@ public class DateFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Date)) {
-            LOG.debug("Should be Date: " + value);
+            log.debug("Should be Date: " + value);
             return null;
         }
 
@@ -65,7 +65,7 @@ public class DateFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            LOG.debug("Could not parse Date: " + value, e);
+            log.debug("Could not parse Date: " + value, e);
             return null;
         }
     }

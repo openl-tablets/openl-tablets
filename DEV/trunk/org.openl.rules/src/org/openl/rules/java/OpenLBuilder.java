@@ -17,7 +17,6 @@ public class OpenLBuilder extends AOpenLBuilder {
     private static final String[] JAVA_LIBRARY_NAMES = new String[]{
         org.openl.rules.helpers.RulesUtils.class.getName(),
         org.openl.ctr.CtrUtils.class.getName(),
-        java.lang.Math.class.getName(),
         org.openl.meta.ByteValue.class.getName(), // don`t change the order of elements!
         org.openl.meta.ShortValue.class.getName(), // as lower types can be casted to upper ones.
         org.openl.meta.IntValue.class.getName(),  // appropriate methods should be looking for from

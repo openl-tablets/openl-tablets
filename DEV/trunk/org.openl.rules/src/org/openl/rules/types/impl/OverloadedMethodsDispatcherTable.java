@@ -17,7 +17,7 @@ import org.openl.vm.trace.Tracer;
  */
 public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatcher {
 
-    private static final Log LOG = LogFactory.getLog(OverloadedMethodsDispatcherTable.class);
+    private final Log log = LogFactory.getLog(OverloadedMethodsDispatcherTable.class);
 
     public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
         super(method, moduleOpenClass);
@@ -37,7 +37,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
         if (dispatchingOpenMethod != null) {
             return dispatchingOpenMethod.invoke(target, updateArguments(params, env, dispatchingOpenMethod), env);
         } else {
-            LOG.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+            log.warn(String.format("Dispatcher table for methods group [%s] was not built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
                 MethodUtil.printMethod(getName(), getSignature().getParameterTypes())));
             return invokeJavaDispatching(target, params, env);
         }

@@ -24,7 +24,7 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 
 public class AProject extends AProjectFolder {
-    private static Log LOG = LogFactory.getLog(AProject.class);
+    private final Log log = LogFactory.getLog(AProject.class);
     
     public AProject(FolderAPI api) {
         super(api, null);
@@ -43,7 +43,7 @@ public class AProject extends AProjectFolder {
                 content = ((AProjectResource) getArtefact(ArtefactProperties.DEPENDENCIES_FILE)).getContent();
                 dependencies = ProjectDependencyHelper.deserialize(content);
             } catch (Exception e) {
-                LOG.warn("Could not load dependencies", e);
+                log.warn("Could not load dependencies", e);
             } finally {
                 IOUtils.closeQuietly(content);
             }
@@ -68,7 +68,7 @@ public class AProject extends AProjectFolder {
                             new ByteArrayInputStream(dependenciesAsString.getBytes("UTF-8")));
                 }
             } catch (Exception e) {
-                LOG.warn("Could not set dependencies", e);
+                log.warn("Could not set dependencies", e);
             }
         }
     }
@@ -151,7 +151,7 @@ public class AProject extends AProjectFolder {
         try {
             transaction.rollback();
         } catch (Exception e1) {
-            LOG.error("Could not roll back changes.", e1);
+            log.error("Could not roll back changes.", e1);
         }
     }
 

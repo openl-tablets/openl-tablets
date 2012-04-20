@@ -27,7 +27,7 @@ import org.openl.source.SourceHistoryManager;
 @RequestScoped
 public class RevertProjectChangesBean {
 
-    private static final Log LOG = LogFactory.getLog(RevertProjectChangesBean.class);
+    private final Log log = LogFactory.getLog(RevertProjectChangesBean.class);
 
     public static final String DATE_MODIFIED_PATTERN = WebStudioUtils.getWebStudio().getSystemConfigManager()
         .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
@@ -114,7 +114,7 @@ public class RevertProjectChangesBean {
                         Arrays.asList(file1ToCompare, file2ToCompare));
             }
         } catch (Exception e) {
-            LOG.error(e);
+            log.error(e);
             FacesUtils.addErrorMessage("Error when comparing projects");
         }
 

@@ -26,7 +26,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class StartupListener implements ServletContextListener {
 
-    private static final Log LOG = LogFactory.getLog(StartupListener.class);
+    private final Log log = LogFactory.getLog(StartupListener.class);
 
     private static final String PROP_WEBSTUDIO_HOME = "webstudio.home";
 
@@ -55,7 +55,7 @@ public class StartupListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
         String name = context.getServletContextName();
-        LOG.info("Starting " + name + "...");
+        log.info("Starting " + name + "...");
 
         ConfigManager configManager = new ConfigManager();
 
@@ -84,25 +84,25 @@ public class StartupListener implements ServletContextListener {
         File webstudioHomeDir = new File(
                 StringUtils.defaultString(webstudioHome));
         if (!webstudioHomeDir.exists()) {
-            LOG.fatal("You did not set up correctly webstudio.home variable: " + webstudioHome);
+            log.fatal("You did not set up correctly webstudio.home variable: " + webstudioHome);
             return;
         }
-        LOG.info(context.getServletContextName() + " home: " + webstudioHome);
+        log.info(context.getServletContextName() + " home: " + webstudioHome);
     }
 
     public void contextDestroyed(ServletContextEvent event) {
         try {
             ProductionRepositoryFactoryProxy.release();
         } catch (RRepositoryException e) {
-            LOG.error("Failed to release production repository", e);
+            log.error("Failed to release production repository", e);
         }
         try {
             RulesRepositoryFactory.release();
         } catch (RRepositoryException e) {
-            LOG.error("Failed to release rules repository", e);
+            log.error("Failed to release rules repository", e);
         }
         String name = event.getServletContext().getServletContextName();
-        LOG.info(name + " is down.");
+        log.info(name + " is down.");
     }
 
 }

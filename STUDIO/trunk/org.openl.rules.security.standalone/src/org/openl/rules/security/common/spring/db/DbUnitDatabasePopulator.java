@@ -36,7 +36,7 @@ import javax.sql.DataSource;
  * @author Andrey Naumenko
  */
 public class DbUnitDatabasePopulator implements InitializingBean {
-    private static final Log log = LogFactory.getLog(DbUnitDatabasePopulator.class);
+    private final Log log = LogFactory.getLog(DbUnitDatabasePopulator.class);
     private Resource[] locations;
     private DataSource dataSource;
     private boolean enabled = true;

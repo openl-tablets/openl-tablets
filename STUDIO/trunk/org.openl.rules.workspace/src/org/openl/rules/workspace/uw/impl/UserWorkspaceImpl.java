@@ -31,7 +31,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 
 public class UserWorkspaceImpl implements UserWorkspace {
-    private static final Log log = LogFactory.getLog(UserWorkspaceImpl.class);
+    private final Log log = LogFactory.getLog(UserWorkspaceImpl.class);
 
     private static final Comparator<AProject> PROJECTS_COMPARATOR = new Comparator<AProject>() {
         public int compare(AProject o1, AProject o2) {

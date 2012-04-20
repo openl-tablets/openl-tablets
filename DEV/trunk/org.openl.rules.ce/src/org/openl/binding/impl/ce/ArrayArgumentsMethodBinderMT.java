@@ -22,7 +22,7 @@ import org.openl.util.ArrayTool;
 //
 public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
     
-    private Log LOG = LogFactory.getLog(ArrayArgumentsMethodBinder.class);
+    private final Log log = LogFactory.getLog(ArrayArgumentsMethodBinder.class);
     
     private String methodName;
     private IOpenClass[] argumentsTypes;
@@ -67,7 +67,7 @@ public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
             IOpenClass unwrappedType = argumentsTypes[arrayArgumentIndex].getComponentClass();
             return (IOpenClass[]) ArrayTool.replace(arrayArgumentIndex, argumentsTypes, unwrappedType);
         } 
-        LOG.warn("Can`t find the appropriate argument");
+        log.warn("Can`t find the appropriate argument");
         return null;
     }
     
@@ -84,7 +84,7 @@ public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
                 }
             }
         } else {
-            LOG.debug(String.format("There is no any array argument in signature for %s method", methodName));
+            log.debug(String.format("There is no any array argument in signature for %s method", methodName));
         }
         return null;
     }    
