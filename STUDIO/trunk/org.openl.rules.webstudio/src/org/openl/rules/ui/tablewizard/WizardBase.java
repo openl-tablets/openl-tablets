@@ -1,13 +1,18 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -21,8 +26,10 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
+import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -192,5 +199,44 @@ public abstract class WizardBase extends BaseWizardBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.rebuildModel();
     }
+    
+    /**
+     * Validation for technical name
+     * */
+    public void validateTechnicalName(FacesContext context, UIComponent toValidate, Object value) {
+		FacesMessage message = new FacesMessage();   
+		ValidatorException validEx= null;  
+		
+		try {  
+			String name = ((String) value).toUpperCase();
+	        
+	        if(!this.checkNames(name)){
+	        	message.setDetail("Table with such name is present");
+	        	validEx = new ValidatorException(message);  
+		        throw validEx;  
+	        }    
+		  }  
+		   catch (Exception e) {                      
+		      throw new ValidatorException(message);   
+		  }
+    }
+    
+    private boolean checkNames(String techName) {
+    	WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+        
+        for(ProjectTreeNode node : (Collection<ProjectTreeNode>) model.getAllTreeNodes().getAllNodes()){
+        	try{
+	        	if(node.getTableSyntaxNode().getMember().getName().equalsIgnoreCase(techName)){
+	        		return false;
+	        	}
+        	}catch(Exception e){
+        		
+        	}
+        	
+        }
+
+		return true;
+	}
 
 }
