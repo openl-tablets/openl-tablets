@@ -51,7 +51,8 @@
                     <h:panelGrid columns="3" style="background: #F1F1F1; padding: 3px 0; margin-bottom: 5px">
                         <h:outputText value="Technical name" styleClass="required" />
                         <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
-                            disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}" />
+                            disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}" 
+                         	validator="#{wizard.validateTechnicalName}" immediate="true" />
                         <a4j:outputPanel ajaxRendered="true">
                             <h:message for="technicalName" styleClass="error" />
                         </a4j:outputPanel>
@@ -157,7 +158,7 @@
         <f:facet name="controls">
             <h:graphicImage value="/images/modal/close.png"
                 style="cursor:pointer"
-            onclick="#{rich:component('newPropertyDlg')}.hide();" />
+            onclick="#{rich:component('fnewPropertyDlg')}.hide();" />
         </f:facet>
 
         <h:form rendered="#{not empty propertiesManager.propertiesThatCanBeAdded}">
@@ -200,6 +201,7 @@
       }
 
       updateControls();
+
     </script>
 
 </ui:composition>
