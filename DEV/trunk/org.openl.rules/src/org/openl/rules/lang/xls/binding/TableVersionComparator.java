@@ -19,8 +19,6 @@ import org.openl.util.conf.Version;
  */
 public class TableVersionComparator implements Comparator<ITableProperties> {
 
-    private static Log LOG = LogFactory.getLog(TableVersionComparator.class);
-
     public int compare(IOpenMethod first, IOpenMethod second) {
         if (!new DimensionPropertiesMethodKey(first).equals(new DimensionPropertiesMethodKey(second))) {
             throw new IllegalArgumentException("Uncomparable tables. Tasbles should have similar name,signature and dimension properties.");
@@ -47,13 +45,14 @@ public class TableVersionComparator implements Comparator<ITableProperties> {
 
     private static Version DEFAULT_VERSION = Version.parseVersion("0.0.0",0, "..");
     private static Version parseVersionForComparison(String version){
+    	Log log = LogFactory.getLog(TableVersionComparator.class);
         try {
             return Version.parseVersion(version, 0, "..");
         } catch (RuntimeException e) {
             // it is just fix to avoid tree crashing.
             // we need to validate format of the versions, during compilation of
             // Openl and also on UI.
-            LOG.debug(String.format("Failed to parse version: [%s]", version));
+            log.debug(String.format("Failed to parse version: [%s]", version));
             return DEFAULT_VERSION;
         }
     }

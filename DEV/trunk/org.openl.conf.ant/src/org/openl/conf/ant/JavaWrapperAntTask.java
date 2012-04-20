@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -50,7 +50,7 @@ import org.openl.util.generation.SimpleBeanJavaGenerator;
  */
 public class JavaWrapperAntTask extends Task {
     
-    private static final Log LOG = LogFactory.getLog(JavaWrapperAntTask.class);
+    private final Log log = LogFactory.getLog(JavaWrapperAntTask.class);
 
     private static final String GOAL_MAKE_WRAPPER = "make wrapper";
     private static final String GOAL_UPDATE_PROPERTIES = "update properties";
@@ -313,7 +313,7 @@ public class JavaWrapperAntTask extends Task {
                 Constructor<?> constructor = depManagerClass.getConstructor();
                 dependecyManager = (IDependencyManager) constructor.newInstance();
             } catch (Exception e) {
-                LOG.debug(e);
+                log.debug(e);
             }
         }        
         return dependecyManager;

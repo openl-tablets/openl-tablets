@@ -29,7 +29,7 @@ import org.openl.vm.trace.Tracer;
 @RequestScoped
 public class TraceIntoFileBean {
 
-    private final Log LOG = LogFactory.getLog(TraceIntoFileBean.class);
+    private final Log log = LogFactory.getLog(TraceIntoFileBean.class);
 
     public static final String EXTENSION_SEPARATOR = ".";
 
@@ -58,7 +58,7 @@ public class TraceIntoFileBean {
             tracePrinter.print(tracer, writer);
             writer.close();
         } catch (IOException e) {
-            LOG.error("Error when printing trace", e);
+            log.error("Error when printing trace", e);
         } finally {
             IOUtils.closeQuietly(writer);
         }

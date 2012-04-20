@@ -65,7 +65,6 @@ public class JavaOpenClass extends AOpenClass {
 
     private static Map<Class<?>, JavaOpenClass> javaClassCache;
 
-    @SuppressWarnings("hiding")
     public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, Integer.valueOf(0));
     public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, Long.valueOf(0));
     public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, Double.valueOf(0));

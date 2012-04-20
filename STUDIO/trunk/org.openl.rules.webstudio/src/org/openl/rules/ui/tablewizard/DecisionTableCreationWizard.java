@@ -22,7 +22,7 @@ import org.openl.rules.table.xls.builder.DecisionTableBuilder;
  * @author Aliaksandr Antonik.
  */
 public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
-    private static final Log LOG = LogFactory.getLog(DecisionTableCreationWizard.class);
+    private final Log log = LogFactory.getLog(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";
 
@@ -411,7 +411,7 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("Error while selecting action", e);
+            log.warn("Error while selecting action", e);
         }
     }
 
@@ -424,7 +424,7 @@ public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("Error while selecting condition", e);
+            log.warn("Error while selecting condition", e);
         }
     }
 

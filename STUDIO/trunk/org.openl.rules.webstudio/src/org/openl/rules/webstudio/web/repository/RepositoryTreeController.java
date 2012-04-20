@@ -71,7 +71,7 @@ import javax.servlet.http.HttpServletResponse;
 public class RepositoryTreeController {
     
     private static final Date SPECIAL_DATE = new Date(0);
-    private static final Log LOG = LogFactory.getLog(RepositoryTreeController.class);
+    private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
     @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
@@ -145,7 +145,7 @@ public class RepositoryTreeController {
                     repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                     resetStudioModel();
                 } catch (ProjectException e) {
-                    LOG.error("Failed to create folder '" + folderName + "'.", e);
+                    log.error("Failed to create folder '" + folderName + "'.", e);
                     errorMessage = e.getMessage();
                 }
             } else {
@@ -166,7 +166,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = e.getMessage();
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg);
         }
         return null;
@@ -179,7 +179,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to check out project.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
@@ -192,7 +192,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to close project.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
@@ -205,7 +205,7 @@ public class RepositoryTreeController {
         try {
             project = userWorkspace.getDDProject(projectName);
         } catch (ProjectException e) {
-            LOG.error("Cannot obtain deployment project '" + projectName + "'.", e);
+            log.error("Cannot obtain deployment project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
@@ -231,7 +231,7 @@ public class RepositoryTreeController {
             repositoryTreeState.addDeploymentProjectToTree(newProject);
         } catch (ProjectException e) {
             String msg = "Failed to copy deployment project.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
 
@@ -245,7 +245,7 @@ public class RepositoryTreeController {
         try {
             project = userWorkspace.getProject(projectName);
         } catch (ProjectException e) {
-            LOG.error("Cannot obtain rules project '" + projectName + "'.", e);
+            log.error("Cannot obtain rules project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage(e.getMessage());
             return null;
         }
@@ -272,7 +272,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to copy project.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
 
@@ -287,7 +287,7 @@ public class RepositoryTreeController {
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
@@ -333,7 +333,7 @@ public class RepositoryTreeController {
                 repositoryTreeState.deleteNode(projectInTree);
             }
         } catch (ProjectException e) {
-            LOG.error("Cannot delete deployment project '" + projectName + "'.", e);
+            log.error("Cannot delete deployment project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete deployment project.", e.getMessage());
         }
         return null;
@@ -349,7 +349,7 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
-            LOG.error("Error deleting element.", e);
+            log.error("Error deleting element.", e);
             FacesUtils.addErrorMessage("Error deleting.", e.getMessage());
         }
         return null;
@@ -369,7 +369,7 @@ public class RepositoryTreeController {
             }
             resetStudioModel();
         } catch (ProjectException e) {
-            LOG.error("Failed to delete node.", e);
+            log.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
         }
         return null;
@@ -395,7 +395,7 @@ public class RepositoryTreeController {
             }
             resetStudioModel();
         } catch (ProjectException e) {
-            LOG.error("Cannot delete rules project '" + projectName + "'.", e);
+            log.error("Cannot delete rules project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
         return null;
@@ -424,7 +424,7 @@ public class RepositoryTreeController {
         } catch (ProjectException e) {
             repositoryTreeState.invalidateTree();
             String msg = "Cannot erase project '" + project.getName() + "'.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg);
         }
         return null;
@@ -441,7 +441,7 @@ public class RepositoryTreeController {
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
         } catch (ProjectException e) {
             String msg = "Failed to export project version.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
 
@@ -752,7 +752,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to open project.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
@@ -765,7 +765,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to open project version.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
@@ -878,7 +878,7 @@ public class RepositoryTreeController {
             try {
                 repositoryTreeState.getSelectedNode().getData().setEffectiveDate(date);
             } catch (PropertyException e) {
-                LOG.error("Failed to set effective date!", e);
+                log.error("Failed to set effective date!", e);
                 FacesUtils.addErrorMessage("Can not set effective date.", e.getMessage());
             }
         } else {
@@ -891,7 +891,7 @@ public class RepositoryTreeController {
             try {
                 repositoryTreeState.getSelectedNode().getData().setExpirationDate(date);
             } catch (PropertyException e) {
-                LOG.error("Failed to set expiration date!", e);
+                log.error("Failed to set expiration date!", e);
                 FacesUtils.addErrorMessage("Can not set expiration date.", e.getMessage());
             }
         } else {
@@ -920,7 +920,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness);
         } catch (PropertyException e) {
-            LOG.error("Failed to set LOB!", e);
+            log.error("Failed to set LOB!", e);
             FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
         }
     }
@@ -977,7 +977,7 @@ public class RepositoryTreeController {
             repositoryTreeState.getSelectedNode().getData().setProps(props);
         } catch (PropertyException e) {
             String propUIName = getPropUIName(propName);
-            LOG.error("Failed to set " + propUIName + "!", e);
+            log.error("Failed to set " + propUIName + "!", e);
             FacesUtils.addErrorMessage("Can not set " + propUIName + ".", e.getMessage());
         }
     }
@@ -1016,7 +1016,7 @@ public class RepositoryTreeController {
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Cannot undelete project '" + project.getName() + "'.";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
@@ -1071,7 +1071,7 @@ public class RepositoryTreeController {
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
             clearUploadedFiles();
         } catch (Exception e) {
-            LOG.error("Error adding file to user workspace.", e);
+            log.error("Error adding file to user workspace.", e);
             return e.getMessage();
         }
 
@@ -1086,7 +1086,7 @@ public class RepositoryTreeController {
 
             clearUploadedFiles();
         } catch (Exception e) {
-            LOG.error("Error updating file in user workspace.", e);
+            log.error("Error updating file in user workspace.", e);
             return e.getMessage();
         }
 
@@ -1143,7 +1143,7 @@ public class RepositoryTreeController {
             IOUtils.copy(input, res.getOutputStream());
         } catch (final IOException e) {
             String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response!";
-            LOG.error(msg, e);
+            log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         } finally {
             if (input != null) {
@@ -1151,7 +1151,7 @@ public class RepositoryTreeController {
                     input.close();
                 } catch (IOException e) {
                     String msg = "Failed to close content stream.";
-                    LOG.error(msg, e);
+                    log.error(msg, e);
                 }
             }
         }

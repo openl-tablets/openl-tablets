@@ -1,6 +1,5 @@
 package org.openl.commons.web.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -21,7 +20,7 @@ import org.openl.util.StringTool;
  */
 public class WebTool {
 
-    private static final Log LOG = LogFactory.getLog(WebTool.class);
+    private static final Log log = LogFactory.getLog(WebTool.class);
 
     public static String listRequestParams(ServletRequest request) {
         return listRequestParams(request.getParameterMap(), null);
@@ -73,7 +72,7 @@ public class WebTool {
             InetAddress addr = InetAddress.getByName(ip);
             return (addr != null) && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
-            LOG.info("Cannot check '" + ip + "'.", e);
+            log.info("Cannot check '" + ip + "'.", e);
             return false;
         }
     }

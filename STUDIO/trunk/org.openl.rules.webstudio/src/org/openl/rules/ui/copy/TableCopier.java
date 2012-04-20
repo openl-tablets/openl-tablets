@@ -52,7 +52,7 @@ import org.richfaces.component.UIRepeat;
  */
 public class TableCopier extends WizardBase {
 
-    private static final Log LOG = LogFactory.getLog(TableCopier.class);
+    private final Log log = LogFactory.getLog(TableCopier.class);
 
     public static final String INIT_VERSION = "0.0.1";
 
@@ -454,7 +454,7 @@ public class TableCopier extends WizardBase {
                 }
                 getModifiedWorkbooks().add(tableEditorModel.getSheetSource().getWorkbookSource());
             } catch (Exception e) {
-                LOG.error("Can not update table properties for original table", e);
+                log.error("Can not update table properties for original table", e);
             }
         }
     }

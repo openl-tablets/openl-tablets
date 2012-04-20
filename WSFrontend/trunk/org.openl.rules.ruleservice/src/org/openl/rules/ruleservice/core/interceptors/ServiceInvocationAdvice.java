@@ -25,8 +25,6 @@ import org.springframework.core.Ordered;
  */
 public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered {
 
-    // private final Log log = LogFactory.getLog(ServiceInvocationAdvice.class);
-
     private static final String MSG_SEPARATOR = "; ";
 
     private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<Method, List<ServiceMethodBeforeAdvice>>();

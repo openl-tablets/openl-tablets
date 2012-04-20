@@ -22,7 +22,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  * @author snshor
  */
 public class URLSourceCodeModule extends ASourceCodeModule {
-    private static Log LOG = LogFactory.getLog(URLSourceCodeModule.class);
+    private final Log log = LogFactory.getLog(URLSourceCodeModule.class);
 
     private URL url;
     private long lastModified;
@@ -49,7 +49,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
 
             return lastModified;
         } catch (IOException e) {
-            LOG.warn(String.format("Failed to open connection for URL \"%s\"", url.toString()), e);
+            log.warn(String.format("Failed to open connection for URL \"%s\"", url.toString()), e);
             return -1;
         } finally {
             if (is != null) {

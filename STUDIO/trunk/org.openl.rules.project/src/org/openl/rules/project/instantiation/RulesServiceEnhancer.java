@@ -30,7 +30,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
  */
 public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     
-    private static final Log LOG = LogFactory.getLog(RulesServiceEnhancer.class);
+    private final Log log = LogFactory.getLog(RulesServiceEnhancer.class);
 
 
     /**
@@ -109,7 +109,7 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
 
-        LOG.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();
@@ -133,7 +133,7 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
             }
         }
 
-        LOG.debug(methodMap.toString());
+        log.debug(methodMap.toString());
         
         return methodMap;
     }

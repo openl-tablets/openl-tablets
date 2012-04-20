@@ -60,7 +60,7 @@ import org.openl.util.StringTool;
  */
 public class XlsLoader {
 
-    private static final Log LOG = LogFactory.getLog(XlsLoader.class);
+    private final Log log = LogFactory.getLog(XlsLoader.class);
 
     private static final String[][] headerMapping = { { IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString() },
             { IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString() },
@@ -209,7 +209,7 @@ public class XlsLoader {
                     loader.process(this, tableSyntaxNode, row.getSource(), source);
                 } else {
                     String message = String.format("Error in Environment table: can't find extension loader for '%s' keyword", name);
-                    LOG.warn(message);
+                    log.warn(message);
                     OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
                 }
             }
@@ -366,7 +366,7 @@ public class XlsLoader {
             is = source.getByteStream();
             workbook = WorkbookFactory.create(is);
         } catch (Exception e) {
-            LOG.error("Error while preprocessing workbook", e);
+            log.error("Error while preprocessing workbook", e);
             
             String message = "Cannot open source file or file is corrupted";
             OpenLRuntimeException error = new OpenLRuntimeException(message);
@@ -379,7 +379,7 @@ public class XlsLoader {
                     is.close();
                 }
             } catch (Throwable e) {
-                LOG.error("Error trying close input stream:", e);
+                log.error("Error trying close input stream:", e);
                 return null;
             }
         }

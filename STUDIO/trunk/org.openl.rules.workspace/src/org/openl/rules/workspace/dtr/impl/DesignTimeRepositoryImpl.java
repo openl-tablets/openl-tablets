@@ -35,7 +35,7 @@ import org.openl.util.MsgHelper;
  *
  */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener{
-    private static final Log log = LogFactory.getLog(DesignTimeRepositoryImpl.class);
+    private final Log log = LogFactory.getLog(DesignTimeRepositoryImpl.class);
 
     /** Rules Repository */
     private RRepository rulesRepository;

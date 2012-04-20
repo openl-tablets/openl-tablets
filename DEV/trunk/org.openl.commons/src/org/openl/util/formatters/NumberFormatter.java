@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class NumberFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(NumberFormatter.class);
+    private final Log log = LogFactory.getLog(NumberFormatter.class);
 
     private NumberFormat format;
 
@@ -43,7 +43,7 @@ public class NumberFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Number)) {
-            LOG.debug("Should be Number: " + value);
+            log.debug("Should be Number: " + value);
             return null;
         }
 
@@ -54,7 +54,7 @@ public class NumberFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            LOG.debug("Could not parse Number: " + value);
+            log.debug("Could not parse Number: " + value);
             return null;
         }
     }

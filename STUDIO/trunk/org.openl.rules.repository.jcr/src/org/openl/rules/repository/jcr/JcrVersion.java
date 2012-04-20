@@ -6,8 +6,6 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonUserImpl;
@@ -22,8 +20,6 @@ import org.openl.rules.repository.api.ArtefactProperties;
  *
  */
 public class JcrVersion implements RVersion {
-    private static final Log log = LogFactory.getLog(JcrVersion.class);
-
     private Date lastModified;
     private String modifiedBy;
 

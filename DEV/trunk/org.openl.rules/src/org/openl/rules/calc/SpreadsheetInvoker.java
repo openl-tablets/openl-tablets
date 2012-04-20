@@ -16,7 +16,7 @@ import org.openl.vm.trace.Tracer;
  */
 public class SpreadsheetInvoker extends RulesMethodInvoker {
 
-    private final Log LOG = LogFactory.getLog(SpreadsheetInvoker.class);
+    private final Log log = LogFactory.getLog(SpreadsheetInvoker.class);
 
     public SpreadsheetInvoker(Spreadsheet spreadsheet) {
         super(spreadsheet);
@@ -52,7 +52,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker {
             traceObject.setResult(result);
         } catch (RuntimeException e) {
            traceObject.setError(e);
-           LOG.error("Error when tracing Spreadsheet table", e);
+           log.error("Error when tracing Spreadsheet table", e);
            throw e;
         } finally {
             tracer.pop();

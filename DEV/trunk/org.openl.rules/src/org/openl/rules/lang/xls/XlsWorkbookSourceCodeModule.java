@@ -31,7 +31,7 @@ import org.openl.util.StringTool;
 
 public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator implements IIndexElement {
 
-    private static Log LOG = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
+    private final Log log = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
 
     /**
      * Delegates modification checking to parent
@@ -64,6 +64,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     }
 
     private static Workbook loadWorkbook(IOpenSourceCodeModule src) {
+    	final Log log = LogFactory.getLog(XlsWorkbookSourceCodeModule.class);
         InputStream is = null;
         try {
             is = src.getByteStream();
@@ -77,7 +78,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
                 }
 
             } catch (Throwable e) {
-                LOG.error("Error trying close input stream:", e);
+                log.error("Error trying close input stream:", e);
             }
         }
     }
@@ -156,7 +157,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
                     }
                     sourceFile = new File(uri);
                 } catch (URISyntaxException me) {
-                    LOG.warn("Can not get source file");
+                    log.warn("Can not get source file");
                 }
             }
             return sourceFile;

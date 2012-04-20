@@ -15,7 +15,7 @@ import org.openl.vm.trace.Tracer;
  */
 public class MethodTableInvoker extends RulesMethodInvoker {
 
-    private final Log LOG = LogFactory.getLog(MethodTableInvoker.class);
+    private final Log log = LogFactory.getLog(MethodTableInvoker.class);
 
     public MethodTableInvoker(TableMethod tableMethod) {
         super(tableMethod);
@@ -45,7 +45,7 @@ public class MethodTableInvoker extends RulesMethodInvoker {
 
         } catch (RuntimeException e) {
             traceObject.setError(e);
-            LOG.error("Error when tracing Method table", e);
+            log.error("Error when tracing Method table", e);
             throw e;
         } finally {
             tracer.pop();

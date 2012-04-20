@@ -7,7 +7,7 @@ import org.openl.util.EnumUtils;
 
 public class EnumFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(EnumFormatter.class);
+    private final Log log = LogFactory.getLog(EnumFormatter.class);
 
     private Class<?> enumClass;
     
@@ -19,7 +19,7 @@ public class EnumFormatter implements IFormatter {
 
         if (!(value instanceof Enum<?>)) {
             
-            LOG.debug(String.format("Should be a %s value: %s" , enumClass.toString(),
+            log.debug(String.format("Should be a %s value: %s" , enumClass.toString(),
                     ObjectUtils.toString(value, null)));
             return null;
         }

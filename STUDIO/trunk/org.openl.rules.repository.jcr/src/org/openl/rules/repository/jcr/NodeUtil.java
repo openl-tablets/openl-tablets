@@ -28,7 +28,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class NodeUtil {
-    private static final Log log = LogFactory.getLog(NodeUtil.class);
 
     /**
      * Checks whether type of the JCR node is correct.
@@ -48,6 +47,7 @@ public class NodeUtil {
     }
 
     public static Calendar convertDate2Calendar(Date date) {
+    	
         if (date == null) {
             return null;
         }
@@ -117,7 +117,7 @@ public class NodeUtil {
 
     protected static long getFileNodeSize(Node node) {
         long result;
-
+        final Log log = LogFactory.getLog(NodeUtil.class);
         try {
             Node resNode = node.getNode(ArtefactProperties.PROP_RES_CONTENT);
             result = resNode.getProperty(ArtefactProperties.PROP_RES_DATA).getLength();
