@@ -7,6 +7,8 @@ import org.openl.base.INameSpacedThing;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -42,8 +44,18 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 IOpenField field = fieldEntry.getValue();
                 if (!field.isConst()) {
                     String fieldName = fieldEntry.getKey();
+                    Object fieldValue = field.get(getValue(), env);
+                    IOpenClass fieldType = field.getType();
+
+                    if (getValue() == fieldValue) {
+                        // avoid infinite loop because of referencing child field to an object itself
+                        Log.info("Field \"{0}\" references to an object itself. Add it as \"this\" value", fieldName);
+                        fieldType = JavaOpenClass.getOpenClass(String.class);
+                        fieldValue = "this";
+                    }
+                    
                     fields.put(fieldName,
-                            ParameterTreeBuilder.createNode(field.getType(), field.get(getValue(), env), fieldName, this));
+                            ParameterTreeBuilder.createNode(fieldType, fieldValue, fieldName, this));
                 }
             }
             return fields;
