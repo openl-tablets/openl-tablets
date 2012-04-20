@@ -355,11 +355,13 @@ public class TableCopier extends WizardBase {
 
     @Override
     protected void onFinish() throws Exception {
-        doCopy();
-        super.onFinish();
+        //if(checkNames()){
+        	doCopy();
+        	super.onFinish();
+        //}
     }
 
-    private String getInputIdJS(String propName) {
+	private String getInputIdJS(String propName) {
         return "$j('#" + propsTable.getParent().getId() + "').find('input[type=hidden][name=id][value="
             + propName + "]').parent().find('input:first').id";
     }
@@ -462,5 +464,5 @@ public class TableCopier extends WizardBase {
     public List<TableProperty> getPropertiesToDisplay() {
         return propertiesManager.getProperties();
     }
-
+ 
 }
