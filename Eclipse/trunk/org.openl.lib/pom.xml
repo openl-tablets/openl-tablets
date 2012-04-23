@@ -101,8 +101,8 @@
       <artifactId>commons-jxpath</artifactId>
     </dependency>
 
-	<dependency>
-      <groupId>asm</groupId>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>
     
