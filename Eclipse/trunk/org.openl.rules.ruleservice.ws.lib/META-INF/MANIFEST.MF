@@ -7,7 +7,7 @@ Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Bundle-ClassPath: lib/annox-0.5.0.jar,
  lib/aopalliance-1.0.jar,
- lib/asm-4.0.jar,
+ lib/asm-3.3.jar,
  lib/cxf-api-2.5.1.jar,
  lib/cxf-common-utilities-2.5.1.jar,
  lib/cxf-rt-bindings-soap-2.5.1.jar,

@@ -11,6 +11,7 @@ import net.sf.cglib.core.ReflectUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -100,7 +101,7 @@ public abstract class VariationsEnhancerHelper {
     private static Class<?> undecorateInterface(String className, Class<?> original, ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
-        ClassVisitor classVisitor = new UndecoratingClassWriter(0, classWriter, className);
+        ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
         ClassReader classReader = new ClassReader(getClassAsStream(original, classLoader));
         classReader.accept(classVisitor, 0);
         // classWriter.visitEnd();
@@ -218,14 +219,14 @@ public abstract class VariationsEnhancerHelper {
      * 
      * @author PUdalau
      */
-    private static class UndecoratingClassWriter extends ClassVisitor {
+    private static class UndecoratingClassWriter extends ClassAdapter {
 
         private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/project/instantiation/variation/VariationsPack;";
         private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/project/instantiation/variation/VariationsResult;";
         private String className;
 
-        public UndecoratingClassWriter(int arg0, ClassVisitor delegatedClassVisitor, String className) {
-            super(arg0, delegatedClassVisitor);
+        public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
+            super(delegatedClassVisitor);
             this.className = className;
         }
 
