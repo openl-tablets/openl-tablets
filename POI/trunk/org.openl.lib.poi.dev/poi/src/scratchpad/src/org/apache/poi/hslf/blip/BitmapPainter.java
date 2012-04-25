@@ -60,9 +60,9 @@ public final class BitmapPainter implements ImagePainter {
             logger.log(POILogger.WARN, "ImageIO failed to create image. image.type: " + pict.getType());
             return;
         }
-        Rectangle anchor = parent.getAnchor();
-        Image scaledImg = img.getScaledInstance(anchor.width, anchor.height, Image.SCALE_SMOOTH);
-        graphics.drawImage(scaledImg, anchor.x, anchor.y, null);
+
+        Rectangle anchor = parent.getLogicalAnchor2D().getBounds();
+        graphics.drawImage(img, anchor.x, anchor.y, anchor.width, anchor.height, null);
     }
 
 }

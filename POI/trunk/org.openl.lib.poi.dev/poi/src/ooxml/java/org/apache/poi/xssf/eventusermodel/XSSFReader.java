@@ -30,10 +30,13 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackagePartName;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
+import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.model.ThemesTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.xmlbeans.XmlException;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheet;
@@ -81,7 +84,15 @@ public class XSSFReader {
      */
     public StylesTable getStylesTable() throws IOException, InvalidFormatException {
         ArrayList<PackagePart> parts = pkg.getPartsByContentType( XSSFRelation.STYLES.getContentType());
-        return parts.size() == 0 ? null : new StylesTable(parts.get(0), null);
+        if(parts.size() == 0) return null;
+        
+        // Create the Styles Table, and associate the Themes if present
+        StylesTable styles = new StylesTable(parts.get(0), null);
+        parts = pkg.getPartsByContentType( XSSFRelation.THEME.getContentType());
+        if(parts.size() != 0) {
+           styles.setTheme(new ThemesTable(parts.get(0), null));
+        }
+        return styles;
     }
 
 
@@ -100,6 +111,14 @@ public class XSSFReader {
      */
     public InputStream getStylesData() throws IOException, InvalidFormatException {
         return XSSFRelation.STYLES.getContents(workbookPart);
+    }
+
+    /**
+     * Returns an InputStream to read the contents of the
+     *  themes table.
+     */
+    public InputStream getThemesData() throws IOException, InvalidFormatException {
+        return XSSFRelation.THEME.getContents(workbookPart);
     }
 
     /**
@@ -155,7 +174,7 @@ public class XSSFReader {
          * Current CTSheet bean
          */
         private CTSheet ctSheet;
-
+        
         /**
          * Iterator over CTSheet objects, returns sheets in <tt>logical</tt> order.
          * We can't rely on the Ooxml4J's relationship iterator because it returns objects in physical order,
@@ -177,7 +196,8 @@ public class XSSFReader {
                 //step 1. Map sheet's relationship Id and the corresponding PackagePart
                 sheetMap = new HashMap<String, PackagePart>();
                 for(PackageRelationship rel : wb.getRelationships()){
-                    if(rel.getRelationshipType().equals(XSSFRelation.WORKSHEET.getRelation())){
+                    if(rel.getRelationshipType().equals(XSSFRelation.WORKSHEET.getRelation()) ||
+                       rel.getRelationshipType().equals(XSSFRelation.CHARTSHEET.getRelation())){
                         PackagePartName relName = PackagingURIHelper.createPartName(rel.getTargetURI());
                         sheetMap.put(rel.getId(), wb.getPackage().getPart(relName));
                     }
@@ -227,7 +247,40 @@ public class XSSFReader {
         public String getSheetName() {
             return ctSheet.getName();
         }
+        
+        /**
+         * Returns the comments associated with this sheet,
+         *  or null if there aren't any
+         */
+        public CommentsTable getSheetComments() {
+           PackagePart sheetPkg = getSheetPart();
+           
+           // Do we have a comments relationship? (Only ever one if so)
+           try {
+              PackageRelationshipCollection commentsList = 
+                   sheetPkg.getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+              if(commentsList.size() > 0) {
+                 PackageRelationship comments = commentsList.getRelationship(0);
+                 PackagePartName commentsName = PackagingURIHelper.createPartName(comments.getTargetURI());
+                 PackagePart commentsPart = sheetPkg.getPackage().getPart(commentsName);
+                 return new CommentsTable(commentsPart, comments);
+              }
+           } catch (InvalidFormatException e) {
+              return null;
+           } catch (IOException e) {
+              return null;
+           }
+           return null;
+        }
+        
+        public PackagePart getSheetPart() {
+           String sheetId = ctSheet.getId();
+           return sheetMap.get(sheetId);
+        }
 
+        /**
+         * We're read only, so remove isn't supported
+         */
         public void remove() {
             throw new IllegalStateException("Not supported");
         }

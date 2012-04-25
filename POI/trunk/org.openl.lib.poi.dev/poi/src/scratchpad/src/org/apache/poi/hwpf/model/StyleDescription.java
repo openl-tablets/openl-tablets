@@ -22,43 +22,36 @@ import java.util.Arrays;
 
 import org.apache.poi.hwpf.usermodel.CharacterProperties;
 import org.apache.poi.hwpf.usermodel.ParagraphProperties;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
-import org.apache.poi.util.BitField;
-import org.apache.poi.util.BitFieldFactory;
+import org.apache.poi.util.POILogFactory;
+import org.apache.poi.util.POILogger;
+
 /**
  * Comment me
  *
  * @author Ryan Ackley
  */
-
+@Internal
 public final class StyleDescription implements HDFType
 {
 
+    private static final POILogger logger = POILogFactory.getLogger( StyleDescription.class );
+    
   private final static int PARAGRAPH_STYLE = 1;
   private final static int CHARACTER_STYLE = 2;
+  private final static int TABLE_STYLE = 3;
+  private final static int NUMBERING_STYLE = 4;
 
-  private int _istd;
   private int _baseLength;
-  private short _infoShort;
-    private static BitField _sti = BitFieldFactory.getInstance(0xfff);
-    private static BitField _fScratch = BitFieldFactory.getInstance(0x1000);
-    private static BitField _fInvalHeight = BitFieldFactory.getInstance(0x2000);
-    private static BitField _fHasUpe = BitFieldFactory.getInstance(0x4000);
-    private static BitField _fMassCopy = BitFieldFactory.getInstance(0x8000);
-  private short _infoShort2;
-    private static BitField _styleTypeCode = BitFieldFactory.getInstance(0xf);
-    private static BitField _baseStyle = BitFieldFactory.getInstance(0xfff0);
-  private short _infoShort3;
-    private static BitField _numUPX = BitFieldFactory.getInstance(0xf);
-    private static BitField _nextStyle = BitFieldFactory.getInstance(0xfff0);
-  private short _bchUpe;
-  private short _infoShort4;
-    private static BitField _fAutoRedef = BitFieldFactory.getInstance(0x1);
-    private static BitField _fHidden = BitFieldFactory.getInstance(0x2);
+  private StdfBase _stdfBase;
+  private StdfPost2000 _stdfPost2000;
 
   UPX[] _upxs;
   String _name;
+  @Deprecated
   ParagraphProperties _pap;
+  @Deprecated
   CharacterProperties _chp;
 
   public StyleDescription()
@@ -70,16 +63,31 @@ public final class StyleDescription implements HDFType
   {
      _baseLength = baseLength;
      int nameStart = offset + baseLength;
-      _infoShort = LittleEndian.getShort(std, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _infoShort2 = LittleEndian.getShort(std, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _infoShort3 = LittleEndian.getShort(std, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _bchUpe = LittleEndian.getShort(std, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _infoShort4 = LittleEndian.getShort(std, offset);
-      offset += LittleEndian.SHORT_SIZE;
+
+        boolean readStdfPost2000 = false;
+        if ( baseLength == 0x0012 )
+        {
+            readStdfPost2000 = true;
+        }
+        else if ( baseLength == 0x000A )
+        {
+            readStdfPost2000 = false;
+        }
+        else
+        {
+            logger.log( POILogger.WARN,
+                    "Style definition has non-standard size of ",
+                    Integer.valueOf( baseLength ) );
+        }
+
+     _stdfBase = new StdfBase(std, offset);
+      offset += StdfBase.getSize();
+
+        if ( readStdfPost2000 )
+        {
+            _stdfPost2000 = new StdfPost2000( std, offset );
+            offset += StdfPost2000.getSize();
+        }
 
       //first byte(s) of variable length section of std is the length of the
       //style name and aliases string
@@ -111,9 +119,9 @@ public final class StyleDescription implements HDFType
       // the spec only refers to two possible upxs but it mentions
       // that more may be added in the future
       int varOffset = grupxStart;
-      int numUPX = _numUPX.getValue(_infoShort3);
-      _upxs = new UPX[numUPX];
-      for(int x = 0; x < numUPX; x++)
+      int countOfUPX = _stdfBase.getCupx();
+      _upxs = new UPX[countOfUPX];
+      for(int x = 0; x < countOfUPX; x++)
       {
           int upxSize = LittleEndian.getShort(std, varOffset);
           varOffset += LittleEndian.SHORT_SIZE;
@@ -136,11 +144,11 @@ public final class StyleDescription implements HDFType
   }
   public int getBaseStyle()
   {
-    return _baseStyle.getValue(_infoShort2);
+    return _stdfBase.getIstdBase();
   }
   public byte[] getCHPX()
   {
-    switch (_styleTypeCode.getValue(_infoShort2))
+    switch (_stdfBase.getStk())
     {
       case PARAGRAPH_STYLE:
         if (_upxs.length > 1)
@@ -157,7 +165,7 @@ public final class StyleDescription implements HDFType
   }
   public byte[] getPAPX()
   {
-    switch (_styleTypeCode.getValue(_infoShort2))
+    switch (_stdfBase.getStk())
     {
       case PARAGRAPH_STYLE:
         return _upxs[0].getUPX();
@@ -165,18 +173,22 @@ public final class StyleDescription implements HDFType
         return null;
     }
   }
+  @Deprecated
   public ParagraphProperties getPAP()
   {
       return _pap;
   }
+  @Deprecated
   public CharacterProperties getCHP()
   {
       return _chp;
   }
+  @Deprecated
   void setPAP(ParagraphProperties pap)
   {
       _pap = pap;
   }
+  @Deprecated
   void setCHP(CharacterProperties chp)
   {
       _chp = chp;
@@ -205,18 +217,9 @@ public final class StyleDescription implements HDFType
 
 
     byte[] buf = new byte[size];
+    _stdfBase.serialize( buf, 0 );
 
-    int offset = 0;
-    LittleEndian.putShort(buf, offset, _infoShort);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, _infoShort2);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, _infoShort3);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, _bchUpe);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, _infoShort4);
-    offset = _baseLength;
+    int offset = _baseLength;
 
     char[] letters = _name.toCharArray();
     LittleEndian.putShort(buf, _baseLength, (short)letters.length);
@@ -241,21 +244,62 @@ public final class StyleDescription implements HDFType
     return buf;
   }
 
-  public boolean equals(Object o)
-  {
-    StyleDescription sd = (StyleDescription)o;
-    if (sd._infoShort == _infoShort && sd._infoShort2 == _infoShort2 &&
-        sd._infoShort3 == _infoShort3 && sd._bchUpe == _bchUpe &&
-        sd._infoShort4 == _infoShort4 &&
-        _name.equals(sd._name))
+    @Override
+    public int hashCode()
     {
-
-      if (!Arrays.equals(_upxs, sd._upxs))
-      {
-        return false;
-      }
-      return true;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( _name == null ) ? 0 : _name.hashCode() );
+        result = prime * result
+                + ( ( _stdfBase == null ) ? 0 : _stdfBase.hashCode() );
+        result = prime * result + Arrays.hashCode( _upxs );
+        return result;
     }
-    return false;
-  }
+
+    @Override
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+            return true;
+        if ( obj == null )
+            return false;
+        if ( getClass() != obj.getClass() )
+            return false;
+        StyleDescription other = (StyleDescription) obj;
+        if ( _name == null )
+        {
+            if ( other._name != null )
+                return false;
+        }
+        else if ( !_name.equals( other._name ) )
+            return false;
+        if ( _stdfBase == null )
+        {
+            if ( other._stdfBase != null )
+                return false;
+        }
+        else if ( !_stdfBase.equals( other._stdfBase ) )
+            return false;
+        if ( !Arrays.equals( _upxs, other._upxs ) )
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder result = new StringBuilder();
+        result.append( "[STD]: '" );
+        result.append( _name );
+        result.append( "'" );
+        result.append( ( "\nStdfBase:\t" + _stdfBase ).replaceAll( "\n",
+                "\n    " ) );
+        result.append( ( "\nStdfPost2000:\t" + _stdfPost2000 ).replaceAll(
+                "\n", "\n    " ) );
+        for ( UPX upx : _upxs )
+        {
+            result.append( ( "\nUPX:\t" + upx ).replaceAll( "\n", "\n    " ) );
+        }
+        return result.toString();
+    }
 }

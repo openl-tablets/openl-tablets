@@ -17,78 +17,66 @@
 
 package org.apache.poi.hwpf.model;
 
-import junit.framework.*;
-import org.apache.poi.hwpf.*;
-import org.apache.poi.hwpf.model.io.*;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
 
-import java.io.*;
-import java.util.*;
+import junit.framework.TestCase;
 
-public final class TestPAPBinTable
-  extends TestCase
+import org.apache.poi.hwpf.HWPFDocFixture;
+import org.apache.poi.hwpf.HWPFTestDataSamples;
+import org.apache.poi.hwpf.model.io.HWPFFileSystem;
+
+public final class TestPAPBinTable extends TestCase
 {
-  private PAPBinTable _pAPBinTable = null;
-  private HWPFDocFixture _hWPFDocFixture;
 
-  private TextPieceTable fakeTPT = new TextPieceTable();
-
-  public void testReadWrite()
-    throws Exception
-  {
-    FileInformationBlock fib = _hWPFDocFixture._fib;
-    byte[] mainStream = _hWPFDocFixture._mainStream;
-    byte[] tableStream = _hWPFDocFixture._tableStream;
-    int fcMin = fib.getFcMin();
-
-    _pAPBinTable = new PAPBinTable(mainStream, tableStream, null, fib.getFcPlcfbtePapx(), fib.getLcbPlcfbtePapx(), fcMin, fakeTPT);
-
-    HWPFFileSystem fileSys = new HWPFFileSystem();
-
-    _pAPBinTable.writeTo(fileSys, 0);
-    ByteArrayOutputStream tableOut = fileSys.getStream("1Table");
-    ByteArrayOutputStream mainOut =  fileSys.getStream("WordDocument");
-
-    byte[] newTableStream = tableOut.toByteArray();
-    byte[] newMainStream = mainOut.toByteArray();
-
-    PAPBinTable newBinTable = new PAPBinTable(newMainStream, newTableStream, null,0, newTableStream.length, 0, fakeTPT);
-
-    ArrayList oldTextRuns = _pAPBinTable.getParagraphs();
-    ArrayList newTextRuns = newBinTable.getParagraphs();
-
-    assertEquals(oldTextRuns.size(), newTextRuns.size());
-
-    int size = oldTextRuns.size();
-    for (int x = 0; x < size; x++)
+    public void testObIs()
     {
-     PropertyNode oldNode = (PropertyNode)oldTextRuns.get(x);
-     PropertyNode newNode = (PropertyNode)newTextRuns.get(x);
-
-     assertTrue(oldNode.equals(newNode));
+        // shall not fail with assertions on
+        HWPFTestDataSamples.openSampleFile( "ob_is.doc" );
     }
 
+    public void testReadWrite() throws Exception
+    {
+        /** @todo verify the constructors */
+        HWPFDocFixture _hWPFDocFixture = new HWPFDocFixture( this,
+                HWPFDocFixture.DEFAULT_TEST_FILE );
 
+        _hWPFDocFixture.setUp();
+        TextPieceTable fakeTPT = new TextPieceTable();
 
+        FileInformationBlock fib = _hWPFDocFixture._fib;
+        byte[] mainStream = _hWPFDocFixture._mainStream;
+        byte[] tableStream = _hWPFDocFixture._tableStream;
 
-  }
+        PAPBinTable _pAPBinTable = new PAPBinTable( mainStream, tableStream,
+                null, fib.getFcPlcfbtePapx(), fib.getLcbPlcfbtePapx(), fakeTPT );
 
-  protected void setUp()
-    throws Exception
-  {
-    super.setUp();
-    /**@todo verify the constructors*/
-    _hWPFDocFixture = new HWPFDocFixture(this);
+        HWPFFileSystem fileSys = new HWPFFileSystem();
 
-    _hWPFDocFixture.setUp();
-  }
+        _pAPBinTable.writeTo( fileSys, fakeTPT );
+        ByteArrayOutputStream tableOut = fileSys.getStream( "1Table" );
+        ByteArrayOutputStream mainOut = fileSys.getStream( "WordDocument" );
 
-  protected void tearDown()
-    throws Exception
-  {
-    _hWPFDocFixture.tearDown();
+        byte[] newTableStream = tableOut.toByteArray();
+        byte[] newMainStream = mainOut.toByteArray();
 
-    _hWPFDocFixture = null;
-    super.tearDown();
-  }
+        PAPBinTable newBinTable = new PAPBinTable( newMainStream,
+                newTableStream, null, 0, newTableStream.length, fakeTPT );
 
+        List<PAPX> oldTextRuns = _pAPBinTable.getParagraphs();
+        List<PAPX> newTextRuns = newBinTable.getParagraphs();
+
+        assertEquals( oldTextRuns.size(), newTextRuns.size() );
+
+        int size = oldTextRuns.size();
+        for ( int x = 0; x < size; x++ )
+        {
+            PAPX oldNode = oldTextRuns.get( x );
+            PAPX newNode = newTextRuns.get( x );
+
+            assertTrue( oldNode.equals( newNode ) );
+        }
+
+        _hWPFDocFixture.tearDown();
+    }
 }

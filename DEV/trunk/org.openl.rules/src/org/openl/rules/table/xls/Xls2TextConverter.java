@@ -61,9 +61,7 @@ public class Xls2TextConverter {
         InputStream is = null;
         try {
             is = source.getByteStream();
-            //POIFSFileSystem fs = new POIFSFileSystem(is);
-
-			Workbook wb = WorkbookFactory.create(is);
+            Workbook wb = WorkbookFactory.create(is);
 
             XlsWorkbookSourceCodeModule srcIndex = new XlsWorkbookSourceCodeModule(source, wb);
 

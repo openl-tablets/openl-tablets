@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
+
 import java.util.TimeZone;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -292,7 +292,7 @@ public final class PackagePropertiesPart extends PackagePart implements
 	 * @return A string representation of the last printed date.
 	 */
 	public String getLastPrintedPropertyString() {
-		return getDateValue(created);
+		return getDateValue(lastPrinted);
 	}
 
 	/**
@@ -596,7 +596,7 @@ public final class PackagePropertiesPart extends PackagePart implements
 
 	@Override
 	protected InputStream getInputStreamImpl() {
-		throw new InvalidOperationException("Operation not authorized");
+		throw new InvalidOperationException("Operation not authorized. This part may only be manipulated using the getters and setters on PackagePropertiesPart");
 	}
 
 	@Override
@@ -607,12 +607,12 @@ public final class PackagePropertiesPart extends PackagePart implements
 
 	@Override
 	public boolean save(OutputStream zos) {
-		throw new InvalidOperationException("Operation not authorized");
+		throw new InvalidOperationException("Operation not authorized. This part may only be manipulated using the getters and setters on PackagePropertiesPart");
 	}
 
 	@Override
 	public boolean load(InputStream ios) {
-		throw new InvalidOperationException("Operation not authorized");
+		throw new InvalidOperationException("Operation not authorized. This part may only be manipulated using the getters and setters on PackagePropertiesPart");
 	}
 
 	@Override

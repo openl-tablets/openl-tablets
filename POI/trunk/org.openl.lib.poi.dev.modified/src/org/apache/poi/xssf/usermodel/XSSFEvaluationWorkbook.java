@@ -22,9 +22,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 
-import org.apache.poi.hssf.record.formula.NamePtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.ptg.NamePtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
@@ -40,6 +41,8 @@ import org.apache.poi.ss.formula.FormulaParser;
 import org.apache.poi.ss.formula.FormulaParsingWorkbook;
 import org.apache.poi.ss.formula.FormulaRenderingWorkbook;
 import org.apache.poi.ss.formula.FormulaType;
+import org.apache.poi.ss.formula.udf.UDFFinder;
+import org.apache.poi.xssf.model.IndexedUDFFinder;
 import org.apache.poi.ss.formula.IExternalWorkbookResolver;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
@@ -50,8 +53,8 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedName;
 
 /**
  * Internal POI use only
- * 
- * Modified 09/07/09 by Petr Udalau - added methods for searching for UDFs of this Workbook. 
+ *
+ * Modified 09/07/09 by Petr Udalau - added methods for searching for UDFs of this Workbook.
  *
  * @author Josh Micich
  */
@@ -119,9 +122,17 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	}
 
 	public NameXPtg getNameXPtg(String name) {
-		// may require to return null to make tests pass
-        throw new NotImplementedException("Not implemented yet");
+        IndexedUDFFinder udfFinder = (IndexedUDFFinder)getUDFFinder();
+        FreeRefFunction func = udfFinder.findFunction(name);
+		if(func == null) return null;
+        else return new NameXPtg(0, udfFinder.getFunctionIndex(name));
 	}
+
+    public String resolveNameXText(NameXPtg n) {
+        int idx = n.getNameIndex();
+        IndexedUDFFinder udfFinder = (IndexedUDFFinder)getUDFFinder();
+        return udfFinder.getFunctionName(idx);
+    }
 
 	public EvaluationSheet getSheet(int sheetIndex) {
 		return new XSSFEvaluationSheet(_uBook.getSheetAt(sheetIndex));
@@ -129,21 +140,14 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 
 	public ExternalSheet getExternalSheet(int externSheetIndex) {
         return _uBook.getExternalSheet(externSheetIndex);
-    }
-    public int getExternalSheetIndex(String workbookName, String sheetName) {
-        return _uBook.getExternalSheetIndex(workbookName, sheetName);
-	}
-    
-	public int getSheetIndex(String sheetName) {
-		return _uBook.getSheetIndex(sheetName);
 	}
 
-	/**
-	 * TODO - figure out what the hell this methods does in
-	 *  HSSF...
-	 */
-	public String resolveNameXText(NameXPtg n) {
-		throw new RuntimeException("method not implemented yet");
+	public int getExternalSheetIndex(String workbookName, String sheetName) {
+        return _uBook.getExternalSheetIndex(workbookName, sheetName);
+	}
+
+	public int getSheetIndex(String sheetName) {
+		return _uBook.getSheetIndex(sheetName);
 	}
 
 	public String getSheetNameByExternSheet(int externSheetIndex) {
@@ -163,6 +167,10 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 		XSSFEvaluationWorkbook frBook = XSSFEvaluationWorkbook.create(_uBook);
 		return FormulaParser.parse(cell.getCellFormula(), frBook, FormulaType.CELL, _uBook.getSheetIndex(cell.getSheet()));
 	}
+
+    public UDFFinder getUDFFinder(){
+        return _uBook.getUDFFinder();
+    }
 
 	private static final class Name implements EvaluationName {
 
@@ -207,7 +215,7 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public SpreadsheetVersion getSpreadsheetVersion(){
 		return SpreadsheetVersion.EXCEL2007;
 	}
-
+	
     public Workbook getWorkbook() {
         return _uBook;
     }

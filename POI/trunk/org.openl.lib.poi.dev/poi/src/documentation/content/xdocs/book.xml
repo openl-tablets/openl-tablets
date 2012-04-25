@@ -29,6 +29,7 @@
         <menu-item label="Download" href="download.html"/>
         <menu-item label="Components" href="overview.html"/>
         <menu-item label="Text Extraction" href="text-extraction.html"/>
+        <menu-item label="Encryption support" href="encryption.html"/>
         <menu-item label="Case Studies" href="casestudies.html"/>
         <menu-item label="Legal" href="legal.html"/>
     </menu>
@@ -57,7 +58,15 @@
         <menu-item label="OLE2 Document Props (HPSF)" href="hpsf/index.html"/>
         <menu-item label="Outlook (HSMF)" href="hsmf/index.html"/>
         <menu-item label="Visio (HDGF)" href="hdgf/index.html"/>
+        <menu-item label="TNEF (HMEF)" href="hmef/index.html"/>
         <menu-item label="Publisher (HPBF)" href="hpbf/index.html"/>
     </menu>
 
+    <menu label="Apache Wide">
+        <menu-item label="Apache Software Foundation" href="http://www.apache.org/" />
+        <menu-item label="License" href="http://www.apache.org/licenses/" />
+        <menu-item label="Sponsorship" href="http://www.apache.org/foundation/sponsorship.html" />
+        <menu-item label="Thanks" href="http://www.apache.org/foundation/thanks.html" />
+        <menu-item label="Security" href="http://www.apache.org/security/" />
+    </menu>
 </book>

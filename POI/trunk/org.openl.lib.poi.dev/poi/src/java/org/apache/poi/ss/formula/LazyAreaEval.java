@@ -17,12 +17,12 @@
 
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.AreaI;
-import org.apache.poi.hssf.record.formula.AreaI.OffsetArea;
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
-import org.apache.poi.hssf.record.formula.eval.AreaEvalBase;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.formula.ptg.AreaI;
+import org.apache.poi.ss.formula.ptg.AreaI.OffsetArea;
+import org.apache.poi.ss.formula.eval.AreaEval;
+import org.apache.poi.ss.formula.eval.AreaEvalBase;
+import org.apache.poi.ss.formula.eval.ValueEval;
+import org.apache.poi.ss.util.CellReference;
 
 /**
  *
@@ -87,4 +87,12 @@ final class LazyAreaEval extends AreaEvalBase {
 		sb.append("]");
 		return sb.toString();
 	}
+
+    /**
+     * @return  whether cell at rowIndex and columnIndex is a subtotal
+    */
+    public boolean isSubTotal(int rowIndex, int columnIndex){
+        // delegate the query to the sheet evaluator which has access to internal ptgs
+        return _evaluator.isSubTotal(rowIndex, columnIndex);
+    }
 }

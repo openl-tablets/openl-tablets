@@ -57,7 +57,7 @@ public final class TestPOIXMLDocument extends TestCase {
         public TestFactory() {
             //
         }
-        public POIXMLDocumentPart createDocumentPart(PackageRelationship rel, PackagePart part){
+        public POIXMLDocumentPart createDocumentPart(POIXMLDocumentPart parent, PackageRelationship rel, PackagePart part){
             return new POIXMLDocumentPart(part, rel);
         }
 
@@ -140,5 +140,16 @@ public final class TestPOIXMLDocument extends TestCase {
         assertReadWrite(
                 PackageHelper.open(POIDataSamples.getDocumentInstance().openResourceAsStream("WordWithAttachments.docx"))
                 );
+    }
+
+    public void testRelationOrder() throws Exception {
+        OPCPackage pkg = PackageHelper.open(POIDataSamples.getDocumentInstance().openResourceAsStream("WordWithAttachments.docx"));
+        OPCParser doc = new OPCParser(pkg);
+        doc.parse(new TestFactory());
+
+        for(POIXMLDocumentPart rel : doc.getRelations()){
+            //TODO finish me
+        }
+
     }
 }

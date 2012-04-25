@@ -8,10 +8,9 @@ import java.io.InputStream;
 import junit.framework.TestCase;
 
 
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.eval.NumberEval;
+import org.apache.poi.ss.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.eval.forked.ForkedEvaluator;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;

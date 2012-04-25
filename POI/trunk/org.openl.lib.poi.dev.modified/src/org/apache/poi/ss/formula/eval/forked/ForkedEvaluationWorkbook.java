@@ -20,21 +20,21 @@ package org.apache.poi.ss.formula.eval.forked;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.poi.hssf.record.formula.NamePtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.formula.ptg.NamePtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.udf.UDFFinder;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Workbook;
-// VIA
+//VIA
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.formula.IExternalWorkbookResolver;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
-// end changes VIA
-
+//end changes VIA
 
 /**
  * Represents a workbook being used for forked evaluation. Most operations are delegated to the
@@ -111,13 +111,17 @@ public final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 		return _masterBook.getName(namePtg);
 	}
 
+    public EvaluationName getName(String name, int sheetIndex){
+        return _masterBook.getName(name, sheetIndex);
+    }
+
 	public EvaluationSheet getSheet(int sheetIndex) {
 		return getSharedSheet(getSheetName(sheetIndex));
 	}
-
-    public ExternalName getExternalName(int externSheetIndex, int externNameIndex) {
-        return _masterBook.getExternalName(externSheetIndex, externNameIndex);
-    }
+	
+	public ExternalName getExternalName(int externSheetIndex, int externNameIndex) {
+	   return _masterBook.getExternalName(externSheetIndex, externNameIndex);
+	}
 
 	public int getSheetIndex(EvaluationSheet sheet) {
 		if (sheet instanceof ForkedEvaluationSheet) {
@@ -139,6 +143,10 @@ public final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 		return _masterBook.resolveNameXText(ptg);
 	}
 
+    public UDFFinder getUDFFinder(){
+        return _masterBook.getUDFFinder();
+    }
+
 	private static final class OrderedSheet implements Comparable<OrderedSheet> {
 		private final String _sheetName;
 		private final int _index;
@@ -154,37 +162,34 @@ public final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 			return _index - o._index;
 		}
 	}
-
+	
     public Workbook getWorkbook() {
         return _masterBook.getWorkbook();
     }
-// VIA
-	public WorkbookEvaluator createExternalWorkbookEvaluator(String workbookName, IExternalWorkbookResolver resolver) {
-		Workbook book = createExternalWorkbook(workbookName, resolver) ;
-		return  ForkedEvaluator.create(book, null,null).getWorkbookEvaluator();
 
-	}
-	public ForkedEvaluator createExternalForkedEvaluator(String workbookName, IExternalWorkbookResolver resolver) {
-		Workbook book = createExternalWorkbook(workbookName, resolver) ;
-		return  ForkedEvaluator.create(book, null,null);
+    // VIA
+    public WorkbookEvaluator createExternalWorkbookEvaluator(String workbookName, IExternalWorkbookResolver resolver) {
+        Workbook book = createExternalWorkbook(workbookName, resolver) ;
+        return  ForkedEvaluator.create(book, null,null).getWorkbookEvaluator();
 
-	}
-
-	public Workbook createExternalWorkbook(String workbookName,IExternalWorkbookResolver resolver) {
-		return _masterBook.createExternalWorkbook(workbookName, resolver) ;
-	}
-	public String translateExternalWorkbookRef(String refWorkbookName) {
-		return _masterBook.translateExternalWorkbookRef(refWorkbookName);
-	}
-	public String restoreExternalWorkbookName(String refWorkbookName) {
-		return _masterBook.restoreExternalWorkbookName(refWorkbookName);
-	}
-// end changes VIA
-
-
-    public EvaluationName getName(String name, int sheetIndex) {
-        return _masterBook.getName(name, sheetIndex);
     }
+
+    public ForkedEvaluator createExternalForkedEvaluator(String workbookName, IExternalWorkbookResolver resolver) {
+        Workbook book = createExternalWorkbook(workbookName, resolver) ;
+        return  ForkedEvaluator.create(book, null,null);
+
+    }
+
+    public Workbook createExternalWorkbook(String workbookName,IExternalWorkbookResolver resolver) {
+        return _masterBook.createExternalWorkbook(workbookName, resolver) ;
+    }
+    public String translateExternalWorkbookRef(String refWorkbookName) {
+        return _masterBook.translateExternalWorkbookRef(refWorkbookName);
+    }
+    public String restoreExternalWorkbookName(String refWorkbookName) {
+        return _masterBook.restoreExternalWorkbookName(refWorkbookName);
+    }
+    // end changes VIA
 
     public NameXPtg getNameXPtg(String name) {
         return getNameXPtg(name);

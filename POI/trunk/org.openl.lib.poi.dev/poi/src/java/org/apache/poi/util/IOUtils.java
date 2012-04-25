@@ -18,11 +18,20 @@
 package org.apache.poi.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public final class IOUtils {
+
+    private static final POILogger logger = POILogFactory
+            .getLogger( IOUtils.class );
+
 	private IOUtils() {
 		// no instances of this class
 	}
@@ -44,6 +53,22 @@ public final class IOUtils {
 
 		return baos.toByteArray();
 	}
+
+   /**
+    * Returns an array (that shouldn't be written to!) of the
+    *  ByteBuffer. Will be of the requested length, or possibly
+    *  longer if that's easier.
+    */
+   public static byte[] toByteArray(ByteBuffer buffer, int length) {
+      if(buffer.hasArray() && buffer.arrayOffset() == 0) {
+         // The backing array should work out fine for us
+         return buffer.array();
+      }
+      
+      byte[] data = new byte[length];
+      buffer.get(data);
+      return data;
+   }
 
 	/**
 	 * Helper method, just calls <tt>readFully(in, b, 0, b.length)</tt>
@@ -74,7 +99,30 @@ public final class IOUtils {
 			}
 		}
 	}
-
+	
+   /**
+    * Same as the normal <tt>channel.read(b)</tt>, but tries to ensure
+    * that the entire len number of bytes is read.
+    * <p>
+    * If the end of file is reached before any bytes are read, returns -1. If
+    * the end of the file is reached after some bytes are read, returns the
+    * number of bytes read. If the end of the file isn't reached before len
+    * bytes have been read, will return len bytes.
+    */
+	public static int readFully(ReadableByteChannel channel, ByteBuffer b) throws IOException {
+      int total = 0;
+      while (true) {
+         int got = channel.read(b);
+         if (got < 0) {
+            return (total == 0) ? -1 : total;
+         }
+         total += got;
+         if (total == b.capacity() || b.position() == b.capacity()) {
+            return total;
+         }
+      }
+	}
+	
 	/**
 	 * Copies all the data from the given InputStream to the OutputStream. It
 	 * leaves both streams open, so you will still need to close them once done.
@@ -88,4 +136,30 @@ public final class IOUtils {
 			}
 		}
 	}
+
+    public static long calculateChecksum(byte[] data) {
+        Checksum sum = new CRC32();
+        sum.update(data, 0, data.length);
+        return sum.getValue();
+    }
+
+    /**
+     * Quietly (no exceptions) close Closable resource. In case of error it will
+     * be printed to {@link IOUtils} class logger.
+     * 
+     * @param closeable
+     *            resource to close
+     */
+    public static void closeQuietly( final Closeable closeable )
+    {
+        try
+        {
+            closeable.close();
+        }
+        catch ( Exception exc )
+        {
+            logger.log( POILogger.ERROR, "Unable to close resource: " + exc,
+                    exc );
+        }
+    }
 }

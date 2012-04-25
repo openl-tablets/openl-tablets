@@ -19,11 +19,13 @@ package org.apache.poi.hwpf.sprm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.poi.hwpf.usermodel.SectionProperties;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
 
-
+@Internal
 public final class SectionSprmCompressor
 {
   private final static SectionProperties DEFAULT_SEP = new SectionProperties();
@@ -33,7 +35,7 @@ public final class SectionSprmCompressor
   public static byte[] compressSectionProperty(SectionProperties newSEP)
   {
     int size = 0;
-    ArrayList sprmList = new ArrayList();
+    List<byte[]> sprmList = new ArrayList<byte[]>();
 
     if (newSEP.getCnsPgn() != DEFAULT_SEP.getCnsPgn())
     {
@@ -145,7 +147,7 @@ public final class SectionSprmCompressor
     }
     if (newSEP.getDmOrientPage() != DEFAULT_SEP.getDmOrientPage())
     {
-      size += SprmUtils.addSprm((short)0x301D, newSEP.getDmOrientPage(), null, sprmList);
+      size += SprmUtils.addSprm((short)0x301D, newSEP.getDmOrientPage() ? 1 : 0, null, sprmList);
     }
     if (newSEP.getXaPage() != DEFAULT_SEP.getXaPage())
     {

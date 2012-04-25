@@ -20,15 +20,15 @@ package org.apache.poi.ss.formula;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hssf.record.constant.ErrorConstant;
-import org.apache.poi.hssf.record.formula.ArrayPtg;
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
-import org.apache.poi.hssf.record.formula.eval.BoolEval;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.RefEval;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.constant.ErrorConstant;
+import org.apache.poi.ss.formula.ptg.ArrayPtg;
+import org.apache.poi.ss.formula.eval.AreaEval;
+import org.apache.poi.ss.formula.eval.BoolEval;
+import org.apache.poi.ss.formula.eval.ErrorEval;
+import org.apache.poi.ss.formula.eval.NumberEval;
+import org.apache.poi.ss.formula.eval.RefEval;
+import org.apache.poi.ss.formula.eval.StringEval;
+import org.apache.poi.ss.formula.eval.ValueEval;
 import org.apache.poi.ss.util.NumberToTextConverter;
 
 /**
@@ -290,5 +290,10 @@ public final class ArrayEval implements TwoDEval {
     public TwoDEval getRow(int rowIndex) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public boolean isSubTotal(int rowIndex, int columnIndex) {
+        // TODO Auto-generated method stub
+        return false;
     }	
 }

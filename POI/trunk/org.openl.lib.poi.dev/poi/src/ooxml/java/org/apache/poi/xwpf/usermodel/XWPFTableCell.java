@@ -18,25 +18,60 @@ package org.apache.poi.xwpf.usermodel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.util.Internal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTShd;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTVerticalJc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STShd;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
 
-
+/**
+ * XWPFTableCell class.
+ *
+ * @author Gregg Morris (gregg dot morris at gmail dot com) - added XWPFVertAlign enum,
+ *         setColor(),
+ *         setVerticalAlignment()
+ */
 public class XWPFTableCell implements IBody {
-
-    private CTTc ctTc;
+    private final CTTc ctTc;
     protected List<XWPFParagraph> paragraphs = null;
     protected List<XWPFTable> tables = null;
     protected List<IBodyElement> bodyElements = null;
     protected IBody part;
     private XWPFTableRow tableRow = null;
+    // Create a map from this XWPF-level enum to the STVerticalJc.Enum values
+    public static enum XWPFVertAlign { TOP, CENTER, BOTH, BOTTOM };
+    private static EnumMap<XWPFVertAlign, STVerticalJc.Enum> alignMap;
+    // Create a map from the STVerticalJc.Enum values to the XWPF-level enums
+    private static HashMap<Integer, XWPFVertAlign> stVertAlignTypeMap;
+
+    static {
+        // populate enum maps
+        alignMap = new EnumMap<XWPFVertAlign, STVerticalJc.Enum>(XWPFVertAlign.class);
+        alignMap.put(XWPFVertAlign.TOP, STVerticalJc.Enum.forInt(STVerticalJc.INT_TOP));
+        alignMap.put(XWPFVertAlign.CENTER, STVerticalJc.Enum.forInt(STVerticalJc.INT_CENTER));
+        alignMap.put(XWPFVertAlign.BOTH, STVerticalJc.Enum.forInt(STVerticalJc.INT_BOTH));
+        alignMap.put(XWPFVertAlign.BOTTOM, STVerticalJc.Enum.forInt(STVerticalJc.INT_BOTTOM));
+
+        stVertAlignTypeMap = new HashMap<Integer, XWPFVertAlign>();
+        stVertAlignTypeMap.put(STVerticalJc.INT_TOP, XWPFVertAlign.TOP);
+        stVertAlignTypeMap.put(STVerticalJc.INT_CENTER, XWPFVertAlign.CENTER);
+        stVertAlignTypeMap.put(STVerticalJc.INT_BOTH, XWPFVertAlign.BOTH);
+        stVertAlignTypeMap.put(STVerticalJc.INT_BOTTOM, XWPFVertAlign.BOTTOM);
+
+    }
+
     /**
      * If a table cell does not include at least one block-level element, then this document shall be considered corrupt
      */
@@ -66,6 +101,7 @@ public class XWPFTableCell implements IBody {
             	bodyElements.add(t);
             }
         }
+        cursor.dispose();
     }
 
 
@@ -150,6 +186,59 @@ public class XWPFTableCell implements IBody {
     	return tableRow;
     }
     
+    /**
+     * Set cell color. This sets some associated values; for finer control
+     * you may want to access these elements individually.
+     * @param rgbStr - the desired cell color, in the hex form "RRGGBB".
+     */
+    public void setColor(String rgbStr) {
+        CTTcPr tcpr = ctTc.isSetTcPr() ? ctTc.getTcPr() : ctTc.addNewTcPr();
+        CTShd ctshd = tcpr.isSetShd() ? tcpr.getShd() : tcpr.addNewShd();
+        ctshd.setColor("auto");
+        ctshd.setVal(STShd.CLEAR);
+        ctshd.setFill(rgbStr);
+    }
+
+    /**
+     * Get cell color. Note that this method only returns the "fill" value.
+     * @return RGB string of cell color
+     */
+    public String getColor() {
+    	String color = null;
+        CTTcPr tcpr = ctTc.getTcPr();
+        if (tcpr != null) {
+        	CTShd ctshd = tcpr.getShd();
+        	if (ctshd != null) {
+        		color = ctshd.xgetFill().getStringValue();
+        	}
+        }
+    	return color;
+    }
+
+    /**
+     * Set the vertical alignment of the cell.
+     * @param vAlign - the desired alignment enum value
+     */
+    public void setVerticalAlignment(XWPFVertAlign vAlign) {
+        CTTcPr tcpr = ctTc.isSetTcPr() ? ctTc.getTcPr() : ctTc.addNewTcPr();
+    	CTVerticalJc va = tcpr.addNewVAlign();
+    	va.setVal(alignMap.get(vAlign));
+    }
+
+    /**
+     * Get the vertical alignment of the cell.
+     * @return the cell alignment enum value
+     */
+    public XWPFVertAlign getVerticalAlignment() {
+    	XWPFVertAlign vAlign = null;
+        CTTcPr tcpr = ctTc.getTcPr();
+        if (ctTc != null) {
+        	CTVerticalJc va = tcpr.getVAlign();
+        	vAlign = stVertAlignTypeMap.get(va.getVal().intValue());
+        }
+        return vAlign;
+    }
+
     /**
      * add a new paragraph at position of the cursor
      * @param cursor
@@ -248,16 +337,14 @@ public class XWPFTableCell implements IBody {
 		return null;
 	}
 
-
-
-
-	/**
-	 * get the to which the TableCell belongs 
-	 * @see org.apache.poi.xwpf.usermodel.IBody#getPart()
-	 */
-	public IBody getPart() {
-		return (IBody) tableRow.getTable().getPart();
-	}
+    /**
+     * get the to which the TableCell belongs
+     * 
+     * @see org.apache.poi.xwpf.usermodel.IBody#getPart()
+     */
+    public POIXMLDocumentPart getPart() {
+        return tableRow.getTable().getPart();
+    }
 
 
 	/** 
@@ -337,6 +424,7 @@ public class XWPFTableCell implements IBody {
 		CTRow row = (CTRow)o;
 		cursor.toParent();
 		o = cursor.getObject();
+        cursor.dispose();
 		if(! (o instanceof CTTbl)){
 			return null;
 		}
@@ -346,9 +434,13 @@ public class XWPFTableCell implements IBody {
 			return null;
 		}
 		XWPFTableRow tableRow = table.getRow(row);
-		if(row == null){
+		if (tableRow == null) {
 			return null;
 		}
 		return tableRow.getTableCell(cell);
 	}
+
+    public XWPFDocument getXWPFDocument() {
+        return part.getXWPFDocument();
+    }
 }// end class

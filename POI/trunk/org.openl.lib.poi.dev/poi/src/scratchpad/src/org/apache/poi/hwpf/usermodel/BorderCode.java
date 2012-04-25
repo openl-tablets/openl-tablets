@@ -65,7 +65,7 @@ public final class BorderCode implements Cloneable {
 
   public boolean isEmpty()
   {
-    return _info == 0 && _info2 == 0;
+    return _info == 0 && _info2 == 0 || _info == -1;
   }
 
   public boolean equals(Object o)
@@ -193,5 +193,36 @@ public final class BorderCode implements Cloneable {
   public void setFrame(boolean frame) {
     _fFrame.setValue(_info2, frame ? 1 : 0);
   }
+
+    @Override
+    public String toString()
+    {
+        if ( isEmpty() )
+            return "[BRC] EMPTY";
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append( "[BRC]\n" );
+
+        buffer.append( "        .dptLineWidth         = " );
+        buffer.append( " (" ).append( getLineWidth() ).append( " )\n" );
+
+        buffer.append( "        .brcType              = " );
+        buffer.append( " (" ).append( getBorderType() ).append( " )\n" );
+
+        buffer.append( "        .ico                  = " );
+        buffer.append( " (" ).append( getColor() ).append( " )\n" );
+
+        buffer.append( "        .dptSpace             = " );
+        buffer.append( " (" ).append( getSpace() ).append( " )\n" );
+
+        buffer.append( "        .fShadow              = " );
+        buffer.append( " (" ).append( isShadow() ).append( " )\n" );
+
+        buffer.append( "        .fFrame               = " );
+        buffer.append( " (" ).append( isFrame() ).append( " )\n" );
+
+        return buffer.toString();
+    }
 
 }

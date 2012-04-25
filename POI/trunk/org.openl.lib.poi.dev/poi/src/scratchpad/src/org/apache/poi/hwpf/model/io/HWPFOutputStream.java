@@ -19,6 +19,9 @@ package org.apache.poi.hwpf.model.io;
 
 import java.io.ByteArrayOutputStream;
 
+import org.apache.poi.util.Internal;
+
+@Internal
 public final class HWPFOutputStream extends ByteArrayOutputStream
 {
 
@@ -34,19 +37,19 @@ public final class HWPFOutputStream extends ByteArrayOutputStream
     return _offset;
   }
 
-  public void reset()
+  public synchronized void reset()
   {
     super.reset();
     _offset = 0;
   }
 
-  public void write(byte[] buf, int off, int len)
+  public synchronized void write(byte[] buf, int off, int len)
   {
     super.write(buf, off, len);
     _offset += len;
   }
 
-  public void write(int b)
+  public synchronized void write(int b)
   {
     super.write(b);
     _offset++;

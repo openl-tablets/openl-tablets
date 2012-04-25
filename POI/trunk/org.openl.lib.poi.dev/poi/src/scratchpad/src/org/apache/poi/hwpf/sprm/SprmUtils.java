@@ -19,9 +19,11 @@ package org.apache.poi.hwpf.sprm;
 
 import java.util.List;
 
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
 
 
+@Internal
 public final class SprmUtils
 {
   public SprmUtils()
@@ -40,7 +42,7 @@ public final class SprmUtils
     return buf;
   }
 
-  public static int addSpecialSprm(short instruction, byte[] varParam, List list)
+  public static int addSpecialSprm(short instruction, byte[] varParam, List<byte[]> list)
   {
     byte[] sprm = new byte[varParam.length + 4];
     System.arraycopy(varParam, 0, sprm, 4, varParam.length);
@@ -50,7 +52,13 @@ public final class SprmUtils
     return sprm.length;
   }
 
-  public static int addSprm(short instruction, int param, byte[] varParam, List list)
+    public static int addSprm( short instruction, boolean param,
+            List<byte[]> list )
+    {
+        return addSprm( instruction, param ? 1 : 0, null, list );
+    }
+
+  public static int addSprm(short instruction, int param, byte[] varParam, List<byte[]> list)
   {
     int type = (instruction & 0xe000) >> 13;
 
@@ -96,7 +104,7 @@ public final class SprmUtils
     return sprm.length;
   }
 
-  public static byte[] getGrpprl(List sprmList, int size)
+  public static byte[] getGrpprl(List<byte[]> sprmList, int size)
   {
     // spit out the final grpprl
     byte[] grpprl = new byte[size];
@@ -104,7 +112,7 @@ public final class SprmUtils
     int index = 0;
     for (; listSize >= 0; listSize--)
     {
-      byte[] sprm = (byte[])sprmList.remove(0);
+      byte[] sprm = sprmList.remove(0);
       System.arraycopy(sprm, 0, grpprl, index, sprm.length);
       index += sprm.length;
     }

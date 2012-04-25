@@ -95,7 +95,7 @@ public final class EscherPictBlip extends EscherBlipRecord {
         int pos = offset;
         LittleEndian.putShort( data, pos, getOptions() ); pos += 2;
         LittleEndian.putShort( data, pos, getRecordId() ); pos += 2;
-        LittleEndian.putInt( data, getRecordSize() - HEADER_SIZE ); pos += 4;
+        LittleEndian.putInt( data, 0, getRecordSize() - HEADER_SIZE ); pos += 4;
 
         System.arraycopy( field_1_UID, 0, data, pos, 16 ); pos += 16;
         LittleEndian.putInt( data, pos, field_2_cb ); pos += 4;
@@ -202,7 +202,8 @@ public final class EscherPictBlip extends EscherBlipRecord {
         String extraData = HexDump.toHex(field_pictureData, 32);
         return getClass().getName() + ":" + '\n' +
                 "  RecordId: 0x" + HexDump.toHex( getRecordId() ) + '\n' +
-                "  Options: 0x" + HexDump.toHex( getOptions() ) + '\n' +
+                "  Version: 0x" + HexDump.toHex( getVersion() ) + '\n' +
+                "  Instance: 0x" + HexDump.toHex( getInstance() ) + '\n' +
                 "  UID: 0x" + HexDump.toHex( field_1_UID ) + '\n' +
                 "  Uncompressed Size: " + HexDump.toHex( field_2_cb ) + '\n' +
                 "  Bounds: " + getBounds() + '\n' +

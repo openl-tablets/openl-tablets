@@ -17,18 +17,22 @@
 
 package org.apache.poi.poifs.filesystem;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 
 import org.apache.poi.POIDataSamples;
 import org.apache.poi.hssf.HSSFTestDataSamples;
 import org.apache.poi.poifs.common.POIFSBigBlockSize;
-import org.apache.poi.poifs.storage.HeaderBlockReader;
+import org.apache.poi.poifs.common.POIFSConstants;
+import org.apache.poi.poifs.storage.BATBlock;
+import org.apache.poi.poifs.storage.BlockAllocationTableReader;
+import org.apache.poi.poifs.storage.HeaderBlock;
 import org.apache.poi.poifs.storage.RawDataBlockList;
 
 /**
@@ -37,6 +41,8 @@ import org.apache.poi.poifs.storage.RawDataBlockList;
  * @author Josh Micich
  */
 public final class TestPOIFSFileSystem extends TestCase {
+   private POIDataSamples _samples = POIDataSamples.getPOIFSInstance();
+   
 
 	/**
 	 * Mock exception used to ensure correct error handling
@@ -97,7 +103,6 @@ public final class TestPOIFSFileSystem extends TestCase {
 	 * POIFSFileSystem was not closing the input stream.
 	 */
 	public void testAlwaysClose() {
-
 		TestIS testIS;
 
 		// Normal case - read until EOF and close
@@ -138,9 +143,7 @@ public final class TestPOIFSFileSystem extends TestCase {
 			"ShortLastBlock.qwp", "ShortLastBlock.wps"
 		};
 
-		POIDataSamples _samples = POIDataSamples.getPOIFSInstance();
 		for(int i=0; i<files.length; i++) {
-
 			// Open the file up
 			POIFSFileSystem fs = new POIFSFileSystem(
 			    _samples.openResourceAsStream(files[i])
@@ -160,8 +163,6 @@ public final class TestPOIFSFileSystem extends TestCase {
 	 *  sectors that exist in the file.
 	 */
 	public void testFATandDIFATsectors() throws Exception {
-      POIDataSamples _samples = POIDataSamples.getPOIFSInstance();
-      
       // Open the file up
       try {
          POIFSFileSystem fs = new POIFSFileSystem(
@@ -175,6 +176,68 @@ public final class TestPOIFSFileSystem extends TestCase {
 	}
 	
 	/**
+	 * Tests that we can write and read a file that contains XBATs
+	 *  as well as regular BATs.
+	 * However, because a file needs to be at least 6.875mb big
+	 *  to have an XBAT in it, we don't have a test one. So, generate it.
+	 */
+	public void testBATandXBAT() throws Exception {
+	   byte[] hugeStream = new byte[8*1024*1024];
+	   POIFSFileSystem fs = new POIFSFileSystem();
+	   fs.getRoot().createDocument(
+	         "BIG", new ByteArrayInputStream(hugeStream)
+	   );
+	   
+	   ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	   fs.writeFilesystem(baos);
+	   byte[] fsData = baos.toByteArray();
+	   
+	   
+	   // Check the header was written properly
+	   InputStream inp = new ByteArrayInputStream(fsData); 
+	   HeaderBlock header = new HeaderBlock(inp);
+	   assertEquals(109+21, header.getBATCount());
+	   assertEquals(1, header.getXBATCount());
+	   
+	   
+	   // We should have 21 BATs in the XBAT
+	   ByteBuffer xbatData = ByteBuffer.allocate(512);
+	   xbatData.put(fsData, (1+header.getXBATIndex())*512, 512);
+	   xbatData.position(0);
+	   BATBlock xbat = BATBlock.createBATBlock(POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS, xbatData);
+	   for(int i=0; i<21; i++) {
+	      assertTrue(xbat.getValueAt(i) != POIFSConstants.UNUSED_BLOCK);
+	   }
+	   for(int i=21; i<127; i++) {
+	      assertEquals(POIFSConstants.UNUSED_BLOCK, xbat.getValueAt(i));
+	   }
+	   assertEquals(POIFSConstants.END_OF_CHAIN, xbat.getValueAt(127));
+	   
+	   
+	   // Load the blocks and check with that
+	   RawDataBlockList blockList = new RawDataBlockList(inp, POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS);
+	   assertEquals(fsData.length / 512, blockList.blockCount() + 1); // Header not counted
+	   new BlockAllocationTableReader(header.getBigBlockSize(),
+            header.getBATCount(),
+            header.getBATArray(),
+            header.getXBATCount(),
+            header.getXBATIndex(),
+            blockList);
+      assertEquals(fsData.length / 512, blockList.blockCount() + 1); // Header not counted
+      
+	   // Now load it and check
+	   fs = null;
+	   fs = new POIFSFileSystem(
+	         new ByteArrayInputStream(fsData)
+	   );
+	   
+	   DirectoryNode root = fs.getRoot();
+	   assertEquals(1, root.getEntryCount());
+	   DocumentNode big = (DocumentNode)root.getEntry("BIG");
+	   assertEquals(hugeStream.length, big.getSize());
+	}
+	
+	/**
 	 * Most OLE2 files use 512byte blocks. However, a small number
 	 *  use 4k blocks. Check that we can open these.
 	 */
@@ -183,14 +246,14 @@ public final class TestPOIFSFileSystem extends TestCase {
 	   InputStream inp = _samples.openResourceAsStream("BlockSize4096.zvi");
 	   
 	   // First up, check that we can process the header properly
-      HeaderBlockReader header_block_reader = new HeaderBlockReader(inp);
-      POIFSBigBlockSize bigBlockSize = header_block_reader.getBigBlockSize();
+      HeaderBlock header_block = new HeaderBlock(inp);
+      POIFSBigBlockSize bigBlockSize = header_block.getBigBlockSize();
       assertEquals(4096, bigBlockSize.getBigBlockSize());
       
       // Check the fat info looks sane
-      assertEquals(109, header_block_reader.getBATArray().length);
-      assertTrue(header_block_reader.getBATCount() > 0);
-      assertEquals(0, header_block_reader.getXBATCount());
+      assertEquals(1, header_block.getBATArray().length);
+      assertEquals(1, header_block.getBATCount());
+      assertEquals(0, header_block.getXBATCount());
       
       // Now check we can get the basic fat
       RawDataBlockList data_blocks = new RawDataBlockList(inp, bigBlockSize);
@@ -225,6 +288,43 @@ public final class TestPOIFSFileSystem extends TestCase {
             dis.read(data);
 	      }
 	   }
+	}
+	
+	/**
+	 * Test that we can open files that come via Lotus notes.
+	 * These have a top level directory without a name....
+	 */
+	public void testNotesOLE2Files() throws Exception {
+      POIDataSamples _samples = POIDataSamples.getPOIFSInstance();
+      
+      // Open the file up
+      POIFSFileSystem fs = new POIFSFileSystem(
+          _samples.openResourceAsStream("Notes.ole2")
+      );
+      
+      // Check the contents
+      assertEquals(1, fs.getRoot().getEntryCount());
+      
+      Entry entry = fs.getRoot().getEntries().next();
+      assertTrue(entry.isDirectoryEntry());
+      assertTrue(entry instanceof DirectoryEntry);
+      
+      // The directory lacks a name!
+      DirectoryEntry dir = (DirectoryEntry)entry;
+      assertEquals("", dir.getName());
+      
+      // Has two children
+      assertEquals(2, dir.getEntryCount());
+      
+      // Check them
+      Iterator<Entry> it = dir.getEntries();
+      entry = it.next();
+      assertEquals(true, entry.isDocumentEntry());
+      assertEquals("\u0001Ole10Native", entry.getName());
+      
+      entry = it.next();
+      assertEquals(true, entry.isDocumentEntry());
+      assertEquals("\u0001CompObj", entry.getName());
 	}
 
 	private static InputStream openSampleStream(String sampleFileName) {

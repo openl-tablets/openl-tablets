@@ -32,6 +32,9 @@ public final class LineSpacingDescriptor
 
   public LineSpacingDescriptor()
   {
+      //see page 181
+      _dyaLine = 240;
+      _fMultiLinespace = 1;
   }
 
   public LineSpacingDescriptor(byte[] buf, int offset)
@@ -74,4 +77,19 @@ public final class LineSpacingDescriptor
 
     return _dyaLine == lspd._dyaLine && _fMultiLinespace == lspd._fMultiLinespace;
   }
+
+    public boolean isEmpty()
+    {
+        return _dyaLine == 0 && _fMultiLinespace == 0;
+    }
+
+    @Override
+    public String toString()
+    {
+        if ( isEmpty() )
+            return "[LSPD] EMPTY";
+
+        return "[LSPD] (dyaLine: " + _dyaLine + "; fMultLinespace: "
+                + _fMultiLinespace + ")";
+    }
 }

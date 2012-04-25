@@ -17,12 +17,12 @@
 
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.Area3DPtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.Ref3DPtg;
-import org.apache.poi.hssf.record.formula.eval.*;
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.ptg.Area3DPtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.ptg.Ref3DPtg;
+import org.apache.poi.ss.formula.eval.*;
+import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
 import org.apache.poi.ss.formula.EvaluationWorkbook.ExternalName;
@@ -86,7 +86,7 @@ public final class OperationEvaluationContext {
 			try {
 				targetEvaluator = _bookEvaluator.getOtherWorkbookEvaluator(workbookName);
 			} catch (WorkbookNotFoundException e) {
-				throw new RuntimeException(e.getMessage());
+				throw new RuntimeException(e.getMessage(), e);
 			}
 			otherSheetIndex = targetEvaluator.getSheetIndex(externalSheet.getSheetName());
 			if (otherSheetIndex < 0) {

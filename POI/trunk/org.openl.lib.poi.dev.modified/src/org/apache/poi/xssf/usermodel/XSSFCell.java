@@ -22,9 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.poi.hssf.record.SharedFormulaRecord;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.SharedFormula;
+import org.apache.poi.ss.formula.eval.ErrorEval;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.FormulaParser;
 import org.apache.poi.ss.formula.FormulaRenderer;
@@ -325,7 +325,7 @@ public final class XSSFCell implements Cell {
      */
     public void setCellValue(RichTextString str) {
         if(str == null || str.getString() == null){
-            setBlank();
+            setCellType(Cell.CELL_TYPE_BLANK);
             return;
         }
         int cellType = getCellType();
@@ -391,8 +391,10 @@ public final class XSSFCell implements Cell {
 
         int sheetIndex = sheet.getWorkbook().getSheetIndex(sheet);
         XSSFEvaluationWorkbook fpb = XSSFEvaluationWorkbook.create(sheet.getWorkbook());
+        SharedFormula sf = new SharedFormula(SpreadsheetVersion.EXCEL2007);
+
         Ptg[] ptgs = FormulaParser.parse(sharedFormula, fpb, FormulaType.CELL, sheetIndex);
-        Ptg[] fmla = SharedFormulaRecord.convertSharedFormulas(ptgs,
+        Ptg[] fmla = sf.convertSharedFormulas(ptgs,
                 getRowIndex() - ref.getFirstRow(), getColumnIndex() - ref.getFirstColumn());
         return FormulaRenderer.toFormulaString(fpb, fmla);
     }
@@ -411,6 +413,9 @@ public final class XSSFCell implements Cell {
      *  when the cell is a part of a multi-cell array formula
      */
     public void setCellFormula(String formula) {
+        /*if(isPartOfArrayFormulaGroup()){
+            notifyArrayFormulaChanging();
+        }*/
         setFormula(formula, FormulaType.CELL);
     }
 
@@ -719,6 +724,10 @@ public final class XSSFCell implements Cell {
      */
     public void setCellType(int cellType) {
         int prevType = getCellType();
+       
+        /*if(isPartOfArrayFormulaGroup()){
+            notifyArrayFormulaChanging();
+        }*/
         if(prevType == CELL_TYPE_FORMULA && cellType != CELL_TYPE_FORMULA) {
             getSheet().getWorkbook().onDeleteFormula(this);
         }
@@ -908,7 +917,7 @@ public final class XSSFCell implements Cell {
         link.setCellReference( new CellReference(_row.getRowNum(), _cellNum).formatAsString() );
 
         // Add to the lists
-        getSheet().setCellHyperlink(link);
+        getSheet().addHyperlink(link);
     }
 
     /**
@@ -1010,4 +1019,41 @@ public final class XSSFCell implements Cell {
     public boolean isPartOfArrayFormulaGroup() {
         return getSheet().isCellInArrayFormulaContext(this);
     }
+
+    /**
+     * The purpose of this method is to validate the cell state prior to modification
+     *
+     * @see #notifyArrayFormulaChanging()
+     */
+    /*void notifyArrayFormulaChanging(String msg){
+        if(isPartOfArrayFormulaGroup()){
+            CellRangeAddress cra = getArrayFormulaRange();
+            if(cra.getNumberOfCells() > 1) {
+                throw new IllegalStateException(msg);
+            }
+            //un-register the single-cell array formula from the parent XSSFSheet
+            getRow().getSheet().removeArrayFormula(this);
+        }
+    }*/
+
+    /**
+     * Called when this cell is modified.
+     * <p>
+     * The purpose of this method is to validate the cell state prior to modification.
+     * </p>
+     *
+     * @see #setCellType(int)
+     * @see #setCellFormula(String)
+     * @see XSSFRow#removeCell(org.apache.poi.ss.usermodel.Cell)
+     * @see org.apache.poi.xssf.usermodel.XSSFSheet#removeRow(org.apache.poi.ss.usermodel.Row)
+     * @see org.apache.poi.xssf.usermodel.XSSFSheet#shiftRows(int, int, int)
+     * @see org.apache.poi.xssf.usermodel.XSSFSheet#addMergedRegion(org.apache.poi.ss.util.CellRangeAddress)
+     * @throws IllegalStateException if modification is not allowed
+     */
+    /*void notifyArrayFormulaChanging(){
+        CellReference ref = new CellReference(this);
+        String msg = "Cell "+ref.formatAsString()+" is part of a multi-cell array formula. " +
+                "You cannot change part of an array.";
+        notifyArrayFormulaChanging(msg);
+    }*/
 }

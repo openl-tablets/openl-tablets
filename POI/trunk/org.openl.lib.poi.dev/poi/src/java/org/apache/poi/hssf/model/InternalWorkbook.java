@@ -35,6 +35,7 @@ import org.apache.poi.ddf.EscherOptRecord;
 import org.apache.poi.ddf.EscherProperties;
 import org.apache.poi.ddf.EscherRGBProperty;
 import org.apache.poi.ddf.EscherRecord;
+import org.apache.poi.ddf.EscherSimpleProperty;
 import org.apache.poi.ddf.EscherSpRecord;
 import org.apache.poi.ddf.EscherSplitMenuColorsRecord;
 import org.apache.poi.hssf.record.BOFRecord;
@@ -81,12 +82,13 @@ import org.apache.poi.hssf.record.WindowProtectRecord;
 import org.apache.poi.hssf.record.WriteAccessRecord;
 import org.apache.poi.hssf.record.WriteProtectRecord;
 import org.apache.poi.hssf.record.common.UnicodeString;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.FormulaShifter;
-import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.formula.FormulaShifter;
+import org.apache.poi.ss.formula.udf.UDFFinder;
+import org.apache.poi.ss.formula.ptg.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.formula.EvaluationWorkbook.ExternalName;
 import org.apache.poi.ss.formula.EvaluationWorkbook.ExternalSheet;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
@@ -577,6 +579,10 @@ public final class InternalWorkbook {
      */
     public void setSheetName(int sheetnum, String sheetname) {
         checkSheets(sheetnum);
+
+        // YK: Mimic Excel and silently truncate sheet names longer than 31 characters
+        if(sheetname.length() > 31) sheetname = sheetname.substring(0, 31);
+
         BoundSheetRecord sheet = boundsheets.get(sheetnum);
         sheet.setSheetname(sheetname);
     }
@@ -1011,36 +1017,32 @@ public final class InternalWorkbook {
         {
 
             Record record = records.get( k );
-            // Let's skip RECALCID records, as they are only use for optimization
-            if ( record.getSid() != RecalcIdRecord.sid || ( (RecalcIdRecord) record ).isNeeded() )
+            int len = 0;
+            if (record instanceof SSTRecord)
             {
-                int len = 0;
-                if (record instanceof SSTRecord)
-                {
-                    sst = (SSTRecord)record;
-                    sstPos = pos;
-                }
-                if (record.getSid() == ExtSSTRecord.sid && sst != null)
-                {
-                    record = sst.createExtSSTRecord(sstPos + offset);
-                }
-                if (record instanceof BoundSheetRecord) {
-                     if(!wroteBoundSheets) {
-                        for (int i = 0; i < boundsheets.size(); i++) {
-                            len+= getBoundSheetRec(i)
-                                             .serialize(pos+offset+len, data);
-                        }
-                        wroteBoundSheets = true;
-                     }
-                } else {
-                   len = record.serialize( pos + offset, data );
-                }
-                /////  DEBUG BEGIN /////
+                sst = (SSTRecord)record;
+                sstPos = pos;
+            }
+            if (record.getSid() == ExtSSTRecord.sid && sst != null)
+            {
+                record = sst.createExtSSTRecord(sstPos + offset);
+            }
+            if (record instanceof BoundSheetRecord) {
+                 if(!wroteBoundSheets) {
+                    for (int i = 0; i < boundsheets.size(); i++) {
+                        len+= getBoundSheetRec(i)
+                                         .serialize(pos+offset+len, data);
+                    }
+                    wroteBoundSheets = true;
+                 }
+            } else {
+               len = record.serialize( pos + offset, data );
+            }
+            /////  DEBUG BEGIN /////
 //                if (len != record.getRecordSize())
 //                    throw new IllegalStateException("Record size does not match serialized bytes.  Serialized size = " + len + " but getRecordSize() returns " + record.getRecordSize());
-                /////  DEBUG END /////
-                pos += len;   // rec.length;
-            }
+            /////  DEBUG END /////
+            pos += len;   // rec.length;
         }
         if (log.check( POILogger.DEBUG ))
             log.log( DEBUG, "Exiting serialize workbook" );
@@ -1055,16 +1057,12 @@ public final class InternalWorkbook {
         for ( int k = 0; k < records.size(); k++ )
         {
             Record record = records.get( k );
-            // Let's skip RECALCID records, as they are only use for optimization
-            if ( record.getSid() != RecalcIdRecord.sid || ( (RecalcIdRecord) record ).isNeeded() )
-            {
-                if (record instanceof SSTRecord)
-                    sst = (SSTRecord)record;
-                if (record.getSid() == ExtSSTRecord.sid && sst != null)
-                    retval += sst.calcExtSSTRecordSize();
-                else
-                    retval += record.getRecordSize();
-            }
+            if (record instanceof SSTRecord)
+                sst = (SSTRecord)record;
+            if (record.getSid() == ExtSSTRecord.sid && sst != null)
+                retval += sst.calcExtSSTRecordSize();
+            else
+                retval += record.getRecordSize();
         }
         return retval;
     }
@@ -1283,15 +1281,16 @@ public final class InternalWorkbook {
         // we'll need multiple editions for
         // the different formats
 
+        
         switch (id) {
-            case 0: return new FormatRecord(5, "\"$\"#,##0_);\\(\"$\"#,##0\\)");
-            case 1: return new FormatRecord(6, "\"$\"#,##0_);[Red]\\(\"$\"#,##0\\)");
-            case 2: return new FormatRecord(7, "\"$\"#,##0.00_);\\(\"$\"#,##0.00\\)");
-            case 3: return new FormatRecord(8, "\"$\"#,##0.00_);[Red]\\(\"$\"#,##0.00\\)");
-            case 4: return new FormatRecord(0x2a, "_(\"$\"* #,##0_);_(\"$\"* \\(#,##0\\);_(\"$\"* \"-\"_);_(@_)");
-            case 5: return new FormatRecord(0x29, "_(* #,##0_);_(* \\(#,##0\\);_(* \"-\"_);_(@_)");
-            case 6: return new FormatRecord(0x2c, "_(\"$\"* #,##0.00_);_(\"$\"* \\(#,##0.00\\);_(\"$\"* \"-\"??_);_(@_)");
-            case 7: return new FormatRecord(0x2b, "_(* #,##0.00_);_(* \\(#,##0.00\\);_(* \"-\"??_);_(@_)");
+            case 0: return new FormatRecord(5, BuiltinFormats.getBuiltinFormat(5)); 
+            case 1: return new FormatRecord(6, BuiltinFormats.getBuiltinFormat(6)); 
+            case 2: return new FormatRecord(7, BuiltinFormats.getBuiltinFormat(7)); 
+            case 3: return new FormatRecord(8, BuiltinFormats.getBuiltinFormat(8)); 
+            case 4: return new FormatRecord(0x2a, BuiltinFormats.getBuiltinFormat(0x2a)); 
+            case 5: return new FormatRecord(0x29, BuiltinFormats.getBuiltinFormat(0x29)); 
+            case 6: return new FormatRecord(0x2c, BuiltinFormats.getBuiltinFormat(0x2c)); 
+            case 7: return new FormatRecord(0x2b, BuiltinFormats.getBuiltinFormat(0x2b)); 
         }
         throw new  IllegalArgumentException("Unexpected id " + id);
     }
@@ -2055,10 +2054,10 @@ public final class InternalWorkbook {
     /**
      * Finds the primary drawing group, if one already exists
      */
-    public void findDrawingGroup() {
+    public DrawingManager2 findDrawingGroup() {
         if(drawingManager != null) {
            // We already have it!
-           return;
+           return drawingManager;
         }
         
         // Need to find a DrawingGroupRecord that
@@ -2075,16 +2074,24 @@ public final class InternalWorkbook {
                 }
 
                 EscherDggRecord dgg = null;
+                EscherContainerRecord bStore = null;
                 for(Iterator<EscherRecord> it = cr.getChildIterator(); it.hasNext();) {
-                    Object er = it.next();
+                    EscherRecord er = it.next();
                     if(er instanceof EscherDggRecord) {
                         dgg = (EscherDggRecord)er;
+                    } else if (er.getRecordId() == EscherContainerRecord.BSTORE_CONTAINER) {
+                        bStore = (EscherContainerRecord) er;
                     }
                 }
 
                 if(dgg != null) {
                     drawingManager = new DrawingManager2(dgg);
-                    return;
+                    if(bStore != null){
+                        for(EscherRecord bs : bStore.getChildRecords()){
+                            if(bs instanceof EscherBSERecord) escherBSERecords.add((EscherBSERecord)bs);
+                        }
+                    }
+                    return drawingManager;
                 }
             }
         }
@@ -2096,16 +2103,25 @@ public final class InternalWorkbook {
         if(dgLoc != -1) {
             DrawingGroupRecord dg = (DrawingGroupRecord)records.get(dgLoc);
             EscherDggRecord dgg = null;
+            EscherContainerRecord bStore = null;
             for(EscherRecord er : dg.getEscherRecords()) {
-                if(er instanceof EscherDggRecord) {
-                    dgg = (EscherDggRecord)er;
+                if (er instanceof EscherDggRecord) {
+                    dgg = (EscherDggRecord) er;
+                } else if (er.getRecordId() == EscherContainerRecord.BSTORE_CONTAINER) {
+                    bStore = (EscherContainerRecord) er;
                 }
             }
 
             if(dgg != null) {
                 drawingManager = new DrawingManager2(dgg);
+                if(bStore != null){
+                    for(EscherRecord bs : bStore.getChildRecords()){
+                        if(bs instanceof EscherBSERecord) escherBSERecords.add((EscherBSERecord)bs);
+                    }
+                }
             }
         }
+        return drawingManager;
     }
 
     /**
@@ -2300,8 +2316,22 @@ public final class InternalWorkbook {
         return linkTable.resolveNameXText(refIndex, definedNameIndex);
     }
 
-    public NameXPtg getNameXPtg(String name) {
-        return getOrCreateLinkTable().getNameXPtg(name);
+    /**
+     *
+     * @param name the  name of an external function, typically a name of a UDF
+     * @param udf  locator of user-defiend functions to resolve names of VBA and Add-In functions
+     * @return the external name or null
+     */
+    public NameXPtg getNameXPtg(String name, UDFFinder udf) {
+        LinkTable lnk = getOrCreateLinkTable();
+        NameXPtg xptg = lnk.getNameXPtg(name);
+
+        if(xptg == null && udf.findFunction(name) != null) {
+            // the name was not found in the list of external names
+            // check if the Workbook's UDFFinder is aware about it and register the name if it is
+            xptg = lnk.addNameXPtg(name);
+        }
+        return xptg;
     }
 
     /**
@@ -2343,23 +2373,61 @@ public final class InternalWorkbook {
                     //update id of the drawing in the cloned sheet
                     dg.setOptions( (short) ( dgId << 4 ) );
                 } else if (er instanceof EscherContainerRecord){
-                    //recursively find shape records and re-generate shapeId
-                    List<EscherRecord> spRecords = new ArrayList<EscherRecord>();
+                    // iterate over shapes and re-generate shapeId
                     EscherContainerRecord cp = (EscherContainerRecord)er;
-                    cp.getRecordsById(EscherSpRecord.RECORD_ID,  spRecords);
-                    for(Iterator<EscherRecord> spIt = spRecords.iterator(); spIt.hasNext();) {
-                        EscherSpRecord sp = (EscherSpRecord)spIt.next();
-                        int shapeId = drawingManager.allocateShapeId((short)dgId, dg);
-                        //allocateShapeId increments the number of shapes. roll back to the previous value
-                        dg.setNumShapes(dg.getNumShapes()-1);
-                        sp.setShapeId(shapeId);
+                    for(Iterator<EscherRecord> spIt = cp.getChildRecords().iterator(); spIt.hasNext();) {
+                        EscherContainerRecord shapeContainer = (EscherContainerRecord)spIt.next();
+                        for(EscherRecord shapeChildRecord : shapeContainer.getChildRecords()) {
+                            int recordId = shapeChildRecord.getRecordId();
+                            if (recordId == EscherSpRecord.RECORD_ID){
+                                EscherSpRecord sp = (EscherSpRecord)shapeChildRecord;
+                                int shapeId = drawingManager.allocateShapeId((short)dgId, dg);
+                                //allocateShapeId increments the number of shapes. roll back to the previous value
+                                dg.setNumShapes(dg.getNumShapes()-1);
+                                sp.setShapeId(shapeId);
+                            } else if (recordId == EscherOptRecord.RECORD_ID){
+                                EscherOptRecord opt = (EscherOptRecord)shapeChildRecord;
+                                EscherSimpleProperty prop = (EscherSimpleProperty)opt.lookup(
+                                        EscherProperties.BLIP__BLIPTODISPLAY );
+                                if (prop != null){
+                                    int pictureIndex = prop.getPropertyValue();
+                                    // increment reference count for pictures
+                                    EscherBSERecord bse = getBSERecord(pictureIndex);
+                                    bse.setRef(bse.getRef() + 1);
+                                }
+
+                            }
+                        }
                     }
                 }
             }
-
         }
     }
+    
+    public NameRecord cloneFilter(int filterDbNameIndex, int newSheetIndex){
+        NameRecord origNameRecord = getNameRecord(filterDbNameIndex);
+        // copy original formula but adjust 3D refs to the new external sheet index
+        int newExtSheetIx = checkExternSheet(newSheetIndex);
+        Ptg[] ptgs = origNameRecord.getNameDefinition();
+        for (int i=0; i< ptgs.length; i++) {
+            Ptg ptg = ptgs[i];
 
+            if (ptg instanceof Area3DPtg) {
+                Area3DPtg a3p = (Area3DPtg) ((OperandPtg) ptg).copy();
+                a3p.setExternSheetIndex(newExtSheetIx);
+                ptgs[i] = a3p;
+            } else if (ptg instanceof Ref3DPtg) {
+                Ref3DPtg r3p = (Ref3DPtg) ((OperandPtg) ptg).copy();
+                r3p.setExternSheetIndex(newExtSheetIx);
+                ptgs[i] = r3p;
+            }
+        }
+        NameRecord newNameRecord = createBuiltInName(NameRecord.BUILTIN_FILTER_DB, newSheetIndex+1);
+        newNameRecord.setNameDefinition(ptgs);
+        newNameRecord.setHidden(true);
+        return newNameRecord;
+
+    }
     /**
      * Updates named ranges due to moving of cells
      */
@@ -2373,4 +2441,33 @@ public final class InternalWorkbook {
         }
     }
 
+    /**
+     * Get or create RecalcIdRecord
+     *
+     * @see org.apache.poi.hssf.usermodel.HSSFWorkbook#setForceFormulaRecalculation(boolean)
+     */
+    public RecalcIdRecord getRecalcId(){
+        RecalcIdRecord record = (RecalcIdRecord)findFirstRecordBySid(RecalcIdRecord.sid);
+        if(record == null){
+            record = new RecalcIdRecord();
+            // typically goes after the Country record
+            int pos = findFirstRecordLocBySid(CountryRecord.sid);
+            records.add(pos + 1, record);
+        }
+        return record;
+    }
+
+        
+	/**
+	 * Changes an external referenced file to another file.
+	 * A formular in Excel which refers a cell in another file is saved in two parts: 
+	 * The referenced file is stored in an reference table. the row/cell information is saved separate.
+	 * This method invokation will only change the reference in the lookup-table itself.
+	 * @param oldUrl The old URL to search for and which is to be replaced
+	 * @param newUrl The URL replacement
+	 * @return true if the oldUrl was found and replaced with newUrl. Otherwise false
+	 */
+    public boolean changeExternalReference(String oldUrl, String newUrl) {
+    	return linkTable.changeExternalReference(oldUrl, newUrl);
+    }
 }

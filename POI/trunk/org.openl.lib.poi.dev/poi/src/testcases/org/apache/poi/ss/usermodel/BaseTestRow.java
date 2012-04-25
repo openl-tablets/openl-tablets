@@ -35,7 +35,7 @@ public abstract class BaseTestRow extends TestCase {
         _testDataProvider = testDataProvider;
     }
 
-    public final void testLastAndFirstColumns() {
+    public void testLastAndFirstColumns() {
         Workbook workbook = _testDataProvider.createWorkbook();
         Sheet sheet = workbook.createSheet();
         Row row = sheet.createRow(0);
@@ -63,7 +63,7 @@ public abstract class BaseTestRow extends TestCase {
      * Make sure that there is no cross-talk between rows especially with getFirstCellNum and getLastCellNum
      * This test was added in response to bug report 44987.
      */
-    public final void testBoundsInMultipleRows() {
+    public void testBoundsInMultipleRows() {
         Workbook workbook = _testDataProvider.createWorkbook();
         Sheet sheet = workbook.createSheet();
         Row rowA = sheet.createRow(0);
@@ -87,7 +87,7 @@ public abstract class BaseTestRow extends TestCase {
         assertEquals(31, rowB.getLastCellNum());
     }
 
-    public final void testRemoveCell() {
+    public void testRemoveCell() {
         Workbook workbook = _testDataProvider.createWorkbook();
         Sheet sheet = workbook.createSheet();
         Row row = sheet.createRow(0);
@@ -188,7 +188,7 @@ public abstract class BaseTestRow extends TestCase {
      * Prior to patch 43901, POI was producing files with the wrong last-column
      * number on the row
      */
-    public final void testLastCellNumIsCorrectAfterAddCell_bug43901(){
+    public void testLastCellNumIsCorrectAfterAddCell_bug43901(){
         Workbook workbook = _testDataProvider.createWorkbook();
         Sheet sheet = workbook.createSheet("test");
         Row row = sheet.createRow(0);
@@ -210,7 +210,7 @@ public abstract class BaseTestRow extends TestCase {
     /**
      * Tests for the missing/blank cell policy stuff
      */
-    public final void testGetCellPolicy() {
+    public void testGetCellPolicy() {
         Workbook workbook = _testDataProvider.createWorkbook();
         Sheet sheet = workbook.createSheet("test");
         Row row = sheet.createRow(0);
@@ -279,7 +279,7 @@ public abstract class BaseTestRow extends TestCase {
         assertEquals(Cell.CELL_TYPE_NUMERIC, row.getCell(5).getCellType());
     }
 
-    public final void testRowHeight() {
+    public void testRowHeight() {
         Workbook workbook = _testDataProvider.createWorkbook();
         Sheet sheet = workbook.createSheet();
         Row row1 = sheet.createRow(0);
@@ -292,6 +292,7 @@ public abstract class BaseTestRow extends TestCase {
         assertEquals(20*20, row1.getHeight());
 
         Row row2 = sheet.createRow(1);
+        assertEquals(sheet.getDefaultRowHeight(), row2.getHeight());
         row2.setHeight((short)310);
         assertEquals(310, row2.getHeight());
         assertEquals(310F/20, row2.getHeightInPoints(), 0F);
@@ -331,7 +332,7 @@ public abstract class BaseTestRow extends TestCase {
     /**
      * Test adding cells to a row in various places and see if we can find them again.
      */
-    public final void testCellIterator() {
+    public void testCellIterator() {
         Workbook wb = _testDataProvider.createWorkbook();
         Sheet sheet = wb.createSheet();
         Row row = sheet.createRow(0);
@@ -385,5 +386,43 @@ public abstract class BaseTestRow extends TestCase {
         assertTrue(it.hasNext());
         assertTrue(cell2 == it.next());
         assertEquals(Cell.CELL_TYPE_STRING, cell5.getCellType());
+    }
+    
+    public void testRowStyle() {
+       Workbook workbook = _testDataProvider.createWorkbook();
+       Sheet sheet = workbook.createSheet("test");
+       Row row1 = sheet.createRow(0);
+       Row row2 = sheet.createRow(1);
+       
+       // Won't be styled currently
+       assertEquals(false, row1.isFormatted());
+       assertEquals(false, row2.isFormatted());
+       assertEquals(null, row1.getRowStyle());
+       assertEquals(null, row2.getRowStyle());
+       
+       // Style one
+       CellStyle style = workbook.createCellStyle();
+       style.setDataFormat((short)4);
+       row2.setRowStyle(style);
+       
+       // Check
+       assertEquals(false, row1.isFormatted());
+       assertEquals(true, row2.isFormatted());
+       assertEquals(null, row1.getRowStyle());
+       assertEquals(style, row2.getRowStyle());
+       
+       // Save, load and re-check
+       workbook = _testDataProvider.writeOutAndReadBack(workbook);
+       sheet = workbook.getSheetAt(0);
+
+       row1 = sheet.getRow(0);
+       row2 = sheet.getRow(1);
+       style = workbook.getCellStyleAt(style.getIndex());
+       
+       assertEquals(false, row1.isFormatted());
+       assertEquals(true, row2.isFormatted());
+       assertEquals(null, row1.getRowStyle());
+       assertEquals(style, row2.getRowStyle());
+       assertEquals(4, style.getDataFormat());
     }
 }

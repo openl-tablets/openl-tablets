@@ -20,14 +20,14 @@ package org.apache.poi.ss.formula.eval.forked;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.poi.hssf.record.formula.NamePtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.ptg.NamePtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
@@ -103,6 +103,10 @@ final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 		return _masterBook.getName(namePtg);
 	}
 
+    public EvaluationName getName(String name, int sheetIndex){
+        return _masterBook.getName(name, sheetIndex);
+    }
+
 	public EvaluationSheet getSheet(int sheetIndex) {
 		return getSharedSheet(getSheetName(sheetIndex));
 	}
@@ -130,6 +134,10 @@ final class ForkedEvaluationWorkbook implements EvaluationWorkbook {
 	public String resolveNameXText(NameXPtg ptg) {
 		return _masterBook.resolveNameXText(ptg);
 	}
+
+    public UDFFinder getUDFFinder(){
+        return _masterBook.getUDFFinder();
+    }
 
 	private static final class OrderedSheet implements Comparable<OrderedSheet> {
 		private final String _sheetName;

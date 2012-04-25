@@ -17,12 +17,16 @@
 
 package org.apache.poi.xwpf.usermodel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
 
 import junit.framework.TestCase;
 
 import org.apache.poi.xwpf.XWPFTestDataSamples;
+
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
 
 public class TestXWPFStyles extends TestCase {
 
@@ -30,7 +34,7 @@ public class TestXWPFStyles extends TestCase {
 //		super.setUp();
 //	}
 	
-	public void testGetUsedStyles(){
+	public void testGetUsedStyles() throws IOException{
 		XWPFDocument sampleDoc = XWPFTestDataSamples.openSampleDocument("Styles.docx");
 		List<XWPFStyle> testUsedStyleList = new ArrayList<XWPFStyle>();
 		XWPFStyles styles = sampleDoc.getStyles();
@@ -47,8 +51,35 @@ public class TestXWPFStyles extends TestCase {
 		
 	}
 
-//	protected void tearDown() throws Exception {
-//		super.tearDown();
-//	}
+	public void testAddStylesToDocument() throws IOException{
+		XWPFDocument docOut = new XWPFDocument();
+		XWPFStyles styles = docOut.createStyles();
+
+		String strStyleName = "headline1";
+		CTStyle ctStyle = CTStyle.Factory.newInstance();
+
+		ctStyle.setStyleId(strStyleName);
+		XWPFStyle s = new XWPFStyle(ctStyle);
+		styles.addStyle(s);
+
+    	XWPFDocument docIn = XWPFTestDataSamples.writeOutAndReadBack(docOut);
+
+		styles = docIn.getStyles();
+		assertTrue(styles.styleExist(strStyleName));
+	}
+
+	/**
+	 * Bug #52449 - We should be able to write a file containing
+	 *  both regular and glossary styles without error
+	 */
+	public void test52449() throws Exception {
+      XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("52449.docx");
+      XWPFStyles styles = doc.getStyles();
+      assertNotNull(styles);
+      
+      XWPFDocument docIn = XWPFTestDataSamples.writeOutAndReadBack(doc);
+      styles = docIn.getStyles();
+      assertNotNull(styles);
+	}
 
 }

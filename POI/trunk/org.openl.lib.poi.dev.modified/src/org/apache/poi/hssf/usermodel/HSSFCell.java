@@ -29,7 +29,6 @@ import org.apache.poi.hssf.record.BoolErrRecord;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.CommonObjectDataSubRecord;
 import org.apache.poi.hssf.record.DrawingRecord;
-import org.apache.poi.hssf.record.EOFRecord;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FormulaRecord;
 import org.apache.poi.hssf.record.HyperlinkRecord;
@@ -43,9 +42,9 @@ import org.apache.poi.hssf.record.SubRecord;
 import org.apache.poi.hssf.record.TextObjectRecord;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.common.UnicodeString;
-import org.apache.poi.hssf.record.formula.ExpPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
+import org.apache.poi.ss.formula.ptg.ExpPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.eval.ErrorEval;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -195,9 +194,6 @@ public class HSSFCell implements Cell {
                 _stringValue=new HSSFRichTextString(((FormulaRecordAggregate) cval).getStringValue());
                 break;
         }
-        ExtendedFormatRecord xf = book.getWorkbook().getExFormatAt(cval.getXFIndex());
-
-        setCellStyle(new HSSFCellStyle(cval.getXFIndex(), xf, book));
     }
 
 
@@ -280,6 +276,9 @@ public class HSSFCell implements Cell {
      */
     public void setCellType(int cellType) {
         notifyFormulaChanging();
+        /*if(isPartOfArrayFormulaGroup()){
+            notifyArrayFormulaChanging();
+        }*/
         int row=_record.getRow();
         short col=_record.getColumn();
         short styleIndex=_record.getXFIndex();
@@ -585,6 +584,10 @@ public class HSSFCell implements Cell {
     }
 
     public void setCellFormula(String formula) {
+        /*if(isPartOfArrayFormulaGroup()){
+            notifyArrayFormulaChanging();
+        }*/
+
         int row=_record.getRow();
         short col=_record.getColumn();
         short styleIndex=_record.getXFIndex();
@@ -901,8 +904,15 @@ public class HSSFCell implements Cell {
         // Verify it really does belong to our workbook
         style.verifyBelongsToWorkbook(_book);
 
+        short styleIndex;
+        if(style.getUserStyleName() != null) {
+            styleIndex = applyUserCellStyle(style);
+        } else {
+            styleIndex = style.getIndex();
+        }
+
         // Change our cell record to use this style
-        _record.setXFIndex(style.getIndex());
+        _record.setXFIndex(styleIndex);
     }
 
     /**
@@ -1202,5 +1212,86 @@ public class HSSFCell implements Cell {
             return false;
         }
         return ((FormulaRecordAggregate)_record).isPartOfArrayFormula();
+    }
+
+    /**
+     * The purpose of this method is to validate the cell state prior to modification
+     *
+     * @see #notifyArrayFormulaChanging()
+     */
+    /*void notifyArrayFormulaChanging(String msg){
+        CellRangeAddress cra = getArrayFormulaRange();
+        if(cra.getNumberOfCells() > 1) {
+            throw new IllegalStateException(msg);
+        }
+        //un-register the single-cell array formula from the parent XSSFSheet
+        getRow().getSheet().removeArrayFormula(this);
+    }*/
+
+    /**
+     * Called when this cell is modified.
+     * <p>
+     * The purpose of this method is to validate the cell state prior to modification.
+     * </p>
+     *
+     * @see #setCellType(int)
+     * @see #setCellFormula(String)
+     * @see HSSFRow#removeCell(org.apache.poi.ss.usermodel.Cell)
+     * @see org.apache.poi.hssf.usermodel.HSSFSheet#removeRow(org.apache.poi.ss.usermodel.Row)
+     * @see org.apache.poi.hssf.usermodel.HSSFSheet#shiftRows(int, int, int)
+     * @see org.apache.poi.hssf.usermodel.HSSFSheet#addMergedRegion(org.apache.poi.ss.util.CellRangeAddress)
+     * @throws IllegalStateException if modification is not allowed
+     */
+    /*void notifyArrayFormulaChanging(){
+        CellReference ref = new CellReference(this);
+        String msg = "Cell "+ref.formatAsString()+" is part of a multi-cell array formula. " +
+                "You cannot change part of an array.";
+        notifyArrayFormulaChanging(msg);
+    }*/
+
+    /**
+     * Applying a user-defined style (UDS) is special. Excel does not directly reference user-defined styles, but
+     * instead create a 'proxy' ExtendedFormatRecord referencing the UDS as parent.
+     *
+     * The proceudre to apply a UDS is as follows:
+     *
+     * 1. search for a ExtendedFormatRecord with parentIndex == style.getIndex()
+     *    and xfType ==  ExtendedFormatRecord.XF_CELL.
+     * 2. if not found then create a new ExtendedFormatRecord and copy all attributes from the user-defined style
+     *    and set the parentIndex to be style.getIndex()
+     * 3. return the index of the ExtendedFormatRecord, this will be assigned to the parent cell record
+     *
+     * @param style  the user style to apply
+     *
+     * @return  the index of a ExtendedFormatRecord record that will be referenced by the cell
+     */
+    private short applyUserCellStyle(HSSFCellStyle style){
+        if(style.getUserStyleName() == null) {
+            throw new IllegalArgumentException("Expected user-defined style");
+        }
+
+        InternalWorkbook iwb = _book.getWorkbook();
+        short userXf = -1;
+        int numfmt = iwb.getNumExFormats();
+        for(short i = 0; i < numfmt; i++){
+            ExtendedFormatRecord xf = iwb.getExFormatAt(i);
+            if(xf.getXFType() == ExtendedFormatRecord.XF_CELL && xf.getParentIndex() == style.getIndex() ){
+                userXf = i;
+                break;
+            }
+        }
+        short styleIndex;
+        if (userXf == -1){
+            ExtendedFormatRecord xfr = iwb.createCellXF();
+            xfr.cloneStyleFrom(iwb.getExFormatAt(style.getIndex()));
+            xfr.setIndentionOptions((short)0);
+            xfr.setXFType(ExtendedFormatRecord.XF_CELL);
+            xfr.setParentIndex(style.getIndex());
+            styleIndex = (short)numfmt;
+        } else {
+            styleIndex = userXf;
+        }
+
+        return styleIndex;
     }
 }

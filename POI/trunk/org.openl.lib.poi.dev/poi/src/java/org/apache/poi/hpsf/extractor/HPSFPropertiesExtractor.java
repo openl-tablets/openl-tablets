@@ -17,7 +17,7 @@
 
 package org.apache.poi.hpsf.extractor;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -30,6 +30,7 @@ import org.apache.poi.hpsf.Property;
 import org.apache.poi.hpsf.SpecialPropertySet;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hpsf.wellknown.PropertyIDMap;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.util.LittleEndian;
 
@@ -48,6 +49,9 @@ public class HPSFPropertiesExtractor extends POITextExtractor {
 	public HPSFPropertiesExtractor(POIFSFileSystem fs) {
 		super(new PropertiesOnlyDocument(fs));
 	}
+   public HPSFPropertiesExtractor(NPOIFSFileSystem fs) {
+      super(new PropertiesOnlyDocument(fs));
+   }
 
 	public String getDocumentSummaryInformationText() {
 		DocumentSummaryInformation dsi = document.getDocumentSummaryInformation();
@@ -144,6 +148,9 @@ public class HPSFPropertiesExtractor extends POITextExtractor {
 	 *  random OLE2 document.
 	 */
 	private static final class PropertiesOnlyDocument extends POIDocument {
+      public PropertiesOnlyDocument(NPOIFSFileSystem fs) {
+         super(fs.getRoot());
+      }
 		public PropertiesOnlyDocument(POIFSFileSystem fs) {
 			super(fs);
 		}
@@ -156,7 +163,7 @@ public class HPSFPropertiesExtractor extends POITextExtractor {
 	public static void main(String[] args) throws IOException {
 	   for(String file : args) {
 	      HPSFPropertiesExtractor ext = new HPSFPropertiesExtractor(
-	            new POIFSFileSystem(new FileInputStream(file))
+	            new NPOIFSFileSystem(new File(file))
 	      );
 	      System.out.println(ext.getText());
 	   }

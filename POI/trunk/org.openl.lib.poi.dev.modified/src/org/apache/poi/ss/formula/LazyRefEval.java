@@ -17,14 +17,14 @@
 
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.AreaI;
-import org.apache.poi.hssf.record.formula.Ref3DPtg;
-import org.apache.poi.hssf.record.formula.RefPtg;
-import org.apache.poi.hssf.record.formula.AreaI.OffsetArea;
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
-import org.apache.poi.hssf.record.formula.eval.RefEvalBase;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.formula.ptg.AreaI;
+import org.apache.poi.ss.formula.ptg.Ref3DPtg;
+import org.apache.poi.ss.formula.ptg.RefPtg;
+import org.apache.poi.ss.formula.ptg.AreaI.OffsetArea;
+import org.apache.poi.ss.formula.eval.AreaEval;
+import org.apache.poi.ss.formula.eval.RefEvalBase;
+import org.apache.poi.ss.formula.eval.ValueEval;
+import org.apache.poi.ss.util.CellReference;
 
 /**
 *
@@ -45,12 +45,13 @@ final class LazyRefEval extends RefEvalBase {
 		}
 		_evaluator = sre;
 	}
-	public LazyRefEval(RefPtg ptg, SheetRefEvaluator sre) {
-		this(ptg.getRow(), ptg.getColumn(), sre);
-	}
-	public LazyRefEval(Ref3DPtg ptg, SheetRefEvaluator sre) {
-		this(ptg.getRow(), ptg.getColumn(), sre);
-	}
+
+    public LazyRefEval(RefPtg ptg, SheetRefEvaluator sre) {
+        this(ptg.getRow(), ptg.getColumn(), sre);
+    }
+    public LazyRefEval(Ref3DPtg ptg, SheetRefEvaluator sre) {
+        this(ptg.getRow(), ptg.getColumn(), sre);
+    }
 
 	public ValueEval getInnerValueEval() {
 		return _evaluator.getEvalForCell(getRow(), getColumn());

@@ -16,7 +16,7 @@
 ==================================================================== */
 package org.apache.poi.ss.usermodel;
 
-import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 
 /**
@@ -47,7 +47,7 @@ public interface CreationHelper {
      * Creates a new Hyperlink, of the given type
      */
     Hyperlink createHyperlink(int type);
-
+    
     /**
      * Creates EvaluationWorkbook.
      *
@@ -69,6 +69,6 @@ public interface CreationHelper {
      * @return a FormulaEvaluator instance
      */
     FormulaEvaluator createFormulaEvaluator(UDFFinder udfFinder);
-
+    
     ClientAnchor createClientAnchor();
 }

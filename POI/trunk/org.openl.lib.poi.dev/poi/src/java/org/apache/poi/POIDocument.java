@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.hpsf.DocumentSummaryInformation;
@@ -31,10 +30,12 @@ import org.apache.poi.hpsf.PropertySetFactory;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
-import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.DocumentInputStream;
 import org.apache.poi.poifs.filesystem.Entry;
+import org.apache.poi.poifs.filesystem.EntryUtils;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
@@ -50,8 +51,6 @@ public abstract class POIDocument {
 	private SummaryInformation sInf;
 	/** Holds further metadata on our document */
 	private DocumentSummaryInformation dsInf;
-	/** The open POIFS FileSystem that contains our document */
-	protected POIFSFileSystem filesystem;
 	/**	The directory that our document lives in */
 	protected DirectoryNode directory;
 	
@@ -62,12 +61,21 @@ public abstract class POIDocument {
     private boolean initialized = false;
     
 
-    protected POIDocument(DirectoryNode dir, POIFSFileSystem fs) {
-    	this.filesystem = fs;
+    protected POIDocument(DirectoryNode dir) {
     	this.directory = dir;
     }
+    /**
+     * @deprecated use {@link POIDocument#POIDocument(DirectoryNode)} instead 
+     */
+    @Deprecated
+    protected POIDocument(DirectoryNode dir, POIFSFileSystem fs) {
+       this.directory = dir;
+    }
     protected POIDocument(POIFSFileSystem fs) {
-    	this(fs.getRoot(), fs);
+       this(fs.getRoot());
+    }
+    protected POIDocument(NPOIFSFileSystem fs) {
+       this(fs.getRoot());
     }
 
 	/**
@@ -139,31 +147,31 @@ public abstract class POIDocument {
 	 *  if it wasn't found
 	 */
 	protected PropertySet getPropertySet(String setName) {
-        //directory can be null when creating new documents
-        if(directory == null) return null;
-        
-        DocumentInputStream dis;
-		try {
-			// Find the entry, and get an input stream for it
-			dis = directory.createDocumentInputStream(setName);
-		} catch(IOException ie) {
-			// Oh well, doesn't exist
-			logger.log(POILogger.WARN, "Error getting property set with name " + setName + "\n" + ie);
-			return null;
-		}
+	   //directory can be null when creating new documents
+	   if(directory == null) return null;
 
-		try {
-			// Create the Property Set
-			PropertySet set = PropertySetFactory.create(dis);
-			return set;
-		} catch(IOException ie) {
-			// Must be corrupt or something like that
-			logger.log(POILogger.WARN, "Error creating property set with name " + setName + "\n" + ie);
-		} catch(org.apache.poi.hpsf.HPSFException he) {
-			// Oh well, doesn't exist
-			logger.log(POILogger.WARN, "Error creating property set with name " + setName + "\n" + he);
-		}
-		return null;
+	   DocumentInputStream dis;
+	   try {
+	      // Find the entry, and get an input stream for it
+	      dis = directory.createDocumentInputStream( directory.getEntry(setName) );
+	   } catch(IOException ie) {
+	      // Oh well, doesn't exist
+	      logger.log(POILogger.WARN, "Error getting property set with name " + setName + "\n" + ie);
+	      return null;
+	   }
+
+	   try {
+	      // Create the Property Set
+	      PropertySet set = PropertySetFactory.create(dis);
+	      return set;
+	   } catch(IOException ie) {
+	      // Must be corrupt or something like that
+	      logger.log(POILogger.WARN, "Error creating property set with name " + setName + "\n" + ie);
+	   } catch(org.apache.poi.hpsf.HPSFException he) {
+	      // Oh well, doesn't exist
+	      logger.log(POILogger.WARN, "Error creating property set with name " + setName + "\n" + he);
+	   }
+	   return null;
 	}
 	
 	/**
@@ -178,7 +186,7 @@ public abstract class POIDocument {
 	 * @param outFS the POIFSFileSystem to write the properties into
 	 * @param writtenEntries a list of POIFS entries to add the property names too
 	 */
-	protected void writeProperties(POIFSFileSystem outFS, List writtenEntries) throws IOException {
+	protected void writeProperties(POIFSFileSystem outFS, List<String> writtenEntries) throws IOException {
         SummaryInformation si = getSummaryInformation();
         if(si != null) {
 			writePropertySet(SummaryInformation.DEFAULT_STREAM_NAME, si, outFS);
@@ -228,56 +236,34 @@ public abstract class POIDocument {
 	 * @param target is the target POIFS to copy to
 	 * @param excepts is a list of Strings specifying what nodes NOT to copy
 	 */
-	protected void copyNodes(POIFSFileSystem source, POIFSFileSystem target,
-	                          List excepts) throws IOException {
-		//System.err.println("CopyNodes called");
+	@Deprecated
+    protected void copyNodes( POIFSFileSystem source, POIFSFileSystem target,
+            List<String> excepts ) throws IOException
+    {
+        EntryUtils.copyNodes( source, target, excepts );
+    }
 
-		DirectoryEntry root = source.getRoot();
-		DirectoryEntry newRoot = target.getRoot();
-
-		Iterator entries = root.getEntries();
-
-		while (entries.hasNext()) {
-			Entry entry = (Entry)entries.next();
-			if (!isInList(entry.getName(), excepts)) {
-				copyNodeRecursively(entry,newRoot);
-			}
-		}
-	}
-		
-	/**
-	 * Checks to see if the String is in the list, used when copying
-	 *  nodes between one POIFS and another
-	 */
-	private boolean isInList(String entry, List list) {
-		for (int k = 0; k < list.size(); k++) {
-			if (list.get(k).equals(entry)) {
-				return true;
-			}
-		}
-		return false;
-	}
+   /**
+    * Copies nodes from one POIFS to the other minus the excepts
+    * @param sourceRoot is the source POIFS to copy from
+    * @param targetRoot is the target POIFS to copy to
+    * @param excepts is a list of Strings specifying what nodes NOT to copy
+    */
+    @Deprecated
+    protected void copyNodes( DirectoryNode sourceRoot,
+            DirectoryNode targetRoot, List<String> excepts ) throws IOException
+    {
+        EntryUtils.copyNodes( sourceRoot, targetRoot, excepts );
+    }
 
 	/**
 	 * Copies an Entry into a target POIFS directory, recursively
 	 */
-	private void copyNodeRecursively(Entry entry, DirectoryEntry target)
-	throws IOException {
-		//System.err.println("copyNodeRecursively called with "+entry.getName()+
-		//                   ","+target.getName());
-		DirectoryEntry newTarget = null;
-		if (entry.isDirectoryEntry()) {
-			newTarget = target.createDirectory(entry.getName());
-			Iterator entries = ((DirectoryEntry)entry).getEntries();
-
-			while (entries.hasNext()) {
-				copyNodeRecursively((Entry)entries.next(),newTarget);
-			}
-		} else {
-			DocumentEntry dentry = (DocumentEntry)entry;
-			DocumentInputStream dstream = new DocumentInputStream(dentry);
-			target.createDocument(dentry.getName(),dstream);
-			dstream.close();
-		}
-	}
+    @Internal
+    @Deprecated
+    protected void copyNodeRecursively( Entry entry, DirectoryEntry target )
+            throws IOException
+    {
+        EntryUtils.copyNodeRecursively( entry, target );
+    }
 }

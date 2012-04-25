@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 
 import org.apache.poi.hssf.HSSFTestDataSamples;
 import org.apache.poi.hssf.model.InternalWorkbook;
-import org.apache.poi.ss.usermodel.DateUtil;
 
 /**
  * Class TestHSSFDateUtil
@@ -271,7 +270,8 @@ public final class TestHSSFDateUtil extends TestCase {
                 "mm/dd HH:MM PM", "mm/dd HH:MM pm",
                 "m/d/yy h:mm AM/PM",
                 "hh:mm:ss", "hh:mm:ss.0", "mm:ss.0",
-
+                //support elapsed time [h],[m],[s]
+                "[hh]", "[mm]", "[ss]", "[SS]", "[red][hh]"
         };
         for(int i=0; i<formats.length; i++) {
             assertTrue(
@@ -286,6 +286,7 @@ public final class TestHSSFDateUtil extends TestCase {
                 "0.0", "0.000",
                 "0%", "0.0%",
                 "[]Foo", "[BLACK]0.00%",
+                "[ms]", "[Mh]",
                 "", null
         };
         for(int i=0; i<formats.length; i++) {

@@ -18,11 +18,14 @@
 
 package org.apache.poi.ddf;
 
-import org.apache.poi.util.LittleEndian;
-
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.poi.util.BitField;
+import org.apache.poi.util.BitFieldFactory;
+import org.apache.poi.util.Internal;
+import org.apache.poi.util.LittleEndian;
 
 /**
  * The base abstract record from which all escher records are defined.  Subclasses will need
@@ -31,6 +34,9 @@ import java.util.List;
  * @author Glen Stampoultzis
  */
 public abstract class EscherRecord {
+    private static BitField fInstance = BitFieldFactory.getInstance(0xfff0);
+    private static BitField fVersion = BitFieldFactory.getInstance(0x000f);
+
     private short _options;
     private short _recordId;
 
@@ -72,11 +78,24 @@ public abstract class EscherRecord {
      * @return          the number of bytes remaining in this record.  This
      *                  may include the children if this is a container.
      */
-    protected int readHeader( byte[] data, int offset ) {
-        EscherRecordHeader header = EscherRecordHeader.readHeader(data, offset);
-        _options = header.getOptions();
-        _recordId = header.getRecordId();
-        return header.getRemainingBytes();
+    protected int readHeader( byte[] data, int offset )
+    {
+        _options = LittleEndian.getShort( data, offset );
+        _recordId = LittleEndian.getShort( data, offset + 2 );
+        int remainingBytes = LittleEndian.getInt( data, offset + 4 );
+        return remainingBytes;
+    }
+
+    /**
+     * Read the options field from header and return instance part of it.
+     * @param data      the byte array to read from
+     * @param offset    the offset to start reading from
+     * @return          value of instance part of options field
+     */
+    protected static short readInstance( byte data[], int offset )
+    {
+        final short options = LittleEndian.getShort( data, offset );
+        return fInstance.getShortValue( options );
     }
 
     /**
@@ -85,21 +104,36 @@ public abstract class EscherRecord {
      * @return  true is this is a container field.
      */
     public boolean isContainerRecord() {
-        return (_options & (short)0x000f) == (short)0x000f;
+        return getVersion() == (short)0x000f;
     }
 
     /**
-     * @return The options field for this record.  All records have one.
+     * <p
+     * Note that <code>options</code> is an internal field. Use {@link #setInstance(short)} ()} and
+     *             {@link #setVersion(short)} ()} to set the actual fields.
+     * </p>
+     * @return The options field for this record. All records have one.
      */
-    public short getOptions() {
+    @Internal
+    public short getOptions()
+    {
         return _options;
     }
 
     /**
      * Set the options this this record.  Container records should have the
      * last nibble set to 0xF.
+     *
+     * <p
+     * Note that <code>options</code> is an internal field. Use {@link #getInstance()} and
+     *             {@link #getVersion()} to access actual fields.
+     * </p>
      */
+    @Internal
     public void setOptions( short options ) {
+        // call to handle correct/incorrect values
+        setVersion( fVersion.getShortValue( options ) );
+        setInstance( fInstance.getShortValue( options ) );
         _options = options;
     }
 
@@ -224,58 +258,43 @@ public abstract class EscherRecord {
 
     /**
      * Returns the instance part of the option record.
-     *
+     * 
      * @return The instance part of the record
      */
-    public short getInstance() {
-        return (short) ( _options >> 4 );
+    public short getInstance()
+    {
+        return fInstance.getShortValue( _options );
     }
 
     /**
-     * This class reads the standard escher header.
+     * Sets the instance part of record
+     * 
+     * @param value
+     *            instance part value
      */
-    static class EscherRecordHeader
+    public void setInstance( short value )
     {
-        private short options;
-        private short recordId;
-        private int remainingBytes;
+        _options = fInstance.setShortValue( _options, value );
+    }
 
-        private EscherRecordHeader() {
-            // fields uninitialised
-        }
+    /**
+     * Returns the version part of the option record.
+     * 
+     * @return The version part of the option record
+     */
+    public short getVersion()
+    {
+        return fVersion.getShortValue( _options );
+    }
 
-        public static EscherRecordHeader readHeader( byte[] data, int offset )
-        {
-            EscherRecordHeader header = new EscherRecordHeader();
-            header.options = LittleEndian.getShort(data, offset);
-            header.recordId = LittleEndian.getShort(data, offset + 2);
-            header.remainingBytes = LittleEndian.getInt( data, offset + 4 );
-            return header;
-        }
-
-
-        public short getOptions()
-        {
-            return options;
-        }
-
-        public short getRecordId()
-        {
-            return recordId;
-        }
-
-        public int getRemainingBytes()
-        {
-            return remainingBytes;
-        }
-
-        public String toString()
-        {
-            return "EscherRecordHeader{" +
-                    "options=" + options +
-                    ", recordId=" + recordId +
-                    ", remainingBytes=" + remainingBytes +
-                    "}";
-        }
+    /**
+     * Sets the version part of record
+     * 
+     * @param value
+     *            version part value
+     */
+    public void setVersion( short value )
+    {
+        _options = fVersion.setShortValue( _options, value );
     }
 }
