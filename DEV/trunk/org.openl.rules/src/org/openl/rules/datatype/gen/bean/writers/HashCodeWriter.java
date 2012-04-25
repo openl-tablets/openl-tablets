@@ -40,7 +40,7 @@ public class HashCodeWriter extends MethodWriter {
                     new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
         }
         ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, HashCodeBuilder.class, "toHashCode", new Class<?>[] {});
-
+        
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(int.class));
         if (getTwoStackElementFieldsCount() > 0) {
             methodVisitor.visitMaxs(3, 1);

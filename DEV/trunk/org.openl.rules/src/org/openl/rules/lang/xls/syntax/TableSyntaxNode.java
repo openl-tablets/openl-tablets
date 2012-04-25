@@ -200,7 +200,7 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
      * @return the {@link XlsNodeTypes} for current TableSyntaxNode
      */
     public XlsNodeTypes getNodeType() {
-        return XlsNodeTypes.getEnumConstant(getType());
+        return XlsNodeTypes.getEnumByValue(getType());
     }
 
 }

@@ -1,8 +1,8 @@
 package org.openl.commons.web.jsf;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.el.ELContext;
 import javax.el.MethodExpression;
@@ -19,8 +19,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Various generic helpful methods to simplify common operations with JSF.

@@ -34,7 +34,7 @@ import org.openl.util.formatters.IFormatter;
  */
 public class TableEditorController extends BaseTableEditorController implements ITableEditorController {
 
-    private static final Log LOG = LogFactory.getLog(TableEditorController.class);
+    private final Log log = LogFactory.getLog(TableEditorController.class);
 
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
     private static final String ERROR_SAVE_TABLE = "Failed to save table.";
@@ -71,7 +71,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 }
             } catch (Exception e) {
                 tmResponse.setStatus("Internal server error");
-                LOG.error("Internal server error", e);
+                log.error("Internal server error", e);
             }
             return pojo2json(tmResponse);
         }
@@ -94,7 +94,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 }
             } catch (Exception e) {
                 tmResponse.setStatus("Internal server error");
-                LOG.error("Internal server error", e);
+                log.error("Internal server error", e);
             }
             return pojo2json(tmResponse);
         }
@@ -149,7 +149,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 param = Integer.parseInt(requestParam);
             }
         } catch (NumberFormatException e) {
-            LOG.error("Error when trying to get param", e);
+            log.error("Error when trying to get param", e);
         }
         return param;
     }
@@ -212,7 +212,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             try {
                 editorModel.setIndent(row, col, resultIndent >= 0 ? resultIndent : 0);
             } catch (Exception e) {
-                LOG.error(ERROR_SET_STYLE, e);
+                log.error(ERROR_SET_STYLE, e);
                 response.setStatus(ERROR_SET_STYLE);
             }
 
@@ -236,7 +236,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             try {
                 editorModel.setCellValue(row, col, value, newFormatter);
             } catch (FormulaParseException ex) {  
-                LOG.warn("ERROR_SET_NEW_VALUE", ex);
+                log.warn("ERROR_SET_NEW_VALUE", ex);
                 message = ERROR_SET_NEW_VALUE + ex.getMessage();   
             }
 
@@ -322,7 +322,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     try {
                         editorModel.setAlignment(row, col, halign);
                     } catch (Exception e) {
-                        LOG.error(ERROR_SET_STYLE, e);
+                        log.error(ERROR_SET_STYLE, e);
                         response.setStatus(ERROR_SET_STYLE);
                     }
                 }
@@ -348,7 +348,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.setFontBold(row, col, bold);
                     } catch (Exception e) {
                         response.setStatus(ERROR_SET_STYLE);
-                        LOG.error(ERROR_SET_STYLE, e);
+                        log.error(ERROR_SET_STYLE, e);
                     }
                 }
             }
@@ -373,7 +373,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     try {
                         editorModel.setFontItalic(row, col, italic);
                     } catch (Exception e) {
-                        LOG.error(ERROR_SET_STYLE, e);
+                        log.error(ERROR_SET_STYLE, e);
                         response.setStatus(ERROR_SET_STYLE);
                     }
                 }
@@ -398,7 +398,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     try {
                         editorModel.setFontUnderline(row, col, underlined);
                     } catch (Exception e) {
-                        LOG.error(ERROR_SET_STYLE, e);
+                        log.error(ERROR_SET_STYLE, e);
                         response.setStatus(ERROR_SET_STYLE);
                     }
                 }
@@ -430,7 +430,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     try {
                         editorModel.setFillColor(row, col, color);
                     } catch (Exception e) {
-                        LOG.error(ERROR_SET_STYLE, e);
+                        log.error(ERROR_SET_STYLE, e);
                         response.setStatus(ERROR_SET_STYLE);
                     }
                 }
@@ -462,7 +462,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     try {
                         editorModel.setFontColor(row, col, color);
                     } catch (Exception e) {
-                        LOG.error(ERROR_SET_STYLE, e);
+                        log.error(ERROR_SET_STYLE, e);
                         response.setStatus(ERROR_SET_STYLE);
                     }
                 }
@@ -527,15 +527,23 @@ public class TableEditorController extends BaseTableEditorController implements 
                     tmResponse.setResponse(newUri);
                 }
             } catch (IOException e) {
-                LOG.warn(ERROR_SAVE_TABLE, e);
+                log.warn(ERROR_SAVE_TABLE, e);
                 tmResponse.setStatus(ERROR_OPENED_EXCEL);
             } catch (Exception e) {
-                LOG.error(ERROR_SAVE_TABLE, e);
+                log.error(ERROR_SAVE_TABLE, e);
                 tmResponse.setStatus(ERROR_SAVE_TABLE);
             }
             return pojo2json(tmResponse);
         }
         return null;
+    }
+    
+    public void rollbackTable() {
+        TableEditorModel editorModel = getEditorModel(getEditorId());
+        if (editorModel != null) {
+            editorModel.cancel();
+        }
+    	
     }
 
     private boolean beforeSave() {

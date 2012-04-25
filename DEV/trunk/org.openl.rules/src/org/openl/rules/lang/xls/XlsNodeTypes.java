@@ -1,5 +1,8 @@
 package org.openl.rules.lang.xls;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // TODO: implement common for all node types interface, e.g. INodeTypes. Place
 // it to the core and rewrite ISyntaxNode#getType to returning INodeTypes.
 //
@@ -31,27 +34,30 @@ public enum XlsNodeTypes {
     XLS_OTHER("xls.other"),
     XLS_PROPERTIES("xls.properties");
     
-    private final String name;
+    private final String value;
     
     private XlsNodeTypes(String name) {
-        this.name = name;
+        this.value = name;
     }
     
     @Override
     public String toString() {
-        return name;
+        return value;
     }
     
+    private static Map<String, XlsNodeTypes> cache = null;
+    static {
+    	XlsNodeTypes[] tmp = XlsNodeTypes.values();
+    	cache = new HashMap<String, XlsNodeTypes>(tmp.length);
+    	for (XlsNodeTypes xlsNodeType : tmp){
+    		cache.put(xlsNodeType.value, xlsNodeType);
+    	}
+    }
     // Temporary method.
     // Should be removed when TableSyntaxNode will be switched from String node type
     // to XlsNodeTypes
     //
-    public static XlsNodeTypes getEnumConstant(String name) {
-        for (XlsNodeTypes constant : XlsNodeTypes.values()) {
-            if (constant.toString().equals(name)) {
-                return constant;
-            }
-        }
-        return null;
+    public static XlsNodeTypes getEnumByValue(String value) {
+    	return cache.get(value);
     }
 }

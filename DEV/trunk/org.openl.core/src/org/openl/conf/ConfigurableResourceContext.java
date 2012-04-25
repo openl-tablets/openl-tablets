@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class ConfigurableResourceContext implements IConfigurableResourceContext {
 
-    private static final Log LOG = LogFactory.getLog(ConfigurableResourceContext.class);
+    private final Log log = LogFactory.getLog(ConfigurableResourceContext.class);
 
     private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
@@ -59,7 +59,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         try {
             return getClassLoader().loadClass(className);
         } catch (Throwable t) {
-            LOG.debug(String.format("Cannot load class '%s'", className), t);
+            log.debug(String.format("Cannot load class '%s'", className), t);
             return null;
         }
     }

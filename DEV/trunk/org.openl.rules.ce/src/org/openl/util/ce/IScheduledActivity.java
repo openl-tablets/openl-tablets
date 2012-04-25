@@ -1,11 +1,16 @@
 package org.openl.util.ce;
 
 import java.util.Comparator;
+import java.util.List;
 
-public interface IScheduledActivity<T> {
+public interface IScheduledActivity {
 
 	
-	IActivity<T> activity();
+	int getId();
+	void setId(int i); 
+	
+	
+	IActivity activity();
 	
 	/**
 	 * 
@@ -22,11 +27,11 @@ public interface IScheduledActivity<T> {
 
 	boolean isOnCriticalPath();
 
+	public List<IScheduledActivity> getDependents();
 	
 	
 	
-	@SuppressWarnings("rawtypes")
-	public static  Comparator<IScheduledActivity>   comparator = new Comparator<IScheduledActivity>() {
+	public  static   Comparator<IScheduledActivity>   comparator = new Comparator<IScheduledActivity>() {
 		/**
 		 * 
 		 * This comparator will be used for sorting activities. The longer is
@@ -59,42 +64,17 @@ public interface IScheduledActivity<T> {
 			return 0;
 		}
 
-	}; 
-			
-	/**
-	 * 
-	 * This comparator will be used for sorting activities. The longer is
-	 * critical distance, the faster we need to schedule. As a tie-breaker
-	 * we use first {@link IActivity#isOnCriticalPath} and then
-	 * {@link IActivity#duration}
-	 * 
-	 * @param sa1
-	 * @param sa2
-	 * @return
-	 */
+	};
 
-//	@Override
-//	public int compare(IScheduledActivity<? extends IActivity> sa1, IScheduledActivity<? extends IActivity> sa2) {
-//
-//		long diff = sa1.getCriticalDistance() - sa2.getCriticalDistance();
-//
-//		if (diff != 0)
-//			return diff > 0 ? -1 : 1;
-//
-//		//	
-//		if (sa1.isOnCriticalPath() != sa2.isOnCriticalPath())
-//			return sa1.isOnCriticalPath() ? -1 : 1;
-//
-//		diff = sa1.activity().duration() - sa2.activity().duration();
-//
-//		if (diff != 0)
-//			return diff > 0 ? -1 : 1;
-//
-//		return 0;
-//	}
-			
-			
-			//new Comparator<IScheduledActivity<T , A extends IActivity<T>>>() {
 
+
+	int getPrecedentSize();
+
+
+
+	
+
+	
+	
 
 } 

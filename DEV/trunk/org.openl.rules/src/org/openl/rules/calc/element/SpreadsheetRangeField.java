@@ -8,7 +8,15 @@ import org.openl.vm.IRuntimeEnv;
 public class SpreadsheetRangeField extends  ASpreadsheetField{
 
     private final SpreadsheetCellField fstart;
-    private final SpreadsheetCellField fend;
+    public SpreadsheetCellField getStart() {
+		return fstart;
+	}
+
+	public SpreadsheetCellField getEnd() {
+		return fend;
+	}
+
+	private final SpreadsheetCellField fend;
 
     public SpreadsheetRangeField(String name, SpreadsheetCellField fstart, SpreadsheetCellField fend) {
         super(fstart.getDeclaringClass(), name, JavaOpenClass.getOpenClass(SpreadsheetRangeObject.class));

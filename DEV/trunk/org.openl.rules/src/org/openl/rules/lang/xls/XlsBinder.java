@@ -80,7 +80,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class XlsBinder implements IOpenBinder {
 
-    private static final Log LOG = LogFactory.getLog(XlsBinder.class);
+    private final Log log = LogFactory.getLog(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
     public static final String DEFAULT_OPENL_NAME = "org.openl.rules.java";
@@ -518,12 +518,12 @@ public class XlsBinder implements IOpenBinder {
             RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass moduleOpenClass) throws Exception {
 
-        String type = syntaxNode.getType();
-        AXlsTableBinder binder = getBinderFactory().get(type);
+        String tableSyntaxNodeType = syntaxNode.getType();
+        AXlsTableBinder binder = findBinder(tableSyntaxNodeType);
 
         if (binder == null) {
-            String message = String.format("Unknown table type '%s'", type);
-            LOG.debug(message);
+            String message = String.format("Unknown table type '%s'", tableSyntaxNodeType);
+            log.debug(message);
 
             return null;
         }
@@ -533,7 +533,11 @@ public class XlsBinder implements IOpenBinder {
     }
 
     
-    protected String getDefaultOpenLName()
+    protected AXlsTableBinder findBinder(String tableSyntaxNodeType) {
+		return getBinderFactory().get(tableSyntaxNodeType);
+	}
+
+	protected String getDefaultOpenLName()
     {
     	return DEFAULT_OPENL_NAME;
     }
@@ -557,7 +561,23 @@ public class XlsBinder implements IOpenBinder {
         }
 
         TableSyntaxNode[] tableSyntaxNodes = childSyntaxNodes.toArray(new TableSyntaxNode[childSyntaxNodes.size()]);
-        
+		/*if (tableComparators != null && tableComparators.size() > 0) {
+			final LinkedList<Comparator<TableSyntaxNode>> finalTableComparators = tableComparators;
+			Arrays.sort(tableSyntaxNodes, new Comparator<TableSyntaxNode>() {
+				@Override
+				public int compare(TableSyntaxNode o1, TableSyntaxNode o2) {
+					int result = 0;
+					for (Comparator<TableSyntaxNode> comparator : finalTableComparators) {
+						int tmp = comparator.compare(o1, o2);
+						if (tmp != 0) {
+							result = tmp;
+						}
+					}
+					return result;
+				}
+			});
+		}*/
+        //BAD CODE WARNING!!!
 		if (tableComparators != null && tableComparators.size() > 0) {
 			for (Comparator<TableSyntaxNode> comparator : tableComparators) {
 				try {

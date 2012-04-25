@@ -25,7 +25,7 @@ import org.openl.util.file.FileStorage;
  */
 public class FileBasedProjectHistoryManager implements SourceHistoryManager<File> {
 
-    private static final Log LOG = LogFactory.getLog(FileBasedProjectHistoryManager.class);
+    private final Log log = LogFactory.getLog(FileBasedProjectHistoryManager.class);
 
     private ProjectModel projectModel;
     private FileStorage storage;
@@ -105,9 +105,9 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
                 save(fileToRevert);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
-                LOG.info("Project was reverted successfully");
+                log.info("Project was reverted successfully");
             } catch (Exception e) {
-                LOG.error("Can't revert project at "
+                log.error("Can't revert project at "
                         + new SimpleDateFormat().format(new Date(date)));
                 throw e;
             }

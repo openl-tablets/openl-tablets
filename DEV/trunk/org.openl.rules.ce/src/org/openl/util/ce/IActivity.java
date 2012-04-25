@@ -1,8 +1,8 @@
 package org.openl.util.ce;
 
-import java.util.concurrent.Callable;
+import org.openl.util.benchmark.Benchmark;
 
-public interface IActivity<T> extends Callable<T>, IDependent<IActivity<T>>{
+public interface IActivity extends IDependent<IActivity>{
 	
 	/**
 	 * 
@@ -28,6 +28,7 @@ public interface IActivity<T> extends Callable<T>, IDependent<IActivity<T>>{
 	 */
 	
 	long duration();
+	
 	
 
 }

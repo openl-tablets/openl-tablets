@@ -38,6 +38,7 @@ var TableEditor = Class.create({
 
     fillColorPicker: null,
     fontColorPicker: null,
+    hasChanges: false,
 
     // Constructor
     initialize: function(editorId, url, editCell, actions, mode, editable) {
@@ -259,6 +260,25 @@ var TableEditor = Class.create({
                     self.actions.saveFailure();
                 }
 
+            }
+        });
+    },
+
+
+    /**
+     * Rolls back all changes. Sends corresponding request to the server.
+     */
+    rollback: function() {
+        var self = this;
+        new Ajax.Request(this.buildUrl(TableEditor.Operations.ROLLBACK), {
+            parameters: {
+                editorId: this.editorId
+            },
+            onSuccess: function(response) {
+            	window.onbeforeunload = Prototype.emptyFunction;
+            },
+            onFailure: function(response) {
+                self.handleError(response, "Server failed to rollback your changes");
             }
         });
     },
@@ -1022,7 +1042,7 @@ var TableEditor = Class.create({
             switch (action) {
                 case "do":
                     if (obj) {
-                        if (isBoolean(obj.hasUndo)) try {this.undoStateUpdated(obj.hasUndo)} catch (e) {}
+                        if (isBoolean(obj.hasUndo)) try {this.hasChanges = obj.hasUndo; this.undoStateUpdated(obj.hasUndo)} catch (e) {}
                         this.redoStateUpdated(obj.hasRedo)
                     }
                     break;
@@ -1065,7 +1085,8 @@ TableEditor.Operations = {
     INSERT_COLUMN_BEFORE : "insertColumnBefore",
     UNDO : "undo",
     REDO : "redo",
-    SAVE : "saveTable"
+    SAVE : "saveTable",
+    ROLLBACK : "rollbackTable"
 };
 
 // Standalone functions

@@ -20,8 +20,6 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 
 public class DownloadServlet extends HttpServlet {
-    private static final Log LOG = LogFactory.getLog(DownloadServlet.class);
-
     private static final long serialVersionUID = -5102656998760586960L;
 
     /**
@@ -34,6 +32,7 @@ public class DownloadServlet extends HttpServlet {
      * @return if downloading the file is allowed
      */
     private static boolean checkFile(HttpServletRequest request, File file) {
+    	final Log log = LogFactory.getLog(DownloadServlet.class);
         WebStudio webStudio = getWebStudio(request);
         if (webStudio == null) {
             return false;
@@ -45,7 +44,7 @@ public class DownloadServlet extends HttpServlet {
             try {
                 return file.getParentFile().equals(fileSourceCodeModule.getFile().getParentFile().getCanonicalFile());
             } catch (IOException e) {
-                LOG.error("", e);
+                log.error("", e);
             }
         }
         return false;

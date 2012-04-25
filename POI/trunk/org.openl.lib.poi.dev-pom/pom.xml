@@ -18,10 +18,9 @@
 	<url>http://openl-tablets.sf.net/</url>
 
 	<scm>
-		<connection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</connection>
-		<developerConnection>scm:svn:https://svn-rix.exigengroup.lv/svn/EPB/EPB/DecisionServices/OpenL/POI/trunk</developerConnection>
-		<url>http://openl-tablets.svn.sourceforge.net/viewvc/openl-tablets/</url>
-	</scm>
+       		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
+       		<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
+   	</scm>
 
 	<modules>
 		<module>../org.openl.lib.poi.dev</module>

@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class SimpleBeanJavaGenerator extends JavaGenerator {
     
-    private static final Log LOG = LogFactory.getLog(SimpleBeanJavaGenerator.class);
+    private final Log log = LogFactory.getLog(SimpleBeanJavaGenerator.class);
 
     private Map<String, Class<?>> datatypeDeclaredFields;
     private Map<String, Class<?>> datatypeAllFields;
@@ -149,7 +149,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         try {
             datatypeInstance = getClassForGeneration().newInstance();
         } catch (Exception e) {
-            LOG.error(e);
+            log.error(e);
         } 
         
         Field[] fields = getClassForGeneration().getDeclaredFields();        
@@ -174,7 +174,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                     //
                     String errorMessage = String.format("Can`t write value for %s field of type %s", fieldValue, 
                         fieldType.getName());
-                    LOG.error(errorMessage);
+                    log.error(errorMessage);
                 } else {
                     // write value initialization to bean class
                     String valueInitialzation = writer.getInitialization(fieldValue);
@@ -207,7 +207,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             field.setAccessible(true);
             fieldValue = field.get(datatypeInstance);            
         } catch (Exception e) {                    
-            LOG.error(e);
+            log.error(e);
         } 
         return fieldValue;
     }

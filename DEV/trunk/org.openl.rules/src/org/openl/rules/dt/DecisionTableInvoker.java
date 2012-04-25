@@ -21,7 +21,7 @@ import org.openl.vm.trace.Tracer;
  */
 public class DecisionTableInvoker extends RulesMethodInvoker {
     
-    private final Log LOG = LogFactory.getLog(DecisionTableInvoker.class);
+    private final Log log = LogFactory.getLog(DecisionTableInvoker.class);
     
     public DecisionTableInvoker(DecisionTable decisionTable) {
         super(decisionTable);
@@ -122,7 +122,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
     
     private void addErrorToTrace(DecisionTableTraceObject traceObject, Throwable e) {
         traceObject.setError(e);
-        LOG.error("Error when tracing DT rule", e);
+        log.error("Error when tracing DT rule", e);
         throw new OpenLRuntimeException(e);
     }
     

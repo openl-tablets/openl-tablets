@@ -16,7 +16,9 @@
 
         <h:form>
             <h:outputLabel value="Table Name " for="techName" />
-            <h:inputText id="techName" value="#{wizard.tableName}" />
+            <h:inputText id="techName" value="#{wizard.tableName}" 
+            validator="#{wizard.validateTechnicalName}" immediate="true" />
+            <h:message for="techName" styleClass="error" />
             <br />
             <br />
             <h:outputText value="Properties" />

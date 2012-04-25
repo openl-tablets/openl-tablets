@@ -29,10 +29,9 @@ import org.openl.util.text.TextInfo;
  */
 public class SourceCodeURLTool implements SourceCodeURLConstants {
 	
-	private static final Log LOG = LogFactory.getLog(SourceCodeURLTool.class);
-	
     static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module, String openl) {
-
+    	final Log log = LogFactory.getLog(SourceCodeURLTool.class);
+    	
         if (module != null && StringUtils.isEmpty(module.getUri(0))) {
             return StringUtils.EMPTY;
         }
@@ -61,7 +60,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             	start = location.getStart().getAbsolutePosition(info) + module.getStartPosition();
                 end = location.getEnd().getAbsolutePosition(info) + module.getStartPosition();
             } catch (UnsupportedOperationException e) {
-            	LOG.warn("Cannot make source location URL",e);
+            	log.warn("Cannot make source location URL",e);
 			}
             
             lineInfo = START + "=" + start + QSEP + END + "=" + end;

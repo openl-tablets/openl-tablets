@@ -8,7 +8,6 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 
 import org.openl.OpenL;

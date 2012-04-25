@@ -9,7 +9,6 @@
 
   <dependencySets>
     <dependencySet>
-      <outputFileNameMapping>${artifact.artifactId}_${artifact.version}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <outputDirectory>libs</outputDirectory>
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <excludes>
@@ -18,7 +17,7 @@
     </dependencySet>
 
     <dependencySet>
-      <outputFileNameMapping>${artifact.artifactId}_${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <outputFileNameMapping>${artifact.artifactId}-${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <outputDirectory></outputDirectory>
       <includes>
@@ -26,10 +25,5 @@
       </includes>
     </dependencySet>
   </dependencySets>
-  <files>
-    <file>
-      <source>target/${project.build.finalName}.jar</source>
-      <outputDirectory></outputDirectory>
-    </file>
-  </files>
+  
 </assembly>
