@@ -46,17 +46,24 @@ public class ToStringWriter extends MethodWriter {
             ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
 
             pushFieldToStack(methodVisitor, 0, field.getKey());
+
             if (field.getValue().isArray()) { 
                 ByteCodeGeneratorHelper.invokeStatic(methodVisitor, ArrayUtils.class, "toString", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
             }
-            ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
-
+            if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
+            	ByteCodeGeneratorHelper.invokeStatic(methodVisitor, Integer.class, "valueOf", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+            	ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, Integer.class, "intValue", new Class<?>[] {});
+            	ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { int.class });
+            }else{
+            	ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { FieldDescription.getJavaClass(field.getValue()) });
+            }
+            
             methodVisitor.visitLdcInsn(" ");
             ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
         }
         methodVisitor.visitLdcInsn("}");
         ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "append", new Class<?>[] { String.class });
-
+		
         // return
         ByteCodeGeneratorHelper.invokeVirtual(methodVisitor, StringBuilder.class, "toString", new Class<?>[] {});
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(String.class));

@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.repository.RTransactionManager;
 
 public class JackrabbitTransactionManager implements RTransactionManager {
-    private static Log LOG = LogFactory.getLog(JackrabbitTransactionManager.class);
+    private final Log log = LogFactory.getLog(JackrabbitTransactionManager.class);
     private Session session;
 
     public JackrabbitTransactionManager(Session session) {
@@ -22,7 +22,7 @@ public class JackrabbitTransactionManager implements RTransactionManager {
             //return new JackRabbitUserTransaction(session);
             return NO_TRANSACTION;
         } catch (Exception e) {
-            LOG.warn("Failed to create jackrabbit transaction.", e);
+            log.warn("Failed to create jackrabbit transaction.", e);
             return NO_TRANSACTION;
         }
     }

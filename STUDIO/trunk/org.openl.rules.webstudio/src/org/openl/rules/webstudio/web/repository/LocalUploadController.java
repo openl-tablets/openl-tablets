@@ -49,7 +49,7 @@ public class LocalUploadController {
         }
     }
 
-    private static final Log LOG = LogFactory.getLog(LocalUploadController.class);
+    private final Log log = LogFactory.getLog(LocalUploadController.class);
 
     private List<UploadBean> uploadBeans;
 
@@ -72,7 +72,7 @@ public class LocalUploadController {
                 try {
                     dtr = userRules.getUserWorkspace().getDesignTimeRepository();
                 } catch (Exception e) {
-                    LOG.error("Cannot get DTR!", e);
+                    log.error("Cannot get DTR!", e);
                     return null;
                 }
 
@@ -83,7 +83,7 @@ public class LocalUploadController {
                             uploadBeans.add(new UploadBean(f.getName()));
                         }
                     } catch (Exception e) {
-                        LOG.error("Failed to list projects for upload!", e);
+                        log.error("Failed to list projects for upload!", e);
                         FacesUtils.addErrorMessage(e.getMessage());
                     }
                 }
@@ -113,7 +113,7 @@ public class LocalUploadController {
                                         + " was uploaded succesfully");
                     } catch (Exception e) {
                         String msg = "Failed to upload local project '" + bean.getProjectName() + "'!";
-                        LOG.error(msg, e);
+                        log.error(msg, e);
                         FacesUtils.addErrorMessage(msg, e.getMessage());
                     }
                 }

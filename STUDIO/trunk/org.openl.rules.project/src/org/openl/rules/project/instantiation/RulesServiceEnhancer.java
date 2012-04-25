@@ -3,19 +3,14 @@ package org.openl.rules.project.instantiation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.project.model.Module;
 
 /**
  * Auxiliary class which enhances rule service with ability to use rule service
@@ -33,15 +28,10 @@ import org.openl.rules.project.model.Module;
  * <li>invoke appropriate service method.</li>
  * </ul>
  */
-public class RulesServiceEnhancer implements RulesInstantiationStrategy {
+public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     
-    private static final Log LOG = LogFactory.getLog(RulesServiceEnhancer.class);
+    private final Log log = LogFactory.getLog(RulesServiceEnhancer.class);
 
-
-    /**
-     * Instantiation strategy delegate.
-     */
-    private RulesInstantiationStrategy instantiationStrategy;
 
     /**
      * Internal generated class at runtime which used as service class.
@@ -49,18 +39,13 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
     private Class<?> serviceClass;
     
     /**
-     * Internal class loader.
-     */
-    private OpenLBundleClassLoader classLoader;
-
-    /**
      * Constructs new instance of enhancer.
      * 
      * @param instantiationStrategy instantiation strategy which used to
      *            instantiate original service
      */
     public RulesServiceEnhancer(RulesInstantiationStrategy instantiationStrategy) {
-        this.instantiationStrategy = instantiationStrategy;
+        super(instantiationStrategy);
     }
 
     /**
@@ -73,18 +58,13 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
     public Class<?> getServiceClass() throws ClassNotFoundException {
         if (serviceClass == null) {
             try {
-                Class<?> originalServiceClass = instantiationStrategy.getInstanceClass();
+                Class<?> originalServiceClass = getOriginalInstantiationStrategy().getInstanceClass();
                 serviceClass = RulesServiceEnhancerHelper.decorateMethods(originalServiceClass, getClassLoader());
             } catch (Exception e) {
                 throw new OpenlNotCheckedException("Failed to add runtime context in parameters of each method.", e);
             }
         }
         return serviceClass;
-    }
-
-    @Override
-    public CompiledOpenClass compile() throws RulesInstantiationException {
-        return instantiationStrategy.compile();
     }
 
     @Override
@@ -103,9 +83,9 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
      * @throws Exception
      */
     private InvocationHandler makeInvocationHandler() throws Exception {
-
-        Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(), instantiationStrategy.getInstanceClass());
-        return new RulesServiceEnhancerInvocationHandler(methodsMap, instantiationStrategy.instantiate());
+        Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
+            getOriginalInstantiationStrategy().getInstanceClass());
+        return new RulesServiceEnhancerInvocationHandler(methodsMap, getOriginalInstantiationStrategy().instantiate());
     }
 
     /**
@@ -119,24 +99,6 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
     }
 
 
-    @Override
-    public ClassLoader getClassLoader() {
-        if (classLoader == null) {
-            ClassLoader originalClassLoader = instantiationStrategy.getClassLoader();
-            classLoader = new SimpleBundleClassLoader(originalClassLoader);
-            try {
-                Class<?> serviceClass = instantiationStrategy.getServiceClass();
-                if (serviceClass != null) {
-                    classLoader.addClassLoader(serviceClass.getClassLoader());
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
-            }
-        }
-        
-        return classLoader;
-    }
-
     /**
      * Gets methods map where keys are interface class methods and values -
      * original service class methods.
@@ -147,7 +109,7 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
 
-        LOG.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();
@@ -171,27 +133,15 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
             }
         }
 
-        LOG.debug(methodMap.toString());
+        log.debug(methodMap.toString());
         
         return methodMap;
     }
 
     @Override
-    public Class<?> getGeneratedRulesClass() throws RulesInstantiationException {
-        return instantiationStrategy.getGeneratedRulesClass();
-    }
-
-    @Override
     public void reset() {
-        instantiationStrategy.reset();
+        super.reset();
         serviceClass = null;
-        classLoader = null;
-    }
-
-    @Override
-    public void forcedReset() {
-        reset();
-        instantiationStrategy.forcedReset();
     }
 
     @Override
@@ -200,8 +150,8 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
             reset();
             this.serviceClass = serviceClass;
             try {
-                instantiationStrategy.setServiceClass(RulesServiceEnhancerHelper.undecorateMethods(serviceClass,
-                    getClassLoader()));
+                getOriginalInstantiationStrategy().setServiceClass(RulesServiceEnhancerHelper.undecorateMethods(serviceClass,
+                    getOriginalInstantiationStrategy().getClassLoader()));
             } catch (Exception e) {
                 throw new OpenlNotCheckedException("Failed to set service class to enhancer. Failed to get undecorated class.",
                     e);
@@ -219,10 +169,5 @@ public class RulesServiceEnhancer implements RulesInstantiationStrategy {
     @Override
     public Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException {
         return getServiceClass();
-    }
-
-    @Override
-    public Collection<Module> getModules() {
-        return instantiationStrategy.getModules();
     }
 }

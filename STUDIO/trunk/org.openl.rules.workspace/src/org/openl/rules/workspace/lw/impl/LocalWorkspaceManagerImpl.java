@@ -22,7 +22,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Aleh Bykhavets
  */
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener, InitializingBean {
-    private static final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
+    private final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
 
     private String localWorkspace;
     private String workspacesRoot = "/tmp/rules-workspaces/";

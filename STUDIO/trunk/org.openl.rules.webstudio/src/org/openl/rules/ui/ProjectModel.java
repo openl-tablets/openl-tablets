@@ -390,6 +390,13 @@ public class ProjectModel {
         String nodeId = idTreeCache.getKey(node);
         return nodeId;
     }
+    
+    /*
+     * return all tree nodes
+     * */
+    public TreeCache<String, ProjectTreeNode> getAllTreeNodes(){
+    	return uriTreeCache;
+    }
 
     public ProjectTreeNode getTreeNodeById(String id) {
         return (ProjectTreeNode) idTreeCache.getNode(id);
@@ -1170,7 +1177,7 @@ public class ProjectModel {
         }
 
     }
-
+    
     private static class EditXlsModificationChecker implements ModificationChecker {
         private final XlsWorkbookSourceCodeModule module;
         private final File sourceFile;
@@ -1215,7 +1222,6 @@ public class ProjectModel {
             module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
             return !(sourceFile.lastModified() == beforeOpenModifiedTime && sourceFile.length() == beforeOpenFileSize);
         }
-
     }
     
 }

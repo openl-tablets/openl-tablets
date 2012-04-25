@@ -18,7 +18,7 @@ import org.openl.util.formatters.NumberFormatter;
  */
 public class XlsNumberFormatter implements IFormatter {
 
-    private static final Log LOG = LogFactory.getLog(XlsNumberFormatter.class);
+    private final Log log = LogFactory.getLog(XlsNumberFormatter.class);
 
     private int formatIndex;
     private String format;
@@ -38,7 +38,7 @@ public class XlsNumberFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Number)) {
-            LOG.debug("Should be Number: " + value);
+            log.debug("Should be Number: " + value);
             return null;
         }
 

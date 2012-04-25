@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
-    private static final Log log = LogFactory.getLog(LocalWorkspaceImpl.class);
+    private final Log log = LogFactory.getLog(LocalWorkspaceImpl.class);
 
     private WorkspaceUser user;
     private File location;

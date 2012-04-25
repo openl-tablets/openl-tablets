@@ -15,7 +15,7 @@ import org.openl.rules.workspace.lw.impl.StateHolder;
 import org.openl.util.MsgHelper;
 
 public class StatePersistance {
-    private static final Log log = LogFactory.getLog(StatePersistance.class);
+    private final Log log = LogFactory.getLog(StatePersistance.class);
 
     private final LocalArtefactAPI artefact;
     private final File propertiesLocation;

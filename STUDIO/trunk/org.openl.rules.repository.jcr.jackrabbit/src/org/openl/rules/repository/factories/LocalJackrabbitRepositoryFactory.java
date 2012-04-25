@@ -36,7 +36,7 @@ import org.springframework.util.FileCopyUtils;
  *
  */
 public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
-    private static Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
+    private final Log log = LogFactory.getLog(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
     private ConfigPropertyString confRepositoryHome = new ConfigPropertyString(

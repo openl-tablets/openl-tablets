@@ -11,7 +11,7 @@ import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RTransactionManager;
 
 public abstract class BaseJcrRepository implements RRepository, EventListener{
-    private static final Log LOG = LogFactory.getLog(BaseJcrRepository.class);
+    private final Log log = LogFactory.getLog(BaseJcrRepository.class);
     private final String name;
     /** JCR Session */
     private final Session session;
@@ -68,8 +68,8 @@ public abstract class BaseJcrRepository implements RRepository, EventListener{
         try {
             session.getWorkspace().getObservationManager().removeEventListener(this);
         } catch (RepositoryException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("release", e);
+            if (log.isDebugEnabled()) {
+                log.debug("release", e);
             }
         }
         session.logout();

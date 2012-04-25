@@ -27,8 +27,6 @@ import org.apache.commons.logging.LogFactory;
 
 public final class FileTool {
 
-    private static final Log LOG = LogFactory.getLog(FileTool.class);
-
     public static class CacheMap {
 
         static class LTMValue {
@@ -488,13 +486,14 @@ public final class FileTool {
      * @param dir
      */
     private static void removeChildren(File dir) {
+    	final Log log = LogFactory.getLog(FileTool.class);
         File[] file = dir.listFiles();
         for (int i = 0; i < file.length; i++) {
             if (file[i].isDirectory()) {
                 removeChildren(file[i]);
             }
             if (file[i].delete() == false) {
-                LOG.warn("Cant delete file/dir: " + file[i].getAbsolutePath());
+                log.warn("Cant delete file/dir: " + file[i].getAbsolutePath());
             // else
             // Log.warn("Deleted: "+file[i].getAbsolutePath());
             }
@@ -547,12 +546,13 @@ public final class FileTool {
         saveFile(fname, s, false);
     }
     public static void saveFile(String fname, String s, boolean compareBeforeSave) throws Exception {
+    	final Log log = LogFactory.getLog(FileTool.class);
         try {
             if (compareBeforeSave && compareFileSource(fname, s) == 0) {
                 return;
             }
         } catch (Exception ex) {
-            LOG.warn(ex);
+            log.warn(ex);
         }
 
         File file = new File(fname);
@@ -607,23 +607,25 @@ public final class FileTool {
     }
 
     public static File toFile(InputStream source, String pathName) {
+    	final Log log = LogFactory.getLog(FileTool.class);
         File file = null;
         try {
             file = new File(pathName);
             FileUtils.copyInputStreamToFile(source, file);
         } catch (IOException e) {
-            LOG.error("Error when creating file: " + pathName, e);
+            log.error("Error when creating file: " + pathName, e);
         }
         return file;
     }
 
     public static File toTempFile(InputStream source, String fileName) {
+    	final Log log = LogFactory.getLog(FileTool.class);
         File file = null;
         try {
             file = File.createTempFile(fileName, null);
             FileUtils.copyInputStreamToFile(source, file);
         } catch (IOException e) {
-            LOG.error("Error when creating file: " + fileName, e);
+            log.error("Error when creating file: " + fileName, e);
         }
         return file;
     }

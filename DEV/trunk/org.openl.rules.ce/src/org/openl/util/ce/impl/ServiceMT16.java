@@ -13,7 +13,9 @@ import java.util.concurrent.Future;
 import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IActivity;
+import org.openl.util.ce.ICallableActivity;
 import org.openl.util.ce.IMTConvertorFactory;
+import org.openl.util.ce.IScheduler;
 import org.openl.util.ce.IServiceMTConfiguration;
 
 public class ServiceMT16  extends ServiceMT {
@@ -122,12 +124,12 @@ public class ServiceMT16  extends ServiceMT {
 
 
 
-		public <T> long execute(IActivity<T>[] all, boolean isAsymmerical) throws ArrayExecutionException {
+		public <T> long execute(ICallableActivity<T>[] all, boolean isAsymmerical) throws ArrayExecutionException {
 			long start = System.nanoTime();
 
 			int len = all.length;
 			
-			long totalEstimate = calcTotalEstimate(all);
+			long totalEstimate = calcTotalEstimate((IActivity[]) all);
 			
 			if (totalEstimate < config.getMinSequenceLengthNs() * 2)
 			{
@@ -140,7 +142,7 @@ public class ServiceMT16  extends ServiceMT {
 		
 			int n =  Math.min((int)(totalEstimate / config.getMinSequenceLengthNs()), config.getParallelLevel());
 			
-			List<IActivity<?>>[] split = EvenSplitter.split(all, n);
+			List<ICallableActivity<T>>[] split = EvenSplitter.split(all, n);
 			
 			
 
@@ -148,7 +150,7 @@ public class ServiceMT16  extends ServiceMT {
 			List<Future<?>> fres = new ArrayList<Future<?>>();
 
 			for (int i = 0; i < flen; i++) {
-				List<IActivity<?>> acts = split[i];
+				List<ICallableActivity<T>> acts = split[i];
 				if (acts == null || acts.isEmpty())
 					continue;
 				
@@ -184,14 +186,14 @@ public class ServiceMT16  extends ServiceMT {
 	 
 	 
 
-		protected Runnable makeRunnableActivities(final List<IActivity<?>> acts) {
+		protected <T> Runnable makeRunnableActivities(final List<ICallableActivity<T>> acts) {
 			return new Runnable() {
 				
 				@SuppressWarnings({ "unchecked", "rawtypes" })
 				@Override
 				public void run() {
 					int len = acts.size();
-					IActivity[] aa = acts.toArray(new IActivity[len]);
+					ICallableActivity[] aa = acts.toArray(new ICallableActivity[len]);
 					executeAllSequential(aa, null, 0, len);
 				}
 			};
@@ -302,6 +304,37 @@ public class ServiceMT16  extends ServiceMT {
 		}
 	 
 
+			@Override
+			public long executeAll(Runnable[] tasks) throws ArrayExecutionException {
+				long start = System.nanoTime();
+
+				Future<?>[] ff = new Future<?>[tasks.length];
+				
+				for (int i = 0; i < ff.length; i++) {
+					ff[i] = serviceImpl.submit(tasks[i]);
+				}
+				
+				SortedMap<Integer, Throwable> errors = null;
+				for (int i = 0; i < ff.length; i++) {
+					try {
+						ff[i].get();
+					} catch (Throwable t) {
+						if (errors == null)
+							errors = new TreeMap<Integer, Throwable>();
+						errors.put(i, t);
+						if (errors.size() >= config.getErrorLimit())
+							throw new ArrayExecutionException("Error Limit Reached: ",
+									errors);
+					}
+				}
+				
+				if (errors != null)
+					throw new ArrayExecutionException("Caught " + errors.size() + " error(s)", errors);
+				
+				
+				long time =  System.nanoTime() - start;
+				return time;
+			}
 		 
 		 
 	 
@@ -329,6 +362,13 @@ public class ServiceMT16  extends ServiceMT {
 		serviceImpl.shutdown();
 		
 	}
+
+	@Override
+	public IScheduler getScheduler(long singleCellLength) {
+		return new Scheduler(config, singleCellLength);
+	}
+
+
 	
 	 
 	

@@ -19,9 +19,9 @@ import java.lang.reflect.InvocationTargetException;
  * @author Andrey Naumenko
  */
 public class AcegiFunctions {
-    private static final Log log = LogFactory.getLog(AcegiFunctions.class);
 
     public static String authentication(String operation) {
+    	final Log log = LogFactory.getLog(AcegiFunctions.class);
         if ((operation == null)) {
             log.debug("Operation is not provided. Empty result string will be returned");
             return "";

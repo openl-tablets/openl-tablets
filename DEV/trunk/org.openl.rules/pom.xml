@@ -132,8 +132,8 @@
     </dependency>
 
     <dependency>
- 		<groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
     </dependency>
     
     <dependency>
@@ -141,27 +141,27 @@
       <artifactId>asm</artifactId>
     </dependency>
     
-	<dependency>
-		<groupId>cglib</groupId>
-		<artifactId>cglib-nodep</artifactId>
-	</dependency>
-	
-	<dependency>
-		<groupId>org.jgrapht</groupId>
-		<artifactId>jgrapht-jdk1.5</artifactId>
-	</dependency>
-	
-	<dependency>
-        <groupId>uk.com.robust-it</groupId>
-        <artifactId>cloning</artifactId>    	
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
     </dependency>
 	
-	<dependency>
-		<groupId>org.mockito</groupId>
-		<artifactId>mockito-all</artifactId>
-		<scope>test</scope>
-	</dependency>
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-jdk1.5</artifactId>
+    </dependency>
+	
+    <dependency>
+      <groupId>uk.com.robust-it</groupId>
+      <artifactId>cloning</artifactId>    	
+    </dependency>
+	
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
     
-  </dependencies>
+ </dependencies>
 
 </project>

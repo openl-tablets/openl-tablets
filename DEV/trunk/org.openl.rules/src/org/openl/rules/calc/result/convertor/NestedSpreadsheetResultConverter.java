@@ -32,7 +32,7 @@ import org.openl.rules.calc.SpreadsheetResultUtils;
  */
 public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound extends CompoundStep> {
     
-    private static final Log LOG = LogFactory.getLog(NestedSpreadsheetResultConverter.class);
+    private final Log log = LogFactory.getLog(NestedSpreadsheetResultConverter.class);
        
     private NestedDataRowExtractorsFactory<Simple, Compound> rowExtractorsFactory;
     
@@ -73,7 +73,7 @@ public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound 
             }
             return steps;
         }
-        LOG.warn("Spreadsheet result is null");
+        log.warn("Spreadsheet result is null");
         return steps;
     }
 

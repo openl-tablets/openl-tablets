@@ -1,13 +1,17 @@
 package org.openl.util.ce.impl;
 
 import java.lang.reflect.Array;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 
 import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IMTConvertorFactory;
+import org.openl.util.ce.IScheduler;
 import org.openl.util.ce.IServiceMTConfiguration;
 
 public class ServiceMT17  extends ServiceMT {
@@ -253,6 +257,49 @@ public Task(IMTConvertorFactory<T> factory, T[] result, int from,
 	public void shutdown() {
 		fjpool.shutdown();
 		
+	}
+
+
+
+
+	@Override
+	public long executeAll(Runnable[] tasks) throws ArrayExecutionException {
+		long start = System.nanoTime();
+
+		ForkJoinTask<?>[] ff = new ForkJoinTask<?>[tasks.length];
+		
+		for (int i = 0; i < ff.length; i++) {
+			ff[i] = fjpool.submit(tasks[i]);
+		}
+		
+		SortedMap<Integer, Throwable> errors = null;
+		for (int i = 0; i < ff.length; i++) {
+			try {
+				ff[i].get();
+			} catch (Throwable t) {
+				if (errors == null)
+					errors = new TreeMap<Integer, Throwable>();
+				errors.put(i, t);
+				if (errors.size() >= config.getErrorLimit())
+					throw new ArrayExecutionException("Error Limit Reached: ",
+							errors);
+			}
+		}
+		
+		if (errors != null)
+			throw new ArrayExecutionException("Caught " + errors.size() + " error(s)", errors);
+		
+		
+		long time =  System.nanoTime() - start;
+		return time;
+	}
+
+
+
+
+	@Override
+	public IScheduler getScheduler(long singleCellLength) {
+		return new Scheduler(config, singleCellLength);
 	}
 
 }

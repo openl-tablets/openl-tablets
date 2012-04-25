@@ -43,7 +43,7 @@ import java.util.Properties;
  * @author Andrey Naumenko
  */
 public class HsqlServerBean implements InitializingBean, DisposableBean {
-    private static final Log log = LogFactory.getLog(HsqlServerBean.class);
+    private final Log log = LogFactory.getLog(HsqlServerBean.class);
     private Properties serverProperties;
     private boolean enabled = true;
 

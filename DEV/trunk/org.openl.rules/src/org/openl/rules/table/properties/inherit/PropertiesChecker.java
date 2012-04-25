@@ -17,8 +17,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  */
 public class PropertiesChecker {
     
-    private static final Log LOG = LogFactory.getLog(PropertiesChecker.class);
-    
     /**
      * Checks if property with given name is suitable for given level. Checks according to the property 
      * definitions in {@link DefaultPropertyDefinitions}. 
@@ -28,6 +26,7 @@ public class PropertiesChecker {
      * @return true if property with income name can be defined in income level.
      */
     public static boolean isPropertySuitableForLevel(InheritanceLevel currentLevel, String propertyName) {
+    	final Log log = LogFactory.getLog(PropertiesChecker.class);
         boolean result = false;
         TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
         if (propertyDefinition != null) {
@@ -37,10 +36,10 @@ public class PropertiesChecker {
                     result = true;
                 } 
             } else {
-                LOG.debug(String.format("Inheritance levels were not defined for property with name [%s].", propertyName));
+                log.debug(String.format("Inheritance levels were not defined for property with name [%s].", propertyName));
             }
         } else {
-            LOG.debug(String.format("There is no such property in Definitions with name [%s].", propertyName));
+            log.debug(String.format("There is no such property in Definitions with name [%s].", propertyName));
         }
         return result;
     }

@@ -110,6 +110,7 @@
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
                                         oncomplete="goTo('#{rulesEditor}/copyTable.xhtml')" title="Copy Table"
+                                        onclick="return canLeavePage()"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
@@ -347,7 +348,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
@@ -363,7 +364,7 @@
                         <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
@@ -382,7 +383,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -399,7 +400,7 @@
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml" target="content">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -435,8 +436,8 @@
                 <input type="hidden" name="uri" value="" />
             </form>
 
-            <rules:tableEditor table="#{showTableBean.table}" view="#{studio.tableView}"
-                linkBase="showTable.xhtml" linkTarget="content"
+            <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
+                linkBase="#showTable.xhtml" linkTarget="content"
                 mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}"
@@ -514,7 +515,7 @@
         }
 
         function onAfterSave(newUri) {
-            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
+            goTo("#showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
             hideLoader();
         }
 
@@ -530,6 +531,21 @@
 
             alert('No tests selected');
             return false;
+        }
+        
+        function canLeavePage() {
+            // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
+            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId
+            
+            if (t.hasChanges) {
+                var isOk = confirm('Table is not saved. Do you want to rollback all changes?');
+                if (isOk) {
+                    t.rollback();
+                } else {
+                    return false;
+                }
+            }
+            return true;
         }
       //]]>
     </script>

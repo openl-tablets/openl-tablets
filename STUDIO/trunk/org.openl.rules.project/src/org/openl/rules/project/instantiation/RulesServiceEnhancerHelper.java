@@ -10,7 +10,9 @@ import net.sf.cglib.core.ReflectUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -19,7 +21,6 @@ import org.openl.rules.runtime.RulesFactory;
 
 public abstract class RulesServiceEnhancerHelper {
 
-    private static final Log LOG = LogFactory.getLog(RulesServiceEnhancerHelper.class);
     /**
      * Suffix of enhanced class name.
      */
@@ -50,10 +51,11 @@ public abstract class RulesServiceEnhancerHelper {
      * @throws Exception
      */
     public static Class<?> undecorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-
+    	final Log log = LogFactory.getLog(RulesServiceEnhancerHelper.class);
+    	
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
-        LOG.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
+        log.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
 
         return undecorateInterface(className, clazz, classLoader);
     }
@@ -65,9 +67,10 @@ public abstract class RulesServiceEnhancerHelper {
 
     private static Class<?> undecorateInterface(String className, Class<?> original, ClassLoader classLoader) throws Exception {
 
-        ClassWriter classWriter = new UndecoratingClassWriter(0, className);
+        ClassWriter classWriter = new ClassWriter(0);
+        ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
         ClassReader classReader = new ClassReader(getClassAsStream(original, classLoader));
-        classReader.accept(classWriter, 0);
+        classReader.accept(classVisitor, 0);
         // classWriter.visitEnd();
 
         // Create class object.
@@ -107,14 +110,15 @@ public abstract class RulesServiceEnhancerHelper {
      * @throws Exception
      */
     public static Class<?> decorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-
+    	final Log log = LogFactory.getLog(RulesServiceEnhancerHelper.class);
+    	
         Method[] methods = clazz.getMethods();
         List<RuleInfo> rules = getRulesDecorated(methods);
 
         String className = clazz.getName() + ENHANCED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
-        LOG.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
+        log.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
 
         return RulesFactory.generateInterface(className, rulesArray, classLoader);
     }
@@ -157,13 +161,13 @@ public abstract class RulesServiceEnhancerHelper {
      * 
      * @author PUdalau
      */
-    private static class UndecoratingClassWriter extends ClassWriter {
+    private static class UndecoratingClassWriter extends ClassAdapter {
 
         private static final String RUNTIME_CONTEXT = "Lorg/openl/rules/context/IRulesRuntimeContext;";
         private String className;
 
-        public UndecoratingClassWriter(int arg0, String className) {
-            super(arg0);
+        public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
+            super(delegatedClassVisitor);
             this.className = className;
         }
 

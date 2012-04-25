@@ -29,7 +29,7 @@
     <h:panelGroup rendered="#{runAllTestsBean.numberOfTests le 1 and not empty runAllTestsBean.testedTableUri}">
     <div class="view_header">
         <h:outputText value="Results of running "/>
-        <h:outputLink value="showTable.xhtml" target="content">
+        <h:outputLink value="#showTable.xhtml" target="content">
             <f:param name="uri" value="#{runAllTestsBean.testedTableUri}" />
             <h:outputText value="#{runAllTestsBean.testedTableName}" />
         </h:outputLink>
@@ -65,7 +65,7 @@
                     <ui:repeat value="#{testUnitsResults.testUnits}" var="testUnit">
                         <tr>
                             <ui:repeat value="#{runAllTestsBean.getParamDescriptions(testUnit)}" var="parameter">
-                            <td>
+                            <td width="100 px" >
                                 <ui:include src="/pages/modules/rulesEditor/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
                                 </ui:include>
