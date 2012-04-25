@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.XSSFTestDataSamples;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.POIDataSamples;
 
@@ -54,6 +55,13 @@ public final class TestXSSFReader extends TestCase {
 
 		assertEquals(3, r.getStylesTable().getFonts().size());
 		assertEquals(0, r.getStylesTable()._getNumberFormatSize());
+		
+		// The Styles Table should have the themes associated with it too
+		assertNotNull(r.getStylesTable().getTheme());
+		
+		// Check we get valid data for the two
+		assertNotNull(r.getStylesData());
+      assertNotNull(r.getThemesData());
 	}
 
 	public void testStrings() throws Exception {
@@ -116,4 +124,44 @@ public final class TestXSSFReader extends TestCase {
 		}
 		assertEquals(4, count);
 	}
+	
+	public void testComments() throws Exception {
+      OPCPackage pkg =  XSSFTestDataSamples.openSamplePackage("comments.xlsx");
+      XSSFReader r = new XSSFReader(pkg);
+      XSSFReader.SheetIterator it = (XSSFReader.SheetIterator)r.getSheetsData();
+      
+      int count = 0;
+      while(it.hasNext()) {
+         count++;
+         InputStream inp = it.next();
+         inp.close();
+
+         if(count == 1) {
+            assertNotNull(it.getSheetComments());
+            CommentsTable ct = it.getSheetComments();
+            assertEquals(1, ct.getNumberOfAuthors());
+            assertEquals(3, ct.getNumberOfComments());
+         } else {
+            assertNull(it.getSheetComments());
+         }
+      }
+      assertEquals(3, count);
+	}
+   
+   /**
+    * Iterating over a workbook with chart sheets in it, using the
+    *  XSSFReader method
+    * @throws Exception
+    */
+   public void test50119() throws Exception {
+      OPCPackage pkg =  XSSFTestDataSamples.openSamplePackage("WithChartSheet.xlsx");
+      XSSFReader r = new XSSFReader(pkg);
+      XSSFReader.SheetIterator it = (XSSFReader.SheetIterator)r.getSheetsData();
+      
+      while(it.hasNext())
+      {
+          InputStream stream = it.next();
+          stream.close();
+      }
+   }
 }

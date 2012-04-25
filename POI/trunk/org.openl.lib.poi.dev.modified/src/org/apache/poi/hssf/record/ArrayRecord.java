@@ -17,11 +17,13 @@
 
 package org.apache.poi.hssf.record;
 
-import org.apache.poi.hssf.record.formula.AreaPtgBase;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.RefPtgBase;
+import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.formula.ptg.AreaPtgBase;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.ptg.RefPtgBase;
 import org.apache.poi.hssf.util.CellRangeAddress8Bit;
 import org.apache.poi.ss.formula.Formula;
+import org.apache.poi.ss.formula.SharedFormula;
 import org.apache.poi.util.HexDump;
 import org.apache.poi.util.LittleEndianOutput;
 
@@ -66,16 +68,11 @@ public final class ArrayRecord extends SharedValueRecordBase {
 		return (_options & OPT_CALCULATE_ON_OPEN) != 0;
 	}
 
-    /**
-     * @return the equivalent {@link Ptg} array that the formula would have,
-     *         were it not shared.
-     */
-    public Ptg[] getFormulaTokens() {
+	public Ptg[] getFormulaTokens() {
         int formulaRow = this.getFirstRow();
         int formulaColumn = this.getLastColumn();
 
         // Use SharedFormulaRecord static method to convert formula
-
         Ptg[] ptgs = _formula.getTokens();
 
         // Convert from relative addressing to absolute
@@ -96,8 +93,9 @@ public final class ArrayRecord extends SharedValueRecordBase {
                 rptg.setColRelative(false);
             }
         }
-        return SharedFormulaRecord.convertSharedFormulas(ptgs, formulaRow, formulaColumn);
-    }
+        SharedFormula sf = new SharedFormula(SpreadsheetVersion.EXCEL97);
+        return sf.convertSharedFormulas(ptgs, formulaRow, formulaColumn);
+	}
 
 	protected int getExtraDataSize() {
 		return 2 + 4 + _formula.getEncodedSize();

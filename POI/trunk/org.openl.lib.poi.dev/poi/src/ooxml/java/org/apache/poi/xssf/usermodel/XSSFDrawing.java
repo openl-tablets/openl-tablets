@@ -19,29 +19,26 @@ package org.apache.poi.xssf.usermodel;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.apache.poi.POIXMLDocumentPart;
-import org.apache.poi.util.Internal;
-import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackagePartName;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.TargetMode;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.util.Internal;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTConnector;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTDrawing;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTGroupShape;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTPicture;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTShape;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTTwoCellAnchor;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.STEditAs;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.*;
 import org.openxmlformats.schemas.officeDocument.x2006.relationships.STRelationshipId;
 
 /**
@@ -54,7 +51,10 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
      * Root element of the SpreadsheetML Drawing part
      */
     private CTDrawing drawing;
-    private boolean isNew;
+    private long numOfGraphicFrames = 0L;
+    
+    protected static final String NAMESPACE_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
+    protected static final String NAMESPACE_C = "http://schemas.openxmlformats.org/drawingml/2006/chart";
 
     /**
      * Create a new SpreadsheetML drawing
@@ -64,7 +64,6 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
     protected XSSFDrawing() {
         super();
         drawing = newDrawing();
-        isNew = true;
     }
 
     /**
@@ -77,7 +76,10 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
      */
     protected XSSFDrawing(PackagePart part, PackageRelationship rel) throws IOException, XmlException {
         super(part, rel);
-        drawing = CTDrawing.Factory.parse(part.getInputStream());
+        XmlOptions options  = new XmlOptions(DEFAULT_XML_OPTIONS);
+        //Removing root element
+        options.setLoadReplaceDocumentElement(null);
+        drawing = CTDrawing.Factory.parse(part.getInputStream(),options);
     }
 
     /**
@@ -109,9 +111,11 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
                 xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
                 xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing">
         */
-        if(isNew) xmlOptions.setSaveSyntheticDocumentElement(new QName(CTDrawing.type.getName().getNamespaceURI(), "wsDr", "xdr"));
+        xmlOptions.setSaveSyntheticDocumentElement(
+                new QName(CTDrawing.type.getName().getNamespaceURI(), "wsDr", "xdr")
+        );
         Map<String, String> map = new HashMap<String, String>();
-        map.put("http://schemas.openxmlformats.org/drawingml/2006/main", "a");
+        map.put(NAMESPACE_A, "a");
         map.put(STRelationshipId.type.getName().getNamespaceURI(), "r");
         xmlOptions.setSaveSuggestedPrefixes(map);
 
@@ -121,6 +125,11 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
         out.close();
     }
 
+	public XSSFClientAnchor createAnchor(int dx1, int dy1, int dx2, int dy2,
+			int col1, int row1, int col2, int row2) {
+		return new XSSFClientAnchor(dx1, dy1, dx2, dy2, col1, row1, col2, row2);
+	}
+
     /**
      * Constructs a textbox under the drawing.
      *
@@ -129,9 +138,11 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
      * @return      the newly created textbox.
      */
     public XSSFTextBox createTextbox(XSSFClientAnchor anchor){
+        long shapeId = newShapeId();
         CTTwoCellAnchor ctAnchor = createTwoCellAnchor(anchor);
         CTShape ctShape = ctAnchor.addNewSp();
         ctShape.set(XSSFSimpleShape.prototype());
+        ctShape.getNvSpPr().getCNvPr().setId(shapeId);
         XSSFTextBox shape = new XSSFTextBox(this, ctShape);
         shape.anchor = anchor;
         return shape;
@@ -151,9 +162,12 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
     {
         PackageRelationship rel = addPictureReference(pictureIndex);
 
+        long shapeId = newShapeId();
         CTTwoCellAnchor ctAnchor = createTwoCellAnchor(anchor);
         CTPicture ctShape = ctAnchor.addNewPic();
         ctShape.set(XSSFPicture.prototype());
+
+        ctShape.getNvPicPr().getCNvPr().setId(shapeId);
 
         XSSFPicture shape = new XSSFPicture(this, ctShape);
         shape.anchor = anchor;
@@ -164,6 +178,31 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
     public XSSFPicture createPicture(ClientAnchor anchor, int pictureIndex){
         return createPicture((XSSFClientAnchor)anchor, pictureIndex);
     }
+
+	/**
+	 * Creates a chart.
+	 * @param anchor the client anchor describes how this chart is attached to
+	 *               the sheet.
+	 * @return the newly created chart
+	 * @see org.apache.poi.xssf.usermodel.XSSFDrawing#createChart(ClientAnchor)
+	 */
+    public XSSFChart createChart(XSSFClientAnchor anchor) {
+        int chartNumber = getPackagePart().getPackage().
+            getPartsByContentType(XSSFRelation.CHART.getContentType()).size() + 1;
+
+        XSSFChart chart = (XSSFChart) createRelationship(
+                XSSFRelation.CHART, XSSFFactory.getInstance(), chartNumber);
+        String chartRelId = chart.getPackageRelationship().getId();
+
+        XSSFGraphicFrame frame = createGraphicFrame(anchor);
+        frame.setChart(chart, chartRelId);
+
+        return chart;
+    }
+
+	public XSSFChart createChart(ClientAnchor anchor) {
+		return createChart((XSSFClientAnchor)anchor);
+	}
 
     /**
      * Add the indexed picture to this drawing relations
@@ -176,7 +215,7 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
         XSSFPictureData data = wb.getAllPictures().get(pictureIndex);
         PackagePartName ppName = data.getPackagePart().getPartName();
         PackageRelationship rel = getPackagePart().addRelationship(ppName, TargetMode.INTERNAL, XSSFRelation.IMAGES.getRelation());
-        addRelation(new XSSFPictureData(data.getPackagePart(), rel));
+        addRelation(rel.getId(),new XSSFPictureData(data.getPackagePart(), rel));
         return rel;
     }
 
@@ -190,9 +229,11 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
      */
     public XSSFSimpleShape createSimpleShape(XSSFClientAnchor anchor)
     {
+        long shapeId = newShapeId();
         CTTwoCellAnchor ctAnchor = createTwoCellAnchor(anchor);
         CTShape ctShape = ctAnchor.addNewSp();
         ctShape.set(XSSFSimpleShape.prototype());
+        ctShape.getNvSpPr().getCNvPr().setId(shapeId);
         XSSFSimpleShape shape = new XSSFSimpleShape(this, ctShape);
         shape.anchor = anchor;
         return shape;
@@ -236,13 +277,12 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
         return shape;
     }
 
-    /**
-     * Creates a cell comment.
-     *
-     * @param anchor    the client anchor describes how this comment is attached
-     *                  to the sheet.
-     * @return  the newly created comment.
-     */
+	/**
+	 * Creates a comment.
+	 * @param anchor the client anchor describes how this comment is attached
+	 *               to the sheet.
+	 * @return the newly created comment.
+	 */
     public XSSFComment createCellComment(ClientAnchor anchor) {
         XSSFClientAnchor ca = (XSSFClientAnchor)anchor;
         XSSFSheet sheet = (XSSFSheet)getParent();
@@ -261,6 +301,39 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
         shape.setColumn(ca.getCol1());
         shape.setRow(ca.getRow1());
         return shape;
+    }
+
+    /**
+     * Creates a new graphic frame.
+     *
+     * @param anchor    the client anchor describes how this frame is attached
+     *                  to the sheet
+     * @return  the newly created graphic frame
+     */
+    private XSSFGraphicFrame createGraphicFrame(XSSFClientAnchor anchor) {
+        CTTwoCellAnchor ctAnchor = createTwoCellAnchor(anchor);
+        CTGraphicalObjectFrame ctGraphicFrame = ctAnchor.addNewGraphicFrame();
+        ctGraphicFrame.set(XSSFGraphicFrame.prototype());
+
+        long frameId = numOfGraphicFrames++;
+        XSSFGraphicFrame graphicFrame = new XSSFGraphicFrame(this, ctGraphicFrame);
+        graphicFrame.setAnchor(anchor);
+        graphicFrame.setId(frameId);
+        graphicFrame.setName("Diagramm" + frameId);
+        return graphicFrame;
+    }
+    
+    /**
+     * Returns all charts in this drawing.
+     */
+    public List<XSSFChart> getCharts() {
+       List<XSSFChart> charts = new ArrayList<XSSFChart>();
+       for(POIXMLDocumentPart part : getRelations()) {
+          if(part instanceof XSSFChart) {
+             charts.add((XSSFChart)part);
+          }
+       }
+       return charts;
     }
 
     /**
@@ -284,5 +357,25 @@ public final class XSSFDrawing extends POIXMLDocumentPart implements Drawing {
         }
         ctAnchor.setEditAs(aditAs);
         return ctAnchor;
+    }
+
+    private long newShapeId(){
+        return drawing.sizeOfTwoCellAnchorArray() + 1;
+    }
+
+    /**
+     *
+     * @return list of shapes in this drawing
+     */
+    public List<XSSFShape>  getShapes(){
+        List<XSSFShape> lst = new ArrayList<XSSFShape>();
+        for(XmlObject obj : drawing.selectPath("./*/*")) {
+            if(obj instanceof CTPicture) lst.add(new XSSFPicture(this, (CTPicture)obj)) ;
+            else if(obj instanceof CTConnector) lst.add(new XSSFConnector(this, (CTConnector)obj)) ;
+            else if(obj instanceof CTShape) lst.add(new XSSFSimpleShape(this, (CTShape)obj)) ;
+            else if(obj instanceof CTGraphicalObjectFrame) lst.add(new XSSFGraphicFrame(this, (CTGraphicalObjectFrame)obj)) ;
+            else if(obj instanceof CTGroupShape) lst.add(new XSSFShapeGroup(this, (CTGroupShape)obj)) ;
+        }
+        return lst;
     }
 }

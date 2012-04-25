@@ -19,6 +19,7 @@ package org.apache.poi.ss.usermodel;
 
 import junit.framework.TestCase;
 
+import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.ss.ITestDataProvider;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -306,4 +307,76 @@ public abstract class BaseTestBugzillaIssues extends TestCase {
         fmla.append(")");
         return fmla.toString();
     }
+
+    public final void testAutoSize_bug506819() {
+        Workbook wb = _testDataProvider.createWorkbook();
+        Sheet sheet = wb.createSheet("Sheet1");
+        Row row = sheet.createRow(0);
+        Cell cell0 = row.createCell(0);
+
+        String longValue = "www.hostname.com, www.hostname.com, " +
+                "www.hostname.com, www.hostname.com, www.hostname.com, " +
+                "www.hostname.com, www.hostname.com, www.hostname.com, " +
+                "www.hostname.com, www.hostname.com, www.hostname.com, " +
+                "www.hostname.com, www.hostname.com, www.hostname.com, " +
+                "www.hostname.com, www.hostname.com, www.hostname.com, www.hostname.com";
+
+        cell0.setCellValue(longValue);
+
+        sheet.autoSizeColumn(0);
+        assertEquals(255*256, sheet.getColumnWidth(0)); // maximum column width is 255 characters
+        sheet.setColumnWidth(0, sheet.getColumnWidth(0)); // Bug 506819 reports exception at this point
+    }
+
+    /**
+     * CreateFreezePane column/row order check
+     */
+    public void test49381() throws Exception {
+       Workbook wb = _testDataProvider.createWorkbook();
+       int colSplit = 1;
+       int rowSplit = 2;
+       int leftmostColumn = 3;
+       int topRow = 4;
+
+        Sheet s = wb.createSheet();
+
+        // Populate
+        for(int rn=0; rn<= topRow; rn++) {
+           Row r = s.createRow(rn);
+           for(int cn=0; cn<leftmostColumn; cn++) {
+              Cell c = r.createCell(cn, Cell.CELL_TYPE_NUMERIC);
+              c.setCellValue(100*rn + cn);
+           }
+        }
+
+        // Create the Freeze Pane
+        s.createFreezePane(colSplit, rowSplit, leftmostColumn, topRow);
+        PaneInformation paneInfo = s.getPaneInformation();
+
+        // Check it
+        assertEquals(colSplit,       paneInfo.getVerticalSplitPosition());
+        assertEquals(rowSplit,       paneInfo.getHorizontalSplitPosition());
+        assertEquals(leftmostColumn, paneInfo.getVerticalSplitLeftColumn());
+        assertEquals(topRow,         paneInfo.getHorizontalSplitTopRow());
+
+
+        // Now a row only freezepane
+        s.createFreezePane(0, 3);
+        paneInfo = s.getPaneInformation();
+
+        assertEquals(0,  paneInfo.getVerticalSplitPosition());
+        assertEquals(3,  paneInfo.getHorizontalSplitPosition());
+        assertEquals(0,  paneInfo.getVerticalSplitLeftColumn());
+        assertEquals(3,  paneInfo.getHorizontalSplitTopRow());
+
+        // Now a column only freezepane
+        s.createFreezePane(4, 0);
+        paneInfo = s.getPaneInformation();
+
+        assertEquals(4,  paneInfo.getVerticalSplitPosition());
+        assertEquals(0,  paneInfo.getHorizontalSplitPosition());
+        assertEquals(4 , paneInfo.getVerticalSplitLeftColumn());
+        assertEquals(0,  paneInfo.getHorizontalSplitTopRow());
+    }
+
 }

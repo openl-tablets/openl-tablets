@@ -17,16 +17,11 @@
 
 package org.apache.poi.openxml4j.opc;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.TreeMap;
-import java.util.Iterator;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
@@ -509,4 +504,42 @@ public final class TestPackage extends TestCase {
 		f.setAccessible(true);
 		return (ContentTypeManager)f.get(pkg);
 	}
+
+    public void testGetPartsByName() throws Exception {
+        String filepath =  OpenXML4JTestDataSamples.getSampleFileName("sample.docx");
+
+        OPCPackage pkg = OPCPackage.open(filepath, PackageAccess.READ_WRITE);
+        List<PackagePart> rs =  pkg.getPartsByName(Pattern.compile("/word/.*?\\.xml"));
+        HashMap<String, PackagePart>  selected = new HashMap<String, PackagePart>();
+
+        for(PackagePart p : rs)
+            selected.put(p.getPartName().getName(), p);
+
+        assertEquals(6, selected.size());
+        assertTrue(selected.containsKey("/word/document.xml"));
+        assertTrue(selected.containsKey("/word/fontTable.xml"));
+        assertTrue(selected.containsKey("/word/settings.xml"));
+        assertTrue(selected.containsKey("/word/styles.xml"));
+        assertTrue(selected.containsKey("/word/theme/theme1.xml"));
+        assertTrue(selected.containsKey("/word/webSettings.xml"));
+    }
+
+    public void testReplaceContentType() throws Exception {
+        InputStream is = OpenXML4JTestDataSamples.openSampleStream("sample.xlsx");
+        OPCPackage p = OPCPackage.open(is);
+
+        ContentTypeManager mgr = getContentTypeManager(p);
+
+        assertTrue(mgr.isContentTypeRegister("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"));
+        assertFalse(mgr.isContentTypeRegister("application/vnd.ms-excel.sheet.macroEnabled.main+xml"));
+
+        assertTrue(
+                p.replaceContentType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+                "application/vnd.ms-excel.sheet.macroEnabled.main+xml")
+        );
+
+        assertFalse(mgr.isContentTypeRegister("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"));
+        assertTrue(mgr.isContentTypeRegister("application/vnd.ms-excel.sheet.macroEnabled.main+xml"));
+    }
 }

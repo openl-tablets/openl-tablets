@@ -16,14 +16,14 @@
 ==================================================================== */
 package org.apache.poi.ss.examples.html;
 
+import java.util.Formatter;
+import java.util.Map;
+
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.util.Formatter;
-import java.util.Hashtable;
 
 /**
  * Implementation of {@link HtmlHelper} for XSSF files.
@@ -33,7 +33,7 @@ import java.util.Hashtable;
 public class XSSFHtmlHelper implements HtmlHelper {
     private final XSSFWorkbook wb;
 
-    private static final Hashtable colors = HSSFColor.getIndexHash();
+    private static final Map<Integer,HSSFColor> colors = HSSFColor.getIndexHash();
 
     public XSSFHtmlHelper(XSSFWorkbook wb) {
         this.wb = wb;
@@ -58,7 +58,11 @@ public class XSSFHtmlHelper implements HtmlHelper {
         // support it will ignore the rgba specification and stick with the
         // solid color, which is declared first
         out.format("  %s: #%02x%02x%02x;%n", attr, rgb[0], rgb[1], rgb[2]);
+        byte[] argb = color.getARgb();
+        if (argb == null) {
+            return;
+        }
         out.format("  %s: rgba(0x%02x, 0x%02x, 0x%02x, 0x%02x);%n", attr,
-                rgb[0], rgb[1], rgb[2], rgb[3]);
+                argb[3], argb[0], argb[1], argb[2]);
     }
 }

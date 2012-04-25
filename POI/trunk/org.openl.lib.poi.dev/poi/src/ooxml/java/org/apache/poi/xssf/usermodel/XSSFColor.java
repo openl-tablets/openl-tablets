@@ -16,9 +16,10 @@
 ==================================================================== */
 package org.apache.poi.xssf.usermodel;
 
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.util.Internal;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
 /**
  * Represents a color in SpreadsheetML
@@ -78,32 +79,116 @@ public class XSSFColor implements Color {
 	public void setIndexed(int indexed) {
 		ctColor.setIndexed(indexed);
 	}
-
-    /**
-     * Standard Alpha Red Green Blue ctColor value (ARGB).
-     */
-    public byte[] getRgb() {
-		return ctColor.getRgb();
-	}
-	
-    /**
-     * Standard Alpha Red Green Blue ctColor value (ARGB) with applied tint.
-     */
-	public byte[] getRgbWithTint() {
-		byte[] rgb =ctColor.getRgb();
-		for(int i = 0; i < rgb.length; i++){
-			rgb[i] = applyTint(rgb[i] & 0xFF, ctColor.getTint());
-		}
-		return rgb;
-	}
 	
 	/**
-	 * Return the ARGB value in hex format, eg FF00FF00.
-	 * For indexed colours, returns null.
+    * For RGB colours, but not ARGB (we think...)
+    * Excel gets black and white the wrong way around, so switch them 
 	 */
+	private byte[] correctRGB(byte[] rgb) {
+	   if(rgb.length == 4) {
+	      // Excel doesn't appear to get these wrong
+	      // Nothing to change
+	      return rgb;
+	   } else {
+         // Excel gets black and white the wrong way around, so switch them 
+         if (rgb[0] == 0 && rgb[1] == 0 && rgb[2] == 0) {
+            rgb = new byte[] {-1, -1, -1};
+         }
+         else if (rgb[0] == -1 && rgb[1] == -1 && rgb[2] == -1) {
+            rgb = new byte[] {0, 0, 0};
+         }
+         return rgb;
+	   }
+	}
+
+   /**
+    * Standard Red Green Blue ctColor value (RGB).
+    * If there was an A (Alpha) value, it will be stripped.
+    */
+   public byte[] getRgb() {
+      byte[] rgb = getRGBOrARGB();
+      if(rgb == null) return null;
+      
+      if(rgb.length == 4) {
+         // Need to trim off the alpha
+         byte[] tmp = new byte[3];
+         System.arraycopy(rgb, 1, tmp, 0, 3);
+         return tmp;
+      } else {
+         return rgb;
+      }
+   }
+
+   /**
+    * Standard Alpha Red Green Blue ctColor value (ARGB).
+    */
+   public byte[] getARgb() {
+      byte[] rgb = getRGBOrARGB();
+      if(rgb == null) return null;
+      
+      if(rgb.length == 3) {
+         // Pad with the default Alpha
+         byte[] tmp = new byte[4];
+         tmp[0] = -1;
+         System.arraycopy(rgb, 0, tmp, 1, 3);
+         return tmp;
+      } else {
+         return rgb;
+      }
+   }
+   
+   private byte[] getRGBOrARGB() {
+        byte[] rgb = null;
+
+        if (ctColor.isSetIndexed() && ctColor.getIndexed() > 0) {
+            HSSFColor indexed = HSSFColor.getIndexHash().get((int) ctColor.getIndexed());
+            if (indexed != null) {
+               rgb = new byte[3];
+               rgb[0] = (byte) indexed.getTriplet()[0];
+               rgb[1] = (byte) indexed.getTriplet()[1];
+               rgb[2] = (byte) indexed.getTriplet()[2];
+               return rgb;
+            }
+         }
+        
+         if (!ctColor.isSetRgb()) {
+            // No colour is available, sorry
+            return null;
+         }
+
+         // Grab the colour
+         rgb = ctColor.getRgb();
+
+         // Correct it as needed, and return
+         return correctRGB(rgb);
+    }
+
+    /**
+     * Standard Red Green Blue ctColor value (RGB) with applied tint.
+     * Alpha values are ignored.
+     */
+    public byte[] getRgbWithTint() {
+        byte[] rgb = ctColor.getRgb();
+        if (rgb != null) {
+            if(rgb.length == 4) {
+               byte[] tmp = new byte[3];
+               System.arraycopy(rgb, 1, tmp, 0, 3);
+               rgb = tmp;
+            }
+            for (int i = 0; i < rgb.length; i++){
+                rgb[i] = applyTint(rgb[i] & 0xFF, ctColor.getTint());
+            }
+        }
+        return rgb;
+    }
+	
+    /**
+     * Return the ARGB value in hex format, eg FF00FF00.
+     * Works for both regular and indexed colours. 
+     */
 	public String getARGBHex() {
 	   StringBuffer sb = new StringBuffer();
-	   byte[] rgb = getRgb();
+	   byte[] rgb = getARgb();
 	   if(rgb == null) {
 	      return null;
 	   }
@@ -135,9 +220,10 @@ public class XSSFColor implements Color {
      * Standard Alpha Red Green Blue ctColor value (ARGB).
      */
 	public void setRgb(byte[] rgb) {
-		ctColor.setRgb(rgb);
+	   // Correct it and save
+		ctColor.setRgb(correctRGB(rgb));
 	}
-
+	
     /**
      * Index into the <clrScheme> collection, referencing a particular <sysClr> or
      *  <srgbClr> value expressed in the Theme part.
@@ -253,7 +339,7 @@ public class XSSFColor implements Color {
     public CTColor getCTColor(){
         return ctColor;
     }
-
+    
     public int hashCode(){
         return ctColor.toString().hashCode();
     }

@@ -40,7 +40,7 @@ public final class TestXSSFChartSheet extends TestCase {
         XSSFChartSheet sheet = (XSSFChartSheet)wb.getSheetAt(2);
 
         for(Row row : sheet) {
-            fail("Row iterator for chart sheets should return zero rows");
+            fail("Row iterator for charts sheets should return zero rows");
         }
         //access to a arbitrary row
         assertEquals(null, sheet.getRow(1));
@@ -54,5 +54,18 @@ public final class TestXSSFChartSheet extends TestCase {
         assertEquals(null, sheet.getCellComment(0, 0));
         assertEquals(0, sheet.getColumnBreaks().length);
         assertEquals(true, sheet.getRowSumsBelow());
+    }
+    
+    public void testGetCharts() throws Exception {
+       XSSFWorkbook wb = XSSFTestDataSamples.openSampleWorkbook("chart_sheet.xlsx");
+       
+       XSSFSheet ns = wb.getSheetAt(0);
+       XSSFChartSheet cs = (XSSFChartSheet)wb.getSheetAt(2);
+       
+       assertEquals(0, ns.createDrawingPatriarch().getCharts().size());
+       assertEquals(1, cs.createDrawingPatriarch().getCharts().size());
+       
+       XSSFChart chart = cs.createDrawingPatriarch().getCharts().get(0);
+       assertEquals(null, chart.getTitle());
     }
 }

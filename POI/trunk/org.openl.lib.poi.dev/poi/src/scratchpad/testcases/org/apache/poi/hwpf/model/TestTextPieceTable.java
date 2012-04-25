@@ -38,7 +38,7 @@ public final class TestTextPieceTable extends TestCase {
     FileInformationBlock fib = _hWPFDocFixture._fib;
     byte[] mainStream = _hWPFDocFixture._mainStream;
     byte[] tableStream = _hWPFDocFixture._tableStream;
-    int fcMin = fib.getFcMin();
+    int fcMin = fib.getFibBase().getFcMin();
 
     ComplexFileTable cft = new ComplexFileTable(mainStream, tableStream, fib.getFcClx(), fcMin);
 
@@ -70,13 +70,13 @@ public final class TestTextPieceTable extends TestCase {
 
 		// All ascii, so stored in one big lump
 		assertEquals(1, tbl.getTextPieces().size());
-		TextPiece tp = (TextPiece)tbl.getTextPieces().get(0);
+		TextPiece tp = tbl.getTextPieces().get(0);
 
 		assertEquals(0, tp.getStart());
 		assertEquals(339, tp.getEnd());
 		assertEquals(339, tp.characterLength());
 		assertEquals(339, tp.bytesLength());
-		assertTrue(tp.getStringBuffer().toString().startsWith("This is a sample word document"));
+		assertTrue(tp.getStringBuilder().toString().startsWith("This is a sample word document"));
 
 
 		// Save and re-load
@@ -84,13 +84,13 @@ public final class TestTextPieceTable extends TestCase {
 		tbl = docB.getTextTable();
 
 		assertEquals(1, tbl.getTextPieces().size());
-		tp = (TextPiece)tbl.getTextPieces().get(0);
+		tp = tbl.getTextPieces().get(0);
 
 		assertEquals(0, tp.getStart());
 		assertEquals(339, tp.getEnd());
 		assertEquals(339, tp.characterLength());
 		assertEquals(339, tp.bytesLength());
-		assertTrue(tp.getStringBuffer().toString().startsWith("This is a sample word document"));
+		assertTrue(tp.getStringBuilder().toString().startsWith("This is a sample word document"));
 	}
 
 	/**
@@ -169,8 +169,9 @@ public final class TestTextPieceTable extends TestCase {
     throws Exception
   {
     super.setUp();
+    System.setProperty( "org.apache.poi.hwpf.preserveTextTable", Boolean.TRUE.toString() );
 
-    _hWPFDocFixture = new HWPFDocFixture(this);
+    _hWPFDocFixture = new HWPFDocFixture(this, HWPFDocFixture.DEFAULT_TEST_FILE);
     _hWPFDocFixture.setUp();
   }
 
@@ -178,8 +179,9 @@ public final class TestTextPieceTable extends TestCase {
     throws Exception
   {
     _hWPFDocFixture.tearDown();
-
     _hWPFDocFixture = null;
+
+    System.setProperty( "org.apache.poi.hwpf.preserveTextTable", Boolean.FALSE.toString() );
     super.tearDown();
   }
 

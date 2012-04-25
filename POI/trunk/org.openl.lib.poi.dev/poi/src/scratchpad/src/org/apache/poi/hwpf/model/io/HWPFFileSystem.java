@@ -19,10 +19,14 @@ package org.apache.poi.hwpf.model.io;
 
 
 import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.poi.util.Internal;
+
+@Internal
 public final class HWPFFileSystem
 {
-  HashMap _streams = new HashMap();
+  Map<String, HWPFOutputStream> _streams = new HashMap<String, HWPFOutputStream>();
 
   public HWPFFileSystem()
   {
@@ -33,7 +37,7 @@ public final class HWPFFileSystem
 
   public HWPFOutputStream getStream(String name)
   {
-    return (HWPFOutputStream)_streams.get(name);
+    return _streams.get(name);
   }
 
 }

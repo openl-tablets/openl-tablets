@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 
 /**
@@ -128,14 +129,20 @@ public interface Workbook {
 
     /**
      * Set the sheet name.
-     *
+     * <p>
+     * See {@link org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)}
+     *      for a safe way to create valid names
+     * </p>
      * @param sheet number (0 based)
-     * @throws IllegalArgumentException if the name is greater than 31 chars or contains <code>/\?*[]</code>
+     * @throws IllegalArgumentException if the name is null or invalid
+     *  or workbook already contains a sheet with this name
+     * @see #createSheet(String)
+     * @see org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)
      */
     void setSheetName(int sheet, String name);
 
     /**
-     * Set the sheet name
+     * Get the sheet name
      *
      * @param sheet sheet number (0 based)
      * @return Sheet name
@@ -167,12 +174,51 @@ public interface Workbook {
     Sheet createSheet();
 
     /**
-     * Create an Sheet for this Workbook, adds it to the sheets and returns
-     * the high level representation.  Use this to create new sheets.
+     * Create a new sheet for this Workbook and return the high level representation.
+     * Use this to create new sheets.
      *
+     * <p>
+     *     Note that Excel allows sheet names up to 31 chars in length but other applications
+     *     (such as OpenOffice) allow more. Some versions of Excel crash with names longer than 31 chars,
+     *     others - truncate such names to 31 character.
+     * </p>
+     * <p>
+     *     POI's SpreadsheetAPI silently truncates the input argument to 31 characters.
+     *     Example:
+     *
+     *     <pre><code>
+     *     Sheet sheet = workbook.createSheet("My very long sheet name which is longer than 31 chars"); // will be truncated
+     *     assert 31 == sheet.getSheetName().length();
+     *     assert "My very long sheet name which i" == sheet.getSheetName();
+     *     </code></pre>
+     * </p>
+     *
+     * Except the 31-character constraint, Excel applies some other rules:
+     * <p>
+     * Sheet name MUST be unique in the workbook and MUST NOT contain the any of the following characters:
+     * <ul>
+     * <li> 0x0000 </li>
+     * <li> 0x0003 </li>
+     * <li> colon (:) </li>
+     * <li> backslash (\) </li>
+     * <li> asterisk (*) </li>
+     * <li> question mark (?) </li>
+     * <li> forward slash (/) </li>
+     * <li> opening square bracket ([) </li>
+     * <li> closing square bracket (]) </li>
+     * </ul>
+     * The string MUST NOT begin or end with the single quote (') character.
+     * </p>
+     *
+     * <p>
+     * See {@link org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)}
+     *      for a safe way to create valid names
+     * </p>
      * @param sheetname  sheetname to set for the sheet.
      * @return Sheet representing the new sheet.
-     * @throws IllegalArgumentException if the name is greater than 31 chars or contains <code>/\?*[]</code>
+     * @throws IllegalArgumentException if the name is null or invalid
+     *  or workbook already contains a sheet with this name
+     * @see org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)
      */
     Sheet createSheet(String sheetname);
 
@@ -498,6 +544,39 @@ public interface Workbook {
     void setSheetHidden(int sheetIx, int hidden);
 
     /**
+     * Register a new toolpack in this workbook.
+     *
+     * @param toopack the toolpack to register
+     */
+    void addToolPack(UDFFinder toopack);
+
+    /**
+     * Whether the application shall perform a full recalculation when the workbook is opened.
+     * <p>
+     * Typically you want to force formula recalculation when you modify cell formulas or values
+     * of a workbook previously created by Excel. When set to true, this flag will tell Excel
+     * that it needs to recalculate all formulas in the workbook the next time the file is opened.
+     * </p>
+     * <p>
+     * Note, that recalculation updates cached formula results and, thus, modifies the workbook.
+     * Depending on the version, Excel may prompt you with "Do you want to save the changes in <em>filename</em>?"
+     * on close.
+     * </p>
+     *
+     * @param value true if the application will perform a full recalculation of
+     * workbook values when the workbook is opened
+     * @since 3.8
+     */
+    public void setForceFormulaRecalculation(boolean value);
+
+    /**
+     * Whether Excel will be asked to recalculate all formulas when the  workbook is opened.
+     *
+     * @since 3.8
+     */
+    boolean getForceFormulaRecalculation();
+    
+    /**
      * Gets a boolean value that indicates whether the date systems used in the workbook starts in 1904.
      * <p>
      * The default value is false, meaning that the workbook uses the 1900 date system,
@@ -506,4 +585,5 @@ public interface Workbook {
      * @return true if the date systems used in the workbook starts in 1904
      */
     boolean isDate1904();
+
 }

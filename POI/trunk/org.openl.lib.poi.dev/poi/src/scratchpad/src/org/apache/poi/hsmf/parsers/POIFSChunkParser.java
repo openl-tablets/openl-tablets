@@ -26,6 +26,7 @@ import org.apache.poi.hsmf.datatypes.Chunk;
 import org.apache.poi.hsmf.datatypes.ChunkGroup;
 import org.apache.poi.hsmf.datatypes.Chunks;
 import org.apache.poi.hsmf.datatypes.DirectoryChunk;
+import org.apache.poi.hsmf.datatypes.MAPIProperty;
 import org.apache.poi.hsmf.datatypes.MessageSubmissionChunk;
 import org.apache.poi.hsmf.datatypes.NameIdChunks;
 import org.apache.poi.hsmf.datatypes.RecipientChunks;
@@ -120,13 +121,24 @@ public final class POIFSChunkParser {
       
       // Split it into its parts
       int splitAt = entryName.lastIndexOf('_');
-      if(splitAt == -1 || splitAt > (entryName.length()-8)) {
+      String namePrefix = entryName.substring(0, splitAt+1);
+      String ids = entryName.substring(splitAt+1);
+      
+      // Make sure we got what we expected, should be of 
+      //  the form __<name>_<id><type>
+      if(namePrefix.equals("Olk10SideProps") ||
+         namePrefix.equals("Olk10SideProps_")) {
+         // This is some odd Outlook 2002 thing, skip
+         return;
+      } else if(splitAt <= entryName.length()-8) {
+         // In the right form for a normal chunk
+         // We'll process this further in a little bit
+      } else {
+         // Underscores not the right place, something's wrong
          throw new IllegalArgumentException("Invalid chunk name " + entryName);
       }
       
       // Now try to turn it into id + type
-      String namePrefix = entryName.substring(0, splitAt+1);
-      String ids = entryName.substring(splitAt+1);
       try {
          int chunkId = Integer.parseInt(ids.substring(0, 4), 16);
          int type    = Integer.parseInt(ids.substring(4, 8), 16);
@@ -134,11 +146,10 @@ public final class POIFSChunkParser {
          Chunk chunk = null;
          
          // Special cases based on the ID
-         switch(chunkId) {
-         case Chunks.SUBMISSION_ID_DATE:
+         if(chunkId == MAPIProperty.MESSAGE_SUBMISSION_ID.id) {
             chunk = new MessageSubmissionChunk(namePrefix, chunkId, type);
-            break;
-         default:
+         } 
+         else {
             // Nothing special about this ID
             // So, do the usual thing which is by type
             switch(type) {

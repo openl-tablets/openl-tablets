@@ -20,6 +20,8 @@ package org.apache.poi.hwpf.extractor;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.poi.hwpf.converter.WordToTextConverter;
+
 import org.apache.poi.POIOLE2TextExtractor;
 import org.apache.poi.hwpf.HWPFOldDocument;
 import org.apache.poi.hwpf.usermodel.Range;
@@ -47,16 +49,32 @@ public final class Word6Extractor extends POIOLE2TextExtractor {
 		this( new POIFSFileSystem(is) );
 	}
 
-	/**
-	 * Create a new Word Extractor
-	 * @param fs POIFSFileSystem containing the word file
-	 */
-	public Word6Extractor(POIFSFileSystem fs) throws IOException {
-		this(fs.getRoot(), fs);
-	}
-	public Word6Extractor(DirectoryNode dir, POIFSFileSystem fs) throws IOException {
-	    this(new HWPFOldDocument(dir,fs));
-	}
+    /**
+     * Create a new Word Extractor
+     * 
+     * @param fs
+     *            POIFSFileSystem containing the word file
+     */
+    public Word6Extractor( POIFSFileSystem fs ) throws IOException
+    {
+        this( fs.getRoot() );
+    }
+
+    /**
+     * @deprecated Use {@link #Word6Extractor(DirectoryNode)} instead
+     */
+    @Deprecated
+    @SuppressWarnings( "unused" )
+    public Word6Extractor( DirectoryNode dir, POIFSFileSystem fs )
+            throws IOException
+    {
+        this( dir );
+    }
+
+    public Word6Extractor( DirectoryNode dir ) throws IOException
+    {
+        this( new HWPFOldDocument( dir ) );
+    }
 
 	/**
 	 * Create a new Word Extractor
@@ -71,6 +89,7 @@ public final class Word6Extractor extends POIOLE2TextExtractor {
      * Get the text from the word file, as an array with one String
      *  per paragraph
      */
+	@Deprecated
 	public String[] getParagraphText() {
 	    String[] ret;
 
@@ -84,7 +103,7 @@ public final class Word6Extractor extends POIOLE2TextExtractor {
             // Fall back to ripping out the text pieces
 	        ret = new String[doc.getTextTable().getTextPieces().size()];
 	        for(int i=0; i<ret.length; i++) {
-	            ret[i] = doc.getTextTable().getTextPieces().get(i).getStringBuffer().toString();
+	            ret[i] = doc.getTextTable().getTextPieces().get(i).getStringBuilder().toString();
 	            
 	            // Fix the line endings
 	            ret[i].replaceAll("\r", "\ufffe");
@@ -95,13 +114,25 @@ public final class Word6Extractor extends POIOLE2TextExtractor {
 	    return ret;
 	}
 
-    public String getText() {
-        StringBuffer text = new StringBuffer();
-        
-        for(String t : getParagraphText()) {
-            text.append(t);
+    public String getText()
+    {
+        try
+        {
+            WordToTextConverter wordToTextConverter = new WordToTextConverter();
+            wordToTextConverter.processDocument( doc );
+            return wordToTextConverter.getText();
         }
+        catch ( Exception exc )
+        {
+            // fall-back
+            StringBuffer text = new StringBuffer();
 
-        return text.toString();
+            for ( String t : getParagraphText() )
+            {
+                text.append( t );
+            }
+
+            return text.toString();
+        }
     }
 }

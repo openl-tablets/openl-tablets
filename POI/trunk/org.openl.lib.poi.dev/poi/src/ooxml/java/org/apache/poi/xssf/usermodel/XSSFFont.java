@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.FontScheme;
 import org.apache.poi.ss.usermodel.FontUnderline;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.model.ThemesTable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBooleanProperty;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTFont;
@@ -59,6 +60,7 @@ public class XSSFFont implements Font {
      */
     public static final short DEFAULT_FONT_COLOR = IndexedColors.BLACK.getIndex();
 
+    private ThemesTable _themes;
     private CTFont _ctFont;
     private short _index;
 
@@ -147,7 +149,15 @@ public class XSSFFont implements Font {
      */
     public XSSFColor getXSSFColor() {
         CTColor ctColor = _ctFont.sizeOfColorArray() == 0 ? null : _ctFont.getColorArray(0);
-        return ctColor == null ? null : new XSSFColor(ctColor);
+        if(ctColor != null) {
+           XSSFColor color = new XSSFColor(ctColor);
+           if(_themes != null) {
+              _themes.inheritFromThemeAsRequired(color);
+           }
+           return color;
+        } else {
+           return null;
+        }
     }
 
 
@@ -306,19 +316,11 @@ public class XSSFFont implements Font {
      * @see FontCharset
      */
     public void setCharSet(int charset) {
-        CTIntProperty charsetProperty = _ctFont.sizeOfCharsetArray() == 0 ? _ctFont.addNewCharset() : _ctFont.getCharsetArray(0);
-        switch (charset) {
-            case Font.ANSI_CHARSET:
-                charsetProperty.setVal(FontCharset.ANSI.getValue());
-                break;
-            case Font.SYMBOL_CHARSET:
-                charsetProperty.setVal(FontCharset.SYMBOL.getValue());
-                break;
-            case Font.DEFAULT_CHARSET:
-                charsetProperty.setVal(FontCharset.DEFAULT.getValue());
-                break;
-            default:
-                throw new POIXMLException("Attention: an attempt to set a type of unknow charset and charset");
+        FontCharset fontCharset = FontCharset.valueOf(charset);
+        if(fontCharset != null) {
+           setCharSet(fontCharset);
+        } else {
+           throw new POIXMLException("Attention: an attempt to set a type of unknow charset and charset");
         }
     }
 
@@ -328,7 +330,15 @@ public class XSSFFont implements Font {
      * @param charSet
      */
     public void setCharSet(FontCharset charSet) {
-        setCharSet((byte)charSet.getValue());
+       CTIntProperty charsetProperty;
+       if(_ctFont.sizeOfCharsetArray() == 0) {
+          charsetProperty = _ctFont.addNewCharset();
+       } else {
+          charsetProperty = _ctFont.getCharsetArray(0);
+       }
+       // We know that FontCharset only has valid entries in it,
+       //  so we can just set the int value from it
+       charsetProperty.setVal( charSet.getValue() );
     }
 
     /**
@@ -520,9 +530,18 @@ public class XSSFFont implements Font {
      *  to the style table
      */
     public long registerTo(StylesTable styles) {
+        this._themes = styles.getTheme();
         short idx = (short)styles.putFont(this, true);
         this._index = idx;
         return idx;
+    }
+    /**
+     * Records the Themes Table that is associated with
+     *  the current font, used when looking up theme
+     *  based colours and properties.
+     */
+    public void setThemesTable(ThemesTable themes) {
+       this._themes = themes;
     }
 
     /**
@@ -589,7 +608,6 @@ public class XSSFFont implements Font {
      * @return unique index number of the underlying record this Font represents (probably you don't care
      *  unless you're comparing which one is which)
      */
-
     public short getIndex()
     {
         return _index;

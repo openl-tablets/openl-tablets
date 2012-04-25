@@ -18,6 +18,7 @@
 package org.apache.poi.openxml4j.opc;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,12 +31,16 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JRuntimeException;
+import org.apache.poi.openxml4j.exceptions.PartAlreadyExistsException;
 import org.apache.poi.openxml4j.opc.internal.ContentType;
 import org.apache.poi.openxml4j.opc.internal.ContentTypeManager;
 import org.apache.poi.openxml4j.opc.internal.PackagePropertiesPart;
@@ -56,7 +61,7 @@ import org.apache.poi.util.POILogFactory;
  * @author Julien Chable, CDubet
  * @version 0.1
  */
-public abstract class OPCPackage implements RelationshipSource {
+public abstract class OPCPackage implements RelationshipSource, Closeable {
 
 	/**
 	 * Logger.
@@ -159,7 +164,10 @@ public abstract class OPCPackage implements RelationshipSource {
 		} catch (InvalidFormatException e) {
 			// Should never happen
 			throw new OpenXML4JRuntimeException(
-					"Package.init() : this exception should never happen, if you read this message please send a mail to the developers team.");
+					"Package.init() : this exception should never happen, " +
+					"if you read this message please send a mail to the developers team. : " +
+					e.getMessage()
+			);
 		}
 	}
 
@@ -549,6 +557,22 @@ public abstract class OPCPackage implements RelationshipSource {
 		return retArr;
 	}
 
+	public List<PackagePart> getPartsByName(final Pattern namePattern) {
+	    if (namePattern == null) {
+	        throw new IllegalArgumentException("name pattern must not be null");
+	    }
+	    ArrayList<PackagePart> result = new ArrayList<PackagePart>();
+	    for (PackagePart part : partList.values()) {
+	        PackagePartName partName = part.getPartName();
+	        String name = partName.getName();
+	        Matcher matcher = namePattern.matcher(name);
+	        if (matcher.matches()) {
+	            result.add(part);
+	        }
+	    }
+	    return result;
+	}
+
 	/**
 	 * Get the target part from the specified relationship.
 	 *
@@ -573,8 +597,13 @@ public abstract class OPCPackage implements RelationshipSource {
 	}
 
 	/**
-	 * Load the parts of the archive if it has not been done yet The
-	 * relationships of each part are not loaded
+	 * Load the parts of the archive if it has not been done yet. The
+	 * relationships of each part are not loaded.
+	 * 
+	 * Note - Rule M4.1 states that there may only ever be one Core
+	 *  Properties Part, but Office produced files will sometimes
+	 *  have multiple! As Office ignores all but the first, we relax
+	 *  Compliance with Rule M4.1, and ignore all others silently too. 
 	 *
 	 * @return All this package's parts.
 	 */
@@ -585,31 +614,36 @@ public abstract class OPCPackage implements RelationshipSource {
 		if (partList == null) {
 			/* Variables use to validate OPC Compliance */
 
-			// Ensure rule M4.1 -> A format consumer shall consider more than
+			// Check rule M4.1 -> A format consumer shall consider more than
 			// one core properties relationship for a package to be an error
+		   // (We just log it and move on, as real files break this!)
 			boolean hasCorePropertiesPart = false;
+			boolean needCorePropertiesPart = true;
 
 			PackagePart[] parts = this.getPartsImpl();
 			this.partList = new PackagePartCollection();
 			for (PackagePart part : parts) {
 				if (partList.containsKey(part._partName))
 					throw new InvalidFormatException(
-							"A part with the name '"
-									+ part._partName
-									+ "' already exist : Packages shall not contain equivalent part names and package implementers shall neither create nor recognize packages with equivalent part names. [M1.12]");
+							"A part with the name '" +
+							part._partName +
+						        "' already exist : Packages shall not contain equivalent " +
+						        "part names and package implementers shall neither create " +
+					        	"nor recognize packages with equivalent part names. [M1.12]");
 
 				// Check OPC compliance rule M4.1
 				if (part.getContentType().equals(
 						ContentTypes.CORE_PROPERTIES_PART)) {
-					if (!hasCorePropertiesPart)
+					if (!hasCorePropertiesPart) {
 						hasCorePropertiesPart = true;
-					else
-						throw new InvalidFormatException(
-								"OPC Compliance error [M4.1]: there is more than one core properties relationship in the package !");
+					} else {
+					   logger.log(POILogger.WARN, "OPC Compliance error [M4.1]: " +
+					   		"there is more than one core properties relationship in the package! " +
+					   		"POI will use only the first, but other software may reject this file.");
+					}
 				}
 
-				PartUnmarshaller partUnmarshaller = partUnmarshallers
-						.get(part._contentType);
+				PartUnmarshaller partUnmarshaller = partUnmarshallers.get(part._contentType);
 
 				if (partUnmarshaller != null) {
 					UnmarshallContext context = new UnmarshallContext(this,
@@ -619,9 +653,14 @@ public abstract class OPCPackage implements RelationshipSource {
 								.unmarshall(context, part.getInputStream());
 						partList.put(unmarshallPart._partName, unmarshallPart);
 
-						// Core properties case
-						if (unmarshallPart instanceof PackagePropertiesPart)
+						// Core properties case-- use first CoreProperties part we come across
+						// and ignore any subsequent ones
+						if (unmarshallPart instanceof PackagePropertiesPart &&
+								hasCorePropertiesPart &&
+								needCorePropertiesPart) {
 							this.packageProperties = (PackagePropertiesPart) unmarshallPart;
+							needCorePropertiesPart = false;
+						}
 					} catch (IOException ioe) {
 						logger.log(POILogger.WARN, "Unmarshall operation : IOException for "
 								+ part._partName);
@@ -693,20 +732,21 @@ public abstract class OPCPackage implements RelationshipSource {
 		// Check if the specified part name already exists
 		if (partList.containsKey(partName)
 				&& !partList.get(partName).isDeleted()) {
-			throw new InvalidOperationException(
-					"A part with the name '"
-							+ partName.getName()
-							+ "' already exists : Packages shall not contain equivalent part names and package implementers shall neither create nor recognize packages with equivalent part names. [M1.12]");
+			throw new PartAlreadyExistsException(
+					"A part with the name '" + partName.getName() + "'" +
+					" already exists : Packages shall not contain equivalent part names and package" +
+					" implementers shall neither create nor recognize packages with equivalent part names. [M1.12]");
 		}
 
 		/* Check OPC compliance */
 
-		// Rule [M4.1]: The format designer shall specify and the format
-		// producer
+		// Rule [M4.1]: The format designer shall specify and the format producer
 		// shall create at most one core properties relationship for a package.
 		// A format consumer shall consider more than one core properties
 		// relationship for a package to be an error. If present, the
 		// relationship shall target the Core Properties part.
+		// Note - POI will read files with more than one Core Properties, which
+		//  Office sometimes produces, but is strict on generation
 		if (contentType.equals(ContentTypes.CORE_PROPERTIES_PART)) {
 			if (this.packageProperties != null)
 				throw new InvalidOperationException(
@@ -1399,4 +1439,50 @@ public abstract class OPCPackage implements RelationshipSource {
 	 */
 	protected abstract PackagePart[] getPartsImpl()
 			throws InvalidFormatException;
+
+    /**
+     * Replace a content type in this package.
+     *
+     * <p>
+     *     A typical scneario to call this method is to rename a template file to the main format, e.g.
+     *     ".dotx" to ".docx"
+     *     ".dotm" to ".docm"
+     *     ".xltx" to ".xlsx"
+     *     ".xltm" to ".xlsm"
+     *     ".potx" to ".pptx"
+     *     ".potm" to ".pptm"
+     * </p>
+     * For example, a code converting  a .xlsm macro workbook to .xlsx would look as follows:
+     * <p>
+     *    <pre><code>
+     *
+     *     OPCPackage pkg = OPCPackage.open(new FileInputStream("macro-workbook.xlsm"));
+     *     pkg.replaceContentType(
+     *         "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
+     *         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml");
+     *
+     *     FileOutputStream out = new FileOutputStream("workbook.xlsx");
+     *     pkg.save(out);
+     *     out.close();
+     *
+     *    </code></pre>
+     * </p>
+     *
+     * @param oldContentType  the content type to be replaced
+     * @param newContentType  the replacement
+     * @return whether replacement was succesfull
+     * @since POI-3.8
+     */
+    public boolean replaceContentType(String oldContentType, String newContentType){
+        boolean success = false;
+        ArrayList<PackagePart> list = getPartsByContentType(oldContentType);
+        for (PackagePart packagePart : list) {
+            if (packagePart.getContentType().equals(oldContentType)) {
+                PackagePartName partName = packagePart.getPartName();
+                contentTypeManager.addContentType(partName, newContentType);
+                success = true;
+            }
+        }
+        return success;
+    }
 }

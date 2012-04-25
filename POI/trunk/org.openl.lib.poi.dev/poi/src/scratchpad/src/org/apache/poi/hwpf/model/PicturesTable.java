@@ -17,19 +17,22 @@
 
 package org.apache.poi.hwpf.model;
 
-import org.apache.poi.util.LittleEndian;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.usermodel.CharacterRun;
-import org.apache.poi.hwpf.usermodel.Picture;
-import org.apache.poi.hwpf.usermodel.Range;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.poi.ddf.DefaultEscherRecordFactory;
 import org.apache.poi.ddf.EscherBSERecord;
 import org.apache.poi.ddf.EscherBlipRecord;
 import org.apache.poi.ddf.EscherRecord;
 import org.apache.poi.ddf.EscherRecordFactory;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.usermodel.CharacterRun;
+import org.apache.poi.hwpf.usermodel.Picture;
+import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.util.Internal;
+import org.apache.poi.util.LittleEndian;
+import org.apache.poi.util.POILogFactory;
+import org.apache.poi.util.POILogger;
 
 /**
  * Holds information about all pictures embedded in Word Document either via "Insert -> Picture -> From File" or via
@@ -48,8 +51,12 @@ import org.apache.poi.ddf.EscherRecordFactory;
  *
  * @author Dmitry Romanov
  */
+@Internal
 public final class PicturesTable
 {
+    private static final POILogger logger = POILogFactory
+            .getLogger( PicturesTable.class );
+    
   static final int TYPE_IMAGE = 0x08;
   static final int TYPE_IMAGE_WORD2000 = 0x00;
   static final int TYPE_IMAGE_PASTED_FROM_CLIPBOARD = 0xA;
@@ -61,7 +68,9 @@ public final class PicturesTable
   private HWPFDocument _document;
   private byte[] _dataStream;
   private byte[] _mainStream;
+  @Deprecated
   private FSPATable _fspa;
+  @Deprecated
   private EscherRecordHolder _dgg;
 
   /** @link dependency
@@ -73,6 +82,7 @@ public final class PicturesTable
    * @param _document
    * @param _dataStream
    */
+  @Deprecated
   public PicturesTable(HWPFDocument _document, byte[] _dataStream, byte[] _mainStream, FSPATable fspa, EscherRecordHolder dgg)
   {
     this._document = _document;
@@ -82,11 +92,23 @@ public final class PicturesTable
     this._dgg = dgg;
   }
 
+    public PicturesTable( HWPFDocument _document, byte[] _dataStream,
+            byte[] _mainStream )
+    {
+        this._document = _document;
+        this._dataStream = _dataStream;
+        this._mainStream = _mainStream;
+    }
+
   /**
    * determines whether specified CharacterRun contains reference to a picture
    * @param run
    */
   public boolean hasPicture(CharacterRun run) {
+    if (run==null) {
+        return false;
+    }
+
     if (run.isSpecialCharacter() && !run.isObj() && !run.isOle2() && !run.isData()) {
        // Image should be in it's own run, or in a run with the end-of-special marker
        if("\u0001".equals(run.text()) || "\u0001\u0015".equals(run.text())) {
@@ -156,20 +178,34 @@ public final class PicturesTable
               EscherBlipRecord blip = bse.getBlipRecord();
               if (blip != null)
               {
-                  pictures.add(new Picture(blip.getPicturedata()));
+                  pictures.add(new Picture(blip));
               }
-              else if (bse.getOffset() > 0)
-              {
-                  // Blip stored in delay stream, which in a word doc, is the main stream
-                  EscherRecordFactory recordFactory = new DefaultEscherRecordFactory();
-                  EscherRecord record = recordFactory.createRecord(_mainStream, bse.getOffset());
+                else if ( bse.getOffset() > 0 )
+                {
+                    try
+                    {
+                        // Blip stored in delay stream, which in a word doc, is
+                        // the main stream
+                        EscherRecordFactory recordFactory = new DefaultEscherRecordFactory();
+                        EscherRecord record = recordFactory.createRecord(
+                                _mainStream, bse.getOffset() );
 
-                  if (record instanceof EscherBlipRecord) {
-                      record.fillFields(_mainStream, bse.getOffset(), recordFactory);
-                      blip = (EscherBlipRecord) record;
-                      pictures.add(new Picture(blip.getPicturedata()));
-                  }
-              }
+                        if ( record instanceof EscherBlipRecord )
+                        {
+                            record.fillFields( _mainStream, bse.getOffset(),
+                                    recordFactory );
+                            blip = (EscherBlipRecord) record;
+                            pictures.add( new Picture( blip ) );
+                        }
+                    }
+                    catch ( Exception exc )
+                    {
+                        logger.log(
+                                POILogger.WARN,
+                                "Unable to load picture from BLIB record at offset #",
+                                Integer.valueOf( bse.getOffset() ), exc );
+                    }
+                }
           }
 
           // Recursive call.

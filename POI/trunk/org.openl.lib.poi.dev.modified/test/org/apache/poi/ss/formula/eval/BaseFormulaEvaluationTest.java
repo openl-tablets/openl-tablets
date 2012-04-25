@@ -24,12 +24,12 @@ import java.text.MessageFormat;
 
 import junit.framework.AssertionFailedError;
 
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
-import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
-import org.apache.poi.hssf.record.formula.udf.AggregatingUDFFinder;
-import org.apache.poi.hssf.record.formula.udf.DefaultUDFFinder;
-import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.ss.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.functions.FunctionWithArraySupport;
+import org.apache.poi.ss.formula.udf.AggregatingUDFFinder;
+import org.apache.poi.ss.formula.udf.DefaultUDFFinder;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.formula.OperationEvaluationContext;

@@ -17,6 +17,7 @@
 
 package org.apache.poi.xwpf.usermodel;
 
+import java.io.IOException;
 import java.math.BigInteger;
 
 import junit.framework.TestCase;
@@ -25,7 +26,7 @@ import org.apache.poi.xwpf.XWPFTestDataSamples;
 
 public class TestXWPFNumbering extends TestCase {
 	
-	public void testCompareAbstractNum(){
+	public void testCompareAbstractNum() throws IOException{
 		XWPFDocument doc = XWPFTestDataSamples.openSampleDocument("Numbering.docx");
 		XWPFNumbering numbering = doc.getNumbering();
 		BigInteger numId = BigInteger.valueOf(1);
@@ -35,6 +36,24 @@ public class TestXWPFNumbering extends TestCase {
 		XWPFAbstractNum abstractNum = numbering.getAbstractNum(abstrNumId);
 		BigInteger compareAbstractNum = numbering.getIdOfAbstractNum(abstractNum);
 		assertEquals(abstrNumId, compareAbstractNum);
+	}
+
+	public void testAddNumberingToDoc() throws IOException{
+		BigInteger abstractNumId = BigInteger.valueOf(1);
+		BigInteger numId = BigInteger.valueOf(1);
+
+		XWPFDocument docOut = new XWPFDocument();
+		XWPFNumbering numbering = docOut.createNumbering();
+		numId = numbering.addNum(abstractNumId);
+		
+		XWPFDocument docIn = XWPFTestDataSamples.writeOutAndReadBack(docOut);
+
+		numbering = docIn.getNumbering();
+		assertTrue(numbering.numExist(numId));
+		XWPFNum num = numbering.getNum(numId);
+
+		BigInteger compareAbstractNum = num.getCTNum().getAbstractNumId().getVal();
+		assertEquals(abstractNumId, compareAbstractNum);
 	}
 
 }

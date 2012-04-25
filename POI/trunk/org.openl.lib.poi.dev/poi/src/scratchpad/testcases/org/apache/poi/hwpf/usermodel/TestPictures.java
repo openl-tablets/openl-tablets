@@ -25,7 +25,6 @@ import org.apache.poi.POIDataSamples;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.HWPFTestDataSamples;
 import org.apache.poi.hwpf.model.PicturesTable;
-import org.apache.poi.util.LittleEndian;
 
 /**
  * Test the picture handling
@@ -106,36 +105,6 @@ public final class TestPictures extends TestCase {
 		for(int i=0; i<emf.length; i++) {
 			assertEquals(emf[i], pemf[i]);
 		}
-	}
-
-	/**
-	 * emf image, with a crazy offset
-	 */
-	public void disabled_testEmfComplexImage() {
-
-		// Commenting out this test case temporarily. The file emf_2003_image does not contain any
-		// pictures. Instead it has an office drawing object. Need to rewrite this test after
-		// revisiting the implementation of office drawing objects.
-
-		HWPFDocument doc = HWPFTestDataSamples.openSampleFile("emf_2003_image.doc");
-		List<Picture> pics = doc.getPicturesTable().getAllPictures();
-
-		assertNotNull(pics);
-		assertEquals(1, pics.size());
-
-		Picture pic = pics.get(0);
-		assertNotNull(pic.suggestFileExtension());
-		assertNotNull(pic.suggestFullFileName());
-
-		// This one's tricky
-		// TODO: Fix once we've sorted bug #41898
-		assertNotNull(pic.getContent());
-		assertNotNull(pic.getRawContent());
-
-		// These are probably some sort of offset, need to figure them out
-		assertEquals(4, pic.getSize());
-		assertEquals(0x80000000l, LittleEndian.getUInt(pic.getContent()));
-		assertEquals(0x80000000l, LittleEndian.getUInt(pic.getRawContent()));
 	}
 
 	public void testPicturesWithTable() {
@@ -240,28 +209,45 @@ public final class TestPictures extends TestCase {
        // Look at the pictures table
        List<Picture> pictures = pictureTable.getAllPictures();
        assertEquals(4, pictures.size());
-       
-       Picture picture = pictures.get(0);
-       assertEquals("", picture.suggestFileExtension());
-       assertEquals("0", picture.suggestFullFileName());
-       assertEquals("image/unknown", picture.getMimeType());
-       
-       picture = pictures.get(1);
-       assertEquals("", picture.suggestFileExtension());
-       assertEquals("469", picture.suggestFullFileName());
-       assertEquals("image/unknown", picture.getMimeType());
-       
-       picture = pictures.get(2);
-       assertEquals("", picture.suggestFileExtension());
-       assertEquals("8c7", picture.suggestFullFileName());
-       assertEquals("image/unknown", picture.getMimeType());
-       
-       picture = pictures.get(3);
-       assertEquals("", picture.suggestFileExtension());
-       assertEquals("10a8", picture.suggestFullFileName());
-       assertEquals("image/unknown", picture.getMimeType());
+
+        Picture picture = pictures.get( 0 );
+        assertEquals( "emf", picture.suggestFileExtension() );
+        assertEquals( "0.emf", picture.suggestFullFileName() );
+        assertEquals( "image/x-emf", picture.getMimeType() );
+
+        picture = pictures.get( 1 );
+        assertEquals( "emf", picture.suggestFileExtension() );
+        assertEquals( "469.emf", picture.suggestFullFileName() );
+        assertEquals( "image/x-emf", picture.getMimeType() );
+
+        picture = pictures.get( 2 );
+        assertEquals( "emf", picture.suggestFileExtension() );
+        assertEquals( "8c7.emf", picture.suggestFullFileName() );
+        assertEquals( "image/x-emf", picture.getMimeType() );
+
+        picture = pictures.get( 3 );
+        assertEquals( "emf", picture.suggestFileExtension() );
+        assertEquals( "10a8.emf", picture.suggestFullFileName() );
+        assertEquals( "image/x-emf", picture.getMimeType() );
     }
-    
+
+    public void testEquation()
+    {
+        HWPFDocument doc = HWPFTestDataSamples.openSampleFile( "equation.doc" );
+        PicturesTable pictures = doc.getPicturesTable();
+
+        final List<Picture> allPictures = pictures.getAllPictures();
+        assertEquals( 1, allPictures.size() );
+
+        Picture picture = allPictures.get( 0 );
+        assertNotNull( picture );
+        assertEquals( PictureType.EMF, picture.suggestPictureType() );
+        assertEquals( PictureType.EMF.getExtension(),
+                picture.suggestFileExtension() );
+        assertEquals( PictureType.EMF.getMime(), picture.getMimeType() );
+        assertEquals( "0.emf", picture.suggestFullFileName() );
+    }
+
     /**
      * In word you can have floating or fixed pictures.
      * Fixed have a \u0001 in place with an offset to the
@@ -301,5 +287,50 @@ public final class TestPictures extends TestCase {
        assertEquals(16, image1s);
        assertEquals(4,  escher8s);
        assertEquals(0, plain8s);
+    }
+
+    @SuppressWarnings( "deprecation" )
+    public void testCroppedPictures() {
+        HWPFDocument doc = HWPFTestDataSamples.openSampleFile("testCroppedPictures.doc");
+        List<Picture> pics = doc.getPicturesTable().getAllPictures();
+
+        assertNotNull(pics);
+        assertEquals(2, pics.size());
+
+        Picture pic1 = pics.get(0);
+        assertEquals(27, pic1.getAspectRatioX());
+        assertEquals(270, pic1.getHorizontalScalingFactor());
+        assertEquals(27, pic1.getAspectRatioY());
+        assertEquals(271, pic1.getVerticalScalingFactor());
+        assertEquals(12000, pic1.getDxaGoal());       // 21.17 cm / 2.54 cm/inch * 72dpi * 20 = 12000
+        assertEquals(9000, pic1.getDyaGoal());        // 15.88 cm / 2.54 cm/inch * 72dpi * 20 = 9000
+        assertEquals(0, pic1.getDxaCropLeft());
+        assertEquals(0, pic1.getDxaCropRight());
+        assertEquals(0, pic1.getDyaCropTop());
+        assertEquals(0, pic1.getDyaCropBottom());
+
+        Picture pic2 = pics.get(1);
+        System.out.println(pic2.getWidth());
+        assertEquals(76, pic2.getAspectRatioX());
+        assertEquals(764, pic2.getHorizontalScalingFactor());
+        assertEquals(68, pic2.getAspectRatioY());
+        assertEquals(685, pic2.getVerticalScalingFactor());
+        assertEquals(12000, pic2.getDxaGoal());       // 21.17 cm / 2.54 cm/inch * 72dpi * 20 = 12000
+        assertEquals(9000, pic2.getDyaGoal());        // 15.88 cm / 2.54 cm/inch * 72dpi * 20 = 9000
+        assertEquals(0, pic2.getDxaCropLeft());       // TODO YK: The Picture is cropped but HWPF reads the crop parameters all zeros
+        assertEquals(0, pic2.getDxaCropRight());
+        assertEquals(0, pic2.getDyaCropTop());
+        assertEquals(0, pic2.getDyaCropBottom());
+    }
+
+    public void testPictureDetectionWithPNG() throws Exception {
+        HWPFDocument document = HWPFTestDataSamples.openSampleFile("PngPicture.doc");
+        PicturesTable pictureTable = document.getPicturesTable();
+        
+        assertEquals(1, pictureTable.getAllPictures().size());
+        
+        Picture p = pictureTable.getAllPictures().get(0);
+        assertEquals(PictureType.PNG, p.suggestPictureType());
+        assertEquals("png", p.suggestFileExtension());
     }
 }

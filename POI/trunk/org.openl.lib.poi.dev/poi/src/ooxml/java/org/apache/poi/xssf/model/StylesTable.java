@@ -98,6 +98,15 @@ public class StylesTable extends POIXMLDocumentPart {
 
     public void setTheme(ThemesTable theme) {
         this.theme = theme;
+        
+        // Pass the themes table along to things which need to 
+        //  know about it, but have already been created by now
+        for(XSSFFont font : fonts) {
+           font.setThemesTable(theme);
+        }
+        for(XSSFCellBorder border : borders) {
+           border.setThemesTable(theme);
+        }
     }
 
 	/**
@@ -125,6 +134,7 @@ public class StylesTable extends POIXMLDocumentPart {
             if(ctfonts != null){
 				int idx = 0;
 				for (CTFont font : ctfonts.getFontArray()) {
+				   // Create the font and save it. Themes Table supplied later
 					XSSFFont f = new XSSFFont(font, idx);
 					fonts.add(f);
 					idx++;
@@ -247,6 +257,7 @@ public class StylesTable extends POIXMLDocumentPart {
 			return idx;
 		}
 		borders.add(border);
+		border.setThemesTable(theme);
 		return borders.size() - 1;
 	}
 
@@ -286,6 +297,9 @@ public class StylesTable extends POIXMLDocumentPart {
 		xfs.add(cellXf);
 		return xfs.size();
 	}
+   public void replaceCellXfAt(int idx, CTXf cellXf) {
+      xfs.set(idx, cellXf);
+   }
 
 	public CTXf getCellStyleXfAt(int idx) {
 		return styleXfs.get(idx);
@@ -294,6 +308,10 @@ public class StylesTable extends POIXMLDocumentPart {
 		styleXfs.add(cellStyleXf);
 		return styleXfs.size();
 	}
+	public void replaceCellStyleXfAt(int idx, CTXf cellStyleXf) {
+	   styleXfs.set(idx, cellStyleXf);
+	}
+	
 	/**
 	 * get the size of cell styles
 	 */
@@ -328,6 +346,9 @@ public class StylesTable extends POIXMLDocumentPart {
 	public CTStylesheet getCTStylesheet() {
 		return doc.getStyleSheet();
 	}
+    public int _getDXfsSize() {
+        return dxfs.size();
+    }
 
 
 	/**
@@ -479,14 +500,11 @@ public class StylesTable extends POIXMLDocumentPart {
 		return xssfFont;
 	}
 
-	protected CTDxf getDxf(int idx) {
-		if (dxfs.size()==0) {
-			return CTDxf.Factory.newInstance();
-		}
+	public CTDxf getDxfAt(int idx) {
 		return dxfs.get(idx);
 	}
 
-	protected int putDxf(CTDxf dxf) {
+	public int putDxf(CTDxf dxf) {
 		this.dxfs.add(dxf);
 		return this.dxfs.size();
 	}

@@ -17,11 +17,16 @@
 
 package org.apache.poi.xslf.usermodel;
 
+import org.apache.poi.POIXMLException;
+import org.apache.poi.util.Beta;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.values.XmlAnyTypeImpl;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTGraphicalObjectData;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTable;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextBody;
+import org.openxmlformats.schemas.presentationml.x2006.main.CTApplicationNonVisualDrawingProps;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTCommonSlideData;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTGraphicalObjectFrame;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTGroupShape;
@@ -31,17 +36,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Beta
 public class XSLFCommonSlideData {
     private final CTCommonSlideData data;
 
     public XSLFCommonSlideData(CTCommonSlideData data) {
         this.data = data;
     }
-
-    public List<DrawingParagraph> getText() {
+    
+    public List<DrawingTextBody> getDrawingText() {
         CTGroupShape gs = data.getSpTree();
 
-        List<DrawingParagraph> out = new ArrayList<DrawingParagraph>();
+        List<DrawingTextBody> out = new ArrayList<DrawingTextBody>();
 
         processShape(gs, out);
 
@@ -52,10 +58,19 @@ public class XSLFCommonSlideData {
         for (CTGraphicalObjectFrame frame: gs.getGraphicFrameList()) {
             CTGraphicalObjectData data = frame.getGraphic().getGraphicData();
             XmlCursor c = data.newCursor();
-            c.selectPath("./*");
+            c.selectPath("declare namespace pic='"+CTTable.type.getName().getNamespaceURI()+"' .//pic:tbl");
 
             while (c.toNextSelection()) {
                 XmlObject o = c.getObject();
+
+                if (o instanceof XmlAnyTypeImpl) {
+                    // Pesky XmlBeans bug - see Bugzilla #49934
+                    try {
+                        o = CTTable.Factory.parse(o.toString());
+                    } catch (XmlException e) {
+                        throw new POIXMLException(e);
+                    }
+                }
 
                 if (o instanceof CTTable) {
                     DrawingTable table = new DrawingTable((CTTable) o);
@@ -63,29 +78,42 @@ public class XSLFCommonSlideData {
                     for (DrawingTableRow row : table.getRows()) {
                         for (DrawingTableCell cell : row.getCells()) {
                             DrawingTextBody textBody = cell.getTextBody();
-
-                            out.addAll(Arrays.asList(textBody.getParagraphs()));
+                            out.add(textBody);
                         }
                     }
                 }
             }
+
+            c.dispose();
         }
 
         return out;
     }
+    public List<DrawingParagraph> getText() {
+       List<DrawingParagraph> paragraphs = new ArrayList<DrawingParagraph>();
+       for(DrawingTextBody textBody : getDrawingText()) {
+          paragraphs.addAll(Arrays.asList(textBody.getParagraphs()));
+       }
+       return paragraphs;
+    }
 
-    private void processShape(CTGroupShape gs, List<DrawingParagraph> out) {
+    private void processShape(CTGroupShape gs, List<DrawingTextBody> out) {
         List<CTShape> shapes = gs.getSpList();
-        for (int i = 0; i < shapes.size(); i++) {
-            CTTextBody ctTextBody = shapes.get(i).getTxBody();
+        for (CTShape shape : shapes) {
+            CTTextBody ctTextBody = shape.getTxBody();
             if (ctTextBody==null) {
                 continue;
             }
+            
+            DrawingTextBody textBody;
+            CTApplicationNonVisualDrawingProps nvpr = shape.getNvSpPr().getNvPr(); 
+            if(nvpr.isSetPh()) {
+               textBody = new DrawingTextPlaceholder(ctTextBody, nvpr.getPh());
+            } else {
+               textBody = new DrawingTextBody(ctTextBody);
+            }
 
-            DrawingTextBody textBody = new DrawingTextBody(ctTextBody);
-
-            out.addAll(Arrays.asList(textBody.getParagraphs()));
+            out.add(textBody);
         }
     }
-
 }

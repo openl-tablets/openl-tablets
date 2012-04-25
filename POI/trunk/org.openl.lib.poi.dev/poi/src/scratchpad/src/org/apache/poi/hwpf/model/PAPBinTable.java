@@ -17,15 +17,25 @@
 
 package org.apache.poi.hwpf.model;
 
-import java.util.ArrayList;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.IdentityHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.poi.hwpf.model.io.*;
+import org.apache.poi.hwpf.model.io.HWPFFileSystem;
+import org.apache.poi.hwpf.model.io.HWPFOutputStream;
 import org.apache.poi.hwpf.sprm.SprmBuffer;
-
+import org.apache.poi.hwpf.sprm.SprmIterator;
+import org.apache.poi.hwpf.sprm.SprmOperation;
 import org.apache.poi.poifs.common.POIFSConstants;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
+import org.apache.poi.util.POILogFactory;
+import org.apache.poi.util.POILogger;
 
 /**
  * This class represents the bin table of Word document but it also serves as a
@@ -34,50 +44,274 @@ import org.apache.poi.util.LittleEndian;
  *
  * @author Ryan Ackley
  */
+@Internal
 public class PAPBinTable
 {
-  protected ArrayList<PAPX> _paragraphs = new ArrayList<PAPX>();
-  byte[] _dataStream;
+    private static final POILogger logger = POILogFactory
+            .getLogger( PAPBinTable.class );
 
-  /** So we can know if things are unicode or not */
-  private TextPieceTable tpt;
+  protected ArrayList<PAPX> _paragraphs = new ArrayList<PAPX>();
 
   public PAPBinTable()
   {
   }
 
-  public PAPBinTable(byte[] documentStream, byte[] tableStream, byte[] dataStream, int offset,
-                     int size, int fcMin, TextPieceTable tpt)
-  {
-    PlexOfCps binTable = new PlexOfCps(tableStream, offset, size, 4);
-    this.tpt = tpt;
-
-    int length = binTable.length();
-    for (int x = 0; x < length; x++)
+    /**
+     * @deprecated Use
+     *             {@link #PAPBinTable(byte[], byte[], byte[], int, int, CharIndexTranslator)}
+     *             instead
+     */
+    @SuppressWarnings( "unused" )
+    public PAPBinTable( byte[] documentStream, byte[] tableStream,
+            byte[] dataStream, int offset, int size, int fcMin,
+            TextPieceTable tpt )
     {
-      GenericPropertyNode node = binTable.getProperty(x);
-
-      int pageNum = LittleEndian.getInt(node.getBytes());
-      int pageOffset = POIFSConstants.SMALLER_BIG_BLOCK_SIZE * pageNum;
-
-      PAPFormattedDiskPage pfkp = new PAPFormattedDiskPage(documentStream,
-        dataStream, pageOffset, fcMin, tpt);
-
-      int fkpSize = pfkp.size();
-
-      for (int y = 0; y < fkpSize; y++)
-      {
-    	PAPX papx = pfkp.getPAPX(y);
-        _paragraphs.add(papx);
-      }
+        this( documentStream, tableStream, dataStream, offset, size, tpt );
     }
-    _dataStream = dataStream;
-  }
+
+    public PAPBinTable( byte[] documentStream, byte[] tableStream,
+            byte[] dataStream, int offset, int size,
+            CharIndexTranslator charIndexTranslator )
+    {
+        long start = System.currentTimeMillis();
+
+        {
+            PlexOfCps binTable = new PlexOfCps( tableStream, offset, size, 4 );
+
+            int length = binTable.length();
+            for ( int x = 0; x < length; x++ )
+            {
+                GenericPropertyNode node = binTable.getProperty( x );
+
+                int pageNum = LittleEndian.getInt( node.getBytes() );
+                int pageOffset = POIFSConstants.SMALLER_BIG_BLOCK_SIZE
+                        * pageNum;
+
+                PAPFormattedDiskPage pfkp = new PAPFormattedDiskPage(
+                        documentStream, dataStream, pageOffset,
+                        charIndexTranslator );
+
+                for ( PAPX papx : pfkp.getPAPXs() )
+                {
+                    if ( papx != null )
+                        _paragraphs.add( papx );
+                }
+            }
+        }
+
+        logger.log( POILogger.DEBUG, "PAPX tables loaded in ",
+                Long.valueOf( System.currentTimeMillis() - start ), " ms (",
+                Integer.valueOf( _paragraphs.size() ), " elements)" );
+
+        if ( _paragraphs.isEmpty() )
+        {
+            logger.log( POILogger.WARN, "PAPX FKPs are empty" );
+            _paragraphs.add( new PAPX( 0, 0, new SprmBuffer( 2 ) ) );
+        }
+    }
+
+    public void rebuild( final StringBuilder docText,
+            ComplexFileTable complexFileTable )
+    {
+        rebuild( docText, complexFileTable, _paragraphs );
+    }
+
+    static void rebuild( final StringBuilder docText,
+            ComplexFileTable complexFileTable, List<PAPX> paragraphs )
+    {
+        long start = System.currentTimeMillis();
+
+        if ( complexFileTable != null )
+        {
+            SprmBuffer[] sprmBuffers = complexFileTable.getGrpprls();
+
+            // adding PAPX from fast-saved SPRMs
+            for ( TextPiece textPiece : complexFileTable.getTextPieceTable()
+                    .getTextPieces() )
+            {
+                PropertyModifier prm = textPiece.getPieceDescriptor().getPrm();
+                if ( !prm.isComplex() )
+                    continue;
+                int igrpprl = prm.getIgrpprl();
+
+                if ( igrpprl < 0 || igrpprl >= sprmBuffers.length )
+                {
+                    logger.log( POILogger.WARN, textPiece
+                            + "'s PRM references to unknown grpprl" );
+                    continue;
+                }
+
+                boolean hasPap = false;
+                SprmBuffer sprmBuffer = sprmBuffers[igrpprl];
+                for ( SprmIterator iterator = sprmBuffer.iterator(); iterator
+                        .hasNext(); )
+                {
+                    SprmOperation sprmOperation = iterator.next();
+                    if ( sprmOperation.getType() == SprmOperation.TYPE_PAP )
+                    {
+                        hasPap = true;
+                        break;
+                    }
+                }
+
+                if ( hasPap )
+                {
+                    SprmBuffer newSprmBuffer = new SprmBuffer( 2 );
+                    newSprmBuffer.append( sprmBuffer.toByteArray() );
+
+                    PAPX papx = new PAPX( textPiece.getStart(),
+                            textPiece.getEnd(), newSprmBuffer );
+                    paragraphs.add( papx );
+                }
+            }
+
+            logger.log( POILogger.DEBUG,
+                    "Merged (?) with PAPX from complex file table in ",
+                    Long.valueOf( System.currentTimeMillis() - start ),
+                    " ms (", Integer.valueOf( paragraphs.size() ),
+                    " elements in total)" );
+            start = System.currentTimeMillis();
+        }
+
+        List<PAPX> oldPapxSortedByEndPos = new ArrayList<PAPX>( paragraphs );
+        Collections.sort( oldPapxSortedByEndPos,
+                PropertyNode.EndComparator.instance );
+
+        logger.log( POILogger.DEBUG, "PAPX sorted by end position in ",
+                Long.valueOf( System.currentTimeMillis() - start ), " ms" );
+        start = System.currentTimeMillis();
+
+        final Map<PAPX, Integer> papxToFileOrder = new IdentityHashMap<PAPX, Integer>();
+        {
+            int counter = 0;
+            for ( PAPX papx : paragraphs )
+            {
+                papxToFileOrder.put( papx, Integer.valueOf( counter++ ) );
+            }
+        }
+        final Comparator<PAPX> papxFileOrderComparator = new Comparator<PAPX>()
+        {
+            public int compare( PAPX o1, PAPX o2 )
+            {
+                Integer i1 = papxToFileOrder.get( o1 );
+                Integer i2 = papxToFileOrder.get( o2 );
+                return i1.compareTo( i2 );
+            }
+        };
+
+        logger.log( POILogger.DEBUG, "PAPX's order map created in ",
+                Long.valueOf( System.currentTimeMillis() - start ), " ms" );
+        start = System.currentTimeMillis();
+
+        List<PAPX> newPapxs = new LinkedList<PAPX>();
+        int lastParStart = 0;
+        int lastPapxIndex = 0;
+        for ( int charIndex = 0; charIndex < docText.length(); charIndex++ )
+        {
+            final char c = docText.charAt( charIndex );
+            if ( c != 13 && c != 7 && c != 12 )
+                continue;
+
+            final int startInclusive = lastParStart;
+            final int endExclusive = charIndex + 1;
+
+            boolean broken = false;
+            List<PAPX> papxs = new LinkedList<PAPX>();
+            for ( int papxIndex = lastPapxIndex; papxIndex < oldPapxSortedByEndPos
+                    .size(); papxIndex++ )
+            {
+                broken = false;
+                PAPX papx = oldPapxSortedByEndPos.get( papxIndex );
+
+                assert startInclusive == 0
+                        || papxIndex + 1 == oldPapxSortedByEndPos.size()
+                        || papx.getEnd() > startInclusive;
+
+                if ( papx.getEnd() - 1 > charIndex )
+                {
+                    lastPapxIndex = papxIndex;
+                    broken = true;
+                    break;
+                }
+
+                papxs.add( papx );
+            }
+            if ( !broken )
+            {
+                lastPapxIndex = oldPapxSortedByEndPos.size() - 1;
+            }
+
+            if ( papxs.size() == 0 )
+            {
+                logger.log( POILogger.WARN, "Paragraph [",
+                        Integer.valueOf( startInclusive ), "; ",
+                        Integer.valueOf( endExclusive ),
+                        ") has no PAPX. Creating new one." );
+                // create it manually
+                PAPX papx = new PAPX( startInclusive, endExclusive,
+                        new SprmBuffer( 2 ) );
+                newPapxs.add( papx );
+
+                lastParStart = endExclusive;
+                continue;
+            }
+
+            if ( papxs.size() == 1 )
+            {
+                // can we reuse existing?
+                PAPX existing = papxs.get( 0 );
+                if ( existing.getStart() == startInclusive
+                        && existing.getEnd() == endExclusive )
+                {
+                    newPapxs.add( existing );
+                    lastParStart = endExclusive;
+                    continue;
+                }
+            }
+
+            // restore file order of PAPX
+            Collections.sort( papxs, papxFileOrderComparator );
+
+            SprmBuffer sprmBuffer = null;
+            for ( PAPX papx : papxs )
+            {
+                if ( papx.getGrpprl() == null || papx.getGrpprl().length == 0 )
+                    continue;
+
+                if ( sprmBuffer == null )
+                    try
+                    {
+                        sprmBuffer = (SprmBuffer) papx.getSprmBuf().clone();
+                    }
+                    catch ( CloneNotSupportedException e )
+                    {
+                        // can't happen
+                        throw new Error( e );
+                    }
+                else
+                {
+                    sprmBuffer.append( papx.getGrpprl(), 2 );
+                }
+            }
+            PAPX newPapx = new PAPX( startInclusive, endExclusive, sprmBuffer );
+            newPapxs.add( newPapx );
+
+            lastParStart = endExclusive;
+            continue;
+        }
+        paragraphs.clear();
+        paragraphs.addAll( newPapxs );
+
+        logger.log( POILogger.DEBUG, "PAPX rebuilded from document text in ",
+                Long.valueOf( System.currentTimeMillis() - start ), " ms (",
+                Integer.valueOf( paragraphs.size() ), " elements)" );
+        start = System.currentTimeMillis();
+    }
 
   public void insert(int listIndex, int cpStart, SprmBuffer buf)
   {
 
-    PAPX forInsert = new PAPX(0, 0, tpt, buf, _dataStream);
+    PAPX forInsert = new PAPX(0, 0, buf);
 
     // Ensure character offsets are really characters
     forInsert.setStart(cpStart);
@@ -107,7 +341,7 @@ public class PAPBinTable
     	//  Original, until insert at point
     	//  New one
     	//  Clone of original, on to the old end
-        PAPX clone = new PAPX(0, 0, tpt, clonedBuf, _dataStream);
+        PAPX clone = new PAPX(0, 0, clonedBuf);
         // Again ensure contains character based offsets no matter what
         clone.setStart(cpStart);
         clone.setEnd(currentPap.getEnd());
@@ -167,12 +401,12 @@ public class PAPBinTable
   public void adjustForInsert(int listIndex, int length)
   {
     int size = _paragraphs.size();
-    PAPX papx = (PAPX)_paragraphs.get(listIndex);
+    PAPX papx = _paragraphs.get(listIndex);
     papx.setEnd(papx.getEnd() + length);
 
     for (int x = listIndex + 1; x < size; x++)
     {
-      papx = (PAPX)_paragraphs.get(x);
+      papx = _paragraphs.get(x);
       papx.setStart(papx.getStart() + length);
       papx.setEnd(papx.getEnd() + length);
     }
@@ -184,50 +418,62 @@ public class PAPBinTable
     return _paragraphs;
   }
 
-  public void writeTo(HWPFFileSystem sys, int fcMin)
-    throws IOException
-  {
+    @Deprecated
+    public void writeTo( HWPFFileSystem sys, CharIndexTranslator translator )
+            throws IOException
+    {
+        HWPFOutputStream wordDocumentStream = sys.getStream( "WordDocument" );
+        HWPFOutputStream tableStream = sys.getStream( "1Table" );
 
-    HWPFOutputStream docStream = sys.getStream("WordDocument");
-    OutputStream tableStream = sys.getStream("1Table");
+        writeTo( wordDocumentStream, tableStream, translator );
+    }
+
+    public void writeTo( HWPFOutputStream wordDocumentStream,
+            HWPFOutputStream tableStream, CharIndexTranslator translator )
+            throws IOException
+    {
 
     PlexOfCps binTable = new PlexOfCps(4);
 
     // each FKP must start on a 512 byte page.
-    int docOffset = docStream.getOffset();
+    int docOffset = wordDocumentStream.getOffset();
     int mod = docOffset % POIFSConstants.SMALLER_BIG_BLOCK_SIZE;
     if (mod != 0)
     {
       byte[] padding = new byte[POIFSConstants.SMALLER_BIG_BLOCK_SIZE - mod];
-      docStream.write(padding);
+      wordDocumentStream.write(padding);
     }
 
     // get the page number for the first fkp
-    docOffset = docStream.getOffset();
+    docOffset = wordDocumentStream.getOffset();
     int pageNum = docOffset/POIFSConstants.SMALLER_BIG_BLOCK_SIZE;
 
-    // get the ending fc
-    int endingFc = ((PropertyNode)_paragraphs.get(_paragraphs.size() - 1)).getEnd();
-    endingFc += fcMin;
-
+        // get the ending fc
+        // int endingFc = _paragraphs.get(_paragraphs.size() - 1).getEnd();
+        // endingFc += fcMin;
+        int endingFc = translator.getByteIndex( _paragraphs.get(
+                _paragraphs.size() - 1 ).getEnd() );
 
     ArrayList<PAPX> overflow = _paragraphs;
     do
     {
-      PropertyNode startingProp = (PropertyNode)overflow.get(0);
-      int start = startingProp.getStart() + fcMin;
+      PAPX startingProp = overflow.get(0);
 
-      PAPFormattedDiskPage pfkp = new PAPFormattedDiskPage(_dataStream);
+            // int start = startingProp.getStart() + fcMin;
+            int start = translator.getByteIndex( startingProp.getStart() );
+
+      PAPFormattedDiskPage pfkp = new PAPFormattedDiskPage();
       pfkp.fill(overflow);
 
-      byte[] bufFkp = pfkp.toByteArray(fcMin);
-      docStream.write(bufFkp);
+      byte[] bufFkp = pfkp.toByteArray(tableStream, translator);
+      wordDocumentStream.write(bufFkp);
       overflow = pfkp.getOverflow();
 
       int end = endingFc;
       if (overflow != null)
       {
-        end = ((PropertyNode)overflow.get(0)).getStart() + fcMin;
+                // end = overflow.get(0).getStart() + fcMin;
+                end = translator.getByteIndex( overflow.get( 0 ).getStart() );
       }
 
       byte[] intHolder = new byte[4];
@@ -238,7 +484,4 @@ public class PAPBinTable
     while (overflow != null);
     tableStream.write(binTable.toByteArray());
   }
-
-
 }
-

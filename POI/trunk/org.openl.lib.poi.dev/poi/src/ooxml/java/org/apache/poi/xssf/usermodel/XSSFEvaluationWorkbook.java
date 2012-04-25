@@ -17,9 +17,10 @@
 
 package org.apache.poi.xssf.usermodel;
 
-import org.apache.poi.hssf.record.formula.NamePtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.ptg.NamePtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
@@ -29,7 +30,8 @@ import org.apache.poi.ss.formula.FormulaParser;
 import org.apache.poi.ss.formula.FormulaParsingWorkbook;
 import org.apache.poi.ss.formula.FormulaRenderingWorkbook;
 import org.apache.poi.ss.formula.FormulaType;
-import org.apache.poi.ss.formula.EvaluationWorkbook.ExternalName;
+import org.apache.poi.ss.formula.udf.UDFFinder;
+import org.apache.poi.xssf.model.IndexedUDFFinder;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedName;
 
 /**
@@ -101,9 +103,17 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	}
 
 	public NameXPtg getNameXPtg(String name) {
-		// may require to return null to make tests pass
-		throw new RuntimeException("Not implemented yet");
+        IndexedUDFFinder udfFinder = (IndexedUDFFinder)getUDFFinder();
+        FreeRefFunction func = udfFinder.findFunction(name);
+		if(func == null) return null;
+        else return new NameXPtg(0, udfFinder.getFunctionIndex(name));
 	}
+
+    public String resolveNameXText(NameXPtg n) {
+        int idx = n.getNameIndex();
+        IndexedUDFFinder udfFinder = (IndexedUDFFinder)getUDFFinder();
+        return udfFinder.getFunctionName(idx);
+    }
 
 	public EvaluationSheet getSheet(int sheetIndex) {
 		return new XSSFEvaluationSheet(_uBook.getSheetAt(sheetIndex));
@@ -118,14 +128,6 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	}
 	public int getSheetIndex(String sheetName) {
 		return _uBook.getSheetIndex(sheetName);
-	}
-
-	/**
-	 * TODO - figure out what the hell this methods does in
-	 *  HSSF...
-	 */
-	public String resolveNameXText(NameXPtg n) {
-		throw new RuntimeException("method not implemented yet");
 	}
 
 	public String getSheetNameByExternSheet(int externSheetIndex) {
@@ -145,6 +147,10 @@ public final class XSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 		XSSFEvaluationWorkbook frBook = XSSFEvaluationWorkbook.create(_uBook);
 		return FormulaParser.parse(cell.getCellFormula(), frBook, FormulaType.CELL, _uBook.getSheetIndex(cell.getSheet()));
 	}
+
+    public UDFFinder getUDFFinder(){
+        return _uBook.getUDFFinder();
+    }
 
 	private static final class Name implements EvaluationName {
 

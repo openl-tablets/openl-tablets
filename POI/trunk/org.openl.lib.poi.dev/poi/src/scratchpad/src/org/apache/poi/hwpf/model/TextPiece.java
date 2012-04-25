@@ -19,6 +19,9 @@ package org.apache.poi.hwpf.model;
 
 
 import java.io.UnsupportedEncodingException;
+
+import org.apache.poi.util.Internal;
+
 /**
  * Lightweight representation of a text piece.
  * Works in the character domain, not the byte domain, so you
@@ -27,25 +30,45 @@ import java.io.UnsupportedEncodingException;
  *
  * @author Ryan Ackley
  */
-
-public final class TextPiece extends PropertyNode implements Comparable
+@Internal
+public class TextPiece extends PropertyNode<TextPiece>
 {
   private boolean _usesUnicode;
 
   private PieceDescriptor _pd;
 
-  /**
-   * @param start Beginning offset in main document stream, in characters.
-   * @param end Ending offset in main document stream, in characters.
-   * @param text The raw bytes of our text
-   */
-  public TextPiece(int start, int end, byte[] text, PieceDescriptor pd, int cpStart) {
+    /**
+     * @param start
+     *            Beginning offset in main document stream, in characters.
+     * @param end
+     *            Ending offset in main document stream, in characters.
+     * @param text
+     *            The raw bytes of our text
+     * @deprecated Use {@link #TextPiece(int,int,byte[],PieceDescriptor)}
+     *             instead
+     */
+    public TextPiece( int start, int end, byte[] text, PieceDescriptor pd,
+            int cpStart )
+    {
+        this( start, end, text, pd );
+    }
+
+    /**
+     * @param start
+     *            Beginning offset in main document stream, in characters.
+     * @param end
+     *            Ending offset in main document stream, in characters.
+     * @param text
+     *            The raw bytes of our text
+     */
+    public TextPiece( int start, int end, byte[] text, PieceDescriptor pd )
+    {
 	  super(start, end, buildInitSB(text, pd));
 	  _usesUnicode = pd.isUnicode();
 	  _pd = pd;
 
 	  // Validate
-	  int textLength = ((StringBuffer)_buf).length();
+	  int textLength = ((CharSequence)_buf).length();
 	  if(end-start != textLength) {
 		  throw new IllegalStateException("Told we're for characters " + start + " -> " + end + ", but actually covers " + textLength + " characters!");
 	  }
@@ -55,9 +78,9 @@ public final class TextPiece extends PropertyNode implements Comparable
   }
 
   /**
-   * Create the StringBuffer from the text and unicode flag
+   * Create the StringBuilder from the text and unicode flag
    */
-  private static StringBuffer buildInitSB(byte[] text, PieceDescriptor pd) {
+  private static StringBuilder buildInitSB(byte[] text, PieceDescriptor pd) {
 	  String str;
 	  try {
 		  if(pd.isUnicode()) {
@@ -68,7 +91,7 @@ public final class TextPiece extends PropertyNode implements Comparable
 	  } catch(UnsupportedEncodingException e) {
 		  throw new RuntimeException("Your Java is broken! It doesn't know about basic, required character encodings!");
 	  }
-	  return new StringBuffer(str);
+	  return new StringBuilder(str);
   }
 
   /**
@@ -84,15 +107,21 @@ public final class TextPiece extends PropertyNode implements Comparable
      return _pd;
    }
 
+   @Deprecated
    public StringBuffer getStringBuffer()
    {
-     return (StringBuffer)_buf;
+     return new StringBuffer(getStringBuilder());
+   }
+
+   public StringBuilder getStringBuilder()
+   {
+     return (StringBuilder)_buf;
    }
 
    public byte[] getRawBytes()
    {
      try {
-       return ((StringBuffer)_buf).toString().getBytes(_usesUnicode ?
+       return ((CharSequence)_buf).toString().getBytes(_usesUnicode ?
            "UTF-16LE" : "Cp1252");
      } catch (UnsupportedEncodingException ignore) {
 		  throw new RuntimeException("Your Java is broken! It doesn't know about basic, required character encodings!");
@@ -105,9 +134,10 @@ public final class TextPiece extends PropertyNode implements Comparable
     * @param start Local start position, in characters
     * @param end Local end position, in characters
     */
+   @Deprecated
    public String substring(int start, int end)
    {
-	   StringBuffer buf = (StringBuffer)_buf;
+       StringBuilder buf = (StringBuilder)_buf;
 
 	   // Validate
 	   if(start < 0) {
@@ -128,6 +158,7 @@ public final class TextPiece extends PropertyNode implements Comparable
     * @param start The start position for the delete, in characters
     * @param length The number of characters to delete
     */
+   @Deprecated
    public void adjustForDelete(int start, int length) {
 	   int numChars = length;
 
@@ -141,7 +172,10 @@ public final class TextPiece extends PropertyNode implements Comparable
 		   /* find where the deleted area overlaps with this text piece */
 		   int overlapStart = Math.max(myStart, start);
 		   int overlapEnd = Math.min(myEnd, end);
-		   ((StringBuffer)_buf).delete(overlapStart, overlapEnd);
+
+		   int bufStart = overlapStart - myStart;
+		   int bufEnd = overlapEnd - myStart;
+		   ((StringBuilder)_buf).delete(bufStart, bufEnd);
 	   }
 
 	   // We need to invoke this even if text from this piece is not being
@@ -155,6 +189,7 @@ public final class TextPiece extends PropertyNode implements Comparable
    /**
     * Returns the length, in characters
     */
+   @Deprecated
    public int characterLength()
    {
      return (getEnd() - getStart());
@@ -171,7 +206,7 @@ public final class TextPiece extends PropertyNode implements Comparable
      if (limitsAreEqual(o))
      {
        TextPiece tp = (TextPiece)o;
-       return getStringBuffer().toString().equals(tp.getStringBuffer().toString()) &&
+       return getStringBuilder().toString().equals(tp.getStringBuilder().toString()) &&
               tp._usesUnicode == _usesUnicode && _pd.equals(tp._pd);
      }
      return false;
@@ -185,4 +220,10 @@ public final class TextPiece extends PropertyNode implements Comparable
    {
      return getStart();
    }
+
+    public String toString()
+    {
+        return "TextPiece from " + getStart() + " to " + getEnd() + " ("
+                + getPieceDescriptor() + ")";
+    }
 }

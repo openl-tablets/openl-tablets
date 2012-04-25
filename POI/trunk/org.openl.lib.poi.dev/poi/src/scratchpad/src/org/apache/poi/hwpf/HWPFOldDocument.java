@@ -38,13 +38,20 @@ import org.apache.poi.util.LittleEndian;
 public class HWPFOldDocument extends HWPFDocumentCore {
     private TextPieceTable tpt;
     
+    private StringBuilder _text;
+    
     public HWPFOldDocument(POIFSFileSystem fs) throws IOException {
-        this(fs.getRoot(), fs);
+        this(fs.getRoot());
     }
 
+    @Deprecated
     public HWPFOldDocument(DirectoryNode directory, POIFSFileSystem fs)
             throws IOException {
-        super(directory, fs);
+       this(directory);
+    }
+    public HWPFOldDocument(DirectoryNode directory)
+            throws IOException {
+        super(directory);
         
         // Where are things?
         int sedTableOffset = LittleEndian.getInt(_mainStream, 0x88);
@@ -59,16 +66,17 @@ public class HWPFOldDocument extends HWPFDocumentCore {
         
         // We need to get hold of the text that makes up the
         //  document, which might be regular or fast-saved
+        ComplexFileTable cft = null;
         StringBuffer text = new StringBuffer();
-        if(_fib.isFComplex()) {
-            ComplexFileTable cft = new ComplexFileTable(
+        if(_fib.getFibBase().isFComplex()) {
+            cft = new ComplexFileTable(
                     _mainStream, _mainStream,
-                    complexTableOffset, _fib.getFcMin()
+                    complexTableOffset, _fib.getFibBase().getFcMin()
             );
             tpt = cft.getTextPieceTable();
             
             for(TextPiece tp : tpt.getTextPieces()) {
-                text.append( tp.getStringBuffer() );
+                text.append( tp.getStringBuilder() );
             }
         } else {
             // TODO Discover if these older documents can ever hold Unicode Strings?
@@ -76,46 +84,79 @@ public class HWPFOldDocument extends HWPFDocumentCore {
             // TODO Build the Piece Descriptor properly
             //  (We have to fake it, as they don't seem to have a proper Piece table)
             PieceDescriptor pd = new PieceDescriptor(new byte[] {0,0, 0,0,0,127, 0,0}, 0);
-            pd.setFilePosition(_fib.getFcMin());
+            pd.setFilePosition(_fib.getFibBase().getFcMin());
 
             // Generate a single Text Piece Table, with a single Text Piece
             //  which covers all the (8 bit only) text in the file
             tpt = new TextPieceTable();
-            byte[] textData = new byte[_fib.getFcMac()-_fib.getFcMin()];
-            System.arraycopy(_mainStream, _fib.getFcMin(), textData, 0, textData.length);
+            byte[] textData = new byte[_fib.getFibBase().getFcMac()-_fib.getFibBase().getFcMin()];
+            System.arraycopy(_mainStream, _fib.getFibBase().getFcMin(), textData, 0, textData.length);
             TextPiece tp = new TextPiece(
-                    0, textData.length, textData, pd, 0
+                    0, textData.length, textData, pd
             );
             tpt.add(tp);
             
-            text.append(tp.getStringBuffer());
+            text.append(tp.getStringBuilder());
         }
         
+        _text = tpt.getText();
+
         // Now we can fetch the character and paragraph properties
         _cbt = new OldCHPBinTable(
                 _mainStream, chpTableOffset, chpTableSize,
-                _fib.getFcMin(), tpt
+                _fib.getFibBase().getFcMin(), tpt
         );
         _pbt = new OldPAPBinTable(
                 _mainStream, papTableOffset, papTableSize,
-                _fib.getFcMin(), tpt
+                _fib.getFibBase().getFcMin(), tpt
         );
         _st = new OldSectionTable(
                 _mainStream, sedTableOffset, sedTableSize,
-                _fib.getFcMin(), tpt
+                _fib.getFibBase().getFcMin(), tpt
         );
+
+        /*
+         * in this mode we preserving PAPX/CHPX structure from file, so text may
+         * miss from output, and text order may be corrupted
+         */
+        boolean preserveBinTables = false;
+        try
+        {
+            preserveBinTables = Boolean.parseBoolean( System
+                    .getProperty( HWPFDocument.PROPERTY_PRESERVE_BIN_TABLES ) );
+        }
+        catch ( Exception exc )
+        {
+            // ignore;
+        }
+
+        if ( !preserveBinTables )
+        {
+            _cbt.rebuild( cft );
+            _pbt.rebuild( _text, cft );
+        }
     }
-    
-    public Range getRange() {
+
+    public Range getOverallRange()
+    {
         // Life is easy when we have no footers, headers or unicode!
-        return new Range(
-                0, _fib.getFcMac() - _fib.getFcMin(), this
-        );
+        return new Range( 0, _fib.getFibBase().getFcMac() - _fib.getFibBase().getFcMin(), this );
+    }
+
+    public Range getRange()
+    {
+        return getOverallRange();
     }
 
     public TextPieceTable getTextTable()
     {
       return tpt;
+    }
+
+    @Override
+    public StringBuilder getText()
+    {
+        return _text;
     }
 
     @Override

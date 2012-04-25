@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.poi.poifs.common.POIFSConstants;
 import org.apache.poi.poifs.storage.BlockAllocationTableReader;
+import org.apache.poi.poifs.storage.HeaderBlock;
 import org.apache.poi.poifs.storage.RawDataBlockList;
 import org.apache.poi.poifs.storage.RawDataUtil;
 
@@ -70,7 +71,8 @@ public final class TestPropertyTable extends TestCase {
 	public void testWriterPropertyTable() throws IOException {
 
 		// create the PropertyTable
-		PropertyTable table = new PropertyTable(POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS);
+	   HeaderBlock   headerBlock = new HeaderBlock(POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS);
+		PropertyTable table = new PropertyTable(headerBlock);
 
 		// create three DocumentProperty instances and add them to the
 		// PropertyTable
@@ -438,9 +440,12 @@ public final class TestPropertyTable extends TestCase {
 		new BlockAllocationTableReader(
 		      POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS, 1, bat_array, 0, -2, data_blocks);
 
+      // Fake up a header
+      HeaderBlock header_block = new HeaderBlock(POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS);
+      header_block.setPropertyStart(0);
+      
 		// get property table from the document
-		PropertyTable table = new PropertyTable(
-		      POIFSConstants.SMALLER_BIG_BLOCK_SIZE_DETAILS, 0, data_blocks);
+		PropertyTable table = new PropertyTable(header_block, data_blocks);
 
 		assertEquals(30 * 64, table.getRoot().getSize());
 		int count = 0;

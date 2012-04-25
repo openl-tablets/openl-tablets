@@ -99,5 +99,4 @@ Export-Package:
  org.springframework.test.jpa,
  org.springframework.test.util,
  org.springframework.test.web
-Require-Bundle: org.openl.rules;visibility:=reexport
 

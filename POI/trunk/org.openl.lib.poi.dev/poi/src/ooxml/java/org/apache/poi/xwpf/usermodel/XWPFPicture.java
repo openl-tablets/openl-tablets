@@ -18,8 +18,7 @@ package org.apache.poi.xwpf.usermodel;
 
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
-import org.apache.poi.util.POILogFactory;
-import org.apache.poi.util.POILogger;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTBlipFillProperties;
 import org.openxmlformats.schemas.drawingml.x2006.picture.CTPicture;
 
 
@@ -27,28 +26,25 @@ import org.openxmlformats.schemas.drawingml.x2006.picture.CTPicture;
  * @author Philipp Epp
  */
 public class XWPFPicture {
-	private static final POILogger logger = POILogFactory.getLogger(XWPFPicture.class);
-	
-	protected XWPFParagraph paragraph;
-	private CTPicture ctPic;
-	 
-	 public XWPFParagraph getParagraph(){
-		 return paragraph;
-	 }
-	 
-	 public XWPFPicture(CTPicture ctPic, XWPFParagraph paragraph){
-		 this.paragraph = paragraph;
-		 this.ctPic = ctPic;
-	 }
-	 
-	 /**
-	  * Link Picture with PictureData
-	  * @param rel
-	  */
-	 public void setPictureReference(PackageRelationship rel){
-		 ctPic.getBlipFill().getBlip().setEmbed(rel.getId());
-	 }
-	 
+
+    private CTPicture ctPic;
+    private String description;
+    private XWPFRun run;
+
+    public XWPFPicture(CTPicture ctPic, XWPFRun run){
+        this.run = run;
+        this.ctPic = ctPic;
+        description = ctPic.getNvPicPr().getCNvPr().getDescr();
+    }
+
+    /**
+     * Link Picture with PictureData
+     * @param rel
+     */
+    public void setPictureReference(PackageRelationship rel){
+        ctPic.getBlipFill().getBlip().setEmbed(rel.getId());
+    }
+
     /**
      * Return the underlying CTPicture bean that holds all properties for this picture
      *
@@ -57,19 +53,32 @@ public class XWPFPicture {
     public CTPicture getCTPicture(){
         return ctPic;
     }
-    
+
     /**
      * Get the PictureData of the Picture, if present.
      * Note - not all kinds of picture have data
      */
     public XWPFPictureData getPictureData(){
-    	String blipId = ctPic.getBlipFill().getBlip().getEmbed();
-    	for(POIXMLDocumentPart part: paragraph.getDocument().getRelations()){
-    		  if(part.getPackageRelationship().getId().equals(blipId)){
-    			  return (XWPFPictureData)part;
-    		  }
-    	}
-    	return null;
+        CTBlipFillProperties blipProps = ctPic.getBlipFill();
+
+        if(blipProps == null || !blipProps.isSetBlip()) {
+            // return null if Blip data is missing
+            return null;
+        }
+
+        String blipId = blipProps.getBlip().getEmbed();
+        POIXMLDocumentPart part = run.getParagraph().getPart();
+        if (part != null)
+        {
+            POIXMLDocumentPart relatedPart = part.getRelationById(blipId);
+            if (relatedPart instanceof XWPFPictureData) {
+                return (XWPFPictureData) relatedPart;
+            }
+        }
+        return null;
     }
-    
+
+    public String getDescription() {
+        return description;
+    }
 }

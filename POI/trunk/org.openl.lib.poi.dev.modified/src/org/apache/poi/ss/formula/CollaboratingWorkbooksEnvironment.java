@@ -39,23 +39,23 @@ public final class CollaboratingWorkbooksEnvironment {
 		WorkbookNotFoundException(String msg) {
 			super(msg);
 		}
-		WorkbookNotFoundException(String msg, Throwable e) {
-			super(msg,e);
-		}
+        WorkbookNotFoundException(String msg, Throwable e) {
+            super(msg,e);
+        }
 	}
 
 	public static final CollaboratingWorkbooksEnvironment EMPTY = new CollaboratingWorkbooksEnvironment();
 
 	private final Map<String, WorkbookEvaluator> _evaluatorsByName;
 	private WorkbookEvaluator[] _evaluators;
-	private IExternalWorkbookResolver externalWorkbookResolver = DefaultExternalWorkbookResolver.instance;
-	
+    private IExternalWorkbookResolver externalWorkbookResolver = DefaultExternalWorkbookResolver.instance;
 
 	private boolean _unhooked;
 	private CollaboratingWorkbooksEnvironment() {
 		_evaluatorsByName = Collections.emptyMap();
 		_evaluators = new WorkbookEvaluator[0];
 	}
+
 	public static CollaboratingWorkbooksEnvironment setup(String[] workbookNames, WorkbookEvaluator[] evaluators) {
 		int nItems = workbookNames.length;
 		if (evaluators.length != nItems) {
@@ -126,14 +126,15 @@ public final class CollaboratingWorkbooksEnvironment {
 			oldCWEs[i].unhook();
 		}
 	}
-	
+
     /** 
      * 
      *  Dispose Collaborating Environment resources
      */
     public void dispose(){
-    	unhookOldEnvironments(_evaluators);
+        unhookOldEnvironments(_evaluators);
     }
+	
 	/**
 	 * Tell all contained evaluators that this environment should be discarded
 	 */
@@ -174,51 +175,51 @@ public final class CollaboratingWorkbooksEnvironment {
 		}
 		return result;
 	}
-	
-	/**
-	 * Add new evaluator for workbook to collaborating environment
-	 * @param workbookName
-	 * @param evaluator
-	 */
-	public void addWorkbookEvaluator(String workbookName,WorkbookEvaluator evaluator){
-		validateWorkbookEvaluator(workbookName,evaluator);
-		_evaluatorsByName.put(workbookName,evaluator);
-		WorkbookEvaluator[] _newEvaluators = new WorkbookEvaluator[_evaluators.length+1];
-		System.arraycopy(_evaluators, 0, _newEvaluators, 0,_evaluators.length);
-		_newEvaluators[_evaluators.length]=evaluator;
-		_evaluators = _newEvaluators;
-		hookNewEnvironment(_evaluators, this);
-		
-	}
-	private void validateWorkbookEvaluator(String workbookName,WorkbookEvaluator evaluator){
-		IdentityHashMap< String, WorkbookEvaluator> uniqueEvals = new IdentityHashMap<String,WorkbookEvaluator>((Map)_evaluatorsByName);
-		if (_evaluatorsByName.containsKey(workbookName)) {
-			throw new IllegalArgumentException("Duplicate workbook name '" + workbookName + "'");
-		}
-		if (uniqueEvals.containsValue(evaluator)) {
-			String msg = "Attempted to register same workbook under different name '"
-				+  workbookName + "'";
-			throw new IllegalArgumentException(msg);
-		}
-	}
-	/**
-	 * @return the externalWorkbookResolver
-	 */
-	public IExternalWorkbookResolver getExternalWorkbookResolver() {
-		return externalWorkbookResolver;
-	}
-	/**
-	 * @param externalWorkbookResolver the externalWorkbookResolver to set
-	 */
-	public void setExternalWorkbookResolver(
-			IExternalWorkbookResolver externalWorkbookResolver) {
-		this.externalWorkbookResolver = externalWorkbookResolver;
-	}
-	/**
-	 *  Reset default External Workbook Resolver
-	 */
-	public void resetExternalWorkbookResolver() {
-		this.externalWorkbookResolver = DefaultExternalWorkbookResolver.instance;;
-	}
-	
+
+    /**
+     * Add new evaluator for workbook to collaborating environment
+     * @param workbookName
+     * @param evaluator
+     */
+    public void addWorkbookEvaluator(String workbookName,WorkbookEvaluator evaluator){
+        validateWorkbookEvaluator(workbookName,evaluator);
+        _evaluatorsByName.put(workbookName,evaluator);
+        WorkbookEvaluator[] _newEvaluators = new WorkbookEvaluator[_evaluators.length+1];
+        System.arraycopy(_evaluators, 0, _newEvaluators, 0,_evaluators.length);
+        _newEvaluators[_evaluators.length]=evaluator;
+        _evaluators = _newEvaluators;
+        hookNewEnvironment(_evaluators, this);
+        
+    }
+    private void validateWorkbookEvaluator(String workbookName,WorkbookEvaluator evaluator){
+        IdentityHashMap< String, WorkbookEvaluator> uniqueEvals = new IdentityHashMap<String,WorkbookEvaluator>((Map)_evaluatorsByName);
+        if (_evaluatorsByName.containsKey(workbookName)) {
+            throw new IllegalArgumentException("Duplicate workbook name '" + workbookName + "'");
+        }
+        if (uniqueEvals.containsValue(evaluator)) {
+            String msg = "Attempted to register same workbook under different name '"
+                +  workbookName + "'";
+            throw new IllegalArgumentException(msg);
+        }
+    }
+    /**
+     * @return the externalWorkbookResolver
+     */
+    public IExternalWorkbookResolver getExternalWorkbookResolver() {
+        return externalWorkbookResolver;
+    }
+    /**
+     * @param externalWorkbookResolver the externalWorkbookResolver to set
+     */
+    public void setExternalWorkbookResolver(
+            IExternalWorkbookResolver externalWorkbookResolver) {
+        this.externalWorkbookResolver = externalWorkbookResolver;
+    }
+    /**
+     *  Reset default External Workbook Resolver
+     */
+    public void resetExternalWorkbookResolver() {
+        this.externalWorkbookResolver = DefaultExternalWorkbookResolver.instance;;
+    }
+
 }

@@ -27,17 +27,18 @@ import org.apache.poi.hssf.HSSFITestDataProvider;
 import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.model.InternalSheet;
-import org.apache.poi.hssf.record.NameRecord;
-import org.apache.poi.hssf.record.Record;
-import org.apache.poi.hssf.record.RecordBase;
-import org.apache.poi.hssf.record.RecordFormatException;
-import org.apache.poi.hssf.record.WindowOneRecord;
-import org.apache.poi.hssf.record.formula.Area3DPtg;
+import org.apache.poi.hssf.record.*;
+import org.apache.poi.ss.formula.ptg.Area3DPtg;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.ss.usermodel.BaseTestWorkbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.poifs.filesystem.DirectoryEntry;
+import org.apache.poi.poifs.filesystem.DirectoryNode;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.POIDataSamples;
+import org.apache.poi.ddf.EscherBSERecord;
 import org.apache.poi.hpsf.ClassID;
 
 /**
@@ -120,7 +121,7 @@ public final class TestHSSFWorkbook extends BaseTestWorkbook {
         b.cloneSheet(0);
         assertEquals(2, b.getNumberOfSheets());
     }
-
+    
     public void testReadWriteWithCharts() {
         HSSFWorkbook b;
         HSSFSheet s;
@@ -530,4 +531,191 @@ public final class TestHSSFWorkbook extends BaseTestWorkbook {
 
         assertTrue(clsid1.equals(clsid2));
     }
+    
+    /**
+     * Tests that we can work with both {@link POIFSFileSystem}
+     *  and {@link NPOIFSFileSystem}
+     */
+    public void testDifferentPOIFS() throws Exception {
+       // Open the two filesystems
+       DirectoryNode[] files = new DirectoryNode[2];
+       files[0] = (new POIFSFileSystem(HSSFTestDataSamples.openSampleFileStream("Simple.xls"))).getRoot();
+       files[1] = (new NPOIFSFileSystem(HSSFTestDataSamples.getSampleFile("Simple.xls"))).getRoot();
+       
+       // Open without preserving nodes 
+       for(DirectoryNode dir : files) {
+          HSSFWorkbook workbook = new HSSFWorkbook(dir, false);
+          HSSFSheet sheet = workbook.getSheetAt(0);
+          HSSFCell cell = sheet.getRow(0).getCell(0);
+          assertEquals("replaceMe", cell .getRichStringCellValue().getString());
+       }
+
+       // Now re-check with preserving
+       for(DirectoryNode dir : files) {
+          HSSFWorkbook workbook = new HSSFWorkbook(dir, true);
+          HSSFSheet sheet = workbook.getSheetAt(0);
+          HSSFCell cell = sheet.getRow(0).getCell(0);
+          assertEquals("replaceMe", cell .getRichStringCellValue().getString());
+       }
+    }
+    
+    public void testWordDocEmbeddedInXls() throws IOException {
+       // Open the two filesystems
+       DirectoryNode[] files = new DirectoryNode[2];
+       files[0] = (new POIFSFileSystem(HSSFTestDataSamples.openSampleFileStream("WithEmbeddedObjects.xls"))).getRoot();
+       files[1] = (new NPOIFSFileSystem(HSSFTestDataSamples.getSampleFile("WithEmbeddedObjects.xls"))).getRoot();
+       
+       // Check the embedded parts
+       for(DirectoryNode root : files) {
+          HSSFWorkbook hw = new HSSFWorkbook(root, true);
+          List<HSSFObjectData> objects = hw.getAllEmbeddedObjects();
+          boolean found = false;
+          for (int i = 0; i < objects.size(); i++) {
+             HSSFObjectData embeddedObject = objects.get(i);
+             if (embeddedObject.hasDirectoryEntry()) {
+                DirectoryEntry dir = embeddedObject.getDirectory();
+                if (dir instanceof DirectoryNode) {
+                   DirectoryNode dNode = (DirectoryNode)dir;
+                   if (hasEntry(dNode,"WordDocument")) {
+                      found = true;
+                   }
+                }
+             }
+          }
+          assertTrue(found);
+       }
+    }
+
+    /**
+     * Checks that we can open a workbook with NPOIFS, and write it out
+     *  again (via POIFS) and have it be valid
+     * @throws IOException
+     */
+    public void testWriteWorkbookFromNPOIFS() throws IOException {
+       InputStream is = HSSFTestDataSamples.openSampleFileStream("WithEmbeddedObjects.xls");
+       NPOIFSFileSystem fs = new NPOIFSFileSystem(is);
+       
+       // Start as NPOIFS
+       HSSFWorkbook wb = new HSSFWorkbook(fs.getRoot(), true);
+       assertEquals(3, wb.getNumberOfSheets());
+       assertEquals("Root xls", wb.getSheetAt(0).getRow(0).getCell(0).getStringCellValue());
+       
+       // Will switch to POIFS
+       wb = HSSFTestDataSamples.writeOutAndReadBack(wb);
+       assertEquals(3, wb.getNumberOfSheets());
+       assertEquals("Root xls", wb.getSheetAt(0).getRow(0).getCell(0).getStringCellValue());
+    }
+   
+    public void testCellStylesLimit() {
+        HSSFWorkbook wb = new HSSFWorkbook();
+        int numBuiltInStyles = wb.getNumCellStyles();
+        int MAX_STYLES = 4030;
+        int limit = MAX_STYLES - numBuiltInStyles;
+        for(int i=0; i < limit; i++){
+            HSSFCellStyle style = wb.createCellStyle();
+        }
+
+        assertEquals(MAX_STYLES, wb.getNumCellStyles());
+        try {
+            HSSFCellStyle style = wb.createCellStyle();
+            fail("expected exception");
+        } catch (IllegalStateException e){
+            assertEquals("The maximum number of cell styles was exceeded. " +
+                    "You can define up to 4000 styles in a .xls workbook", e.getMessage());
+        }
+        assertEquals(MAX_STYLES, wb.getNumCellStyles());
+    }
+
+    public void testSetSheetOrderHSSF(){
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet s1 = wb.createSheet("first sheet");
+        HSSFSheet s2 = wb.createSheet("other sheet");
+
+        HSSFName name1 = wb.createName();
+        name1.setNameName("name1");
+        name1.setRefersToFormula("'first sheet'!D1");
+
+        HSSFName name2 = wb.createName();
+        name2.setNameName("name2");
+        name2.setRefersToFormula("'other sheet'!C1");
+
+
+        HSSFRow s1r1 = s1.createRow(2);
+        HSSFCell c1 = s1r1.createCell(3);
+        c1.setCellValue(30);
+        HSSFCell c2 = s1r1.createCell(2);
+        c2.setCellFormula("SUM('other sheet'!C1,'first sheet'!C1)");
+
+        HSSFRow s2r1 = s2.createRow(0);
+        HSSFCell c3 = s2r1.createCell(1);
+        c3.setCellFormula("'first sheet'!D3");
+        HSSFCell c4 = s2r1.createCell(2);
+        c4.setCellFormula("'other sheet'!D3");
+
+        // conditional formatting
+        HSSFSheetConditionalFormatting sheetCF = s1.getSheetConditionalFormatting();
+
+        HSSFConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingRule(
+                CFRuleRecord.ComparisonOperator.BETWEEN, "'first sheet'!D1", "'other sheet'!D1");
+
+        HSSFConditionalFormattingRule [] cfRules = { rule1 };
+
+        CellRangeAddress[] regions = {
+            new CellRangeAddress(2, 4, 0, 0), // A3:A5
+        };
+        sheetCF.addConditionalFormatting(regions, cfRules);
+
+        wb.setSheetOrder("other sheet", 0);
+
+        // names
+        assertEquals("'first sheet'!D1", wb.getName("name1").getRefersToFormula());
+        assertEquals("'other sheet'!C1", wb.getName("name2").getRefersToFormula());
+
+        // cells
+        assertEquals("SUM('other sheet'!C1,'first sheet'!C1)", c2.getCellFormula());
+        assertEquals("'first sheet'!D3", c3.getCellFormula());
+        assertEquals("'other sheet'!D3", c4.getCellFormula());
+
+        // conditional formatting
+        HSSFConditionalFormatting cf = sheetCF.getConditionalFormattingAt(0);
+        assertEquals("'first sheet'!D1", cf.getRule(0).getFormula1());
+        assertEquals("'other sheet'!D1", cf.getRule(0).getFormula2());
+    }
+    
+    private boolean hasEntry(DirectoryNode dirNode, String entryName) {
+       try {
+           dirNode.getEntry(entryName);
+           return true;
+       } catch (FileNotFoundException e) {
+           return false;
+       }
+   }
+
+    public void testClonePictures() throws IOException {
+        HSSFWorkbook wb = HSSFTestDataSamples.openSampleWorkbook("SimpleWithImages.xls");
+        InternalWorkbook iwb = wb.getWorkbook();
+        iwb.findDrawingGroup();
+        
+        for(int pictureIndex=1; pictureIndex <= 4; pictureIndex++){
+            EscherBSERecord bse = iwb.getBSERecord(pictureIndex);
+            assertEquals(1, bse.getRef());
+        }
+
+        wb.cloneSheet(0);
+        for(int pictureIndex=1; pictureIndex <= 4; pictureIndex++){
+            EscherBSERecord bse = iwb.getBSERecord(pictureIndex);
+            assertEquals(2, bse.getRef());
+        }
+
+        wb.cloneSheet(0);
+        for(int pictureIndex=1; pictureIndex <= 4; pictureIndex++){
+            EscherBSERecord bse = iwb.getBSERecord(pictureIndex);
+            assertEquals(3, bse.getRef());
+        }
+    }
+
+    public void testChangeSheetNameWithSharedFormulas() {
+        changeSheetNameWithSharedFormulas("shared_formulas.xls");
+    }
+
 }

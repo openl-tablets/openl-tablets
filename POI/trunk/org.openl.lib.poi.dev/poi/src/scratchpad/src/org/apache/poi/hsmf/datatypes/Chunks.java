@@ -24,28 +24,12 @@ import java.util.List;
 /**
  * Collection of convenience chunks for standard parts of the MSG file.
  * 
- * Not all of these will be present in any given file
+ * Not all of these will be present in any given file.
+ * 
+ * A partial list is available at:
+ *  http://msdn.microsoft.com/en-us/library/ms526356%28v=exchg.10%29.aspx
  */
 public final class Chunks implements ChunkGroup {
-   /* String parts of Outlook Messages that are currently known */
-   public static final int MESSAGE_CLASS       = 0x001A;
-   public static final int SUBJECT             = 0x0037;
-   // "PidTagMessageSubmissionId" as given by accepting server
-   public static final int SUBMISSION_ID_DATE  = 0x0047;
-   // 0x0050 -> 0x006F seem to be routing info or similar
-   public static final int CONVERSATION_TOPIC  = 0x0070;
-   public static final int SENT_BY_SERVER_TYPE = 0x0075;
-   public static final int MESSAGE_HEADERS     = 0x007D;
-   // RECEIVEDEMAIL = 76
-   public static final int DISPLAY_TO          = 0x0E04;
-   public static final int DISPLAY_FROM        = 0x0C1A;
-   public static final int EMAIL_FROM          = 0x0C1F;
-   public static final int DISPLAY_CC          = 0x0E03;
-   public static final int DISPLAY_BCC         = 0x0E02;
-   // 0x0E1D seems a duplicate of 0x0070 !
-   public static final int TEXT_BODY           = 0x1000;
-   public static final int MESSAGE_ID          = 0x1035;
-   
    /** Holds all the chunks that were found. */
    private List<Chunk> allChunks = new ArrayList<Chunk>();
    
@@ -53,6 +37,11 @@ public final class Chunks implements ChunkGroup {
    public StringChunk messageClass;
    /** BODY Chunk, for plain/text messages */
    public StringChunk textBodyChunk;
+   /** BODY Html Chunk, for html messages */
+   public StringChunk htmlBodyChunkString;
+   public ByteChunk htmlBodyChunkBinary;
+   /** BODY Rtf Chunk, for Rtf (Rich) messages */
+   public ByteChunk rtfBodyChunk;
    /** Subject link chunk, in plain/text */
    public StringChunk subjectChunk;
    /** Value that is in the TO field (not actually the addresses as they are stored in recip directory nodes */
@@ -87,49 +76,64 @@ public final class Chunks implements ChunkGroup {
     * Called by the parser whenever a chunk is found.
     */
    public void record(Chunk chunk) {
-      switch(chunk.getChunkId()) {
-      case MESSAGE_CLASS:
+      if(chunk.getChunkId() == MAPIProperty.MESSAGE_CLASS.id) {
          messageClass = (StringChunk)chunk;
-         break;
-      case MESSAGE_ID:
+      }
+      else if(chunk.getChunkId() == MAPIProperty.INTERNET_MESSAGE_ID.id) {
          messageId = (StringChunk)chunk;
-         break;
-      case SUBJECT:
-         subjectChunk = (StringChunk)chunk;
-         break;
-      case SUBMISSION_ID_DATE:
+      }
+      else if(chunk.getChunkId() == MAPIProperty.MESSAGE_SUBMISSION_ID.id) {
          // TODO - parse
          submissionChunk = (MessageSubmissionChunk)chunk;
-         break;
-      case CONVERSATION_TOPIC:
-         conversationTopic = (StringChunk)chunk;
-         break;
-      case SENT_BY_SERVER_TYPE:
-         sentByServerType = (StringChunk)chunk;
-         break;
-      case MESSAGE_HEADERS:
-         messageHeaders = (StringChunk)chunk;
-         break;
-      case DISPLAY_TO:
-         displayToChunk = (StringChunk)chunk;
-         break;
-      case DISPLAY_FROM:
-         displayFromChunk = (StringChunk)chunk;
-         break;
-      case EMAIL_FROM:
-         emailFromChunk = (StringChunk)chunk;
-         break;
-      case DISPLAY_CC:
-         displayCCChunk = (StringChunk)chunk;
-         break;
-      case DISPLAY_BCC:
-         displayBCCChunk = (StringChunk)chunk;
-         break;
-      case TEXT_BODY:
-         textBodyChunk = (StringChunk)chunk;
-         break;
       }
-
+      else if(chunk.getChunkId() == MAPIProperty.RECEIVED_BY_ADDRTYPE.id) {
+         sentByServerType = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.TRANSPORT_MESSAGE_HEADERS.id) {
+         messageHeaders = (StringChunk)chunk;
+      }
+      
+      else if(chunk.getChunkId() == MAPIProperty.CONVERSATION_TOPIC.id) {
+         conversationTopic = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.SUBJECT.id) {
+         subjectChunk = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.ORIGINAL_SUBJECT.id) {
+         // TODO
+      }
+      
+      else if(chunk.getChunkId() == MAPIProperty.DISPLAY_TO.id) {
+         displayToChunk = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.DISPLAY_CC.id) {
+         displayCCChunk = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.DISPLAY_BCC.id) {
+         displayBCCChunk = (StringChunk)chunk;
+      }
+      
+      else if(chunk.getChunkId() == MAPIProperty.SENDER_EMAIL_ADDRESS.id) {
+         emailFromChunk = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.SENDER_NAME.id) {
+         displayFromChunk = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.BODY.id) {
+         textBodyChunk = (StringChunk)chunk;
+      }
+      else if(chunk.getChunkId() == MAPIProperty.BODY_HTML.id) {
+         if(chunk instanceof StringChunk) {
+            htmlBodyChunkString = (StringChunk)chunk;
+         }
+         if(chunk instanceof ByteChunk) {
+            htmlBodyChunkBinary = (ByteChunk)chunk;
+         }
+      }
+      else if(chunk.getChunkId() == MAPIProperty.RTF_COMPRESSED.id) {
+         rtfBodyChunk = (ByteChunk)chunk;
+      }
+      
       // And add to the main list
       allChunks.add(chunk);
    }

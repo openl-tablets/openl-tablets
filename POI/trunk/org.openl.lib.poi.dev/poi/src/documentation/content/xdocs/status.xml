@@ -33,6 +33,303 @@
     </developers>
 
     <changes>
+        <release version="3.8-FINAL" date="2012-03-26">
+           <action dev="poi-developers" type="add">52928 - DateFormatConverter: an utility to convert instances of java.text.DateFormat to Excel format patterns</action>
+           <action dev="poi-developers" type="fix">52895 - show SSTIndex instead of XFIndex in LabelSSTRecord.toString()</action>
+           <action dev="poi-developers" type="fix">52835 - Tolerate missing Count and UniqueCount attributes when parsing shared strings table in XSSF eventusermodel</action>
+           <action dev="poi-developers" type="add">52818 - Added implementation for RANK()</action>
+           <action dev="poi-developers" type="fix">52682 - allow setting text with trailing carriage return in HSLF</action>
+           <action dev="poi-developers" type="fix">52244 - use correct text attributes when presentation has multiple TxMasterStyleAtoms of the same type</action>
+           <action dev="poi-developers" type="add">support setting background color of sheet tab in XSSF</action>
+           <action dev="poi-developers" type="add">51564 - support for enforcing fields update in XWPF</action>
+           <action dev="poi-developers" type="add">51673 - support grouping rows in SXSSF</action>
+           <action dev="poi-developers" type="add">51780 - support replacement of content types in OPC packages </action>
+           <action dev="poi-developers" type="fix">52784 - replace ISO control characters with question marks in SXSSF to be consistent with XSSF </action>
+           <action dev="poi-developers" type="add">52057 - updated formula test framework to be aware of recently added Functions </action>
+           <action dev="poi-developers" type="add">52574 - support setting header / footer page margins in HSSF </action>
+           <action dev="poi-developers" type="add">52583 - fixed WorkbookUtil#createSafeSheetName to escape colon </action>
+           <action dev="poi-developers" type="add">51710 - fixed reading shared formulas in XSSF </action>
+           <action dev="poi-developers" type="add">52708 - misc improvements in CellFormat </action>
+           <action dev="poi-developers" type="add">52690 - added a getter for length of encrypted data in Ecma and Agile decryptors</action>
+           <action dev="poi-developers" type="fix">52255 - support adding TIFF,EPS and WPG pictures in OOXML documents </action>
+           <action dev="poi-developers" type="fix">52078 - avoid OutOfMemoryError when rendering groupped pictures in HSLF </action>
+           <action dev="poi-developers" type="fix">52745 - fixed XSSFRichtextString.append to preserve leading / trailing spaces </action>
+           <action dev="poi-developers" type="fix">52716 - tolerate hyperlinks that have neither location nor relation </action>
+           <action dev="poi-developers" type="fix">52599 - avoid duplicate text when rendering slides in HSLF</action>
+           <action dev="poi-developers" type="fix">52598 - respect slide background when rendering slides in HSLF</action>
+           <action dev="poi-developers" type="fix">51731 - fixed painting shape outlines in HSLF</action>
+           <action dev="poi-developers" type="fix">52701 - fixed seting vertical alignment for XSLFTableCell</action>
+           <action dev="poi-developers" type="fix">52687 - fixed merging slides with pictures with associated custom tags</action>
+           <action dev="poi-developers" type="add"> allow runtime registration of functions in FormulaEvaluator</action>
+           <action dev="poi-developers" type="fix">52665 - When reading from a ZipFileZipEntrySource that has already been closed, give IllegalArgumentException rather than NPE</action>
+           <action dev="poi-developers" type="fix">52664 - MAPIMessage may not always have name chunks when checking for 7 bit encodings</action>
+           <action dev="poi-developers" type="fix">52649 - fixed namespace issue in WordToFoConverter</action>
+           <action dev="poi-developers" type="fix">52385 - avoid trancated array and vector data when reading OLE properties</action>
+           <action dev="poi-developers" type="fix">52662 - CharacterRun NPE fix when fetching symbol fonts, where no fonts are defined</action>
+           <action dev="poi-developers" type="add">52658 - support mergin table cells in XSLF</action>
+           <action dev="poi-developers" type="add">validate row number and column index in SXSSF when creating new rows / cells</action>
+           <action dev="poi-developers" type="fix">51498 - fixed evaluation of blank cells in COUNTIF</action>
+           <action dev="poi-developers" type="add">52576 - support changing external file references in HSSFWorkbook</action>
+           <action dev="poi-developers" type="add">49896 - support external references in FormulaRenderer</action>
+           <action dev="poi-developers" type="fix">52527 - avoid exception when matching shared formula records in HSSF</action>
+           <action dev="poi-developers" type="add">52568 - Added methods to set/get an XWPFRun's text color</action>
+           <action dev="poi-developers" type="add">52566 - Added methods to set/get vertical alignment and color in XWPFTableCell</action>
+           <action dev="poi-developers" type="add">52562 - Added methods to get/set a table row's Can't Split and Repeat Header attributes  in XWPF</action>
+           <action dev="poi-developers" type="add">52561 - Added methods to set table inside borders and cell margins in XWPF</action>
+           <action dev="poi-developers" type="add">52569 - Support DConRefRecord in HSSF</action>
+           <action dev="poi-developers" type="add">52575 - added an option to ignore missing workbook references in formula evaluator</action>
+           <action dev="poi-developers" type="add">Validate address of hyperlinks in XSSF</action>
+           <action dev="poi-developers" type="fix">52540 - Relax the M4.1 constraint on reading OOXML files, as some Office produced ones do have 2 Core Properties, despite the specification explicitly forbidding this</action>
+           <action dev="poi-developers" type="add">52462 - Added implementation for SUMIFS()</action>
+           <action dev="poi-developers" type="add">POIXMLPropertiesTextExtractor support for extracting custom OOXML properties as text</action>
+           <action dev="poi-developers" type="fix">52449 - Support writing XWPF documents with glossaries (Glossaries are not yet supported, but can now be written out again without changes)</action>
+           <action dev="poi-developers" type="fix">52446 - Handle files which have been truncated by a few bytes in NPropertyTable</action>
+           <action dev="poi-developers" type="fix">52438 - Update CellDateFormatter to handle times without seconds</action>
+           <action dev="poi-developers" type="add">52389 - Support ?/? as well as #/# fractions, and tighten DataFormatter rules for fraction matching</action>
+           <action dev="poi-developers" type="add">52200 - Updated XWPF table example code </action>
+           <action dev="poi-developers" type="add">52378 - Support for WORKDAY and NETWORKDAYS functions</action>
+           <action dev="poi-developers" type="add">52349 - Merge the logic between the TEXT function and DataFormatter</action>
+           <action dev="poi-developers" type="fix">52349 - Correctly support excel style date format strings in the TEXT function</action>
+           <action dev="poi-developers" type="fix">52369 - XSSFExcelExtractor should format numeric cells based on the format strings applied to them</action>
+           <action dev="poi-developers" type="fix">52369 - Event based XSSF parsing should handle formatting of formula values in XSSFSheetXMLHandler</action>
+           <action dev="poi-developers" type="fix">52348 - Avoid exception when creating cell style in a workbook that has an empty xf table</action>
+           <action dev="poi-developers" type="fix">52219 - fixed XSSFSimpleShape to set rich text attributes from XSSFRichtextString</action>
+           <action dev="poi-developers" type="fix">52314 - enhanced SheetUtil.getColumnWidth</action>
+        </release>
+        <release version="3.8-beta5" date="2011-12-17">
+           <action dev="poi-developers" type="fix">52204 - Deprecated XSSFWorkbook(String path) constructor because it does not close underlying .zip file</action>
+           <action dev="poi-developers" type="fix">46288 - fixed refcount of Fill pictures in HSLF </action>
+           <action dev="poi-developers" type="add">51961 - support compression of temp files in SXSSF </action>
+           <action dev="poi-developers" type="add">52268 - support cloning sheets with drawings in XSSF </action>
+           <action dev="poi-developers" type="add">52285 - Support XWPF smart tags text in Paragraphs</action>
+           <action dev="poi-developers" type="fix">51875 - More XSSF new-line in formula support</action>
+           <action dev="poi-developers" type="add">POIFS EntryUtils.copyNodes(POFS,POIFS) now uses FilteringDirectoryNode, so can exclude from copying nodes not just directly under the root</action>
+           <action dev="poi-developers" type="add">POIFS Helper FilteringDirectoryNode, which wraps a DirectoryEntry and allows certain parts to be ignored</action>
+           <action dev="poi-developers" type="fix">52209 - fixed inserting multiple pictures in XSLF </action>
+           <action dev="poi-developers" type="fix">51803 - fixed HSLF TextExtractor to extract content from master slide </action>
+           <action dev="poi-developers" type="fix">52190 - null check on XWPF setFontFamily</action>
+           <action dev="poi-developers" type="fix">52062 - ensure that temporary files in SXSSF are deleted</action>
+           <action dev="poi-developers" type="fix">50936 - Exception parsing MS Word 8.0 file (as duplicate of 47958)</action>
+           <action dev="poi-developers" type="fix">47958 - ArrayIndexOutOfBoundsException from PicturesTable.getAllPictures() during Escher tree walk</action>
+           <action dev="poi-developers" type="fix">51944 - PAPFormattedDiskPage.getPAPX - IndexOutOfBounds</action>
+           <action dev="poi-developers" type="fix">52032 - HWPF - ArrayIndexOutofBoundsException with no stack trace (broken after revision 1178063)</action>
+           <action dev="poi-developers" type="add">support for converting pptx files into images with a PPTX2PNG tool</action>
+           <action dev="poi-developers" type="add">52050 - Support for the Excel RATE function</action>
+           <action dev="poi-developers" type="fix">51566 - HSLF fix for finishing parsing the picture stream on the first non-valid type</action>
+           <action dev="poi-developers" type="fix">51974 - Avoid HWPF issue when identifying the picture type</action>
+           <action dev="poi-developers" type="fix">52035 - Fix signed issue with very large word 6 files</action>
+           <action dev="poi-developers" type="fix">51949 - Avoid NPE on double close of ZipFileZipEntrySource</action>
+           <action dev="poi-developers" type="fix">51950 - XWPF fix for footnotes not always being present in a document</action>
+           <action dev="poi-developers" type="fix">51963 - Correct AreaReference handling of references containing a sheet name which includes a comma</action>
+           <action dev="poi-developers" type="fix">51955 - XSSFReader supplied StylesTables need to have the theme data available</action>
+           <action dev="poi-developers" type="fix">51716 - Removed incorrect assert in SXSSFSheet#getSXSSFSheet</action>
+           <action dev="poi-developers" type="fix">51834 - Opening and Writing .doc file results in corrupt document</action>
+           <action dev="poi-developers" type="fix">51902 - Picture.fillRawImageContent - ArrayIndexOutOfBoundsException (duplicate)</action>
+           <action dev="poi-developers" type="fix">51890 - ArrayIndexOutOfBounds ExceptionPicture.fillRawImageContent</action>
+           <action dev="poi-developers" type="add">Allow the passing of a File object to WorkbookFactory.create, which permits lower memory processing than the InputStream version</action>
+           <action dev="poi-developers" type="fix">51873 - update HSMF to ignore Outlook 2002 Olk10SideProp entries, which don't behave like normal chunks</action>
+           <action dev="poi-developers" type="fix">51850 - support creating comments in XSSF on an earlier slide when later ones already have them</action>
+           <action dev="poi-developers" type="add">51804 - optionally include Master Slide text in XSLF text extraction, as HSLF already offers</action>
+           <action dev="poi-developers" type="add">New PackagePart method getRelatedPart(PackageRelationship) to simplify navigation of relations between OPC Parts</action>
+           <action dev="poi-developers" type="fix">51832 - handle XLS files where the WRITEPROTECT record preceeds the FILEPASS one, rather than following as normal</action>
+           <action dev="poi-developers" type="fix">51809 - correct GTE handling in COUNTIF</action>
+           <action dev="poi-developers" type="add">Add HWPF API to update range text and delete bookmarks</action>
+           <action dev="poi-developers" type="add">HWPF Bookmarks tables are correctly updated on text updates</action>
+           <action dev="poi-developers" type="add">51670 - avoid LeftoverDataException when reading .xls files with invalid LabelRecords</action>
+           <action dev="poi-developers" type="add">51196 - prevent NPE in XWPFPicture.getPictureData() </action>
+           <action dev="poi-developers" type="add">51771 - prevent NPE when getting object data from OLEShape in HSLF</action>
+           <action dev="poi-developers" type="add">51196 - more progress with Chart APi in XSSF</action>
+           <action dev="poi-developers" type="fix">51785 - Allow XSSF setForceFormulaRecalculation to work with the minimal ooxml-schemas jar</action>
+           <action dev="poi-developers" type="fix">51772 - IllegalArgumentException Parsing MS Word 97 - 2003</action>
+           <action dev="poi-developers" type="add">XSLFPowerPointExtractor support for including comment authors with comment text</action>
+           <action dev="poi-developers" type="fix">Converted XSLFPowerPointExtractor to use UserModel for all text extraction</action>
+           <action dev="poi-developers" type="add">XSLF initial UserModel support for Notes and Comments for Slides</action>
+           <action dev="poi-developers" type="add">HSLF: support for uncompressed OLE embeddings</action>
+        </release>
+        <release version="3.8-beta4" date="2011-08-26">
+           <action dev="poi-developers" type="fix">51678 - Extracting text from Bug51524.zip is slow</action>
+           <action dev="poi-developers" type="fix">51671 - HWPFDocument.write based on NPOIFSFileSystem throws a NullPointerException</action>
+           <action dev="poi-developers" type="add">support for tables and hyperlinks in XSLF</action>
+           <action dev="poi-developers" type="fix">51535 - correct signed vs unsigned short reading in NDocumentInputStream</action>
+           <action dev="poi-developers" type="add">51634 - support SXSSF streaming from templates</action>
+           <action dev="poi-developers" type="add">initial support for XSLF usermodel API</action>
+           <action dev="poi-developers" type="fix">51187 - fixed OPCPackage to correctly handle self references</action>
+           <action dev="poi-developers" type="fix">51635 - Improved performance of XSSFSheet#write</action>
+           <action dev="poi-developers" type="fix">47731 - Word Extractor considers text copied from some website as an embedded object</action>
+           <action dev="poi-developers" type="add">Add Word-to-Text converter and use it as replacement for WordExtractor</action>
+           <action dev="poi-developers" type="fix">51604 - replace text fails for doc ( poi 3.8 beta release from download site )</action>
+           <action dev="poi-developers" type="fix">Fixed incorrect encoding of non-breaking space (0xA0) in SXSSF</action>
+           <action dev="poi-developers" type="add">Support for conditional formatting in XSSF</action>
+           <action dev="poi-developers" type="add">Support isRightToLeft and setRightToLeft on the common spreadsheet Sheet interface, as per existing HSSF support</action>
+           <action dev="poi-developers" type="fix">50209 - Fixed evaluation of Subtotals to ignore nested subtotals</action>
+           <action dev="poi-developers" type="fix">44431 - HWPFDocument.write destroys fields</action>
+           <action dev="poi-developers" type="fix">50401 - fixed EscherProperty to return property name instead of 'unknown' for complex properties </action>
+           <action dev="poi-developers" type="add">Initial support for endnotes and footnotes in HWPF</action>
+           <action dev="poi-developers" type="fix">51470 - avoid exception when cloning XSSF sheets with background images</action>
+           <action dev="poi-developers" type="fix">51481 - Fixed autofilters in HSSF to avoid warnings in Excel 2007</action>
+           <action dev="poi-developers" type="fix">51533 - Avoid exception when changing name of a sheet containing shared formulas</action>
+           <action dev="poi-developers" type="add">Support for appending images to existing drawings in HSSF</action>
+           <action dev="poi-developers" type="add">Initial support for bookmarks in HWPF</action>
+           <action dev="poi-developers" type="fix">46250 - Fixed cloning worksheets with images</action>
+           <action dev="poi-developers" type="fix">51524 - PapBinTable constructor is slow (regression)</action>
+           <action dev="poi-developers" type="fix">51514 - allow HSSFObjectData to work with both POIFS and NPOIFS</action>
+           <action dev="poi-developers" type="fix">51514 - avoid NPE when copying nodes from one HSSF workbook to a new one, when opened from NPOIFS</action>
+           <action dev="poi-developers" type="fix">51504 - avoid NPE when DefaultRowHeight or DefaultColumnWidth records are missing</action>
+           <action dev="poi-developers" type="fix">51502 - Correct Subtotal function javadoc entry</action>
+           <action dev="poi-developers" type="add">Support for hyperlinks in SXSSF</action>
+           <action dev="poi-developers" type="fix">49933 - Word 6/95 documents with sections cause ArrayIndexOutOfBoundsException</action>
+           <action dev="poi-developers" type="add">51469 - XSSF support for row styles, to match existing HSSF functionality</action>
+           <action dev="poi-developers" type="fix">51476 - Correct XSSF cell formatting in HTML export</action>
+           <action dev="poi-developers" type="add">51486 - XWPF support for adding new footnotes</action>
+           <action dev="poi-developers" type="fix">48065 - Problems with save output of HWPF (losing formatting)</action>
+           <action dev="poi-developers" type="fix">47563 - Exception when working with table</action>
+           <action dev="poi-developers" type="fix">47287 - StringIndexOutOfBoundsException in CharacterRun.replaceText()</action>
+           <action dev="poi-developers" type="fix">46817 - Regression: Text from some table cells missing</action>
+           <action dev="poi-developers" type="add">Add getOverallRange() method to HWPFDocumentCore</action>
+           <action dev="poi-developers" type="fix">PAPX referenced outside of TextPiecesTable are ignored now and not loaded</action>
+           <action dev="poi-developers" type="fix">Fix main part range (and section) detection for files with additional parts (like footers/headers).</action>
+           <action dev="poi-developers" type="fix">Fix wrong TextPiece parsing in very rare cases like Bug33519.doc</action>
+           <action dev="poi-developers" type="fix">Inner tables are correctly supported</action>
+           <action dev="poi-developers" type="add">Allow user to retrieve Table nesting level (based on file information)</action>
+           <action dev="poi-developers" type="add">Functionality of internal tool HWPFLister is greatly improved, including output of document PAPX and paragraphs</action>
+           <action dev="poi-developers" type="add">Expand Word structures definitions (TAP, PAP, TLP, etc) based on official documentation</action>
+           <action dev="poi-developers" type="add">Add Excel-to-HTML converter (2007 versions)</action>
+           <action dev="poi-developers" type="add">Add Word-to-HTML converter (95-2007 versions)</action>
+           <action dev="poi-developers" type="fix">Skip wrong-type SPRMs when characters SPRM is expected</action>
+           <action dev="poi-developers" type="add">Add toStrings() methods to internal HWPF structures: BorderCode, PAPX, Paragraph, PieceDescriptor, Section, SEPX, SprmOperation, TextPiece etc.</action>
+           <action dev="poi-developers" type="fix">51474 - SXSSF handling for null strings</action>
+           <action dev="poi-developers" type="fix">48294 - Fixed HSSFWorkbook.setSheetOrder() to respect inter-sheet references </action>
+           <action dev="poi-developers" type="fix">51448 - Avoid exception when evaluating workbooks with more than 256 sheets </action>
+           <action dev="poi-developers" type="fix">51458 - Correct BitField wrapping when setting large values</action>
+           <action dev="poi-developers" type="add">51460 - Improve HSSF performance when loading very long rows, by switching the CellValue array to an iterator</action>
+           <action dev="poi-developers" type="fix">51444 - Prevent corrupted output when saving files created by LibreOffice 3.3 </action>
+           <action dev="poi-developers" type="add">51422 - Support using RecalcIdRecord to trigger a full formula recalculation on load  </action>
+           <action dev="poi-developers" type="add">50474 - Example demonstrating how to update Excel workbook embedded in a WordprocessingML document </action>
+           <action dev="poi-developers" type="fix">51431 - Avoid IndexOutOfBoundException when removing freeze panes in XSSF </action>
+           <action dev="poi-developers" type="fix">48877 - Fixed XSSFRichTextString to respect leading and trailing line breaks </action>
+           <action dev="poi-developers" type="fix">49564 - Fixed default behaviour of XSSFCellStyle.getLocked() </action>
+           <action dev="poi-developers" type="fix">48314 - Fixed setting column and row breaks in XSSF</action>
+           <action dev="poi-developers" type="add">51424 - Ignore exceptions in ParagraphSprmUncompressor</action>
+           <action dev="poi-developers" type="fix">51415 - Fixed Workbook.createSheet(sheetName) to truncate names longer than 31 characters</action>
+           <action dev="poi-developers" type="fix">51332 - Fixed internal IDs of shapes generated by HSSFPatriarch when there are more than 1023 drawing objects </action>
+           <action dev="poi-developers" type="fix">48408 - Improved documentation for Sheet.setColumnWidth </action>
+           <action dev="poi-developers" type="add">51390 - Added handling of additional properties to HWPF ParagraphSprmCompressor</action>
+           <action dev="poi-developers" type="add">51389 - Support for sprmPJc paragraph SPRM in HWPF</action>
+           <action dev="poi-developers" type="fix">48469 - New Case Study for POI web site  </action>
+           <action dev="poi-developers" type="fix">50681 - Avoid exceptions in HSSFDataFormat.getDataFormatString()  </action>
+           <action dev="poi-developers" type="fix">50681 - Fixed autosizing columns beyond 255 character limit </action>
+           <action dev="poi-developers" type="fix">51374 - Fixed incorrect setting of lastPrinted OOXML core property </action>
+           <action dev="poi-developers" type="add">51351 - Word to XSL-FO converter</action>
+           <action dev="poi-developers" type="fix">50458 - Fixed missing shapeId in XSSF drawings </action>
+           <action dev="poi-developers" type="fix">51339 - Fixed arithmetic rounding in formula evaluation </action>
+           <action dev="poi-developers" type="add">51356 - Support autoSizeColumn in SXSSF</action>
+           <action dev="poi-developers" type="add">51335 - Parse picture goal and crop sizes in HWPF</action>
+           <action dev="poi-developers" type="add">51305 - Add sprmTCellPaddingDefault support in HWPF</action>
+           <action dev="poi-developers" type="add">51265 - Enhanced Handling of Picture Parts in XWPF</action>
+           <action dev="poi-developers" type="add">51292 - Additional HWPF Table Cell Descriptor values</action>
+        </release>
+        <release version="3.8-beta3" date="2011-06-06">
+           <action dev="poi-developers" type="fix">51098 - Correctly calculate image width/height, if image fits into one cell</action>
+           <action dev="poi-developers" type="fix">47147 - Correct extra paragraphs from XWPF Table Cells</action>
+           <action dev="poi-developers" type="add">51188 - Support for getting and setting XPWF zoom settings</action>
+           <action dev="poi-developers" type="add">51134 - Support for adding Numbering and Styles to a XWPF document that doesn't already have them</action>
+           <action dev="poi-developers" type="fix">51273 - Formula Value Cache fix for repeated evaluations</action>
+           <action dev="poi-developers" type="add">51171 - Improved performance of SharedValueManager </action>
+           <action dev="poi-developers" type="fix">51236 - XSSF set colour support for black/white to match getter</action>
+           <action dev="poi-developers" type="add">51196 - Initial support for Spreadsheet Chart API</action>
+           <action dev="poi-developers" type="add">Add support for OOXML Agile Encryption</action>
+           <action dev="poi-developers" type="add">51160 - Initial version of SXSSF, a low memory foortprint API to produce xlsx files</action>
+           <action dev="poi-developers" type="fix">51171 - Improved performance of opening large .xls files</action>
+           <action dev="poi-developers" type="add">51172 - Add XWPF support for GIF pictures</action>
+           <action dev="poi-developers" type="add">NPOIFS Mini Streams now support extending the underlying big block stream to fit more data</action>
+           <action dev="poi-developers" type="fix">51148 - XWPFDocument now properly tracks paragraphs and tables when adding/removing them</action>
+           <action dev="poi-developers" type="fix">51153 - Correct sizing of LbsDataSubRecord with unused padding fields</action>
+           <action dev="poi-developers" type="fix">51143 - NameCommentRecord correction for writing non ASCII strings</action>
+           <action dev="poi-developers" type="fix">51112 - Correct XWPFTable tracking of new rows</action>
+           <action dev="poi-developers" type="fix">51113 - Correct XWPFParagraph tracking of inserted runs</action>
+           <action dev="poi-developers" type="fix">51111 - Correct XWPFParagraph tracking of new runs</action>
+           <action dev="poi-developers" type="fix">51115 - Handle DataFormatter escaping of "." in the same way as "-" and "/"</action>
+           <action dev="poi-developers" type="fix">51100 - Fix IOUtils issue for NPOIFS reading from an InputStream where every block is full</action>
+           <action dev="poi-developers" type="fix">50956 - Correct XSSF cell style cloning between workbooks</action>
+           <action dev="poi-developers" type="add">Add get/setForceFormulaRecalculation for XSSF, and promote the methods to the common usermodel Sheet</action>
+           <action dev="poi-developers" type="fix">Tweak the logic for sizing the HSSFCells array on a HSSFRow to reduce memory over allocation in many use cases</action>
+           <action dev="poi-developers" type="add">49765 - Support for adding a picture to a XSSFRun</action>
+           <action dev="poi-developers" type="fix">Rename/Move xssf.model.Table to xssf.usermodel.XSSFTable as it now has usermodel-like features</action>
+           <action dev="poi-developers" type="fix">51061 - Correct target URI for new XSSF Tables</action>
+           <action dev="poi-developers" type="add">Initial support for XSSF Charts. Provides easy access to the underlying CTChart object via the Sheet Drawing, but no high level interface onto the chart contents as yet.</action>
+           <action dev="poi-developers" type="fix">50884 - XSSF and HSSF freeze panes now behave the same</action>
+           <action dev="poi-developers" type="add">Support for adding a table to a XSSFSheet</action>
+           <action dev="poi-developers" type="add">Improve HSMF MAPIMessage access to the HTML and RTF versions of the message body (where available)</action>
+           <action dev="poi-developers" type="add">Add new method to HSMF of MAPIMessage.has7BitEncodingStrings() to make it easier to decide when encoding guessing is needed</action>
+           <action dev="poi-developers" type="fix">OutlookTextExtractor now requests 7 bit encoding guessing</action>
+           <action dev="poi-developers" type="add">Improve HSMF encoding guessing for 7 bit fields in MAPIMessage</action>
+           <action dev="poi-developers" type="add">Allow HSMF access to the HTML body contents in MAPIMessage</action>
+        </release>
+        <release version="3.8-beta2" date="2011-04-08">
+           <action dev="poi-developers" type="add">Implement the load method on MemoryPackagePart</action>
+           <action dev="poi-developers" type="add">50967 - Support for continued ExtSSTRecords</action>
+           <action dev="poi-developers" type="add">48968 - Support for HOUR, MINUTE and SECOND date formulas</action>
+           <action dev="poi-developers" type="add">Added NPOIFS constructors to most POIDocument classes and their extractors, and more widely deprecated the Document(DirectoryNode, POIFSFileSystem) constructor in favour of the more general Document(DirectoryNode) one</action>
+           <action dev="poi-developers" type="fix">Fixed NPOIFS handling of new and empty Document Nodes</action>
+           <action dev="poi-developers" type="fix">Fixed NPOIFS access to Document Nodes not in the top level directory</action>
+           <action dev="poi-developers" type="fix">50841 - Improved SpreadSheet DataFormatter to handle scientific notation, invalid dates and format spacers</action>
+           <action dev="poi-developers" type="fix">49381 - Correct createFreezePane in XSSF, so that the left row/column matches the documentation + HSSF</action>
+           <action dev="poi-developers" type="fix">49253 - When setting repeating rows and columns for XSSF, don't break the print settings if they were already there</action>
+           <action dev="poi-developers" type="fix">49219 - ExternalNameRecord support for DDE Link entries without an operation</action>
+           <action dev="poi-developers" type="fix">50846 - More XSSFColor theme improvements, this time for Cell Borders</action>
+           <action dev="poi-developers" type="fix">50939 - ChartEndObjectRecord is supposed to have 6 bytes at the end, but handle it not</action>
+           <action dev="poi-developers" type="add">HMEF - New component which supports TNEF (Transport Neutral Encoding Format), aka winmail.dat</action>
+           <action dev="poi-developers" type="fix">50313 - support for getting HWPFDocument fields</action>
+           <action dev="poi-developers" type="fix">50912 - fixed setting named styles to HSSFCells</action>
+           <action dev="poi-developers" type="fix">50779 - fixed RecordFormatException when reading unicode strings with photenic data</action>
+           <action dev="poi-developers" type="fix">50718 - More helpful error message when you try to create a CellReference with #REF!</action>
+           <action dev="poi-developers" type="fix">50784 - XSSFColors return by XSSFFont now have theme information applied to them</action>
+           <action dev="poi-developers" type="fix">50846 - Improve how XSSFColor inherits from Themes</action>
+           <action dev="poi-developers" type="fix">50847 - XSSFFont now accepts the full range of Charsets from FontChartset</action>
+           <action dev="poi-developers" type="fix">50786 - Speed up calls to HSSFColor.getIndexHash() by returning a cached, unmodifiable Map. HSSFColor.getModifiableIndexHash() provides access to the old (slow but modifiable) functionality</action>
+           <action dev="poi-developers" type="fix">47100 - Change related formulas and named ranges when XSSFWorkbook.setSheetName is called</action>
+        </release>
+        <release version="3.8-beta1" date="2011-03-07">
+           <action dev="poi-developers" type="add">50610 - Ant tasks for running POI against a workbook</action>
+           <action dev="poi-developers" type="add">32903 - Correct XBAT chaining explanation in /poifs/fileformat.html</action>
+           <action dev="poi-developers" type="add">50829 - Support for getting the tables associated with a XSSFSheet</action>
+           <action dev="poi-developers" type="fix">50299 - More XSSFColor updates for ARGB vs RGB</action>
+           <action dev="poi-developers" type="fix">50581 - Use stax:stax-api instead of org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</action>
+           <action dev="poi-developers" type="fix">50786 - Fix XSSFColor to fetch the RGB values of old-style indexed colours</action>
+           <action dev="poi-developers" type="fix">50299 - Fix XSSFColor fetching of white and black background themes</action>
+           <action dev="poi-developers" type="fix">50795 - Avoid NPE from xmlbeans when moving XSSF Comments from one cell to another</action>
+           <action dev="poi-developers" type="fix">46664 - When creating HSSF Print Areas, ensure the named range is reference based not value based</action>
+           <action dev="poi-developers" type="fix">50756 - When formatting numbers based on their Cell Style, treat GENERAL the same as the more typical General</action>
+           <action dev="poi-developers" type="fix">fixed HSSFWorkbook.createCellStyle to throw exception if the maximum number of cell styles was exceeded</action>
+           <action dev="poi-developers" type="fix">50539 - Better fix for html-style br tags (invalid XML) inside XSSF documents</action>
+           <action dev="poi-developers" type="add">49928 - allow overridden built-in formats in HSSFCellStyle</action>
+           <action dev="POI-DEVELOPERS" type="add">50607 - Added implementation for CLEAN(), CHAR() and ADDRESS()</action>
+           <action dev="poi-developers" type="add">50587 - Improved documentation on user-defined functions</action>
+           <action dev="poi-developers" type="add">Inside ExtractorFactory, support finding embedded OOXML documents and providing extractors for them</action>
+           <action dev="poi-developers" type="add">Partial HDGF LZW compression support</action>
+           <action dev="poi-developers" type="add">50244 - Support for continued NameRecords</action>
+           <action dev="POI-DEVELOPERS" type="fix">50416 - Correct shifting of the first or last row in a sheet by multiple rows</action>
+           <action dev="POI-DEVELOPERS" type="fix">50440 - Support evaluating formulas with newlines in them, which XSSF may have (but HSSF may not)</action>
+           <action dev="POI-DEVELOPERS" type="add">Added inline string support to XSSF EventModel</action>
+           <action dev="POI-DEVELOPERS" type="fix">50246 - Properly position GutsRecord when reading HSSF workbooks</action>
+           <action dev="POI-DEVELOPERS" type="add">48539 - Added implementation for MROUND(), VAR() and VARP()</action>
+           <action dev="POI-DEVELOPERS" type="add">50446 - Code cleanup and optimizations to keep some IDE quiet</action>
+           <action dev="POI-DEVELOPERS" type="add">50437 - Support passing ranges to NPV()</action>
+           <action dev="POI-DEVELOPERS" type="add">50409 - Added implementation for IRR()</action>
+           <action dev="poi-developers" type="add">47405 - Improved performance of RowRecordsAggregate.getStartRowNumberForBlock / getEndRowNumberForBlock</action>
+           <action dev="poi-developers" type="fix">50315 - Avoid crashing Excel when sorting XSSFSheet autofilter</action>
+           <action dev="poi-developers" type="add">50076 - Allow access from XSSFReader to sheet comments and headers/footers</action>
+           <action dev="poi-developers" type="add">50076 - Refactor XSSFEventBasedExcelExtractor to make it easier for you to have control over outputting the cell contents</action>
+           <action dev="poi-developers" type="fix">50258 - avoid corruption of XSSFWorkbook after applying XSSFRichTextRun#applyFont</action>
+           <action dev="poi-developers" type="fix">50154 - Allow white spaces and unicode in OPC relationship targets </action>
+           <action dev="poi-developers" type="fix">50113 - Remove cell from Calculation Chain after setting cell type to blank </action>
+           <action dev="poi-developers" type="fix">49966 - Ensure that XSSFRow#removeCell cleares calculation chain entries </action>
+           <action dev="poi-developers" type="fix">50096 - Fixed evaluation of cell references with column index greater than 255 </action>
+           <action dev="poi-developers" type="fix">49761 - Tolerate Double.NaN when reading .xls files</action>
+           <action dev="poi-developers" type="fix">50211 - Use cached formula result when auto-sizing formula cells</action>
+           <action dev="poi-developers" type="fix">50118 - OLE2 does allow a directory with an empty name, so support this in POIFS</action>
+           <action dev="poi-developers" type="fix">50119 - avoid NPE when XSSFReader comes across chart sheets</action>
+        </release>
         <release version="3.7" date="2010-10-29">
            <action dev="poi-developers" type="fix">50075 - avoid NPE in ListLevel.getNumberText() when numberText is null </action>
            <action dev="poi-developers" type="fix">50067 - marked commons-logging and log4j as optional dependencies in POI poms</action>
@@ -800,7 +1097,7 @@
             <action dev="POI-DEVELOPERS" type="fix" context="All">Fix supplied for bug 24397 where some compilation got ambiguous classes.  Explicitly imports the classes.  Patch supplied by Jean-Pierre Paris.</action>
         </release>
 
-        <release verion="2.0-RC1" date="2003-11-02">
+        <release version="2.0-RC1" date="2003-11-02">
             <action dev="POI-DEVELOPERS" type="fix" context="All">12561 (Min)	HSSFWorkbook throws Exceptions</action>
             <action dev="POI-DEVELOPERS" type="fix" context="All">12730 (Nor)	values dont get copied to another sheet.</action>
             <action dev="POI-DEVELOPERS" type="fix" context="All">13224 (Maj)	Exception thrown when cell has =Names call</action>
@@ -906,7 +1203,10 @@
             <action dev="POI-DEVELOPERS" type="add" context="All">Early stages of HSF development (not ready for development)</action>
             <action dev="POI-DEVELOPERS" type="add" context="All">Initial low level record support for charting (not complete)</action>
         </release>
-        <release version="1.1.0" date="Release date not recorded">
+        <release version="1.2.0" date="2002-01-19">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="1.1.0" date="2002-01-04">
             <action dev="POI-DEVELOPERS" type="update" context="All">Created new event model</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Optimizations made to HSSF including aggregate records for
                 values, rows, etc.</action>
@@ -914,10 +1214,16 @@
                 array copies)</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">minor re-factoring and bug fixes.</action>
         </release>
-        <release version="1.0.0" date="Release date not recorded">
+        <release version="1.0.2" date="2002-01-11">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="1.0.1" date="2002-01-04">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="1.0.0" date="2001-12-30">
             <action dev="POI-DEVELOPERS" type="update" context="All">Minor documentation updates.</action>
         </release>
-        <release version="0.14.0" date="Release date not recorded">
+        <release version="0.14.0" date="2001-12-22">
             <action dev="POI-DEVELOPERS" type="update" context="All">Added DataFormat helper class and exposed set and get format
                 on HSSFCellStyle</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Fixed column width apis (unit wise) and various javadoc on
@@ -926,10 +1232,10 @@
                 write a unit test for this ;-p).</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Some optimization on sheet creation.</action>
         </release>
-        <release version="0.13.0" date="Release date not recorded">
+        <release version="0.13.0" date="2001-12-16">
             <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
         </release>
-        <release version="0.12.0" date="Release date not recorded">
+        <release version="0.12.0" date="2001-12-12">
             <action dev="POI-DEVELOPERS" type="update" context="All">Added MulBlank, Blank, ColInfo</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Added log4j facility and removed all sys.out type logging</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Added support for adding font's, styles and corresponding
@@ -940,11 +1246,11 @@
                 from HSSFCell.setStringValue, etc when the encoding is set)</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">added support for adding/removing and naming sheets.</action>
         </release>
-        <release version="0.11.0" date="Release date not recorded">
+        <release version="0.11.0" date="2001-12-08">
             <action dev="POI-DEVELOPERS" type="update" context="All">Bugfix release. We were throwing an exception when reading
                 RKRecord objects.</action>
         </release>
-        <release version="0.10.0" date="Release date not recorded">
+        <release version="0.10.0" date="2001-12-02">
             <action dev="POI-DEVELOPERS" type="update" context="All">Got continuation records to work (read/write)</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Added various pre-support for formulas</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Massive API reorganization, repackaging.</action>
@@ -952,7 +1258,7 @@
                 HSSF Output.</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Better API support for modification.</action>
         </release>
-        <release version="0.7 (and interim releases)" date="Release date not recorded">
+        <release version="0.7 (and interim releases)" date="2001-11-17">
             <action dev="POI-DEVELOPERS" type="update" context="All">Added encoding flag to high and low level api to use utf-16
                 when needed (HSSFCell.setEncoding())</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">added read only support for Label records (which are
@@ -961,11 +1267,26 @@
             <action dev="POI-DEVELOPERS" type="update" context="All">BiffViewer class added for validating HSSF &amp; POI and/or
                 HSSF Output.</action>
         </release>
-        <release version="0.6 (release)" date="Release date not recorded">
+        <release version="0.6" date="2001-11-11">
             <action dev="POI-DEVELOPERS" type="update" context="All">Support for read/write and modify.</action>
             <action dev="POI-DEVELOPERS" type="update" context="All">Read only support for MulRK records (converted to Number when
                 writing)
             </action>
+        </release>
+        <release version="0.5" date="2001-11-05">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="0.4" date="2001-10-31">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="0.3" date="2001-10-26">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="0.2" date="2001-09-24">
+            <action dev="POI-DEVELOPERS" type="update" context="All">Changes not recorded.</action>
+        </release>
+        <release version="0.1" date="2001-08-28">
+            <action dev="POI-DEVELOPERS" type="update" context="All">First ever public release</action>
         </release>
 
     </changes>

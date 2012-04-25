@@ -87,17 +87,12 @@
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
-			<artifactId>ooxml-schemas</artifactId>
+			<artifactId>poi-ooxml-schemas</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>dom4j</groupId>
 			<artifactId>dom4j</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.xml.stream</groupId>
-			<artifactId>stax-api</artifactId>
 		</dependency>
 
 		<!-- OPENL MODIFIED POI -->

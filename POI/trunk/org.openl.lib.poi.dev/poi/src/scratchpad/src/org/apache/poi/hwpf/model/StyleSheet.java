@@ -19,21 +19,26 @@ package org.apache.poi.hwpf.model;
 
 import java.io.IOException;
 
-import org.apache.poi.util.LittleEndian;
 import org.apache.poi.hwpf.model.io.HWPFOutputStream;
+import org.apache.poi.hwpf.sprm.CharacterSprmUncompressor;
+import org.apache.poi.hwpf.sprm.ParagraphSprmUncompressor;
 import org.apache.poi.hwpf.usermodel.CharacterProperties;
 import org.apache.poi.hwpf.usermodel.ParagraphProperties;
-import org.apache.poi.hwpf.sprm.ParagraphSprmUncompressor;
-import org.apache.poi.hwpf.sprm.CharacterSprmUncompressor;
+import org.apache.poi.util.Internal;
+import org.apache.poi.util.LittleEndian;
 
 /**
  * Represents a document's stylesheet. A word documents formatting is stored as
  * compressed styles that are based on styles contained in the stylesheet. This
  * class also contains static utility functions to uncompress different
  * formatting properties.
- *
+ * <p>
+ * Fields documentation is quotes from Microsoft Office Word 97-2007 Binary File
+ * Format (.doc) Specification, page 36 of 210
+ * 
  * @author Ryan Ackley
  */
+@Internal
 public final class StyleSheet implements HDFType {
 
   public static final int NIL_STYLE = 4095;
@@ -42,18 +47,24 @@ public final class StyleSheet implements HDFType {
   private static final int SEP_TYPE = 4;
   private static final int TAP_TYPE = 5;
 
+    @Deprecated
+    private final static ParagraphProperties NIL_PAP = new ParagraphProperties();
+    @Deprecated
+    private final static CharacterProperties NIL_CHP = new CharacterProperties();
 
-  private final static ParagraphProperties NIL_PAP = new ParagraphProperties();
-  private final static CharacterProperties NIL_CHP = new CharacterProperties();
+  private final static byte[] NIL_CHPX = new byte[] {};
+  private final static byte[] NIL_PAPX = new byte[] {0, 0};
 
-  private int _stshiLength;
-  private int _baseLength;
-  private int _flags;
-  private int _maxIndex;
-  private int _maxFixedIndex;
-  private int _stylenameVersion;
-  private int[] _rgftc;
+    /**
+     * Size of the STSHI structure
+     */
+    private int _cbStshi;
 
+    /**
+     * General information about a stylesheet
+     */
+    private Stshif _stshif;
+    
   StyleDescription[] _styleDescriptions;
 
   /**
@@ -65,33 +76,26 @@ public final class StyleSheet implements HDFType {
    */
   public StyleSheet(byte[] tableStream, int offset)
   {
-      int startOffset = offset;
-      _stshiLength = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      int stdCount = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _baseLength = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _flags = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _maxIndex = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _maxFixedIndex = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _stylenameVersion = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
+        int startOffset = offset;
+        _cbStshi = LittleEndian.getShort( tableStream, offset );
+        offset += LittleEndian.SHORT_SIZE;
 
-      _rgftc = new int[3];
-      _rgftc[0] = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _rgftc[1] = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
-      _rgftc[2] = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE;
+        /*
+         * Count of styles in stylesheet
+         * 
+         * The number of styles in this style sheet. There will be stshi.cstd
+         * (cbSTD, STD) pairs in the file following the STSHI. Note: styles can
+         * be empty, i.e. cbSTD==0.
+         */
+        
+        _stshif = new Stshif( tableStream, offset );
+        offset += Stshif.getSize();
 
-      offset = startOffset + LittleEndian.SHORT_SIZE + _stshiLength;
-      _styleDescriptions = new StyleDescription[stdCount];
-      for(int x = 0; x < stdCount; x++)
+        // shall we discard cbLSD and mpstilsd?
+        
+      offset = startOffset + LittleEndian.SHORT_SIZE + _cbStshi;
+      _styleDescriptions = new StyleDescription[_stshif.getCstd()];
+      for(int x = 0; x < _stshif.getCstd(); x++)
       {
           int stdSize = LittleEndian.getShort(tableStream, offset);
           //get past the size
@@ -101,7 +105,7 @@ public final class StyleSheet implements HDFType {
               //byte[] std = new byte[stdSize];
 
               StyleDescription aStyle = new StyleDescription(tableStream,
-                _baseLength, offset, true);
+                      _stshif.getCbSTDBaseInFile(), offset, true);
 
               _styleDescriptions[x] = aStyle;
           }
@@ -122,29 +126,25 @@ public final class StyleSheet implements HDFType {
   public void writeTo(HWPFOutputStream out)
     throws IOException
   {
+
     int offset = 0;
+
+        /*
+         * we don't support 2003 Word extensions in STSHI (but may be we should
+         * at least not delete them, shouldn't we?), so our structure is always
+         * 18 bytes in length -- sergey
+         */
+        this._cbStshi = 18;
+
     // add two bytes so we can prepend the stylesheet w/ its size
-    byte[] buf = new byte[_stshiLength + 2];
-    LittleEndian.putShort(buf, offset, (short)_stshiLength);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_styleDescriptions.length);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_baseLength);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_flags);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_maxIndex);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_maxFixedIndex);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_stylenameVersion);
+    byte[] buf = new byte[_cbStshi + 2];
+
+    LittleEndian.putUShort(buf, offset, (short)_cbStshi);
     offset += LittleEndian.SHORT_SIZE;
 
-    LittleEndian.putShort(buf, offset, (short)_rgftc[0]);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_rgftc[1]);
-    offset += LittleEndian.SHORT_SIZE;
-    LittleEndian.putShort(buf, offset, (short)_rgftc[2]);
+    _stshif.setCstd( _styleDescriptions.length );
+    _stshif.serialize( buf, offset );
+    offset += Stshif.getSize();
 
     out.write(buf);
 
@@ -178,11 +178,7 @@ public final class StyleSheet implements HDFType {
   {
     StyleSheet ss = (StyleSheet)o;
 
-    if (ss._baseLength == _baseLength && ss._flags == _flags &&
-        ss._maxFixedIndex ==_maxFixedIndex && ss._maxIndex == _maxIndex &&
-        ss._rgftc[0] == _rgftc[0] && ss._rgftc[1] == _rgftc[1] &&
-        ss._rgftc[2] == _rgftc[2] && ss._stshiLength == _stshiLength &&
-        ss._stylenameVersion == _stylenameVersion)
+    if (ss._stshif.equals( this._stshif ) && ss._cbStshi == _cbStshi)
     {
       if (ss._styleDescriptions.length == _styleDescriptions.length)
       {
@@ -213,6 +209,7 @@ public final class StyleSheet implements HDFType {
    * @param istd The index of the StyleDescription to create the
    *        ParagraphProperties  from (and also place the finished PAP in)
    */
+  @Deprecated
   private void createPap(int istd)
   {
       StyleDescription sd = _styleDescriptions[istd];
@@ -238,6 +235,10 @@ public final class StyleSheet implements HDFType {
 
           }
 
+          if (parentPAP == null) {
+              parentPAP = new ParagraphProperties();
+          }
+
           pap = ParagraphSprmUncompressor.uncompressPAP(parentPAP, papx, 2);
           sd.setPAP(pap);
       }
@@ -252,6 +253,7 @@ public final class StyleSheet implements HDFType {
    * @param istd The index of the StyleDescription to create the
    *        CharacterProperties object from.
    */
+  @Deprecated
   private void createChp(int istd)
   {
       StyleDescription sd = _styleDescriptions[istd];
@@ -296,32 +298,107 @@ public final class StyleSheet implements HDFType {
       return _styleDescriptions.length;
   }
 
-  /**
-   * Gets the StyleDescription at index x.
-   *
-   * @param x the index of the desired StyleDescription.
-   */
-  public StyleDescription getStyleDescription(int x)
-  {
-      return _styleDescriptions[x];
-  }
-
-  public CharacterProperties getCharacterStyle(int x)
-  {
-    if (x == NIL_STYLE)
+    /**
+     * Gets the StyleDescription at index x.
+     * 
+     * @param styleIndex
+     *            the index of the desired StyleDescription.
+     */
+    public StyleDescription getStyleDescription( int styleIndex )
     {
-      return NIL_CHP;
+        return _styleDescriptions[styleIndex];
     }
-    return (_styleDescriptions[x] != null ? _styleDescriptions[x].getCHP() : null);
-  }
 
-  public ParagraphProperties getParagraphStyle(int x)
-  {
-    if (x == NIL_STYLE)
+    @Deprecated
+    public CharacterProperties getCharacterStyle( int styleIndex )
     {
-      return NIL_PAP;
-    }
-    return (_styleDescriptions[x] != null ? _styleDescriptions[x].getPAP() : null);
-  }
+        if ( styleIndex == NIL_STYLE )
+        {
+            return NIL_CHP;
+        }
 
+        if ( styleIndex >= _styleDescriptions.length )
+        {
+            return NIL_CHP;
+        }
+
+        return ( _styleDescriptions[styleIndex] != null ? _styleDescriptions[styleIndex]
+                .getCHP() : NIL_CHP );
+    }
+
+    @Deprecated
+    public ParagraphProperties getParagraphStyle( int styleIndex )
+    {
+        if ( styleIndex == NIL_STYLE )
+        {
+            return NIL_PAP;
+        }
+
+        if ( styleIndex >= _styleDescriptions.length )
+        {
+            return NIL_PAP;
+        }
+
+        if ( _styleDescriptions[styleIndex] == null )
+        {
+            return NIL_PAP;
+        }
+
+        if ( _styleDescriptions[styleIndex].getPAP() == null )
+        {
+            return NIL_PAP;
+        }
+
+        return _styleDescriptions[styleIndex].getPAP();
+    }
+
+    public byte[] getCHPX( int styleIndex )
+    {
+        if ( styleIndex == NIL_STYLE )
+        {
+            return NIL_CHPX;
+        }
+
+        if ( styleIndex >= _styleDescriptions.length )
+        {
+            return NIL_CHPX;
+        }
+
+        if ( _styleDescriptions[styleIndex] == null )
+        {
+            return NIL_CHPX;
+        }
+
+        if ( _styleDescriptions[styleIndex].getCHPX() == null )
+        {
+            return NIL_CHPX;
+        }
+
+        return _styleDescriptions[styleIndex].getCHPX();
+    }
+
+    public byte[] getPAPX( int styleIndex )
+    {
+        if ( styleIndex == NIL_STYLE )
+        {
+            return NIL_PAPX;
+        }
+
+        if ( styleIndex >= _styleDescriptions.length )
+        {
+            return NIL_PAPX;
+        }
+
+        if ( _styleDescriptions[styleIndex] == null )
+        {
+            return NIL_PAPX;
+        }
+
+        if ( _styleDescriptions[styleIndex].getPAPX() == null )
+        {
+            return NIL_PAPX;
+        }
+
+        return _styleDescriptions[styleIndex].getPAPX();
+    }
 }

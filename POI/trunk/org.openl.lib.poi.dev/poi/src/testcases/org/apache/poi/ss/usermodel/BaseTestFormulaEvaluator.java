@@ -193,6 +193,44 @@ public abstract class BaseTestFormulaEvaluator extends TestCase {
         assertEquals(26.0, fe.evaluate(cell0).getNumberValue(), 0.0);
         assertEquals(56.0, fe.evaluate(cell1).getNumberValue(), 0.0);
     }
+    
+    public void testRepeatedEvaluation() {
+       Workbook wb = _testDataProvider.createWorkbook();
+       FormulaEvaluator fe = wb.getCreationHelper().createFormulaEvaluator();
+       Sheet sheet = wb.createSheet("Sheet1");
+       Row r = sheet.createRow(0);
+       Cell c = r.createCell(0, Cell.CELL_TYPE_FORMULA);
+       
+       // Create a value and check it
+       c.setCellFormula("Date(2011,10,6)");
+       CellValue cellValue = fe.evaluate(c);
+       assertEquals(40822.0, cellValue.getNumberValue(), 0.0);
+       cellValue = fe.evaluate(c);
+       assertEquals(40822.0, cellValue.getNumberValue(), 0.0);
+       
+       // Change it
+       c.setCellFormula("Date(2011,10,4)");
+       
+       // Evaluate it, no change as the formula evaluator
+       //  won't know to clear the cache
+       cellValue = fe.evaluate(c);
+       assertEquals(40822.0, cellValue.getNumberValue(), 0.0);
+       
+       // Manually flush for this cell, and check
+       fe.notifySetFormula(c);
+       cellValue = fe.evaluate(c);
+       assertEquals(40820.0, cellValue.getNumberValue(), 0.0);
+       
+       // Change again, without notifying
+       c.setCellFormula("Date(2010,10,4)");
+       cellValue = fe.evaluate(c);
+       assertEquals(40820.0, cellValue.getNumberValue(), 0.0);
+       
+       // Now manually clear all, will see the new value
+       fe.clearAllCachedResultValues();
+       cellValue = fe.evaluate(c);
+       assertEquals(40455.0, cellValue.getNumberValue(), 0.0);
+    }
 
     private static void setValue(Sheet sheet, int rowIndex, int colIndex, double value) {
         Row row = sheet.getRow(rowIndex);
@@ -243,4 +281,23 @@ public abstract class BaseTestFormulaEvaluator extends TestCase {
         assertEquals(3.5, cellB1.getNumericCellValue(), 0.0);
     }
 
+
+    public void testRounding_bug51339() {
+        Workbook wb = _testDataProvider.createWorkbook();
+        Sheet sheet = wb.createSheet("Sheet1");
+        Row row = sheet.createRow(0);
+        Cell cellA1 = row.createCell(0);
+        cellA1.setCellValue(2162.615d);
+        Cell cellB1 = row.createCell(1);
+        cellB1.setCellFormula("round(a1,2)");
+        Cell cellC1 = row.createCell(2);
+        cellC1.setCellFormula("roundup(a1,2)");
+        Cell cellD1 = row.createCell(3);
+        cellD1.setCellFormula("rounddown(a1,2)");
+        FormulaEvaluator fe = wb.getCreationHelper().createFormulaEvaluator();
+
+        assertEquals(2162.62, fe.evaluateInCell(cellB1).getNumericCellValue(), 0.0);
+        assertEquals(2162.62, fe.evaluateInCell(cellC1).getNumericCellValue(), 0.0);
+        assertEquals(2162.61, fe.evaluateInCell(cellD1).getNumericCellValue(), 0.0);
+    }
 }

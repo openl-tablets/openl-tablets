@@ -17,12 +17,12 @@
 
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.Area3DPtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.Ref3DPtg;
-import org.apache.poi.hssf.record.formula.eval.*;
-import org.apache.poi.hssf.record.formula.functions.FreeRefFunction;
+import org.apache.poi.ss.formula.ptg.Area3DPtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.ptg.Ref3DPtg;
+import org.apache.poi.ss.formula.eval.*;
+import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.CollaboratingWorkbooksEnvironment.WorkbookNotFoundException;
 import org.apache.poi.ss.formula.EvaluationWorkbook.ExternalName;
@@ -49,7 +49,7 @@ public final class OperationEvaluationContext {
     private final boolean _inArrayFormulaContext;
 
 	public OperationEvaluationContext(WorkbookEvaluator bookEvaluator, EvaluationWorkbook workbook, int sheetIndex, int srcRowNum,
-			int srcColNum, EvaluationTracker tracker, boolean inArrayFormulaContext) {
+            int srcColNum, EvaluationTracker tracker, boolean inArrayFormulaContext) {
 		_bookEvaluator = bookEvaluator;
 		_workbook = workbook;
 		_sheetIndex = sheetIndex;
@@ -94,10 +94,10 @@ public final class OperationEvaluationContext {
 			// look up sheet by name from external workbook
 			String workbookName = externalSheet.getWorkbookName();
             workbookName = _workbook.restoreExternalWorkbookName(workbookName);
-            try {
+			try {
                 targetEvaluator = _bookEvaluator.getorCreateOtherWorkbookEvaluator(workbookName);
 			} catch (WorkbookNotFoundException e) {
-				throw new RuntimeException(e.getMessage());
+				throw new RuntimeException(e.getMessage(), e);
 			}
 			otherSheetIndex = targetEvaluator.getSheetIndex(externalSheet.getSheetName());
 			if (otherSheetIndex < 0) {
@@ -120,7 +120,7 @@ public final class OperationEvaluationContext {
 				throw new IllegalArgumentException("sheetName must not be null if workbookName is provided");
 			}
 			try {
-				targetEvaluator = _bookEvaluator.getorCreateOtherWorkbookEvaluator(workbookName);
+                targetEvaluator = _bookEvaluator.getorCreateOtherWorkbookEvaluator(workbookName);
 			} catch (WorkbookNotFoundException e) {
 				return null;
 			}
@@ -234,7 +234,7 @@ public final class OperationEvaluationContext {
         } else {
             return new LazyAreaEval(firstRow, firstCol, lastRow, lastCol, sre);
         }
-	}
+    }
 
 	private static int parseRowRef(String refStrPart) {
 		return CellReference.convertColStringToIndex(refStrPart);
