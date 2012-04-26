@@ -11,7 +11,7 @@
             padding: 0 3px 0 5px;
         }
     </style>
-
+	
     <table class="testtable" style="border: 1px solid white">
         <tr>
             <a4j:repeat var="argument" value="#{inputArgsBean.arguments}">
@@ -23,7 +23,7 @@
 
         <tr style="vertical-align: top; text-align: left">
             <a4j:repeat var="argumentTreeNode" value="#{inputArgsBean.argumentTreeNodes}">
-                <td><rich:panel id="dynamicTreePanel">
+                <td width="100 px"><rich:panel id="dynamicTreePanel">
                         <rich:tree toggleType="client" selectionType="client"
                             value="#{inputArgsBean.getRoot(argumentTreeNode)}" var="item"
                             nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}"
