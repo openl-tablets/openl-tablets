@@ -64,4 +64,11 @@ public class DeepCloninigVariaion extends Variation {
     public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
     }
 
+	/**
+	 * @return Wrapped variation.
+	 */
+    public Variation getDelegatedVariation() {
+		return variation;
+	}
+
 }
