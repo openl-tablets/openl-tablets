@@ -86,7 +86,8 @@ class VariationsInvocationHandler implements InvocationHandler {
                 Object result = member.invoke(serviceClassInstance, modifiedArguments);
                 variationsResults.registerResults(variation.getVariationID(), result);
             } catch (Exception e) {
-                // TODO is it necessary to wrap exception?
+				log.debug("Failed to calculate \"" + variation.getVariationID()
+						+ "\"", e);
                 variationsResults.registerFailure(variation.getVariationID(), e);
             }
         } finally {
