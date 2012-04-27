@@ -91,8 +91,25 @@
             var urlRewrite = {
                 prefix: "#{rulesEditor}/"
             }
+            
+            function getCurrentHash() {
+                // Because firefox has a bug with decoding location.hash value, we use location.href.split("#")[1] instead
+                var page = location.href;
+                return page.indexOf("#") != -1 ? page.split("#")[1] : "";
+            }
 
+            var lastSavedHash = getCurrentHash();
+            
             $j(window).bind("hashchange", function() {
+                var ch = getCurrentHash();
+                if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
+                    // Workaround for a bug in firefox. Sometimes it decodes a loading url and then loads decoded url.
+                    location.hash = lastSavedHash;
+                    return;
+                } else {
+                    lastSavedHash = ch;
+                }
+
                 loadContent(getCurrentPage());
             });
 
@@ -112,7 +129,7 @@
                     east__size: 230,
                     east__initHidden: true
                 });
-
+                
                 centerLayout = $j("#center .ui-layout-center").layout({
                     spacing_open: 1,
                     south__size: 110
@@ -193,7 +210,7 @@
 
             function getCurrentPage() {
                 if (location.hash) {
-                    var page = location.href.split("#")[1];
+                    var page = lastSavedHash;
                     if (page && page.indexOf(urlRewrite.prefix) < 0) {
                         page = urlRewrite.prefix + page;
                     }
