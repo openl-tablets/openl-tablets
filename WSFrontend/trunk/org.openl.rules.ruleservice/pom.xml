@@ -70,7 +70,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
 	</build>
 
@@ -85,6 +84,7 @@
 			<groupId>asm</groupId>
 			<artifactId>asm</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
@@ -100,7 +100,6 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules</artifactId>
 		</dependency>
-
 
 		<!-- STUDIO -->
 		<dependency>
