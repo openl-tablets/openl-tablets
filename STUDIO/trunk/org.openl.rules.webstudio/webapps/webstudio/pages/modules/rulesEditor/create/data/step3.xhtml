@@ -18,9 +18,12 @@
 	            padding: 0 3px 0 5px;
 	        }
 	        .nodeName {
-	            margin-right: 5px;
 	            font-weight: bolder;
 	        }
+            .nodeFieldName {
+                margin-left: 10px;
+                font-weight: normal;
+            }
 	        .dataTableTreeTree .rf-trn-ico-lf { 
 	            display: none;
 	        } 
@@ -49,10 +52,10 @@
                      See: https://issues.jboss.org/browse/RF-11102 for details -->
                      
                     <rich:treeNode type="complex">
-                        <h:outputText styleClass="nodeName" value="#{item.name} : "/>
-                        <h:outputText value="Business Name = " rendered="#{item.leaf}" />
+                        <h:outputText styleClass="nodeName" value="#{item.name} :"/>
+                        <h:outputText styleClass="nodeFieldName" value="Business Name = " rendered="#{item.leaf}" />
                         <h:inputText value="#{item.businessName}" rendered="#{item.leaf}"/>
-                        <h:outputText value="Foreign Key = " rendered="#{item.leaf}"/>
+                        <h:outputText styleClass="nodeFieldName" value="Foreign Key = " rendered="#{item.leaf}"/>
                         
 		                <h:selectOneMenu id="complexForeignKeyTable" value="#{item.foreignKeyTable}" rendered="#{item.leaf}">
 		                    <f:selectItems value="#{wizard.getForeignKeyTables(item.typeName)}" />
@@ -75,11 +78,11 @@
                     </rich:treeNode>
                     
                     <rich:treeNode type="simple">
-                        <h:outputText styleClass="nodeName" value="#{item.name} : " />
-                        <h:outputText value="Business Name = "/>
+                        <h:outputText styleClass="nodeName" value="#{item.name} :" />
+                        <h:outputText styleClass="nodeFieldName" value="Business Name = "/>
                         <h:inputText value="#{item.businessName}"/>
                         
-                        <h:outputText value="Foreign key"/>
+                        <h:outputText styleClass="nodeFieldName" value="Foreign key"/>
                         <h:selectBooleanCheckbox id="toggleCheckbox" value="#{item.editForeignKey}" render="@form" onchange="toggleForeignKey(this, 'foreignKeyPanel');"/>
                         
                         <a4j:outputPanel id="foreignKeyPanel" style="#{item.editForeignKey? 'display:inline' : 'display:none'}" >
