@@ -211,7 +211,7 @@ public abstract class WizardBase extends BaseWizardBean {
 			String name = ((String) value).toUpperCase();
 	        
 	        if(!this.checkNames(name)){
-	        	message.setDetail("Table with such name is present");
+	        	message.setDetail("Table with such name already exists");
 	        	validEx = new ValidatorException(message);  
 		        throw validEx;  
 	        }    
