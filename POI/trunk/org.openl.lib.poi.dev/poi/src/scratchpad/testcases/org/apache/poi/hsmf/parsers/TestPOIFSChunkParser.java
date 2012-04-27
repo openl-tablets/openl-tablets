@@ -28,6 +28,7 @@ import org.apache.poi.hsmf.MAPIMessage;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks;
 import org.apache.poi.hsmf.datatypes.ChunkGroup;
 import org.apache.poi.hsmf.datatypes.Chunks;
+import org.apache.poi.hsmf.datatypes.MAPIProperty;
 import org.apache.poi.hsmf.datatypes.NameIdChunks;
 import org.apache.poi.hsmf.datatypes.RecipientChunks;
 import org.apache.poi.hsmf.datatypes.RecipientChunks.RecipientChunksSorter;
@@ -56,10 +57,10 @@ public final class TestPOIFSChunkParser extends TestCase {
       
       // Check a few core things are present
       simple.getRoot().getEntry(
-            (new StringChunk(Chunks.SUBJECT, Types.ASCII_STRING)).getEntryName()
+            (new StringChunk(MAPIProperty.SUBJECT.id, Types.ASCII_STRING)).getEntryName()
       );
       simple.getRoot().getEntry(
-            (new StringChunk(Chunks.DISPLAY_FROM, Types.ASCII_STRING)).getEntryName()
+            (new StringChunk(MAPIProperty.SENDER_NAME.id, Types.ASCII_STRING)).getEntryName()
       );
       
       // Now load the file
@@ -331,5 +332,21 @@ public final class TestPOIFSChunkParser extends TestCase {
       } catch(ChunkNotFoundException e) {
          fail();
       }
-	}
+   }
+	
+   /**
+    * Bugzilla #51873 - Outlook 2002 files created with dragging and
+    *  dropping files to the disk include a non-standard named streams
+    *  such as "Olk10SideProps_0001"
+    */
+   public void testOlk10SideProps() throws Exception {
+      POIFSFileSystem poifs = new POIFSFileSystem(
+          new FileInputStream(samples.getFile("51873.msg"))
+      );
+      MAPIMessage msg = new MAPIMessage(poifs);
+
+      // Check core details came through
+      assertEquals("bubba@bubbasmith.com", msg.getDisplayTo());
+      assertEquals("Test with Olk10SideProps_ Chunk", msg.getSubject());
+   }
 }

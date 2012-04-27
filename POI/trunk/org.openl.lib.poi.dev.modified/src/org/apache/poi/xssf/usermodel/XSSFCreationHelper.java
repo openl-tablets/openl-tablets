@@ -16,7 +16,7 @@
 ==================================================================== */
 package org.apache.poi.xssf.usermodel;
 
-import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 

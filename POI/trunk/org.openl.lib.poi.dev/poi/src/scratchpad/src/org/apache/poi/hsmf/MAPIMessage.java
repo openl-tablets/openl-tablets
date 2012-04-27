@@ -29,18 +29,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.poi.POIDocument;
+import org.apache.poi.hmef.attribute.MAPIRtfAttribute;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks.AttachmentChunksSorter;
+import org.apache.poi.hsmf.datatypes.ByteChunk;
 import org.apache.poi.hsmf.datatypes.Chunk;
 import org.apache.poi.hsmf.datatypes.ChunkGroup;
 import org.apache.poi.hsmf.datatypes.Chunks;
+import org.apache.poi.hsmf.datatypes.MAPIProperty;
 import org.apache.poi.hsmf.datatypes.NameIdChunks;
 import org.apache.poi.hsmf.datatypes.RecipientChunks;
+import org.apache.poi.hsmf.datatypes.Types;
 import org.apache.poi.hsmf.datatypes.RecipientChunks.RecipientChunksSorter;
 import org.apache.poi.hsmf.datatypes.StringChunk;
 import org.apache.poi.hsmf.exceptions.ChunkNotFoundException;
 import org.apache.poi.hsmf.parsers.POIFSChunkParser;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
@@ -92,17 +97,31 @@ public class MAPIMessage extends POIDocument {
     * @throws IOException
     */
    public MAPIMessage(POIFSFileSystem fs) throws IOException {
-      this(fs.getRoot(), fs);
+      this(fs.getRoot());
+   }
+   /**
+    * Constructor for reading MSG Files from a POIFS filesystem
+    * @param fs
+    * @throws IOException
+    */
+   public MAPIMessage(NPOIFSFileSystem fs) throws IOException {
+      this(fs.getRoot());
+   }
+   /**
+    * @deprecated Use {@link #MAPIMessage(DirectoryNode)} instead
+    */
+   @Deprecated
+   public MAPIMessage(DirectoryNode poifsDir, POIFSFileSystem fs) throws IOException {
+      this(poifsDir);
    }
    /**
     * Constructor for reading MSG Files from a certain
     *  point within a POIFS filesystem
     * @param poifsDir
-    * @param fs
     * @throws IOException
     */
-   public MAPIMessage(DirectoryNode poifsDir, POIFSFileSystem fs) throws IOException {
-      super(poifsDir, fs);
+   public MAPIMessage(DirectoryNode poifsDir) throws IOException {
+      super(poifsDir);
 
       // Grab all the chunks
       ChunkGroup[] chunkGroups = POIFSChunkParser.parse(poifsDir);
@@ -158,6 +177,49 @@ public class MAPIMessage extends POIDocument {
     */
    public String getTextBody() throws ChunkNotFoundException {
       return getStringFromChunk(mainChunks.textBodyChunk);
+   }
+
+   /**
+    * Gets the html body of this Outlook Message, if this email
+    *  contains a html version.
+    * @return The string representation of the 'html' version of the body, if available.
+    * @throws ChunkNotFoundException
+    */
+   public String getHtmlBody() throws ChunkNotFoundException {
+      if(mainChunks.htmlBodyChunkBinary != null) {
+         return mainChunks.htmlBodyChunkBinary.getAs7bitString();
+      }
+      return getStringFromChunk(mainChunks.htmlBodyChunkString);
+   }
+   @Deprecated
+   public String getHmtlBody() throws ChunkNotFoundException {
+      return getHtmlBody();
+   }
+
+   /**
+    * Gets the RTF Rich Message body of this Outlook Message, if this email
+    *  contains a RTF (rich) version.
+    * @return The string representation of the 'RTF' version of the body, if available.
+    * @throws ChunkNotFoundException
+    */
+   public String getRtfBody() throws ChunkNotFoundException {
+      ByteChunk chunk = mainChunks.rtfBodyChunk;
+      if(chunk == null) {
+         if(returnNullOnMissingChunk) {
+            return null;
+         } else {
+            throw new ChunkNotFoundException();
+         }
+      }
+      
+      try {
+         MAPIRtfAttribute rtf = new MAPIRtfAttribute(
+               MAPIProperty.RTF_COMPRESSED, Types.BINARY, chunk.getValue()
+         );
+         return rtf.getDataString();
+      } catch(IOException e) {
+         throw new RuntimeException("Shouldn't happen", e);
+      }
    }
 
    /**
@@ -303,40 +365,113 @@ public class MAPIMessage extends POIDocument {
    public void guess7BitEncoding() {
       try {
          String[] headers = getHeaders();
-         if(headers == null || headers.length == 0) {
-            return;
-         }
+         if(headers != null && headers.length > 0) {
+            // Look for a content type with a charset
+            Pattern p = Pattern.compile("Content-Type:.*?charset=[\"']?([^;'\"]+)[\"']?", Pattern.CASE_INSENSITIVE);
 
-         // Look for a content type with a charset
-         Pattern p = Pattern.compile("Content-Type:.*?charset=[\"']?(.*?)[\"']?");
-         for(String header : headers) {
-            if(header.startsWith("Content-Type")) {
-               Matcher m = p.matcher(header);
-               if(m.matches()) {
-                  // Found it! Tell all the string chunks
-                  String charset = m.group(1);
-                  
-                  for(Chunk c : mainChunks.getAll()) {
-                     if(c instanceof StringChunk) {
-                        ((StringChunk)c).set7BitEncoding(charset);
+            for(String header : headers) {
+               if(header.startsWith("Content-Type")) {
+                  Matcher m = p.matcher(header);
+                  if(m.matches()) {
+                     // Found it! Tell all the string chunks
+                     String charset = m.group(1);
+
+                     if (!charset.equalsIgnoreCase("utf-8")) { 
+                        set7BitEncoding(charset);
                      }
-                  }
-                  for(Chunk c : nameIdChunks.getAll()) {
-                     if(c instanceof StringChunk) {
-                        ((StringChunk)c).set7BitEncoding(charset);
-                     }
-                  }
-                  for(RecipientChunks rc : recipientChunks) {
-                     for(Chunk c : rc.getAll()) {
-                        if(c instanceof StringChunk) {
-                           ((StringChunk)c).set7BitEncoding(charset);
-                        }
-                     }
+                     return;
                   }
                }
             }
          }
       } catch(ChunkNotFoundException e) {}
+      
+      // Nothing suitable in the headers, try HTML
+      try {
+         String html = getHmtlBody();
+         if(html != null && html.length() > 0) {
+            // Look for a content type in the meta headers
+            Pattern p = Pattern.compile(
+                  "<META\\s+HTTP-EQUIV=\"Content-Type\"\\s+CONTENT=\"text/html;\\s+charset=(.*?)\""
+            );
+            Matcher m = p.matcher(html);
+            if(m.find()) {
+               // Found it! Tell all the string chunks
+               String charset = m.group(1);
+               set7BitEncoding(charset);
+               return;
+            }
+         }
+      } catch(ChunkNotFoundException e) {}
+   }
+
+   /**
+    * Many messages store their strings as unicode, which is
+    *  nice and easy. Some use one-byte encodings for their
+    *  strings, but don't easily store the encoding anywhere
+    *  in the file!
+    * If you know what the encoding is of your file, you can
+    *  use this method to set the 7 bit encoding for all
+    *  the non unicode strings in the file.
+    * @see #guess7BitEncoding()
+    */
+   public void set7BitEncoding(String charset) {
+      for(Chunk c : mainChunks.getAll()) {
+         if(c instanceof StringChunk) {
+            ((StringChunk)c).set7BitEncoding(charset);
+         }
+      }
+
+      if (nameIdChunks!=null) {
+         for(Chunk c : nameIdChunks.getAll()) {
+            if(c instanceof StringChunk) {
+                ((StringChunk)c).set7BitEncoding(charset);
+            }
+         }
+      }
+
+      for(RecipientChunks rc : recipientChunks) {
+         for(Chunk c : rc.getAll()) {
+            if(c instanceof StringChunk) {
+               ((StringChunk)c).set7BitEncoding(charset);
+            }
+         }
+      }
+   }
+   
+   /**
+    * Does this file contain any strings that
+    *  are stored as 7 bit rather than unicode?
+    */
+   public boolean has7BitEncodingStrings() {
+      for(Chunk c : mainChunks.getAll()) {
+         if(c instanceof StringChunk) {
+            if( ((StringChunk)c).getType() == Types.ASCII_STRING ) {
+               return true;
+            }
+         }
+      }
+      
+      if (nameIdChunks!=null) {
+         for(Chunk c : nameIdChunks.getAll()) {
+            if(c instanceof StringChunk) {
+               if( ((StringChunk)c).getType() == Types.ASCII_STRING ) {
+                  return true;
+               }
+            }
+         }
+      }
+      
+      for(RecipientChunks rc : recipientChunks) {
+         for(Chunk c : rc.getAll()) {
+            if(c instanceof StringChunk) {
+               if( ((StringChunk)c).getType() == Types.ASCII_STRING ) {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
    
    /**

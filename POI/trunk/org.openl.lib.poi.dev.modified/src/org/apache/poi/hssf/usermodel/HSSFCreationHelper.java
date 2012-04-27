@@ -17,7 +17,7 @@
 
 package org.apache.poi.hssf.usermodel;
 
-import org.apache.poi.hssf.record.formula.udf.UDFFinder;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 
@@ -44,7 +44,7 @@ public class HSSFCreationHelper implements CreationHelper {
 		return new HSSFHyperlink(type);
 	}
 
-    public HSSFEvaluationWorkbook createEvaluationWorkbook() {
+	public HSSFEvaluationWorkbook createEvaluationWorkbook() {
         return HSSFEvaluationWorkbook.create(workbook);
     }
 
@@ -60,6 +60,7 @@ public class HSSFCreationHelper implements CreationHelper {
     public FormulaEvaluator createFormulaEvaluator(UDFFinder udfFinder) {
         return HSSFFormulaEvaluator.create(workbook, null, udfFinder);
     }
+
 	/**
 	 * Creates a HSSFClientAnchor. Use this object to position drawing object in a sheet
 	 *

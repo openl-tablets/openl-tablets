@@ -18,10 +18,16 @@
 package org.apache.poi.hwpf.model;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.apache.poi.hwpf.model.io.HWPFFileSystem;
+import org.apache.poi.hwpf.model.io.HWPFOutputStream;
+import org.apache.poi.hwpf.sprm.SprmBuffer;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
-import org.apache.poi.hwpf.model.io.*;
 
+@Internal
 public final class ComplexFileTable
 {
 
@@ -30,6 +36,8 @@ public final class ComplexFileTable
 
   protected TextPieceTable _tpt;
 
+  private SprmBuffer[] _grpprls;
+  
   public ComplexFileTable()
   {
     _tpt = new TextPieceTable();
@@ -39,12 +47,20 @@ public final class ComplexFileTable
   {
     //skips through the prms before we reach the piece table. These contain data
     //for actual fast saved files
-    while (tableStream[offset] == GRPPRL_TYPE)
-    {
-      offset++;
-      int skip = LittleEndian.getShort(tableStream, offset);
-      offset += LittleEndian.SHORT_SIZE + skip;
-    }
+        List<SprmBuffer> sprmBuffers = new LinkedList<SprmBuffer>();
+        while ( tableStream[offset] == GRPPRL_TYPE )
+        {
+            offset++;
+            int size = LittleEndian.getShort( tableStream, offset );
+            offset += LittleEndian.SHORT_SIZE;
+            byte[] bs = LittleEndian.getByteArray( tableStream, offset, size );
+            offset += size;
+
+            SprmBuffer sprmBuffer = new SprmBuffer( bs, false, 0 );
+            sprmBuffers.add( sprmBuffer );
+        }
+        this._grpprls = sprmBuffers.toArray( new SprmBuffer[sprmBuffers.size()] );
+
     if(tableStream[offset] != TEXT_PIECE_TABLE_TYPE)
     {
       throw new IOException("The text piece table is corrupted");
@@ -59,20 +75,31 @@ public final class ComplexFileTable
     return _tpt;
   }
 
-  public void writeTo(HWPFFileSystem sys)
-    throws IOException
-  {
-    HWPFOutputStream docStream = sys.getStream("WordDocument");
-    HWPFOutputStream tableStream = sys.getStream("1Table");
+    public SprmBuffer[] getGrpprls()
+    {
+        return _grpprls;
+    }
 
-    tableStream.write(TEXT_PIECE_TABLE_TYPE);
+    @Deprecated
+    public void writeTo( HWPFFileSystem sys ) throws IOException
+    {
+        HWPFOutputStream docStream = sys.getStream( "WordDocument" );
+        HWPFOutputStream tableStream = sys.getStream( "1Table" );
 
-    byte[] table = _tpt.writeTo(docStream);
+        writeTo( docStream, tableStream );
+    }
 
-    byte[] numHolder = new byte[LittleEndian.INT_SIZE];
-    LittleEndian.putInt(numHolder, table.length);
-    tableStream.write(numHolder);
-    tableStream.write(table);
-  }
+    public void writeTo( HWPFOutputStream wordDocumentStream,
+            HWPFOutputStream tableStream ) throws IOException
+    {
+        tableStream.write( TEXT_PIECE_TABLE_TYPE );
+
+        byte[] table = _tpt.writeTo( wordDocumentStream );
+
+        byte[] numHolder = new byte[LittleEndian.INT_SIZE];
+        LittleEndian.putInt( numHolder, table.length );
+        tableStream.write( numHolder );
+        tableStream.write( table );
+    }
 
 }

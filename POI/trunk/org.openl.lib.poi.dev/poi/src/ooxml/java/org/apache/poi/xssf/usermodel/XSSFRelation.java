@@ -39,7 +39,6 @@ import org.apache.poi.xssf.model.MapInfo;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.SingleXmlCells;
 import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.model.Table;
 import org.apache.poi.xssf.model.ThemesTable;
 
 /**
@@ -91,12 +90,12 @@ public final class XSSFRelation extends POIXMLRelation {
 			"/xl/worksheets/sheet#.xml",
 			XSSFSheet.class
 	);
-    public static final XSSFRelation CHARTSHEET = new XSSFRelation(
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml",
-            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet",
-            "/xl/chartsheets/sheet#.xml",
-            XSSFChartSheet.class
-    );
+	public static final XSSFRelation CHARTSHEET = new XSSFRelation(
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml",
+			"http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet",
+			"/xl/chartsheets/sheet#.xml",
+			XSSFChartSheet.class
+	);
 	public static final XSSFRelation SHARED_STRINGS = new XSSFRelation(
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml",
 			"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings",
@@ -121,6 +120,12 @@ public final class XSSFRelation extends POIXMLRelation {
 			"/xl/drawings/vmlDrawing#.vml",
 			XSSFVMLDrawing.class
 	);
+   public static final XSSFRelation CHART = new XSSFRelation(
+         "application/vnd.openxmlformats-officedocument.drawingml.chart+xml",
+         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart",
+         "/xl/charts/chart#.xml",
+         XSSFChart.class
+   );
 
 	public static final XSSFRelation CUSTOM_XML_MAPPINGS = new XSSFRelation(
 			"application/xml",
@@ -132,15 +137,15 @@ public final class XSSFRelation extends POIXMLRelation {
 	public static final XSSFRelation SINGLE_XML_CELLS = new XSSFRelation(
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.tableSingleCells+xml",
 			"http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableSingleCells",
-			"/tables/tableSingleCells#.xml",
+			"/xl/tables/tableSingleCells#.xml",
 			SingleXmlCells.class
 	);
 
 	public static final XSSFRelation TABLE = new XSSFRelation(
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml",
 			"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table",
-			"/tables/table#.xml",
-			Table.class
+			"/xl/tables/table#.xml",
+			XSSFTable.class
 	);
 
     public static final XSSFRelation IMAGES = new XSSFRelation(
@@ -184,6 +189,38 @@ public final class XSSFRelation extends POIXMLRelation {
      		"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
     		"/xl/media/image#.dib",
     		XSSFPictureData.class
+    );
+
+    public static final XSSFRelation IMAGE_GIF = new XSSFRelation(
+            "image/gif",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/xl/media/image#.gif",
+            XSSFPictureData.class
+    );
+
+    public static final XSSFRelation IMAGE_TIFF = new XSSFRelation(
+            "image/tiff",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/xl/media/image#.tiff",
+            XSSFPictureData.class
+    );
+    public static final XSSFRelation IMAGE_EPS = new XSSFRelation(
+            "image/x-eps",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/xl/media/image#.eps",
+            XSSFPictureData.class
+    );
+    public static final XSSFRelation IMAGE_BMP = new XSSFRelation(
+            "image/x-ms-bmp",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/xl/media/image#.bmp",
+            XSSFPictureData.class
+    );
+    public static final XSSFRelation IMAGE_WPG = new XSSFRelation(
+            "image/x-wpg",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/xl/media/image#.wpg",
+            XSSFPictureData.class
     );
 
   public static final XSSFRelation SHEET_COMMENTS = new XSSFRelation(
@@ -241,6 +278,12 @@ public final class XSSFRelation extends POIXMLRelation {
             "/xl/calcChain.xml",
             CalculationChain.class
     );
+    public static final XSSFRelation PRINTER_SETTINGS = new XSSFRelation(
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.printerSettings",
+          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings",
+          "/xl/printerSettings/printerSettings#.bin",
+          null
+   );
 
 
 	private XSSFRelation(String type, String rel, String defaultName, Class<? extends POIXMLDocumentPart> cls) {

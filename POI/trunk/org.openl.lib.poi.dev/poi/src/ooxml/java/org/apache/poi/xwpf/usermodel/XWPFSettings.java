@@ -19,6 +19,7 @@ package org.apache.poi.xwpf.usermodel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,9 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.xmlbeans.XmlOptions;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocProtect;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTOnOff;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSettings;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTZoom;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STDocProtect;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STOnOff;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.SettingsDocument;
@@ -40,7 +43,6 @@ public class XWPFSettings extends POIXMLDocumentPart {
 
     public XWPFSettings(PackagePart part, PackageRelationship rel) throws IOException {
         super(part, rel);
-        readFrom(part.getInputStream());
     }
 
     public XWPFSettings() {
@@ -48,6 +50,52 @@ public class XWPFSettings extends POIXMLDocumentPart {
         ctSettings = CTSettings.Factory.newInstance();
     }
 
+    @Override
+    protected void onDocumentRead() throws IOException
+    {
+        super.onDocumentRead();
+        readFrom(getPackagePart().getInputStream());
+    }
+
+    /**
+     * Set zoom.<br/>
+     * In the zoom tag inside settings.xml file <br/>
+     * it sets the value of zoom
+     * <br/>
+     * sample snippet from settings.xml
+     * <pre>
+     *    &lt;w:zoom w:percent="50" /&gt;
+     * <pre>
+     * @return percentage as an integer of zoom level
+     */
+    public long getZoomPercent() {
+       CTZoom zoom;
+       if (!ctSettings.isSetZoom()) {
+          zoom = ctSettings.addNewZoom();
+       } else {
+          zoom = ctSettings.getZoom();
+       }
+
+       return zoom.getPercent().longValue();
+    }
+
+    /**
+     * Set zoom.<br/>
+     * In the zoom tag inside settings.xml file <br/>
+     * it sets the value of zoom
+     * <br/>
+     * sample snippet from settings.xml 
+     * <pre>
+     *    &lt;w:zoom w:percent="50" /&gt; 
+     * <pre>
+     */
+    public void setZoomPercent(long zoomPercent) {
+       if (! ctSettings.isSetZoom()) {
+          ctSettings.addNewZoom();
+       }
+       CTZoom zoom = ctSettings.getZoom();
+       zoom.setPercent(BigInteger.valueOf(zoomPercent));
+    }
 
     /**
      * Verifies the documentProtection tag inside settings.xml file <br/>
@@ -100,8 +148,33 @@ public class XWPFSettings extends POIXMLDocumentPart {
         safeGetDocumentProtection().setEnforcement(STOnOff.X_0);
     }
 
+    /**
+     * Enforces fields update on document open (in Word).
+     * In the settings.xml file <br/>
+     * sets the updateSettings value to true (w:updateSettings w:val="true")
+     * 
+     *  NOTICES:
+     *  <ul>
+     *  	<li>Causing Word to ask on open: "This document contains fields that may refer to other files. Do you want to update the fields in this document?"
+     *           (if "Update automatic links at open" is enabled)</li>
+     *  	<li>Flag is removed after saving with changes in Word </li>
+     *  </ul> 
+     */
+    public void setUpdateFields() {
+    	CTOnOff onOff = CTOnOff.Factory.newInstance();
+    	onOff.setVal(STOnOff.TRUE);
+    	ctSettings.setUpdateFields(onOff);
+    }
+
+    boolean isUpdateFields() {
+        return ctSettings.isSetUpdateFields() && ctSettings.getUpdateFields().getVal() == STOnOff.TRUE;
+    }
+
     @Override
     protected void commit() throws IOException {
+        if (ctSettings == null) {
+           throw new IllegalStateException("Unable to write out settings that were never read in!");
+        }
 
         XmlOptions xmlOptions = new XmlOptions(DEFAULT_XML_OPTIONS);
         xmlOptions.setSaveSyntheticDocumentElement(new QName(CTSettings.type.getName().getNamespaceURI(), "settings"));

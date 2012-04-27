@@ -36,9 +36,24 @@ import org.apache.poi.xssf.usermodel.*;
  * 2. create an application that streams data in a text file
  * 3. Substitute the sheet in the template with the generated data
  *
+ * <p>
+ *      Since 3.8-beta3 POI provides a low-memory footprint SXSSF API which implementing the "BigGridDemo" strategy.
+ *      XSSF is an API-compatible streaming extension of XSSF to be used when
+ *      very large spreadsheets have to be produced, and heap space is limited.
+ *      SXSSF achieves its low memory footprint by limiting access to the rows that
+ *      are within a sliding window, while XSSF gives access to all rows in the
+ *      document. Older rows that are no longer in the window become inaccessible,
+ *      as they are written to the disk.
+ * </p>
+ * See <a "http://poi.apache.org/spreadsheet/how-to.html#sxssf">
+ *     http://poi.apache.org/spreadsheet/how-to.html#sxssf</a>.
+
+ *
  * @author Yegor Kozlov
  */
 public class BigGridDemo {
+    private static final String XML_ENCODING = "UTF-8";
+    
     public static void main(String[] args) throws Exception {
 
         // Step 1. Create a template file. Setup sheets and workbook-level objects such as
@@ -58,7 +73,7 @@ public class BigGridDemo {
 
         //Step 2. Generate XML file.
         File tmp = File.createTempFile("sheet", ".xml");
-        Writer fw = new FileWriter(tmp);
+        Writer fw = new OutputStreamWriter(new FileOutputStream(tmp), XML_ENCODING);
         generate(fw, styles);
         fw.close();
 
@@ -194,7 +209,7 @@ public class BigGridDemo {
         }
 
         public void beginSheet() throws IOException {
-            _out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+            _out.write("<?xml version=\"1.0\" encoding=\""+XML_ENCODING+"\"?>" +
                     "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">" );
             _out.write("<sheetData>\n");
         }

@@ -16,14 +16,16 @@
 ==================================================================== */
 package org.apache.poi.xslf.usermodel;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.POIXMLRelation;
+import org.apache.poi.util.Beta;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@Beta
 public class XSLFRelation extends POIXMLRelation {
 
    private static POILogger log = POILogFactory.getLogger(XSLFRelation.class);
@@ -71,34 +73,64 @@ public class XSLFRelation extends POIXMLRelation {
    public static final XSLFRelation NOTES = new XSLFRelation(
            "application/vnd.openxmlformats-officedocument.presentationml.notesSlide+xml",
            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide", 
-           null, null
+           "/ppt/notesSlides/notesSlide#.xml",
+           XSLFNotes.class
    );
    
    public static final XSLFRelation SLIDE = new XSLFRelation(
            "application/vnd.openxmlformats-officedocument.presentationml.slide+xml",
            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide", 
            "/ppt/slides/slide#.xml", 
-           null
+           XSLFSlide.class
    );
    
    public static final XSLFRelation SLIDE_LAYOUT = new XSLFRelation(
          "application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml",
          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout",
          "/ppt/slideLayouts/slideLayout#.xml", 
-         null
+         XSLFSlideLayout.class
    );
    
+   public static final XSLFRelation SLIDE_MASTER = new XSLFRelation(
+         "application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml",
+         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster",
+         "/ppt/slideMasters/slideMaster#.xml",
+         XSLFSlideMaster.class
+   );
+
+   public static final XSLFRelation NOTES_MASTER = new XSLFRelation(
+         "application/vnd.openxmlformats-officedocument.presentationml.notesMaster+xml",
+         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster",
+         "/ppt/notesMasters/notesMaster#.xml",
+         XSLFNotesMaster.class
+   );
+
    public static final XSLFRelation COMMENTS = new XSLFRelation(
          "application/vnd.openxmlformats-officedocument.presentationml.comments+xml",
          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments",
-         null, null
+         "/ppt/comments/comment#.xml",
+         XSLFComments.class
    );
    
+   public static final XSLFRelation COMMENT_AUTHORS = new XSLFRelation(
+         "application/vnd.openxmlformats-officedocument.presentationml.commentAuthors+xml",
+         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/commentAuthors",
+         "/ppt/commentAuthors.xml",
+         XSLFCommentAuthors.class
+   );
+   
+    public static final XSLFRelation HYPERLINK = new XSLFRelation(
+            null,
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+            null,
+            null
+    );
+
    public static final XSLFRelation THEME = new XSLFRelation(
          "application/vnd.openxmlformats-officedocument.theme+xml",
          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme",
          "/ppt/theme/theme#.xml", 
-         null
+         XSLFTheme.class
    );
    
    public static final XSLFRelation VML_DRAWING = new XSLFRelation(
@@ -108,6 +140,86 @@ public class XSLFRelation extends POIXMLRelation {
          null
    );
    
+    public static final XSLFRelation IMAGE_EMF = new XSLFRelation(
+          "image/x-emf",
+          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+          "/ppt/media/image#.emf",
+          XSLFPictureData.class
+	);
+	public static final XSLFRelation IMAGE_WMF = new XSLFRelation(
+	      "image/x-wmf",
+	      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+	      "/ppt/media/image#.wmf",
+	      XSLFPictureData.class
+	);
+	public static final XSLFRelation IMAGE_PICT = new XSLFRelation(
+	      "image/pict",
+	      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+	      "/ppt/media/image#.pict",
+	      XSLFPictureData.class
+	);
+	public static final XSLFRelation IMAGE_JPEG = new XSLFRelation(
+	      "image/jpeg",
+	      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+	      "/ppt/media/image#.jpeg",
+	      XSLFPictureData.class
+	);
+	public static final XSLFRelation IMAGE_PNG = new XSLFRelation(
+	      "image/png",
+	      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+	      "/ppt/media/image#.png",
+	      XSLFPictureData.class
+	);
+	public static final XSLFRelation IMAGE_DIB = new XSLFRelation(
+	      "image/dib",
+	      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+	      "/ppt/media/image#.dib",
+	      XSLFPictureData.class
+	);
+	public static final XSLFRelation IMAGE_GIF = new XSLFRelation(
+	      "image/gif",
+	      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+	      "/ppt/media/image#.gif",
+	      XSLFPictureData.class
+	);
+    public static final XSLFRelation IMAGE_TIFF = new XSLFRelation(
+            "image/tiff",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/ppt/media/image#.tiff",
+            XSLFPictureData.class
+    );
+    public static final XSLFRelation IMAGE_EPS = new XSLFRelation(
+            "image/x-eps",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/ppt/media/image#.eps",
+            XSLFPictureData.class
+    );
+    public static final XSLFRelation IMAGE_BMP = new XSLFRelation(
+            "image/x-ms-bmp",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/ppt/media/image#.bmp",
+            XSLFPictureData.class
+    );
+    public static final XSLFRelation IMAGE_WPG = new XSLFRelation(
+            "image/x-wpg",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+            "/ppt/media/image#.wpg",
+            XSLFPictureData.class
+    );
+
+    public static final XSLFRelation IMAGES = new XSLFRelation(
+            null,
+     		"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+    		null,
+    		null
+    );
+
+    public static final XSLFRelation TABLE_STYLES = new XSLFRelation(
+          "application/vnd.openxmlformats-officedocument.presentationml.tableStyles+xml",
+          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles",
+          "/ppt/tableStyles.xml",
+          XSLFTableStyles.class
+    );
 
    private XSLFRelation(String type, String rel, String defaultName, Class<? extends POIXMLDocumentPart> cls) {
       super(type, rel, defaultName, cls);

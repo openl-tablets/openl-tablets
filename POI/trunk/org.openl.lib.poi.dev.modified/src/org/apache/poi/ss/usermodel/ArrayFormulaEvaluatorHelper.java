@@ -17,16 +17,16 @@
 
 package org.apache.poi.ss.usermodel;
 
-import org.apache.poi.hssf.record.formula.eval.AreaEval;
-import org.apache.poi.hssf.record.formula.eval.BoolEval;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.RefEval;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
-import org.apache.poi.hssf.record.formula.function.FunctionMetadata;
-import org.apache.poi.hssf.record.formula.functions.Function;
-import org.apache.poi.hssf.record.formula.functions.FunctionWithArraySupport;
+import org.apache.poi.ss.formula.eval.AreaEval;
+import org.apache.poi.ss.formula.eval.BoolEval;
+import org.apache.poi.ss.formula.eval.ErrorEval;
+import org.apache.poi.ss.formula.eval.NumberEval;
+import org.apache.poi.ss.formula.eval.RefEval;
+import org.apache.poi.ss.formula.eval.StringEval;
+import org.apache.poi.ss.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.function.FunctionMetadata;
+import org.apache.poi.ss.formula.functions.Function;
+import org.apache.poi.ss.formula.functions.FunctionWithArraySupport;
 import org.apache.poi.ss.formula.ArrayEval;
 import org.apache.poi.ss.formula.TwoDEval;
 import org.apache.poi.ss.formula.WorkbookEvaluator;

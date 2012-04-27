@@ -18,6 +18,11 @@
 package org.apache.poi.hwpf.model;
 
 import java.util.Arrays;
+import java.util.Comparator;
+
+import org.apache.poi.util.Internal;
+import org.apache.poi.util.POILogFactory;
+import org.apache.poi.util.POILogger;
 
 /**
  * Represents a lightweight node in the Trees used to store content
@@ -28,8 +33,39 @@ import java.util.Arrays;
  *
  * @author Ryan Ackley
  */
-public abstract class PropertyNode implements Comparable, Cloneable
+@Internal
+public abstract class PropertyNode<T extends PropertyNode<T>>  implements Comparable<T>, Cloneable
 {
+
+    public static final class EndComparator implements
+            Comparator<PropertyNode<?>>
+    {
+        public static EndComparator instance = new EndComparator();
+
+        public int compare( PropertyNode<?> o1, PropertyNode<?> o2 )
+        {
+            int thisVal = o1.getEnd();
+            int anotherVal = o2.getEnd();
+            return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0
+                    : 1 ) );
+        }
+    }
+
+    public static final class StartComparator implements
+            Comparator<PropertyNode<?>>
+    {
+        public static StartComparator instance = new StartComparator();
+
+        public int compare( PropertyNode<?> o1, PropertyNode<?> o2 )
+        {
+            int thisVal = o1.getStart();
+            int anotherVal = o2.getStart();
+            return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0
+                    : 1 ) );
+        }
+    }
+
+  private final static POILogger _logger = POILogFactory.getLogger(PropertyNode.class);
   protected Object _buf;
   /** The start, in characters */
   private int _cpStart;
@@ -49,10 +85,18 @@ public abstract class PropertyNode implements Comparable, Cloneable
       _buf = buf;
 
       if(_cpStart < 0) {
-    	  System.err.println("A property claimed to start before zero, at " + _cpStart + "! Resetting it to zero, and hoping for the best");
+    	  _logger.log(POILogger.WARN, "A property claimed to start before zero, at " + _cpStart + "! Resetting it to zero, and hoping for the best");
     	  _cpStart = 0;
       }
-  }
+
+        if ( _cpEnd < _cpStart )
+        {
+            _logger.log( POILogger.WARN, "A property claimed to end (" + _cpEnd
+                    + ") before start! "
+                    + "Resetting end to start, and hoping for the best" );
+            _cpEnd = _cpStart;
+        }
+    }
 
   /**
    * @return The start offset of this property's text.
@@ -106,16 +150,22 @@ public abstract class PropertyNode implements Comparable, Cloneable
 
   protected boolean limitsAreEqual(Object o)
   {
-    return ((PropertyNode)o).getStart() == _cpStart &&
-           ((PropertyNode)o).getEnd() == _cpEnd;
+    return ((PropertyNode<?>)o).getStart() == _cpStart &&
+           ((PropertyNode<?>)o).getEnd() == _cpEnd;
 
   }
+
+    @Override
+    public int hashCode()
+    {
+        return this._cpStart * 31 + this._buf.hashCode();
+    }
 
   public boolean equals(Object o)
   {
     if (limitsAreEqual(o))
     {
-      Object testBuf = ((PropertyNode)o)._buf;
+      Object testBuf = ((PropertyNode<?>)o)._buf;
       if (testBuf instanceof byte[] && _buf instanceof byte[])
       {
         return Arrays.equals((byte[])testBuf, (byte[])_buf);
@@ -125,18 +175,18 @@ public abstract class PropertyNode implements Comparable, Cloneable
     return false;
   }
 
-  public Object clone()
+  public T clone()
     throws CloneNotSupportedException
   {
-    return super.clone();
+    return (T) super.clone();
   }
 
   /**
    * Used for sorting in collections.
    */
-  public int compareTo(Object o)
+  public int compareTo(T o)
   {
-      int cpEnd = ((PropertyNode)o).getEnd();
+      int cpEnd = o.getEnd();
       if(_cpEnd == cpEnd)
       {
         return 0;

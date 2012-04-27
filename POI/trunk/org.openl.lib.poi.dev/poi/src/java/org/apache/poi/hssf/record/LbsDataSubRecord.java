@@ -16,7 +16,7 @@
 ==================================================================== */
 package org.apache.poi.hssf.record;
 
-import org.apache.poi.hssf.record.formula.*;
+import org.apache.poi.ss.formula.ptg.*;
 import org.apache.poi.util.*;
 
 /**
@@ -381,7 +381,7 @@ public class LbsDataSubRecord extends SubRecord {
         public int getDataSize() {
             int size = 6;
             size += StringUtil.getEncodedSize(_str);
-            size += _unused;
+            if(_unused != null) size++;
             return size;
         }
 

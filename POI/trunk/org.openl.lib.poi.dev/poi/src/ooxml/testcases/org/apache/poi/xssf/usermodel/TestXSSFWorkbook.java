@@ -32,6 +32,8 @@ import org.apache.poi.util.TempFile;
 import org.apache.poi.xssf.XSSFITestDataProvider;
 import org.apache.poi.xssf.XSSFTestDataSamples;
 import org.apache.poi.xssf.model.StylesTable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCalcPr;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorkbook;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorkbookPr;
 
 public final class TestXSSFWorkbook extends BaseTestWorkbook {
@@ -330,7 +332,7 @@ public final class TestXSSFWorkbook extends BaseTestWorkbook {
 	}
 
 	/**
-	 * Problems with XSSFWorkbook.removeSheetAt when workbook contains chart
+	 * Problems with XSSFWorkbook.removeSheetAt when workbook contains charts
 	 */
 	public void testBug47813() {
 		XSSFWorkbook wb = XSSFTestDataSamples.openSampleWorkbook("47813.xlsx");
@@ -405,4 +407,38 @@ public final class TestXSSFWorkbook extends BaseTestWorkbook {
 	        fail("Shouldn't be able to get style at 3 that doesn't exist");
 	    } catch(IndexOutOfBoundsException e) {}
 	}
+
+    public void testRecalcId() {
+        XSSFWorkbook wb = new XSSFWorkbook();
+        assertFalse(wb.getForceFormulaRecalculation());
+        CTWorkbook ctWorkbook = wb.getCTWorkbook();
+        assertFalse(ctWorkbook.isSetCalcPr());
+
+        wb.setForceFormulaRecalculation(true); // resets the EngineId flag to zero
+
+        CTCalcPr calcPr = ctWorkbook.getCalcPr();
+        assertNotNull(calcPr);
+        assertEquals(0, (int) calcPr.getCalcId());
+
+        calcPr.setCalcId(100);
+        assertTrue(wb.getForceFormulaRecalculation());
+
+        wb.setForceFormulaRecalculation(true); // resets the EngineId flag to zero
+        assertEquals(0, (int) calcPr.getCalcId());
+        assertFalse(wb.getForceFormulaRecalculation());
+    }
+
+    public void testChangeSheetNameWithSharedFormulas() {
+        changeSheetNameWithSharedFormulas("shared_formulas.xlsx");
+    }
+
+    public void testSetTabColor() {
+        XSSFWorkbook wb = new XSSFWorkbook();
+        XSSFSheet sh = wb.createSheet();
+        assertTrue(sh.getCTWorksheet().getSheetPr() == null || !sh.getCTWorksheet().getSheetPr().isSetTabColor());
+        sh.setTabColor(IndexedColors.RED.index);
+        assertTrue(sh.getCTWorksheet().getSheetPr().isSetTabColor());
+        assertEquals(IndexedColors.RED.index,
+                sh.getCTWorksheet().getSheetPr().getTabColor().getIndexed());
+    }
 }

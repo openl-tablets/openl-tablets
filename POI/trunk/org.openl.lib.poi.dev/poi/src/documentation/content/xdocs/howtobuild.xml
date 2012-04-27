@@ -91,11 +91,11 @@
                 </tr>
                 <tr>
                     <td>compile</td>
-                    <td>Compiles all files from main, contrib and scratchpad</td>
+                    <td>Compiles all files from main, ooxml and scratchpad</td>
                 </tr>
                 <tr>
                     <td>test</td>
-                    <td>Run all unit tests from main, ooxml, contrib and scratchpad</td>
+                    <td>Run all unit tests from main, ooxml and scratchpad</td>
                 </tr>
                 <tr>
                     <td>jar</td>
@@ -115,6 +115,9 @@
   <footer>
     <legal>
       Copyright (c) @year@ The Apache Software Foundation. All rights reserved.
+      <br />
+      Apache POI, POI, Apache, the Apache feather logo, and the Apache 
+      POI project logo are trademarks of The Apache Software Foundation.
     </legal>
   </footer>
 </document>

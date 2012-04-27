@@ -36,7 +36,6 @@ import org.apache.xmlbeans.XmlException;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBorder;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBorderPr;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellAlignment;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellProtection;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTFill;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTFont;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTPatternFill;
@@ -66,15 +65,15 @@ public class XSSFCellStyle implements CellStyle {
 
     /**
      * Creates a Cell Style from the supplied parts
-     * @param cellXfId The main XF for the cell
-     * @param cellStyleXfId Optional, style xf
+     * @param cellXfId The main XF for the cell. Must be a valid 0-based index into the XF table
+     * @param cellStyleXfId Optional, style xf. A value of <code>-1</code> means no xf.
      * @param stylesSource Styles Source to work off
      */
     public XSSFCellStyle(int cellXfId, int cellStyleXfId, StylesTable stylesSource, ThemesTable theme) {
         _cellXfId = cellXfId;
         _stylesSource = stylesSource;
         _cellXf = stylesSource.getCellXfAt(this._cellXfId);
-        _cellStyleXf = stylesSource.getCellStyleXfAt(cellStyleXfId);
+        _cellStyleXf = cellStyleXfId == -1 ? null : stylesSource.getCellStyleXfAt(cellStyleXfId);
         _theme = theme;
     }
 
@@ -144,9 +143,19 @@ public class XSSFCellStyle implements CellStyle {
             } else {
                // Copy the style
                try {
+                  // Remove any children off the current style, to
+                  //  avoid orphaned nodes
+                  if(_cellXf.isSetAlignment())
+                     _cellXf.unsetAlignment();
+                  if(_cellXf.isSetExtLst())
+                     _cellXf.unsetExtLst();
+                  
+                  // Create a new Xf with the same contents
                   _cellXf = CTXf.Factory.parse(
                         src.getCoreXf().toString()
                   );
+                  // Swap it over
+                  _stylesSource.replaceCellXfAt(_cellXfId, _cellXf);
                } catch(XmlException e) {
                   throw new POIXMLException(e);
                }
@@ -441,8 +450,8 @@ public class XSSFCellStyle implements CellStyle {
         XSSFCellFill fg = _stylesSource.getFillAt(fillIndex);
 
         XSSFColor fillBackgroundColor = fg.getFillBackgroundColor();
-        if (fillBackgroundColor != null && fillBackgroundColor.getCTColor().isSetTheme() && _theme != null) {
-            extractColorFromTheme(fillBackgroundColor);
+        if (fillBackgroundColor != null && _theme != null) {
+            _theme.inheritFromThemeAsRequired(fillBackgroundColor);
         }
         return fillBackgroundColor;
     }
@@ -477,8 +486,8 @@ public class XSSFCellStyle implements CellStyle {
         XSSFCellFill fg = _stylesSource.getFillAt(fillIndex);
 
         XSSFColor fillForegroundColor = fg.getFillForegroundColor();
-        if (fillForegroundColor != null && fillForegroundColor.getCTColor().isSetTheme() && _theme != null) {
-            extractColorFromTheme(fillForegroundColor);
+        if (fillForegroundColor != null && _theme != null) {
+            _theme.inheritFromThemeAsRequired(fillForegroundColor);
         }
         return fillForegroundColor;
     }
@@ -553,7 +562,10 @@ public class XSSFCellStyle implements CellStyle {
      * @return boolean -  whether the cell using this style is hidden
      */
     public boolean getHidden() {
-        return getCellProtection().getHidden();
+        if (!_cellXf.isSetProtection() || !_cellXf.getProtection().isSetHidden()) {
+            return false;
+        }
+        return _cellXf.getProtection().getHidden();
     }
 
     /**
@@ -607,7 +619,10 @@ public class XSSFCellStyle implements CellStyle {
      * @return whether the cell using this style are locked
      */
     public boolean getLocked() {
-        return getCellProtection().getLocked();
+        if (!_cellXf.isSetProtection() || !_cellXf.getProtection().isSetLocked()) {
+            return true;
+        }
+        return _cellXf.getProtection().getLocked();
     }
 
     /**
@@ -766,7 +781,7 @@ public class XSSFCellStyle implements CellStyle {
         if(border == BORDER_NONE) ct.unsetBottom();
         else pr.setStyle(STBorderStyle.Enum.forInt(border + 1));
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -806,7 +821,7 @@ public class XSSFCellStyle implements CellStyle {
         if(border == BORDER_NONE) ct.unsetLeft();
         else pr.setStyle(STBorderStyle.Enum.forInt(border + 1));
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -846,7 +861,7 @@ public class XSSFCellStyle implements CellStyle {
         if(border == BORDER_NONE) ct.unsetRight();
         else pr.setStyle(STBorderStyle.Enum.forInt(border + 1));
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -886,7 +901,7 @@ public class XSSFCellStyle implements CellStyle {
         if(border == BORDER_NONE) ct.unsetTop();
         else pr.setStyle(STBorderStyle.Enum.forInt(border + 1));
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -925,7 +940,7 @@ public class XSSFCellStyle implements CellStyle {
         if(color != null)  pr.setColor(color.getCTColor());
         else pr.unsetColor();
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -1157,7 +1172,10 @@ public class XSSFCellStyle implements CellStyle {
      * @param hidden - whether the cell using this style should be hidden
      */
     public void setHidden(boolean hidden) {
-        getCellProtection().setHidden(hidden);
+        if (!_cellXf.isSetProtection()) {
+             _cellXf.addNewProtection();
+         }
+        _cellXf.getProtection().setHidden(hidden);
     }
 
     /**
@@ -1194,7 +1212,7 @@ public class XSSFCellStyle implements CellStyle {
         if(color != null)  pr.setColor(color.getCTColor());
         else pr.unsetColor();
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -1206,7 +1224,10 @@ public class XSSFCellStyle implements CellStyle {
      * @param locked -  whether the cell using this style should be locked
      */
     public void setLocked(boolean locked) {
-        getCellProtection().setLocked(locked);
+        if (!_cellXf.isSetProtection()) {
+             _cellXf.addNewProtection();
+         }
+        _cellXf.getProtection().setLocked(locked);
     }
 
     /**
@@ -1234,7 +1255,7 @@ public class XSSFCellStyle implements CellStyle {
         if(color != null)  pr.setColor(color.getCTColor());
         else pr.unsetColor();
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -1284,7 +1305,7 @@ public class XSSFCellStyle implements CellStyle {
         if(color != null)  pr.setColor(color.getCTColor());
         else pr.unsetColor();
 
-        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct));
+        int idx = _stylesSource.putBorder(new XSSFCellBorder(ct, _theme));
 
         _cellXf.setBorderId(idx);
         _cellXf.setApplyBorder(true);
@@ -1377,17 +1398,6 @@ public class XSSFCellStyle implements CellStyle {
     }
 
     /**
-     * get a cellProtection from the supplied XML definition
-     * @return CTCellProtection
-     */
-    private CTCellProtection getCellProtection() {
-        if (_cellXf.getProtection() == null) {
-            _cellXf.addNewProtection();
-        }
-        return _cellXf.getProtection();
-    }
-
-    /**
      * get the cellAlignment object to use for manage alignment
      * @return XSSFCellAlignment - cell alignment
      */
@@ -1444,14 +1454,5 @@ public class XSSFCellStyle implements CellStyle {
         int xfSize = _stylesSource._getStyleXfsSize();
         int indexXf = _stylesSource.putCellXf(xf);
         return new XSSFCellStyle(indexXf-1, xfSize-1, _stylesSource, _theme);
-    }
-
-    /**
-     * Extracts RGB form theme color.
-     * @param originalColor Color that refers to theme.
-     */
-    private void extractColorFromTheme(XSSFColor originalColor){
-        XSSFColor themeColor = _theme.getThemeColor(originalColor.getTheme());
-        originalColor.setRgb(themeColor.getRgb());
     }
 }

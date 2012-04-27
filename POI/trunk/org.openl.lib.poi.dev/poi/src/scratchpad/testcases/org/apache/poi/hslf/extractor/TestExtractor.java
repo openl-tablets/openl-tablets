@@ -17,20 +17,20 @@
 
 package org.apache.poi.hslf.extractor;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 
+import junit.framework.TestCase;
+
+import org.apache.poi.POIDataSamples;
 import org.apache.poi.hslf.HSLFSlideShow;
 import org.apache.poi.hslf.model.OLEShape;
 import org.apache.poi.hslf.usermodel.SlideShow;
-import org.apache.poi.poifs.filesystem.DirectoryNode;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.POIDataSamples;
-
-import junit.framework.TestCase;
+import org.apache.poi.poifs.filesystem.DirectoryNode;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * Tests that the extractor correctly gets the text out of our sample file
@@ -38,33 +38,45 @@ import junit.framework.TestCase;
  * @author Nick Burch (nick at torchbox dot com)
  */
 public final class TestExtractor extends TestCase {
-	/** Extractor primed on the 2 page basic test data */
-	private PowerPointExtractor ppe;
-	/** Extractor primed on the 1 page but text-box'd test data */
-	private PowerPointExtractor ppe2;
-	/** Where our embeded files live */
-	//private String pdirname;
-    private static POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
-    //private String pdirname;
+   /** Extractor primed on the 2 page basic test data */
+   private PowerPointExtractor ppe;
+   private static final String expectText = "This is a test title\nThis is a test subtitle\nThis is on page 1\nThis is the title on page 2\nThis is page two\nIt has several blocks of text\nNone of them have formatting\n";
 
-    protected void setUp() throws Exception {
-		ppe = new PowerPointExtractor(slTests.openResourceAsStream("basic_test_ppt_file.ppt"));
-		ppe2 = new PowerPointExtractor(slTests.openResourceAsStream("with_textbox.ppt"));
-    }
+   /** Extractor primed on the 1 page but text-box'd test data */
+   private PowerPointExtractor ppe2;
+   private static final String expectText2 = "Hello, World!!!\nI am just a poor boy\nThis is Times New Roman\nPlain Text \n";
+   
+   /** Where our embeded files live */
+   //private String pdirname;
+   private static POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
+   //private String pdirname;
+
+   protected void setUp() throws Exception {
+      ppe = new PowerPointExtractor(slTests.openResourceAsStream("basic_test_ppt_file.ppt"));
+      ppe2 = new PowerPointExtractor(slTests.openResourceAsStream("with_textbox.ppt"));
+   }
+
+   private static void assertContains(String haystack, String needle) {
+      assertContains(
+            "Unable to find expected text '" + needle + "' in text:\n" + haystack,
+            haystack, needle
+      );
+   }
+   private static void assertContains(String reason, String haystack, String needle) {
+      assertTrue(reason, haystack.contains(needle));
+   }
 
     public void testReadSheetText() {
     	// Basic 2 page example
 		String sheetText = ppe.getText();
-		String expectText = "This is a test title\nThis is a test subtitle\nThis is on page 1\nThis is the title on page 2\nThis is page two\nIt has several blocks of text\nNone of them have formatting\n";
 
 		ensureTwoStringsTheSame(expectText, sheetText);
 		
 		
 		// 1 page example with text boxes
 		sheetText = ppe2.getText();
-		expectText = "Hello, World!!!\nI am just a poor boy\nThis is Times New Roman\nPlain Text \n";
 
-		ensureTwoStringsTheSame(expectText, sheetText);
+		ensureTwoStringsTheSame(expectText2, sheetText);
     }
     
 	public void testReadNoteText() {
@@ -150,14 +162,14 @@ public final class TestExtractor extends TestCase {
          assertNotNull(dirB.getEntry("PowerPoint Document"));
 
          // Check the first file
-         ss = new HSLFSlideShow(dirA, fs);
+         ss = new HSLFSlideShow(dirA);
          ppe = new PowerPointExtractor(ss);
          assertEquals("Sample PowerPoint file\nThis is the 1st file\nNot much too it\n",
                  ppe.getText(true, false)
          );
 
          // And the second
-         ss = new HSLFSlideShow(dirB, fs);
+         ss = new HSLFSlideShow(dirB);
          ppe = new PowerPointExtractor(ss);
          assertEquals("Sample PowerPoint file\nThis is the 2nd file\nNot much too it either\n",
                  ppe.getText(true, false)
@@ -199,78 +211,131 @@ public final class TestExtractor extends TestCase {
 		ppe = new PowerPointExtractor(slTests.openResourceAsStream("WithComments.ppt"));
 
 		String text = ppe.getText();
-		assertFalse("Comments not in by default", contains(text, "This is a test comment"));
+		assertFalse("Comments not in by default", text.contains("This is a test comment"));
 		
 		ppe.setCommentsByDefault(true);
 		
 		text = ppe.getText();
-		assertTrue("Unable to find expected word in text\n" + text, contains(text, "This is a test comment"));
+		assertContains(text, "This is a test comment");
 
 		
 		// And another file
 		ppe = new PowerPointExtractor(slTests.openResourceAsStream("45543.ppt"));
 
-        text = ppe.getText();
-		assertFalse("Comments not in by default", contains(text, "testdoc"));
+		text = ppe.getText();
+		assertFalse("Comments not in by default", text.contains("testdoc"));
 		
 		ppe.setCommentsByDefault(true);
 		
 		text = ppe.getText();
-		assertTrue("Unable to find expected word in text\n" + text, contains(text, "testdoc"));
+		assertContains(text, "testdoc");
     }
     
     /**
      * From bug #45537
      */
     public void testHeaderFooter() throws Exception {
-		String  text;
+       String  text;
 
-		// With a header on the notes
-		HSLFSlideShow hslf = new HSLFSlideShow(slTests.openResourceAsStream("45537_Header.ppt"));
-		SlideShow ss = new SlideShow(hslf);
-		assertNotNull(ss.getNotesHeadersFooters());
-		assertEquals("testdoc test phrase", ss.getNotesHeadersFooters().getHeaderText());
-		
-		ppe = new PowerPointExtractor(hslf);
+       // With a header on the notes
+       HSLFSlideShow hslf = new HSLFSlideShow(slTests.openResourceAsStream("45537_Header.ppt"));
+       SlideShow ss = new SlideShow(hslf);
+       assertNotNull(ss.getNotesHeadersFooters());
+       assertEquals("testdoc test phrase", ss.getNotesHeadersFooters().getHeaderText());
 
-		text = ppe.getText();
-		assertFalse("Unable to find expected word in text\n" + text, contains(text, "testdoc"));
-        assertFalse("Unable to find expected word in text\n" + text, contains(text, "test phrase"));
-        
-        ppe.setNotesByDefault(true);
-		text = ppe.getText();
-		assertTrue("Unable to find expected word in text\n" + text, contains(text, "testdoc"));
-        assertTrue("Unable to find expected word in text\n" + text, contains(text, "test phrase"));
+       ppe = new PowerPointExtractor(hslf);
 
-        
-		// And with a footer, also on notes
-		hslf = new HSLFSlideShow(slTests.openResourceAsStream("45537_Footer.ppt"));
-		ss = new SlideShow(hslf);
-		assertNotNull(ss.getNotesHeadersFooters());
-		assertEquals("testdoc test phrase", ss.getNotesHeadersFooters().getFooterText());
-		
-		ppe = new PowerPointExtractor(slTests.openResourceAsStream("45537_Footer.ppt"));
+       text = ppe.getText();
+       assertFalse("Header shouldn't be there by default\n" + text, text.contains("testdoc"));
+       assertFalse("Header shouldn't be there by default\n" + text, text.contains("test phrase"));
 
-		text = ppe.getText();
-		assertFalse("Unable to find expected word in text\n" + text, contains(text, "testdoc"));
-        assertFalse("Unable to find expected word in text\n" + text, contains(text, "test phrase"));
+       ppe.setNotesByDefault(true);
+       text = ppe.getText();
+       assertContains(text, "testdoc");
+       assertContains(text, "test phrase");
 
-        ppe.setNotesByDefault(true);
-		text = ppe.getText();
-		assertTrue("Unable to find expected word in text\n" + text, contains(text, "testdoc"));
-        assertTrue("Unable to find expected word in text\n" + text, contains(text, "test phrase"));
+
+       // And with a footer, also on notes
+       hslf = new HSLFSlideShow(slTests.openResourceAsStream("45537_Footer.ppt"));
+       ss = new SlideShow(hslf);
+       assertNotNull(ss.getNotesHeadersFooters());
+       assertEquals("testdoc test phrase", ss.getNotesHeadersFooters().getFooterText());
+
+       ppe = new PowerPointExtractor(slTests.openResourceAsStream("45537_Footer.ppt"));
+
+       text = ppe.getText();
+       assertFalse("Header shouldn't be there by default\n" + text, text.contains("testdoc"));
+       assertFalse("Header shouldn't be there by default\n" + text, text.contains("test phrase"));
+
+       ppe.setNotesByDefault(true);
+       text = ppe.getText();
+       assertContains(text, "testdoc");
+       assertContains(text, "test phrase");
     }
-
-	private static boolean contains(String text, String searchString) {
-		return text.indexOf(searchString) >=0;
-	}
+    
+   public void testSlideMasterText() throws Exception {
+      String masterTitleText = "This is the Master Title";
+      String masterRandomText = "This text comes from the Master Slide";
+      String masterFooterText = "Footer from the master slide";
+      HSLFSlideShow hslf = new HSLFSlideShow(slTests.openResourceAsStream("WithMaster.ppt"));
+      
+      ppe = new PowerPointExtractor(hslf);
+      
+      String text = ppe.getText();
+      //assertContains(text, masterTitleText); // TODO Is this available in PPT?
+      //assertContains(text, masterRandomText); // TODO Extract
+      assertContains(text, masterFooterText);
+   }
 
     public void testMasterText() throws Exception {
-		ppe = new PowerPointExtractor(slTests.openResourceAsStream("master_text.ppt"));
-        ppe.setMasterByDefault(true);
+       ppe = new PowerPointExtractor(slTests.openResourceAsStream("master_text.ppt"));
+       
+       // Initially not there
+       String text = ppe.getText();
+       assertFalse(text.contains("Text that I added to the master slide"));
+       
+       // Enable, shows up
+       ppe.setMasterByDefault(true);
+       text = ppe.getText();
+       assertTrue(text.contains("Text that I added to the master slide"));
 
-		String text = ppe.getText();
-		assertTrue(text.contains("Master Header Text"));
+       // Make sure placeholder text does not come out
+       assertFalse(text.contains("Click to edit Master"));
+       
+       // Now with another file only containing master text
+       // Will always show up
+       String masterText = "Footer from the master slide";
+       HSLFSlideShow hslf = new HSLFSlideShow(slTests.openResourceAsStream("WithMaster.ppt"));
+       
+       ppe = new PowerPointExtractor(hslf);
+       
+       text = ppe.getText();
+       assertContains(text.toLowerCase(), "master");
+       assertContains(text, masterText);
     }
 
+    
+    /**
+     * Tests that we can work with both {@link POIFSFileSystem}
+     *  and {@link NPOIFSFileSystem}
+     */
+    public void testDifferentPOIFS() throws Exception {
+       // Open the two filesystems
+       DirectoryNode[] files = new DirectoryNode[2];
+       files[0] = (new POIFSFileSystem(slTests.openResourceAsStream("basic_test_ppt_file.ppt"))).getRoot();
+       files[1] = (new NPOIFSFileSystem(slTests.getFile("basic_test_ppt_file.ppt"))).getRoot();
+       
+       // Open directly 
+       for(DirectoryNode dir : files) {
+          PowerPointExtractor extractor = new PowerPointExtractor(dir, null);
+          assertEquals(expectText, extractor.getText());
+       }
+
+       // Open via a HWPFDocument
+       for(DirectoryNode dir : files) {
+          HSLFSlideShow slideshow = new HSLFSlideShow(dir);
+          PowerPointExtractor extractor = new PowerPointExtractor(slideshow);
+          assertEquals(expectText, extractor.getText());
+       }
+    }
 }

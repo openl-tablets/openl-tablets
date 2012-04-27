@@ -54,6 +54,7 @@ import org.apache.poi.hssf.record.RowRecord;
 import org.apache.poi.hssf.record.SCLRecord;
 import org.apache.poi.hssf.record.SaveRecalcRecord;
 import org.apache.poi.hssf.record.SelectionRecord;
+import org.apache.poi.hssf.record.TextObjectRecord;
 import org.apache.poi.hssf.record.UncalcedRecord;
 import org.apache.poi.hssf.record.WSBoolRecord;
 import org.apache.poi.hssf.record.WindowTwoRecord;
@@ -65,12 +66,12 @@ import org.apache.poi.hssf.record.aggregates.DataValidityTable;
 import org.apache.poi.hssf.record.aggregates.MergedCellsTable;
 import org.apache.poi.hssf.record.aggregates.PageSettingsBlock;
 import org.apache.poi.hssf.record.aggregates.RecordAggregate;
-import org.apache.poi.hssf.record.aggregates.RowRecordsAggregate;
-import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.record.aggregates.RecordAggregate.PositionTrackingVisitor;
 import org.apache.poi.hssf.record.aggregates.RecordAggregate.RecordVisitor;
-import org.apache.poi.hssf.record.formula.FormulaShifter;
+import org.apache.poi.hssf.record.aggregates.RowRecordsAggregate;
+import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.util.PaneInformation;
+import org.apache.poi.ss.formula.FormulaShifter;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.POILogFactory;
@@ -110,8 +111,8 @@ public final class InternalSheet {
     protected PrintGridlinesRecord       printGridlines    =     null;
     protected GridsetRecord              gridset           =     null;
     private   GutsRecord                 _gutsRecord;
-    protected DefaultColWidthRecord      defaultcolwidth   =     null;
-    protected DefaultRowHeightRecord     defaultrowheight  =     null;
+    protected DefaultColWidthRecord      defaultcolwidth   =     new DefaultColWidthRecord();
+    protected DefaultRowHeightRecord     defaultrowheight  =     new DefaultRowHeightRecord();
     private PageSettingsBlock _psBlock;
 
     /**
@@ -272,7 +273,7 @@ public final class InternalSheet {
                 records.add(rec);
                 continue;
             }
-            
+
             if (recSid == EOFRecord.sid) {
                 records.add(rec);
                 break;
@@ -360,13 +361,13 @@ public final class InternalSheet {
 
     private static final class RecordCloner implements RecordVisitor {
 
-        private final List<RecordBase> _destList;
+        private final List<Record> _destList;
 
-        public RecordCloner(List<RecordBase> destList) {
+        public RecordCloner(List<Record> destList) {
             _destList = destList;
         }
         public void visitRecord(Record r) {
-            _destList.add((RecordBase)r.clone());
+            _destList.add((Record)r.clone());
         }
     }
 
@@ -378,7 +379,7 @@ public final class InternalSheet {
      * belongs to a sheet.
      */
     public InternalSheet cloneSheet() {
-        List<RecordBase> clonedRecords = new ArrayList<RecordBase>(_records.size());
+        List<Record> clonedRecords = new ArrayList<Record>(_records.size());
         for (int i = 0; i < _records.size(); i++) {
             RecordBase rb = _records.get(i);
             if (rb instanceof RecordAggregate) {
@@ -725,8 +726,8 @@ public final class InternalSheet {
     }
 
     /**
-     * get the NEXT value record (from LOC).  The first record that is a value record
-     * (starting at LOC) will be returned.
+     * Get all the value records (from LOC). Records will be returned from the first
+     *  record (starting at LOC) which is a value record.
      *
      * <P>
      * This method is "loc" sensitive.  Meaning you need to set LOC to where you
@@ -735,8 +736,27 @@ public final class InternalSheet {
      * at what this sets it to.  For this method, set loc to dimsloc to start with,
      * subsequent calls will return values in (physical) sequence or NULL when you get to the end.
      *
-     * @return CellValueRecordInterface representing the next value record or NULL if there are no more
+     * @return Iterator of CellValueRecordInterface representing the value records
      */
+    public Iterator<CellValueRecordInterface> getCellValueIterator(){
+    	return _rowsAggregate.getCellValueIterator();
+    }
+
+    /**
+     * Get all the value records (from LOC). Records will be returned from the first
+     *  record (starting at LOC) which is a value record.
+     *
+     * <P>
+     * This method is "loc" sensitive.  Meaning you need to set LOC to where you
+     * want it to start searching.  If you don't know do this: setLoc(getDimsLoc).
+     * When adding several rows you can just start at the last one by leaving loc
+     * at what this sets it to.  For this method, set loc to dimsloc to start with,
+     * subsequent calls will return values in (physical) sequence or NULL when you get to the end.
+     *
+     * @return Array of CellValueRecordInterface representing the remaining value records
+     * @deprecated use {@link #getCellValueIterator()} instead
+     */
+    @Deprecated
     public CellValueRecordInterface[] getValueRecords() {
         return _rowsAggregate.getValueRecords();
     }
@@ -915,7 +935,7 @@ public final class InternalSheet {
         DefaultRowHeightRecord retval = new DefaultRowHeightRecord();
 
         retval.setOptionFlags(( short ) 0);
-        retval.setRowHeight(( short ) 0xff);
+        retval.setRowHeight(DefaultRowHeightRecord.DEFAULT_ROW_HEIGHT);
         return retval;
     }
 
@@ -936,7 +956,7 @@ public final class InternalSheet {
       */
     private static DefaultColWidthRecord createDefaultColWidth() {
         DefaultColWidthRecord retval = new DefaultColWidthRecord();
-        retval.setColWidth(( short ) 8);
+        retval.setColWidth(DefaultColWidthRecord.DEFAULT_COLUMN_WIDTH);
         return retval;
     }
 
@@ -982,6 +1002,8 @@ public final class InternalSheet {
      */
     public void setDefaultRowHeight(short dch) {
         defaultrowheight.setRowHeight(dch);
+        // set the bit that specifies that the default settings for the row height have been changed.
+        defaultrowheight.setOptionFlags((short)1);
     }
 
     /**
@@ -1315,6 +1337,9 @@ public final class InternalSheet {
 
     /**
      * Creates a split (freezepane). Any existing freezepane or split pane is overwritten.
+     *
+     * <p>If both colSplit and rowSplit are zero then the existing freeze pane is removed</p>
+     *
      * @param colSplit      Horizonatal position of split.
      * @param rowSplit      Vertical position of split.
      * @param topRow        Top row visible in bottom pane
@@ -1324,6 +1349,15 @@ public final class InternalSheet {
         int paneLoc = findFirstRecordLocBySid(PaneRecord.sid);
         if (paneLoc != -1)
             _records.remove(paneLoc);
+
+        // If both colSplit and rowSplit are zero then the existing freeze pane is removed
+        if(colSplit == 0 && rowSplit == 0){
+            windowTwo.setFreezePanes(false);
+            windowTwo.setFreezePanesNoSplit(false);
+            SelectionRecord sel = (SelectionRecord) findFirstRecordBySid(SelectionRecord.sid);
+            sel.setPane(PaneInformation.PANE_UPPER_LEFT);
+            return;
+        }
 
         int loc = findFirstRecordLocBySid(WindowTwoRecord.sid);
         PaneRecord pane = new PaneRecord();
@@ -1335,7 +1369,7 @@ public final class InternalSheet {
             pane.setTopRow((short)0);
             pane.setActivePane((short)1);
         } else if (colSplit == 0) {
-            pane.setLeftColumn((short)64);
+            pane.setLeftColumn((short)0);
             pane.setActivePane((short)2);
         } else {
             pane.setActivePane((short)0);
@@ -1506,10 +1540,13 @@ public final class InternalSheet {
         int startloc = loc;
         while ( loc + 1 < records.size()
                 && records.get( loc ) instanceof DrawingRecord
-                && records.get( loc + 1 ) instanceof ObjRecord )
+                && (records.get( loc + 1 ) instanceof ObjRecord ||
+                    records.get( loc + 1 ) instanceof TextObjectRecord) )
         {
             loc += 2;
+            if (records.get( loc ) instanceof NoteRecord) loc ++;
         }
+
         int endloc = loc-1;
         for(int i = 0; i < (endloc - startloc + 1); i++)
             records.remove(startloc);

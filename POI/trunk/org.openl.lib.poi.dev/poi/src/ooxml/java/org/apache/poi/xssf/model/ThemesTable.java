@@ -16,10 +16,13 @@
 ==================================================================== */
 package org.apache.poi.xssf.model;
 
+import java.io.IOException;
+
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTColorScheme;
 import org.openxmlformats.schemas.drawingml.x2006.main.ThemeDocument;
@@ -34,9 +37,14 @@ import org.openxmlformats.schemas.drawingml.x2006.main.CTColor;
 public class ThemesTable extends POIXMLDocumentPart {
     private ThemeDocument theme;
 
-    public ThemesTable(PackagePart part, PackageRelationship rel) throws Exception {
+    public ThemesTable(PackagePart part, PackageRelationship rel) throws IOException {
         super(part, rel);
-        theme = ThemeDocument.Factory.parse(part.getInputStream());
+        
+        try {
+           theme = ThemeDocument.Factory.parse(part.getInputStream());
+        } catch(XmlException e) {
+           throw new IOException(e.getLocalizedMessage());
+        }
     }
 
     public ThemesTable(ThemeDocument theme) {
@@ -51,11 +59,45 @@ public class ThemesTable extends POIXMLDocumentPart {
             if (obj instanceof org.openxmlformats.schemas.drawingml.x2006.main.CTColor) {
                 if (cnt == idx) {
                     ctColor = (org.openxmlformats.schemas.drawingml.x2006.main.CTColor) obj;
-                    return new XSSFColor(ctColor.getSrgbClr().getVal());
+                    
+                    byte[] rgb = null;
+                    if (ctColor.getSrgbClr() != null) {
+                       // Colour is a regular one 
+                       rgb = ctColor.getSrgbClr().getVal();
+                    } else if (ctColor.getSysClr() != null) {
+                       // Colour is a tint of white or black
+                       rgb = ctColor.getSysClr().getLastClr();
+                    }
+
+                    return new XSSFColor(rgb);
                 }
                 cnt++;
             }
         }
         return null;
+    }
+    
+    /**
+     * If the colour is based on a theme, then inherit 
+     *  information (currently just colours) from it as
+     *  required.
+     */
+    public void inheritFromThemeAsRequired(XSSFColor color) {
+       if(color == null) {
+          // Nothing for us to do
+          return;
+       }
+       if(! color.getCTColor().isSetTheme()) {
+          // No theme set, nothing to do
+          return;
+       }
+       
+       // Get the theme colour
+       XSSFColor themeColor = getThemeColor(color.getTheme());
+       // Set the raw colour, not the adjusted one
+       // Do a raw set, no adjusting at the XSSFColor layer either
+       color.getCTColor().setRgb(themeColor.getCTColor().getRgb());
+       
+       // All done
     }
 }

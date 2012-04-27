@@ -22,13 +22,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.hssf.record.cont.ContinuableRecordInput;
 import org.apache.poi.hssf.record.RecordInputStream;
 import org.apache.poi.hssf.record.cont.ContinuableRecordOutput;
-import org.apache.poi.util.BitField;
-import org.apache.poi.util.BitFieldFactory;
-import org.apache.poi.util.LittleEndianInput;
-import org.apache.poi.util.LittleEndianOutput;
-import org.apache.poi.util.StringUtil;
+import org.apache.poi.util.*;
 
 /**
  * Title: Unicode String<p/>
@@ -39,6 +36,8 @@ import org.apache.poi.util.StringUtil;
  * REFERENCE:  PG 951 Excel Binary File Format (.xls) Structure Specification v20091214 
  */
 public class UnicodeString implements Comparable<UnicodeString> { // TODO - make this final when the compatibility version is removed
+    private static POILogger _logger = POILogFactory.getLogger(UnicodeString.class);
+
     private short             field_1_charCount;
     private byte              field_2_optionflags;
     private String            field_3_string;
@@ -137,7 +136,7 @@ public class UnicodeString implements Comparable<UnicodeString> { // TODO - make
           
           // Spot corrupt records
           if(reserved != 1) {
-             System.err.println("Warning - ExtRst was has wrong magic marker, expecting 1 but found " + reserved + " - ignoring");
+             _logger.log(POILogger.WARN, "Warning - ExtRst has wrong magic marker, expecting 1 but found " + reserved + " - ignoring");
              // Grab all the remaining data, and ignore it
              for(int i=0; i<expectedLength-2; i++) {
                 in.readByte();
@@ -146,7 +145,7 @@ public class UnicodeString implements Comparable<UnicodeString> { // TODO - make
              populateEmpty();
              return;
           }
-          
+
           // Carry on reading in as normal
           short stringDataSize = in.readShort();
           
@@ -266,7 +265,7 @@ public class UnicodeString implements Comparable<UnicodeString> { // TODO - make
           ext.formattingFontIndex = formattingFontIndex;
           ext.formattingOptions = formattingOptions;
           ext.numberOfRuns = numberOfRuns;
-          ext.phoneticText = new String(phoneticText);
+          ext.phoneticText = phoneticText;
           ext.phRuns = new PhRun[phRuns.length];
           for(int i=0; i<ext.phRuns.length; i++) {
              ext.phRuns[i] = new PhRun(
@@ -435,9 +434,9 @@ public class UnicodeString implements Comparable<UnicodeString> { // TODO - make
         }
 
         if (isExtendedText() && (extensionLength > 0)) {
-          field_5_ext_rst = new ExtRst(in, extensionLength);
+          field_5_ext_rst = new ExtRst(new ContinuableRecordInput(in), extensionLength);
           if(field_5_ext_rst.getDataSize()+4 != extensionLength) {
-             System.err.println("ExtRst was supposed to be " + extensionLength + " bytes long, but seems to actually be " + (field_5_ext_rst.getDataSize()+4));
+             _logger.log(POILogger.WARN, "ExtRst was supposed to be " + extensionLength + " bytes long, but seems to actually be " + (field_5_ext_rst.getDataSize() + 4));
           }
         }
     }

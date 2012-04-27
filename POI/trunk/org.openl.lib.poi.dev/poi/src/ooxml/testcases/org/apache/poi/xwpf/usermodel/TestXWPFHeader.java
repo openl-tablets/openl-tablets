@@ -29,21 +29,27 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
 
 public final class TestXWPFHeader extends TestCase {
 
-	public void testSimpleHeader() {
+	public void testSimpleHeader() throws IOException {
 		XWPFDocument sampleDoc = XWPFTestDataSamples.openSampleDocument("headerFooter.docx");
 
 		XWPFHeaderFooterPolicy policy = sampleDoc.getHeaderFooterPolicy();
-
 
 		XWPFHeader header = policy.getDefaultHeader();
 		XWPFFooter footer = policy.getDefaultFooter();
 		assertNotNull(header);
 		assertNotNull(footer);
-
-		// TODO verify if the following is correct
-		assertNull(header.toString());
-
 	}
+
+    public void testImageInHeader() throws IOException {
+        XWPFDocument sampleDoc = XWPFTestDataSamples.openSampleDocument("headerPic.docx");
+
+        XWPFHeaderFooterPolicy policy = sampleDoc.getHeaderFooterPolicy();
+
+        XWPFHeader header = policy.getDefaultHeader();
+
+        assertNotNull(header.getRelations());
+        assertEquals(1, header.getRelations().size());
+    }
 
 	public void testSetHeader() throws IOException {
 		XWPFDocument sampleDoc = XWPFTestDataSamples.openSampleDocument("SampleDoc.docx");
@@ -76,12 +82,12 @@ public final class TestXWPFHeader extends TestCase {
 		CTText t3 = ctR3.addNewT();
 		t3.setStringValue("Second paragraph for the footer");
 
-		XWPFParagraph p1 = new XWPFParagraph(ctP1);
+		XWPFParagraph p1 = new XWPFParagraph(ctP1, sampleDoc);
 		XWPFParagraph[] pars = new XWPFParagraph[1];
 		pars[0] = p1;
 
-		XWPFParagraph p2 = new XWPFParagraph(ctP2);
-		XWPFParagraph p3 = new XWPFParagraph(ctP3, null);
+		XWPFParagraph p2 = new XWPFParagraph(ctP2, sampleDoc);
+		XWPFParagraph p3 = new XWPFParagraph(ctP3, sampleDoc);
 		XWPFParagraph[] pars2 = new XWPFParagraph[2];
 		pars2[0] = p2;
 		pars2[1] = p3;
@@ -98,25 +104,25 @@ public final class TestXWPFHeader extends TestCase {
 		assertNotNull(policy.getDefaultFooter());
 		// ....and that the footer object captured above contains two
 		// paragraphs of text.
-		assertEquals(footer.getParagraphs().size(), 2);
+		assertEquals(2, footer.getParagraphs().size());
 		
 		// As an additional check, recover the defauls footer and
 		// make sure that it contains two paragraphs of text and that
 		// both do hold what is expected.
 		footer = policy.getDefaultFooter();
-
+		
 		XWPFParagraph[] paras = new XWPFParagraph[footer.getParagraphs().size()];
 		int i=0;
 		for(XWPFParagraph p : footer.getParagraphs()) {
 		   paras[i++] = p;
 		}
 		
-		assertEquals(paras.length, 2);
-		assertEquals(paras[0].getText(), "First paragraph for the footer");
-		assertEquals(paras[1].getText(), "Second paragraph for the footer");
+		assertEquals(2, paras.length);
+		assertEquals("First paragraph for the footer", paras[0].getText());
+		assertEquals("Second paragraph for the footer", paras[1].getText());
 	}
 
-	public void testSetWatermark() {
+	public void testSetWatermark() throws IOException {
 		XWPFDocument sampleDoc = XWPFTestDataSamples.openSampleDocument("SampleDoc.docx");
 		// no header is set (yet)
 		XWPFHeaderFooterPolicy policy = sampleDoc.getHeaderFooterPolicy();
@@ -129,5 +135,21 @@ public final class TestXWPFHeader extends TestCase {
 		assertNotNull(policy.getDefaultHeader());
 		assertNotNull(policy.getFirstPageHeader());
 		assertNotNull(policy.getEvenPageHeader());
+	}
+	
+	public void testAddPictureData() {
+	    
+	}
+	
+	public void testGetAllPictures() {
+	    
+	}
+	
+	public void testGetAllPackagePictures() {
+	    
+	}
+	
+	public void testGetPictureDataById() {
+	    
 	}
 }

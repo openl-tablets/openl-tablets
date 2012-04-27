@@ -14,5 +14,6 @@ POI/trunk/org.openl.lib.poi.dev/lib
 POI/trunk/org.openl.lib.poi.dev/bin
 POI/trunk/org.openl.lib.poi.dev.modified/bin
 STUDIO/trunk/org.openl.rules.webstudio/webapps/webstudio/WEB-INF/classes/**
+STUDIO/trunk/org.openl.rules.webstudio/logs
 
 

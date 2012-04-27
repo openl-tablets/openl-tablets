@@ -71,6 +71,7 @@
                     <li><link href="#Validation">Data Validation</link></li>
                     <li><link href="#Embedded">Embedded Objects</link></li>
                     <li><link href="#Autofilter">Autofilters</link></li>
+                    <li><link href="#ConditionalFormatting">Conditional Formatting</link></li>
                 </ul>
             </section>
             <section><title>Features</title>
@@ -91,14 +92,31 @@
                 <anchor id="NewSheet"/>
                 <section><title>New Sheet</title>
                     <source>
-    Workbook wb = new HSSFWorkbook();
-    //Workbook wb = new XSSFWorkbook();
+    Workbook wb = new HSSFWorkbook();  // or new XSSFWorkbook();
     Sheet sheet1 = wb.createSheet("new sheet");
     Sheet sheet2 = wb.createSheet("second sheet");
+
+    // Note that sheet name is Excel must not exceed 31 characters
+    // and must not contain any of the any of the following characters:
+    // 0x0000
+    // 0x0003
+    // colon (:)
+    // backslash (\)
+    // asterisk (*)
+    // question mark (?)
+    // forward slash (/)
+    // opening square bracket ([)
+    // closing square bracket (])
+
+    // You can use org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)}
+    // for a safe way to create valid names, this utility replaces invalid characters with a space (' ')
+    String safeName = WorkbookUtil.createSafeSheetName("[O'Brien's sales*?]"); // returns " O'Brien's sales   "
+    Sheet sheet3 = wb.createSheet(safeName);
+
     FileOutputStream fileOut = new FileOutputStream("workbook.xls");
     wb.write(fileOut);
     fileOut.close();
-                    </source>
+                     </source>
                 </section>
                 <anchor id="CreateCells"/>
                 <section><title>Creating Cells</title>
@@ -174,7 +192,7 @@
     row.createCell(2).setCellValue(Calendar.getInstance());
     row.createCell(3).setCellValue("a string");
     row.createCell(4).setCellValue(true);
-    row.createCell(5).setCellType(HSSFCell.CELL_TYPE_ERROR);
+    row.createCell(5).setCellType(Cell.CELL_TYPE_ERROR);
 
     // Write the output to a file
     FileOutputStream fileOut = new FileOutputStream("workbook.xls");
@@ -192,13 +210,13 @@
         Row row = sheet.createRow((short) 2);
         row.setHeightInPoints(30);
 
-        createCell(wb, row, (short) 0, XSSFCellStyle.ALIGN_CENTER, XSSFCellStyle.VERTICAL_BOTTOM);
-        createCell(wb, row, (short) 1, XSSFCellStyle.ALIGN_CENTER_SELECTION, XSSFCellStyle.VERTICAL_BOTTOM);
-        createCell(wb, row, (short) 2, XSSFCellStyle.ALIGN_FILL, XSSFCellStyle.VERTICAL_CENTER);
-        createCell(wb, row, (short) 3, XSSFCellStyle.ALIGN_GENERAL, XSSFCellStyle.VERTICAL_CENTER);
-        createCell(wb, row, (short) 4, XSSFCellStyle.ALIGN_JUSTIFY, XSSFCellStyle.VERTICAL_JUSTIFY);
-        createCell(wb, row, (short) 5, XSSFCellStyle.ALIGN_LEFT, XSSFCellStyle.VERTICAL_TOP);
-        createCell(wb, row, (short) 6, XSSFCellStyle.ALIGN_RIGHT, XSSFCellStyle.VERTICAL_TOP);
+        createCell(wb, row, (short) 0, CellStyle.ALIGN_CENTER, CellStyle.VERTICAL_BOTTOM);
+        createCell(wb, row, (short) 1, CellStyle.ALIGN_CENTER_SELECTION, CellStyle.VERTICAL_BOTTOM);
+        createCell(wb, row, (short) 2, CellStyle.ALIGN_FILL, CellStyle.VERTICAL_CENTER);
+        createCell(wb, row, (short) 3, CellStyle.ALIGN_GENERAL, CellStyle.VERTICAL_CENTER);
+        createCell(wb, row, (short) 4, CellStyle.ALIGN_JUSTIFY, CellStyle.VERTICAL_JUSTIFY);
+        createCell(wb, row, (short) 5, CellStyle.ALIGN_LEFT, CellStyle.VERTICAL_TOP);
+        createCell(wb, row, (short) 6, CellStyle.ALIGN_RIGHT, CellStyle.VERTICAL_TOP);
 
         // Write the output to a file
         FileOutputStream fileOut = new FileOutputStream("xssf-align.xlsx");
@@ -217,7 +235,7 @@
      */
     private static void createCell(Workbook wb, Row row, short column, short halign, short valign) {
         Cell cell = row.createCell(column);
-        cell.setCellValue(new XSSFRichTextString("Align It"));
+        cell.setCellValue("Align It");
         CellStyle cellStyle = wb.createCellStyle();
         cellStyle.setAlignment(halign);
         cellStyle.setVerticalAlignment(valign);
@@ -270,15 +288,15 @@
                 so using Java 1.5 you can simply take advantage
                 of the built in "foreach" support - see below.</p>
 				<source>
-	Sheet sheet = wb.getSheetAt(0);
-	for (Iterator&lt;Row&gt; rit = sheet.rowIterator(); rit.hasNext(); ) {
-		Row row = rit.next();
-		for (Iterator&lt;Cell&gt; cit = row.cellIterator(); cit.hasNext(); ) {
-			Cell cell = cit.next();
-			// Do something here
-		}
-	}
-				</source>
+    sheet sheet = wb.getsheetat(0);
+    for (iterator&lt;row&gt; rit = sheet.rowiterator(); rit.hasnext(); ) {
+      row row = rit.next();
+      for (iterator&lt;cell&gt; cit = row.celliterator(); cit.hasnext(); ) {
+        cell cell = cit.next();
+        // do something here
+      }
+    }
+        </source>
                 </section>
                 <section><title>Iterate over rows and cells using Java 1.5 foreach loops</title>
 				<p>Sometimes, you'd like to just iterate over all the rows in
@@ -292,12 +310,12 @@
 				the cells, and for Sheet gives the 
 				<em>rowIterator()</em> to iterator over all the rows.</p>
 				<source>
-	Sheet sheet = wb.getSheetAt(0);
-	for (Row row : sheet) {
-		for (Cell cell : row) {
-			// Do something here
-		}
-	}
+    Sheet sheet = wb.getSheetAt(0);
+    for (Row row : sheet) {
+      for (Cell cell : row) {
+        // Do something here
+      }
+    }
 				</source>
                 </section>
 
@@ -313,37 +331,37 @@
                     in one sheet, print out the cell's reference
                     (eg A3), and then the cell's contents.</p>
 				<source>
-// import org.apache.poi.ss.usermodel.*;
+    // import org.apache.poi.ss.usermodel.*;
 
-Sheet sheet1 = wb.getSheetAt(0);
-for (Row row : sheet1) {
-	for (Cell cell : row) {
-		CellReference cellRef = new CellReference(row.getRowNum(), cell.getCellNum());
-		System.out.print(cellRef.formatAsString());
-		System.out.print(" - ");
-		
-		switch(cell.getCellType()) {
-      case Cell.CELL_TYPE_STRING:
-        System.out.println(cell.getRichStringCellValue().getString());
-        break;
-      case Cell.CELL_TYPE_NUMERIC:
-        if(DateUtil.isCellDateFormatted(cell)) {
-          System.out.println(cell.getDateCellValue());
-        } else {
-          System.out.println(cell.getNumericCellValue());
+    Sheet sheet1 = wb.getSheetAt(0);
+    for (Row row : sheet1) {
+        for (Cell cell : row) {
+            CellReference cellRef = new CellReference(row.getRowNum(), cell.getColumnIndex());
+            System.out.print(cellRef.formatAsString());
+            System.out.print(" - ");
+
+            switch (cell.getCellType()) {
+                case Cell.CELL_TYPE_STRING:
+                    System.out.println(cell.getRichStringCellValue().getString());
+                    break;
+                case Cell.CELL_TYPE_NUMERIC:
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        System.out.println(cell.getDateCellValue());
+                    } else {
+                        System.out.println(cell.getNumericCellValue());
+                    }
+                    break;
+                case Cell.CELL_TYPE_BOOLEAN:
+                    System.out.println(cell.getBooleanCellValue());
+                    break;
+                case Cell.CELL_TYPE_FORMULA:
+                    System.out.println(cell.getCellFormula());
+                    break;
+                default:
+                    System.out.println();
+            }
         }
-        break;
-      case Cell.CELL_TYPE_BOOLEAN:
-        System.out.println(cell.getBooleanCellValue());
-        break;
-      case Cell.CELL_TYPE_FORMULA:
-        System.out.println(cell.getCellFormula());
-        break;
-      default:
-        System.out.println();
-		}
-	}
-}
+    }
 				</source>
                 </section>
 
@@ -352,13 +370,13 @@ for (Row row : sheet1) {
 					<p>For most text extraction requirements, the standard
 					ExcelExtractor class should provide all you need.</p>
 					<source>
-	InputStream inp = new FileInputStream("workbook.xls");
-	HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inp));
-	ExcelExtractor extractor = new ExcelExtractor(wb);
+    InputStream inp = new FileInputStream("workbook.xls");
+    HSSFWorkbook wb = new HSSFWorkbook(new POIFSFileSystem(inp));
+    ExcelExtractor extractor = new ExcelExtractor(wb);
 
-	extractor.setFormulasNotResults(true);
-	extractor.setIncludeSheetNames(false);
-	String text = extractor.getText();
+    extractor.setFormulasNotResults(true);
+    extractor.setIncludeSheetNames(false);
+    String text = extractor.getText();
 					</source>
 					<p>For very fancy text extraction, XLS to CSV etc, 
 					take a look at
@@ -457,29 +475,29 @@ Examples:
 </p>
 <p><strong>Wrong:</strong></p>
 <source>
-        for (int i = 0; i &lt; 10000; i++) {
-            Row row = sheet.createRow(i);
-            Cell cell = row.createCell((short) 0);
-
-            CellStyle style = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-            style.setFont(font);
-            cell.setCellStyle(style);
-        }
-</source>
-<p><strong>Correct:</strong></p>
-<source>
+    for (int i = 0; i &lt; 10000; i++) {
+        Row row = sheet.createRow(i);
+        Cell cell = row.createCell((short) 0);
 
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         style.setFont(font);
-        for (int i = 0; i &lt; 10000; i++) {
-            Row row = sheet.createRow(i);
-            Cell cell = row.createCell((short) 0);
-            cell.setCellStyle(style);
-        }
+        cell.setCellStyle(style);
+    }
+</source>
+<p><strong>Correct:</strong></p>
+<source>
+
+    CellStyle style = workbook.createCellStyle();
+    Font font = workbook.createFont();
+    font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+    style.setFont(font);
+    for (int i = 0; i &lt; 10000; i++) {
+        Row row = sheet.createRow(i);
+        Cell cell = row.createCell((short) 0);
+        cell.setCellStyle(style);
+    }
 </source>
   
                 </section>
@@ -674,11 +692,11 @@ Examples:
                 <anchor id="FooterPageNumbers"/>
                 <section><title>Set Page Numbers on Footer</title>
                     <source>
-    HSSFWorkbook wb = new HSSFWorkbook();
-    HSSFSheet sheet = wb.createSheet("format sheet");
-    HSSFFooter footer = sheet.getFooter()
+    Workbook wb = new HSSFWorkbook(); // or new XSSFWorkbook();
+    Sheet sheet = wb.createSheet("format sheet");
+    Footer footer = sheet.getFooter();
 
-    footer.setRight( "Page " + HSSFFooter.page() + " of " + HSSFFooter.numPages() );
+    footer.setRight( "Page " + HeaderFooter.page() + " of " + HeaderFooter.numPages() );
 
 
 
@@ -693,44 +711,44 @@ Examples:
                 <anchor id="ConvenienceFunctions"/>
                 <section><title>Using the Convenience Functions</title>
                     <p>
-                        The convenience functions live in contrib and provide
+                        The convenience functions  provide
                         utility features such as setting borders around merged
                         regions and changing style attributes without explicitly
                         creating new styles.
                     </p>
                     <source>
-    HSSFWorkbook wb = new HSSFWorkbook();
-    HSSFSheet sheet1 = wb.createSheet( "new sheet" );
+    Workbook wb = new HSSFWorkbook();  // or new XSSFWorkbook()
+    Sheet sheet1 = wb.createSheet( "new sheet" );
 
     // Create a merged region
-    HSSFRow row = sheet1.createRow( (short) 1 );
-    HSSFRow row2 = sheet1.createRow( (short) 2 );
-    HSSFCell cell = row.createCell( (short) 1 );
+    Row row = sheet1.createRow( 1 );
+    Row row2 = sheet1.createRow( 2 );
+    Cell cell = row.createCell( 1 );
     cell.setCellValue( "This is a test of merging" );
-    Region region = new Region( 1, (short) 1, 4, (short) 4 );
+    CellRangeAddress region = CellRangeAddress.valueOf("B2:E5");
     sheet1.addMergedRegion( region );
 
     // Set the border and border colors.
-    final short borderMediumDashed = HSSFCellStyle.BORDER_MEDIUM_DASHED;
-    HSSFRegionUtil.setBorderBottom( borderMediumDashed,
+    final short borderMediumDashed = CellStyle.BORDER_MEDIUM_DASHED;
+    RegionUtil.setBorderBottom( borderMediumDashed,
         region, sheet1, wb );
-    HSSFRegionUtil.setBorderTop( borderMediumDashed,
+    RegionUtil.setBorderTop( borderMediumDashed,
         region, sheet1, wb );
-    HSSFRegionUtil.setBorderLeft( borderMediumDashed,
+    RegionUtil.setBorderLeft( borderMediumDashed,
         region, sheet1, wb );
-    HSSFRegionUtil.setBorderRight( borderMediumDashed,
+    RegionUtil.setBorderRight( borderMediumDashed,
         region, sheet1, wb );
-    HSSFRegionUtil.setBottomBorderColor(HSSFColor.AQUA.index, region, sheet1, wb);
-    HSSFRegionUtil.setTopBorderColor(HSSFColor.AQUA.index, region, sheet1, wb);
-    HSSFRegionUtil.setLeftBorderColor(HSSFColor.AQUA.index, region, sheet1, wb);
-    HSSFRegionUtil.setRightBorderColor(HSSFColor.AQUA.index, region, sheet1, wb);
+    RegionUtil.setBottomBorderColor(IndexedColors.AQUA.getIndex(), region, sheet1, wb);
+    RegionUtil.setTopBorderColor(IndexedColors.AQUA.getIndex(), region, sheet1, wb);
+    RegionUtil.setLeftBorderColor(IndexedColors.AQUA.getIndex(), region, sheet1, wb);
+    RegionUtil.setRightBorderColor(IndexedColors.AQUA.getIndex(), region, sheet1, wb);
 
     // Shows some usages of HSSFCellUtil
-    HSSFCellStyle style = wb.createCellStyle();
+    CellStyle style = wb.createCellStyle();
     style.setIndention((short)4);
-    HSSFCellUtil.createCell(row, 8, "This is the value of the cell", style);
-    HSSFCell cell2 = HSSFCellUtil.createCell( row2, 8, "This is the value of the cell");
-    HSSFCellUtil.setAlignment(cell2, wb, HSSFCellStyle.ALIGN_CENTER);
+    CellUtil.createCell(row, 8, "This is the value of the cell", style);
+    Cell cell2 = CellUtil.createCell( row2, 8, "This is the value of the cell");
+    CellUtil.setAlignment(cell2, wb, CellStyle.ALIGN_CENTER);
 
     // Write out the workbook
     FileOutputStream fileOut = new FileOutputStream( "workbook.xls" );
@@ -1333,17 +1351,26 @@ Examples:
 
     Sheet sheet = wb.createSheet();
     
-    Cell cell = sheet.createRow(3).createCell(5);
+    Rowl row  = sheet.createRow(3);
+    Cell cell = row.createCell(5);
     cell.setCellValue("F4");
     
     Drawing drawing = sheet.createDrawingPatriarch();
 
+    // When the comment box is visible, have it show in a 1x3 space
     ClientAnchor anchor = factory.createClientAnchor();
+    anchor.setCol1(cell.getColumnIndex());
+    anchor.setCol2(cell.getColumnIndex()+1);
+    anchor.setRow1(row.getRowNul());
+    anchor.setRow2(row.getRowNul()+3);
+
+    // Create the comment and set the text+author
     Comment comment = drawing.createCellComment(anchor);
     RichTextString str = factory.createRichTextString("Hello, World!");
     comment.setString(str);
     comment.setAuthor("Apache POI");
-    //assign the comment to the cell
+
+    // Assign the comment to the cell
     cell.setCellComment(comment);
 
     String fname = "comment-xssf.xls";
@@ -1371,11 +1398,16 @@ Examples:
      <section><title>Adjust column width to fit the contents</title>
         <source>
     Sheet sheet = workbook.getSheetAt(0);
-    sheet.autoSizeColumn((short)0); //adjust width of the first column
-    sheet.autoSizeColumn((short)1); //adjust width of the second column
+    sheet.autoSizeColumn(0); //adjust width of the first column
+    sheet.autoSizeColumn(1); //adjust width of the second column
         </source>
+    <p>
+      Note, that Sheet#autoSizeColumn() does not evaluate formula cells, 
+      the width of formula cells is calculated based on the cached formula result.
+      If your workbook has many formulas then it is a good idea to evaluate them before auto-sizing.
+    </p>
         <warning>
-    To calculate column width HSSFSheet.autoSizeColumn uses Java2D classes
+    To calculate column width Sheet.autoSizeColumn uses Java2D classes
     that throw exception if graphical environment is not available. In case if graphical environment
     is not available, you must tell Java that you are running in headless mode and
     set the following system property: <code> java.awt.headless=true </code>.
@@ -1454,44 +1486,40 @@ Examples:
      </section>
      <anchor id="Validation"/>
      <section><title>Data Validations</title>
-        <note>
-          Currently - as of version 3.5 - the XSSF stream does not support data validations and neither it nor the HSSF stream 
-          allow data validations to be recovered from sheets
-        </note>
          <p><strong>Check the value a user enters into a cell against one or more predefined value(s).</strong></p>
          <p>The following code will limit the value the user can enter into cell A1 to one of three integer values, 10, 20 or 30.</p>
         <source>
-  HSSFWorkbook workbook = new HSSFWorkbook();
-  HSSFSheet sheet = workbook.createSheet("Data Validation");
-  CellRangeAddressList addressList = new CellRangeAddressList(
-      0, 0, 0, 0);
-  DVConstraint dvConstraint = DVConstraint.createExplicitListConstraint(
-      new String[]{"10", "20", "30"});
-  HSSFDataValidation dataValidation = new HSSFDataValidation
-      (addressList, dvConstraint);
-  datavalidation.setSuppressDropDownArrow(true);
-  sheet.addValidationData(dataValidation);
+    Workbook workbook = new HSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Data Validation");
+    CellRangeAddressList addressList = new CellRangeAddressList(
+        0, 0, 0, 0);
+    DVConstraint dvConstraint = DVConstraint.createExplicitListConstraint(
+        new String[]{"10", "20", "30"});
+    DataValidation dataValidation = new HSSFDataValidation
+        (addressList, dvConstraint);
+    dataValidation.setSuppressDropDownArrow(true);
+    sheet.addValidationData(dataValidation);
         </source>
         <p><strong> Drop Down Lists:</strong></p>
         <p>This code will do the same but offer the user a drop down list to select a value from.</p>
         <source>
-  HSSFWorkbook workbook = new HSSFWorkbook();
-  HSSFSheet sheet = workbook.createSheet("Data Validation");
-  CellRangeAddressList addressList = new CellRangeAddressList(
-      0, 0, 0, 0);
-  DVConstraint dvConstraint = DVConstraint.createExplicitListConstraint(
-      new String[]{"10", "20", "30"});
-  HSSFDataValidation dataValidation = new HSSFDataValidation
-      (addressList, dvConstraint);
-  datavalidation.setSuppressDropDownArrow(false);
-  sheet.addValidationData(dataValidation);
-        </source>
+   Workbook workbook = new HSSFWorkbook();
+   Sheet sheet = workbook.createSheet("Data Validation");
+   CellRangeAddressList addressList = new CellRangeAddressList(
+       0, 0, 0, 0);
+   DVConstraint dvConstraint = DVConstraint.createExplicitListConstraint(
+       new String[]{"10", "20", "30"});
+   DataValidation dataValidation = new HSSFDataValidation
+       (addressList, dvConstraint);
+   dataValidation.setSuppressDropDownArrow(false);
+   sheet.addValidationData(dataValidation);
+         </source>
         <p><strong>Messages On Error:</strong></p>
         <p>To create a message box that will be shown to the user if the value they enter is invalid.</p>
         <source>
-  dataValidation.setErrorStyle(HSSFDataValidation.ErrorStyle.STOP);
+  dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
   dataValidation.createErrorBox("Box Title", "Message Text");
-        </source>
+    </source>
         <p>Replace 'Box Title' with the text you wish to display in the message box's title bar 
           and 'Message Text' with the text of your error message.</p>
         <p><strong>Prompts:</strong></p>
@@ -1532,7 +1560,7 @@ Examples:
       </source>
       <p>or</p>
       <source>
-  HSSFNamedRange namedRange = workbook.createName();
+  Name namedRange = workbook.createName();
   namedRange.setNameName("list1");
   namedRange.setRefersToFormula("$A$1:$A$3");
   dvConstraint = DVConstraint.createFormulaListConstraint("list1");
@@ -1541,7 +1569,7 @@ Examples:
       <p>The data does not have to be as the data validation. To select the data from a different sheet however, the sheet 
         must be given a name when created and that name should be used in the formula. So assuming the existence of a sheet named 'Data Sheet' this will work:</p>        
       <source>
-  HSSFNamedRange namedRange = workbook.createName();
+  Name namedRange = workbook.createName();
   namedRange.setNameName("list1");
   namedRange.setRefersToFormula("'Data Sheet'!$A$1:$A$3");
   dvConstraint = DVConstraint.createFormulaListConstraint("list1");
@@ -1552,7 +1580,7 @@ Examples:
       </source>
       <p>whilst this will not:</p>
       <source>
-  HSSFNamedRange namedRange = workbook.createName();
+  Name namedRange = workbook.createName();
   namedRange.setNameName("list1");
   namedRange.setRefersToFormula("'Sheet1'!$A$1:$A$3");
   dvConstraint = DVConstraint.createFormulaListConstraint("list1");
@@ -1647,6 +1675,45 @@ Examples:
     Sheet sheet = wb.createSheet();
     sheet.setAutoFilter(CellRangeAddress.valueOf("C5:F200"));
        </source>
+     </section>  
+     <anchor id="ConditionalFormatting"/>
+     <section><title>Conditional Formatting</title>
+       <source>
+    Workbook workbook = new HSSFWorkbook(); // or new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet();
+
+    SheetConditionalFormatting sheetCF = sheet.getSheetConditionalFormatting();
+
+    ConditionalFormattingRule rule1 = sheetCF.createConditionalFormattingRule(ComparisonOperator.EQUAL, "0");
+    FontFormatting fontFmt = rule1.createFontFormatting();
+    fontFmt.setFontStyle(true, false);
+    fontFmt.setFontColorIndex(IndexedColors.DARK_RED.index);
+    
+    BorderFormatting bordFmt = rule1.createBorderFormatting();
+    bordFmt.setBorderBottom(BorderFormatting.BORDER_THIN);
+    bordFmt.setBorderTop(BorderFormatting.BORDER_THICK);
+    bordFmt.setBorderLeft(BorderFormatting.BORDER_DASHED);
+    bordFmt.setBorderRight(BorderFormatting.BORDER_DOTTED);
+
+    PatternFormatting patternFmt = rule1.createPatternFormatting();
+    patternFmt.setFillBackgroundColor(IndexedColors.YELLOW.index);
+
+    ConditionalFormattingRule rule2 = sheetCF.createConditionalFormattingRule(ComparisonOperator.BETWEEN, "-10", "10");
+    ConditionalFormattingRule [] cfRules =
+    {
+        rule1, rule2
+    };
+
+    CellRangeAddress[] regions = {
+        CellRangeAddress.valueOf("A3:A5")
+    };
+
+    sheetCF.addConditionalFormatting(regions, cfRules);
+       </source>
+     <p> See more examples on Excel conditional formatting in
+     <link href="http://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/ss/examples/ConditionalFormats.java">ConditionalFormats.java</link>     
+      </p>
+       
      </section>  
     </body>
 </document>

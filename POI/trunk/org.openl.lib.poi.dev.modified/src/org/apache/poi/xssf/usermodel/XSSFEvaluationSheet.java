@@ -48,7 +48,7 @@ final class XSSFEvaluationSheet implements EvaluationSheet {
 		}
 		return new XSSFEvaluationCell(cell, this);
 	}
-
+	
     public UpdatableEvaluationCell getOrCreateUpdatableCell(int rowIndex, int columnIndex) {
         XSSFRow row = _xs.getRow(rowIndex);
         if (row == null) {
@@ -60,4 +60,5 @@ final class XSSFEvaluationSheet implements EvaluationSheet {
         }
         return new XSSFEvaluationCell(cell, this);
     }
+
 }

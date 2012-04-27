@@ -16,27 +16,28 @@
 ==================================================================== */
 package org.apache.poi.xslf.extractor;
 
+import junit.framework.TestCase;
 import org.apache.poi.POIDataSamples;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xslf.XSLFSlideShow;
-
-import junit.framework.TestCase;
 
 /**
  * Tests for HXFPowerPointExtractor
  */
 public class TestXSLFPowerPointExtractor extends TestCase {
-	/**
-	 * A simple file
-	 */
-	private XSLFSlideShow xmlA;
-	private OPCPackage pkg;
+   /**
+    * A simple file
+    */
+   private XSLFSlideShow xmlA;
+   private OPCPackage pkg;
+	
+   private POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
 
-	protected void setUp() throws Exception {
-        POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
-		pkg = OPCPackage.open(slTests.openResourceAsStream("sample.pptx"));
-		xmlA = new XSLFSlideShow(pkg);
-	}
+   protected void setUp() throws Exception {
+      slTests = POIDataSamples.getSlideShowInstance();
+      pkg = OPCPackage.open(slTests.openResourceAsStream("sample.pptx"));
+      xmlA = new XSLFSlideShow(pkg);
+   }
 
 	/**
 	 * Get text out of the simple file
@@ -54,10 +55,23 @@ public class TestXSLFPowerPointExtractor extends TestCase {
 		
 		// Check Basics
 		assertTrue(text.startsWith("Lorem ipsum dolor sit amet\n"));
-		assertTrue(text.endsWith("amet\n\n"));
+		assertTrue(text.contains("amet\n\n"));
+
+		// Our placeholder master text
+		// This shouldn't show up in the output
+		String masterText =
+         "Click to edit Master title style\n" +
+         "Click to edit Master subtitle style\n" +
+         "\n\n\n\n\n\n" +
+         "Click to edit Master title style\n" +
+         "Click to edit Master text styles\n" +
+         "Second level\n" +
+         "Third level\n" +
+         "Fourth level\n" +
+         "Fifth level\n";
 		
 		// Just slides, no notes
-		text = extractor.getText(true, false);
+		text = extractor.getText(true, false, false);
 		assertEquals(
 				"Lorem ipsum dolor sit amet\n" +
 				"Nunc at risus vel erat tempus posuere. Aenean non ante.\n" +
@@ -68,7 +82,8 @@ public class TestXSLFPowerPointExtractor extends TestCase {
 				"dolor\n" +
 				"sit\n" +
 				"amet\n" +
-				"\n", text
+				"\n"
+				, text
 		);
 		
 		// Just notes, no slides
@@ -78,19 +93,53 @@ public class TestXSLFPowerPointExtractor extends TestCase {
 		);
 		
 		// Both
-		text = extractor.getText(true, true);
+		text = extractor.getText(true, true, false);
 		assertEquals(
 				"Lorem ipsum dolor sit amet\n" +
 				"Nunc at risus vel erat tempus posuere. Aenean non ante.\n" +
-				"\n\n\n" +
+            "\n\n\n" +
 				"Lorem ipsum dolor sit amet\n" +
 				"Lorem\n" +
 				"ipsum\n" +
 				"dolor\n" +
 				"sit\n" +
 				"amet\n" +
-				"\n\n\n", text
+				"\n\n\n"
+				, text
 		);
+		
+		// With Slides and Master Text
+      text = extractor.getText(true, false, true);
+      assertEquals(
+            "Lorem ipsum dolor sit amet\n" +
+            "Nunc at risus vel erat tempus posuere. Aenean non ante.\n" +
+            "\n" +
+            "Lorem ipsum dolor sit amet\n" +
+            "Lorem\n" +
+            "ipsum\n" +
+            "dolor\n" +
+            "sit\n" +
+            "amet\n" +
+            "\n"
+            , text
+      );
+		
+		// With Slides, Notes and Master Text
+      text = extractor.getText(true, true, true);
+      assertEquals(
+            "Lorem ipsum dolor sit amet\n" +
+            "Nunc at risus vel erat tempus posuere. Aenean non ante.\n" +
+            "\n" +
+            "\n\n" +
+            "Lorem ipsum dolor sit amet\n" +
+            "Lorem\n" +
+            "ipsum\n" +
+            "dolor\n" +
+            "sit\n" +
+            "amet\n" +
+            "\n\n\n"
+            , text
+      );
 		
 		// Via set defaults
 		extractor.setSlidesByDefault(false);
@@ -101,24 +150,69 @@ public class TestXSLFPowerPointExtractor extends TestCase {
 		);
 	}
 	
-	public void testGetComments() throws Exception {
-        POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
-		xmlA = new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream("45545_Comment.pptx")));
-		XSLFPowerPointExtractor extractor = 
-			new XSLFPowerPointExtractor(xmlA);
-		
-		String text = extractor.getText();
-		assertTrue(text.length() > 0);
-		
-		// Check comments are there
-		assertTrue("Unable to find expected word in text\n" + text, text.contains("testdoc"));
+   public void testGetComments() throws Exception {
+      XSLFSlideShow xml = 
+         new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream("45545_Comment.pptx")));
+      XSLFPowerPointExtractor extractor = 
+         new XSLFPowerPointExtractor(xml);
+
+      String text = extractor.getText();
+      assertTrue(text.length() > 0);
+
+      // Check comments are there
+      assertTrue("Unable to find expected word in text\n" + text, text.contains("testdoc"));
+      assertTrue("Unable to find expected word in text\n" + text, text.contains("test phrase"));
+
+      // Check the authors came through too
+      assertTrue("Unable to find expected word in text\n" + text, text.contains("XPVMWARE01"));
+   }
+	
+	public void testGetMasterText() throws Exception {
+      XSLFSlideShow xml = 
+         new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream("WithMaster.pptx")));
+      XSLFPowerPointExtractor extractor = 
+         new XSLFPowerPointExtractor(xml);
+      extractor.setSlidesByDefault(true);
+      extractor.setNotesByDefault(false);
+      extractor.setMasterByDefault(true);
+      
+      String text = extractor.getText();
+      assertTrue(text.length() > 0);
+
+      // Check master text is there
+      assertTrue("Unable to find expected word in text\n" + text, 
+            text.contains("Footer from the master slide"));
+
+      // Theme text shouldn't show up
+      String themeText = 
+         "Theme Master Title\n" +
+         "Theme Master first level\n" +
+         "And the 2nd level\n" +
+         "Our 3rd level goes here\n" +
+         "And onto the 4th, such fun....\n" +
+         "Finally is the Fifth level\n";
+      
+      // Check the whole text
+      assertEquals(
+            "First page title\n" +
+            "First page subtitle\n" +
+            "This is the Master Title\n" +
+            "This text comes from the Master Slide\n" +
+            "\n" +
+            // TODO Detect we didn't have a title, and include the master one
+            "2nd page subtitle\n" +
+            "Footer from the master slide\n" +
+            "This is the Master Title\n" +
+            "This text comes from the Master Slide\n"
+            , text
+      );
 	}
 
     public void testTable() throws Exception {
-        POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
-        xmlA = new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream("present1.pptx")));
+        XSLFSlideShow xml = 
+           new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream("present1.pptx")));
         XSLFPowerPointExtractor extractor =
-            new XSLFPowerPointExtractor(xmlA);
+            new XSLFPowerPointExtractor(xml);
 
         String text = extractor.getText();
         assertTrue(text.length() > 0);
@@ -133,7 +227,6 @@ public class TestXSLFPowerPointExtractor extends TestCase {
      *  well as from the normal file
      */
     public void testDifferentSubformats() throws Exception {
-       POIDataSamples slTests = POIDataSamples.getSlideShowInstance();
        String[] extensions = new String[] {
              "pptx", "pptm", "ppsm", "ppsx",
              "thmx", 
@@ -141,9 +234,10 @@ public class TestXSLFPowerPointExtractor extends TestCase {
        };
        for(String extension : extensions) {
           String filename = "testPPT." + extension;
-          xmlA = new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream(filename)));
+          XSLFSlideShow xml = 
+             new XSLFSlideShow(OPCPackage.open(slTests.openResourceAsStream(filename)));
           XSLFPowerPointExtractor extractor =
-             new XSLFPowerPointExtractor(xmlA);
+             new XSLFPowerPointExtractor(xml);
 
          String text = extractor.getText();
          if(extension.equals("thmx")) {

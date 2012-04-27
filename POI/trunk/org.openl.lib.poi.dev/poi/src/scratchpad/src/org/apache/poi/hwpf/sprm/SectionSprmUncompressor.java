@@ -17,9 +17,11 @@
 
 package org.apache.poi.hwpf.sprm;
 
-import org.apache.poi.hwpf.usermodel.SectionProperties;
 import org.apache.poi.hwpf.usermodel.BorderCode;
+import org.apache.poi.hwpf.usermodel.SectionProperties;
+import org.apache.poi.util.Internal;
 
+@Internal
 public final class SectionSprmUncompressor extends SprmUncompressor
 {
   public SectionSprmUncompressor()
@@ -143,7 +145,7 @@ public final class SectionSprmUncompressor extends SprmUncompressor
         newSEP.setPgnStart ((short) sprm.getOperand());
         break;
       case 0x1d:
-        newSEP.setDmOrientPage ((byte) sprm.getOperand());
+        newSEP.setDmOrientPage( sprm.getOperand() != 0 );
         break;
       case 0x1e:
 

@@ -17,11 +17,11 @@
 
 package org.apache.poi.hwpf;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 
-import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.POIDocument;
 import org.apache.poi.hwpf.model.CHPBinTable;
 import org.apache.poi.hwpf.model.FileInformationBlock;
@@ -31,10 +31,14 @@ import org.apache.poi.hwpf.model.PAPBinTable;
 import org.apache.poi.hwpf.model.SectionTable;
 import org.apache.poi.hwpf.model.StyleSheet;
 import org.apache.poi.hwpf.model.TextPieceTable;
+import org.apache.poi.hwpf.usermodel.ObjectPoolImpl;
+import org.apache.poi.hwpf.usermodel.ObjectsPool;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.poifs.filesystem.DirectoryEntry;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.util.Internal;
 
 
 /**
@@ -45,6 +49,12 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
  */
 public abstract class HWPFDocumentCore extends POIDocument
 {
+    protected static final String STREAM_OBJECT_POOL = "ObjectPool";
+    protected static final String STREAM_WORD_DOCUMENT = "WordDocument";
+
+  /** Holds OLE2 objects */
+  protected ObjectPoolImpl _objectPool;
+
   /** The FIB */
   protected FileInformationBlock _fib;
 
@@ -71,7 +81,7 @@ public abstract class HWPFDocumentCore extends POIDocument
 
   protected HWPFDocumentCore()
   {
-     super(null, null);
+     super((DirectoryNode)null);
   }
 
   /**
@@ -118,7 +128,7 @@ public abstract class HWPFDocumentCore extends POIDocument
    */
   public HWPFDocumentCore(POIFSFileSystem pfilesystem) throws IOException
   {
-	this(pfilesystem.getRoot(), pfilesystem);
+	this(pfilesystem.getRoot());
   }
 
   /**
@@ -126,37 +136,60 @@ public abstract class HWPFDocumentCore extends POIDocument
    *  in a POIFSFileSystem, probably not the default.
    * Used typically to open embeded documents.
    *
-   * @param pfilesystem The POIFSFileSystem that contains the Word document.
+   * @param directory The DirectoryNode that contains the Word document.
    * @throws IOException If there is an unexpected IOException from the passed
    *         in POIFSFileSystem.
    */
-  public HWPFDocumentCore(DirectoryNode directory, POIFSFileSystem pfilesystem) throws IOException
-  {
+  public HWPFDocumentCore(DirectoryNode directory) throws IOException {
     // Sort out the hpsf properties
-	super(directory, pfilesystem);
+    super(directory);
 
     // read in the main stream.
     DocumentEntry documentProps = (DocumentEntry)
-       directory.getEntry("WordDocument");
+            directory.getEntry("WordDocument");
     _mainStream = new byte[documentProps.getSize()];
 
-    directory.createDocumentInputStream("WordDocument").read(_mainStream);
+    directory.createDocumentInputStream(STREAM_WORD_DOCUMENT).read(_mainStream);
 
     // Create our FIB, and check for the doc being encrypted
     _fib = new FileInformationBlock(_mainStream);
-    if(_fib.isFEncrypted()) {
-    	throw new EncryptedDocumentException("Cannot process encrypted word files!");
+
+    DirectoryEntry objectPoolEntry;
+    try {
+      objectPoolEntry = (DirectoryEntry) directory
+              .getEntry(STREAM_OBJECT_POOL);
+    } catch (FileNotFoundException exc) {
+      objectPoolEntry = null;
     }
+    _objectPool = new ObjectPoolImpl(objectPoolEntry);
   }
 
   /**
-   * Returns the range which covers the whole of the
-   *  document, but excludes any headers and footers.
-   */
-  public abstract Range getRange();
-  
-  public abstract TextPieceTable getTextTable();
-  
+     * Returns the range which covers the whole of the document, but excludes
+     * any headers and footers.
+     */
+    public abstract Range getRange();
+
+    /**
+     * Returns the range that covers all text in the file, including main text,
+     * footnotes, headers and comments
+     */
+    public abstract Range getOverallRange();
+
+    /**
+     * Returns document text, i.e. text information from all text pieces,
+     * including OLE descriptions and field codes
+     */
+    public String getDocumentText() {
+        return getText().toString();
+    }
+
+    /**
+     * Internal method to access document text
+     */
+    @Internal
+    public abstract StringBuilder getText();
+
   public CHPBinTable getCharacterTable()
   {
     return _cbt;
@@ -191,4 +224,11 @@ public abstract class HWPFDocumentCore extends POIDocument
   {
     return _fib;
   }
+
+    public ObjectsPool getObjectsPool()
+    {
+        return _objectPool;
+    }
+
+    public abstract TextPieceTable getTextTable();
 }

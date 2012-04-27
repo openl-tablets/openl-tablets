@@ -24,8 +24,11 @@ import java.util.List;
 import org.apache.poi.ddf.EscherComplexProperty;
 import org.apache.poi.ddf.EscherOptRecord;
 import org.apache.poi.ddf.EscherProperty;
+import org.apache.poi.ddf.EscherBSERecord;
 import org.apache.poi.hssf.record.EscherAggregate;
+import org.apache.poi.ss.usermodel.Chart;
 import org.apache.poi.util.StringUtil;
+import org.apache.poi.util.Internal;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 
@@ -71,7 +74,7 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     {
         HSSFShapeGroup group = new HSSFShapeGroup(null, anchor);
         group.anchor = anchor;
-        _shapes.add(group);
+        addShape(group);
         return group;
     }
 
@@ -87,7 +90,7 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     {
         HSSFSimpleShape shape = new HSSFSimpleShape(null, anchor);
         shape.anchor = anchor;
-        _shapes.add(shape);
+        addShape(shape);
         return shape;
     }
 
@@ -103,10 +106,13 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
         HSSFPicture shape = new HSSFPicture(null, anchor);
         shape.setPictureIndex( pictureIndex );
         shape.anchor = anchor;
-        shape._patriarch = this;
-        _shapes.add(shape);
+        addShape(shape);
+
+        EscherBSERecord bse = _sheet.getWorkbook().getWorkbook().getBSERecord(pictureIndex);
+        bse.setRef(bse.getRef() + 1);
         return shape;
     }
+
     public HSSFPicture createPicture(ClientAnchor anchor, int pictureIndex)
     {
         return createPicture((HSSFClientAnchor)anchor, pictureIndex);
@@ -123,7 +129,7 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     {
         HSSFPolygon shape = new HSSFPolygon(null, anchor);
         shape.anchor = anchor;
-        _shapes.add(shape);
+        addShape(shape);
         return shape;
     }
 
@@ -138,7 +144,7 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     {
         HSSFTextbox shape = new HSSFTextbox(null, anchor);
         shape.anchor = anchor;
-        _shapes.add(shape);
+        addShape(shape);
         return shape;
     }
 
@@ -153,21 +159,21 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     {
         HSSFComment shape = new HSSFComment(null, anchor);
         shape.anchor = anchor;
-        _shapes.add(shape);
+        addShape(shape);
         return shape;
     }
 
     /**
      * YK: used to create autofilters
      *
-     * @see org.apache.poi.hssf.usermodel.HSSFSheet#setAutoFilter(int, int, int, int)
+     * @see org.apache.poi.hssf.usermodel.HSSFSheet#setAutoFilter(org.apache.poi.ss.util.CellRangeAddress)
      */
      HSSFSimpleShape createComboBox(HSSFAnchor anchor)
      {
          HSSFSimpleShape shape = new HSSFSimpleShape(null, anchor);
          shape.setShapeType(HSSFSimpleShape.OBJECT_TYPE_COMBO_BOX);
          shape.anchor = anchor;
-         _shapes.add(shape);
+         addShape(shape);
          return shape;
      }
 
@@ -181,6 +187,15 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     public List<HSSFShape> getChildren()
     {
         return _shapes;
+    }
+
+    /**
+     * add a shape to this drawing
+     */
+    @Internal
+    public void addShape(HSSFShape shape){
+        shape._patriarch = this;
+        _shapes.add(shape);
     }
 
     /**
@@ -276,4 +291,27 @@ public final class HSSFPatriarch implements HSSFShapeContainer, Drawing {
     protected EscherAggregate _getBoundAggregate() {
         return _boundAggregate;
     }
+
+    /**
+     * Creates a new client anchor and sets the top-left and bottom-right
+     * coordinates of the anchor.
+     *
+     * @param dx1  the x coordinate in EMU within the first cell.
+     * @param dy1  the y coordinate in EMU within the first cell.
+     * @param dx2  the x coordinate in EMU within the second cell.
+     * @param dy2  the y coordinate in EMU within the second cell.
+     * @param col1 the column (0 based) of the first cell.
+     * @param row1 the row (0 based) of the first cell.
+     * @param col2 the column (0 based) of the second cell.
+     * @param row2 the row (0 based) of the second cell.
+     * @return the newly created client anchor
+     */
+    public HSSFClientAnchor createAnchor(int dx1, int dy1, int dx2, int dy2, int col1, int row1, int col2, int row2){
+        return new HSSFClientAnchor(dx1, dy1, dx2, dy2, (short)col1, row1, (short)col2, row2);
+    }
+
+	public Chart createChart(ClientAnchor anchor) {
+		throw new RuntimeException("NotImplemented");
+	}
+
 }

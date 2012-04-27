@@ -37,7 +37,7 @@ import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.POIXMLException;
 import org.apache.poi.POIXMLProperties;
-import org.apache.poi.hssf.record.formula.SheetNameFormatter;
+import org.apache.poi.ss.formula.SheetNameFormatter;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
@@ -46,6 +46,7 @@ import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
 import org.apache.poi.openxml4j.opc.TargetMode;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -53,28 +54,13 @@ import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.util.*;
-import org.apache.poi.xssf.model.CalculationChain;
-import org.apache.poi.xssf.model.MapInfo;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.model.ThemesTable;
+import org.apache.poi.xssf.model.*;
+import org.apache.poi.xssf.usermodel.helpers.XSSFFormulaUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.openxmlformats.schemas.officeDocument.x2006.relationships.STRelationshipId;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBookView;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTBookViews;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedName;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDefinedNames;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDialogsheet;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheet;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTSheets;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorkbook;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorkbookPr;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorkbookProtection;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.STSheetState;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.WorkbookDocument;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.*;
 
 /**
  * High level representation of a SpreadsheetML workbook.  This is the first object most users
@@ -94,6 +80,15 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      * This constant is used to ensure uniqueness in the first 31 chars
      */
     private static final int MAX_SENSITIVE_SHEET_NAME_LEN = 31;
+
+    /**
+     * Images formats supported by XSSF but not by HSSF
+     */
+    public static final int PICTURE_TYPE_GIF = 8;
+    public static final int PICTURE_TYPE_TIFF = 9;
+    public static final int PICTURE_TYPE_EPS = 10;
+    public static final int PICTURE_TYPE_BMP = 11;
+    public static final int PICTURE_TYPE_WPG = 12;
 
     /**
      * The underlying XML bean
@@ -122,6 +117,12 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     private StylesTable stylesSource;
 
     private ThemesTable theme;
+
+    /**
+     * The locator of user-defined functions.
+     * By default includes functions from the Excel Analysis Toolpack
+     */
+    private IndexedUDFFinder _udfFinder = new IndexedUDFFinder(UDFFinder.DEFAULT);
 
     /**
      * TODO
@@ -192,8 +193,41 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     /**
      * Constructs a XSSFWorkbook object given a file name.
      *
+     * <p>
+     *  This constructor is deprecated since POI-3.8 because it does not close
+     *  the underlying .zip file stream. In short, there are two ways to open a OPC package:
+     * </p>
+     * <ol>
+     *     <li>
+     *      from file which leads to invoking java.util.zip.ZipFile(File file)
+     *      deep in POI internals.
+     *     </li>
+     *     <li>
+     *     from input stream in which case we first read everything into memory and
+     *     then pass the data to ZipInputStream.
+     *     </li>
+     * <ol>
+     * <p>    
+     *     It should be noted, that (2) uses quite a bit more memory than (1), which
+     *      doesn't need to hold the whole zip file in memory, and can take advantage
+     *      of native methods.
+     * </p>
+     * <p>
+     *   To construct a workbook from file use the
+     *   {@link #XSSFWorkbook(org.apache.poi.openxml4j.opc.OPCPackage)}  constructor:
+     *   <pre><code>
+     *       OPCPackage pkg = OPCPackage.open(path);
+     *       XSSFWorkbook wb = new XSSFWorkbook(pkg);
+     *       // work with the wb object
+     *       ......
+     *       pkg.close(); // gracefully closes the underlying zip file
+     *   </code></pre>     
+     * </p>
+     * 
      * @param      path   the file name.
+     * @deprecated
      */
+    @Deprecated
     public XSSFWorkbook(String path) throws IOException {
         this(openPackage(path));
     }
@@ -383,16 +417,56 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
             throw new POIXMLException("Failed to clone sheet", e);
         }
         CTWorksheet ct = clonedSheet.getCTWorksheet();
-        if(ct.isSetDrawing()) {
-            logger.log(POILogger.WARN, "Cloning sheets with drawings is not yet supported.");
-            ct.unsetDrawing();
-        }
         if(ct.isSetLegacyDrawing()) {
             logger.log(POILogger.WARN, "Cloning sheets with comments is not yet supported.");
             ct.unsetLegacyDrawing();
         }
+        if (ct.isSetPageSetup()) {
+            logger.log(POILogger.WARN, "Cloning sheets with page setup is not yet supported.");
+            ct.unsetPageSetup();
+        }
 
         clonedSheet.setSelected(false);
+
+        // copy sheet's relations
+        List<POIXMLDocumentPart> rels = srcSheet.getRelations();
+        // if the sheet being cloned has a drawing then rememebr it and re-create tpoo
+        XSSFDrawing dg = null;
+        for(POIXMLDocumentPart r : rels) {
+            // do not copy the drawing relationship, it will be re-created
+            if(r instanceof XSSFDrawing) {
+                dg = (XSSFDrawing)r;
+                continue;
+            }
+
+            PackageRelationship rel = r.getPackageRelationship();
+            clonedSheet.getPackagePart().addRelationship(
+                    rel.getTargetURI(), rel.getTargetMode(),rel.getRelationshipType());
+            clonedSheet.addRelation(rel.getId(), r);
+        }
+
+        // clone the sheet drawing alongs with its relationships
+        if (dg != null) {
+            if(ct.isSetDrawing()) {
+                // unset the existing reference to the drawing,
+                // so that subsequent call of clonedSheet.createDrawingPatriarch() will create a new one
+                ct.unsetDrawing();
+            }
+            XSSFDrawing clonedDg = clonedSheet.createDrawingPatriarch();
+            // copy drawing contents
+            clonedDg.getCTDrawing().set(dg.getCTDrawing());
+
+            // Clone drawing relations
+            List<POIXMLDocumentPart> srcRels = srcSheet.createDrawingPatriarch().getRelations();
+            for (POIXMLDocumentPart rel : srcRels) {
+                PackageRelationship relation = rel.getPackageRelationship();
+                clonedSheet
+                        .createDrawingPatriarch()
+                        .getPackagePart()
+                        .addRelationship(relation.getTargetURI(), relation.getTargetMode(),
+                                relation.getRelationshipType(), relation.getId());
+            }
+        }
         return clonedSheet;
     }
 
@@ -490,16 +564,63 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     }
 
     /**
-     * Create an XSSFSheet for this workbook, adds it to the sheets and returns
-     * the high level representation.  Use this to create new sheets.
+     * Create a new sheet for this Workbook and return the high level representation.
+     * Use this to create new sheets.
      *
-     * @param sheetname  sheetname to set for the sheet, can't be duplicate, greater than 31 chars or contain /\?*[]
-     * @return XSSFSheet representing the new sheet.
-     * @throws IllegalArgumentException if the sheetname is invalid or the workbook already contains a sheet of this name
+     * <p>
+     *     Note that Excel allows sheet names up to 31 chars in length but other applications
+     *     (such as OpenOffice) allow more. Some versions of Excel crash with names longer than 31 chars,
+     *     others - truncate such names to 31 character.
+     * </p>
+     * <p>
+     *     POI's SpreadsheetAPI silently truncates the input argument to 31 characters.
+     *     Example:
+     *
+     *     <pre><code>
+     *     Sheet sheet = workbook.createSheet("My very long sheet name which is longer than 31 chars"); // will be truncated
+     *     assert 31 == sheet.getSheetName().length();
+     *     assert "My very long sheet name which i" == sheet.getSheetName();
+     *     </code></pre>
+     * </p>
+     *
+     * Except the 31-character constraint, Excel applies some other rules:
+     * <p>
+     * Sheet name MUST be unique in the workbook and MUST NOT contain the any of the following characters:
+     * <ul>
+     * <li> 0x0000 </li>
+     * <li> 0x0003 </li>
+     * <li> colon (:) </li>
+     * <li> backslash (\) </li>
+     * <li> asterisk (*) </li>
+     * <li> question mark (?) </li>
+     * <li> forward slash (/) </li>
+     * <li> opening square bracket ([) </li>
+     * <li> closing square bracket (]) </li>
+     * </ul>
+     * The string MUST NOT begin or end with the single quote (') character.
+     * </p>
+     *
+     * <p>
+     * See {@link org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)}
+     *      for a safe way to create valid names
+     * </p>
+     * @param sheetname  sheetname to set for the sheet.
+     * @return Sheet representing the new sheet.
+     * @throws IllegalArgumentException if the name is null or invalid
+     *  or workbook already contains a sheet with this name
+     * @see org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)
      */
     public XSSFSheet createSheet(String sheetname) {
+        if (sheetname == null) {
+            throw new IllegalArgumentException("sheetName must not be null");
+        }
+
         if (containsSheet( sheetname, sheets.size() ))
                throw new IllegalArgumentException( "The workbook already contains a sheet of this name");
+
+        // YK: Mimic Excel and silently truncate sheet names longer than 31 characters
+        if(sheetname.length() > 31) sheetname = sheetname.substring(0, 31);
+        WorkbookUtil.validateSheetName(sheetname);
 
         CTSheet sheet = addSheet(sheetname);
 
@@ -521,8 +642,6 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
     }
 
     private CTSheet addSheet(String sheetname) {
-        WorkbookUtil.validateSheetName(sheetname);
-
         CTSheet sheet = workbook.getSheets().addNewSheet();
         sheet.setName(sheetname);
         return sheet;
@@ -937,7 +1056,6 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         XSSFName name = getBuiltInName(XSSFName.BUILTIN_PRINT_AREA, sheetIndex);
         if (name == null) {
             name = createBuiltInName(XSSFName.BUILTIN_PRINT_AREA, sheetIndex);
-            namedRanges.add(name);
         }
         //short externSheetIndex = getWorkbook().checkExternSheet(sheetIndex);
         //name.setExternSheetNumber(externSheetIndex);
@@ -1010,14 +1128,22 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         }
         if (name == null) {
             name = createBuiltInName(XSSFName.BUILTIN_PRINT_TITLE, sheetIndex);
-            namedRanges.add(name);
         }
 
         String reference = getReferenceBuiltInRecord(name.getSheetName(), startColumn, endColumn, startRow, endRow);
         name.setRefersToFormula(reference);
 
-        XSSFPrintSetup printSetup = sheet.getPrintSetup();
-        printSetup.setValidSettings(false);
+        // If the print setup isn't currently defined, then add it
+        //  in but without printer defaults
+        // If it's already there, leave it as-is!
+        CTWorksheet ctSheet = sheet.getCTWorksheet();
+        if(ctSheet.isSetPageSetup() && ctSheet.isSetPageMargins()) {
+           // Everything we need is already there
+        } else {
+           // Have initial ones put in place
+           XSSFPrintSetup printSetup = sheet.getPrintSetup();
+           printSetup.setValidSettings(false);
+        }
     }
 
     private static String getReferenceBuiltInRecord(String sheetName, int startC, int endC, int startR, int endR) {
@@ -1057,7 +1183,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
         return "$" + colRef.getCellRefParts()[2] + "$" + colRef.getCellRefParts()[1] + ":$" + colRef2.getCellRefParts()[2] + "$" + colRef2.getCellRefParts()[1];
     }
 
-    private XSSFName getBuiltInName(String builtInCode, int sheetNumber) {
+    XSSFName getBuiltInName(String builtInCode, int sheetNumber) {
         for (XSSFName name : namedRanges) {
             if (name.getNameName().equalsIgnoreCase(builtInCode) && name.getSheetIndex() == sheetNumber) {
                 return name;
@@ -1073,7 +1199,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
      * @throws IllegalArgumentException if sheetNumber is invalid
      * @throws POIXMLException if such a name already exists in the workbook
      */
-    private XSSFName createBuiltInName(String builtInName, int sheetNumber) {
+    XSSFName createBuiltInName(String builtInName, int sheetNumber) {
         validateSheetIndex(sheetNumber);
 
         CTDefinedNames names = workbook.getDefinedNames() == null ? workbook.addNewDefinedNames() : workbook.getDefinedNames();
@@ -1088,6 +1214,7 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
                         + ") already exists for sheet (" + sheetNumber + ")");
         }
 
+        namedRanges.add(name);
         return name;
     }
 
@@ -1103,17 +1230,28 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
 
     /**
      * Set the sheet name.
-     * Will throw IllegalArgumentException if the name is greater than 31 chars
-     * or contains /\?*[]
      *
-     * @param sheet number (0 based)
+     * @param sheetIndex sheet number (0 based)
+     * @param sheetname  the new sheet name
+     * @throws IllegalArgumentException if the name is null or invalid
+     *  or workbook already contains a sheet with this name
+     * @see #createSheet(String)
+     * @see org.apache.poi.ss.util.WorkbookUtil#createSafeSheetName(String nameProposal)
      */
-    public void setSheetName(int sheet, String name) {
-        validateSheetIndex(sheet);
-        WorkbookUtil.validateSheetName(name);
-        if (containsSheet(name, sheet ))
+    public void setSheetName(int sheetIndex, String sheetname) {
+        validateSheetIndex(sheetIndex);
+
+        // YK: Mimic Excel and silently truncate sheet names longer than 31 characters
+        if(sheetname != null && sheetname.length() > 31) sheetname = sheetname.substring(0, 31);
+        WorkbookUtil.validateSheetName(sheetname);
+
+        if (containsSheet(sheetname, sheetIndex ))
             throw new IllegalArgumentException( "The workbook already contains a sheet of this name" );
-        workbook.getSheets().getSheetArray(sheet).setName(name);
+
+        XSSFFormulaUtils utils = new XSSFFormulaUtils(this);
+        utils.updateSheetName(sheetIndex, sheetname);
+
+        workbook.getSheets().getSheetArray(sheetIndex).setName(sheetname);
     }
 
     /**
@@ -1270,12 +1408,13 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
 
         for(XSSFSheet sheet : sheets){
             // Get the embeddings for the workbook
-            for(PackageRelationship rel : sheet.getPackagePart().getRelationshipsByType(XSSFRelation.OLEEMBEDDINGS.getRelation()))
-                embedds.add(getTargetPart(rel));
+            for(PackageRelationship rel : sheet.getPackagePart().getRelationshipsByType(XSSFRelation.OLEEMBEDDINGS.getRelation())) {
+                embedds.add( sheet.getPackagePart().getRelatedPart(rel) );
+            }
 
-            for(PackageRelationship rel : sheet.getPackagePart().getRelationshipsByType(XSSFRelation.PACKEMBEDDINGS.getRelation()))
-                embedds.add(getTargetPart(rel));
-
+            for(PackageRelationship rel : sheet.getPackagePart().getRelationshipsByType(XSSFRelation.PACKEMBEDDINGS.getRelation())) {
+               embedds.add( sheet.getPackagePart().getRelatedPart(rel) );
+            }
         }
         return embedds;
     }
@@ -1492,4 +1631,66 @@ public class XSSFWorkbook extends POIXMLDocument implements Workbook, Iterable<X
 			workbook.setWorkbookProtection(CTWorkbookProtection.Factory.newInstance());
 		}
 	}
+
+    /**
+     *
+     * Returns the locator of user-defined functions.
+     * <p>
+     * The default instance extends the built-in functions with the Excel Analysis Tool Pack.
+     * To set / evaluate custom functions you need to register them as follows:
+     *
+     *
+     *
+     * </p>
+     * @return wrapped instance of UDFFinder that allows seeking functions both by index and name
+     */
+    /*package*/ UDFFinder getUDFFinder() {
+        return _udfFinder;
+    }
+
+    /**
+     * Register a new toolpack in this workbook.
+     *
+     * @param toopack the toolpack to register
+     */
+    public void addToolPack(UDFFinder toopack){
+        _udfFinder.add(toopack);
+    }
+
+    /**
+     * Whether the application shall perform a full recalculation when the workbook is opened.
+     * <p>
+     * Typically you want to force formula recalculation when you modify cell formulas or values
+     * of a workbook previously created by Excel. When set to true, this flag will tell Excel
+     * that it needs to recalculate all formulas in the workbook the next time the file is opened.
+     * </p>
+     * <p>
+     * Note, that recalculation updates cached formula results and, thus, modifies the workbook.
+     * Depending on the version, Excel may prompt you with "Do you want to save the changes in <em>filename</em>?"
+     * on close.
+     * </p>
+     *
+     * @param value true if the application will perform a full recalculation of
+     * workbook values when the workbook is opened
+     * @since 3.8
+     */
+   public void setForceFormulaRecalculation(boolean value){
+        CTWorkbook ctWorkbook = getCTWorkbook();
+        CTCalcPr calcPr = ctWorkbook.isSetCalcPr() ? ctWorkbook.getCalcPr() : ctWorkbook.addNewCalcPr();
+        // when set to 0, will tell Excel that it needs to recalculate all formulas
+        // in the workbook the next time the file is opened.
+        calcPr.setCalcId(0);
+    }
+
+    /**
+     * Whether Excel will be asked to recalculate all formulas when the  workbook is opened.
+     *
+     * @since 3.8
+     */
+    public boolean getForceFormulaRecalculation(){
+        CTWorkbook ctWorkbook = getCTWorkbook();
+        CTCalcPr calcPr = ctWorkbook.getCalcPr();
+        return calcPr != null && calcPr.getCalcId() != 0;
+    }
+
 }

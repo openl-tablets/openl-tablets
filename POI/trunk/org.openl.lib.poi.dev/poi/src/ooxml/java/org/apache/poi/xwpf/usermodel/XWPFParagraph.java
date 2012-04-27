@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.poi.POIXMLDocumentPart;
 import org.apache.poi.util.Internal;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
@@ -40,6 +41,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRunTrackChange;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtContentRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSdtRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSimpleField;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSmartTagRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSpacing;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
@@ -50,113 +52,117 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STLineSpacingRule;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STOnOff;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTextAlignment;
 
-
 /**
  * Sketch of XWPF paragraph class
  */
-public class XWPFParagraph implements IBodyElement{
-    private CTP paragraph;
+public class XWPFParagraph implements IBodyElement {
+    private final CTP paragraph;
     protected IBody part;
     /** For access to the document's hyperlink, comments, tables etc */
     protected XWPFDocument document;
     protected List<XWPFRun> runs;
-    
+
     private StringBuffer footnoteText = new StringBuffer();
-
-    public XWPFParagraph(CTP prgrph) {
-        this(prgrph, null);
-    }
-
 
     public XWPFParagraph(CTP prgrph, IBody part) {
         this.paragraph = prgrph;
         this.part = part;
         
-        // We only care about the document (for comments,
-        //  hyperlinks etc) if we're attached to the
-        //  core document
-        if(part instanceof XWPFDocument) {
-           this.document = (XWPFDocument)part;
-        }
-        
-        runs = new ArrayList<XWPFRun>();
+        this.document = part.getXWPFDocument();
 
-       // Get all our child nodes in order, and process them
-       //  into XWPFRuns where we can
-       XmlCursor c = paragraph.newCursor();
-       c.selectPath("child::*");
-       while (c.toNextSelection()) {
-          XmlObject o = c.getObject();
-          if(o instanceof CTR) {
-             runs.add(new XWPFRun((CTR)o, this));
-          }
-          if(o instanceof CTHyperlink) {
-             CTHyperlink link = (CTHyperlink)o;
-             for(CTR r : link.getRList()) {
-                runs.add(new XWPFHyperlinkRun(link, r, this));
-             }
-          }
-          if(o instanceof CTSdtRun) {
-             CTSdtContentRun run = ((CTSdtRun)o).getSdtContent();
-             for(CTR r : run.getRList()) {
-                runs.add(new XWPFRun(r, this));
-             }
-          }
-          if(o instanceof CTRunTrackChange) {
-             for(CTR r : ((CTRunTrackChange)o).getRList()) {
-                runs.add(new XWPFRun(r, this));
-             }
-          }
-          if(o instanceof CTSimpleField) {
-             for(CTR r : ((CTSimpleField)o).getRList()) {
-                runs.add(new XWPFRun(r, this));
-             }
-          }
-       }
-       
-       // Look for bits associated with the runs
-       for(XWPFRun run : runs) {
-          CTR r = run.getCTR();
-          
-          // Check for bits that only apply when
-          //  attached to a core document
-          // TODO Make this nicer by tracking the XWPFFootnotes directly
-          if(document != null) {
-             c = r.newCursor();
-             c.selectPath("child::*");
-             while (c.toNextSelection()) {
+        if (document==null) {
+            throw new NullPointerException();
+        }
+
+        // Build up the character runs
+        runs = new ArrayList<XWPFRun>();
+        buildRunsInOrderFromXml(paragraph);
+
+        // Look for bits associated with the runs
+        for(XWPFRun run : runs) {
+            CTR r = run.getCTR();
+
+            // Check for bits that only apply when attached to a core document
+            // TODO Make this nicer by tracking the XWPFFootnotes directly
+            XmlCursor c = r.newCursor();
+            c.selectPath("child::*");
+            while (c.toNextSelection()) {
                 XmlObject o = c.getObject();
                 if(o instanceof CTFtnEdnRef) {
-                   CTFtnEdnRef ftn = (CTFtnEdnRef)o;
-                   footnoteText.append("[").append(ftn.getId()).append(": ");
-                   XWPFFootnote footnote =
-                      ftn.getDomNode().getLocalName().equals("footnoteReference") ?
+                    CTFtnEdnRef ftn = (CTFtnEdnRef)o;
+                    footnoteText.append("[").append(ftn.getId()).append(": ");
+                    XWPFFootnote footnote =
+                        ftn.getDomNode().getLocalName().equals("footnoteReference") ?
                             document.getFootnoteByID(ftn.getId().intValue()) :
                             document.getEndnoteByID(ftn.getId().intValue());
-   
-                   boolean first = true;
-                   for (XWPFParagraph p : footnote.getParagraphs()) {
-                      if (!first) {
-                         footnoteText.append("\n");
-                         first = false;
-                      }
-                      footnoteText.append(p.getText());
-                   }
-   
-                   footnoteText.append("]");
+
+                    boolean first = true;
+                    for (XWPFParagraph p : footnote.getParagraphs()) {
+                        if (!first) {
+                            footnoteText.append("\n");
+                            first = false;
+                        }
+                        footnoteText.append(p.getText());
+                    }
+
+                    footnoteText.append("]");
                 }
-             }
-          }
-      }
+            }
+            c.dispose();
+        }
     }
 
+    /**
+     * Identifies (in order) the parts of the paragraph /
+     *  sub-paragraph that correspond to character text
+     *  runs, and builds the appropriate runs for these.
+     */
+    private void buildRunsInOrderFromXml(XmlObject object) {
+        XmlCursor c = object.newCursor();
+        c.selectPath("child::*");
+        while (c.toNextSelection()) {
+            XmlObject o = c.getObject();
+            if (o instanceof CTR) {
+                runs.add(new XWPFRun((CTR) o, this));
+            }
+            if (o instanceof CTHyperlink) {
+                CTHyperlink link = (CTHyperlink) o;
+                for (CTR r : link.getRList()) {
+                    runs.add(new XWPFHyperlinkRun(link, r, this));
+                }
+            }
+            if (o instanceof CTSdtRun) {
+                CTSdtContentRun run = ((CTSdtRun) o).getSdtContent();
+                for (CTR r : run.getRList()) {
+                    runs.add(new XWPFRun(r, this));
+                }
+            }
+            if (o instanceof CTRunTrackChange) {
+                for (CTR r : ((CTRunTrackChange) o).getRList()) {
+                    runs.add(new XWPFRun(r, this));
+                }
+            }
+            if (o instanceof CTSimpleField) {
+                for (CTR r : ((CTSimpleField) o).getRList()) {
+                    runs.add(new XWPFRun(r, this));
+                }
+            }
+            if (o instanceof CTSmartTagRun) {
+                // Smart Tags can be nested many times. 
+                // This implementation does not preserve the tagging information
+                buildRunsInOrderFromXml(o);
+            }
+        }
+        c.dispose();
+    }
+    
     @Internal
     public CTP getCTP() {
         return paragraph;
     }
 
     public List<XWPFRun> getRuns(){
-    	return Collections.unmodifiableList(runs);
+        return Collections.unmodifiableList(runs);
     }
 
     public boolean isEmpty(){
@@ -179,35 +185,35 @@ public class XWPFParagraph implements IBodyElement{
         out.append(footnoteText);
         return out.toString();
     }
-	
-	/**
-	 * Return styleID of the paragraph if style exist for this paragraph
-	 * if not, null will be returned     
-	 * @return		styleID as String
-	 */
+    
+    /**
+     * Return styleID of the paragraph if style exist for this paragraph
+     * if not, null will be returned     
+     * @return        styleID as String
+     */
     public String getStyleID(){
-   		if (paragraph.getPPr() != null){
-   			if(paragraph.getPPr().getPStyle()!= null){
-   				if (paragraph.getPPr().getPStyle().getVal()!= null)
-   					return paragraph.getPPr().getPStyle().getVal();
-   			}
-   		}
-   		return null;
-    }		
+           if (paragraph.getPPr() != null){
+               if(paragraph.getPPr().getPStyle()!= null){
+                   if (paragraph.getPPr().getPStyle().getVal()!= null)
+                       return paragraph.getPPr().getPStyle().getVal();
+               }
+           }
+           return null;
+    }        
     /**
      * If style exist for this paragraph
      * NumId of the paragraph will be returned.
-	 * If style not exist null will be returned     
-     * @return	NumID as BigInteger
+     * If style not exist null will be returned     
+     * @return    NumID as BigInteger
      */
     public BigInteger getNumID(){
-    	if(paragraph.getPPr()!=null){
-    		if(paragraph.getPPr().getNumPr()!=null){
-    			if(paragraph.getPPr().getNumPr().getNumId()!=null)
-    				return paragraph.getPPr().getNumPr().getNumId().getVal();
-    		}
-    	}
-    	return null;
+        if(paragraph.getPPr()!=null){
+            if(paragraph.getPPr().getNumPr()!=null){
+                if(paragraph.getPPr().getNumPr().getNumId()!=null)
+                    return paragraph.getPPr().getNumPr().getNumId().getVal();
+            }
+        }
+        return null;
     }
     
     /**
@@ -215,14 +221,14 @@ public class XWPFParagraph implements IBodyElement{
      * @param numPos
      */
     public void setNumID(BigInteger numPos) {
-    	if(paragraph.getPPr()==null)
-    		paragraph.addNewPPr();
-    	if(paragraph.getPPr().getNumPr()==null)
-    		paragraph.getPPr().addNewNumPr();
-    	if(paragraph.getPPr().getNumPr().getNumId()==null){
-    		paragraph.getPPr().getNumPr().addNewNumId();
-    	}
-    	paragraph.getPPr().getNumPr().getNumId().setVal(numPos);
+        if(paragraph.getPPr()==null)
+            paragraph.addNewPPr();
+        if(paragraph.getPPr().getNumPr()==null)
+            paragraph.getPPr().addNewNumPr();
+        if(paragraph.getPPr().getNumPr().getNumId()==null){
+            paragraph.getPPr().getNumPr().addNewNumId();
+        }
+        paragraph.getPPr().getNumPr().getNumId().setVal(numPos);
     }
 
     /**
@@ -263,7 +269,9 @@ public class XWPFParagraph implements IBodyElement{
      * @return a new text run
      */
     public XWPFRun createRun() {
-        return new XWPFRun(paragraph.addNewR(), this);
+        XWPFRun xwpfRun = new XWPFRun(paragraph.addNewR(), this);
+        runs.add(xwpfRun);
+        return xwpfRun;
     }
 
     /**
@@ -1028,18 +1036,18 @@ public class XWPFParagraph implements IBodyElement{
      * @param newStyle
      */
     public void setStyle(String newStyle) {
-    	CTPPr pr = getCTPPr();
-    	CTString style = pr.getPStyle() != null ? pr.getPStyle() : pr.addNewPStyle();
-    	style.setVal(newStyle);
+        CTPPr pr = getCTPPr();
+        CTString style = pr.getPStyle() != null ? pr.getPStyle() : pr.addNewPStyle();
+        style.setVal(newStyle);
     }
     
     /**
      * @return  the style of the paragraph
      */
     public String getStyle() {
-    	CTPPr pr = getCTPPr();
-    	CTString style = pr.isSetPStyle() ? pr.getPStyle() : null;
-    	return style != null ? style.getVal() : null;
+        CTPPr pr = getCTPPr();
+        CTString style = pr.isSetPStyle() ? pr.getPStyle() : null;
+        return style != null ? style.getVal() : null;
     }
 
     /**
@@ -1095,10 +1103,10 @@ public class XWPFParagraph implements IBodyElement{
      * @param run
      */
     protected void addRun(CTR run){
-    	int pos;
-    	pos = paragraph.getRList().size();
-    	paragraph.addNewR();
-    	paragraph.setRArray(pos, run);
+        int pos;
+        pos = paragraph.getRList().size();
+        paragraph.addNewR();
+        paragraph.setRArray(pos, run);
     }
     
     /**
@@ -1109,63 +1117,65 @@ public class XWPFParagraph implements IBodyElement{
      * @param startPos
      */
     public TextSegement searchText(String searched,PositionInParagraph startPos){
-    	
-    	int startRun = startPos.getRun(), 
-    		startText = startPos.getText(),
-    		startChar = startPos.getChar();
-    	int beginRunPos = 0, candCharPos = 0;
-    	boolean newList = false;
-    	for (int runPos=startRun; runPos<paragraph.getRList().size(); runPos++) {
-    		int beginTextPos = 0,beginCharPos = 0, textPos = 0,  charPos = 0;	
-	    	CTR ctRun = paragraph.getRArray(runPos);
-    		XmlCursor c = ctRun.newCursor();
-	    	c.selectPath("./*");
-	    	while(c.toNextSelection()){
-	    		XmlObject o = c.getObject();
-	    		if(o instanceof CTText){
-	    			if(textPos>=startText){
-		    			String candidate = ((CTText)o).getStringValue();
-		    			if(runPos==startRun)
-		    				charPos= startChar;
-		    			else
-		    				charPos = 0;	
-		    			for(; charPos<candidate.length(); charPos++){
-		    				if((candidate.charAt(charPos)==searched.charAt(0))&&(candCharPos==0)){
-		    					beginTextPos = textPos;
-		    					beginCharPos = charPos;
-		    					beginRunPos = runPos;
-		    					newList = true;
-		    				}
-		    				if(candidate.charAt(charPos)==searched.charAt(candCharPos)){
-		    					if(candCharPos+1<searched.length())
-		    						candCharPos++;
-		    					else if(newList){
-		    						TextSegement segement = new TextSegement();
-			    					segement.setBeginRun(beginRunPos);
-			    					segement.setBeginText(beginTextPos);
-			    					segement.setBeginChar(beginCharPos);
-			    					segement.setEndRun(runPos);
-			    					segement.setEndText(textPos);
-			    					segement.setEndChar(charPos);
-			    					return segement;
-		    					}
-		    				}
-		    				else
-		    					candCharPos=0;
-		    			}
-		    		}
-	    			textPos++;
-	    		}
-	    		else if(o instanceof CTProofErr){
-	    			c.removeXml();
-	    		}
-	    		else if(o instanceof CTRPr);
-	    			//do nothing
-	    		else
-	    			candCharPos=0;
-	    	}
-    	}
-    	return null;
+        
+        int startRun = startPos.getRun(), 
+            startText = startPos.getText(),
+            startChar = startPos.getChar();
+        int beginRunPos = 0, candCharPos = 0;
+        boolean newList = false;
+        for (int runPos=startRun; runPos<paragraph.getRList().size(); runPos++) {
+            int beginTextPos = 0,beginCharPos = 0, textPos = 0,  charPos = 0;    
+            CTR ctRun = paragraph.getRArray(runPos);
+            XmlCursor c = ctRun.newCursor();
+            c.selectPath("./*");
+            while(c.toNextSelection()){
+                XmlObject o = c.getObject();
+                if(o instanceof CTText){
+                    if(textPos>=startText){
+                        String candidate = ((CTText)o).getStringValue();
+                        if(runPos==startRun)
+                            charPos= startChar;
+                        else
+                            charPos = 0;    
+                        for(; charPos<candidate.length(); charPos++){
+                            if((candidate.charAt(charPos)==searched.charAt(0))&&(candCharPos==0)){
+                                beginTextPos = textPos;
+                                beginCharPos = charPos;
+                                beginRunPos = runPos;
+                                newList = true;
+                            }
+                            if(candidate.charAt(charPos)==searched.charAt(candCharPos)){
+                                if(candCharPos+1<searched.length())
+                                    candCharPos++;
+                                else if(newList){
+                                    TextSegement segement = new TextSegement();
+                                    segement.setBeginRun(beginRunPos);
+                                    segement.setBeginText(beginTextPos);
+                                    segement.setBeginChar(beginCharPos);
+                                    segement.setEndRun(runPos);
+                                    segement.setEndText(textPos);
+                                    segement.setEndChar(charPos);
+                                    return segement;
+                                }
+                            }
+                            else
+                                candCharPos=0;
+                        }
+                    }
+                    textPos++;
+                }
+                else if(o instanceof CTProofErr){
+                    c.removeXml();
+                }
+                else if(o instanceof CTRPr);
+                    //do nothing
+                else
+                    candCharPos=0;
+            }
+
+            c.dispose();
+        }
+        return null;
     }
     
     /**
@@ -1174,13 +1184,13 @@ public class XWPFParagraph implements IBodyElement{
      * @return  the inserted run
      */
     public XWPFRun insertNewRun(int pos){
-    	 if (pos >= 0 && pos <= paragraph.sizeOfRArray()) {
-	    	CTR ctRun = paragraph.insertNewR(pos);
-	    	XWPFRun newRun = new XWPFRun(ctRun, this);
-	    	runs.add(newRun);
-	    	return newRun;
-    	 }
-    	 return null;
+         if (pos >= 0 && pos <= paragraph.sizeOfRArray()) {
+            CTR ctRun = paragraph.insertNewR(pos);
+            XWPFRun newRun = new XWPFRun(ctRun, this);
+            runs.add(pos, newRun);
+            return newRun;
+         }
+         return null;
     }
     
     
@@ -1195,27 +1205,27 @@ public class XWPFParagraph implements IBodyElement{
     int charBegin = segment.getBeginChar(); 
     int runEnd = segment.getEndRun();
     int textEnd = segment.getEndText();
-    int charEnd	= segment.getEndChar();
+    int charEnd    = segment.getEndChar();
     StringBuffer out = new StringBuffer();
-    	for(int i=runBegin; i<=runEnd;i++){
-    		int startText=0, endText = paragraph.getRArray(i).getTList().size()-1;
-    		if(i==runBegin)
-    			startText=textBegin;
-    		if(i==runEnd)
-    			endText = textEnd;
-    		for(int j=startText;j<=endText;j++){
-    			String tmpText = paragraph.getRArray(i).getTArray(j).getStringValue();
-    			int startChar=0, endChar = tmpText.length()-1;
-    			if((j==textBegin)&&(i==runBegin))
-    				startChar=charBegin;
-    			if((j==textEnd)&&(i==runEnd)){
-    				endChar = charEnd;
-    			}
-   				out.append(tmpText.substring(startChar, endChar+1));
-		
-    		}
-    	}
-    	return out.toString();
+        for(int i=runBegin; i<=runEnd;i++){
+            int startText=0, endText = paragraph.getRArray(i).getTList().size()-1;
+            if(i==runBegin)
+                startText=textBegin;
+            if(i==runEnd)
+                endText = textEnd;
+            for(int j=startText;j<=endText;j++){
+                String tmpText = paragraph.getRArray(i).getTArray(j).getStringValue();
+                int startChar=0, endChar = tmpText.length()-1;
+                if((j==textBegin)&&(i==runBegin))
+                    startChar=charBegin;
+                if((j==textEnd)&&(i==runEnd)){
+                    endChar = charEnd;
+                }
+                   out.append(tmpText.substring(startChar, endChar+1));
+        
+            }
+        }
+        return out.toString();
     }
 
     /**
@@ -1224,61 +1234,70 @@ public class XWPFParagraph implements IBodyElement{
      * @return true if the run was removed
      */
     public boolean removeRun(int pos){
-    	 if (pos >= 0 && pos < paragraph.sizeOfRArray()){
-    		 getCTP().removeR(pos);
-    		 runs.remove(pos);
-    		 return true;
-    	 }
-    	 return false;
+         if (pos >= 0 && pos < paragraph.sizeOfRArray()){
+             getCTP().removeR(pos);
+             runs.remove(pos);
+             return true;
+         }
+         return false;
     }
 
-	/**
-	 * returns the type of the BodyElement Paragraph
-	 * @see org.apache.poi.xwpf.usermodel.IBodyElement#getElementType()
-	 */
-	public BodyElementType getElementType() {
-		return BodyElementType.PARAGRAPH;
-	}
+    /**
+     * returns the type of the BodyElement Paragraph
+     * @see org.apache.poi.xwpf.usermodel.IBodyElement#getElementType()
+     */
+    public BodyElementType getElementType() {
+        return BodyElementType.PARAGRAPH;
+    }
 
-	/**
-	 * returns the part of the bodyElement
-	 * @see org.apache.poi.xwpf.usermodel.IBody#getPart()
-	 */
-	public IBody getPart() {
-		if(part != null){
-			return part.getPart();
-		}
-		return null;
-	}
+    public IBody getBody()
+    {
+        return part;
+    }
 
-	/**
-	 * returns the partType of the bodyPart which owns the bodyElement
-	 * @see org.apache.poi.xwpf.usermodel.IBody#getPartType()
-	 */
-	public BodyType getPartType() {
-		return part.getPartType();
-	}
-	
-	/**
-	 * adds a new Run to the Paragraph
-	 */
-	public void addRun(XWPFRun r){
-		runs.add(r);
-	}
-	
-	/**
-	 * return the XWPFRun-Element which owns the CTR run-Element
-	 */
-	public XWPFRun getRun(CTR r){
-		for(int i=0; i < getRuns().size(); i++){
-			if(getRuns().get(i).getCTR() == r) return getRuns().get(i); 
-		}
-		return null;
-	}
-	
+    /**
+     * returns the part of the bodyElement
+     * @see org.apache.poi.xwpf.usermodel.IBody#getPart()
+     */
+    public POIXMLDocumentPart getPart() {
+        if(part != null){
+            return part.getPart();
+        }
+        return null;
+    }
 
+    /**
+     * returns the partType of the bodyPart which owns the bodyElement
+     * 
+     * @see org.apache.poi.xwpf.usermodel.IBody#getPartType()
+     */
+    public BodyType getPartType() {
+        return part.getPartType();
+    }
+
+    /**
+     * adds a new Run to the Paragraph
+     * 
+     * @param r
+     */
+    public void addRun(XWPFRun r) {
+        if (!runs.contains(r)) {
+            runs.add(r);
+        }
+    }
+
+    /**
+     * return the XWPFRun-Element which owns the CTR run-Element
+     * 
+     * @param r
+     */
+    public XWPFRun getRun(CTR r) {
+        for (int i = 0; i < getRuns().size(); i++) {
+            if (getRuns().get(i).getCTR() == r) {
+                return getRuns().get(i);
+            }
+        }
+        return null;
+    }
 
 }//end class
-
-
-

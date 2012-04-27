@@ -43,11 +43,12 @@ import org.apache.poi.poifs.storage.BlockAllocationTableWriter;
 import org.apache.poi.poifs.storage.BlockList;
 import org.apache.poi.poifs.storage.BlockWritable;
 import org.apache.poi.poifs.storage.HeaderBlockConstants;
-import org.apache.poi.poifs.storage.HeaderBlockReader;
+import org.apache.poi.poifs.storage.HeaderBlock;
 import org.apache.poi.poifs.storage.HeaderBlockWriter;
 import org.apache.poi.poifs.storage.RawDataBlockList;
 import org.apache.poi.poifs.storage.SmallBlockTableReader;
 import org.apache.poi.poifs.storage.SmallBlockTableWriter;
+import org.apache.poi.util.CloseIgnoringInputStream;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.LongField;
 import org.apache.poi.util.POILogFactory;
@@ -65,23 +66,6 @@ public class POIFSFileSystem
 {
 	private static final POILogger _logger =
 		POILogFactory.getLogger(POIFSFileSystem.class);
-
-    private static final class CloseIgnoringInputStream extends InputStream {
-
-        private final InputStream _is;
-        public CloseIgnoringInputStream(InputStream is) {
-            _is = is;
-        }
-        public int read() throws IOException {
-            return _is.read();
-        }
-        public int read(byte[] b, int off, int len) throws IOException {
-            return _is.read(b, off, len);
-        }
-        public void close() {
-            // do nothing
-        }
-    }
 
     /**
      * Convenience method for clients that want to avoid the auto-close behaviour of the constructor.
@@ -106,7 +90,8 @@ public class POIFSFileSystem
      */
     public POIFSFileSystem()
     {
-        _property_table = new PropertyTable(bigBlockSize);
+        HeaderBlock header_block = new HeaderBlock(bigBlockSize);
+        _property_table = new PropertyTable(header_block);
         _documents      = new ArrayList();
         _root           = null;
     }
@@ -146,12 +131,12 @@ public class POIFSFileSystem
         this();
         boolean success = false;
 
-        HeaderBlockReader header_block_reader;
+        HeaderBlock header_block;
         RawDataBlockList data_blocks;
         try {
             // read the header block from the stream
-            header_block_reader = new HeaderBlockReader(stream);
-            bigBlockSize = header_block_reader.getBigBlockSize();
+            header_block = new HeaderBlock(stream);
+            bigBlockSize = header_block.getBigBlockSize();
 
             // read the rest of the stream into blocks
             data_blocks = new RawDataBlockList(stream, bigBlockSize);
@@ -163,29 +148,27 @@ public class POIFSFileSystem
 
         // set up the block allocation table (necessary for the
         // data_blocks to be manageable
-        new BlockAllocationTableReader(header_block_reader.getBigBlockSize(),
-                                       header_block_reader.getBATCount(),
-                                       header_block_reader.getBATArray(),
-                                       header_block_reader.getXBATCount(),
-                                       header_block_reader.getXBATIndex(),
+        new BlockAllocationTableReader(header_block.getBigBlockSize(),
+                                       header_block.getBATCount(),
+                                       header_block.getBATArray(),
+                                       header_block.getXBATCount(),
+                                       header_block.getXBATIndex(),
                                        data_blocks);
 
         // get property table from the document
         PropertyTable properties =
-            new PropertyTable(bigBlockSize,
-                              header_block_reader.getPropertyStart(),
-                              data_blocks);
+            new PropertyTable(header_block, data_blocks);
 
         // init documents
         processProperties(
         		SmallBlockTableReader.getSmallDocumentBlocks(
         		      bigBlockSize, data_blocks, properties.getRoot(),
-        				header_block_reader.getSBATStart()
+        				header_block.getSBATStart()
         		),
         		data_blocks,
         		properties.getRoot().getChildren(),
         		null,
-        		header_block_reader.getPropertyStart()
+        		header_block.getPropertyStart()
         );
 
         // For whatever reason CLSID of root is always 0.

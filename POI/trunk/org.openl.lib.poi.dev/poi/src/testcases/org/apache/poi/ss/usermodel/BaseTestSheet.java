@@ -21,6 +21,7 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
+import org.apache.poi.hssf.util.PaneInformation;
 import org.apache.poi.ss.ITestDataProvider;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -400,6 +401,10 @@ public abstract class BaseTestSheet extends TestCase {
         assertEquals((short) 300, sheet.getDefaultRowHeight());
         assertEquals(15.0F, sheet.getDefaultRowHeightInPoints(), 0F);
 
+        Row row = sheet.createRow(1);
+        // new row inherits  default height from the sheet
+        assertEquals(sheet.getDefaultRowHeight(), row.getHeight());
+
         // Set a new default row height in twips and test getting the value in points
         sheet.setDefaultRowHeight((short) 360);
         assertEquals(18.0f, sheet.getDefaultRowHeightInPoints(), 0F);
@@ -552,6 +557,11 @@ public abstract class BaseTestSheet extends TestCase {
         sheet.setMargin(Sheet.BottomMargin, 13.0);
         assertEquals(13.0, sheet.getMargin(Sheet.BottomMargin), 0.0);
 
+        sheet.setMargin(Sheet.FooterMargin, 5.6);
+        assertEquals(5.6, sheet.getMargin(Sheet.FooterMargin), 0.0);
+        sheet.setMargin(Sheet.HeaderMargin, 11.5);
+        assertEquals(11.5, sheet.getMargin(Sheet.HeaderMargin), 0.0);
+
         // incorrect margin constant
         try {
             sheet.setMargin((short) 65, 15);
@@ -653,5 +663,53 @@ public abstract class BaseTestSheet extends TestCase {
 
     }
 
+    public void testCreateFreezePane() {
+        Workbook wb = _testDataProvider.createWorkbook();
+        // create a workbook
+        Sheet sheet = wb.createSheet();
+        assertNull(sheet.getPaneInformation());
+        sheet.createFreezePane(0, 0);
+        // still null
+        assertNull(sheet.getPaneInformation());
+
+        sheet.createFreezePane(2, 3);
+
+        PaneInformation info = sheet.getPaneInformation();
+
+
+        assertEquals(PaneInformation.PANE_LOWER_RIGHT, info.getActivePane());
+        assertEquals(3, info.getHorizontalSplitPosition());
+        assertEquals(3, info.getHorizontalSplitTopRow());
+        assertEquals(2, info.getVerticalSplitLeftColumn());
+        assertEquals(2, info.getVerticalSplitPosition());
+
+        sheet.createFreezePane(0, 0);
+        // If both colSplit and rowSplit are zero then the existing freeze pane is removed
+        assertNull(sheet.getPaneInformation());
+
+        sheet.createFreezePane(0, 3);
+
+        info = sheet.getPaneInformation();
+
+        assertEquals(PaneInformation.PANE_LOWER_LEFT, info.getActivePane());
+        assertEquals(3, info.getHorizontalSplitPosition());
+        assertEquals(3, info.getHorizontalSplitTopRow());
+        assertEquals(0, info.getVerticalSplitLeftColumn());
+        assertEquals(0, info.getVerticalSplitPosition());
+
+        sheet.createFreezePane(3, 0);
+
+        info = sheet.getPaneInformation();
+
+        assertEquals(PaneInformation.PANE_UPPER_RIGHT, info.getActivePane());
+        assertEquals(0, info.getHorizontalSplitPosition());
+        assertEquals(0, info.getHorizontalSplitTopRow());
+        assertEquals(3, info.getVerticalSplitLeftColumn());
+        assertEquals(3, info.getVerticalSplitPosition());
+
+        sheet.createFreezePane(0, 0);
+        // If both colSplit and rowSplit are zero then the existing freeze pane is removed
+        assertNull(sheet.getPaneInformation());
+    }
 
 }

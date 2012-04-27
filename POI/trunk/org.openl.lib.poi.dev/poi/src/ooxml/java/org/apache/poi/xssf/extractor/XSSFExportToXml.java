@@ -41,7 +41,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.xssf.model.Table;
+import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFMap;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -123,7 +123,7 @@ public class XSSFExportToXml implements Comparator<String>{
      */
     public void exportToXML(OutputStream os, String encoding, boolean validate) throws SAXException, ParserConfigurationException, TransformerException{
         List<XSSFSingleXmlCell> singleXMLCells = map.getRelatedSingleXMLCell();
-        List<Table> tables = map.getRelatedTables();
+        List<XSSFTable> tables = map.getRelatedTables();
 
         String rootElement = map.getCtMap().getRootElement();
 
@@ -134,20 +134,20 @@ public class XSSFExportToXml implements Comparator<String>{
         if (isNamespaceDeclared()) {
             root=doc.createElementNS(getNamespace(),rootElement);
         } else {
-            root=doc.createElement(rootElement);
+            root = doc.createElementNS("", rootElement);
         }
         doc.appendChild(root);
 
 
         List<String> xpaths = new Vector<String>();
         Map<String,XSSFSingleXmlCell> singleXmlCellsMappings = new HashMap<String,XSSFSingleXmlCell>();
-        Map<String,Table> tableMappings = new HashMap<String,Table>();
+        Map<String,XSSFTable> tableMappings = new HashMap<String,XSSFTable>();
 
         for(XSSFSingleXmlCell simpleXmlCell : singleXMLCells) {
             xpaths.add(simpleXmlCell.getXpath());
             singleXmlCellsMappings.put(simpleXmlCell.getXpath(), simpleXmlCell);
         }
-        for(Table table : tables) {
+        for(XSSFTable table : tables) {
             String commonXPath = table.getCommonXpath();
             xpaths.add(commonXPath);
             tableMappings.put(commonXPath, table);
@@ -159,7 +159,7 @@ public class XSSFExportToXml implements Comparator<String>{
         for(String xpath : xpaths) {
 
             XSSFSingleXmlCell simpleXmlCell = singleXmlCellsMappings.get(xpath);
-            Table table = tableMappings.get(xpath);
+            XSSFTable table = tableMappings.get(xpath);
 
             if (!xpath.matches(".*\\[.*")) {
 
@@ -339,7 +339,7 @@ public class XSSFExportToXml implements Comparator<String>{
         NamedNodeMap attributesMap = currentNode.getAttributes();
         Node attribute = attributesMap.getNamedItem(attributeName);
         if (attribute==null) {
-            attribute = doc.createAttribute(attributeName);
+            attribute = doc.createAttributeNS("", attributeName);
             attributesMap.setNamedItem(attribute);
         }
         return attribute;
@@ -350,7 +350,7 @@ public class XSSFExportToXml implements Comparator<String>{
         if (isNamespaceDeclared()) {
             selectedNode =doc.createElementNS(getNamespace(),axisName);
         } else {
-            selectedNode =doc.createElement(axisName);
+            selectedNode = doc.createElementNS("", axisName);
         }
         currentNode.appendChild(selectedNode);
         return selectedNode;

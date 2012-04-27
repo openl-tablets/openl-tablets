@@ -17,14 +17,7 @@
 
 package org.apache.poi.hssf.usermodel;
 
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextAttribute;
-import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
 import java.io.PrintWriter;
-import java.text.AttributedString;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -38,11 +31,10 @@ import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.record.aggregates.DataValidityTable;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
-import org.apache.poi.hssf.record.formula.FormulaShifter;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.Area3DPtg;
+import org.apache.poi.ss.formula.FormulaShifter;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.ptg.Area3DPtg;
 import org.apache.poi.hssf.util.PaneInformation;
-import org.apache.poi.hssf.util.Region;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.FormulaType;
 import org.apache.poi.ss.usermodel.Cell;
@@ -54,6 +46,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.SSCellRange;
+import org.apache.poi.ss.util.SheetUtil;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
@@ -148,7 +141,7 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
             row = sheet.getNextRow();
         }
 
-        CellValueRecordInterface[] cvals = sheet.getValueRecords();
+        Iterator<CellValueRecordInterface> iter = sheet.getCellValueIterator();
         long timestart = System.currentTimeMillis();
 
         if (log.check( POILogger.DEBUG ))
@@ -157,8 +150,8 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         HSSFRow lastrow = null;
 
         // Add every cell to its row
-        for (int i = 0; i < cvals.length; i++) {
-            CellValueRecordInterface cval = cvals[i];
+        while (iter.hasNext()) {
+            CellValueRecordInterface cval = iter.next();
 
             long cellstart = System.currentTimeMillis();
             HSSFRow hrow = lastrow;
@@ -203,6 +196,8 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     public HSSFRow createRow(int rownum)
     {
         HSSFRow row = new HSSFRow(_workbook, this, rownum);
+        // new rows inherit default height from the sheet
+        row.setHeight(getDefaultRowHeight());
 
         addRow(row, true);
         return row;
@@ -435,15 +430,47 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
     /**
      * Set the width (in units of 1/256th of a character width)
+     *
      * <p>
      * The maximum column width for an individual cell is 255 characters.
      * This value represents the number of characters that can be displayed
-     * in a cell that is formatted with the standard font.
+     * in a cell that is formatted with the standard font (first font in the workbook).
      * </p>
+     *
+     * <p>
+     * Character width is defined as the maximum digit width
+     * of the numbers <code>0, 1, 2, ... 9</code> as rendered
+     * using the default font (first font in the workbook).
+     * <br/>
+     * Unless you are using a very special font, the default character is '0' (zero),
+     * this is true for Arial (default font font in HSSF) and Calibri (default font in XSSF)
+     * </p>
+     *
+     * <p>
+     * Please note, that the width set by this method includes 4 pixels of margin padding (two on each side),
+     * plus 1 pixel padding for the gridlines (Section 3.3.1.12 of the OOXML spec).
+     * This results is a slightly less value of visible characters than passed to this method (approx. 1/2 of a character).
+     * </p>
+     * <p>
+     * To compute the actual number of visible characters,
+     *  Excel uses the following formula (Section 3.3.1.12 of the OOXML spec):
+     * </p>
+     * <code>
+     *     width = Truncate([{Number of Visible Characters} *
+     *      {Maximum Digit Width} + {5 pixel padding}]/{Maximum Digit Width}*256)/256
+     * </code>
+     * <p>Using the Calibri font as an example, the maximum digit width of 11 point font size is 7 pixels (at 96 dpi).
+     *  If you set a column width to be eight characters wide, e.g. <code>setColumnWidth(columnIndex, 8*256)</code>,
+     *  then the actual value of visible characters (the value shown in Excel) is derived from the following equation:
+     *  <code>
+            Truncate([numChars*7+5]/7*256)/256 = 8;
+     *  </code>
+     *
+     *  which gives <code>7.29</code>.
      *
      * @param columnIndex - the column to set (0-based)
      * @param width - the width in units of 1/256th of a character width
-     * @throws IllegalArgumentException if width > 65280 (the maximum column width in Excel)
+     * @throws IllegalArgumentException if width > 255*256 (the maximum column width in Excel is 255 characters)
      */
     public void setColumnWidth(int columnIndex, int width) {
         _sheet.setColumnWidth(columnIndex, width);
@@ -614,9 +641,24 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     }
 
     /**
-     * Whether a record must be inserted or not at generation to indicate that
-     * formula must be recalculated when workbook is opened.
-     * @param value true if an uncalced record must be inserted or not at generation
+     * Control if Excel should be asked to recalculate all formulas on this sheet
+     * when the workbook is opened.
+     *
+     *  <p>
+     *  Calculating the formula values with {@link org.apache.poi.ss.usermodel.FormulaEvaluator} is the
+     *  recommended solution, but this may be used for certain cases where
+     *  evaluation in POI is not possible.
+     *  </p>
+     *
+     *  <p>
+     *  It is recommended to force recalcuation of formulas on workbook level using
+     *  {@link org.apache.poi.ss.usermodel.Workbook#setForceFormulaRecalculation(boolean)}
+     *  to ensure that all cross-worksheet formuals and external dependencies are updated.
+     *  </p>
+     * @param value true if the application will perform a full recalculation of
+     * this worksheet values when the workbook is opened
+     *
+     * @see org.apache.poi.ss.usermodel.Workbook#setForceFormulaRecalculation(boolean)
      */
     public void setForceFormulaRecalculation(boolean value)
     {
@@ -722,10 +764,10 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     /**
      * @deprecated (Aug-2008) use {@link HSSFSheet#getMergedRegion(int)}
      */
-    public Region getMergedRegionAt(int index) {
+    public org.apache.poi.hssf.util.Region getMergedRegionAt(int index) {
         CellRangeAddress cra = getMergedRegion(index);
 
-        return new Region(cra.getFirstRow(), (short)cra.getFirstColumn(),
+        return new org.apache.poi.hssf.util.Region(cra.getFirstRow(), (short)cra.getFirstColumn(),
                 cra.getLastRow(), (short)cra.getLastColumn());
     }
     /**
@@ -1019,7 +1061,14 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      * @return the size of the margin
      */
     public double getMargin(short margin) {
-        return _sheet.getPageSettings().getMargin(margin);
+        switch (margin){
+            case FooterMargin:
+                return _sheet.getPageSettings().getPrintSetup().getFooterMargin();
+            case HeaderMargin:
+                return _sheet.getPageSettings().getPrintSetup().getHeaderMargin();
+            default:
+                return _sheet.getPageSettings().getMargin(margin);
+        }
     }
 
     /**
@@ -1028,7 +1077,16 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      * @param size the size of the margin
      */
     public void setMargin(short margin, double size) {
-        _sheet.getPageSettings().setMargin(margin, size);
+        switch (margin){
+            case FooterMargin:
+                _sheet.getPageSettings().getPrintSetup().setFooterMargin(size);
+                break;
+            case HeaderMargin:
+                _sheet.getPageSettings().getPrintSetup().setHeaderMargin(size);
+                break;
+            default:
+                _sheet.getPageSettings().setMargin(margin, size);
+        }
     }
 
     private WorksheetProtectionBlock getProtectionBlock() {
@@ -1146,7 +1204,8 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
              }
 
              //only shift if the region outside the shifted rows is not merged too
-             if (!containsCell(merged, startRow-1, 0) && !containsCell(merged, endRow+1, 0)){
+             if (!SheetUtil.containsCell(merged, startRow-1, 0) &&
+                 !SheetUtil.containsCell(merged, endRow+1, 0)){
                  merged.setFirstRow(merged.getFirstRow()+n);
                  merged.setLastRow(merged.getLastRow()+n);
                  //have to remove/add it back
@@ -1163,14 +1222,6 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
             this.addMergedRegion(region);
         }
-    }
-    private static boolean containsCell(CellRangeAddress cr, int rowIx, int colIx) {
-        if (cr.getFirstRow() <= rowIx && cr.getLastRow() >= rowIx
-                && cr.getFirstColumn() <= colIx && cr.getLastColumn() >= colIx)
-        {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -1234,10 +1285,14 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
         if (n < 0) {
             s = startRow;
             inc = 1;
-        } else {
+        } else if (n > 0) {
             s = endRow;
             inc = -1;
+        } else {
+           // Nothing to do
+           return;
         }
+        
         NoteRecord[] noteRecs;
         if (moveComments) {
             noteRecs = _sheet.getNoteRecords();
@@ -1315,8 +1370,39 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
                 }
             }
         }
-        if ( endRow == _lastrow || endRow + n > _lastrow ) _lastrow = Math.min( endRow + n, SpreadsheetVersion.EXCEL97.getLastRowIndex() );
-        if ( startRow == _firstrow || startRow + n < _firstrow ) _firstrow = Math.max( startRow + n, 0 );
+        
+        // Re-compute the first and last rows of the sheet as needed
+        if(n > 0) {
+           // Rows are moving down
+           if ( startRow == _firstrow ) {
+              // Need to walk forward to find the first non-blank row
+              _firstrow = Math.max( startRow + n, 0 );
+              for( int i=startRow+1; i < startRow+n; i++ ) {
+                 if (getRow(i) != null) {
+                    _firstrow = i;
+                    break;
+                 }
+              }
+           }
+           if ( endRow + n > _lastrow ) {
+              _lastrow = Math.min( endRow + n, SpreadsheetVersion.EXCEL97.getLastRowIndex() );
+           }
+        } else {
+           // Rows are moving up
+           if ( startRow + n < _firstrow ) {
+              _firstrow = Math.max( startRow + n, 0 );
+           }
+           if ( endRow == _lastrow  ) {
+              // Need to walk backward to find the last non-blank row
+              _lastrow = Math.min( endRow + n, SpreadsheetVersion.EXCEL97.getLastRowIndex() );
+              for (int i=endRow-1; i > endRow+n; i++) {
+                 if (getRow(i) != null) {
+                    _lastrow = i;
+                    break;
+                 }
+              }
+           }
+        }
 
         // Update any formulas on this sheet that point to
         //  rows which have been moved
@@ -1355,6 +1441,11 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
     /**
      * Creates a split (freezepane). Any existing freezepane or split pane is overwritten.
+     *
+     * <p>
+     *     If both colSplit and rowSplit are zero then the existing freeze pane is removed
+     * </p>
+     *
      * @param colSplit      Horizonatal position of split.
      * @param rowSplit      Vertical position of split.
      * @param leftmostColumn   Left column visible in right pane.
@@ -1370,6 +1461,11 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
     /**
      * Creates a split (freezepane). Any existing freezepane or split pane is overwritten.
+     *
+     * <p>
+     *     If both colSplit and rowSplit are zero then the existing freeze pane is removed
+     * </p>
+     *
      * @param colSplit      Horizonatal position of split.
      * @param rowSplit      Vertical position of split.
      */
@@ -1452,7 +1548,14 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
     /**
      * Sets a page break at the indicated row
-     * @param row FIXME: Document this!
+     * Breaks occur above the specified row and left of the specified column inclusive.
+     *
+     * For example, <code>sheet.setColumnBreak(2);</code> breaks the sheet into two parts
+     * with columns A,B,C in the first and D,E,... in the second. Simuilar, <code>sheet.setRowBreak(2);</code>
+     * breaks the sheet into two parts with first three rows (rownum=1...3) in the first part
+     * and rows starting with rownum=4 in the second.
+     *
+     * @param row the row to break, inclusive
      */
     public void setRowBreak(int row) {
         validateRow(row);
@@ -1491,8 +1594,15 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
 
 
     /**
-     * Sets a page break at the indicated column
-     * @param column
+     * Sets a page break at the indicated column.
+     * Breaks occur above the specified row and left of the specified column inclusive.
+     *
+     * For example, <code>sheet.setColumnBreak(2);</code> breaks the sheet into two parts
+     * with columns A,B,C in the first and D,E,... in the second. Simuilar, <code>sheet.setRowBreak(2);</code>
+     * breaks the sheet into two parts with first three rows (rownum=1...3) in the first part
+     * and rows starting with rownum=4 in the second.
+     *
+     * @param column the column to break, inclusive
      */
     public void setColumnBreak(int column) {
         validateColumn((short)column);
@@ -1567,14 +1677,14 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
     public HSSFPatriarch createDrawingPatriarch() {
         if(_patriarch == null){
             // Create the drawing group if it doesn't already exist.
-            _book.createDrawingGroup();
+            _workbook.initDrawings();
 
-            _sheet.aggregateDrawingRecords(_book.getDrawingManager(), true);
-            EscherAggregate agg = (EscherAggregate) _sheet.findFirstRecordBySid(EscherAggregate.sid);
-            _patriarch = new HSSFPatriarch(this, agg);
-            agg.clear();     // Initially the behaviour will be to clear out any existing shapes in the sheet when
-                             // creating a new patriarch.
-            agg.setPatriarch(_patriarch);
+            if(_patriarch == null){
+                _sheet.aggregateDrawingRecords(_book.getDrawingManager(), true);
+                EscherAggregate agg = (EscherAggregate) _sheet.findFirstRecordBySid(EscherAggregate.sid);
+                _patriarch = new HSSFPatriarch(this, agg);
+                agg.setPatriarch(_patriarch);
+            }
         }
         return _patriarch;
     }
@@ -1741,153 +1851,17 @@ public final class HSSFSheet implements org.apache.poi.ss.usermodel.Sheet {
      * @param useMergedCells whether to use the contents of merged cells when calculating the width of the column
      */
     public void autoSizeColumn(int column, boolean useMergedCells) {
-        AttributedString str;
-        TextLayout layout;
-        /**
-         * Excel measures columns in units of 1/256th of a character width
-         * but the docs say nothing about what particular character is used.
-         * '0' looks to be a good choice.
-         */
-        char defaultChar = '0';
+        double width = SheetUtil.getColumnWidth(this, column, useMergedCells);
 
-        /**
-         * This is the multiple that the font height is scaled by when determining the
-         * boundary of rotated text.
-         */
-        double fontHeightMultiple = 2.0;
-
-        FontRenderContext frc = new FontRenderContext(null, true, true);
-
-        HSSFWorkbook wb = HSSFWorkbook.create(_book); // TODO - is it important to not use _workbook?
-        HSSFDataFormatter formatter = new HSSFDataFormatter();
-        HSSFFont defaultFont = wb.getFontAt((short) 0);
-
-        str = new AttributedString("" + defaultChar);
-        copyAttributes(defaultFont, str, 0, 1);
-        layout = new TextLayout(str.getIterator(), frc);
-        int defaultCharWidth = (int)layout.getAdvance();
-
-        double width = -1;
-        rows:
-        for (Iterator<Row> it = rowIterator(); it.hasNext();) {
-            HSSFRow row = (HSSFRow) it.next();
-            HSSFCell cell = row.getCell(column);
-
-            if (cell == null) {
-                continue;
-            }
-
-            int colspan = 1;
-            for (int i = 0 ; i < getNumMergedRegions(); i++) {
-                CellRangeAddress region = getMergedRegion(i);
-                if (containsCell(region, row.getRowNum(), column)) {
-                    if (!useMergedCells) {
-                        // If we're not using merged cells, skip this one and move on to the next.
-                        continue rows;
-                    }
-                    cell = row.getCell(region.getFirstColumn());
-                    colspan = 1 + region.getLastColumn() - region.getFirstColumn();
-                }
-            }
-
-            HSSFCellStyle style = cell.getCellStyle();
-            int cellType = cell.getCellType();
-            if(cellType == HSSFCell.CELL_TYPE_FORMULA) cellType = cell.getCachedFormulaResultType();
-
-            HSSFFont font = wb.getFontAt(style.getFontIndex());
-
-            if (cellType == HSSFCell.CELL_TYPE_STRING) {
-                HSSFRichTextString rt = cell.getRichStringCellValue();
-                String[] lines = rt.getString().split("\\n");
-                for (int i = 0; i < lines.length; i++) {
-                    String txt = lines[i] + defaultChar;
-                    str = new AttributedString(txt);
-                    copyAttributes(font, str, 0, txt.length());
-
-                    if (rt.numFormattingRuns() > 0) {
-                        for (int j = 0; j < lines[i].length(); j++) {
-                            int idx = rt.getFontAtIndex(j);
-                            if (idx != 0) {
-                                HSSFFont fnt = wb.getFontAt((short) idx);
-                                copyAttributes(fnt, str, j, j + 1);
-                            }
-                        }
-                    }
-
-                    layout = new TextLayout(str.getIterator(), frc);
-                    if(style.getRotation() != 0){
-                        /*
-                         * Transform the text using a scale so that it's height is increased by a multiple of the leading,
-                         * and then rotate the text before computing the bounds. The scale results in some whitespace around
-                         * the unrotated top and bottom of the text that normally wouldn't be present if unscaled, but
-                         * is added by the standard Excel autosize.
-                         */
-                        AffineTransform trans = new AffineTransform();
-                        trans.concatenate(AffineTransform.getRotateInstance(style.getRotation()*2.0*Math.PI/360.0));
-                        trans.concatenate(
-                        AffineTransform.getScaleInstance(1, fontHeightMultiple)
-                        );
-                        width = Math.max(width, ((layout.getOutline(trans).getBounds().getWidth() / colspan) / defaultCharWidth) + cell.getCellStyle().getIndention());
-                    } else {
-                        width = Math.max(width, ((layout.getBounds().getWidth() / colspan) / defaultCharWidth) + cell.getCellStyle().getIndention());
-                    }
-                }
-            } else {
-                String sval = null;
-                if (cellType == HSSFCell.CELL_TYPE_NUMERIC) {
-                    // Try to get it formatted to look the same as excel
-                    try {
-                        sval = formatter.formatCellValue(cell);
-                    } catch (Exception e) {
-                        sval = "" + cell.getNumericCellValue();
-                    }
-                } else if (cellType == HSSFCell.CELL_TYPE_BOOLEAN) {
-                    sval = String.valueOf(cell.getBooleanCellValue());
-                }
-                if(sval != null) {
-                    String txt = sval + defaultChar;
-                    str = new AttributedString(txt);
-                    copyAttributes(font, str, 0, txt.length());
-
-                    layout = new TextLayout(str.getIterator(), frc);
-                    if(style.getRotation() != 0){
-                        /*
-                         * Transform the text using a scale so that it's height is increased by a multiple of the leading,
-                         * and then rotate the text before computing the bounds. The scale results in some whitespace around
-                         * the unrotated top and bottom of the text that normally wouldn't be present if unscaled, but
-                         * is added by the standard Excel autosize.
-                         */
-                        AffineTransform trans = new AffineTransform();
-                        trans.concatenate(AffineTransform.getRotateInstance(style.getRotation()*2.0*Math.PI/360.0));
-                        trans.concatenate(
-                        AffineTransform.getScaleInstance(1, fontHeightMultiple)
-                        );
-                        width = Math.max(width, ((layout.getOutline(trans).getBounds().getWidth() / colspan) / defaultCharWidth) + cell.getCellStyle().getIndention());
-                    } else {
-                        width = Math.max(width, ((layout.getBounds().getWidth() / colspan) / defaultCharWidth) + cell.getCellStyle().getIndention());
-                    }
-                }
-            }
-
-        }
         if (width != -1) {
             width *= 256;
-            if (width > Short.MAX_VALUE) { //width can be bigger that Short.MAX_VALUE!
-                width = Short.MAX_VALUE;
+            int maxColumnWidth = 255*256; // The maximum column width for an individual cell is 255 characters
+            if (width > maxColumnWidth) {
+                width = maxColumnWidth;
             }
-            _sheet.setColumnWidth(column, (short) (width));
+            setColumnWidth(column, (int)(width));
         }
-    }
 
-    /**
-     * Copy text attributes from the supplied HSSFFont to Java2D AttributedString
-     */
-    private void copyAttributes(HSSFFont font, AttributedString str, int startIdx, int endIdx) {
-        str.addAttribute(TextAttribute.FAMILY, font.getFontName(), startIdx, endIdx);
-        str.addAttribute(TextAttribute.SIZE, new Float(font.getFontHeightInPoints()));
-        if (font.getBoldweight() == HSSFFont.BOLDWEIGHT_BOLD) str.addAttribute(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, startIdx, endIdx);
-        if (font.getItalic() ) str.addAttribute(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE, startIdx, endIdx);
-        if (font.getUnderline() == HSSFFont.U_SINGLE ) str.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, startIdx, endIdx);
     }
 
     /**

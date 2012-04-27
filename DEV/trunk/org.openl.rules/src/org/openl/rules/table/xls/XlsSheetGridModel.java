@@ -28,7 +28,6 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -289,13 +288,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             CellRangeAddress reg = PoiExcelHelper.getMergedRegionAt(i, sheet);
             if (reg.getFirstColumn() == x && reg.getFirstRow() == y) {
                 sheet.removeMergedRegion(i);
-                if (sheet instanceof XSSFSheet && sheet.getNumMergedRegions() == 0) {
-                    // TODO remove this when in will be implemented in POI(see
-                    // https://issues.apache.org/bugzilla/show_bug.cgi?id=49895)
-                    if (((XSSFSheet) sheet).getCTWorksheet().getMergeCells() != null) {
-                        ((XSSFSheet) sheet).getCTWorksheet().unsetMergeCells();
-                    }
-                }
                 return;
             }
         }

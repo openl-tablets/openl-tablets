@@ -2,7 +2,9 @@ package org.openl.rules.project.instantiation.variation;
 
 import java.util.Stack;
 
+import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.jxpath.Pointer;
 import org.openl.exception.OpenlNotCheckedException;
 
 /**
@@ -13,12 +15,11 @@ import org.openl.exception.OpenlNotCheckedException;
  * 
  * @author PUdalau
  */
-// TODO investigate possibility of performance improvement by
-// JXPathContext.compile(path);
 public class JXPathVariation extends Variation {
     private int updatedArgumentIndex;
     private String path;
     private Object valueToSet;
+    private CompiledExpression compiledExpression;
 
     /**
      * Constructs JXPath variation.
@@ -37,6 +38,7 @@ public class JXPathVariation extends Variation {
         }
         this.path = path;
         this.valueToSet = valueToSet;
+        compiledExpression = JXPathContext.compile(path);
     }
 
     @Override
@@ -45,9 +47,10 @@ public class JXPathVariation extends Variation {
             throw new OpenlNotCheckedException("Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
-        Object previousValue = context.getValue(path);
+        Pointer pointer = compiledExpression.createPath(context);
+        Object previousValue = pointer.getValue();
         stack.push(previousValue);
-        context.setValue(path, valueToSet);
+        pointer.setValue(valueToSet);
         return originalArguments;
     }
 
@@ -55,7 +58,7 @@ public class JXPathVariation extends Variation {
     public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
         JXPathContext context = JXPathContext.newContext(modifiedArguments[updatedArgumentIndex]);
         Object previousValue = stack.pop();
-        context.setValue(path, previousValue);
+        compiledExpression.setValue(context, previousValue);
     }
 
     /**

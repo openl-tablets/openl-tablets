@@ -17,9 +17,10 @@
 
 package org.apache.poi.ss.formula;
 
-import org.apache.poi.hssf.record.formula.NamePtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.formula.ptg.NamePtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
@@ -44,7 +45,7 @@ public interface EvaluationWorkbook extends FormulaParsingWorkbook{
 	EvaluationSheet getSheet(int sheetIndex);
 
     UpdatableEvaluationCell getOrCreateUpdatableCell(String sheetName, int rowIndex, int columnIndex);
-
+	
 	/**
 	 * @return <code>null</code> if externSheetIndex refers to a sheet inside the current workbook
 	 */
@@ -52,8 +53,11 @@ public interface EvaluationWorkbook extends FormulaParsingWorkbook{
 	int convertFromExternSheetIndex(int externSheetIndex);
 	ExternalName getExternalName(int externSheetIndex, int externNameIndex);
 	EvaluationName getName(NamePtg namePtg);
+    EvaluationName getName(String name, int sheetIndex);
 	String resolveNameXText(NameXPtg ptg);
 	Ptg[] getFormulaTokens(EvaluationCell cell);
+    UDFFinder getUDFFinder();
+
     Workbook getWorkbook();
     WorkbookEvaluator createExternalWorkbookEvaluator(String workbookName, IExternalWorkbookResolver resolver);
     Workbook createExternalWorkbook(String workbookName, IExternalWorkbookResolver resolver);
@@ -77,7 +81,7 @@ public interface EvaluationWorkbook extends FormulaParsingWorkbook{
      * @return
      */
     String restoreExternalWorkbookName(String refWorkbookName);
-
+    
 	class ExternalSheet {
 		private final String _workbookName;
 		private final String _sheetName;

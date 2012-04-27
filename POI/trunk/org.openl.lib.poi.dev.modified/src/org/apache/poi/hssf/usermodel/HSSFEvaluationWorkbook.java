@@ -24,9 +24,9 @@ import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.record.NameRecord;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
-import org.apache.poi.hssf.record.formula.NamePtg;
-import org.apache.poi.hssf.record.formula.NameXPtg;
-import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.formula.ptg.NamePtg;
+import org.apache.poi.ss.formula.ptg.NameXPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationName;
@@ -36,7 +36,7 @@ import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.formula.FormulaParsingWorkbook;
 import org.apache.poi.ss.formula.FormulaRenderingWorkbook;
 import org.apache.poi.ss.formula.FormulaType;
-import org.apache.poi.ss.formula.EvaluationWorkbook.ExternalName;
+import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.formula.IExternalWorkbookResolver;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 import org.apache.poi.ss.formula.WorkbookEvaluator;
@@ -73,7 +73,7 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	}
 
 	public NameXPtg getNameXPtg(String name) {
-		return _iBook.getNameXPtg(name);
+        return _iBook.getNameXPtg(name, _uBook.getUDFFinder());
 	}
 
 	/**
@@ -152,6 +152,9 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 		FormulaRecordAggregate fra = (FormulaRecordAggregate) cell.getCellValueRecord();
 		return fra.getFormulaTokens();
 	}
+    public UDFFinder getUDFFinder(){
+        return _uBook.getUDFFinder();
+    }
 
 	private static final class Name implements EvaluationName {
 
@@ -185,7 +188,7 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
 	public SpreadsheetVersion getSpreadsheetVersion(){
 		return SpreadsheetVersion.EXCEL97;
 	}
-    
+	
     public org.apache.poi.ss.usermodel.Workbook getWorkbook() {
         return _uBook;
     }
@@ -220,4 +223,5 @@ public final class HSSFEvaluationWorkbook implements FormulaRenderingWorkbook, E
     public String restoreExternalWorkbookName(String refWorkbookName) {
         return refWorkbookName;
     }
+
 }

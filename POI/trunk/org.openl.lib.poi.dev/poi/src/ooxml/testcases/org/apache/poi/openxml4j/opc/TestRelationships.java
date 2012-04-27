@@ -18,6 +18,7 @@
 package org.apache.poi.openxml4j.opc;
 
 import java.io.*;
+import java.net.URI;
 
 import junit.framework.TestCase;
 
@@ -254,4 +255,93 @@ public class TestRelationships extends TestCase {
     			pkg.getRelationshipsByType("http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties").getRelationship(0).getTargetURI().toString());
     }
 
+
+    public void testTargetWithSpecialChars() throws Exception{
+
+        OPCPackage pkg;
+
+        String filepath = OpenXML4JTestDataSamples.getSampleFileName("50154.xlsx");
+        pkg = OPCPackage.open(filepath);
+        assert_50154(pkg);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        pkg.save(baos);
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        pkg = OPCPackage.open(bais);
+
+        assert_50154(pkg);
+    }
+
+    public void assert_50154(OPCPackage pkg) throws Exception {
+        URI drawingURI = new URI("/xl/drawings/drawing1.xml");
+        PackagePart drawingPart = pkg.getPart(PackagingURIHelper.createPartName(drawingURI));
+        PackageRelationshipCollection drawingRels = drawingPart.getRelationships();
+
+        assertEquals(6, drawingRels.size());
+
+        // expected one image
+        assertEquals(1, drawingPart.getRelationshipsByType("http://schemas.openxmlformats.org/officeDocument/2006/relationships/image").size());
+        // and three hyperlinks
+        assertEquals(5, drawingPart.getRelationshipsByType("http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink").size());
+
+        PackageRelationship rId1 = drawingPart.getRelationship("rId1");
+        URI parent = drawingPart.getPartName().getURI();
+        URI rel1 = parent.relativize(rId1.getTargetURI());
+        URI rel11 = PackagingURIHelper.relativizeURI(drawingPart.getPartName().getURI(), rId1.getTargetURI());
+        assertEquals("'Another Sheet'!A1", rel1.getFragment());
+
+        PackageRelationship rId2 = drawingPart.getRelationship("rId2");
+        URI rel2 = PackagingURIHelper.relativizeURI(drawingPart.getPartName().getURI(), rId2.getTargetURI());
+        assertEquals("../media/image1.png", rel2.getPath());
+
+        PackageRelationship rId3 = drawingPart.getRelationship("rId3");
+        URI rel3 = parent.relativize(rId3.getTargetURI());
+        assertEquals("ThirdSheet!A1", rel3.getFragment());
+
+        PackageRelationship rId4 = drawingPart.getRelationship("rId4");
+        URI rel4 = parent.relativize(rId4.getTargetURI());
+        assertEquals("'\u0410\u043F\u0430\u0447\u0435 \u041F\u041E\u0418'!A1", rel4.getFragment());
+
+        PackageRelationship rId5 = drawingPart.getRelationship("rId5");
+        URI rel5 = parent.relativize(rId5.getTargetURI());
+        // back slashed have been replaced with forward
+        assertEquals("file:///D:/chan-chan.mp3", rel5.toString());
+
+        PackageRelationship rId6 = drawingPart.getRelationship("rId6");
+        URI rel6 = parent.relativize(rId6.getTargetURI());
+        assertEquals("../../../../../../../cygwin/home/yegor/dinom/&&&[access].2010-10-26.log", rel6.getPath());
+        assertEquals("'\u0410\u043F\u0430\u0447\u0435 \u041F\u041E\u0418'!A5", rel6.getFragment());
+    }
+
+   public void testSelfRelations_bug51187() throws Exception {
+    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    	OPCPackage pkg = OPCPackage.create(baos);
+
+    	PackagePart partA =
+    		pkg.createPart(PackagingURIHelper.createPartName("/partA"), "text/plain");
+    	assertNotNull(partA);
+
+    	// reference itself
+    	PackageRelationship rel1 = partA.addRelationship(partA.getPartName(), TargetMode.INTERNAL, "partA");
+
+    	
+    	// Save, and re-load
+    	pkg.close();
+    	ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+    	pkg = OPCPackage.open(bais);
+
+    	partA = pkg.getPart(PackagingURIHelper.createPartName("/partA"));
+
+
+    	// Check the relations
+    	assertEquals(1, partA.getRelationships().size());
+
+       PackageRelationship rel2 = partA.getRelationships().getRelationship(0);
+
+    	assertEquals(rel1.getRelationshipType(), rel2.getRelationshipType());
+       assertEquals(rel1.getId(), rel2.getId());
+       assertEquals(rel1.getSourceURI(), rel2.getSourceURI());
+       assertEquals(rel1.getTargetURI(), rel2.getTargetURI());
+       assertEquals(rel1.getTargetMode(), rel2.getTargetMode());
+    }
 }

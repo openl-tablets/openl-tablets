@@ -18,6 +18,7 @@
 package org.apache.poi.hwpf.model;
 
 import org.apache.poi.poifs.common.POIFSConstants;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
 
 /**
@@ -28,8 +29,10 @@ import org.apache.poi.util.LittleEndian;
  * In common with the rest of the old support, it 
  *  is read only
  */
+@Internal
 public final class OldPAPBinTable extends PAPBinTable
 {
+
   public OldPAPBinTable(byte[] documentStream, int offset,
                      int size, int fcMin, TextPieceTable tpt)
   {
@@ -40,20 +43,17 @@ public final class OldPAPBinTable extends PAPBinTable
     {
       GenericPropertyNode node = binTable.getProperty(x);
 
-      int pageNum = LittleEndian.getShort(node.getBytes());
+      int pageNum = LittleEndian.getUShort(node.getBytes());
       int pageOffset = POIFSConstants.SMALLER_BIG_BLOCK_SIZE * pageNum;
 
       PAPFormattedDiskPage pfkp = new PAPFormattedDiskPage(documentStream,
-        documentStream, pageOffset, fcMin, tpt);
+        documentStream, pageOffset, tpt);
 
-      int fkpSize = pfkp.size();
-
-      for (int y = 0; y < fkpSize; y++)
-      {
-    	PAPX papx = pfkp.getPAPX(y);
-        _paragraphs.add(papx);
-      }
+            for ( PAPX papx : pfkp.getPAPXs() )
+            {
+                if ( papx != null )
+                    _paragraphs.add( papx );
+            }
     }
   }
 }
-

@@ -17,20 +17,19 @@
 
 package org.apache.poi.ss.formula;
 
-import java.util.HashMap;
-
 /**
  * Abstracts a cell for the purpose of formula evaluation.  This interface represents both formula
  * and non-formula cells.<br/>
- *
+ * 
  * For POI internal use only
- *
+ * 
  * @author Josh Micich
  * @author Petr Udalau(Petr.Udalau at exigenservices.com) - array formula support
  */
 public interface EvaluationCell {
 	/**
-	 * @return an Object that identifies the underlying cell, suitable for use as a key in a {@link HashMap}
+	 * @return an Object that identifies the underlying cell,
+     * suitable for use as a key in a {@link java.util.HashMap}
 	 */
 	Object getIdentityKey();
 
@@ -44,8 +43,10 @@ public interface EvaluationCell {
 	boolean getBooleanCellValue();
 	int getErrorCellValue();
 
-	/**
-	 * @return <code>true<code> if cell belongs to to range of Array Formula
-	 */
-	boolean isArrayFormula();
+	int getCachedFormulaResultType();
+
+    /**
+     * @return <code>true<code> if cell belongs to to range of Array Formula
+     */
+    boolean isArrayFormula();
 }

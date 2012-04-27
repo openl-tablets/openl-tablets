@@ -50,6 +50,35 @@ public final class TestXSSFHyperlink extends BaseTestHyperlink {
 		doTestHyperlinkContents(sheet);
 	}
 
+    public void testCreate() {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFCreationHelper createHelper = workbook.getCreationHelper();
+        
+        String[] validURLs = {
+                "http://apache.org",
+                "www.apache.org",
+                "/temp",
+                "c:/temp",
+                "http://apache.org/default.php?s=isTramsformed&submit=Search&la=*&li=*"};
+        for(String s : validURLs){
+            createHelper.createHyperlink(Hyperlink.LINK_URL).setAddress(s);
+        }
+
+        String[] invalidURLs = {
+                "http:\\apache.org",
+                "www.apache .org",
+                "c:\\temp",
+                "\\poi"};
+        for(String s : invalidURLs){
+            try {
+                createHelper.createHyperlink(Hyperlink.LINK_URL).setAddress(s);
+                fail("expected IllegalArgumentException: " + s);
+            } catch (IllegalArgumentException e){
+                
+            }
+        }
+    }
+
 	public void testLoadSave() {
 		XSSFWorkbook workbook = XSSFTestDataSamples.openSampleWorkbook("WithMoreVariousData.xlsx");
 		CreationHelper createHelper = workbook.getCreationHelper();
@@ -160,4 +189,24 @@ public final class TestXSSFHyperlink extends BaseTestHyperlink {
 		assertEquals("mailto:dev@poi.apache.org?subject=XSSF%20Hyperlinks",
 				sheet.getRow(16).getCell(2).getHyperlink().getAddress());
 	}
+
+    public void test52716() {
+        XSSFWorkbook wb1 = XSSFTestDataSamples.openSampleWorkbook("52716.xlsx");
+        XSSFSheet sh1 = wb1.getSheetAt(0);
+
+        XSSFWorkbook wb2 = XSSFTestDataSamples.writeOutAndReadBack(wb1);
+        XSSFSheet sh2 = wb2.getSheetAt(0);
+
+        assertEquals(sh1.getNumberOfComments(), sh2.getNumberOfComments());
+        XSSFHyperlink l1 = sh1.getHyperlink(0, 1);
+        assertEquals(XSSFHyperlink.LINK_DOCUMENT, l1.getType());
+        assertEquals("B1", l1.getCellRef());
+        assertEquals("Sort on Titel", l1.getTooltip());
+
+        XSSFHyperlink l2 = sh2.getHyperlink(0, 1);
+        assertEquals(l1.getTooltip(), l2.getTooltip());
+        assertEquals(XSSFHyperlink.LINK_DOCUMENT, l2.getType());
+        assertEquals("B1", l2.getCellRef());
+    }
+
 }

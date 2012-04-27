@@ -17,6 +17,7 @@
 package org.apache.poi.xssf.usermodel;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
@@ -67,30 +68,34 @@ public class XSSFHyperlink implements Hyperlink {
             //  the relation to see how
             if (_externalRel == null) {
                 if (ctHyperlink.getId() != null) {
-                    throw new IllegalStateException("The hyperlink for cell " + ctHyperlink.getRef() + " references relation " + ctHyperlink.getId() + ", but that didn't exist!");
+                    throw new IllegalStateException("The hyperlink for cell " + ctHyperlink.getRef() +
+                            " references relation " + ctHyperlink.getId() + ", but that didn't exist!");
                 }
-                throw new IllegalStateException("A sheet hyperlink must either have a location, or a relationship. Found:\n" + ctHyperlink);
-            }
-
-            URI target = _externalRel.getTargetURI();
-            _location = target.toString();
-
-            // Try to figure out the type
-            if (_location.startsWith("http://") || _location.startsWith("https://")
-                    || _location.startsWith("ftp://")) {
-                _type = Hyperlink.LINK_URL;
-            } else if (_location.startsWith("mailto:")) {
-                _type = Hyperlink.LINK_EMAIL;
+                // hyperlink is internal and is not related to other parts
+                _type = Hyperlink.LINK_DOCUMENT;
             } else {
-                _type = Hyperlink.LINK_FILE;
+                URI target = _externalRel.getTargetURI();
+                _location = target.toString();
+
+                // Try to figure out the type
+                if (_location.startsWith("http://") || _location.startsWith("https://")
+                        || _location.startsWith("ftp://")) {
+                    _type = Hyperlink.LINK_URL;
+                } else if (_location.startsWith("mailto:")) {
+                    _type = Hyperlink.LINK_EMAIL;
+                } else {
+                    _type = Hyperlink.LINK_FILE;
+                }
             }
+
+
         }
     }
 
     /**
-     * Returns the underlying hyperlink object
+     * @return the underlying CTHyperlink object
      */
-    protected CTHyperlink getCTHyperlink() {
+    public CTHyperlink getCTHyperlink() {
         return _ctHyperlink;
     }
 
@@ -181,15 +186,34 @@ public class XSSFHyperlink implements Hyperlink {
     }
 
     /**
-     * Hypelink address. Depending on the hyperlink type it can be URL, e-mail, path to a file
+     * Hyperlink address. Depending on the hyperlink type it can be URL, e-mail, path to a file
      *
      * @param address - the address of this hyperlink
      */
     public void setAddress(String address) {
-        _location = address;
+        validate(address);
+
+       _location = address;
         //we must set location for internal hyperlinks
         if (_type == Hyperlink.LINK_DOCUMENT) {
             setLocation(address);
+        }
+    }
+
+    private void validate(String address) {
+        switch (_type){
+            // email, path to file and url must be valid URIs
+            case Hyperlink.LINK_EMAIL:
+            case Hyperlink.LINK_FILE:
+            case Hyperlink.LINK_URL:
+                try {
+                    new URI(address);
+                } catch (URISyntaxException x) {
+                    IllegalArgumentException y = new IllegalArgumentException("Address of hyperlink must be a valid URI");
+                    y.initCause(x);
+                    throw y;
+                }
+                break;
         }
     }
 
@@ -286,4 +310,18 @@ public class XSSFHyperlink implements Hyperlink {
     public void setLastRow(int row) {
         setFirstRow(row);
 	}
+
+    /**
+     * @return additional text to help the user understand more about the hyperlink
+     */
+    public String getTooltip() {
+        return _ctHyperlink.getTooltip();
+    }
+
+    /**
+     * @param text  additional text to help the user understand more about the hyperlink
+     */
+    public void setTooltip(String text) {
+        _ctHyperlink.setTooltip(text);
+    }
 }

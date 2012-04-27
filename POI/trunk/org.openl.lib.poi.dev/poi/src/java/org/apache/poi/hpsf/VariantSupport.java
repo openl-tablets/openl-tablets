@@ -24,9 +24,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.poi.util.LittleEndian;
-import org.apache.poi.util.LittleEndianConsts;
-
 /**
  * <p>Supports reading and writing of variant data.</p>
  *
@@ -154,168 +151,109 @@ public class VariantSupport extends Variant
      *            supported.
      * @see Variant
      */
-    public static Object read(final byte[] src, final int offset,
-                              final int length, final long type,
-                              final int codepage)
-    throws ReadingNotSupportedException, UnsupportedEncodingException
+    public static Object read( final byte[] src, final int offset,
+            final int length, final long type, final int codepage )
+            throws ReadingNotSupportedException, UnsupportedEncodingException
     {
-        Object value;
-        int o1 = offset;
-        int l1 = length - LittleEndian.INT_SIZE;
-        long lType = type;
-
-        /* Instead of trying to read 8-bit characters from a Unicode string,
-         * read 16-bit characters. */
-        if (codepage == Constants.CP_UNICODE && type == Variant.VT_LPSTR)
-            lType = Variant.VT_LPWSTR;
-
-        switch ((int) lType)
+        TypedPropertyValue typedPropertyValue = new TypedPropertyValue(
+                (int) type, null );
+        int unpadded;
+        try
         {
-            case Variant.VT_EMPTY:
-            {
-                value = null;
-                break;
-            }
-            case Variant.VT_I2:
-            {
-                /*
-                 * Read a short. In Java it is represented as an
-                 * Integer object.
-                 */
-                value = Integer.valueOf(LittleEndian.getShort(src, o1));
-                break;
-            }
-            case Variant.VT_I4:
-            {
-                /*
-                 * Read a word. In Java it is represented as an
-                 * Integer object.
-                 */
-                value = Integer.valueOf(LittleEndian.getInt(src, o1));
-                break;
-            }
-            case Variant.VT_I8:
-            {
-                /*
-                 * Read a double word. In Java it is represented as a
-                 * Long object.
-                 */
-                value = Long.valueOf(LittleEndian.getLong(src, o1));
-                break;
-            }
-            case Variant.VT_R8:
-            {
-                /*
-                 * Read an eight-byte double value. In Java it is represented as
-                 * a Double object.
-                 */
-                value = new Double(LittleEndian.getDouble(src, o1));
-                break;
-            }
-            case Variant.VT_FILETIME:
-            {
-                /*
-                 * Read a FILETIME object. In Java it is represented
-                 * as a Date object.
-                 */
-                final long low = LittleEndian.getUInt(src, o1);
-                o1 += LittleEndian.INT_SIZE;
-                final long high = LittleEndian.getUInt(src, o1);
-                value = Util.filetimeToDate((int) high, (int) low);
-                break;
-            }
-            case Variant.VT_LPSTR:
-            {
-                /*
-                 * Read a byte string. In Java it is represented as a
-                 * String object. The 0x00 bytes at the end must be
-                 * stripped.
-                 */
-                final int first = o1 + LittleEndian.INT_SIZE;
-                long last = first + LittleEndian.getUInt(src, o1) - 1;
-                o1 += LittleEndian.INT_SIZE;
-                while (src[(int) last] == 0 && first <= last)
-                    last--;
-                final int l = (int) (last - first + 1);
-                value = codepage != -1 ?
-                    new String(src, first, l,
-                               codepageToEncoding(codepage)) :
-                    new String(src, first, l);
-                break;
-            }
-            case Variant.VT_LPWSTR:
-            {
-                /*
-                 * Read a Unicode string. In Java it is represented as
-                 * a String object. The 0x00 bytes at the end must be
-                 * stripped.
-                 */
-                final int first = o1 + LittleEndian.INT_SIZE;
-                long last = first + LittleEndian.getUInt(src, o1) - 1;
-                long l = last - first;
-                o1 += LittleEndian.INT_SIZE;
-                StringBuffer b = new StringBuffer((int) (last - first));
-                for (int i = 0; i <= l; i++)
-                {
-                    final int i1 = o1 + (i * 2);
-                    final int i2 = i1 + 1;
-                    final int high = src[i2] << 8;
-                    final int low = src[i1] & 0x00ff;
-                    final char c = (char) (high | low);
-                    b.append(c);
-                }
-                /* Strip 0x00 characters from the end of the string: */
-                while (b.length() > 0 && b.charAt(b.length() - 1) == 0x00)
-                    b.setLength(b.length() - 1);
-                value = b.toString();
-                break;
-            }
-            case Variant.VT_CF:
-            {
-                if(l1 < 0) {
-                    /**
-                     *  YK: reading the ClipboardData packet (VT_CF) is not quite correct.
-                     *  The size of the data is determined by the first four bytes of the packet
-                     *  while the current implementation calculates it in the Section constructor.
-                     *  Test files in Bugzilla 42726 and 45583 clearly show that this approach does not always work.
-                     *  The workaround below attempts to gracefully handle such cases instead of throwing exceptions.
-                     *
-                     *  August 20, 2009
-                     */
-                    l1 = LittleEndian.getInt(src, o1); o1 += LittleEndian.INT_SIZE;
-                }
-                final byte[] v = new byte[l1];
-                System.arraycopy(src, o1, v, 0, v.length);
-                value = v;
-                break;
-            }
-            case Variant.VT_BOOL:
-            {
-                /*
-                 * The first four bytes in src, from src[offset] to
-                 * src[offset + 3] contain the DWord for VT_BOOL, so
-                 * skip it, we don't need it.
-                 */
-                // final int first = offset + LittleEndian.INT_SIZE;
-                long bool = LittleEndian.getUInt(src, o1);
-                if (bool != 0)
-                    value = Boolean.TRUE;
-                else
-                    value = Boolean.FALSE;
-                break;
-            }
-            default:
-            {
-                final byte[] v = new byte[l1];
-                for (int i = 0; i < l1; i++)
-                    v[i] = src[(o1 + i)];
-                throw new ReadingNotSupportedException(type, v);
-            }
+            unpadded = typedPropertyValue.readValue( src, offset );
         }
-        return value;
+        catch ( UnsupportedOperationException exc )
+        {
+            int propLength = Math.min( length, src.length - offset );
+            final byte[] v = new byte[propLength];
+            System.arraycopy( src, offset, v, 0, propLength );
+            throw new ReadingNotSupportedException( type, v );
+        }
+
+        switch ( (int) type )
+        {
+        case Variant.VT_EMPTY:
+        case Variant.VT_I4:
+        case Variant.VT_I8:
+        case Variant.VT_R8:
+            /*
+             * we have more property types that can be converted into Java
+             * objects, but current API need to be preserved, and it returns
+             * other types as byte arrays. In future major versions it shall be
+             * changed -- sergey
+             */
+            return typedPropertyValue.getValue();
+
+        case Variant.VT_I2:
+        {
+            /*
+             * also for backward-compatibility with prev. versions of POI
+             * --sergey
+             */
+            return Integer.valueOf( ( (Short) typedPropertyValue.getValue() )
+                    .intValue() );
+        }
+        case Variant.VT_FILETIME:
+        {
+            Filetime filetime = (Filetime) typedPropertyValue.getValue();
+            return Util.filetimeToDate( (int) filetime.getHigh(),
+                    (int) filetime.getLow() );
+        }
+        case Variant.VT_LPSTR:
+        {
+            CodePageString string = (CodePageString) typedPropertyValue
+                    .getValue();
+            return string.getJavaValue( codepage );
+        }
+        case Variant.VT_LPWSTR:
+        {
+            UnicodeString string = (UnicodeString) typedPropertyValue
+                    .getValue();
+            return string.toJavaString();
+        }
+        case Variant.VT_CF:
+        {
+            // if(l1 < 0) {
+            /**
+             * YK: reading the ClipboardData packet (VT_CF) is not quite
+             * correct. The size of the data is determined by the first four
+             * bytes of the packet while the current implementation calculates
+             * it in the Section constructor. Test files in Bugzilla 42726 and
+             * 45583 clearly show that this approach does not always work. The
+             * workaround below attempts to gracefully handle such cases instead
+             * of throwing exceptions.
+             * 
+             * August 20, 2009
+             */
+            // l1 = LittleEndian.getInt(src, o1); o1 += LittleEndian.INT_SIZE;
+            // }
+            // final byte[] v = new byte[l1];
+            // System.arraycopy(src, o1, v, 0, v.length);
+            // value = v;
+            // break;
+            ClipboardData clipboardData = (ClipboardData) typedPropertyValue
+                    .getValue();
+            return clipboardData.toByteArray();
+        }
+
+        case Variant.VT_BOOL:
+        {
+            VariantBool bool = (VariantBool) typedPropertyValue.getValue();
+            return Boolean.valueOf( bool.getValue() );
+        }
+
+        default:
+        {
+            /*
+             * it is not very good, but what can do without breaking current
+             * API? --sergey
+             */
+            final byte[] v = new byte[unpadded];
+            System.arraycopy( src, offset, v, 0, unpadded );
+            throw new ReadingNotSupportedException( type, v );
+        }
+        }
     }
-
-
 
     /**
      * <p>Turns a codepage number into the equivalent character encoding's
@@ -476,45 +414,44 @@ public class VariantSupport extends Variant
         {
             case Variant.VT_BOOL:
             {
-                int trueOrFalse;
-                if (((Boolean) value).booleanValue())
-                    trueOrFalse = 1;
+                if ( ( (Boolean) value ).booleanValue() )
+                {
+                    out.write( 0xff );
+                    out.write( 0xff );
+                }
                 else
-                    trueOrFalse = 0;
-                length = TypeWriter.writeUIntToStream(out, trueOrFalse);
+                {
+                    out.write( 0x00 );
+                    out.write( 0x00 );
+                }
+                length += 2;
                 break;
             }
             case Variant.VT_LPSTR:
             {
-                final byte[] bytes =
-                    (codepage == -1 ?
-                    ((String) value).getBytes() :
-                    ((String) value).getBytes(codepageToEncoding(codepage)));
-                length = TypeWriter.writeUIntToStream(out, bytes.length + 1);
-                final byte[] b = new byte[bytes.length + 1];
-                System.arraycopy(bytes, 0, b, 0, bytes.length);
-                b[b.length - 1] = 0x00;
-                out.write(b);
-                length += b.length;
+                CodePageString codePageString = new CodePageString( (String) value,
+                        codepage );
+                length += codePageString.write( out );
                 break;
             }
             case Variant.VT_LPWSTR:
             {
-                final int nrOfChars = ((String) value).length() + 1;
-                length += TypeWriter.writeUIntToStream(out, nrOfChars);
-                char[] s = Util.pad4((String) value);
-                for (int i = 0; i < s.length; i++)
+                final int nrOfChars = ( (String) value ).length() + 1;
+                length += TypeWriter.writeUIntToStream( out, nrOfChars );
+                char[] s = ( (String) value ).toCharArray();
+                for ( int i = 0; i < s.length; i++ )
                 {
-                    final int high = ((s[i] & 0x0000ff00) >> 8);
-                    final int low = (s[i] & 0x000000ff);
+                    final int high = ( ( s[i] & 0x0000ff00 ) >> 8 );
+                    final int low = ( s[i] & 0x000000ff );
                     final byte highb = (byte) high;
                     final byte lowb = (byte) low;
-                    out.write(lowb);
-                    out.write(highb);
+                    out.write( lowb );
+                    out.write( highb );
                     length += 2;
                 }
-                out.write(0x00);
-                out.write(0x00);
+                // NullTerminator
+                out.write( 0x00 );
+                out.write( 0x00 );
                 length += 2;
                 break;
             }
@@ -527,14 +464,13 @@ public class VariantSupport extends Variant
             }
             case Variant.VT_EMPTY:
             {
-                TypeWriter.writeUIntToStream(out, Variant.VT_EMPTY);
-                length = LittleEndianConsts.INT_SIZE;
+                length += TypeWriter.writeUIntToStream( out, Variant.VT_EMPTY );
                 break;
             }
             case Variant.VT_I2:
             {
-                TypeWriter.writeToStream(out, ((Integer) value).shortValue());
-                length = LittleEndianConsts.SHORT_SIZE;
+                length += TypeWriter.writeToStream( out,
+                        ( (Integer) value ).shortValue() );
                 break;
             }
             case Variant.VT_I4:
@@ -552,8 +488,7 @@ public class VariantSupport extends Variant
             }
             case Variant.VT_I8:
             {
-                TypeWriter.writeToStream(out, ((Long) value).longValue());
-                length = LittleEndianConsts.LONG_SIZE;
+                length += TypeWriter.writeToStream(out, ((Long) value).longValue());
                 break;
             }
             case Variant.VT_R8:
@@ -567,10 +502,8 @@ public class VariantSupport extends Variant
                 long filetime = Util.dateToFileTime((Date) value);
                 int high = (int) ((filetime >> 32) & 0x00000000FFFFFFFFL);
                 int low = (int) (filetime & 0x00000000FFFFFFFFL);
-                length += TypeWriter.writeUIntToStream
-                    (out, 0x0000000FFFFFFFFL & low);
-                length += TypeWriter.writeUIntToStream
-                    (out, 0x0000000FFFFFFFFL & high);
+                Filetime filetimeValue = new Filetime( low, high);
+                length += filetimeValue.write( out );
                 break;
             }
             default:
@@ -589,6 +522,13 @@ public class VariantSupport extends Variant
                     throw new WritingNotSupportedException(type, value);
                 break;
             }
+        }
+
+        /* pad values to 4-bytes */
+        while ( ( length & 0x3 ) != 0 )
+        {
+            out.write( 0x00 );
+            length++;
         }
 
         return length;

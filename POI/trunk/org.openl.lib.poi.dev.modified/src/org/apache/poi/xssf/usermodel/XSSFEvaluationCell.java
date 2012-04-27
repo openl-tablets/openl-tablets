@@ -17,18 +17,18 @@
 
 package org.apache.poi.xssf.usermodel;
 
-import org.apache.poi.hssf.record.formula.eval.BlankEval;
-import org.apache.poi.hssf.record.formula.eval.BoolEval;
-import org.apache.poi.hssf.record.formula.eval.ErrorEval;
-import org.apache.poi.hssf.record.formula.eval.NumberEval;
-import org.apache.poi.hssf.record.formula.eval.StringEval;
-import org.apache.poi.hssf.record.formula.eval.ValueEval;
+import org.apache.poi.ss.formula.eval.BlankEval;
+import org.apache.poi.ss.formula.eval.BoolEval;
+import org.apache.poi.ss.formula.eval.ErrorEval;
+import org.apache.poi.ss.formula.eval.NumberEval;
+import org.apache.poi.ss.formula.eval.StringEval;
+import org.apache.poi.ss.formula.eval.ValueEval;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
 
 /**
  * XSSF wrapper for a cell under evaluation
- *
+ * 
  * @author Josh Micich
  */
 final class XSSFEvaluationCell implements UpdatableEvaluationCell {
@@ -78,10 +78,13 @@ final class XSSFEvaluationCell implements UpdatableEvaluationCell {
 	public String getStringCellValue() {
 		return _cell.getRichStringCellValue().getString();
 	}
-
-	public boolean isArrayFormula() {
-		return _cell.isPartOfArrayFormulaGroup();
+	public int getCachedFormulaResultType() {
+		return _cell.getCachedFormulaResultType();
 	}
+	
+   public boolean isArrayFormula() {
+        return _cell.isPartOfArrayFormulaGroup();
+    }
 
     public void setValue(ValueEval value) {
         Class<? extends ValueEval> cls = value.getClass();

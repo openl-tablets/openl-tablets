@@ -17,7 +17,6 @@
 
 package org.apache.poi.hssf.usermodel;
 
-
 import org.apache.poi.ss.formula.EvaluationCell;
 import org.apache.poi.ss.formula.EvaluationSheet;
 import org.apache.poi.ss.formula.UpdatableEvaluationCell;
@@ -49,7 +48,6 @@ final class HSSFEvaluationSheet implements EvaluationSheet {
 		}
 		return new HSSFEvaluationCell(cell, this);
 	}
-
     public UpdatableEvaluationCell getOrCreateUpdatableCell(int rowIndex, int columnIndex) {
         HSSFRow row = _hs.getRow(rowIndex);
         if (row == null) {

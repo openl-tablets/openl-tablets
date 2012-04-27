@@ -20,6 +20,7 @@ package org.apache.poi.hssf.usermodel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import junit.framework.AssertionFailedError;
 
@@ -30,8 +31,8 @@ import org.apache.poi.hssf.model.DrawingManager2;
 import org.apache.poi.hssf.model.InternalWorkbook;
 import org.apache.poi.hssf.model.InternalSheet;
 import org.apache.poi.hssf.record.*;
-import org.apache.poi.hssf.record.formula.Ptg;
-import org.apache.poi.hssf.record.formula.Area3DPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.ptg.Area3DPtg;
 import org.apache.poi.hssf.record.aggregates.WorksheetProtectionBlock;
 import org.apache.poi.hssf.usermodel.RecordInspector.RecordCollector;
 import org.apache.poi.ss.usermodel.BaseTestSheet;
@@ -736,6 +737,28 @@ public final class TestHSSFSheet extends BaseTestSheet {
         assertEquals(40000, sh.getColumnWidth(0));
     }
 
+
+    public void testDefaultColumnWidth() {
+        HSSFWorkbook wb = HSSFTestDataSamples.openSampleWorkbook( "12843-1.xls" );
+        HSSFSheet sheet = wb.getSheetAt( 7 );
+        // shall not be NPE
+        assertEquals(8, sheet.getDefaultColumnWidth());
+        assertEquals(8*256, sheet.getColumnWidth(0));
+
+        assertEquals(0xFF, sheet.getDefaultRowHeight());
+
+        wb = HSSFTestDataSamples.openSampleWorkbook( "34775.xls" );
+        // second and third sheets miss DefaultColWidthRecord
+        for(int i = 1; i <= 2; i++){
+            int dw = wb.getSheetAt( i ).getDefaultColumnWidth();
+            assertEquals(8, dw);
+            int cw = wb.getSheetAt( i ).getColumnWidth(0);
+            assertEquals(8*256, cw);
+
+            assertEquals(0xFF, sheet.getDefaultRowHeight());
+        }
+    }
+
     /**
      * Some utilities write Excel files without the ROW records.
      * Excel, ooo, and google docs are OK with this.
@@ -895,5 +918,21 @@ public final class TestHSSFSheet extends BaseTestSheet {
         assertNotNull(afilter );
         assertEquals(2, afilter.getNumEntries()); //filter covers two columns
 
+        HSSFPatriarch dr = sh.getDrawingPatriarch();
+        assertNotNull(dr);
+        HSSFSimpleShape comboBoxShape = (HSSFSimpleShape)dr.getChildren().get(0);
+        assertEquals(comboBoxShape.getShapeType(),  HSSFSimpleShape.OBJECT_TYPE_COMBO_BOX);
+
+        assertNull( ish.findFirstRecordBySid(ObjRecord.sid) ); // ObjRecord will appear after serializetion
+
+        wb = HSSFTestDataSamples.writeOutAndReadBack(wb);
+        sh = wb.getSheetAt(0);
+        ish = sh.getSheet();
+        ObjRecord objRecord = (ObjRecord)ish.findFirstRecordBySid(ObjRecord.sid);
+        List<SubRecord> subRecords = objRecord.getSubRecords();
+        assertEquals(3, subRecords.size());
+        assertTrue(subRecords.get(0) instanceof CommonObjectDataSubRecord );
+        assertTrue(subRecords.get(1) instanceof FtCblsSubRecord ); // must be present, see Bug 51481
+        assertTrue(subRecords.get(2) instanceof LbsDataSubRecord );
     }
 }

@@ -21,6 +21,7 @@ import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.model.FileInformationBlock;
 import org.apache.poi.hwpf.model.GenericPropertyNode;
 import org.apache.poi.hwpf.model.PlexOfCps;
+import org.apache.poi.hwpf.model.SubdocumentType;
 
 /**
  * A HeaderStory is a Header, a Footer, or footnote/endnote
@@ -42,50 +43,135 @@ public final class HeaderStories {
 		this.headerStories = doc.getHeaderStoryRange();
 		FileInformationBlock fib = doc.getFileInformationBlock();
 
-		// If there's no PlcfHdd, nothing to do
-		if(fib.getCcpHdd() == 0) {
-			return;
-		}
+//        // If there's no PlcfHdd, nothing to do
+//        if(fib.getCcpHdd() == 0) {
+//            return;
+//        }
+
+        if (fib.getSubdocumentTextStreamLength( SubdocumentType.HEADER ) == 0)
+		    return;
+		
 		if(fib.getPlcfHddSize() == 0) {
 			return;
 		}
 
-		// Handle the PlcfHdd
-		plcfHdd = new PlexOfCps(
-				doc.getTableStream(), fib.getPlcfHddOffset(),
-				fib.getPlcfHddSize(), 0
-		);
-	}
+        // Handle the PlcfHdd
+        /*
+         * Page 88:
+         * 
+         * "The plcfhdd, a table whose location and length within the file is
+         * stored in fib.fcPlcfhdd and fib.cbPlcfhdd, describes where the text
+         * of each header/footer begins. If there are n headers/footers stored
+         * in the Word file, the plcfhdd consists of n+2 CP entries. The
+         * beginning CP of the ith header/footer is the ith CP in the plcfhdd.
+         * The limit CP (the CP of character 1 position past the end of a
+         * header/footer) of the ith header/footer is the i+1st CP in the
+         * plcfhdd. Note: at the limit CP - 1, Word always places a chEop as a
+         * placeholder which is never displayed as part of the header/footer.
+         * This allows Word to change an existing header/footer to be empty.
+         * 
+         * If there are n header/footers, the n+2nd CP entry value is always 1
+         * greater than the n+1st CP entry value. A paragraph end (ASCII 13) is
+         * always stored at the file position marked by the n+1st CP value.
+         * 
+         * The transformation in a full saved file from a header/footer CP to an
+         * offset from the beginning of a file (fc) is
+         * fc=fib.fcMin+ccpText+ccpFtn+cp."
+         */
+        plcfHdd = new PlexOfCps( doc.getTableStream(), fib.getPlcfHddOffset(),
+                fib.getPlcfHddSize(), 0 );
+    }
 
-	public String getFootnoteSeparator() {
-		return getAt(0);
-	}
-	public String getFootnoteContSeparator() {
-		return getAt(1);
-	}
-	public String getFootnoteContNote() {
-		return getAt(2);
-	}
-	public String getEndnoteSeparator() {
-		return getAt(3);
-	}
-	public String getEndnoteContSeparator() {
-		return getAt(4);
-	}
-	public String getEndnoteContNote() {
-		return getAt(5);
-	}
+    @Deprecated
+    public String getFootnoteSeparator()
+    {
+        return getAt( 0 );
+    }
 
+    @Deprecated
+    public String getFootnoteContSeparator()
+    {
+        return getAt( 1 );
+    }
 
+    @Deprecated
+    public String getFootnoteContNote()
+    {
+        return getAt( 2 );
+    }
+
+    @Deprecated
+    public String getEndnoteSeparator()
+    {
+        return getAt( 3 );
+    }
+
+    @Deprecated
+    public String getEndnoteContSeparator()
+    {
+        return getAt( 4 );
+    }
+
+    @Deprecated
+    public String getEndnoteContNote()
+    {
+        return getAt( 5 );
+    }
+
+    public Range getFootnoteSeparatorSubrange()
+    {
+        return getSubrangeAt( 0 );
+    }
+
+    public Range getFootnoteContSeparatorSubrange()
+    {
+        return getSubrangeAt( 1 );
+    }
+
+    public Range getFootnoteContNoteSubrange()
+    {
+        return getSubrangeAt( 2 );
+    }
+
+    public Range getEndnoteSeparatorSubrange()
+    {
+        return getSubrangeAt( 3 );
+    }
+
+    public Range getEndnoteContSeparatorSubrange()
+    {
+        return getSubrangeAt( 4 );
+    }
+
+    public Range getEndnoteContNoteSubrange()
+    {
+        return getSubrangeAt( 5 );
+    }
+
+	@Deprecated
 	public String getEvenHeader() {
 		return getAt(6+0);
 	}
+    @Deprecated
 	public String getOddHeader() {
 		return getAt(6+1);
 	}
+    @Deprecated
 	public String getFirstHeader() {
 		return getAt(6+4);
 	}
+	
+
+    public Range getEvenHeaderSubrange() {
+        return getSubrangeAt(6+0);
+    }
+    public Range getOddHeaderSubrange() {
+        return getSubrangeAt(6+1);
+    }
+    public Range getFirstHeaderSubrange() {
+        return getSubrangeAt(6+4);
+    }
+    
 	/**
 	 * Returns the correct, defined header for the given
 	 *  one based page
@@ -110,16 +196,39 @@ public final class HeaderStories {
 		return getOddHeader();
 	}
 
+	@Deprecated
+    public String getEvenFooter()
+    {
+        return getAt( 6 + 2 );
+    }
 
-	public String getEvenFooter() {
-		return getAt(6+2);
-	}
-	public String getOddFooter() {
-		return getAt(6+3);
-	}
-	public String getFirstFooter() {
-		return getAt(6+5);
-	}
+    @Deprecated
+    public String getOddFooter()
+    {
+        return getAt( 6 + 3 );
+    }
+
+    @Deprecated
+    public String getFirstFooter()
+    {
+        return getAt( 6 + 5 );
+    }
+
+    public Range getEvenFooterSubrange()
+    {
+        return getSubrangeAt( 6 + 2 );
+    }
+
+    public Range getOddFooterSubrange()
+    {
+        return getSubrangeAt( 6 + 3 );
+    }
+
+    public Range getFirstFooterSubrange()
+    {
+        return getSubrangeAt( 6 + 5 );
+    }
+
 	/**
 	 * Returns the correct, defined footer for the given
 	 *  one based page
@@ -149,6 +258,7 @@ public final class HeaderStories {
 	 * Get the string that's pointed to by the
 	 *  given plcfHdd index
 	 */
+    @Deprecated
 	private String getAt(int plcfHddIndex) {
 		if(plcfHdd == null) return null;
 
@@ -183,6 +293,32 @@ public final class HeaderStories {
 
 		return text;
 	}
+
+    private Range getSubrangeAt( int plcfHddIndex )
+    {
+        if ( plcfHdd == null )
+            return null;
+
+        GenericPropertyNode prop = plcfHdd.getProperty( plcfHddIndex );
+        if ( prop.getStart() == prop.getEnd() )
+        {
+            // Empty story
+            return null;
+        }
+        if ( prop.getEnd() < prop.getStart() )
+        {
+            // Broken properties?
+            return null;
+        }
+
+        final int headersLength = headerStories.getEndOffset()
+                - headerStories.getStartOffset();
+        int start = Math.min( prop.getStart(), headersLength );
+        int end = Math.min( prop.getEnd(), headersLength );
+
+        return new Range( headerStories.getStartOffset() + start,
+                headerStories.getStartOffset() + end, headerStories );
+    }
 
 	public Range getRange() {
 		return headerStories;

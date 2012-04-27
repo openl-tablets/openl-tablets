@@ -405,10 +405,10 @@ public final class TestBlockAllocationTableReader extends TestCase {
 
 		// similar code to POIFSFileSystem.<init>:
 		InputStream stream = new ByteArrayInputStream(data);
-		HeaderBlockReader hb;
+		HeaderBlock hb;
 		RawDataBlockList dataBlocks;
 		try {
-			hb = new HeaderBlockReader(stream);
+			hb = new HeaderBlock(stream);
 			dataBlocks = new RawDataBlockList(stream, bigBlockSize);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -419,7 +419,7 @@ public final class TestBlockAllocationTableReader extends TestCase {
 					hb.getXBATIndex(), dataBlocks);
 		} catch (IOException e) {
 			// expected during successful test
-			assertEquals("Block count 538976257 is too high. POI maximum is 65535.", e.getMessage());
+         assertEquals("Block count 538976257 is too high. POI maximum is 65535.", e.getMessage());
 		} catch (OutOfMemoryError e) {
 			if (e.getStackTrace()[1].getMethodName().equals("testBadSectorAllocationTableSize")) {
 				throw new AssertionFailedError("Identified bug 48085");

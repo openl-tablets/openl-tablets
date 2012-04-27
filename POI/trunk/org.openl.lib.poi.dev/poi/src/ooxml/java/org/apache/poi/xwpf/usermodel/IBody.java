@@ -19,6 +19,7 @@ package org.apache.poi.xwpf.usermodel;
 
 import java.util.List;
 
+import org.apache.poi.POIXMLDocumentPart;
 import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTP;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTbl;
@@ -42,7 +43,7 @@ public interface IBody {
 	 * belongs.
 	 * @return the Part, to which the body belongs
 	 */
-	IBody getPart();
+	POIXMLDocumentPart getPart();
 	
 	/**
 	 * get the PartType of the body, for example
@@ -62,8 +63,7 @@ public interface IBody {
 	 *  the text of the header or footer.
 	 */
     public List<XWPFParagraph> getParagraphs();
-	
-	
+
 	/**
 	 * Return the table(s) that holds the text
 	 *  of the IBodyPart, for complex cases
@@ -123,6 +123,11 @@ public interface IBody {
 	 * @param cell
 	 */
 	XWPFTableCell getTableCell(CTTc cell);
-	
+
+    /**
+     * Return XWPFDocument
+     */
+    public XWPFDocument getXWPFDocument();
+
 }
 

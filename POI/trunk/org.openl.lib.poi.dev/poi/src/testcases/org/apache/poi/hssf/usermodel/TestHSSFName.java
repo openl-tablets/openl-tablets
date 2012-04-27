@@ -26,7 +26,7 @@ import org.apache.poi.hssf.HSSFITestDataProvider;
 import org.apache.poi.hssf.HSSFTestDataSamples;
 import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.record.NameRecord;
-import org.apache.poi.hssf.record.formula.Ptg;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.formula.FormulaType;
 import org.apache.poi.ss.usermodel.BaseTestNamedRange;
 import org.apache.poi.ss.util.AreaReference;
@@ -231,7 +231,7 @@ public final class TestHSSFName extends BaseTestNamedRange {
         try {
             new AreaReference(name2.getRefersToFormula());
             fail("attempt to supply an invalid reference to AreaReference constructor results in exception");
-        } catch (StringIndexOutOfBoundsException e) { // TODO - use a different exception for this condition
+        } catch (IllegalArgumentException e) { // TODO - use a stronger typed exception for this condition
             // expected during successful test
         }
     }
