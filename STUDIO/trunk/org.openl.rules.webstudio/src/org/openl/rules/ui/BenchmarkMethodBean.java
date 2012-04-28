@@ -7,6 +7,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.html.HtmlDataTable;
 
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.benchmark.BenchmarkInfo;
@@ -36,10 +37,12 @@ public class BenchmarkMethodBean {
     public void addLastBenchmark() {
         studio = WebStudioUtils.getWebStudio();
         TestSuite testSuite = studio.getModel().popLastTest();
+        String testSuiteUri = testSuite.getUri();
+        String testName = ProjectHelper.createTestName(WebStudioUtils.getProjectModel().getMethod(testSuiteUri));
         if (isTestForOverallTestSuiteMethod(testSuite)) {
             try {
                 BenchmarkInfo buLast = studio.getModel().benchmarkTestsSuite(testSuite, 3000);
-                BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuite.getUri());
+                BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuiteUri, testName);
                 studio.addBenchmark(biv);
                 benchmarkResults.add(biv);
             } catch (Exception e) {
@@ -49,7 +52,7 @@ public class BenchmarkMethodBean {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
                 try {
                     BenchmarkInfo buLast = studio.getModel().benchmarkSingleTest(testSuite, i, 3000);
-                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuite.getUri());
+                    BenchmarkInfoView biv = new BenchmarkInfoView(buLast, testSuiteUri, testName, testSuite.getTest(i).getExecutionParams());
                     studio.addBenchmark(biv);
                     benchmarkResults.add(biv);
                 } catch (Exception e) {
@@ -63,7 +66,7 @@ public class BenchmarkMethodBean {
 
     public String getTableName() {
         BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
-        return bi.getName();
+        return bi.getTestName();
     }
 
     public String getUri() {
@@ -169,6 +172,11 @@ public class BenchmarkMethodBean {
     public int getI() {
         BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return benchmarkResults.indexOf(bi) + 1;
+    }
+
+    public ParameterWithValueDeclaration[] getParameters() {
+        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
+        return bi.getParameters();
     }
 
     public String getMsrun() {

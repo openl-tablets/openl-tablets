@@ -2,22 +2,31 @@ package org.openl.rules.ui;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
 
 /**
- * Benchmark Info that will be displayed in the form.
- * Contains BenchmarkInfo and URI of a table that was used to measure the benchmark.
+ * Benchmark Info that will be displayed in the form. Contains BenchmarkInfo and
+ * URI of a table that was used to measure the benchmark.
  * 
  * @author NSamatov
  */
 public class BenchmarkInfoView {
     private final BenchmarkInfo benchmarkInfo;
     private final String uri;
+    private final String testName;
+    private final ParameterWithValueDeclaration params[];
 
-    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri) {
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName) {
+        this(benchmarkInfo, uri, testName, new ParameterWithValueDeclaration[0]);
+    }
+    
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName, ParameterWithValueDeclaration params[]) {
         this.benchmarkInfo = benchmarkInfo;
         this.uri = uri;
+        this.testName = testName;
+        this.params = params;
     }
 
     public BenchmarkInfo getBenchmarkInfo() {
@@ -26,18 +35,34 @@ public class BenchmarkInfoView {
 
     /**
      * Get an URI of a table that was used to measure the benchmark
-     * @return
+     * 
+     * @return URI of a table that was used to measure the benchmark
      */
     public String getUri() {
         return uri;
     }
 
+    /**
+     * Get a test name that was used to measure the benchmark
+     * 
+     * @return test name
+     */
+    public String getTestName() {
+        return testName;
+    }
+
+    /**
+     * Get test execution parameters
+     * 
+     * @return execution parameters
+     */
+    public ParameterWithValueDeclaration[] getParameters() {
+        return params;
+    }
+
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-            .append(benchmarkInfo)
-            .append(uri)
-            .toHashCode();
+        return new HashCodeBuilder().append(benchmarkInfo).append(uri).toHashCode();
     }
 
     @Override
@@ -46,15 +71,12 @@ public class BenchmarkInfoView {
             return true;
         if (!(obj instanceof BenchmarkInfoView))
             return false;
-        
+
         BenchmarkInfoView other = (BenchmarkInfoView) obj;
-        
-        return new EqualsBuilder()
-            .append(benchmarkInfo, other.benchmarkInfo)
-            .append(uri, other.uri)
-            .isEquals();
+
+        return new EqualsBuilder().append(benchmarkInfo, other.benchmarkInfo).append(uri, other.uri).isEquals();
     }
-    
+
     // delegated methods
 
     public double avg() {
@@ -112,6 +134,5 @@ public class BenchmarkInfoView {
     public String unitName() {
         return benchmarkInfo.unitName();
     }
-    
-    
+
 }
