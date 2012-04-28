@@ -19,6 +19,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * Compiles OpenL expressions from the cells and sets meta info about used
@@ -143,7 +144,7 @@ public class OpenLCellExpressionsCompiler {
             List<MethodUsage> methodUsages) {
         ICell cell = src.getCell();
         if (!CollectionUtils.isEmpty(methodUsages) && cell != null) {
-            cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, method.getType(), false, methodUsages));
+            cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, methodUsages));
         }
     }
 
