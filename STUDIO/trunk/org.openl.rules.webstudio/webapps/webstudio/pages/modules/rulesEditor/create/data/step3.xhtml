@@ -26,6 +26,10 @@
             }
             .dataTableTreeTree .rf-trn-ico-lf { 
                 display: none;
+            }
+            
+            .dataTableTreeTree select, .dataTableTreeTree input {
+                margin-left: 5px
             } 
         </style>
         
@@ -52,11 +56,11 @@
                      
                     <rich:treeNode type="complex">
                         <h:outputText styleClass="nodeName" value="#{item.name} :"/>
-                        <h:outputText styleClass="nodeFieldName" value="Business Name = " rendered="#{item.leaf}" />
+                        <h:outputText styleClass="nodeFieldName" value="Business Name =" rendered="#{item.leaf}" />
                         <h:inputText value="#{item.businessName}" rendered="#{item.leaf}"/>
                         
                         <a4j:outputPanel rendered="#{item.leaf and wizard.hasForeignKeyTables(item.typeName)}">
-                            <h:outputText styleClass="nodeFieldName" value="Foreign Key = "/>
+                            <h:outputText styleClass="nodeFieldName" value="Foreign Key ="/>
 
                             <h:selectOneMenu id="complexForeignKeyTable" value="#{item.foreignKeyTable}">
                                 <f:selectItems value="#{wizard.getForeignKeyTables(item.typeName)}" />
@@ -81,7 +85,7 @@
                     
                     <rich:treeNode type="simple">
                         <h:outputText styleClass="nodeName" value="#{item.name} :" />
-                        <h:outputText styleClass="nodeFieldName" value="Business Name = "/>
+                        <h:outputText styleClass="nodeFieldName" value="Business Name ="/>
                         <h:inputText value="#{item.businessName}"/>
                         
                         <a4j:outputPanel rendered="#{item.leaf and wizard.hasForeignKeyTables(item.typeName)}">
