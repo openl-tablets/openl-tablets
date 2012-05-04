@@ -909,9 +909,7 @@ public class RepositoryTreeController {
     }
 
     public void uploadListener(FileUploadEvent event) {
-    	FacesUtils.getResponse().setCharacterEncoding("UTF-8");
-    	
-    	UploadedFile file = event.getUploadedFile();
+        UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
     }
 
