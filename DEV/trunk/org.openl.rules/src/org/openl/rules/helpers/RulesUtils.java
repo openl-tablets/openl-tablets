@@ -1319,4 +1319,205 @@ public class RulesUtils {
     public static float ulp(float f){
     	return Math.ulp(f);
     }
+    
+    //Delegation Methods from org.apache.commons.lang.ArrayUtils class
+    public static boolean[] add(boolean[] array, boolean element){
+        return ArrayUtils.add(array, element);
+    }
+    
+    public static boolean[] add(boolean[] array, int index, boolean element){
+        return ArrayUtils.add(array, index, element);
+    }
+        
+    public static byte[] add(byte[] array, byte element){
+        return ArrayUtils.add(array, element);
+    }
+        
+    public static byte[] add(byte[] array, int index, byte element){
+        return ArrayUtils.add(array, index, element);
+    }
+        
+    public static char[] add(char[] array, char element){
+        return ArrayUtils.add(array, element);
+    }
+        
+    public static char[] add(char[] array, int index, char element){
+        return ArrayUtils.add(array, index, element);
+    }
+        
+    public static double[] add(double[] array, double element){
+        return ArrayUtils.add(array, element);
+    }
+       
+    public static double[] add(double[] array, int index, double element){
+        return ArrayUtils.add(array, index, element);
+    }
+        
+    public static float[] add(float[] array, float element){
+        return ArrayUtils.add(array, element);
+    }
+        
+    public static float[] add(float[] array, int index, float element){
+        return ArrayUtils.add(array, index, element);
+    }
+        
+    public static int[] add(int[] array, int element){
+        return ArrayUtils.add(array, element);
+    }
+       
+    public static int[] add(int[] array, int index, int element){
+        return ArrayUtils.add(array, index, element);
+    }
+       
+    public static long[] add(long[] array, int index, long element){
+        return ArrayUtils.add(array, index, element);
+    }
+       
+    public static long[] add(long[] array, long element){
+        return ArrayUtils.add(array, element);
+    }
+       
+    public static Object[] add(Object[] array, int index, Object element){
+        return ArrayUtils.add(array, index, element);
+    }
+       
+    public static Object[] add(Object[] array, Object element){
+        return ArrayUtils.add(array, element);
+    }
+       
+    public static short[] add(short[] array, int index, short element){
+        return ArrayUtils.add(array, index, element);
+    }
+        
+    public static short[] add(short[] array, short element){
+        return ArrayUtils.add(array, element);
+    }
+    
+    public static boolean[] remove(boolean[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static byte[] remove(byte[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static char[] remove(char[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static double[] remove(double[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static float[] remove(float[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static int[] remove(int[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static long[] remove(long[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static Object[] remove(Object[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static short[] remove(short[] array, int index){
+        return ArrayUtils.remove(array, index);
+    }
+    
+    public static boolean[] removeElement(boolean[] array, boolean element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static byte[] removeElement(byte[] array, byte element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static char[] removeElement(char[] array, char element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static double[] removeElement(double[] array, double element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static float[] removeElement(float[] array, float element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static int[] removeElement(int[] array, int element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static long[] removeElement(long[] array, long element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static Object[] removeElement(Object[] array, Object element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    public static short[] removeElement(short[] array, short element){
+        return ArrayUtils.removeElement(array, element);
+    }
+    
+    //Method which ignore null param value
+    public static Object[] addArrayElementIgnoreNull(Object[] array, int index, Object element){
+        
+        if(element != null){
+            return ArrayUtils.add(array, index, element);
+        }else{
+            return array;
+        }
+    }
+       
+    public static Object[] addArrayElementIgnoreNull(Object[] array, Object element){
+        
+        if(element != null){
+            return ArrayUtils.add(array, element);
+        }else{
+            return array;
+        }
+    }
+    
+    static boolean[] addAll(boolean[] array1, boolean[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static byte[] addAll(byte[] array1, byte[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static char[] addAll(char[] array1, char[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static double[] addAll(double[] array1, double[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static float[] addAll(float[] array1, float[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static int[] addAll(int[] array1, int[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static long[] addAll(long[] array1, long[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static Object[] addAll(Object[] array1, Object[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    static short[] addAll(short[] array1, short[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+
 }
