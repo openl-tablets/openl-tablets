@@ -69,7 +69,6 @@ import javax.servlet.http.HttpServletResponse;
 @ManagedBean
 @ViewScoped
 public class RepositoryTreeController {
-    
     private static final Date SPECIAL_DATE = new Date(0);
     private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
@@ -910,7 +909,9 @@ public class RepositoryTreeController {
     }
 
     public void uploadListener(FileUploadEvent event) {
-        UploadedFile file = event.getUploadedFile();
+    	FacesUtils.getResponse().setCharacterEncoding("UTF-8");
+    	
+    	UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
     }
 

@@ -163,7 +163,7 @@
                             </table>
                             <div style="padding: 6px 5px">
                                 <a4j:commandButton id="runButton" action="#{showTableBean.makeTestSuite}" value="Run"
-                                    title="Run" onclick="return f();" oncomplete="goTo('#{runLink}')"
+                                    title="Run" onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
                                     style="display:none" />
                                 <a4j:commandButton id="traceButton" action="#{showTableBean.makeTestSuite}"
                                     value="Trace" title="Trace" onclick="return isAnyTestSelected();"
