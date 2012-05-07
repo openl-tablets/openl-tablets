@@ -1484,39 +1484,39 @@ public class RulesUtils {
         }
     }
     
-    static boolean[] addAll(boolean[] array1, boolean[] array2){
+    public static boolean[] addAll(boolean[] array1, boolean[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static byte[] addAll(byte[] array1, byte[] array2){
+    public static byte[] addAll(byte[] array1, byte[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static char[] addAll(char[] array1, char[] array2){
+    public static char[] addAll(char[] array1, char[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static double[] addAll(double[] array1, double[] array2){
+    public static double[] addAll(double[] array1, double[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static float[] addAll(float[] array1, float[] array2){
+    public static float[] addAll(float[] array1, float[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static int[] addAll(int[] array1, int[] array2){
+    public static int[] addAll(int[] array1, int[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static long[] addAll(long[] array1, long[] array2){
+    public static long[] addAll(long[] array1, long[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static Object[] addAll(Object[] array1, Object[] array2){
+    public static Object[] addAll(Object[] array1, Object[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
     
-    static short[] addAll(short[] array1, short[] array2){
+    public static short[] addAll(short[] array1, short[] array2){
         return ArrayUtils.addAll(array1, array2);
     }
 
