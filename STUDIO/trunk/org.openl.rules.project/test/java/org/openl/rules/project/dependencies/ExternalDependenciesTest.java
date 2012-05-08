@@ -136,63 +136,63 @@ public class ExternalDependenciesTest {
         assertEquals(Double.valueOf(4970),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
     }
 
-    @Test
-    public void testDependencies4() throws Exception {
-        ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
-        ProjectDescriptor descr = strategy.resolveProject(new File("test/resources/dependencies/test4/module"));
-
-        RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
-        
-        IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test4/module");
-        
-        dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
-        
-        boolean executionMode = false;
-        dependencyManager.setExecutionMode(executionMode);
-        
-        ApiBasedInstantiationStrategy s = 
-            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
-        
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
-
-        Class<?> interfaceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
-
-        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
-        // Get policy profile.
-        //
-        Method method = interfaceClass.getMethod("getPolicyProfile4", new Class[]{ IRulesRuntimeContext.class });
-        Object res = method.invoke(instance, new Object[] { context });
-        Object policy = ((Object[])res)[0];
-
-        method = interfaceClass.getMethod("processPolicy", new Class[]{ IRulesRuntimeContext.class, policy.getClass()});
-        res = method.invoke(instance, new Object[] { context, policy });
-        
-        SpreadsheetResult spreadsheetResult = (SpreadsheetResult)res;
-        assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
-        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
-        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
-        
-        // Creating current date value
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, 5, 15);
-
-        // Setting current date in context, which will be used in dispatch
-        context.setCurrentDate(calendar.getTime());
-
-        method = interfaceClass.getMethod("getTestCars", new Class[]{ IRulesRuntimeContext.class });
-        res = method.invoke(instance, new Object[] { context });
-
-        Object car = ((Object[])res)[1];
-
-        method = interfaceClass.getMethod("getTestAddresses", new Class[]{ IRulesRuntimeContext.class });
-        res = method.invoke(instance, new Object[] { context });
-
-        Object address = ((Object[])res)[4];
-
-        method = interfaceClass.getMethod("getPriceForOrder", new Class[]{ IRulesRuntimeContext.class, car.getClass(), int.class, address.getClass() });
-        res = method.invoke(instance, new Object[] { context, car, 4, address });
-
-        assertEquals(Double.valueOf(189050), Double.valueOf (((DoubleValue) res).getValue()));
-    }
+//    @Test
+//    public void testDependencies4() throws Exception {
+//        ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
+//        ProjectDescriptor descr = strategy.resolveProject(new File("test/resources/dependencies/test4/module"));
+//
+//        RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
+//        
+//        IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader("test/resources/dependencies/test4/module");
+//        
+//        dependencyManager.setDependencyLoaders(Arrays.asList(loader1));
+//        
+//        boolean executionMode = false;
+//        dependencyManager.setExecutionMode(executionMode);
+//        
+//        ApiBasedInstantiationStrategy s = 
+//            new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
+//        
+//        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
+//
+//        Class<?> interfaceClass = enhancer.getServiceClass();
+//        Object instance = enhancer.instantiate();
+//
+//        IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
+//        // Get policy profile.
+//        //
+//        Method method = interfaceClass.getMethod("getPolicyProfile4", new Class[]{ IRulesRuntimeContext.class });
+//        Object res = method.invoke(instance, new Object[] { context });
+//        Object policy = ((Object[])res)[0];
+//
+//        method = interfaceClass.getMethod("processPolicy", new Class[]{ IRulesRuntimeContext.class, policy.getClass()});
+//        res = method.invoke(instance, new Object[] { context, policy });
+//        
+//        SpreadsheetResult spreadsheetResult = (SpreadsheetResult)res;
+//        assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
+//        assertEquals(Double.valueOf(-20), Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Score")).getValue()));
+//        assertEquals(Double.valueOf(2270),  Double.valueOf(((DoubleValue)spreadsheetResult.getFieldValue("$Value$Premium")).getValue()));
+//        
+//        // Creating current date value
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(2009, 5, 15);
+//
+//        // Setting current date in context, which will be used in dispatch
+//        context.setCurrentDate(calendar.getTime());
+//
+//        method = interfaceClass.getMethod("getTestCars", new Class[]{ IRulesRuntimeContext.class });
+//        res = method.invoke(instance, new Object[] { context });
+//
+//        Object car = ((Object[])res)[1];
+//
+//        method = interfaceClass.getMethod("getTestAddresses", new Class[]{ IRulesRuntimeContext.class });
+//        res = method.invoke(instance, new Object[] { context });
+//
+//        Object address = ((Object[])res)[4];
+//
+//        method = interfaceClass.getMethod("getPriceForOrder", new Class[]{ IRulesRuntimeContext.class, car.getClass(), int.class, address.getClass() });
+//        res = method.invoke(instance, new Object[] { context, car, 4, address });
+//
+//        assertEquals(Double.valueOf(189050), Double.valueOf (((DoubleValue) res).getValue()));
+//    }
 }
