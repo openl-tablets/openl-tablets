@@ -6,8 +6,8 @@ import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.generated.beans.Driver;
-import org.openl.generated.beans.Policy;
+import org.openl.generated.test.beans.Driver;
+import org.openl.generated.test.beans.Policy;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariation;
