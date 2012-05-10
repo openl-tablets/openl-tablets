@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -164,6 +165,10 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
         List<String> tableNames = new ArrayList<String>();
 
         for (TableSyntaxNode tbl : allDataTables) {
+            if (tbl.getMember() == null) {
+                continue;
+            }
+            
             IOpenClass from = tbl.getMember().getType().getComponentClass();
             IOpenClass to = getUserDefinedType(typeName);
 
@@ -177,10 +182,23 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
                 }
             }
         }
+        
+        Collections.sort(tableNames);
 
         return FacesUtils.createSelectItems(tableNames);
     }
 
+    /**
+     * Check if there is a foreign key table variants for type "typeName". That types are
+     * searched in current project.
+     * 
+     * @param typeName type of a table
+     * @return true if there is found a foreign key table variants for type "typeName"
+     */
+    public boolean hasForeignKeyTables(String typeName) {
+        return getForeignKeyTables(typeName).length > 0;
+    }
+    
     /**
      * Get foreign key table columns for the type "typeName". Just a fields of it's type.
      * 
@@ -251,10 +269,6 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     }
 
     private void initTree() {
-        if (tableOpenClass != null && tableType.equals(tableOpenClass.getName())) {
-            return;
-        }
-
         tableOpenClass = getUserDefinedType(tableType);
 
         if (tableOpenClass == null) {

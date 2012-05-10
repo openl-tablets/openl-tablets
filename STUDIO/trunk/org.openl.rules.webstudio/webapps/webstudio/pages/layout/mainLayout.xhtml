@@ -79,8 +79,10 @@
                     // TODO Create mechanism to disable editing in UI when Excel file is opened.
                     if (errorMessage.indexOf(".xls") > -1) {
                         alert("Failed to save changes. Please close module Excel file and try again.");
-                    } else if (errorMessage.indexOf("ViewExpiredException") > -1) {
+                    } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                         reloadCurrent();
+                    } else {
+                        alert(errorMessage);
                     }
                     return;
                 }
@@ -91,8 +93,25 @@
             var urlRewrite = {
                 prefix: "#{rulesEditor}/"
             }
+            
+            function getCurrentHash() {
+                // Because firefox has a bug with decoding location.hash value, we use location.href.split("#")[1] instead
+                var page = location.href;
+                return page.indexOf("#") != -1 ? page.split("#")[1] : "";
+            }
 
+            var lastSavedHash = getCurrentHash();
+            
             $j(window).bind("hashchange", function() {
+                var ch = getCurrentHash();
+                if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
+                    // Workaround for a bug in firefox. Sometimes it decodes a loading url and then loads decoded url.
+                    location.hash = lastSavedHash;
+                    return;
+                } else {
+                    lastSavedHash = ch;
+                }
+
                 loadContent(getCurrentPage());
             });
 
@@ -112,7 +131,7 @@
                     east__size: 230,
                     east__initHidden: true
                 });
-
+                
                 centerLayout = $j("#center .ui-layout-center").layout({
                     spacing_open: 1,
                     south__size: 110
@@ -147,7 +166,7 @@
                     alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
                 }
             }
-
+            
             function goTo(page, reload) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
@@ -193,7 +212,7 @@
 
             function getCurrentPage() {
                 if (location.hash) {
-                    var page = location.href.split("#")[1];
+                    var page = lastSavedHash;
                     if (page && page.indexOf(urlRewrite.prefix) < 0) {
                         page = urlRewrite.prefix + page;
                     }
@@ -323,7 +342,7 @@
 
                 var left = elemPos.left + ((params && params.offsetLeft) || 0);
                 var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
-
+				
                 $j("#" + popupId).popup({
                     left: left,
                     top : top

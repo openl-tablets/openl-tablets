@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -71,22 +72,26 @@
 				</executions>
 			</plugin>
 
-			<!--<plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
+				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<phase>process-test-resources</phase>
 						<goals>
-							<goal>jar</goal>
+							<goal>run</goal>
 						</goals>
 						<configuration>
-							<classifier>classes</classifier>
+							<tasks>
+								<unzip src="test-resources/production-repository.zip"
+									dest="target/production-repository" overwrite="true" />
+								<unzip src="test-resources/org.openl.tablets.tutorial4.zip"
+									dest="target/filesystemdatasource" overwrite="true" />
+							</tasks>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>-->
+			</plugin>
 		</plugins>
 
 		<resources>
@@ -129,221 +134,90 @@
 		</testResources>
 	</build>
 
-	<profiles>
-		<profile>
-			<id>default.val</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>process-test-resources</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<unzip src="test-resources/production-repository.zip" dest="target/production-repository" overwrite="true" />
-										<unzip src="test-resources/org.openl.tablets.tutorial4.zip" dest="target/filesystemdatasource" overwrite="true" />
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-			<dependencies>
-				<!-- STUDIO -->
-				<dependency>
-					<groupId>org.openl.rules</groupId>
-					<artifactId>org.openl.rules.repository</artifactId>
-				</dependency>
+	<dependencies>
+		<!-- STUDIO -->
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.repository</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.openl.rules</groupId>
-					<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
+		</dependency>
 
-				<!-- RulesService -->
-				<dependency>
-					<groupId>org.openl.rules</groupId>
-					<artifactId>org.openl.rules.ruleservice</artifactId>
-				</dependency>
+		<!-- RulesService -->
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice</artifactId>
+		</dependency>
 
-				<!-- Other -->
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-transports-http</artifactId>
-				</dependency>
+		<!-- Other -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-frontend-jaxws</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-frontend-jaxrs</artifactId>
-				</dependency>
-				
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-databinding-aegis</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-databinding-aegis</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>javax.servlet</groupId>
-					<artifactId>jstl</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.jvnet.annox</groupId>
-					<artifactId>annox</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
-					<scope>compile</scope>
-				</dependency>
+		<dependency>
+			<groupId>org.jvnet.annox</groupId>
+			<artifactId>annox</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.slf4j</groupId>
-					<artifactId>jcl-over-slf4j</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>compile</scope>
+		</dependency>
 
-				<dependency>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-test</artifactId>
-					<scope>compile</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>server</id>
-			<properties>
-				<maven.test.skip>true</maven.test.skip>
-			</properties>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
 
-			<build>
-				<defaultGoal>test</defaultGoal>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<mainClass>org.openl.ruleservice.publish.WebServicesExposingTest</mainClass>
-									<classpathScope>test</classpathScope>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>process-test-resources</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<unzip src="test-resources/production-repository.zip" dest="target/production-repository" overwrite="true" />
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-			<dependencies>
-				<!-- STUDIO -->
-				<dependency>
-					<groupId>org.openl.rules</groupId>
-					<artifactId>org.openl.rules.repository</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
 
-				<dependency>
-					<groupId>org.openl.rules</groupId>
-					<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-				</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
 
-				<!-- RulesService -->
-				<dependency>
-					<groupId>org.openl.rules</groupId>
-					<artifactId>org.openl.rules.ruleservice</artifactId>
-				</dependency>
-
-				<!-- Other -->
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-transports-http</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-transports-http-jetty</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-frontend-jaxws</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-databinding-aegis</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>org.jvnet.annox</groupId>
-					<artifactId>annox</artifactId>
-				</dependency>
-
-				<dependency>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
-					<scope>compile</scope>
-				</dependency>
-
-				<dependency>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-test</artifactId>
-					<scope>compile</scope>
-				</dependency>
-				
-				<dependency>
-					<groupId>org.slf4j</groupId>
-					<artifactId>jcl-over-slf4j</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 </project>
