@@ -112,7 +112,7 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
                 Method originalMethod = VariationsEnhancerHelper.getMethodForEnhanced(serviceClass, serviceMethod);
                 methodMap.put(serviceMethod, originalMethod);
             } catch (Exception e) {
-                throw new RulesInstantiationException("Failed to find corresrponding method in original class for method" + MethodUtil.printMethod(serviceMethod.getName(),
+                throw new RulesInstantiationException("Failed to find corresrponding method in original class for method " + MethodUtil.printMethod(serviceMethod.getName(),
                     serviceMethod.getParameterTypes()));
             }
         }
@@ -135,7 +135,7 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
             this.serviceClass = serviceClass;
             try {
                 getOriginalInstantiationStrategy().setServiceClass(VariationsEnhancerHelper.undecorateMethods(serviceClass,
-                    getClassLoader()));
+                    getOriginalInstantiationStrategy().getClassLoader()));
             } catch (Exception e) {
                 throw new OpenlNotCheckedException("Failed to set service class to enhancer. Failed to get undecorated class.",
                     e);

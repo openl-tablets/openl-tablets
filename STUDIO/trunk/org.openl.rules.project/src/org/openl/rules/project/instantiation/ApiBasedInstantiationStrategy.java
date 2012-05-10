@@ -2,6 +2,8 @@ package org.openl.rules.project.instantiation;
 
 import java.io.File;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -16,6 +18,7 @@ import org.openl.source.impl.FileSourceCodeModule;
  * @author PUdalau
  */
 public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStrategy {
+    private final Log log = LogFactory.getLog(ApiBasedInstantiationStrategy.class);
   
     /**
      *  Rules engine factory for module that contains only Excel file.
@@ -25,39 +28,26 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     public ApiBasedInstantiationStrategy(Module module, boolean executionMode, 
             IDependencyManager dependencyManager) {
         super(module, executionMode, dependencyManager);
-        initFactory();
     }
     
     public ApiBasedInstantiationStrategy(Module module, boolean executionMode, 
             IDependencyManager dependencyManager, ClassLoader classLoader) {
         super(module, executionMode, dependencyManager, classLoader);
-        initFactory();
     }
 
-    private SimpleEngineFactory initFactory() {
-        if (factory == null) {
-            File sourceFile = new File(getModule().getRulesRootPath().getPath());
-            IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
-            source.setParams(getModule().getProperties());
-            
-            factory = new SimpleEngineFactory(source);
-            factory.setExecutionMode(isExecutionMode());
-            factory.setDependencyManager(getDependencyManager());
-        }
-        return factory;
-    }
     
     @Override
     public void reset() {
         super.reset();
-        factory.reset(true);
+        if (factory != null) {
+            getEngineFactory().reset(true);
+        }
     }
     
     @Override
     public void forcedReset() {
         super.forcedReset();
         factory = null;
-        initFactory();
     }
 
     @Override
@@ -69,7 +59,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return factory.getInterfaceClass();
+            return getEngineFactory().getInterfaceClass();
         }catch (Exception e) {
             throw new RulesInstantiationException("Cannot resolve interface.",e);
         } finally {
@@ -85,10 +75,31 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return factory.getCompiledOpenClass();
+            return getEngineFactory().getCompiledOpenClass();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    private SimpleEngineFactory getEngineFactory() {
+        Class<?> serviceClass = null;
+        try {
+            serviceClass = getServiceClass();
+        } catch (ClassNotFoundException e) {
+            log.debug("Failed to get service class.", e);
+            serviceClass = null;
+        }
+        if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {
+            File sourceFile = new File(getModule().getRulesRootPath().getPath());
+            IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
+            source.setParams(getModule().getProperties());
+
+            factory = new SimpleEngineFactory(source);
+            factory.setExecutionMode(isExecutionMode());
+            factory.setDependencyManager(getDependencyManager());
+            factory.setInterfaceClass(serviceClass);
+        }
+        return factory;
     }
 
     @Override
@@ -99,7 +110,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return factory.makeInstance();
+            return getEngineFactory().makeInstance();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
