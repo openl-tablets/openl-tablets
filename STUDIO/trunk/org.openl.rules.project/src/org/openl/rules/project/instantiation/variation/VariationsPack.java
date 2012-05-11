@@ -30,7 +30,7 @@ public class VariationsPack {
     }
 
     public VariationsPack(Variation... variations) {
-        this.variations = Arrays.asList(variations);
+        this.variations = new ArrayList<Variation>(Arrays.asList(variations));
     }
 
     public void addVariation(Variation variation) {
