@@ -111,8 +111,8 @@ public class DataTableBindHelper {
         // If data table body contains only one row, we consider it is vertical.
         //
         if (dataTableBody.getHeight() != 1) {
-            int fieldsCount1 = countFields(dataTableBody, tableType);
-            int fieldsCount2 = countFields(dataTableBody.transpose(), tableType);
+            int fieldsCount1 = countChangeableFields(dataTableBody, tableType);
+            int fieldsCount2 = countChangeableFields(dataTableBody.transpose(), tableType);
 
             return fieldsCount1 >= fieldsCount2;
         }
@@ -122,14 +122,14 @@ public class DataTableBindHelper {
 
     /**
      * Goes through the data table columns from left to right, and count number
-     * of <code>{@link IOpenField}</code>.
+     * of changeable <code>{@link IOpenField}</code>.
      * 
      * @param dataTable
      * @param tableType
      * @return Number of <code>{@link IOpenField}</code> found in the data
      *         table.
      */
-    private static int countFields(ILogicalTable dataTable, IOpenClass tableType) {
+    private static int countChangeableFields(ILogicalTable dataTable, IOpenClass tableType) {
 
         int count = 0;
         int width = dataTable.getWidth();
@@ -147,7 +147,7 @@ public class DataTableBindHelper {
             fieldName = StringUtils.trim(fieldName);
             IOpenField field = findField(fieldName, null, tableType);
 
-            if (field != null) {
+            if (field != null && !field.isConst() && field.isWritable()) {
                 count += 1;
             }
         }
