@@ -69,6 +69,9 @@ public class DataTableUserDefinedTypeField extends DataTableField {
             List<DataTableField> list = new ArrayList<DataTableField>();
 
             for (Entry<String, IOpenField> entry : getType().getFields().entrySet()) {
+                if (entry.getValue().isConst() || !entry.getValue().isWritable())
+                    continue;
+                
                 list.add(new DataTableUserDefinedTypeField(entry.getValue().getType(), entry.getKey(),
                         predefinedChecker));
             }

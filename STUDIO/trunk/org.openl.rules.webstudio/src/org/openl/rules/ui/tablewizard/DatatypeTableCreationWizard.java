@@ -1,5 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,13 +100,17 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         List<String> datatypes = new ArrayList<String>(WizardUtils.getProjectOpenClass().getTypes().size());
         datatypes.add("");
-        for(IOpenClass datatype : WizardUtils.getProjectOpenClass().getTypes().values()){
-        	
-        	if (!(datatype instanceof DomainOpenClass)) {
-				datatypes.add(datatype.getName());
-			}
+        for (IOpenClass datatype : WizardUtils.getProjectOpenClass().getTypes().values()) {
+            if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
+                // cannot inherit from final class
+                continue;
+            }
 
+            if (!(datatype instanceof DomainOpenClass)) {
+                datatypes.add(datatype.getName());
+            }
         }
+        
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
         domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
 
