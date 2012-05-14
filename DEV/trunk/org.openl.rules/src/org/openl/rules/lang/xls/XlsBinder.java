@@ -629,7 +629,7 @@ public class XlsBinder implements IOpenBinder {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
         }
 
-        addImportedClasses(module, moduleSyntaxNode);
+//        addImportedClasses(module, moduleSyntaxNode);
 
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
