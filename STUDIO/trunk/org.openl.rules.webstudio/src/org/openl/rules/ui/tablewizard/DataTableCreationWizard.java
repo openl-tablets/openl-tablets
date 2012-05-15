@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenEnum;
 import org.openl.util.Log;
 
@@ -92,7 +94,21 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
-        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
+        
+        Collection<String> allClasses = domainTree.getAllClasses(true);
+        Iterator<String> classIterator = allClasses.iterator();
+        
+        while(classIterator.hasNext()) {
+            String className = classIterator.next();
+            IOpenClass type = getUserDefinedType(className);
+            
+            if (type instanceof DomainOpenClass) {
+                // remove alias types
+                classIterator.remove();
+            }
+        }
+        
+        domainTypes = FacesUtils.createSelectItems(allClasses);
 
         allDataTables = new ArrayList<TableSyntaxNode>();
         for (TableSyntaxNode tbl : WizardUtils.getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes()) {
