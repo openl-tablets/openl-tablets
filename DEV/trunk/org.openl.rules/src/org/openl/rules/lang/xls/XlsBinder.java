@@ -7,6 +7,8 @@ package org.openl.rules.lang.xls;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -627,9 +631,10 @@ public class XlsBinder implements IOpenBinder {
         
         if (moduleContext.isExecutionMode()) {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
+        } else {
+            // Importing all classes is needed only in edit mode 
+            addImportedClasses(module, moduleSyntaxNode);
         }
-
-//        addImportedClasses(module, moduleSyntaxNode);
 
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
@@ -794,10 +799,26 @@ public class XlsBinder implements IOpenBinder {
             return new Class[0];
         }
         List<File> dirs = new ArrayList<File>();
+        List<URL> jars = new ArrayList<URL>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             try {
-                dirs.add(new File(resource.toURI()));
+                URI uri = resource.toURI();
+                String scheme = uri.getScheme();
+                
+                if (scheme != null) {
+                    if ("file".equalsIgnoreCase(scheme)) {
+                        dirs.add(new File(uri));
+                    } else if ("jar".equalsIgnoreCase(scheme)) {
+                        try {
+                            String jarPath = resource.getFile().split("!")[0];
+                            jars.add(new URL(jarPath));
+                        } catch (MalformedURLException e) {
+                            log.error(e.getMessage(), e);
+                            continue;
+                        }
+                    }
+                }
             } catch (URISyntaxException e) {
                 // This should not be happen, but...
                 log.error(e.getMessage(), e);
@@ -806,6 +827,9 @@ public class XlsBinder implements IOpenBinder {
         ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
         for (File directory : dirs) {
             classes.addAll(findClasses(directory, packageName, classLoader));
+        }
+        for (URL jar : jars) {
+            classes.addAll(findClassesFromJar(jar, packageName, classLoader));
         }
         return classes.toArray(new Class[classes.size()]);
     }
@@ -817,6 +841,7 @@ public class XlsBinder implements IOpenBinder {
      * @param directory The directory
      * @param packageName The package name for classes found inside the
      *            directory
+     * @param classLoader a ClassLoader that is used to load a classes 
      * @return The classes
      */
     private List<Class<?>> findClasses(File directory, String packageName, ClassLoader classLoader) {
@@ -841,6 +866,49 @@ public class XlsBinder implements IOpenBinder {
                         // Cannot load a class. Skip it
                         continue;
                     }
+                }
+            }
+        }
+        return classes;
+    }
+
+    /**
+     * A method is used to find all classes in a given jar. If a class cannot be
+     * loaded, it is skipped (in our case we don't need such classes).
+     * 
+     * @param jar URL of a jar
+     * @param packageName The package name for classes found inside the jar
+     * @param classLoader a ClassLoader that is used to load a classes
+     * @return The classes
+     */
+    private List<Class<?>> findClassesFromJar(URL jar, String packageName, ClassLoader classLoader) {
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        ZipInputStream zip = null;
+        try {
+            zip = new ZipInputStream(jar.openStream());
+            ZipEntry entry;
+
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.getName().endsWith(".class")) {
+                    String className = entry.getName().replace(".class", "").replace('/', '.');
+                    if (className.startsWith(packageName)) {
+                        try {
+                            classes.add(Class.forName(className, true, classLoader));
+                        } catch (ClassNotFoundException e) {
+                            // Cannot load a class. Skip it
+                            continue;
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            if (zip != null) {
+                try {
+                    zip.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                 }
             }
         }
