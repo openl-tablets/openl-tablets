@@ -4,9 +4,15 @@
 
 package org.openl.rules.lang.xls;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +42,8 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.main.OpenLWrapper;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -68,6 +76,8 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -614,10 +624,12 @@ public class XlsBinder implements IOpenBinder {
                 finilizeBind(children[i], tableSyntaxNodes[i], moduleContext);
             }
         }
-
+        
         if (moduleContext.isExecutionMode()) {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
         }
+
+//        addImportedClasses(module, moduleSyntaxNode);
 
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
@@ -710,4 +722,128 @@ public class XlsBinder implements IOpenBinder {
         BindHelper.processError(error, moduleContext);
     }
 
+
+    /**
+     * Add to an xls module class a classes from imported packages.
+     * 
+     * @param module module class that will contain a classes from imported
+     *            packages
+     * @param moduleSyntaxNode module source
+     */
+    private void addImportedClasses(XlsModuleOpenClass module, XlsModuleSyntaxNode moduleSyntaxNode) {
+        for (String packageName : moduleSyntaxNode.getAllImports()) {
+            for (Class<?> type : getClasses(packageName)) {
+                try {
+                    IOpenClass openType = JavaOpenClass.getOpenClass(type);
+                    if (module.getTypes().values().contains(openType) || !isValid(openType))
+                        continue;
+                    
+                    module.addType(ISyntaxConstants.THIS_NAMESPACE, openType);
+                } catch (OpenLCompilationException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Check if type is valid (for example, it can be used in a DataType tables,
+     * Data tables etc)
+     * 
+     * @param openType checked type
+     * @return true if class is valid.
+     */
+    private boolean isValid(IOpenClass openType) {
+        Class<?> instanceClass = openType.getInstanceClass();
+
+        int modifiers = instanceClass.getModifiers();
+        if (!Modifier.isPublic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers)) {
+            return false;
+        }
+
+        if (OpenLWrapper.class.isAssignableFrom(instanceClass)) {
+            // generated class for tutorial for example.
+            return false;
+        }
+
+        Map<String, IOpenField> fields = openType.getFields();
+        if (fields.size() <= 1) {
+            // Every field has a "class" field. We skip a classes that doesn't
+            // have any other field.
+            return false;
+        }
+
+        return true;
+    }
+    
+    /**
+     * Scans all classes accessible from the context class loader which belong
+     * to the given package.
+     * 
+     * @param packageName The package
+     * @return The classes
+     */
+    private Class<?>[] getClasses(String packageName) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        String path = packageName.replace('.', '/');
+        Enumeration<URL> resources;
+        try {
+            resources = classLoader.getResources(path);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return new Class[0];
+        }
+        List<File> dirs = new ArrayList<File>();
+        while (resources.hasMoreElements()) {
+            URL resource = resources.nextElement();
+            try {
+                dirs.add(new File(resource.toURI()));
+            } catch (URISyntaxException e) {
+                // This should not be happen, but...
+                log.error(e.getMessage(), e);
+            }
+        }
+        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
+        for (File directory : dirs) {
+            classes.addAll(findClasses(directory, packageName, classLoader));
+        }
+        return classes.toArray(new Class[classes.size()]);
+    }
+
+    /**
+     * A method is used to find all classes in a given directory. If a class
+     * cannot be loaded, it is skipped (in our case we don't need such classes).
+     * 
+     * @param directory The directory
+     * @param packageName The package name for classes found inside the
+     *            directory
+     * @return The classes
+     */
+    private List<Class<?>> findClasses(File directory, String packageName, ClassLoader classLoader) {
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        if (!directory.exists()) {
+            return classes;
+        }
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            String fileName = file.getName();
+            if (file.isDirectory()) {
+                continue;
+            } else {
+                String suffix = ".class";
+                if (fileName.endsWith(suffix) && !fileName.contains("$")) {
+                    try {
+                        String className = fileName.substring(0, fileName.length() - suffix.length());
+                        String fullClassName = packageName + '.' + className;
+                        Class<?> type = Class.forName(fullClassName, true, classLoader);
+                        classes.add(type);
+                    } catch (Throwable t) {
+                        // Cannot load a class. Skip it
+                        continue;
+                    }
+                }
+            }
+        }
+        return classes;
+    }
 }

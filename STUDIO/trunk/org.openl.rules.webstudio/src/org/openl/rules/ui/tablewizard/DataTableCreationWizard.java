@@ -1,9 +1,11 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.html.HtmlDataTable;
@@ -26,6 +28,8 @@ import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
 import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenEnum;
 import org.openl.util.Log;
 
 public class DataTableCreationWizard extends BusinessTableCreationWizard {
@@ -164,6 +168,10 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
         List<String> tableNames = new ArrayList<String>();
 
         for (TableSyntaxNode tbl : allDataTables) {
+            if (tbl.getMember() == null) {
+                continue;
+            }
+            
             IOpenClass from = tbl.getMember().getType().getComponentClass();
             IOpenClass to = getUserDefinedType(typeName);
 
@@ -177,10 +185,23 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
                 }
             }
         }
+        
+        Collections.sort(tableNames);
 
         return FacesUtils.createSelectItems(tableNames);
     }
 
+    /**
+     * Check if there is a foreign key table variants for type "typeName". That types are
+     * searched in current project.
+     * 
+     * @param typeName type of a table
+     * @return true if there is found a foreign key table variants for type "typeName"
+     */
+    public boolean hasForeignKeyTables(String typeName) {
+        return getForeignKeyTables(typeName).length > 0;
+    }
+    
     /**
      * Get foreign key table columns for the type "typeName". Just a fields of it's type.
      * 
@@ -193,7 +214,12 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
 
         IOpenClass type = getUserDefinedType(typeName);
         if (type != null) {
-            columns.addAll(type.getFields().keySet());
+            for (Entry<String, IOpenField> fieldEntry : type.getFields().entrySet()) {
+                IOpenField field = fieldEntry.getValue();
+                if (!field.isConst() && field.isWritable()) {
+                    columns.add(fieldEntry.getKey());
+                }
+            }
         }
 
         return FacesUtils.createSelectItems(columns);
@@ -251,13 +277,9 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     }
 
     private void initTree() {
-        if (tableOpenClass != null && tableType.equals(tableOpenClass.getName())) {
-            return;
-        }
-
         tableOpenClass = getUserDefinedType(tableType);
 
-        if (tableOpenClass == null) {
+        if (tableOpenClass == null || tableOpenClass instanceof JavaOpenEnum) {
             if (domainTree.getClassProperties(tableType) != null) {
                 tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
             }
@@ -282,7 +304,7 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
      */
     private IOpenClass getUserDefinedType(String type) {
         for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes().values()) {
-            if (dataType.getName().equals(type)) {
+            if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
                 return dataType;
             }
         }
@@ -329,12 +351,7 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
             if (StringUtils.isBlank(node.getForeignKeyTable())) {
                 String clientId = prefix + node.getName();
 
-                if (node.isComplex()) {
-                    clientId += ":complexForeignKeyTable";
-                    FacesUtils.addMessage(clientId, "Validation Error: ", "Foreign Key must be filled",
-                            FacesMessage.SEVERITY_ERROR);
-                    return false;
-                } else if (node.isEditForeignKey()) {
+                if (!node.isComplex() && node.isEditForeignKey()) {
                     clientId += ":simpleForeignKeyTable";
                     FacesUtils.addMessage(clientId, "Validation Error: ", "Fill foreign key or uncheck the checkbox",
                             FacesMessage.SEVERITY_ERROR);

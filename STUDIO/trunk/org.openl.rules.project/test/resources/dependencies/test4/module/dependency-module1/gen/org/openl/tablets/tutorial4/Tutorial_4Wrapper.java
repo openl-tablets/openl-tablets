@@ -112,14 +112,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField policyProfile1_Field;
 
-  public org.openl.generated.beans.Policy[] getPolicyProfile1()
+  public org.openl.generated.test.beans.Policy[] getPolicyProfile1()
   {
    Object __res = policyProfile1_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Policy[])__res;
+   return (org.openl.generated.test.beans.Policy[])__res;
   }
 
 
-  public void setPolicyProfile1(org.openl.generated.beans.Policy[] __var)
+  public void setPolicyProfile1(org.openl.generated.test.beans.Policy[] __var)
   {
    policyProfile1_Field.set(__instance, __var, __env.get());
   }
@@ -144,14 +144,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField driverProfiles3_Field;
 
-  public org.openl.generated.beans.Driver[] getDriverProfiles3()
+  public org.openl.generated.test.beans.Driver[] getDriverProfiles3()
   {
    Object __res = driverProfiles3_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Driver[])__res;
+   return (org.openl.generated.test.beans.Driver[])__res;
   }
 
 
-  public void setDriverProfiles3(org.openl.generated.beans.Driver[] __var)
+  public void setDriverProfiles3(org.openl.generated.test.beans.Driver[] __var)
   {
    driverProfiles3_Field.set(__instance, __var, __env.get());
   }
@@ -160,14 +160,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField policyProfile4_Field;
 
-  public org.openl.generated.beans.Policy[] getPolicyProfile4()
+  public org.openl.generated.test.beans.Policy[] getPolicyProfile4()
   {
    Object __res = policyProfile4_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Policy[])__res;
+   return (org.openl.generated.test.beans.Policy[])__res;
   }
 
 
-  public void setPolicyProfile4(org.openl.generated.beans.Policy[] __var)
+  public void setPolicyProfile4(org.openl.generated.test.beans.Policy[] __var)
   {
    policyProfile4_Field.set(__instance, __var, __env.get());
   }
@@ -176,14 +176,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField testPolicy1_Field;
 
-  public org.openl.generated.beans.Policy[] getTestPolicy1()
+  public org.openl.generated.test.beans.Policy[] getTestPolicy1()
   {
    Object __res = testPolicy1_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Policy[])__res;
+   return (org.openl.generated.test.beans.Policy[])__res;
   }
 
 
-  public void setTestPolicy1(org.openl.generated.beans.Policy[] __var)
+  public void setTestPolicy1(org.openl.generated.test.beans.Policy[] __var)
   {
    testPolicy1_Field.set(__instance, __var, __env.get());
   }
@@ -240,14 +240,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField autoProfiles1_Field;
 
-  public org.openl.generated.beans.Vehicle[] getAutoProfiles1()
+  public org.openl.generated.test.beans.Vehicle[] getAutoProfiles1()
   {
    Object __res = autoProfiles1_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Vehicle[])__res;
+   return (org.openl.generated.test.beans.Vehicle[])__res;
   }
 
 
-  public void setAutoProfiles1(org.openl.generated.beans.Vehicle[] __var)
+  public void setAutoProfiles1(org.openl.generated.test.beans.Vehicle[] __var)
   {
    autoProfiles1_Field.set(__instance, __var, __env.get());
   }
@@ -256,14 +256,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField autoProfiles2_Field;
 
-  public org.openl.generated.beans.Vehicle[] getAutoProfiles2()
+  public org.openl.generated.test.beans.Vehicle[] getAutoProfiles2()
   {
    Object __res = autoProfiles2_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Vehicle[])__res;
+   return (org.openl.generated.test.beans.Vehicle[])__res;
   }
 
 
-  public void setAutoProfiles2(org.openl.generated.beans.Vehicle[] __var)
+  public void setAutoProfiles2(org.openl.generated.test.beans.Vehicle[] __var)
   {
    autoProfiles2_Field.set(__instance, __var, __env.get());
   }
@@ -304,14 +304,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField driverProfiles1_Field;
 
-  public org.openl.generated.beans.Driver[] getDriverProfiles1()
+  public org.openl.generated.test.beans.Driver[] getDriverProfiles1()
   {
    Object __res = driverProfiles1_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Driver[])__res;
+   return (org.openl.generated.test.beans.Driver[])__res;
   }
 
 
-  public void setDriverProfiles1(org.openl.generated.beans.Driver[] __var)
+  public void setDriverProfiles1(org.openl.generated.test.beans.Driver[] __var)
   {
    driverProfiles1_Field.set(__instance, __var, __env.get());
   }
@@ -320,14 +320,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField testDrivers1_Field;
 
-  public org.openl.generated.beans.Driver[] getTestDrivers1()
+  public org.openl.generated.test.beans.Driver[] getTestDrivers1()
   {
    Object __res = testDrivers1_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Driver[])__res;
+   return (org.openl.generated.test.beans.Driver[])__res;
   }
 
 
-  public void setTestDrivers1(org.openl.generated.beans.Driver[] __var)
+  public void setTestDrivers1(org.openl.generated.test.beans.Driver[] __var)
   {
    testDrivers1_Field.set(__instance, __var, __env.get());
   }
@@ -368,14 +368,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField testVehicles1_Field;
 
-  public org.openl.generated.beans.Vehicle[] getTestVehicles1()
+  public org.openl.generated.test.beans.Vehicle[] getTestVehicles1()
   {
    Object __res = testVehicles1_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Vehicle[])__res;
+   return (org.openl.generated.test.beans.Vehicle[])__res;
   }
 
 
-  public void setTestVehicles1(org.openl.generated.beans.Vehicle[] __var)
+  public void setTestVehicles1(org.openl.generated.test.beans.Vehicle[] __var)
   {
    testVehicles1_Field.set(__instance, __var, __env.get());
   }
@@ -384,14 +384,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField autoProfiles3_Field;
 
-  public org.openl.generated.beans.Vehicle[] getAutoProfiles3()
+  public org.openl.generated.test.beans.Vehicle[] getAutoProfiles3()
   {
    Object __res = autoProfiles3_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Vehicle[])__res;
+   return (org.openl.generated.test.beans.Vehicle[])__res;
   }
 
 
-  public void setAutoProfiles3(org.openl.generated.beans.Vehicle[] __var)
+  public void setAutoProfiles3(org.openl.generated.test.beans.Vehicle[] __var)
   {
    autoProfiles3_Field.set(__instance, __var, __env.get());
   }
@@ -432,14 +432,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField testPolicy2_Field;
 
-  public org.openl.generated.beans.Policy[] getTestPolicy2()
+  public org.openl.generated.test.beans.Policy[] getTestPolicy2()
   {
    Object __res = testPolicy2_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Policy[])__res;
+   return (org.openl.generated.test.beans.Policy[])__res;
   }
 
 
-  public void setTestPolicy2(org.openl.generated.beans.Policy[] __var)
+  public void setTestPolicy2(org.openl.generated.test.beans.Policy[] __var)
   {
    testPolicy2_Field.set(__instance, __var, __env.get());
   }
@@ -480,14 +480,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField policyProfile3_Field;
 
-  public org.openl.generated.beans.Policy[] getPolicyProfile3()
+  public org.openl.generated.test.beans.Policy[] getPolicyProfile3()
   {
    Object __res = policyProfile3_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Policy[])__res;
+   return (org.openl.generated.test.beans.Policy[])__res;
   }
 
 
-  public void setPolicyProfile3(org.openl.generated.beans.Policy[] __var)
+  public void setPolicyProfile3(org.openl.generated.test.beans.Policy[] __var)
   {
    policyProfile3_Field.set(__instance, __var, __env.get());
   }
@@ -576,14 +576,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField driverProfiles2_Field;
 
-  public org.openl.generated.beans.Driver[] getDriverProfiles2()
+  public org.openl.generated.test.beans.Driver[] getDriverProfiles2()
   {
    Object __res = driverProfiles2_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Driver[])__res;
+   return (org.openl.generated.test.beans.Driver[])__res;
   }
 
 
-  public void setDriverProfiles2(org.openl.generated.beans.Driver[] __var)
+  public void setDriverProfiles2(org.openl.generated.test.beans.Driver[] __var)
   {
    driverProfiles2_Field.set(__instance, __var, __env.get());
   }
@@ -592,14 +592,14 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
   static org.openl.types.IOpenField policyProfile2_Field;
 
-  public org.openl.generated.beans.Policy[] getPolicyProfile2()
+  public org.openl.generated.test.beans.Policy[] getPolicyProfile2()
   {
    Object __res = policyProfile2_Field.get(__instance, __env.get());
-   return (org.openl.generated.beans.Policy[])__res;
+   return (org.openl.generated.test.beans.Policy[])__res;
   }
 
 
-  public void setPolicyProfile2(org.openl.generated.beans.Policy[] __var)
+  public void setPolicyProfile2(org.openl.generated.test.beans.Policy[] __var)
   {
    policyProfile2_Field.set(__instance, __var, __env.get());
   }
@@ -639,7 +639,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod driverPremium_Method;
-  public org.openl.meta.DoubleValue driverPremium(org.openl.generated.beans.Driver driver, java.lang.String driverAgeType)  {
+  public org.openl.meta.DoubleValue driverPremium(org.openl.generated.test.beans.Driver driver, java.lang.String driverAgeType)  {
     Object[] __params = new Object[2];
     __params[0] = driver;
     __params[1] = driverAgeType;
@@ -675,7 +675,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod processPolicy_Method;
-  public org.openl.rules.calc.SpreadsheetResult processPolicy(org.openl.generated.beans.Policy policy)  {
+  public org.openl.rules.calc.SpreadsheetResult processPolicy(org.openl.generated.test.beans.Policy policy)  {
     Object[] __params = new Object[1];
     __params[0] = policy;
     try
@@ -729,7 +729,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod processDrivers_Method;
-  public org.openl.rules.calc.SpreadsheetResult[] processDrivers(org.openl.generated.beans.Driver[] drivers)  {
+  public org.openl.rules.calc.SpreadsheetResult[] processDrivers(org.openl.generated.test.beans.Driver[] drivers)  {
     Object[] __params = new Object[1];
     __params[0] = drivers;
     try
@@ -747,7 +747,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod coverageSurcharge_Method;
-  public org.openl.meta.DoubleValue coverageSurcharge(org.openl.generated.beans.Vehicle vehicle)  {
+  public org.openl.meta.DoubleValue coverageSurcharge(org.openl.generated.test.beans.Vehicle vehicle)  {
     Object[] __params = new Object[1];
     __params[0] = vehicle;
     try
@@ -800,7 +800,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod clientDiscount_Method;
-  public org.openl.meta.DoubleValue clientDiscount(org.openl.generated.beans.Policy policy)  {
+  public org.openl.meta.DoubleValue clientDiscount(org.openl.generated.test.beans.Policy policy)  {
     Object[] __params = new Object[1];
     __params[0] = policy;
     try
@@ -853,7 +853,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod vehicleInjuryRating_Method;
-  public java.lang.String vehicleInjuryRating(org.openl.generated.beans.Vehicle vehicle)  {
+  public java.lang.String vehicleInjuryRating(org.openl.generated.test.beans.Vehicle vehicle)  {
     Object[] __params = new Object[1];
     __params[0] = vehicle;
     try
@@ -907,7 +907,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod policyEligibility_Method;
-  public java.lang.String policyEligibility(org.openl.generated.beans.Policy policy, int score)  {
+  public java.lang.String policyEligibility(org.openl.generated.test.beans.Policy policy, int score)  {
     Object[] __params = new Object[2];
     __params[0] = policy;
     __params[1] = new Integer(score);
@@ -926,7 +926,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod vehicleDiscount_Method;
-  public org.openl.meta.DoubleValue vehicleDiscount(org.openl.generated.beans.Vehicle vehicle, java.lang.String vehicleTheftRating)  {
+  public org.openl.meta.DoubleValue vehicleDiscount(org.openl.generated.test.beans.Vehicle vehicle, java.lang.String vehicleTheftRating)  {
     Object[] __params = new Object[2];
     __params[0] = vehicle;
     __params[1] = vehicleTheftRating;
@@ -1000,7 +1000,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod driverEligibility_Method;
-  public java.lang.String driverEligibility(org.openl.generated.beans.Driver driver, java.lang.String ageType)  {
+  public java.lang.String driverEligibility(org.openl.generated.test.beans.Driver driver, java.lang.String ageType)  {
     Object[] __params = new Object[2];
     __params[0] = driver;
     __params[1] = ageType;
@@ -1019,7 +1019,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod processVehicle_Method;
-  public org.openl.rules.calc.SpreadsheetResult processVehicle(org.openl.generated.beans.Vehicle vehicle)  {
+  public org.openl.rules.calc.SpreadsheetResult processVehicle(org.openl.generated.test.beans.Vehicle vehicle)  {
     Object[] __params = new Object[1];
     __params[0] = vehicle;
     try
@@ -1037,7 +1037,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod clientTierScore_Method;
-  public org.openl.meta.DoubleValue clientTierScore(org.openl.generated.beans.Policy policy)  {
+  public org.openl.meta.DoubleValue clientTierScore(org.openl.generated.test.beans.Policy policy)  {
     Object[] __params = new Object[1];
     __params[0] = policy;
     try
@@ -1073,7 +1073,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod processVehicles_Method;
-  public org.openl.rules.calc.SpreadsheetResult[] processVehicles(org.openl.generated.beans.Vehicle[] vehicles)  {
+  public org.openl.rules.calc.SpreadsheetResult[] processVehicles(org.openl.generated.test.beans.Vehicle[] vehicles)  {
     Object[] __params = new Object[1];
     __params[0] = vehicles;
     try
@@ -1091,7 +1091,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod driverAccidentPremium_Method;
-  public org.openl.meta.DoubleValue driverAccidentPremium(org.openl.generated.beans.Driver driver, java.lang.String driverRisk)  {
+  public org.openl.meta.DoubleValue driverAccidentPremium(org.openl.generated.test.beans.Driver driver, java.lang.String driverRisk)  {
     Object[] __params = new Object[2];
     __params[0] = driver;
     __params[1] = driverRisk;
@@ -1110,7 +1110,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod basePrice_Method;
-  public org.openl.meta.DoubleValue basePrice(org.openl.generated.beans.Vehicle vehicle)  {
+  public org.openl.meta.DoubleValue basePrice(org.openl.generated.test.beans.Vehicle vehicle)  {
     Object[] __params = new Object[1];
     __params[0] = vehicle;
     try
@@ -1128,7 +1128,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod driverRisk_Method;
-  public java.lang.String driverRisk(org.openl.generated.beans.Driver driver)  {
+  public java.lang.String driverRisk(org.openl.generated.test.beans.Driver driver)  {
     Object[] __params = new Object[1];
     __params[0] = driver;
     try
@@ -1198,7 +1198,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod driverAgeType_Method;
-  public java.lang.String driverAgeType(org.openl.generated.beans.Driver driver)  {
+  public java.lang.String driverAgeType(org.openl.generated.test.beans.Driver driver)  {
     Object[] __params = new Object[1];
     __params[0] = driver;
     try
@@ -1216,7 +1216,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod processDriver_Method;
-  public org.openl.rules.calc.SpreadsheetResult processDriver(org.openl.generated.beans.Driver driver)  {
+  public org.openl.rules.calc.SpreadsheetResult processDriver(org.openl.generated.test.beans.Driver driver)  {
     Object[] __params = new Object[1];
     __params[0] = driver;
     try
@@ -1234,7 +1234,7 @@ public class Tutorial_4Wrapper implements org.openl.main.OpenLWrapper,org.openl.
 
 
   static org.openl.types.IOpenMethod vehicleTheftRating_Method;
-  public java.lang.String vehicleTheftRating(org.openl.generated.beans.Vehicle vehicle)  {
+  public java.lang.String vehicleTheftRating(org.openl.generated.test.beans.Vehicle vehicle)  {
     Object[] __params = new Object[1];
     __params[0] = vehicle;
     try
@@ -1347,41 +1347,41 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     this_Field = __class.getField("this");
     airbag_type_Field = __class.getField("airbag_type");
     driverPremium_Method = __class.getMatchingMethod("driverPremium", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     driverRiskTestTestAll_Method = __class.getMatchingMethod("driverRiskTestTestAll", new IOpenClass[] {
 });
     processPolicy_Method = __class.getMatchingMethod("processPolicy", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Policy.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Policy.class)});
     calculateDriversPremium_Method = __class.getMatchingMethod("calculateDriversPremium", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.Object.class)});
     calculateDriversScore_Method = __class.getMatchingMethod("calculateDriversScore", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.Object.class)});
     processDrivers_Method = __class.getMatchingMethod("processDrivers", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver[].class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver[].class)});
     coverageSurcharge_Method = __class.getMatchingMethod("coverageSurcharge", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle.class)});
     vehicleTheftRatingTestTestAll_Method = __class.getMatchingMethod("vehicleTheftRatingTestTestAll", new IOpenClass[] {
 });
     driverRiskPremium_Method = __class.getMatchingMethod("driverRiskPremium", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     clientDiscount_Method = __class.getMatchingMethod("clientDiscount", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Policy.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Policy.class)});
     driverEligibilityTestTestAll_Method = __class.getMatchingMethod("driverEligibilityTestTestAll", new IOpenClass[] {
 });
     calculateVehiclesPremium_Method = __class.getMatchingMethod("calculateVehiclesPremium", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.Object.class)});
     vehicleInjuryRating_Method = __class.getMatchingMethod("vehicleInjuryRating", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle.class)});
     vehicleEligibilityScore_Method = __class.getMatchingMethod("vehicleEligibilityScore", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     calculateVehiclesScore_Method = __class.getMatchingMethod("calculateVehiclesScore", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.Object.class)});
     policyEligibility_Method = __class.getMatchingMethod("policyEligibility", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Policy.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Policy.class),
       OpenClassHelper.getOpenClass(__class, int.class)});
     vehicleDiscount_Method = __class.getMatchingMethod("vehicleDiscount", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     vehicleEligibility_Method = __class.getMatchingMethod("vehicleEligibility", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class),
@@ -1391,23 +1391,23 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     theftRatingSurcharge_Method = __class.getMatchingMethod("theftRatingSurcharge", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     driverEligibility_Method = __class.getMatchingMethod("driverEligibility", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     processVehicle_Method = __class.getMatchingMethod("processVehicle", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle.class)});
     clientTierScore_Method = __class.getMatchingMethod("clientTierScore", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Policy.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Policy.class)});
     ageSurcharge_Method = __class.getMatchingMethod("ageSurcharge", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, int.class)});
     processVehicles_Method = __class.getMatchingMethod("processVehicles", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle[].class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle[].class)});
     driverAccidentPremium_Method = __class.getMatchingMethod("driverAccidentPremium", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver.class),
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
     basePrice_Method = __class.getMatchingMethod("basePrice", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle.class)});
     driverRisk_Method = __class.getMatchingMethod("driverRisk", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver.class)});
     driverAgeTypeTestTestAll_Method = __class.getMatchingMethod("driverAgeTypeTestTestAll", new IOpenClass[] {
 });
     driverRiskScore_Method = __class.getMatchingMethod("driverRiskScore", new IOpenClass[] {
@@ -1415,11 +1415,11 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
     vehicleInjuryRatingTestTestAll_Method = __class.getMatchingMethod("vehicleInjuryRatingTestTestAll", new IOpenClass[] {
 });
     driverAgeType_Method = __class.getMatchingMethod("driverAgeType", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver.class)});
     processDriver_Method = __class.getMatchingMethod("processDriver", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Driver.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Driver.class)});
     vehicleTheftRating_Method = __class.getMatchingMethod("vehicleTheftRating", new IOpenClass[] {
-      OpenClassHelper.getOpenClass(__class, org.openl.generated.beans.Vehicle.class)});
+      OpenClassHelper.getOpenClass(__class, org.openl.generated.test.beans.Vehicle.class)});
     driverTypeScore_Method = __class.getMatchingMethod("driverTypeScore", new IOpenClass[] {
       OpenClassHelper.getOpenClass(__class, java.lang.String.class),
       OpenClassHelper.getOpenClass(__class, java.lang.String.class)});
