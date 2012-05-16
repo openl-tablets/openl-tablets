@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.FormattersManager;
@@ -121,7 +120,15 @@ public class TableProperty {
      * @return
      */
     public String getDisplayValue() {
-    	return getStringValue();
+        return getStringValue();
+    }
+
+    public String getStringValue() {        
+        String result = StringUtils.EMPTY;       
+        if (value != null) {
+            result = FormattersManager.getFormatter(type, getFormat()).format(value); 
+        }        
+        return result;
     }
 
     /**
@@ -132,20 +139,12 @@ public class TableProperty {
      */
     public void setStringValue(String value) {
         Object result = value;
-        if (StringUtils.isNotEmpty(value)) {
+        if (StringUtils.isNotBlank(value)) {
             result = FormattersManager.getFormatter(type, getFormat()).parse(value);            
         } else {
             result = null;
         }
         this.value = result;
-    }
-
-    public String getStringValue() {        
-        String result = StringUtils.EMPTY;       
-        if (value != null) {
-            result = FormattersManager.getFormatter(type, getFormat()).format(value); 
-        }        
-        return result;
     }
 
     public String[] getEnumArrayValue() {

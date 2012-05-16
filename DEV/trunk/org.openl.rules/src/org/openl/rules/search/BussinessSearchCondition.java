@@ -12,6 +12,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class BussinessSearchCondition {
     
     private Map<String, Object> propToSearch = new HashMap<String, Object>();

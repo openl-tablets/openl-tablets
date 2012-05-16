@@ -14,6 +14,7 @@ import org.openl.rules.table.properties.ITableProperties;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class OpenLBussinessSearch implements IOpenLSearch{
     
     private BussinessSearchCondition busSearchCondit = new BussinessSearchCondition();    

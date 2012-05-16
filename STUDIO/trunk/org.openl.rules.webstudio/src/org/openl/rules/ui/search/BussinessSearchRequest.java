@@ -16,6 +16,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  */
 @ManagedBean
 @RequestScoped
+@Deprecated
 public class BussinessSearchRequest {
     private boolean needSearch;
 

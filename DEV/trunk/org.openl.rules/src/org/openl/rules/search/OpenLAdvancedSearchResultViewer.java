@@ -12,6 +12,7 @@ import org.openl.rules.table.TransposedGridTable;
  * @author snshor
  * 
  */
+@Deprecated
 public class OpenLAdvancedSearchResultViewer {
 
     public OpenLAdvancedSearchResultViewer() {}

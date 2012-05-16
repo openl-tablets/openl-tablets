@@ -10,6 +10,7 @@ import org.openl.rules.search.OpenLBussinessSearchResult;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 
+@Deprecated
 public class BussinessSearchResultBean {  
 
     private static final String EMPTY_VALUE = "--EMPTY--";    
