@@ -15,12 +15,12 @@ import org.apache.commons.lang.ClassUtils;
 
 public class ArrayTool {
 
-    static class ArrayEnumeration implements Enumeration<Object> {
+    static class ArrayEnumeration<T> implements Enumeration<T> {
 		int _index = 0;
 		int _size;
-		Object _array;
+		T _array;
 
-		ArrayEnumeration(Object array) {
+		ArrayEnumeration(T array) {
 			_size = Array.getLength(array);
 			_array = array;
 		}
@@ -29,8 +29,9 @@ public class ArrayTool {
 			return _index < _size;
 		}
 
-		public Object nextElement() {
-			return Array.get(_array, _index++);
+		@SuppressWarnings("unchecked")
+        public T nextElement() {
+			return (T) Array.get(_array, _index++);
 		}
 	}
 
@@ -155,7 +156,7 @@ public class ArrayTool {
 		return newArray;
 	}
 
-	public static Enumeration<Object> enumeration(Object array) {
+	public static <T> Enumeration<T> enumeration(Object array) {
 		return new ArrayEnumeration(array);
 	}
 
