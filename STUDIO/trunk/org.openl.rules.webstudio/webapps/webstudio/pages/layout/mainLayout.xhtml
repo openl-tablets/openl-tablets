@@ -167,6 +167,23 @@
                 }
             }
             
+            function search(params) {
+                var query;
+
+                if (params) {
+                    // Simple Search by text
+                    if (params.constructor === String) {
+                        query = "query=" + params;
+
+                    // Advanced Search
+                    } else {
+                        query = $j.param(params);
+                    }
+                }
+
+                goTo("search.xhtml" + (query ? "?" + query : ""));
+            }
+
             function goTo(page, reload) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");

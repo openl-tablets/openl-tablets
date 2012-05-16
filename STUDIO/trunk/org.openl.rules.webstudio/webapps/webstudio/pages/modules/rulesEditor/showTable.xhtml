@@ -447,7 +447,7 @@
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
-                <h:outputLink value="javascript:search()">Search</h:outputLink>
+                <h:outputLink value="javascript:search($j(PopupMenu.lastTarget).text())">Search</h:outputLink>
             </rules:tableEditor>
         </div>
     </div>
@@ -498,11 +498,6 @@
                 button = $j(event.target).closest(buttonElem);
             showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
             adjustSize(popupId, 'content');
-        }
-
-        function search() {
-            var searchQuery = $j(PopupMenu.lastTarget).text();
-            goTo("search/simpleSearch.xhtml?searchQuery=" + encodeURIComponent(searchQuery));
         }
 
         function editInExcel(f) {

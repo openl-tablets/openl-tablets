@@ -11,17 +11,13 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.search.GroupOperator;
 import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearch;
-import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.SearchConditionElement;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 
 import static org.openl.commons.web.jsf.FacesUtils.createSelectItems;
 
@@ -33,9 +29,8 @@ import org.openl.util.AStringBoolOperator;
  */
 @ManagedBean(name="advancedSearch")
 @SessionScoped
+@Deprecated
 public class OpenLAdvancedSearchBean {
-
-    private final Log log = LogFactory.getLog(OpenLAdvancedSearchBean.class);
 
     private static final SelectItem[] tableTypes;
     private static final SelectItem[] columnTypeValues;
@@ -85,35 +80,6 @@ public class OpenLAdvancedSearchBean {
         return null;
     }
 
-    // TODO Reimplement with User Settings
-    public String applySearch() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        if (webStudio != null) {
-            int index = -1;
-            try {
-                index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
-            } catch (NumberFormatException e) {
-            }
-
-            OpenLSavedSearch[] savedSearches = webStudio.getModel().getSavedSearches();
-            if (savedSearches != null && index >= 0 && index < savedSearches.length) {
-                applySearch(savedSearches[index]);
-            }
-        }
-
-        return null;
-    }
-
-    // TODO Reimplement with User Settings
-    private void applySearch(OpenLSavedSearch savedSearch) {
-        search.setTableElements(savedSearch.getTableElements());
-        search.setColumnElements(savedSearch.getColumnElements());
-        updateColumnElements();
-        updateTableElements();
-        String types = savedSearch.getTableTypes();
-        setSelectedTableTypes(types.trim().split(", *"));
-    }
-
     public synchronized String deleteColCondition() {
         search.editAction(ISearchConstants.COL_DELETE_ACTION + FacesUtils.getRequestParameter("index"));
         updateColumnElements();
@@ -150,15 +116,6 @@ public class OpenLAdvancedSearchBean {
         return opTypeValues;
     }
 
-    // TODO Reimplement with User Settings
-    public OpenLSavedSearch[] getSavedSearches() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        if (webStudio != null) {
-            return webStudio.getModel().getSavedSearches();
-        }
-        return null;
-    }
-
     public String[] getSelectedTableTypes() {
         return selectedTableTypes;
     }
@@ -177,28 +134,6 @@ public class OpenLAdvancedSearchBean {
 
     public boolean isReady() {
         return WebStudioUtils.isStudioReady();
-    }
-
-    public boolean isShowSearches() {
-        OpenLSavedSearch[] savedSearches = getSavedSearches();
-        return savedSearches.length > 0;
-    }
-
-    // TODO Reimplement with User Settings
-    public String save() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio();
-        if (webStudio != null) {
-            try {
-                OpenLSavedSearch savedSearch = new OpenLSavedSearch(search.getColumnElements(), search
-                        .getTableElements(), selectedTableTypes);
-                savedSearch.setName(getNewSearchName());
-                webStudio.getModel().saveSearch(savedSearch);
-            } catch (Exception e) {
-                FacesUtils.addErrorMessage("Failed to save search", e.getMessage());
-                log.error("failed to save search", e);
-            }
-        }
-        return null;
     }
 
     public void setNewSearchName(String newSearchName) {

@@ -1,21 +1,18 @@
-/**
- * Created Apr 29, 2007
- */
-package org.openl.rules.search;
+package org.openl.rules.table.search.selectors;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.util.ArrayTool;
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Handles array of table types (e.g. rules, spreadsheet, etc. see {@code ITableNodeTypes} constant 
  * for supported types).
  * Checks if given table type exists in current array.
+ *
  * @author snshor
  *
  */
-@Deprecated
-public class TableTypeSelector extends ATableSyntaxNodeSelector {
-    
+public class TableTypeSelector extends TableSelector {
+
     private String[] types;
 
     public TableTypeSelector() {
@@ -28,18 +25,15 @@ public class TableTypeSelector extends ATableSyntaxNodeSelector {
     public String[] getTypes() {
         return types;
     }
-    
-    /**
-     * Checks if given table type exists in current array.
-     */
-    @Override
-    public boolean doesTableMatch(TableSyntaxNode node) {
-        String type = node.getType();
-        return ArrayTool.contains(types, type);
-    }
 
     public void setTypes(String[] types) {
         this.types = types;
+    }
+
+    @Override
+    public boolean select(TableSyntaxNode node) {
+        String type = node.getType();
+        return ArrayUtils.contains(types, type);
     }
 
 }
