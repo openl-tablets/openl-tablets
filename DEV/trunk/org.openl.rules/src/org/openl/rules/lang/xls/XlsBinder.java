@@ -4,24 +4,15 @@
 
 package org.openl.rules.lang.xls;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,6 +54,7 @@ import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -736,8 +728,9 @@ public class XlsBinder implements IOpenBinder {
      * @param moduleSyntaxNode module source
      */
     private void addImportedClasses(XlsModuleOpenClass module, XlsModuleSyntaxNode moduleSyntaxNode) {
+        ClassFinder finder = new ClassFinder();
         for (String packageName : moduleSyntaxNode.getAllImports()) {
-            for (Class<?> type : getClasses(packageName)) {
+            for (Class<?> type : finder.getClasses(packageName)) {
                 try {
                     IOpenClass openType = JavaOpenClass.getOpenClass(type);
                     if (module.getTypes().values().contains(openType) || !isValid(openType))
@@ -780,138 +773,5 @@ public class XlsBinder implements IOpenBinder {
 
         return true;
     }
-    
-    /**
-     * Scans all classes accessible from the context class loader which belong
-     * to the given package.
-     * 
-     * @param packageName The package
-     * @return The classes
-     */
-    private Class<?>[] getClasses(String packageName) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String path = packageName.replace('.', '/');
-        Enumeration<URL> resources;
-        try {
-            resources = classLoader.getResources(path);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return new Class[0];
-        }
-        List<File> dirs = new ArrayList<File>();
-        List<URL> jars = new ArrayList<URL>();
-        while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            try {
-                URI uri = resource.toURI();
-                String scheme = uri.getScheme();
-                
-                if (scheme != null) {
-                    if ("file".equalsIgnoreCase(scheme)) {
-                        dirs.add(new File(uri));
-                    } else if ("jar".equalsIgnoreCase(scheme)) {
-                        try {
-                            String jarPath = resource.getFile().split("!")[0];
-                            jars.add(new URL(jarPath));
-                        } catch (MalformedURLException e) {
-                            log.error(e.getMessage(), e);
-                            continue;
-                        }
-                    }
-                }
-            } catch (URISyntaxException e) {
-                // This should not be happen, but...
-                log.error(e.getMessage(), e);
-            }
-        }
-        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName, classLoader));
-        }
-        for (URL jar : jars) {
-            classes.addAll(findClassesFromJar(jar, packageName, classLoader));
-        }
-        return classes.toArray(new Class[classes.size()]);
-    }
 
-    /**
-     * A method is used to find all classes in a given directory. If a class
-     * cannot be loaded, it is skipped (in our case we don't need such classes).
-     * 
-     * @param directory The directory
-     * @param packageName The package name for classes found inside the
-     *            directory
-     * @param classLoader a ClassLoader that is used to load a classes 
-     * @return The classes
-     */
-    private List<Class<?>> findClasses(File directory, String packageName, ClassLoader classLoader) {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-        if (!directory.exists()) {
-            return classes;
-        }
-        File[] files = directory.listFiles();
-        for (File file : files) {
-            String fileName = file.getName();
-            if (file.isDirectory()) {
-                continue;
-            } else {
-                String suffix = ".class";
-                if (fileName.endsWith(suffix) && !fileName.contains("$")) {
-                    try {
-                        String className = fileName.substring(0, fileName.length() - suffix.length());
-                        String fullClassName = packageName + '.' + className;
-                        Class<?> type = Class.forName(fullClassName, true, classLoader);
-                        classes.add(type);
-                    } catch (Throwable t) {
-                        // Cannot load a class. Skip it
-                        continue;
-                    }
-                }
-            }
-        }
-        return classes;
-    }
-
-    /**
-     * A method is used to find all classes in a given jar. If a class cannot be
-     * loaded, it is skipped (in our case we don't need such classes).
-     * 
-     * @param jar URL of a jar
-     * @param packageName The package name for classes found inside the jar
-     * @param classLoader a ClassLoader that is used to load a classes
-     * @return The classes
-     */
-    private List<Class<?>> findClassesFromJar(URL jar, String packageName, ClassLoader classLoader) {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-        ZipInputStream zip = null;
-        try {
-            zip = new ZipInputStream(jar.openStream());
-            ZipEntry entry;
-
-            while ((entry = zip.getNextEntry()) != null) {
-                if (entry.getName().endsWith(".class")) {
-                    String className = entry.getName().replace(".class", "").replace('/', '.');
-                    if (className.startsWith(packageName)) {
-                        try {
-                            classes.add(Class.forName(className, true, classLoader));
-                        } catch (ClassNotFoundException e) {
-                            // Cannot load a class. Skip it
-                            continue;
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            if (zip != null) {
-                try {
-                    zip.close();
-                } catch (IOException e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-        }
-        return classes;
-    }
 }
