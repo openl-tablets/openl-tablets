@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j">
@@ -11,57 +9,25 @@
     <c:set var="rProject" value="#{studio.currentProject}" />
 
     <style>
-        #searchInput {
-            position: relative;
-        }
-        #searchInput input[type='text'] {
-            height: 23px;
-            width: 201px;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            padding-right: 20px;
-            margin-top: -5px;
-        }
-        #searchInput input[type='image'] {
-            position: absolute;
-            right: 10px;
-            top: 2px;
-            cursor: pointer;
-            opacity: 0.5;
-        }
-        #otherSearches {
+        #viewMenu {
+            color: #555555;
+            border-color: #cccccc;
             display: none;
-            padding: 3px 5px 4px;
-            width: 189px;
-        }
-        #otherSearches div {
-            margin-bottom: 2px;
+            padding: 7px 8px;
+            width: 80px;
         }
     </style>
 
     <h:panelGroup id="topPanel" layout="block">
         <div style="float: right;">
             <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
-                <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
-                    onclick="showPopupMenu(event, 'otherSearches', $j(this).next(), {'offsetTop' : 4})">
-                    <h:graphicImage url="/webresource/images/arrow_down.png" title="Other Searches" />
-                </h:outputLink>
-                <form style="display: inline;"
-                    onsubmit="goTo('search/simpleSearch.xhtml?searchQuery=' + encodeURIComponent($j('#searchQuery').val())); return false;">
-                    <span id="searchInput">
-                        <input type="text" id="searchQuery" placeholder="Search..." />
-                        <input type="image" src="webresource/images/search.png" />
-                    </span>
-                </form>
-                <div id="otherSearches">
-                    <div><a href="#search/advancedSearch.xhtml">Advanced</a></div>
-                    <div><a href="#search/businessSearch.xhtml">Business</a></div>
-                </div>
+                <ui:include src="/pages/modules/rulesEditor/searchForm.xhtml" />
             </h:panelGroup>
 
             <div class="buttonPanel" style="display: inline-block; margin-left: 17px">
-                <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})" class="button">View</a>
-                <div id="viewMenu" style="display: none; width: 80px; padding: 7px 8px; border-color: #cccccc; color: #555555">
+                <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})"
+                    class="button">View</a>
+                <div id="viewMenu">
                     <h:form>
                         <div>Show</div>
                         <a4j:ajax oncomplete="reloadCurrent()">

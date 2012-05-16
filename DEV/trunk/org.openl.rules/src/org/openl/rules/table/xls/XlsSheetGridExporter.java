@@ -18,6 +18,7 @@ import org.openl.util.export.IExporter;
  * An {@link org.openl.util.export.IExporter} implementation that persists
  * instances into an excel sheet.
  */
+@Deprecated
 public class XlsSheetGridExporter implements IExporter {
     public static final String SHEET_NAME = "Saved Searches";
     private final XlsSheetGridModel gridModel;

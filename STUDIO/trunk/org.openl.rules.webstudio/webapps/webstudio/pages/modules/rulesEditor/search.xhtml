@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <div class="view_header">
+        <h:panelGroup rendered="#{not empty searchBean.searchResults}">
+            <h:outputText value="#{searchBean.searchResults.size()}" style="font-weight: bold" />
+            tables found
+        </h:panelGroup>
+
+        <h:outputText value="No results found" rendered="#{empty searchBean.searchResults}"
+            style="font-weight: bold" />
+    </div>
+
+    <div id="searchResults" class="content">
+        <div>
+            <c:forEach items="#{searchBean.searchResults}" var="table">
+                <br />
+                <span>
+                    <img src="webresource/images/viewTable.gif" />
+                    <h:outputLink value="#showTable.xhtml">
+                        <f:param name="uri" value="#{table.uri}" />
+                        <h:outputText value="View Table" />
+                    </h:outputLink>
+                </span>
+
+                <br />
+                <h:panelGroup rendered="#{studio.model.editable}">
+                    <img src="webresource/images/excel.png" />
+                    <h:outputLink value="#{contextPath}/action/launch" target="hidden">
+                        <f:param name="uri" value="#{table.uri}" />
+                        <h:outputText value="View Table in Excel" />
+                    </h:outputLink>
+                </h:panelGroup>
+
+                <br /><br />
+                <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
+                    rendered="#{table != null}" linkBase="#showTable.xhtml" linkTarget="content" />
+             </c:forEach>
+        </div>
+
+    </div>
+
+</ui:composition>

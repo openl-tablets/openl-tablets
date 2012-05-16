@@ -11,7 +11,7 @@ import org.openl.util.AStringBoolOperator;
  * @author snshor
  *
  */
-
+@Deprecated
 public class TableHeaderSelector extends ATableSyntaxNodeSelector {
     
     private AStringBoolOperator headerSelector;

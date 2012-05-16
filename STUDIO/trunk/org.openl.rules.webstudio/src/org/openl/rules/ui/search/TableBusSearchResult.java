@@ -3,6 +3,7 @@ package org.openl.rules.ui.search;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class TableBusSearchResult {
     
     Map<String, Object> propValues = new HashMap<String, Object>();

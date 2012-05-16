@@ -97,6 +97,10 @@ public class TablePropertyDefinitionUtils {
         return null;
     }
 
+    public static boolean doesPropertyExist(String name) {
+        return getPropertyByName(name) != null;
+    }
+
     /**
      * Gets list of properties that must me set for every table by default.
      *

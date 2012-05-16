@@ -1,25 +1,36 @@
-/**
- * Created May 3, 2007
- */
-package org.openl.rules.search;
+package org.openl.rules.table.search;
 
 import java.util.ArrayList;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.search.ATableRowSelector;
+import org.openl.rules.search.ATableSyntaxNodeSelector;
+import org.openl.rules.search.ColumnGroupSelector;
+import org.openl.rules.search.GroupOperator;
+import org.openl.rules.search.ISearchTableRow;
+import org.openl.rules.search.ITableSearchInfo;
+import org.openl.rules.search.OpenLAdvancedSearchResult;
+import org.openl.rules.search.SearchConditionElement;
+import org.openl.rules.search.SearchTableRow;
+import org.openl.rules.search.TableGroupSelector;
+import org.openl.rules.search.TableSearchInfo;
+import org.openl.rules.search.TableTypeSelector;
 import org.openl.util.AStringBoolOperator;
 import org.openl.util.ArrayTool;
+import org.openl.util.ISelector;
+
+import static org.openl.rules.search.ISearchConstants.*;
 
 /**
  * @author snshor
- *
+ * @author Andrei Astrouski
  */
-@Deprecated
-public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
-    
-    /*
-     * Type of components where we search the results. 
+public class TableSearcher {
+
+    /**
+     * Type of components where we search the results.
      */
     public static final String[] EXISTING_TABLE_TYPES = { "Rules", "Spreadsheet", "TBasic", "Column Match", "Data",
         "Method", "Datatype", "Test", "Run", "Env", "Other" };
@@ -43,9 +54,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         columnElements = (SearchConditionElement[]) ArrayTool.insertValue(i + 1, columnElements, columnElements[i].copy());
     }
 
-    /**
-     * @param i
-     */
     private void addTablePropertyAfter(int i) {
         tableElements = (SearchConditionElement[]) ArrayTool.insertValue(i + 1, tableElements, tableElements[i].copy());
     }
@@ -54,13 +62,10 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         columnElements = (SearchConditionElement[]) ArrayTool.removeValue(i, columnElements);
     }
 
-    /**
-     * @param i
-     */
     private void deleteTablePropertyAt(int i) {
         tableElements = (SearchConditionElement[]) ArrayTool.removeValue(i, tableElements);
     }
-    
+
     private boolean isRowSelected(ISearchTableRow searchTableRow, ATableRowSelector[] rowSelectors,
             ITableSearchInfo tableSearchInfo) {
         for (int j = 0; j < rowSelectors.length; j++) {
@@ -72,7 +77,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         return true;
 
     }
-    
+
     /** 
      * @param tsn <code>TableSyntaxNode</code> representing the table.
      * @param tselectors Selectors that were defined on advanced search.
@@ -88,9 +93,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         return true;
     }
 
-    /**
-     * @return
-     */
     private ATableSyntaxNodeSelector makePropertyOrHeaderSelectors() {
         return new TableGroupSelector(tableElements);
     }
@@ -107,7 +109,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
 
         return new TableTypeSelector(tt);
     }
-    
+
     private void addResult(TableSyntaxNode table, OpenLAdvancedSearchResult res, 
             ATableSyntaxNodeSelector[] tableSelectors, ATableRowSelector[] columnSelectors) {        
         if (doesTableMatcheToSelectors(table, tableSelectors)) {
@@ -120,7 +122,7 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
             }
         }
     }
-    
+
     /**
      * Gets the rows of tables that matches to the search info.
      * @param tablSearchInfo
@@ -153,18 +155,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         return sll.toArray(new ATableSyntaxNodeSelector[0]);
     }
 
-    /**
-     * @param tableElements2
-     * @param i
-     */
-    // private void makeLengthTableElements(int len)
-    // {
-    // SearchElement[] xx = new SearchElement[len];
-    // System.arraycopy(tableElements, 0, xx, 0, Math.min(len,
-    // tableElements.length));
-    // tableElements = xx;
-    // }
-
     public void editAction(String action) {
         if (action.startsWith(ADD_ACTION)) {
             addTablePropertyAfter(Integer.parseInt(action.substring(ADD_ACTION.length())));
@@ -194,8 +184,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         return EXISTING_TABLE_TYPES;
     }
 
-    
-
     public String[] opTypeValues() {
         return AStringBoolOperator.getAllOperatorNames();
     }
@@ -208,29 +196,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
         return list.toArray(new ATableRowSelector[0]);
 
     }
-
-    /*
-     * public void fillTableElement(int i, String gopID, String nfID, String
-     * typeID, String value1ID, String opTypeID, String value2ID) { boolean
-     * isEmpty = typeID == null; int MIN_LEN = 1;
-     *
-     * if (isEmpty) { if (i < tableElements.length)
-     * makeLengthTableElements(Math.max(i, MIN_LEN)); return; }
-     * makeLengthTableElements(Math.max(i+1, MIN_LEN));
-     *
-     *
-     *
-     * SearchElement se = new SearchElement(typeID);
-     *
-     * se.setOperator(GroupOperator.find(gopID));
-     * se.setNotFlag(nfValues[1].equals(nfID)); se.setValue1(value1ID);
-     * se.setOpType(opTypeID); se.setValue2(value2ID);
-     *
-     * tableElements[i] = se;
-     *
-     *  }
-     *
-     */
 
     public Object search(XlsModuleSyntaxNode xsn) {
         ATableSyntaxNodeSelector[] tableSelectors = getTableSelectors();
@@ -245,7 +210,20 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
             }
         }
         return res;
-    }       
+    }
+
+    public Object search(XlsModuleSyntaxNode xsn, ISelector<TableSyntaxNode> selector) {
+        SearchResult res = new SearchResult();
+
+        TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
+        for (TableSyntaxNode table : tables) {
+            if (selector.select(table)) {
+                res.add(table);
+            }
+        }
+
+        return res;
+    }
 
     public boolean getSelectedTableType(int i) {
         return selectedTableTypes[i];
@@ -270,6 +248,6 @@ public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
             }
         }
         throw new RuntimeException("Unknown type value: " + typeValue);
-    }    
+    }
 
 }
