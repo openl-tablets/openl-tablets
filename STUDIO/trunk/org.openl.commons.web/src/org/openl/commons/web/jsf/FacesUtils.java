@@ -28,8 +28,7 @@ import javax.servlet.http.HttpSession;
  */
 public abstract class FacesUtils {
     /**
-     * Creates an array of <code>SelectItem</code>s from collection of
-     * <code>String</code>s;
+     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
      *
      * @param values an array of <code>SelectItem</code> values.
      * @return array of JSF objects representing items.
@@ -44,8 +43,7 @@ public abstract class FacesUtils {
     }
 
     /**
-     * Creates an array of <code>SelectItem</code>s from array of
-     * <code>String</code>s;
+     * Creates an array of <code>SelectItem</code>s from array of <code>String</code>s.
      *
      * @param values an array of <code>SelectItem</code> values.
      * @return array of JSF objects representing items.
@@ -54,6 +52,21 @@ public abstract class FacesUtils {
         SelectItem[] items = new SelectItem[values.length];
         for (int i = 0; i < items.length; ++i) {
             items[i] = new SelectItem(values[i]);
+        }
+        return items;
+    }
+
+    /**
+     * Creates an array of <code>SelectItem</code>.
+     *
+     * @param values an array of values.
+     * @param labels an array of labels.
+     * @return array of JSF objects representing items.
+     */
+    public static SelectItem[] createSelectItems(String[] values, String[] labels) {
+        SelectItem[] items = new SelectItem[values.length];
+        for (int i = 0; i < items.length; ++i) {
+            items[i] = new SelectItem(values[i], labels[i]);
         }
         return items;
     }
@@ -127,39 +140,14 @@ public abstract class FacesUtils {
     }
 
     /**
-     * Returns request parameter from HttpServletRequest object through current
-     * FacesContext.
+     * Returns request parameter from HttpServletRequest object through current FacesContext.
      *
      * @param parameterName parameter name
      *
-     * @return parameter value - if parameter exists, <code>null</code> -
-     *         otherwise.
-     * TODO: this method should be used only for uri decoding
-     * in other cases use method without decoding        
-     * @deprecated Set URIEncoding="UTF-8" on the &lt;Connector&gt; element in server.xml on Tomcat and use {@link #getRequestParameterClean(String)} instead
+     * @return parameter value - if parameter exists, <code>null</code> - otherwise.
      */
-    @Deprecated
     public static String getRequestParameter(String parameterName) {
-        String param = getRequestParameterClean(parameterName);
-
-        // !!! Set URIEncoding="UTF-8" on the <Connector> element in server.xml on Tomcat instead of commented below code.
-        // !!! Fore other servlet containers there should be same setting.
-        
-//        if (StringUtils.isNotBlank(param)) {
-//            try {
-//            	// If a character encoding is not specified, the Servlet specification requires that an encoding of ISO-8859-1 is used.
-//            	// see http://wiki.apache.org/tomcat/FAQ/CharacterEncoding
-//            	// http://blogs.warwick.ac.uk/kieranshaw/entry/utf-8_internationalisation_with/ (section tomcat)
-//            	//
-//                param = new String(param.getBytes("ISO-8859-1"), "UTF-8");
-//            } catch (Exception e) {}
-//        }
-        
-        return param;
-    }
-    
-    public static String getRequestParameterClean(String parameterName) {
-    	return getRequestParameterMap().get(parameterName);
+        return getRequestParameterMap().get(parameterName);
     }
 
     public static Map<String, String> getRequestParameterMap() {

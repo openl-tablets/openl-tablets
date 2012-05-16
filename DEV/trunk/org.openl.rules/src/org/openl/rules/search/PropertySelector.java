@@ -15,7 +15,7 @@ import org.openl.util.AStringBoolOperator;
  * @author <i>snshor</i><br>
  * commented by <i>DLiauchuk<i>
  */
-
+@Deprecated
 public class PropertySelector extends ATableSyntaxNodeSelector {
     
     private AStringBoolOperator propertyNameSelector;

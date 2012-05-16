@@ -39,12 +39,13 @@ import org.openl.rules.search.ISearchTableRow;
 import org.openl.rules.search.OpenLAdvancedSearchResult;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
 import org.openl.rules.search.OpenLBussinessSearchResult;
-import org.openl.rules.search.OpenLSavedSearch;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.OpenLTable;
+import org.openl.rules.table.search.SearchResult;
+import org.openl.rules.table.search.TableSearcher;
 import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
@@ -71,6 +72,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.IBenchmarkableMethod;
+import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
@@ -98,8 +100,6 @@ public class ProjectModel {
     private WebStudio studio;
 
     private ColorFilterHolder filterHolder = new ColorFilterHolder();
-
-    private OpenLSavedSearch[] savedSearches = new OpenLSavedSearch[0];
 
     private ProjectTreeNode projectRoot = null;
 
@@ -559,11 +559,6 @@ public class ProjectModel {
         return projectRoot;
     }
 
-    // TODO Implement with User Settings
-    public OpenLSavedSearch[] getSavedSearches() {
-        return savedSearches;
-    }
-
     public List<IOpenLTable> getAdvancedSearchResults(Object searchResult) {
         List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
 
@@ -592,6 +587,41 @@ public class ProjectModel {
         return searchResults;
     }
 
+    public List<IOpenLTable> getSearchResults(Object searchResult) {
+        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
+
+        if (searchResult instanceof SearchResult) {
+            List<TableSyntaxNode> foundTables = ((SearchResult) searchResult).getFoundTables();
+            for (TableSyntaxNode foundTable : foundTables) {
+                searchResults.add(new TableSyntaxNodeAdapter(foundTable));
+            }
+
+        } else if (searchResult instanceof OpenLAdvancedSearchResult) {
+            TableAndRows[] tr = ((OpenLAdvancedSearchResult) searchResult).getFoundTableAndRows();
+            OpenLAdvancedSearchResultViewer searchViewer = new OpenLAdvancedSearchResultViewer();
+            for (int i = 0; i < tr.length; i++) {
+                ISearchTableRow[] rows = tr[i].getRows();
+                if (rows.length > 0) {
+                    TableSyntaxNode tsn = tr[i].getTsn();
+                    String tableUri = tsn.getUri();
+
+                    CompositeGrid cg = searchViewer.makeGrid(rows);
+                    IGridTable gridTable = cg != null ? cg.asGridTable() : null;
+
+                    OpenLTable newTable = new OpenLTable();
+                    newTable.setGridTable(gridTable);
+                    newTable.setUri(tableUri);
+                    newTable.setProperties(tsn.getTableProperties());
+
+                    searchResults.add(newTable);
+                }
+            }
+        }
+
+        return searchResults;
+    }
+
+    @Deprecated
     public List<IOpenLTable> getBussinessSearchResults(Object searchResult) {
         List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
 
@@ -931,7 +961,6 @@ public class ProjectModel {
                 break;
         }
         setModuleInfo(moduleInfo, reloadType);
-        savedSearches = null;
         projectRoot = null;
     }
 
@@ -971,13 +1000,16 @@ public class ProjectModel {
         return test.runTest(target, env, 1);
     }
 
-    public Object runSearch(IOpenLSearch searchBean) {
+    @Deprecated
+    public Object runSearch(IOpenLSearch searcher) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
-
-        return searchBean.search(xsn);
+        return searcher.search(xsn);
     }
 
-    public void saveSearch(OpenLSavedSearch search) {
+    public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
+        XlsModuleSyntaxNode xsn = getXlsModuleNode();
+        return getSearchResults(
+                new TableSearcher().search(xsn, selectors));
     }
 
     public void setProjectTree(ProjectTreeNode projectRoot) {
@@ -1010,8 +1042,6 @@ public class ProjectModel {
 
         compiledOpenClass = null;
         projectRoot = null;
-        savedSearches = null;
-        
 
         if (reloadType != ReloadType.NO) {
             XlsCellStyle2.cleareThemesCache(); // Clear cache due to new loaded workbooks

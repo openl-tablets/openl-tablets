@@ -10,7 +10,7 @@ import org.openl.util.AStringBoolOperator;
  * @author snshor
  *
  */
-
+@Deprecated
 public class ColumnTypeRowSelector extends ATableCellValueSelector {
     AStringBoolOperator columnTypeSelector;
 

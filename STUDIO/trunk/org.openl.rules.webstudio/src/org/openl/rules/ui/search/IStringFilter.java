@@ -1,5 +1,6 @@
 package org.openl.rules.ui.search;
 
+@Deprecated
 public interface IStringFilter {
 
     class ArrayFilter implements IStringFilter {

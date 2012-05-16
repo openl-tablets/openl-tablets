@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.NaryNode;
 
@@ -82,20 +81,19 @@ public class XlsModuleSyntaxNode extends NaryNode  {
         }        
         return tsnodes.toArray(new TableSyntaxNode[tsnodes.size()]);
     }
-    
-    public List<IdentifierNode> getExtensionNodes() {
-		return extensionNodes;
-	}
 
-	public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
+    public List<IdentifierNode> getExtensionNodes() {
+        return extensionNodes;
+    }
+
+    public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
         List<TableSyntaxNode> resultNodes = new ArrayList<TableSyntaxNode>();
-            for (TableSyntaxNode node : getXlsTableSyntaxNodes()) {
-                SyntaxNodeException[] errors = node.getErrors();
-                if (errors != null && errors.length > 0) {
-                    continue;
-                }
-                resultNodes.add(node);
+        for (TableSyntaxNode node : getXlsTableSyntaxNodes()) {
+            if (node.hasErrors()) {
+                continue;
             }
+            resultNodes.add(node);
+        }
         return resultNodes.toArray(new TableSyntaxNode[resultNodes.size()]);
     }
 

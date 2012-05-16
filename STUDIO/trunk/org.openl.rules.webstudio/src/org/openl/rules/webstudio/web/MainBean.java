@@ -55,8 +55,8 @@ public class MainBean {
 
     public void selectModule() throws Exception {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        String projectId = FacesUtils.getRequestParameterClean("project");
-        String moduleName = FacesUtils.getRequestParameterClean("module");
+        String projectId = FacesUtils.getRequestParameter("project");
+        String moduleName = FacesUtils.getRequestParameter("module");
         studio.selectModule(projectId, moduleName);
     }
 
