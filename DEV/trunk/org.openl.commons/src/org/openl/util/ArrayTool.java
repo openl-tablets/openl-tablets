@@ -156,7 +156,8 @@ public class ArrayTool {
 		return newArray;
 	}
 
-	public static <T> Enumeration<T> enumeration(Object array) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <P> Enumeration<P> enumeration(P[] array) {
 		return new ArrayEnumeration(array);
 	}
 
