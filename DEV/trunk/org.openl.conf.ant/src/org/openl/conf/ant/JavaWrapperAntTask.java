@@ -393,10 +393,10 @@ public class JavaWrapperAntTask extends Task {
             
             JavaWrapperGenerator javaGenerator = new JavaWrapperGenerator(getTargetClass(), getExtendsClass(), 
                 getImplementsInterfaces(), getOpenlName(), getDeplSrcFile(), getSrcFile(), getSrcModuleClass(), getUserHome(),
-                getDeplUserHome(), getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes());
+                getDeplUserHome(), getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes(), openClass);
             
             
-            String content = javaGenerator.generateJavaClass(openClass);
+            String content = javaGenerator.generateJava();
             String fileName = getOutputFileName();
             writeContentToFile(content, fileName);
         }
