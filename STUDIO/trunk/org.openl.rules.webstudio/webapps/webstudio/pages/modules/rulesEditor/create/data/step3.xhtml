@@ -13,33 +13,39 @@
 
     <ui:define name="data">
 
-	    <style>
-	        .dataTableTreeTree a img {
-	            padding: 0 3px 0 5px;
-	        }
-	        .nodeName {
-	            margin-right: 5px;
-	            font-weight: bolder;
-	        }
-	        .dataTableTreeTree .rf-trn-ico-lf { 
-	            display: none;
-	        } 
-	    </style>
-	    
-	    <script>
-	
-	      function toggleForeignKey(chb, id) {
-	    	  var compId = $j(chb).attr('id').replace('toggleCheckbox', '');
-	    	  id = compId + id;
-	    	  
-	    	  var el = document.getElementById(id);
-	    	  el.style.display = chb.checked ? 'inline' : 'none';
-	      }
-	    </script>
+        <style>
+            .dataTableTreeTree a img {
+                padding: 0 3px 0 5px;
+            }
+            .nodeName {
+                font-weight: bold;
+            }
+            .nodeFieldName {
+                margin-left: 10px;
+                font-weight: normal;
+            }
+            .dataTableTreeTree .rf-trn-ico-lf { 
+                display: none;
+            }
+            
+            .dataTableTreeTree select, .dataTableTreeTree input {
+                margin-left: 5px
+            } 
+        </style>
+        
+        <script>
+            function toggleForeignKey(chb, id) {
+                var compId = $j(chb).attr('id').replace('toggleCheckbox', '');
+                id = compId + id;
+                
+                var el = document.getElementById(id);
+                el.style.display = chb.checked ? 'inline' : 'none';
+            }
+        </script>
 
 
         <h:form id="dataTableForm">
-        	<rich:panel id="dataTableTreePanel">
+            <rich:panel id="dataTableTreePanel">
                 <rich:tree toggleType="client" selectionType="client"
                     value="#{wizard.tree.rootNode}" var="item"
                     nodeType="#{item.nodeType}" binding="#{wizard.tree.currentTreeNode}"
@@ -49,20 +55,23 @@
                      See: https://issues.jboss.org/browse/RF-11102 for details -->
                      
                     <rich:treeNode type="complex">
-                        <h:outputText styleClass="nodeName" value="#{item.name} : "/>
-                        <h:outputText value="Business Name = " rendered="#{item.leaf}" />
+                        <h:outputText styleClass="nodeName" value="#{item.name} :"/>
+                        <h:outputText styleClass="nodeFieldName" value="Business Name =" rendered="#{item.leaf}" />
                         <h:inputText value="#{item.businessName}" rendered="#{item.leaf}"/>
-                        <h:outputText value="Foreign Key = " rendered="#{item.leaf}"/>
                         
-		                <h:selectOneMenu id="complexForeignKeyTable" value="#{item.foreignKeyTable}" rendered="#{item.leaf}">
-		                    <f:selectItems value="#{wizard.getForeignKeyTables(item.typeName)}" />
-		                </h:selectOneMenu>
-                        <a4j:outputPanel ajaxRendered="true">
-                        	<h:message for="complexForeignKeyTable" styleClass="error" />
-                		</a4j:outputPanel>
-		                <h:selectOneMenu id="complexTableColumns" value="#{item.foreignKeyColumn}" rendered="#{item.leaf}">
-		                    <f:selectItems value="#{wizard.getTableColumns(item.typeName)}" />
-		                </h:selectOneMenu>
+                        <a4j:outputPanel rendered="#{item.leaf and wizard.hasForeignKeyTables(item.typeName)}">
+                            <h:outputText styleClass="nodeFieldName" value="Foreign Key ="/>
+
+                            <h:selectOneMenu id="complexForeignKeyTable" value="#{item.foreignKeyTable}">
+                                <f:selectItems value="#{wizard.getForeignKeyTables(item.typeName)}" />
+                            </h:selectOneMenu>
+                            <a4j:outputPanel ajaxRendered="true">
+                                <h:message for="complexForeignKeyTable" styleClass="error" />
+                            </a4j:outputPanel>
+                            <h:selectOneMenu id="complexTableColumns" value="#{item.foreignKeyColumn}">
+                                <f:selectItems value="#{wizard.getTableColumns(item.typeName)}" />
+                            </h:selectOneMenu>
+                        </a4j:outputPanel>
                         
                         <a4j:commandLink action="#{wizard.tree.currentNode.useAggregatedFields}" rendered="#{item.leaf}"
                             render="@form" title="Fill fields">
@@ -75,20 +84,22 @@
                     </rich:treeNode>
                     
                     <rich:treeNode type="simple">
-                        <h:outputText styleClass="nodeName" value="#{item.name} : " />
-                        <h:outputText value="Business Name = "/>
+                        <h:outputText styleClass="nodeName" value="#{item.name} :" />
+                        <h:outputText styleClass="nodeFieldName" value="Business Name ="/>
                         <h:inputText value="#{item.businessName}"/>
                         
-                        <h:outputText value="Foreign key"/>
-                        <h:selectBooleanCheckbox id="toggleCheckbox" value="#{item.editForeignKey}" render="@form" onchange="toggleForeignKey(this, 'foreignKeyPanel');"/>
-                        
-                        <a4j:outputPanel id="foreignKeyPanel" style="#{item.editForeignKey? 'display:inline' : 'display:none'}" >
-			                <h:selectOneMenu id="simpleForeignKeyTable" value="#{item.foreignKeyTable}" rendered="#{item.leaf}">
-			                    <f:selectItems value="#{wizard.getForeignKeyTables(item.typeName)}" />
-			                </h:selectOneMenu>
-	                        <a4j:outputPanel ajaxRendered="true">
-	                        	<h:message for="simpleForeignKeyTable" styleClass="error" />
-	                		</a4j:outputPanel>
+                        <a4j:outputPanel rendered="#{item.leaf and wizard.hasForeignKeyTables(item.typeName)}">
+                            <h:outputText styleClass="nodeFieldName" value="Foreign key"/>
+                            <h:selectBooleanCheckbox id="toggleCheckbox" value="#{item.editForeignKey}" render="@form" onchange="toggleForeignKey(this, 'foreignKeyPanel');"/>
+
+                            <a4j:outputPanel id="foreignKeyPanel" style="#{item.editForeignKey? 'display:inline' : 'display:none'}" >
+                                <h:selectOneMenu id="simpleForeignKeyTable" value="#{item.foreignKeyTable}" rendered="#{item.leaf}">
+                                    <f:selectItems value="#{wizard.getForeignKeyTables(item.typeName)}" />
+                                </h:selectOneMenu>
+                                <a4j:outputPanel ajaxRendered="true">
+                                    <h:message for="simpleForeignKeyTable" styleClass="error" />
+                                </a4j:outputPanel>
+                            </a4j:outputPanel>
                         </a4j:outputPanel>
                     </rich:treeNode>
                 </rich:tree>
