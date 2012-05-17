@@ -27,6 +27,10 @@ html, body {
     height: calc(100% - 114px);
 }
 
+#center > div {
+    height: 100% !important;
+}
+
 #content {
     overflow: auto;
 }
