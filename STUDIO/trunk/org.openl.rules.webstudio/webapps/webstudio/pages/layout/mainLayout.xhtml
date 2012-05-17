@@ -119,19 +119,13 @@
             var centerLayout;
 
             $j(function () {
-                setLayoutDimensions();
-
-                $j(window).resize(function() {
-                    setLayoutDimensions();
-                });
-
                 mainLayout = $j("#center").layout({
                     spacing_open: 1,
                     west__size: 230,
                     east__size: 230,
                     east__initHidden: true
                 });
-                
+
                 centerLayout = $j("#center .ui-layout-center").layout({
                     spacing_open: 1,
                     south__size: 110
@@ -311,7 +305,7 @@
             function toRulesPanel(header) {
                 if (!header) {
                     header = sessionStorage.getItem(NAVI_HEADER_ITEM);
-                } 
+                }
                 if (header) {
                     sessionStorage.setItem(NAVI_HEADER_ITEM, header);
                     $j("#navigationHeader").text(header);
@@ -328,15 +322,6 @@
                 } else {
                     toProjectsPanel();
                 }
-            }
-
-            function setLayoutDimensions() {
-                $j("#center").css({
-                   "height": $j(this).outerHeight()
-                       - $j("#header").outerHeight()
-                       - $j("#top").outerHeight()
-                       - $j("#footer").outerHeight()
-                });
             }
 
             function showLoader() {
@@ -359,7 +344,7 @@
 
                 var left = elemPos.left + ((params && params.offsetLeft) || 0);
                 var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
-				
+
                 $j("#" + popupId).popup({
                     left: left,
                     top : top
