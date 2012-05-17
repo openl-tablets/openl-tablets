@@ -391,12 +391,12 @@ public class JavaWrapperAntTask extends Task {
         if (goal.equals(GOAL_ALL) || goal.contains(GOAL_MAKE_WRAPPER)) {
             openClass = makeOpenClass();
             
-            JavaWrapperGenerator javaGenerator = new JavaWrapperGenerator(getTargetClass(), getExtendsClass(), 
+            OpenLToJavaGenerator javaGenerator = new JavaWrapperGenerator(openClass, getTargetClass(), getExtendsClass(), 
                 getImplementsInterfaces(), getOpenlName(), getDeplSrcFile(), getSrcFile(), getSrcModuleClass(), getUserHome(),
                 getDeplUserHome(), getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes());
             
             
-            String content = javaGenerator.generateJavaClass(openClass);
+            String content = javaGenerator.generateJava();
             String fileName = getOutputFileName();
             writeContentToFile(content, fileName);
         }

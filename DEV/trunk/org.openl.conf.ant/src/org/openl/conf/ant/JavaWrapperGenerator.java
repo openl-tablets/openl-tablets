@@ -23,7 +23,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
-public class JavaWrapperGenerator {
+public class JavaWrapperGenerator implements OpenLToJavaGenerator {
     
     private String targetClass;
     private String extendsClass = null;
@@ -49,9 +49,10 @@ public class JavaWrapperGenerator {
     private List<String> methodImports;
     
     
-    public JavaWrapperGenerator(String targetClass, String extendsClass, String[] implementsInterfaces, 
+    public JavaWrapperGenerator(IOpenClass moduleOpenClass, String targetClass, String extendsClass, String[] implementsInterfaces, 
             String openlName, String deplSrcFile, String srcFile, String srcModuleClass, String userHome, String deplUserHome,
             String rulesFolder, String[] fields, String[] methods, boolean ignoreNonJavaTypes) {
+        this.moduleOpenClass = moduleOpenClass;
         this.targetClass = targetClass;
         this.extendsClass = extendsClass;
         if (implementsInterfaces != null) {
@@ -91,8 +92,8 @@ public class JavaWrapperGenerator {
         methodImports.add("org.openl.types.java.OpenClassHelper");
     }
 
-    public String generateJavaClass(IOpenClass moduleOpenClass) {
-        this.moduleOpenClass = moduleOpenClass;
+    public String generateJava() {
+        
         StringBuffer buf = new StringBuffer(10000);
 
         parseClassName();
