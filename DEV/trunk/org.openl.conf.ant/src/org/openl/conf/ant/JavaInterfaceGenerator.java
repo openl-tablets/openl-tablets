@@ -1,0 +1,130 @@
+package org.openl.conf.ant;
+
+import org.apache.commons.lang.StringUtils;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.util.generation.JavaClassGeneratorHelper;
+
+public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
+
+    private IOpenClass moduleOpenClass;    
+    private String targetClassName;    
+    private String targetPackageName;
+
+    private String[] methodsToGenerate;
+
+    private boolean ignoreNonJavaTypes;
+
+    private String srcFile; 
+    private String deplSrcFile;
+
+    private JavaInterfaceGenerator(Builder builder) {
+        this.moduleOpenClass = builder.moduleOpenClass;
+        this.targetClassName = builder.targetClassName;
+        this.targetPackageName = builder.targetPackageName;
+        this.methodsToGenerate = builder.methodsToGenerate;
+        this.ignoreNonJavaTypes = builder.ignoreNonJavaTypes;
+        this.srcFile = builder.srcFile;
+        this.deplSrcFile = builder.deplSrcFile;
+    }
+
+    @Override
+    public String generateJava() {
+        StringBuffer buf = new StringBuffer(1000);
+
+        // Add comment
+        buf.append(JavaClassGeneratorHelper.getCommentText("This class has been generated."));
+
+        // Add packages
+        buf.append(JavaClassGeneratorHelper.getPackageText(targetPackageName));
+
+        // Add interface declaration
+        buf.append(JavaClassGeneratorHelper.getInterfaceDeclaration(targetClassName));
+
+        buf.append(" {\n");
+
+        // Add source file path static field
+        buf.append(JavaWrapperGenerator.getSourceFilePathField(srcFile, deplSrcFile));
+
+        // Add methods
+        addMethods(buf);
+
+        buf.append("}");
+
+        return buf.toString();
+    }
+
+    private void addMethods(StringBuffer buf) {
+        for (IOpenMethod method : moduleOpenClass.getMethods()) {            
+            if (!JavaWrapperGenerator.shouldBeGenerated(method, methodsToGenerate, moduleOpenClass.getName(), 
+                ignoreNonJavaTypes)) {
+                continue;
+            }
+            buf.append("  ");
+            JavaWrapperGenerator.addMethodName(method, buf);
+            buf.append(";\n\n");
+        }
+    }
+
+    public static class Builder {
+        // Required parameters
+        private IOpenClass moduleOpenClass;    
+        private String targetClassName;    
+        private String targetPackageName;
+
+        // Optional parameters
+        private String[] methodsToGenerate;        
+        private boolean ignoreNonJavaTypes;        
+        private String srcFile; 
+        private String deplSrcFile;
+
+        public Builder (IOpenClass moduleOpenClass, String targetClass) {
+            if (moduleOpenClass == null) {
+                throw new IllegalArgumentException("Cannot generate interface for null openl module class");
+            }
+            if (StringUtils.isEmpty(targetClass)) {
+                throw new IllegalArgumentException("Cannot generate interface for empty target class name");
+            }
+            this.moduleOpenClass = moduleOpenClass;
+            parseClassName(targetClass);
+        }
+
+        public Builder methodsToGenerate(String[] methodsToGenerate) {
+            if (methodsToGenerate != null) {
+                this.methodsToGenerate = methodsToGenerate.clone();
+            }
+            return this;
+        }
+
+        public Builder ignoreNonJavaTypes(boolean ignoreNonJavaTypes) {
+            this.ignoreNonJavaTypes = ignoreNonJavaTypes;
+            return this;
+        }
+
+        public Builder srcFile(String srcFile) {
+            this.srcFile = srcFile;
+            return this;
+        }
+
+        public Builder deplSrcFile(String deplSrcFile) {
+            this.deplSrcFile = deplSrcFile;
+            return this;
+        }
+
+        public JavaInterfaceGenerator build() {
+            return new JavaInterfaceGenerator(this);
+        }
+
+        private void parseClassName(String targetClass) {
+            int idx = targetClass.lastIndexOf('.');
+            if (idx < 0) {
+                targetClassName = targetClass;
+            } else {
+                targetPackageName = targetClass.substring(0, idx);
+                targetClassName = targetClass.substring(idx + 1, targetClass.length());
+            }
+        }
+
+    }
+
+}
