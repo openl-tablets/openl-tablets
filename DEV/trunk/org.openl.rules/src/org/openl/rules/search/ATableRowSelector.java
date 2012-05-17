@@ -11,6 +11,7 @@ import org.openl.util.ASelector;
  * @author snshor
  *
  */
+@Deprecated
 public abstract class ATableRowSelector extends ASelector<ISearchTableRow> {
     
     /**

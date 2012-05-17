@@ -2,12 +2,12 @@
  * This class has been generated. Do not change it. 
 */
 
-package org.openl.generated.beans;
+package org.openl.generated.test.beans;
 
 import java.lang.String;
-import org.openl.generated.beans.Driver;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.openl.generated.beans.Vehicle;
+import org.openl.generated.test.beans.Driver;
+import org.openl.generated.test.beans.Vehicle;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.ArrayUtils;
 
@@ -18,9 +18,9 @@ public class Policy{
 
   protected java.lang.String clientTerm;
 
-  protected org.openl.generated.beans.Driver[] drivers;
+  protected org.openl.generated.test.beans.Driver[] drivers;
 
-  protected org.openl.generated.beans.Vehicle[] vehicles;
+  protected org.openl.generated.test.beans.Vehicle[] vehicles;
 
 
 
@@ -95,16 +95,16 @@ public String toString() {
   public void setClientTerm(java.lang.String clientTerm) {
    this.clientTerm = clientTerm;
 }
-  public org.openl.generated.beans.Driver[] getDrivers() {
+  public org.openl.generated.test.beans.Driver[] getDrivers() {
    return drivers;
 }
-  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
+  public void setDrivers(org.openl.generated.test.beans.Driver[] drivers) {
    this.drivers = drivers;
 }
-  public org.openl.generated.beans.Vehicle[] getVehicles() {
+  public org.openl.generated.test.beans.Vehicle[] getVehicles() {
    return vehicles;
 }
-  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
+  public void setVehicles(org.openl.generated.test.beans.Vehicle[] vehicles) {
    this.vehicles = vehicles;
 }
 

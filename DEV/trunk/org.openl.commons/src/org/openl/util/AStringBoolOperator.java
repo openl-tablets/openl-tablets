@@ -5,6 +5,7 @@ package org.openl.util;
 
 import java.lang.reflect.Constructor;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.base.NamedThing;
 
 /**
@@ -25,6 +26,18 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         @Override
         public boolean isMatching(String sample, String test) {
             return test != null && test.indexOf(sample) >= 0;
+        }
+    }
+
+    public static class ContainsIgnoreCaseOperator extends AStringBoolOperator {
+
+        public ContainsIgnoreCaseOperator(String sample) {
+            super("contains  ignore case", sample);
+        }
+
+        @Override
+        public boolean isMatching(String sample, String test) {
+            return StringUtils.containsIgnoreCase(test, sample);
         }
     }
 

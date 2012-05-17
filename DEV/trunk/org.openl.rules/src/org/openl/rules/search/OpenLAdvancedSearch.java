@@ -14,8 +14,8 @@ import org.openl.util.ArrayTool;
 /**
  * @author snshor
  *
- *
  */
+@Deprecated
 public class OpenLAdvancedSearch implements ISearchConstants, IOpenLSearch {
     
     /*

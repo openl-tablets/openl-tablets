@@ -10,6 +10,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class OpenLBussinessSearchResult {
     
     List<TableSyntaxNode> foundTables = new ArrayList<TableSyntaxNode>();

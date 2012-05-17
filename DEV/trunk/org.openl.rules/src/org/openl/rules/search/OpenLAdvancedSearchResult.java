@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * @author snshor
  *
  */
+@Deprecated
 public class OpenLAdvancedSearchResult {    
 
     private ArrayList<TableAndRows> foundTables = new ArrayList<TableAndRows>();

@@ -4,6 +4,7 @@
 
 package org.openl.rules.lang.xls;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -36,6 +37,8 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.main.OpenLWrapper;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -51,6 +54,7 @@ import org.openl.rules.extension.bind.NameConventionBinderFactory;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -68,6 +72,8 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -614,9 +620,12 @@ public class XlsBinder implements IOpenBinder {
                 finilizeBind(children[i], tableSyntaxNodes[i], moduleContext);
             }
         }
-
+        
         if (moduleContext.isExecutionMode()) {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
+        } else {
+            // Importing all classes is needed only in edit mode 
+            addImportedClasses(module, moduleSyntaxNode);
         }
 
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
@@ -708,6 +717,61 @@ public class XlsBinder implements IOpenBinder {
 
         tableSyntaxNode.addError(error);
         BindHelper.processError(error, moduleContext);
+    }
+
+
+    /**
+     * Add to an xls module class a classes from imported packages.
+     * 
+     * @param module module class that will contain a classes from imported
+     *            packages
+     * @param moduleSyntaxNode module source
+     */
+    private void addImportedClasses(XlsModuleOpenClass module, XlsModuleSyntaxNode moduleSyntaxNode) {
+        ClassFinder finder = new ClassFinder();
+        for (String packageName : moduleSyntaxNode.getAllImports()) {
+            for (Class<?> type : finder.getClasses(packageName)) {
+                try {
+                    IOpenClass openType = JavaOpenClass.getOpenClass(type);
+                    if (module.getTypes().values().contains(openType) || !isValid(openType))
+                        continue;
+                    
+                    module.addType(ISyntaxConstants.THIS_NAMESPACE, openType);
+                } catch (OpenLCompilationException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Check if type is valid (for example, it can be used in a DataType tables,
+     * Data tables etc)
+     * 
+     * @param openType checked type
+     * @return true if class is valid.
+     */
+    private boolean isValid(IOpenClass openType) {
+        Class<?> instanceClass = openType.getInstanceClass();
+
+        int modifiers = instanceClass.getModifiers();
+        if (!Modifier.isPublic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers)) {
+            return false;
+        }
+
+        if (OpenLWrapper.class.isAssignableFrom(instanceClass)) {
+            // generated class for tutorial for example.
+            return false;
+        }
+
+        Map<String, IOpenField> fields = openType.getFields();
+        if (fields.size() <= 1) {
+            // Every field has a "class" field. We skip a classes that doesn't
+            // have any other field.
+            return false;
+        }
+
+        return true;
     }
 
 }

@@ -42,6 +42,7 @@ import org.openl.util.Log;
  * @author snshor
  *
  */
+@Deprecated
 public class FileIndexer {
 
     private long[] updateTimes;

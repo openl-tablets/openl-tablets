@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish.cache;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -154,17 +153,17 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
     /*package*/ Module getModuleForMember(IOpenMember member){
         String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
         for (Module module : modules) {
+            String modulePath = module.getRulesRootPath().getPath();
             try {
-                // TODO: find proper way of getting module of OpenMember
-                // now URLs comparison is used.
                 if (FilenameUtils.normalize(sourceUrl)
-                    .equals(FilenameUtils.normalize(new File(module.getRulesRootPath().getPath()).toURI()
+                    .equals(FilenameUtils.normalize(new File(modulePath).getCanonicalFile()
+                        .toURI()
                         .toURL()
                         .toExternalForm()))) {
                     return module;
                 }
-            } catch (MalformedURLException e) {
-                log.warn(e);
+            } catch (Exception e) {
+                log.warn("Failed to build url of module '" + module.getName() + "' with path: " + modulePath, e);
             }
         }
         throw new RuntimeException("Module not found");

@@ -2,7 +2,7 @@
  * This class has been generated. Do not change it. 
 */
 
-package org.openl.generated.beans;
+package org.openl.generated.test.beans;
 
 import java.lang.String;
 import org.apache.commons.lang.builder.EqualsBuilder;

@@ -13,6 +13,7 @@ import org.openl.util.ASelector;
  * commented by <i>DLiauchuk</i> 
  *
  */
+@Deprecated
 public abstract class ATableSyntaxNodeSelector extends ASelector<TableSyntaxNode> {
 
     public boolean select(TableSyntaxNode table) {

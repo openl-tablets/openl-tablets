@@ -22,6 +22,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  */
 @ManagedBean(name="bussinessSearch")
 @RequestScoped
+@Deprecated
 public class BussinesSearchPropertyBean {
 
     private List<TableProperty> propForSearch = new ArrayList<TableProperty>();

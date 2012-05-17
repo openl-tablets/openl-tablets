@@ -13,6 +13,7 @@ import org.openl.util.ArrayTool;
  * @author snshor
  *
  */
+@Deprecated
 public class TableTypeSelector extends ATableSyntaxNodeSelector {
     
     private String[] types;

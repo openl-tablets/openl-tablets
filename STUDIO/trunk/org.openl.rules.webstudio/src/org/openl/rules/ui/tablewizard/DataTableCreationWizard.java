@@ -1,10 +1,12 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.html.HtmlDataTable;
@@ -27,6 +29,9 @@ import org.openl.rules.table.xls.builder.DataTablePredefinedTypeVariable;
 import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.java.JavaOpenEnum;
 import org.openl.util.Log;
 
 public class DataTableCreationWizard extends BusinessTableCreationWizard {
@@ -89,7 +94,21 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
-        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
+        
+        Collection<String> allClasses = domainTree.getAllClasses(true);
+        Iterator<String> classIterator = allClasses.iterator();
+        
+        while(classIterator.hasNext()) {
+            String className = classIterator.next();
+            IOpenClass type = getUserDefinedType(className);
+            
+            if (type instanceof DomainOpenClass) {
+                // remove alias types
+                classIterator.remove();
+            }
+        }
+        
+        domainTypes = FacesUtils.createSelectItems(allClasses);
 
         allDataTables = new ArrayList<TableSyntaxNode>();
         for (TableSyntaxNode tbl : WizardUtils.getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes()) {
@@ -211,7 +230,12 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
 
         IOpenClass type = getUserDefinedType(typeName);
         if (type != null) {
-            columns.addAll(type.getFields().keySet());
+            for (Entry<String, IOpenField> fieldEntry : type.getFields().entrySet()) {
+                IOpenField field = fieldEntry.getValue();
+                if (!field.isConst() && field.isWritable()) {
+                    columns.add(fieldEntry.getKey());
+                }
+            }
         }
 
         return FacesUtils.createSelectItems(columns);
@@ -271,7 +295,7 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     private void initTree() {
         tableOpenClass = getUserDefinedType(tableType);
 
-        if (tableOpenClass == null) {
+        if (tableOpenClass == null || tableOpenClass instanceof JavaOpenEnum) {
             if (domainTree.getClassProperties(tableType) != null) {
                 tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
             }
@@ -296,7 +320,7 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
      */
     private IOpenClass getUserDefinedType(String type) {
         for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes().values()) {
-            if (dataType.getName().equals(type)) {
+            if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
                 return dataType;
             }
         }
@@ -343,12 +367,7 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
             if (StringUtils.isBlank(node.getForeignKeyTable())) {
                 String clientId = prefix + node.getName();
 
-                if (node.isComplex()) {
-                    clientId += ":complexForeignKeyTable";
-                    FacesUtils.addMessage(clientId, "Validation Error: ", "Foreign Key must be filled",
-                            FacesMessage.SEVERITY_ERROR);
-                    return false;
-                } else if (node.isEditForeignKey()) {
+                if (!node.isComplex() && node.isEditForeignKey()) {
                     clientId += ":simpleForeignKeyTable";
                     FacesUtils.addMessage(clientId, "Validation Error: ", "Fill foreign key or uncheck the checkbox",
                             FacesMessage.SEVERITY_ERROR);

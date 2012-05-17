@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html">
+
+    <style>
+        #searchInput {
+            position: relative;
+        }
+
+        #searchInput input[type='text'] {
+            height: 23px;
+            width: 295px;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding-right: 20px;
+            margin-top: -5px;
+        }
+
+        #searchInput input[type='image'] {
+            position: absolute;
+            right: 10px;
+            top: 2px;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        #advancedSearch {
+            color: #555;
+            display: none;
+            padding: 13px 11px 4px;
+            width: 271px;
+            max-height: 260px;
+        }
+
+        #advancedSearch > div {
+            margin-bottom: 9px;
+        }
+
+        #advancedSearch > div > label {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        #advancedSearch input[type="text"] {
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        #advancedSearch #multiselect .jquery-multiselect-popup {
+            bottom: 7px;
+        }
+
+        #addPropertiesPanel {
+            background: #f5f5f5;
+            margin: 5px 0;
+            padding: 10px 9px;
+        }
+
+        #addPropertiesPanel select {
+            width: -moz-calc(100% - 60px);
+            width: -webkit-calc(100% - 60px);
+            width: calc(100% - 60px);
+        }
+
+        #propertiesTable .propertiesRow {
+            display: none;
+        }
+
+        #propertiesTable .rf-cal-popup {
+            top: 10px !important;
+        }
+
+        .removeBtn {
+            opacity: 0.1;
+        }
+
+        .removeBtn:hover {
+            opacity: 0.4;
+        }
+    </style>
+
+    <script>
+      //<![CDATA[
+
+        function doSearch() {
+            var params = {};
+            var setParam = function(key, value) {
+                if (value) {
+                    params[key] = value;
+                }
+            }
+
+            setParam("query", $j("#searchQuery").val());
+            setParam("header", $j("#tableHeader").val());
+            setParam("types", $j("#advancedSearch #multiselect-select").val().replace(/, /g, '-'));
+
+            $j("#propertiesTable tr:visible").each(function() {
+                var row = $j(this);
+                var propName = row.find("input:first").val();
+                var propValue = getPropertyValue(
+                        row.find("input[type='text']:first, td > input[type='checkbox']:first"));
+
+                setParam(propName, propValue);
+            });
+
+            search(params);
+        }
+
+        function getPropertyValue(elem) {
+            if (elem.is(":checkbox")) {
+                return elem.is(":checked");
+            }
+            return elem.val();
+        }
+
+        function addProperty(name) {
+            $j("#propertiesTable input[name='propName'][value='" + name + "']").closest("tr").show();
+            $j("#propertyItems option[value='" + name + "']").hide();
+            $j("#propertyItems")[0].selectedIndex = -1;
+        }
+
+        function removeProperty(name) {
+            $j("#propertiesTable input[name='propName'][value='" + name + "']").closest("tr").hide();
+            $j("#propertyItems option[value='" + name + "']").show();
+        }
+
+      //]]>
+    </script>
+
+    <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
+        onclick="showPopupMenu(event, 'advancedSearch', $j(this).next(), {'offsetTop' : 4})">
+        <h:graphicImage url="/webresource/images/arrow_down.png" title="Advanced Search" />
+    </h:outputLink>
+    <form style="display: inline;" onsubmit="doSearch(); return false;">
+        <span id="searchInput">
+            <input type="text" id="searchQuery" placeholder="Search..." />
+            <input type="image" src="webresource/images/search.png" />
+        </span>
+        <div id="advancedSearch">
+            <div>
+                <label>Table Types</label>
+                <oh:multiselect items="#{searchBean.tableTypeItems}" selected="#{searchBean.tableTypes}" />
+            </div>
+
+            <div>
+                <label>Header contains</label>
+                <input type="text" id="tableHeader" />
+            </div>
+
+            <div>
+                <label>Table Properties</label>
+                <div id="propertiesTable">
+                    <table>
+                        <a4j:repeat value="#{searchBean.properties}" var="prop">
+                        <tr class="propertiesRow">
+                            <td style="width: 110px">#{prop.displayName}</td>
+                            <td>
+                                <input type="hidden" name="propName" value="#{prop.name}" />
+                                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                                    rendered="#{prop.dateType}" inputStyle="width:100px" />
+                                <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+                                <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
+                                    rendered="#{prop.enumArray}" />
+                                <oh:inputVersion value="#{prop.value}" rendered="#{prop.name == 'version'}" />
+                                <h:inputText value="#{prop.value}" 
+                                    rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray || prop.name == 'version')}" />
+                                <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
+                            </td>
+                            <td style="padding-left: 5px">
+                                <a href="javascript:void(0)" id="removePropBtn1" title="Remove" class="removeBtn"
+                                    onclick="removeProperty($j(this).parent().prev().find('input:first').val());"><img
+                                    src="webresource/images/close.gif" /></a>
+                            </td>
+                        </tr>
+                        </a4j:repeat>
+                    </table>
+                </div>
+                <div id="addPropertiesPanel">
+                    <select id="propertyItems">
+                        <ui:repeat value="#{searchBean.properties}" var="prop">
+                            <option value="#{prop.name}">#{prop.displayName}</option>
+                        </ui:repeat>
+                    </select>
+                    <input type="button" value="Add"
+                        onclick="addProperty($j('#propertyItems option:selected').val());"
+                        style="margin-left: 9px; padding: 2px 6px" />
+                </div>
+            </div>
+
+            <div style="margin-top: 20px">
+                <input type="submit" value="Search" />
+            </div>
+        </div>
+    </form>
+
+</ui:composition>

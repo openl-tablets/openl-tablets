@@ -11,6 +11,7 @@ import org.openl.util.AStringBoolOperator;
  * @author snshor
  *
  */
+@Deprecated
 public abstract class ATableCellValueSelector extends ATableRowSelector {
     protected AStringBoolOperator cellValueSelector;
 
