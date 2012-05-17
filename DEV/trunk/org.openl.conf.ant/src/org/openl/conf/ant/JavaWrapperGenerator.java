@@ -242,9 +242,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__openlName", 
             initializationValue));
 
-        String initializationValueSrc = String.format("\"%s\"", StringEscapeUtils.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile));
-        buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__src", 
-            initializationValueSrc));
+        buf.append(getSourceFilePathField(srcFile, deplSrcFile));
 
         String initValue = srcModuleClass == null ? null : String.format("\"%s\"", StringEscapeUtils.escapeJava(srcModuleClass));
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__srcModuleClass", 
@@ -261,6 +259,13 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         String initializationValueUserHome = String.format("\"%s\"", StringEscapeUtils.escapeJava(deplUserHome == null ? userHome : deplUserHome));
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__userHome", 
             initializationValueUserHome));
+    }
+
+    public static String getSourceFilePathField(String srcFile, String deplSrcFile) {
+        String initializationValueSrc = String.format("\"%s\"", 
+            StringEscapeUtils.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile));
+        return JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), 
+            "__src", initializationValueSrc);
     }
 
     private void addImports(StringBuffer buf) {
@@ -488,7 +493,8 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         addModifiers(buf, isStatic);
         addMethodName(method, buf);
     }
-
+    
+    // TODO: refactor, return String instead of receive buffer
     public static void addMethodName(IOpenMethod method, StringBuffer buf) {
         buf.append(getMethodType(method)).append(' ');
         buf.append(getMethodName(method));
