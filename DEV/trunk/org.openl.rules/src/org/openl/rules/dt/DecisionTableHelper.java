@@ -1,15 +1,26 @@
 package org.openl.rules.dt;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.RulesCommons;
+import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -141,7 +152,6 @@ public class DecisionTableHelper {
      * @return true if there is is any horizontal condition header in the table.
      */
     public static boolean hasHConditions(ILogicalTable table) {
-
         int width = table.getWidth();
 
         for (int i = 0; i < width; i++) {
@@ -179,12 +189,23 @@ public class DecisionTableHelper {
             int numberOfHcondition) throws OpenLCompilationException {
         IWritableGrid virtualGrid = createVirtualGrid();
         writeVirtualHeadersForSimpleDecisionTable(virtualGrid, originalTable, decisionTable, numberOfHcondition);
+        
+        //If the new table header size bigger than the size of the old table we use the new table size
+        int sizeOfVirtualGridTable = virtualGrid.getMaxColumnIndex(0) < originalTable.getSource().getWidth() ?
+                originalTable.getSource().getWidth() - 1 : virtualGrid.getMaxColumnIndex(0) - 1;
         GridTable virtualGridTable = 
             new GridTable(0, 0, IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, 
-                originalTable.getSource().getWidth() - 1, virtualGrid);
+                    sizeOfVirtualGridTable/*originalTable.getSource().getWidth() - 1*/, virtualGrid);
+    
         IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
+        
+        //If the new table header size bigger than the size of the old table we use the new table size
+        int sizeofGrid = virtualGridTable.getWidth() < originalTable.getSource().getWidth() ?
+                originalTable.getSource().getWidth() - 1 : virtualGridTable.getWidth() - 1;
+                
         return LogicalTableHelper.logicalTable(new GridTable(0, 0, originalTable.getSource().getHeight()
-                + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, originalTable.getSource().getWidth() - 1, grid));
+                + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, 
+                sizeofGrid /*originalTable.getSource().getWidth() - 1*/, grid));
     }
     
     private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable,
@@ -197,25 +218,31 @@ public class DecisionTableHelper {
         
         // write return
         //
-        writeReturn(grid, originalTable, decisionTable, columnsForConditions);
+        writeReturn(grid, originalTable, decisionTable, columnsForConditions, numberOfHcondition > 0 ? true : false);
     }
 
     private static void writeReturn(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
-            int columnsForConditions) throws OpenLCompilationException {
+            int columnsForConditions, boolean isLookupTable) throws OpenLCompilationException {
         // if the physical number of columns for conditions is equals or more than whole width of the table,
         // means there is no return column.
         //
+        /*
         if (columnsForConditions >= originalTable.getWidth()) {
             throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
         }
+        */
         // write return column
         //
         grid.setCellValue(columnsForConditions, 0, (DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1").intern());
-        int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
-        if (mergedColumnsCounts > 1) {
-            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                grid.addMergedRegion(
-                    new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
+        
+        if (!isLookupTable && !(originalTable.getWidth() <= getNumberOfConditions(decisionTable))) {
+            int mergedColumnsCounts = mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
+            
+            if (mergedColumnsCounts > 1) {
+                for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                    grid.addMergedRegion(
+                        new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
+                }
             }
         }
     }
@@ -224,14 +251,19 @@ public class DecisionTableHelper {
             int numberOfHcondition) throws OpenLCompilationException {
         int numberOfConditions = getNumberOfConditions(decisionTable);
         int column = 0;
+        int vColumnCounter = 0;
+        
         for (int i = 0; i < numberOfConditions; i++) {
-            if (column > originalTable.getWidth()){
+            if (column > originalTable.getWidth()) {
                 String message = "Wrong table structure: Columns count is less than parameters count";
                 throw new OpenLCompilationException(message);
             }
             // write headers
             //
-            if (i < numberOfConditions - numberOfHcondition) {
+            boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
+            
+            if (isThatVCondition) {
+                vColumnCounter++;
                 // write simple condition
                 //
                 grid.setCellValue(column, 0, (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + (i + 1)).intern());
@@ -243,16 +275,125 @@ public class DecisionTableHelper {
             
             grid.setCellValue(column, 1, decisionTable.getSignature().getParameterName(i));
             
+            //Set type of condition values(for Ranges and Array)
+            grid.setCellValue(column, 2,
+                    checkTypeOfValues(originalTable, column, decisionTable.getSignature().getParameterType(i).getName(), isThatVCondition, vColumnCounter) );
+            
             //merge columns
             int mergedColumnsCounts = originalTable.getColumnWidth(i);
+            
             if (mergedColumnsCounts > 1) {
                 for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
                     grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
                 }
             }
+            
             column += mergedColumnsCounts;
         }
         return column;
+    }
+    
+    /**
+     * Check type of condition values. If condition values are complex(Range, Array) 
+     * than types of complex values will be returned 
+     * 
+     * @param originalTable The original body of simple Decision Table.
+     * @param column The number of a condition 
+     * @param typeName The type name of an input parameter
+     * @param isThatVCondition If condition is vertical value = true
+     * @param vColumnCounter Counter of vertical conditions. Needed for calculating 
+     * position of horizontal condition
+     * @return type of condition values
+     */
+    private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
+            boolean isThatVCondition, int vColumnCounter) {
+        final List<String> intType = Arrays.asList("Int","Long","int","long","IntValue","java.lang.Integer");
+        final List<String> doubleType = Arrays.asList("Double","Float","double","float","DoubleValue","java.lang.Double");
+        ILogicalTable decisionValues;
+        int width = 0;
+        
+        if (isThatVCondition) {
+            decisionValues = originalTable.getColumn(column);
+            width = decisionValues.getHeight();
+        } else {
+            //The first cell of SimpleLookupTable merge rows and column of vertical and horizontal conditions
+            ICell mergedCell = originalTable.getSource().getCell(0, 0);
+            int numOfHRow = column - vColumnCounter;
+            
+            decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(numOfHRow));
+            width = decisionValues.getWidth();
+        }
+        
+        int mergedColumnsCounts = originalTable.getColumnWidth(column);
+        boolean isMerged = mergedColumnsCounts > 1 ? true : false;
+        
+        //if the name row is merged than we have Array
+        if (isMerged) {
+            return typeName+"[]";
+        }
+        
+        for (int valueNum = 1; valueNum < width; valueNum++) {
+            ILogicalTable cellValue;
+            
+            if (isThatVCondition) {
+                cellValue = decisionValues.getRow(valueNum);
+            } else {
+                cellValue = decisionValues.getColumn(valueNum);
+            }
+            
+            
+            if (cellValue.getSource().getCell(0, 0).getStringValue() == null) {
+                continue;
+            }
+            
+            if (RuleRowHelper.isCommaSeparatedArray(cellValue)) {
+                return typeName+"[]";
+            } else if (isRangeValue(cellValue.getSource().getCell(0, 0).getStringValue())) {
+                INumberRange range = null;
+                
+                /**try to create range by values**/
+                if (intType.contains(typeName)) {
+                    try {
+                        range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
+                        
+                        /**Return name of a class without a package prefix**/
+                        return range.getClass().getSimpleName();
+                    } catch(Exception e) {
+                       continue;
+                    }
+                } else if (doubleType.contains(typeName)) {
+                    try {
+                        range = new DoubleRange(cellValue.getSource().getCell(0, 0).getStringValue());
+                        
+                        /**Return name of a class without a package prefix**/
+                        return range.getClass().getSimpleName();
+                    } catch(Exception e) {
+                        continue;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check range values
+     * 
+     * @param cellValue The string value of the cell
+     * @return boolean
+     */
+    private static boolean isRangeValue(String cellValue) {
+        String valuePattern = "-?\\$?[0-9]+\\.?[0-9]*[KMB]?";// -$67M 
+        Pattern p = Pattern.compile("(\\s*"+valuePattern+"\\s(\\.\\.|\\.\\.\\.)\\s"+valuePattern+"\\s*)|" +// -1 .. 13K
+                                    "(\\s*[<>]{1}[=\\s]*"+valuePattern+"\\s*)|" +//<-$4K
+                                    "(\\s*"+valuePattern+"\\+\\s*)|" +//"0.67B+
+                                    "(\\s*(\\[|\\()"+valuePattern+"\\s*(;|\\.\\.)\\s*"+valuePattern+"(\\]|\\))\\s*)|" +//[6.000; $12)
+                                    "(\\s*"+valuePattern+" and more\\s*)|" +
+                                    "\\s*more than "+valuePattern+"\\s*");
+        Matcher m = p.matcher(cellValue);
+
+        return m.matches();
     }
 
     private static int getNumberOfConditions(DecisionTable decisionTable) {
@@ -284,6 +425,7 @@ public class DecisionTableHelper {
 
     private static Sheet getPOISheet(String poiSheetName, int numberOfColumns) {
         Sheet sheet = null;
+        
         if (numberOfColumns > 256) {
              sheet = getPOIXSSFSheet(poiSheetName);
         } else {
@@ -310,6 +452,7 @@ public class DecisionTableHelper {
  
     public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
+        
         if (IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType)) {
             return true;
         } else {
@@ -319,6 +462,7 @@ public class DecisionTableHelper {
 
     public static boolean isSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
+        
         if (IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType)) {
             return true;
         } else {

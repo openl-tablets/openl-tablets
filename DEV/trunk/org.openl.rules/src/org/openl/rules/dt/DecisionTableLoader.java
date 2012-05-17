@@ -76,7 +76,7 @@ public class DecisionTableLoader {
             OpenL openl,
             ModuleOpenClass module,
             IBindingContextDelegator bindingContext) throws Exception {
-
+        
         loadTableStructure(tableSyntaxNode, decisionTable, bindingContext);
 
         ICondition[] conditionsArray = conditions.toArray(new ICondition[conditions.size()]);
@@ -186,6 +186,7 @@ public class DecisionTableLoader {
             tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, tableBody.getSource()
                     .getCell(0, 0).getHeight());
         }
+        
         return tableBody;
     }
 
