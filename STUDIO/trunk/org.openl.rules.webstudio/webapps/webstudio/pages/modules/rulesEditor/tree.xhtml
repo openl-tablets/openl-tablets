@@ -5,18 +5,24 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
-    template="/pages/layout/view.xhtml">
+    template="/pages/layout/view.xhtml"
+    xmlns:a4j="http://richfaces.org/a4j">
 
-    <ui:define name="toolbar">
+   <ui:define name="toolbar">
         <h:form id="rulesTreeViewForm">
-            <h:panelGroup id="rulesTreeView">
+            <h:panelGrid id="rulesTreeView" columns="2" style="width:100%">
                 <h:panelGroup rendered="#{studio.currentProject != null}" layout="block">
-                    <h:selectOneMenu value="#{treeBean.currentView}" style="width:100%">
+                    <h:selectOneMenu value="#{treeBean.currentView}">
                         <f:selectItems value="#{treeBean.views}" />
                         <f:ajax event="change" render=":rulesTree" />
                     </h:selectOneMenu>
+                 </h:panelGroup>   
+                <h:panelGroup rendered="#{studio.currentProject != null}" layout="block">
+                   <h:commandLink title="Recently visited tables" styleClass="imageButton"
+                            style="background:url('webresource/images/table_history.png')"
+                            onclick="sessionStorage.setItem('showHistory','true'); reloadLeft(); return false;" />
                 </h:panelGroup>
-            </h:panelGroup>
+            </h:panelGrid>
         </h:form>
     </ui:define>
 

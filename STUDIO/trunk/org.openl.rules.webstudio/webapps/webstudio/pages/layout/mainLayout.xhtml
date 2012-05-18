@@ -300,12 +300,14 @@
 
                 $j("#projectsTreePanel").show();
                 $j("#rulesTreePanel").hide();
+                $j("#recentVisitedTablesPanel").hide();
             }
 
             function toRulesPanel(header) {
                 if (!header) {
                     header = sessionStorage.getItem(NAVI_HEADER_ITEM);
                 }
+
                 if (header) {
                     sessionStorage.setItem(NAVI_HEADER_ITEM, header);
                     $j("#navigationHeader").text(header);
@@ -314,6 +316,18 @@
 
                 $j("#projectsTreePanel").hide();
                 $j("#rulesTreePanel").show();
+                $j("#recentVisitedTablesPanel").hide();
+            }
+
+            function toHistoryPanel() {
+                header = sessionStorage.getItem(NAVI_HEADER_ITEM);
+                
+                $j("#navigationHeader").text(header);
+                $j("#navigationHeader").attr("title", header);
+
+                $j("#projectsTreePanel").hide();
+                $j("#rulesTreePanel").hide();
+                $j("#recentVisitedTablesPanel").show();
             }
 
             function reopenLeftPanel() {
@@ -321,6 +335,11 @@
                     toRulesPanel();
                 } else {
                     toProjectsPanel();
+                }
+
+                if (sessionStorage.getItem("showHistory")) {
+                    sessionStorage.removeItem("showHistory");
+                    toHistoryPanel();
                 }
             }
 
