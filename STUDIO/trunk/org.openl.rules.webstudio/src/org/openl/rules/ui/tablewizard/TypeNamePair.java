@@ -41,5 +41,41 @@ public class TypeNamePair {
     public void setName(String name) {
         this.name = name;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null){
+            return false;
+        }
+        
+        if(!(obj instanceof TypeNamePair)){
+            return false;
+        }
+        
+        TypeNamePair tnp = (TypeNamePair) obj;
+        
+        if(this.name == null && tnp.getName() != null){
+            return false;
+        }
+        
+        if(this.name == null && tnp.getName() == null && this.type == null && tnp.type == null &&
+                this.isIterable() == tnp.isIterable()){
+            return true;
+        }
+        
+        if(this.name.equals(tnp.getName()) && this.type.equals(tnp.type) && this.isIterable() == tnp.isIterable()){
+            return true;
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        String forHashCode = ""+this.name+this.type+this.isIterable() +"";
+        
+        return forHashCode.hashCode();
+    }
+    
 
 }
