@@ -415,4 +415,8 @@ public class JavaClassGeneratorHelper {
         
         return String.format("private static final long serialVersionUID = %sL;", String.valueOf(uuid));        
     }
+
+    public static Object getInterfaceDeclaration(String className) {
+        return String.format("\npublic interface %s", className);        
+    }
 }

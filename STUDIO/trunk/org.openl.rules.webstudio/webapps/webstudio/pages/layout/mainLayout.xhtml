@@ -24,7 +24,7 @@
 
         <script src="#{contextPath}/javascript/common.js"></script>
 
-        <script src="#{contextPath}/javascript/jquery-1.7.1.min.js"></script>
+        <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
         <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
@@ -119,19 +119,13 @@
             var centerLayout;
 
             $j(function () {
-                setLayoutDimensions();
-
-                $j(window).resize(function() {
-                    setLayoutDimensions();
-                });
-
                 mainLayout = $j("#center").layout({
                     spacing_open: 1,
                     west__size: 230,
                     east__size: 230,
                     east__initHidden: true
                 });
-                
+
                 centerLayout = $j("#center .ui-layout-center").layout({
                     spacing_open: 1,
                     south__size: 110
@@ -349,15 +343,6 @@
                 }
             }
 
-            function setLayoutDimensions() {
-                $j("#center").css({
-                   "height": $j(this).outerHeight()
-                       - $j("#header").outerHeight()
-                       - $j("#top").outerHeight()
-                       - $j("#footer").outerHeight()
-                });
-            }
-
             function showLoader() {
                 if (loadingPanel.is(":hidden")) {
                     loadingPanel.show();
@@ -378,7 +363,7 @@
 
                 var left = elemPos.left + ((params && params.offsetLeft) || 0);
                 var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
-				
+
                 $j("#" + popupId).popup({
                     left: left,
                     top : top
