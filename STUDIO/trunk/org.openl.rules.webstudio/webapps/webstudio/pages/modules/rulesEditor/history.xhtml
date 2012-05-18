@@ -5,12 +5,23 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
+    xmlns:a4j="http://richfaces.org/a4j"
     template="/pages/layout/view.xhtml">
+
+    <ui:define name="toolbar">     
+         <h:panelGrid id="backButtonGrid">
+                <h:panelGroup layout="block">
+                    <h:outputLink title="Back" styleClass="imageButton"
+                            style="background:url('webresource/images/back.png')"
+                            onclick="reloadLeft(); return false;" />
+                 </h:panelGroup>
+         </h:panelGrid>
+    </ui:define>
 
     <ui:define name="workspace">
         <c:set var="recentlyVisitedTables" value="#{studio.model.recentlyVisitedTables.tables}" />
-
-        <h:dataTable value="#{recentlyVisitedTables}" var="table">
+        
+        <h:dataTable id="historyTable" value="#{recentlyVisitedTables}" var="table">
             <h:column>
                 <h:graphicImage value="webresource/images/dt3.png" rendered="#{table.type == 'xls.dt'}" />
                 <h:graphicImage value="webresource/images/spreadsheet.gif" rendered="#{table.type == 'xls.spreadsheet'}" />
@@ -26,7 +37,7 @@
             </h:column>
             <h:column>
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                <h:outputLink value="#{contextPath}/faces/openTable.xhtml?uri=#{encodedTableUri}">
+                <h:outputLink value="#{contextPath}/webstudio/#showTable.xhtml?uri=#{encodedTableUri}">
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
