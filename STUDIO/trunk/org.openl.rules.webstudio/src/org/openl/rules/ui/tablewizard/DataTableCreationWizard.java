@@ -31,7 +31,6 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.java.JavaOpenEnum;
 import org.openl.util.Log;
 
 public class DataTableCreationWizard extends BusinessTableCreationWizard {
@@ -48,6 +47,7 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     private SelectItem[] domainTypes;
     private HtmlDataTable parametersTable;
     private List<TableSyntaxNode> allDataTables;
+    private Collection<IOpenClass> importedClasses;
 
     public DataTableCreationWizard() {
     }
@@ -94,8 +94,13 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
+        importedClasses = WizardUtils.getImportedClasses();
         
         Collection<String> allClasses = domainTree.getAllClasses(true);
+        for (IOpenClass type : importedClasses) {
+            allClasses.add(type.getDisplayName(INamedThing.SHORT));
+        }
+        
         Iterator<String> classIterator = allClasses.iterator();
         
         while(classIterator.hasNext()) {
@@ -120,7 +125,6 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
 
     @Override
     protected void onCancel() {
-        reset();
     }
 
     @Override
@@ -160,7 +164,9 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
 
         domainTree = null;
         domainTypes = null;
-
+        
+        importedClasses = null;
+        
         super.reset();
     }
 
@@ -183,20 +189,19 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     public SelectItem[] getForeignKeyTables(String typeName) {
         List<String> tableNames = new ArrayList<String>();
 
+        IOpenClass to = getUserDefinedType(typeName);
+
         for (TableSyntaxNode tbl : allDataTables) {
             if (tbl.getMember() == null) {
                 continue;
             }
             
             IOpenClass from = tbl.getMember().getType().getComponentClass();
-            IOpenClass to = getUserDefinedType(typeName);
 
-            if (to != null) {
+            if (typeName.equals(from.getDisplayName(INamedThing.SHORT))) {
+                tableNames.add(tbl.getMember().getName());
+            } else if (to != null) {
                 if (to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) {
-                    tableNames.add(tbl.getMember().getName());
-                }
-            } else {
-                if (typeName.equals(from.getDisplayName(INamedThing.SHORT))) {
                     tableNames.add(tbl.getMember().getName());
                 }
             }
@@ -295,10 +300,8 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     private void initTree() {
         tableOpenClass = getUserDefinedType(tableType);
 
-        if (tableOpenClass == null || tableOpenClass instanceof JavaOpenEnum) {
-            if (domainTree.getClassProperties(tableType) != null) {
-                tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
-            }
+        if (tableOpenClass == null || tableOpenClass.isSimple()) {
+            tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
         } else {
             DataTableField field = new DataTableUserDefinedTypeField(tableOpenClass, tableType,
                     new DataTableUserDefinedTypeField.PredefinedTypeChecker() {
@@ -320,6 +323,12 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
      */
     private IOpenClass getUserDefinedType(String type) {
         for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes().values()) {
+            if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
+                return dataType;
+            }
+        }
+        
+        for (IOpenClass dataType : importedClasses) {
             if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
                 return dataType;
             }
