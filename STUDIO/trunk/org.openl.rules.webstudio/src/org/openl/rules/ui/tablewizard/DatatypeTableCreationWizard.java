@@ -167,13 +167,8 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         parameters.add(new TypeNamePair());
     }
 
-    public void removeParameter() {
-        TypeNamePair parameter = (TypeNamePair) parametersTable.getRowData();
-        
-        int paramPosition = parameters.indexOf(parameter);
-        System.out.println(paramPosition);
-        parameters.remove(paramPosition);
-        System.out.println(paramPosition);
+    public void removeParameter(TypeNamePair parameter) {
+        parameters.remove(parameter);
     }
 
     @Override
