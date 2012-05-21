@@ -23,7 +23,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
-public class JavaWrapperGenerator {
+public class JavaWrapperGenerator implements OpenLToJavaGenerator {
     
     private String targetClass;
     private String extendsClass = null;
@@ -49,9 +49,10 @@ public class JavaWrapperGenerator {
     private List<String> methodImports;
     
     
-    public JavaWrapperGenerator(String targetClass, String extendsClass, String[] implementsInterfaces, 
+    public JavaWrapperGenerator(IOpenClass moduleOpenClass, String targetClass, String extendsClass, String[] implementsInterfaces, 
             String openlName, String deplSrcFile, String srcFile, String srcModuleClass, String userHome, String deplUserHome,
             String rulesFolder, String[] fields, String[] methods, boolean ignoreNonJavaTypes) {
+        this.moduleOpenClass = moduleOpenClass;
         this.targetClass = targetClass;
         this.extendsClass = extendsClass;
         if (implementsInterfaces != null) {
@@ -91,8 +92,8 @@ public class JavaWrapperGenerator {
         methodImports.add("org.openl.types.java.OpenClassHelper");
     }
 
-    public String generateJavaClass(IOpenClass moduleOpenClass) {
-        this.moduleOpenClass = moduleOpenClass;
+    public String generateJava() {
+        
         StringBuffer buf = new StringBuffer(10000);
 
         parseClassName();
@@ -101,7 +102,7 @@ public class JavaWrapperGenerator {
 
         addPackage(buf);
 
-        addImports(moduleOpenClass, buf);
+        addImports(buf);
 
         addClassDeclaration(buf);
 
@@ -115,9 +116,9 @@ public class JavaWrapperGenerator {
         
         addConstructorWithParameter(buf);
 
-        addFieldMethods(moduleOpenClass, buf);
+        addFieldMethods(buf);
 
-        addMethods(moduleOpenClass, buf);
+        addMethods(buf);
 
         addInitMethod(buf);
 
@@ -203,7 +204,7 @@ public class JavaWrapperGenerator {
         buf.append("\n{\n");
     }
     
-    private void addFieldMethods(IOpenClass moduleOpenClass, StringBuffer buf) {
+    private void addFieldMethods(StringBuffer buf) {
         for (IOpenField field : moduleOpenClass.getFields().values()) {            
             if (!isFieldGenerated(field)) {
                 continue;
@@ -215,9 +216,9 @@ public class JavaWrapperGenerator {
         }
     }
     
-    private void addMethods(IOpenClass moduleOpenClass, StringBuffer buf) {
+    private void addMethods(StringBuffer buf) {
         for (IOpenMethod method : moduleOpenClass.getMethods()) {            
-            if (!isMethodGenerated(method)) {
+            if (!shouldBeGenerated(method, methods, moduleOpenClass.getName(), ignoreNonJavaTypes)) {
                 continue;
             }
             addMethodFieldInitializer(method);
@@ -241,9 +242,7 @@ public class JavaWrapperGenerator {
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__openlName", 
             initializationValue));
 
-        String initializationValueSrc = String.format("\"%s\"", StringEscapeUtils.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile));
-        buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__src", 
-            initializationValueSrc));
+        buf.append(getSourceFilePathField(srcFile, deplSrcFile));
 
         String initValue = srcModuleClass == null ? null : String.format("\"%s\"", StringEscapeUtils.escapeJava(srcModuleClass));
         buf.append(JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), "__srcModuleClass", 
@@ -262,7 +261,14 @@ public class JavaWrapperGenerator {
             initializationValueUserHome));
     }
 
-    private void addImports(IOpenClass moduleOpenClass, StringBuffer buf) {
+    public static String getSourceFilePathField(String srcFile, String deplSrcFile) {
+        String initializationValueSrc = String.format("\"%s\"", 
+            StringEscapeUtils.escapeJava(deplSrcFile == null ? srcFile : deplSrcFile));
+        return JavaClassGeneratorHelper.getStaticPublicFieldInitialization(String.class.getName(), 
+            "__src", initializationValueSrc);
+    }
+
+    private void addImports(StringBuffer buf) {
         int methodsNum = calcMethods(moduleOpenClass);
         if (methodsNum != 0) {
             for (String methodImport : methodImports) {
@@ -329,7 +335,7 @@ public class JavaWrapperGenerator {
         int cnt = 0;
 
         for (IOpenMethod method : ioc.getMethods()) {            
-            if (!isMethodGenerated(method)) {
+            if (!shouldBeGenerated(method, methods, moduleOpenClass.getName(), ignoreNonJavaTypes)) {
                 continue;
             }
             ++cnt;
@@ -484,10 +490,12 @@ public class JavaWrapperGenerator {
     }    
 
     private void addMethodSignature(IOpenMethod method, StringBuffer buf, boolean isStatic) {
-        buf.append("  public ");
-        if (isStatic) {
-            buf.append("static ");
-        }
+        addModifiers(buf, isStatic);
+        addMethodName(method, buf);
+    }
+    
+    // TODO: refactor, return String instead of receive buffer
+    public static void addMethodName(IOpenMethod method, StringBuffer buf) {
         buf.append(getMethodType(method)).append(' ');
         buf.append(getMethodName(method));
         buf.append('(');
@@ -500,6 +508,13 @@ public class JavaWrapperGenerator {
                 .getParameterName(i), i));
         }
         buf.append(')');
+    }
+
+    protected void addModifiers(StringBuffer buf, boolean isStatic) {
+        buf.append("  public ");
+        if (isStatic) {
+            buf.append("static ");
+        }
     }
     
     private String parameterToObject(IOpenMethod method, int i) {
@@ -631,11 +646,12 @@ public class JavaWrapperGenerator {
         return true;
     }
     
-    private boolean isMethodGenerated(IOpenMethod method) {
+    public static boolean shouldBeGenerated(IOpenMethod method, String[] methodsToGenerate, String nameOfTheModule, boolean ignoreNonJavaTypes) {
 
         // TODO fix a) provide isConstructor() in OpenMethod b) provide better
         // name for XLS modules
-        if (moduleOpenClass.getName().equals(method.getName())) {
+        if (nameOfTheModule.equals(method.getName())) {
+//        if (moduleOpenClass.getName().equals(method.getName())) {
             return false;
         }
 
@@ -643,7 +659,7 @@ public class JavaWrapperGenerator {
             return false;
         }
 
-        if (methods != null && !ArrayTool.contains(methods, method.getName())) {
+        if (methodsToGenerate != null && !ArrayTool.contains(methodsToGenerate, method.getName())) {
             return false;
         }
 
@@ -680,23 +696,23 @@ public class JavaWrapperGenerator {
     }
 
     
-    private String getMethodName(IOpenMethod method) {
+    public static String getMethodName(IOpenMethod method) {
         return method.getName();
     }
     
-    private String getMethodType(IOpenMethod method) {
+    public static String getMethodType(IOpenMethod method) {
         return getOpenClassType(method.getType());
     }
     
-    private String getOpenClassType(IOpenClass type) {
+    public static String getOpenClassType(IOpenClass type) {
         return getClassName(type.getInstanceClass());
     }
     
-    private String getParamName(String parameterName, int i) {
+    public static String getParamName(String parameterName, int i) {
         return parameterName == null ? "arg" + i : parameterName;
     }
     
-    private String getClassName(Class<?> instanceClass) {
+    public static String getClassName(Class<?> instanceClass) {
         StringBuffer buf = new StringBuffer(30);
         while (instanceClass.isArray()) {
             buf.append("[]");
@@ -720,7 +736,7 @@ public class JavaWrapperGenerator {
 
     }
     
-    private String getScalarClassName(Class<?> instanceClass) {
+    public static String getScalarClassName(Class<?> instanceClass) {
         /** Filter Custom Spreadsheet results.
          * These classes are dinamically generated on runtime and are children of SpreadsheetResult.
          * For the wrapper use its parent.

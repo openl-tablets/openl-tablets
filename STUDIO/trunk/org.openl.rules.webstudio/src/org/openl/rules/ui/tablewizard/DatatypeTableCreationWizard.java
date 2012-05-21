@@ -177,8 +177,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         parameters.add(new TypeNamePair());
     }
 
-    public void removeParameter() {
-        TypeNamePair parameter = (TypeNamePair) parametersTable.getRowData();
+    public void removeParameter(TypeNamePair parameter) {
         parameters.remove(parameter);
     }
 

@@ -53,9 +53,11 @@ public class JavaWrapperAntTask extends Task {
     private final Log log = LogFactory.getLog(JavaWrapperAntTask.class);
 
     private static final String GOAL_MAKE_WRAPPER = "make wrapper";
+    private static final String GOAL_MAKE_INTERFACE = "make interface";
     private static final String GOAL_UPDATE_PROPERTIES = "update properties";
     private static final String GOAL_MAKE_WEBINF = "make WEB-INF";
     private static final String GOAL_ALL = "all";
+    private static final String GOAL_ALL_WITH_INTERFACE = "all with interface";
     private static final String GOAL_GENERATE_DATATYPES = "generate datatypes";    
 
     private IOpenClass openClass;
@@ -387,19 +389,27 @@ public class JavaWrapperAntTask extends Task {
         if (goal.equals(GOAL_ALL) || goal.contains(GOAL_UPDATE_PROPERTIES)) {
             saveProjectProperties();
         }
-
+        
+        openClass = makeOpenClass();
+        
+        OpenLToJavaGenerator javaGenerator = null;
+        
         if (goal.equals(GOAL_ALL) || goal.contains(GOAL_MAKE_WRAPPER)) {
-            openClass = makeOpenClass();
-            
-            JavaWrapperGenerator javaGenerator = new JavaWrapperGenerator(getTargetClass(), getExtendsClass(), 
-                getImplementsInterfaces(), getOpenlName(), getDeplSrcFile(), getSrcFile(), getSrcModuleClass(), getUserHome(),
-                getDeplUserHome(), getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes());
-            
-            
-            String content = javaGenerator.generateJavaClass(openClass);
-            String fileName = getOutputFileName();
-            writeContentToFile(content, fileName);
+            // Generator for static wrapper
+            //
+            javaGenerator = new JavaWrapperGenerator(openClass, getTargetClass(), getExtendsClass(), 
+                getImplementsInterfaces(), getOpenlName(), getDeplSrcFile(), getSrcFile(), getSrcModuleClass(), 
+                getUserHome(), getDeplUserHome(), getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes());
+                    
+        } else if (goal.equals(GOAL_ALL_WITH_INTERFACE) || goal.contains(GOAL_MAKE_INTERFACE)) {
+            // Generator for Interface
+            //
+            javaGenerator = new JavaInterfaceGenerator.Builder(openClass, getTargetClass())
+                .methodsToGenerate(getMethods()).ignoreNonJavaTypes(isIgnoreNonJavaTypes()).srcFile(getSrcFile())
+                .deplSrcFile(getDeplSrcFile()).build();            
         }
+        
+        writeJavaWrapper(javaGenerator);        
         
         if (goal.equals(GOAL_ALL) || goal.contains(GOAL_GENERATE_DATATYPES)) {
             writeDatatypeBeans(openClass.getTypes());
@@ -419,6 +429,14 @@ public class JavaWrapperAntTask extends Task {
             makeWebInfPath();
         }
 
+    }
+
+    protected void writeJavaWrapper(OpenLToJavaGenerator javaGenerator) throws IOException {
+        if (javaGenerator != null) {
+            String content = javaGenerator.generateJava();
+            String fileName = getOutputFileName();
+            writeContentToFile(content, fileName);
+        }        
     }
  
     private void writeContentToFile(String content, String fileName) throws IOException {
@@ -469,7 +487,6 @@ public class JavaWrapperAntTask extends Task {
      * @throws IOException
      * 
      */
-    @SuppressWarnings("unchecked")
     private void saveProjectProperties() throws IOException {
         Properties p = new Properties();
         p.put(OpenLProjectPropertiesLoader.OPENL_CLASSPATH_PROPERTY, filterClassPath());
@@ -481,7 +498,7 @@ public class JavaWrapperAntTask extends Task {
 
         if (vocabularyClass != null) {
             try {
-                Class c = Class.forName(vocabularyClass);
+                Class<?> c = Class.forName(vocabularyClass);
                 Object instance = c.newInstance();
                 @SuppressWarnings("unused")
                 IVocabulary vocabulary = (IVocabulary) instance;

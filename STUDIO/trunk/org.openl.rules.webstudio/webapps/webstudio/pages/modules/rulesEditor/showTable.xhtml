@@ -454,32 +454,13 @@
 
     <script>
       //<![CDATA[
-        $j(function () {
-            //setContentHeight();
-
-            $j(window).resize(function() {
-                //setContentHeight();
-            });
-        });
-
-        function setContentHeight() {
-            var contentPanel = $j("#tablePanel");
-            if (contentPanel.length) {
-                var contentToolbarPanel = $j("#tableToolbarPanel");
-                contentPanel.css({
-                   "height": $j("#content").outerHeight()
-                       - ((contentToolbarPanel.length && contentToolbarPanel.outerHeight()) || 0)
-                });
-            }
-        }
-
         function open_win(url, name) {
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
         }
 
         /**
-        	Limits popup height and width inside the bordering component.
-        */
+         * Limits popup height and width inside the bordering component.
+         */
         function adjustSize(popupId, borderingComponentId) {
             var borderingComponent = $j("#" + borderingComponentId);
             var popup = $j("#" + popupId);
@@ -527,7 +508,7 @@
             alert('No tests selected');
             return false;
         }
-        
+
         function canLeavePage() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
             var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId
