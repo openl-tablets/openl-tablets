@@ -10,7 +10,6 @@ import java.io.IOException;
 
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellStyle;
-import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.table.IGridRegion;
@@ -252,12 +251,8 @@ public class TableBuilder {
      */
     private CellStyle analyseCellStyle(ICellStyle style) {
         CellStyle returnStyle = null;
-        if (style != null) {
-            if (style instanceof XlsCellStyle) {
-                returnStyle = ((XlsCellStyle) style).getXlsStyle();
-            } else if (style instanceof XlsCellStyle2) {
-                returnStyle = ((XlsCellStyle2) style).getXlsStyle();
-            }           
+        if (style instanceof XlsCellStyle) {
+            returnStyle = ((XlsCellStyle) style).getXlsStyle();
         } else {
             returnStyle = getDefaultCellStyle();               
         }

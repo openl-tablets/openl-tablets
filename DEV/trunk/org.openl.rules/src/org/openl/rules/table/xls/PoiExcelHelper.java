@@ -1,7 +1,11 @@
 package org.openl.rules.table.xls;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
@@ -9,6 +13,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 
 public class PoiExcelHelper {
 
@@ -257,6 +264,77 @@ public class PoiExcelHelper {
         setCellFont(cell,
                 font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
                 font.getStrikeout(), font.getTypeOffset(), underline);
+    }
+
+    public static short[] toRgb(Color color) {
+        if (color == null) {
+            return null;
+        }
+
+        if (color instanceof HSSFColor) {
+            return ((HSSFColor) color).getTriplet();
+
+        } else if (color instanceof XSSFColor) {
+            byte[] rgb = ((XSSFColor) color).getRgbWithTint();
+
+            // Byte to short
+            if (rgb != null) {
+                short[] result = new short[3];
+                for (int i = 0; i < 3; i++) {
+                    result[i] = (short) (rgb[i] & 0xFF);
+                }
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    public static short[] toRgb(short colorIndex, HSSFWorkbook workbook) {
+        HSSFColor cc = workbook.getCustomPalette().getColor(colorIndex);
+        return toRgb(cc);
+    }
+
+    public static short[] getFontColor(Font font, Workbook workbook) {
+        if (font instanceof XSSFFont) {
+            XSSFColor color = ((XSSFFont) font).getXSSFColor();
+            return toRgb(color);
+        } else {
+            short x = font.getColor();
+            return toRgb(x, (HSSFWorkbook) workbook);
+        }
+    }
+
+    public static short[][] getCellBorderColors(CellStyle style, Workbook workbook) {
+        short[][] colors = new short[4][];
+
+        if (style instanceof HSSFCellStyle) {
+            HSSFWorkbook hssfWorkbook = (HSSFWorkbook) workbook;
+            colors[0] = toRgb(style.getTopBorderColor(), hssfWorkbook);
+            colors[1] = toRgb(style.getRightBorderColor(), hssfWorkbook);
+            colors[2] = toRgb(style.getBottomBorderColor(), hssfWorkbook);
+            colors[3] = toRgb(style.getLeftBorderColor(), hssfWorkbook);
+
+        } else if(style instanceof XSSFCellStyle) {
+            XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
+            colors[0] = toRgb(xssfStyle.getTopBorderXSSFColor());
+            colors[1] = toRgb(xssfStyle.getRightBorderXSSFColor());
+            colors[2] = toRgb(xssfStyle.getBottomBorderXSSFColor());
+            colors[3] = toRgb(xssfStyle.getLeftBorderXSSFColor());
+        }
+
+        return colors;
+    }
+
+    public static short[] getCellBorderStyles(CellStyle style) {
+        short[] styles = new short[4];
+
+        styles[0] = style.getBorderTop();
+        styles[1] = style.getBorderRight();
+        styles[2] = style.getBorderBottom();
+        styles[3] = style.getBorderLeft();
+
+        return styles;
     }
 
 }
