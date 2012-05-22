@@ -46,7 +46,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.OpenLTable;
 import org.openl.rules.table.search.SearchResult;
 import org.openl.rules.table.search.TableSearcher;
-import org.openl.rules.table.xls.XlsCellStyle2;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -1043,13 +1042,9 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
 
-        if (reloadType != ReloadType.NO) {
-            XlsCellStyle2.cleareThemesCache(); // Clear cache due to new loaded workbooks
-        }
-        
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, 
             studio.getDependencyManager());
-        
+
         try {
             if(reloadType == ReloadType.FORCED){
                 instantiationStrategy.forcedReset();

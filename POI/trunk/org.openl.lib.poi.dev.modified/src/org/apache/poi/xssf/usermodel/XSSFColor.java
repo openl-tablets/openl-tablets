@@ -169,7 +169,20 @@ public class XSSFColor implements Color {
     */
     public byte[] getRgbWithTint() {
        byte[] rgb = getRgb();
-       double tint = ctColor.getTint();
+       double tint = getTint();
+       int theme = getTheme();
+
+       // https://issues.apache.org/bugzilla/show_bug.cgi?id=50787
+       if (theme == 2) {
+           rgb = new byte[] {
+                   (byte) (286 - rgb[0] & 0xFF), (byte) (319 - rgb[1] & 0xFF), (byte) (320 - rgb[2] & 0xFF)
+           };
+       } else if (theme == 3) {
+           rgb = new byte[] {
+                   (byte) (248 - rgb[0] & 0xFF), (byte) (319 - rgb[1] & 0xFF), (byte) (380 - rgb[2] & 0xFF)
+           };
+       }
+       
        if (rgb != null && tint != 0) {
           for (int i = 0; i < rgb.length; i++){
              rgb[i] = applyTint(rgb[i] & 0xFF, tint);
