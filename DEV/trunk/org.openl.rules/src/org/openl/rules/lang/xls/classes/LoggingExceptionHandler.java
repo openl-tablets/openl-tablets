@@ -10,12 +10,23 @@ public class LoggingExceptionHandler extends AbstractLocatorExceptionHandler {
 
     @Override
     public void handleURLParseException(Exception e) {
-        log.error(e.getMessage(), e);
+        if (log.isErrorEnabled()) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override
     public void handleIOException(IOException e) {
-        log.error(e.getMessage(), e);
+        if (log.isErrorEnabled()) {
+            log.error(e.getMessage(), e);
+        }
     }
-    
+
+    @Override
+    public void handleClassInstatiateException(Throwable t) {
+        if (log.isDebugEnabled()) {
+            log.debug(t.getMessage(), t);
+        }
+    }
+
 }

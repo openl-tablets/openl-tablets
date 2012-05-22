@@ -2,6 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
-
+import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -98,9 +99,14 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
-        List<String> datatypes = new ArrayList<String>(WizardUtils.getProjectOpenClass().getTypes().size());
+        
+        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes().values());
+        Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
+        types.addAll(importedClasses);
+        
+        List<String> datatypes = new ArrayList<String>(types.size());
         datatypes.add("");
-        for (IOpenClass datatype : WizardUtils.getProjectOpenClass().getTypes().values()) {
+        for (IOpenClass datatype : types) {
             if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
                 // cannot inherit from final class
                 continue;
@@ -112,7 +118,11 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         }
         
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
-        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
+        Collection<String> allClasses = domainTree.getAllClasses(true);
+        for (IOpenClass type : importedClasses) {
+            allClasses.add(type.getDisplayName(INamedThing.SHORT));
+        }
+        domainTypes = FacesUtils.createSelectItems(allClasses);
 
         addParameter();
     }
