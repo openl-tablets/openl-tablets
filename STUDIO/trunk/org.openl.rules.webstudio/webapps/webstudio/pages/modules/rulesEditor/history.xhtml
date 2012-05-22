@@ -34,16 +34,24 @@
                 <h:graphicImage value="webresource/images/test_ok.gif" rendered="#{table.type == 'xls.test.method'}" />
                 <h:graphicImage value="webresource/images/run.gif" rendered="#{table.type == 'xls.run.method'}" />
                 <h:graphicImage value="webresource/images/data.gif" rendered="#{table.type == 'xls.properties'}" />
+                <h:graphicImage value="webresource/images/leaf_icon.gif" rendered="#{table.type == 'xls.other'}" />
             </h:column>
             <h:column>
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}">
+                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}" rendered="#{recentlyVisitedTables.getFirst() != table}">
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
                         <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
                     </h:panelGroup>
                 </h:outputLink>
+                <h:panelGroup rendered="#{recentlyVisitedTables.getFirst() == table}" style="font-weight:bold;" >
+                    <h:outputText value="#{table.name}" />
+                    <h:panelGroup rendered="#{empty table.name}">
+                        <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
+                        <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
+                    </h:panelGroup>
+                </h:panelGroup>
             </h:column>
         </h:dataTable>
         
