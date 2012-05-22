@@ -37,7 +37,7 @@
             </h:column>
             <h:column>
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                <h:outputLink value="#{contextPath}/webstudio/#showTable.xhtml?uri=#{encodedTableUri}">
+                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}">
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
@@ -46,6 +46,10 @@
                 </h:outputLink>
             </h:column>
         </h:dataTable>
+        
+        <h:panelGroup rendered="#{empty recentlyVisitedTables}">
+            <h:outputText value="There are no tables in the list." />
+        </h:panelGroup>
     </ui:define>
 
 </ui:composition>
