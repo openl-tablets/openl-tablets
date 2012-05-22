@@ -38,13 +38,20 @@
             </h:column>
             <h:column>
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}">
+                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}" rendered="#{recentlyVisitedTables.getFirst() != table}">
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
                         <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
                     </h:panelGroup>
                 </h:outputLink>
+                <h:panelGroup rendered="#{recentlyVisitedTables.getFirst() == table}" style="font-weight:bold;" >
+                    <h:outputText value="#{table.name}" />
+                    <h:panelGroup rendered="#{empty table.name}">
+                        <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
+                        <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
+                    </h:panelGroup>
+                </h:panelGroup>
             </h:column>
         </h:dataTable>
         
