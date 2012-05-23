@@ -4,17 +4,15 @@
 	
 	
 <target name="generate">
-	<echo message="Generating org.openl.tablets.tutorial2 Wrapper"/>
+	<echo message="Generating org.openl.tablets.tutorial2 Interface"/>
 
 	<openlgen openlName="org.openl.xls" userHome="." 
 		srcFile="rules/Tutorial_2.xls"
-	    targetClass="org.openl.tablets.tutorial2.Tutorial_2Wrapper"
+	    targetClass="org.openl.tablets.tutorial2.Tutorial_2RulesInterface"
 		displayName="Tutorial 2 - Intro to Data Tables"
 		targetSrcDir="gen"
+		goal="all with interface"
 	>
-	</openlgen>	
-	
-	
-	
+	</openlgen>
 </target>
 </project>

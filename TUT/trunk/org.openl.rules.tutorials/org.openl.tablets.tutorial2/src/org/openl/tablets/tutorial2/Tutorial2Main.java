@@ -2,9 +2,8 @@ package org.openl.tablets.tutorial2;
 
 import org.openl.generated.beans.Person1;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.tablets.tutorial2.step3.Customer2_3;
-import org.openl.types.impl.DynamicObject;
-
 
 
 /**
@@ -26,7 +25,12 @@ import org.openl.types.impl.DynamicObject;
 public class Tutorial2Main {
 
 	//Creates new instance of Java Wrapper for our lesson
-	static Tutorial_2Wrapper tut2 = new Tutorial_2Wrapper();
+	static Tutorial_2RulesInterface tut2;
+	
+	static {
+	    tut2 = new RuleEngineFactory<Tutorial_2RulesInterface>(Tutorial_2RulesInterface.__src, 
+	            Tutorial_2RulesInterface.class).makeInstance();
+	}
 
 	public static void main(String[] args) 
 	{
