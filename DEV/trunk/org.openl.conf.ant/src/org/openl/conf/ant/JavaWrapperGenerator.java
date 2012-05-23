@@ -173,12 +173,8 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
 
         String className = getClassName(type.getInstanceClass());
 
-        buf.append("\n  public ")
-            .append(className)
-            .append(" get")
-            .append(fieldMethodPart(field))
-            .append("()")
-            .append("\n  {\n")
+        addSignature(field, buf, className);
+        buf.append("\n  {\n")
             .append("   Object ")
             .append(resName)
             .append(" = ")
@@ -189,6 +185,14 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
             .append(";\n")
             .append("  }\n\n");
 
+    }
+
+    public static void addSignature(IOpenField field, StringBuffer buf, String className) {
+        buf.append("\n  public ")
+            .append(className)
+            .append(" get")
+            .append(fieldMethodPart(field))
+            .append("()");
     }
     
     private void addClassDeclaration(StringBuffer buf) {        
@@ -206,7 +210,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
     
     private void addFieldMethods(StringBuffer buf) {
         for (IOpenField field : moduleOpenClass.getFields().values()) {            
-            if (!isFieldGenerated(field)) {
+            if (!shouldBeGenerated(field, fields, ignoreNonJavaTypes)) {
                 continue;
             }
             addFieldFieldInitializer(field);
@@ -572,7 +576,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         return "(" + getClassName(instanceClass) + ")" + resVarName;
     }
     
-    private String fieldMethodPart(IOpenField field) {
+    public static String fieldMethodPart(IOpenField field) {
         String name = field.getName();
         return StringUtils.capitalize(name);
 
@@ -633,8 +637,8 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         return name;
     }
     
-    private boolean isFieldGenerated(IOpenField field) {
-        if (fields != null && !ArrayTool.contains(fields, field.getName())) {
+    public static boolean shouldBeGenerated(IOpenField field, String[] fieldToGenerate, boolean ignoreNonJavaTypes) {
+        if (fieldToGenerate != null && !ArrayTool.contains(fieldToGenerate, field.getName())) {
             return false;
         }
 

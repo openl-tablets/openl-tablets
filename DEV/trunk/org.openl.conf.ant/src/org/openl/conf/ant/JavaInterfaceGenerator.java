@@ -2,6 +2,7 @@ package org.openl.conf.ant;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -12,6 +13,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
     private String targetPackageName;
 
     private String[] methodsToGenerate;
+    private String[] fieldsToGenerate;
 
     private boolean ignoreNonJavaTypes;
 
@@ -23,6 +25,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         this.targetClassName = builder.targetClassName;
         this.targetPackageName = builder.targetPackageName;
         this.methodsToGenerate = builder.methodsToGenerate;
+        this.fieldsToGenerate = builder.fieldsToGenerate;
         this.ignoreNonJavaTypes = builder.ignoreNonJavaTypes;
         this.srcFile = builder.srcFile;
         this.deplSrcFile = builder.deplSrcFile;
@@ -45,7 +48,9 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
         // Add source file path static field
         buf.append(JavaWrapperGenerator.getSourceFilePathField(srcFile, deplSrcFile));
-
+        
+        addFieldMethods(buf);
+        
         // Add methods
         addMethods(buf);
 
@@ -65,6 +70,26 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
             buf.append(";\n\n");
         }
     }
+    
+    private void addFieldMethods(StringBuffer buf) {
+        for (IOpenField field : moduleOpenClass.getFields().values()) {            
+            if (!JavaWrapperGenerator.shouldBeGenerated(field, fieldsToGenerate, ignoreNonJavaTypes)) {
+                continue;
+            }
+            addFieldAccessor(field, buf);            
+        }
+    }
+    
+    private void addFieldAccessor(IOpenField field, StringBuffer buf) {
+
+        IOpenClass type = field.getType();
+
+        String className = JavaWrapperGenerator.getClassName(type.getInstanceClass());
+
+        JavaWrapperGenerator.addSignature(field, buf, className);
+
+        buf.append(";\n\n");
+    }
 
     public static class Builder {
         // Required parameters
@@ -73,7 +98,8 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         private String targetPackageName;
 
         // Optional parameters
-        private String[] methodsToGenerate;        
+        private String[] methodsToGenerate; 
+        private String[] fieldsToGenerate;
         private boolean ignoreNonJavaTypes;        
         private String srcFile; 
         private String deplSrcFile;
@@ -92,6 +118,13 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         public Builder methodsToGenerate(String[] methodsToGenerate) {
             if (methodsToGenerate != null) {
                 this.methodsToGenerate = methodsToGenerate.clone();
+            }
+            return this;
+        }
+        
+        public Builder fieldsToGenerate(String[] fieldsToGenerate) {
+            if (fieldsToGenerate != null) {
+                this.fieldsToGenerate = fieldsToGenerate.clone();
             }
             return this;
         }
