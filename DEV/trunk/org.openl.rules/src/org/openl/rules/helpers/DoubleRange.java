@@ -44,7 +44,7 @@ public class DoubleRange implements INumberRange {
 
     public DoubleRange(String range) {
         // TODO: Correct tokenizing in grammar.
-        OpenL openl = OpenL.getInstance("org.openl.j");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         
         RangeWithBounds res;
         

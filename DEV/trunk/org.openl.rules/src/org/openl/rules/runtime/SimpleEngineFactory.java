@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
@@ -25,7 +26,7 @@ import org.openl.types.IOpenMember;
  */
 public class SimpleEngineFactory extends ASourceCodeEngineFactory {
     private final Log log = LogFactory.getLog(SimpleEngineFactory.class);
-    private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
+    private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;

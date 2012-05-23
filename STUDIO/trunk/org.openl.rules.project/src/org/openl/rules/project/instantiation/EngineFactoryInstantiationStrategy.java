@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RuleEngineFactory;
@@ -17,8 +18,6 @@ import java.io.File;
  * @author PUdalau
  */
 public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiationStrategy {
-    
-    public static final String RULE_OPENL_NAME = "org.openl.xls";
 
     private EngineFactory<?> engineFactory;
     
@@ -49,7 +48,8 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
             source.setParams(getModule().getProperties());
 
-            engineFactory = new RuleEngineFactory(source, clazz);
+            String openlName = RuleEngineFactory.RULE_OPENL_NAME + "." + getModule().getName();
+            engineFactory = new RuleEngineFactory(source, clazz, openlName);
             engineFactory.setExecutionMode(isExecutionMode());
             engineFactory.setDependencyManager(getDependencyManager());
         }

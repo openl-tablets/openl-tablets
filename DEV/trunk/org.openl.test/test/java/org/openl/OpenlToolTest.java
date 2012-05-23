@@ -36,7 +36,7 @@ public class OpenlToolTest extends TestCase {
     public void testMakeMethod() {
         StringValue srcCode = new StringValue("5");
 
-        OpenL openl = OpenL.getInstance("org.openl.j");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         String name = "abc";
         IMethodSignature signature = IMethodSignature.VOID;
         IOpenClass declaringClass = null;
@@ -57,7 +57,7 @@ public class OpenlToolTest extends TestCase {
     public void testMakeType() {
         String type = "String [] []";
 
-        OpenL openl = OpenL.getInstance("org.openl.j");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         String[][] xx = { { "" } };
 

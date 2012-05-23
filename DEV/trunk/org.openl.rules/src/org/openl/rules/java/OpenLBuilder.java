@@ -28,7 +28,7 @@ public class OpenLBuilder extends AOpenLBuilder {
     
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
-        OpenL.getInstance("org.openl.j", getUserEnvironmentContext());
+        OpenL.getInstance(OpenL.OPENL_J_NAME, getUserEnvironmentContext());
         return super.build(category);
     }
 
@@ -36,8 +36,8 @@ public class OpenLBuilder extends AOpenLBuilder {
     public NoAntOpenLTask getNoAntOpenLTask() {
         NoAntOpenLTask op = new NoAntOpenLTask();
 
-        op.setExtendsCategory("org.openl.j");
-        op.setCategory("org.openl.rules.java");
+        op.setExtendsCategory(OpenL.OPENL_J_NAME);
+        op.setCategory(OpenL.OPENL_JAVA_NAME);
 
         LibraryFactoryConfiguration libraries = op.createLibraries();
         
