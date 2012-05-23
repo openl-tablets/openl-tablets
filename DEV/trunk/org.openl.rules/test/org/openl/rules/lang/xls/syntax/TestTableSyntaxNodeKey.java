@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.OpenL;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -37,7 +38,7 @@ public class TestTableSyntaxNodeKey {
 
     private OpenClassJavaWrapper getJavaWrapper() {
         UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, __src);
+        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, __src);
         return wrapper;
     }
 

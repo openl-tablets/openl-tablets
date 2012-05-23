@@ -47,7 +47,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private final Log log = LogFactory.getLog(LazyMultiModuleEngineFactory.class);
 
-    private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
+    private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;

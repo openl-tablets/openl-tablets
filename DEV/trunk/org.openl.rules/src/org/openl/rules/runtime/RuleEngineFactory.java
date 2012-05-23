@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.OpenL;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.EngineFactoryDefinition;
@@ -24,7 +25,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class RuleEngineFactory<T> extends EngineFactory<T> {
 
-    public static final String RULE_OPENL_NAME = "org.openl.xls";
+    public static final String RULE_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
     
     private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
         @Override

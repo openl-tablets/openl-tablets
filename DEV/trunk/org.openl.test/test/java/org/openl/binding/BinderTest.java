@@ -108,31 +108,31 @@ public class BinderTest extends TestCase {
     }
 
     public void testBind() throws OpenConfigurationException {
-        _testNoError("String[] name;", void.class, "org.openl.j");
-        _testNoErrorModule("int foo(int x){return x+y+5;} int y= 3;", DynamicObject.class, "org.openl.j");
+        _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
+        _testNoErrorModule("int foo(int x){return x+y+5;} int y= 3;", DynamicObject.class, OpenL.OPENL_J_NAME);
 
-        _testNoError("int x = 5, z, y= 20;", void.class, "org.openl.j");
-        _testNoError("5.5", double.class, "org.openl.j");
-        _testNoError("5.5 + 4.5", double.class, "org.openl.j");
-        _testNoError("5.5 + 4", double.class, "org.openl.j");
-        _testNoError("\t545847548567L", long.class, "org.openl.j");
-        _testNoError("4+3", int.class, "org.openl.j");
-        _testNoError("\t-545847548567L", long.class, "org.openl.j");
-        _testNoError("5-3", int.class, "org.openl.j");
-        _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", boolean.class, "org.openl.j");
-        _testNoError("Date d1, d2; d1 < d2", boolean.class, "org.openl.j");
-        // _testNoError("Date[] d1, d2", boolean.class, "org.openl.j");
-        _testNoError("String[] name;", void.class, "org.openl.j");
+        _testNoError("int x = 5, z, y= 20;", void.class, OpenL.OPENL_J_NAME);
+        _testNoError("5.5", double.class, OpenL.OPENL_J_NAME);
+        _testNoError("5.5 + 4.5", double.class, OpenL.OPENL_J_NAME);
+        _testNoError("5.5 + 4", double.class, OpenL.OPENL_J_NAME);
+        _testNoError("\t545847548567L", long.class, OpenL.OPENL_J_NAME);
+        _testNoError("4+3", int.class, OpenL.OPENL_J_NAME);
+        _testNoError("\t-545847548567L", long.class, OpenL.OPENL_J_NAME);
+        _testNoError("5-3", int.class, OpenL.OPENL_J_NAME);
+        _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", boolean.class, OpenL.OPENL_J_NAME);
+        _testNoError("Date d1, d2; d1 < d2", boolean.class, OpenL.OPENL_J_NAME);
+        // _testNoError("Date[] d1, d2", boolean.class, OpenL.OPENL_J_NAME);
+        _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
 
     }
 
     public void testMeta() {
-        _testNoError("DoubleValue d1, d2; d1 + d2", DoubleValue.class, "org.openl.rules.java");
+        _testNoError("DoubleValue d1, d2; d1 + d2", DoubleValue.class, OpenL.OPENL_JAVA_NAME);
     }
 
     public void testMethodHeader() {
-        _testMethodHeader("int x()", JavaOpenClass.INT, "org.openl.j", 0);
-        _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, "org.openl.j", 2);
+        _testMethodHeader("int x()", JavaOpenClass.INT, OpenL.OPENL_J_NAME, 0);
+        _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, OpenL.OPENL_J_NAME, 2);
     }
 
 }

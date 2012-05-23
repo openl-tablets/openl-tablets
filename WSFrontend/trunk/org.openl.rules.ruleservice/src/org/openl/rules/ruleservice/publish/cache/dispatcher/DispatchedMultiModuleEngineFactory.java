@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -46,7 +47,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private final Log log = LogFactory.getLog(DispatchedMultiModuleEngineFactory.class);
 
-    private static final String RULES_XLS_OPENL_NAME = "org.openl.xls";
+    private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;

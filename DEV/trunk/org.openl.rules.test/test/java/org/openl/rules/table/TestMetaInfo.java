@@ -26,7 +26,7 @@ public class TestMetaInfo extends TestCase {
     public void testMeta() {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestMeta.xls");
-        OpenL openl = OpenL.getInstance("org.openl.xls");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
 
         FileSourceCodeModule src = new FileSourceCodeModule(url.getPath(), null);
         XlsModuleOpenClass module = (XlsModuleOpenClass) OpenLManager.compileModule(openl, src);

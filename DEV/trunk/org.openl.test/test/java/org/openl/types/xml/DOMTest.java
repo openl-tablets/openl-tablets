@@ -16,6 +16,8 @@ import junit.framework.TestCase;
  */
 public class DOMTest extends TestCase {
 
+    private static final String OPENL_J_XML_DOM_NAME = "org.openl.j.xml.dom";
+
     /**
      * Constructor for DOMTest.
      *
@@ -27,16 +29,16 @@ public class DOMTest extends TestCase {
 
     public void _testDomOpenLib() throws Exception {
 
-        OpenlTest.aTestEvaluate("test1.ary.add(new test1.ary())", null, "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluate("test1.ary.length", new Integer(2), "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluate("test1.ary[1]._cdata_", "ary1", "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluate("test1.ary[0]._cdata_", null, "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluate("test1.ary[0].name", "ary0", "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluate("test1.value", "test3", "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluate("test1.test2._cdata_", "abc", "org.openl.j.xml.dom");
+        OpenlTest.aTestEvaluate("test1.ary.add(new test1.ary())", null, OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluate("test1.ary.length", new Integer(2), OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluate("test1.ary[1]._cdata_", "ary1", OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluate("test1.ary[0]._cdata_", null, OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluate("test1.ary[0].name", "ary0", OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluate("test1.value", "test3", OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluate("test1.test2._cdata_", "abc", OPENL_J_XML_DOM_NAME);
 
-        OpenlTest.aTestEvaluateHasError("test1.ary._cdata_", "org.openl.j.xml.dom");
-        OpenlTest.aTestEvaluateHasError("test1.b._cdata_", "org.openl.j.xml.dom");
+        OpenlTest.aTestEvaluateHasError("test1.ary._cdata_", OPENL_J_XML_DOM_NAME);
+        OpenlTest.aTestEvaluateHasError("test1.b._cdata_", OPENL_J_XML_DOM_NAME);
     }
 
     public void testDOMSchema() throws Exception {

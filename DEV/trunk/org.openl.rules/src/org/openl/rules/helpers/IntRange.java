@@ -57,7 +57,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
     public IntRange(String range) {
         // TODO: Correct tokenizing in grammar.
         super(0, 0);
-        OpenL openl = OpenL.getInstance("org.openl.j");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         RangeWithBounds res;
         
         // Save current openl messages before range parser invocation to

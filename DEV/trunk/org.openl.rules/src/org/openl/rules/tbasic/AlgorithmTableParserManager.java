@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
@@ -48,7 +49,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
     }
 
     private AlgorithmTableParserManager() {
-        String sourceType = "org.openl.xls";
+        String sourceType = OpenL.OPENL_JAVA_RULE_NAME;
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
         EngineFactory<IAlgorithmTableParserManager> engineFactory = new EngineFactory<IAlgorithmTableParserManager>(

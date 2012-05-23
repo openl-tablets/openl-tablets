@@ -34,7 +34,7 @@ public class ParserTest extends TestCase {
     public static void main(String[] args) {
 
         String src = " x < y + 10";
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         System.out.println(pc.getTopNode());
 
@@ -52,7 +52,7 @@ public class ParserTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void _testLiteral(String src, String res, String type) throws OpenConfigurationException {
 
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         TreeIterator it = new TreeIterator<ISyntaxNode>(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
@@ -65,7 +65,7 @@ public class ParserTest extends TestCase {
 
     public void _testMethodHeader(String src, String res, String type) throws OpenConfigurationException {
 
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
         Assert.assertEquals(0, pc.getErrors().length);
@@ -78,7 +78,7 @@ public class ParserTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void _testModule(String src, final String type) throws OpenConfigurationException {
 
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(src, null));
 
         SyntaxNodeException[] error = pc.getErrors();
@@ -103,7 +103,7 @@ public class ParserTest extends TestCase {
     @SuppressWarnings("unchecked")
     public <T extends ISyntaxNode> T  _testOperator(String src, Class<T> nodeType) throws OpenConfigurationException {
  
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
@@ -114,7 +114,7 @@ public class ParserTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void _testType(String src, final String type) throws OpenConfigurationException {
 
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         SyntaxNodeException[] error = pc.getErrors();
@@ -186,7 +186,7 @@ public class ParserTest extends TestCase {
 
     public void testLocation() throws OpenConfigurationException {
         String test1 = "\tx";
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
         ILocation loc = pc.getTopNode().getSourceLocation();
         Assert.assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
