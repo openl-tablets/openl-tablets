@@ -1,7 +1,9 @@
 package org.openl.rules.project.instantiation;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.conf.IUserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RuleEngineFactory;
@@ -48,9 +50,31 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
             source.setParams(getModule().getProperties());
             
-            engineFactory = new RuleEngineFactory(source, clazz);
+            String userHome = null;
+            try {
+                userHome = getModule().getProject().getProjectFolder().getAbsolutePath();
+            } catch (Exception e) {
+                // Ignore exception
+            }
+            
+            if (StringUtils.isNotBlank(userHome)) {
+                // Create engine factory with userHome pointing to project folder.
+                // This is done for creating unique UserContext for each project, for further
+                // ensuring that each project will be compiled with 
+                // its custom OpenL. See {@link OpenL.getInstance(String name, IUserContext userContext).
+                // Currently each project is being compiled in it`s own SimpleBundleClassLoader.
+                // But it is not enough due to commented check for classloaders in 
+                // {@link org.openl.conf.AUserContext.hashCode()} and {@link org.openl.conf.AUserContext.equals()}
+                //
+                // @author DLiauchuk
+                engineFactory = new RuleEngineFactory(userHome, source, clazz);
+            } else {
+                engineFactory = new RuleEngineFactory(source, clazz);
+            }
+            
             engineFactory.setExecutionMode(isExecutionMode());
             engineFactory.setDependencyManager(getDependencyManager());
+            
         }
         
         return engineFactory;
