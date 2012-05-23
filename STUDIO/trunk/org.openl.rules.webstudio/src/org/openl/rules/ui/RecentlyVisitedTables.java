@@ -62,7 +62,7 @@ public class RecentlyVisitedTables {
             WebStudio studio = WebStudioUtils.getWebStudio();
             IOpenLTable refreshTable = studio.getModel().getTable(table.getUri());
 
-            if(refreshTable == null){
+            if (refreshTable == null) {
                 tableForRemove.add(table);
             }
         }
