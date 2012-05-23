@@ -34,7 +34,7 @@ public class TestParser extends TestCase {
 
         System.out.println(OpenLBuilder.class.getName());
 
-        OpenL openl = OpenL.getInstance("org.openl.xls");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
         IOpenParser parser = openl.getParser();
 
         FileSourceCodeModule scm = new FileSourceCodeModule(new File(fileName), null);
@@ -53,7 +53,7 @@ public class TestParser extends TestCase {
 
     private int testOpenlBind(String fileName) throws Exception {
 
-        OpenL openl = OpenL.getInstance("org.openl.xls");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
         IOpenParser parser = openl.getParser();
         IOpenSourceCodeModule scm = new FileSourceCodeModule(new File(fileName), null);
         IParsedCode pc = parser.parseAsModule(scm);
@@ -126,13 +126,13 @@ public class TestParser extends TestCase {
     public void testOpenlRun1() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
-        OpenlTest.aTestMethodFile(url.getPath(), "org.openl.xls", "hello", new Object[] { new Integer(14) }, "Y5");
+        OpenlTest.aTestMethodFile(url.getPath(), OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(14) }, "Y5");
     }
 
     public void testOpenlRun2() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
-        OpenlTest.aTestMethodFile(url.getPath(), "org.openl.xls", "hello", new Object[] { new Integer(10) }, null);
+        OpenlTest.aTestMethodFile(url.getPath(), OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(10) }, null);
     }
 
 	/**
@@ -143,6 +143,6 @@ public class TestParser extends TestCase {
 	public void testOpenlRun3() throws Exception {
         
 //        URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/IndexLogic.xls");
-//        OpenlTest.aTestMethodFile(url.getPath(), "org.openl.xls", "main", new Object[] { new String[] {} }, null);
+//        OpenlTest.aTestMethodFile(url.getPath(), OpenL.OPENL_JAVA_RULE_NAME, "main", new Object[] { new String[] {} }, null);
 	}
 }

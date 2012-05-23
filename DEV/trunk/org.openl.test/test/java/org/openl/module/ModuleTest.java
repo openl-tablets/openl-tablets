@@ -188,7 +188,7 @@ public class ModuleTest extends TestCase {
      */
     private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
         IMethodSignature signature = new MethodSignature(new IOpenClass[] { openClass }, new String[] { "context" });
@@ -234,7 +234,7 @@ public class ModuleTest extends TestCase {
 
     private Object executeOpenLOGNLExprression(Object context, String expr) {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
         IMethodSignature signature = new MethodSignature(new IOpenClass[] { openClass }, new String[] { "context" });
@@ -293,7 +293,7 @@ public class ModuleTest extends TestCase {
     }
 
     public void testModule() {
-        OpenL op = OpenL.getInstance("org.openl.j");
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         ModuleOpenClass module = new ModuleOpenClass(null, "ZZZ", op);
 

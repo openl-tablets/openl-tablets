@@ -39,7 +39,7 @@ public class MemoryTest extends TestCase {
             System.out.println("############### " + "GC" + "   ##########");
             System.gc();
 
-            new OpenLMain("org.openl.xls").safeRunOpenl("org.openl.xls", new FileSourceCodeModule(url.getPath(), null),
+            new OpenLMain(OpenL.OPENL_JAVA_RULE_NAME).safeRunOpenl(OpenL.OPENL_JAVA_RULE_NAME, new FileSourceCodeModule(url.getPath(), null),
                     "hello", new Object[] { new Integer(10) });
         }
 

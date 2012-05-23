@@ -14,6 +14,24 @@ import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 
 public class ResolvingStrategiesTest {
+    
+    @Test
+    public void testEclipseInterfaceBased(){
+        ResolvingStrategy resolvingStrategy = new EclipseBasedInterfaceResolvingStrategy();
+        File projectFolder = new File("test/resources/eclipse-interface-based");
+        assertTrue(resolvingStrategy.isRulesProject(projectFolder));
+        ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
+        assertEquals(projectFolder.getName(), descriptor.getName());
+        assertEquals(projectFolder, descriptor.getProjectFolder());
+        assertEquals(1, descriptor.getClasspath().size());
+        assertEquals(1, descriptor.getModules().size());
+        Module module = descriptor.getModules().get(0);
+        assertEquals("Eclipse Interface Based Project", module.getName());
+        assertEquals(ModuleType.DYNAMIC, module.getType());
+        assertNotNull(module.getRulesRootPath());
+        assertEquals("org.openl.eclipse.interface.based.MainRulesInterface", module.getClassname());
+    }
+    
     @Test
     public void testEclipseBased(){
         ResolvingStrategy resolvingStrategy = new EclipseBasedResolvingStrategy();

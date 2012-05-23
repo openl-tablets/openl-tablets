@@ -16,7 +16,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilderImpl extends AOpenLBuilder {
 
-    private String extendsCategory = "org.openl.j";
+    private String extendsCategory = OpenL.OPENL_J_NAME;
 
     private String category;
 
