@@ -24,7 +24,7 @@ public class ClassFinder {
     private Map<String, ClassLocator> locators = new HashMap<String, ClassLocator>();
 
     public ClassFinder() {
-        this(Arrays.asList(new LoggingExceptionHandler()));
+        this(Arrays.asList(new LoggingExceptionHandler(), new OpenLMessageExceptionHandler()));
     }
 
     public ClassFinder(List<? extends LocatorExceptionHandler> handlers) {
@@ -60,7 +60,9 @@ public class ClassFinder {
         try {
             resources = classLoader.getResources(path);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             return new Class[0];
         }
 
