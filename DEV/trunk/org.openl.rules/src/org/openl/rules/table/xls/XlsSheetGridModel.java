@@ -345,8 +345,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
         if (style instanceof XlsCellStyle) {
             styleToClone = ((XlsCellStyle) style).getXlsStyle();
-        } else if (style instanceof XlsCellStyle2) {
-            styleToClone = ((XlsCellStyle2) style).getXlsStyle();
         } else {
             styleToClone = poiCell.getCellStyle();
         }

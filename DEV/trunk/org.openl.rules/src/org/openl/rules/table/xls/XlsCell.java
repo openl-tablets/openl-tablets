@@ -3,16 +3,12 @@ package org.openl.rules.table.xls;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
@@ -333,11 +329,7 @@ public class XlsCell implements ICell {
         CellStyle style = cell.getCellStyle();
         if (style != null) {
             Workbook workbook = gridModel.getSheetSource().getSheet().getWorkbook();
-            if (style instanceof XSSFCellStyle) {
-                return new XlsCellStyle2((XSSFCellStyle) style, (XSSFWorkbook) workbook);
-            } else {
-                return new XlsCellStyle((HSSFCellStyle) style, (HSSFWorkbook) workbook);
-            }
+            return new XlsCellStyle(style, workbook);
         }
         return null;
     }
