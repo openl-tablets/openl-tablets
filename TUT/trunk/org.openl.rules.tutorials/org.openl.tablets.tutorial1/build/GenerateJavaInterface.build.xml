@@ -4,7 +4,7 @@
 	
 	
 <target name="generate">
-	<echo message="Generating org.openl.tablets.tutorial1 Wrapper"/>
+	<echo message="Generating org.openl.tablets.tutorial1 Interface"/>
 
 <!--
 	The following parameters are allowed for openlgen task:
@@ -23,13 +23,11 @@
 -->	
 	<openlgen openlName="org.openl.xls" userHome="." 
 		srcFile="rules/Tutorial_1.xls"
-	    targetClass="org.openl.tablets.tutorial1.Tutorial_1Wrapper"
+	    targetClass="org.openl.tablets.tutorial1.Tutorial_1RulesInterface"
 		displayName="Tutorial 1 - Intro to Decision Tables"
 		targetSrcDir="gen"
+		goal="all with interface"
 	>
 	</openlgen>	
-	
-	
-	
 </target>
 </project>
