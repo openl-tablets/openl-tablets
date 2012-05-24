@@ -56,7 +56,6 @@
         }
         #savePropsButton {
             display: none;
-            margin-top: 10px;
         }
     </style>
 
@@ -64,9 +63,20 @@
     <h:form prependId="false">
         <h:panelGroup id="propsTable">
         <table>
-            <a4j:repeat value="#{tablePropertiesBean.properties}" var="prop">
+            <a4j:repeat value="#{tablePropertiesBean.propertyRows}" var="row">
+
+            <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
+            <tr>
+                <td colspan="2" class="propsGroupHeader">#{row.data}</td>
+            </tr>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{row.type.name() == 'PROPERTY'}">
+
+            <ui:param name="prop" value="#{row.data}" />
             <ui:param name="editable"
                 value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
+
             <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
                 onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
                 <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
@@ -108,15 +118,17 @@
                     </h:panelGroup>
                 </td>
             </tr>
+            </h:panelGroup>
+
             </a4j:repeat>
         </table>
 
-        <h:panelGroup rendered="#{tablePropertiesBean.editable}">
-            <a4j:commandButton id="savePropsButton" value="Save" action="#{tablePropertiesBean.save}"
-                data="#{tablePropertiesBean.newTableUri}"
+        <h:panelGroup rendered="#{tablePropertiesBean.editable}" style="margin: 8px 0" layout="block">
+            <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px"
+                action="#{tablePropertiesBean.save}" data="#{tablePropertiesBean.newTableUri}"
                 oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
             <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('#addPropsPanel').fadeIn()"
-                rendered="#{!empty tablePropertiesBean.propertiesToAdd}" style="margin-left: 5px">Add</h:outputLink>
+                rendered="#{!empty tablePropertiesBean.propertiesToAdd}" style="margin-left: 4px">Add</h:outputLink>
         </h:panelGroup>
         </h:panelGroup>
     </h:form>
