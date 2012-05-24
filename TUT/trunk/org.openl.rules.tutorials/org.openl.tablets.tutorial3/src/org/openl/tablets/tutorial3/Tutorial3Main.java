@@ -1,7 +1,6 @@
 package org.openl.tablets.tutorial3;
 
-
-
+import org.openl.rules.runtime.RuleEngineFactory;
 
 /**
  * @author snshor
@@ -17,36 +16,29 @@ package org.openl.tablets.tutorial3;
  * enter formulas to decision table cells. 
  * 
  */
-
-
-
 public class Tutorial3Main {
 
 	//Creates new instance of Java Wrapper for our lesson
-	static Tutorial_3Wrapper tut3 = new Tutorial_3Wrapper();
+	static Tutorial_3RulesInterface tut3;
+	
+	static {
+	    tut3 = new RuleEngineFactory<Tutorial_3RulesInterface>(Tutorial_3RulesInterface.__src, 
+	            Tutorial_3RulesInterface.class).makeInstance();
+	}
 
-	public static void main(String[] args) 
-	{
-		
-		
-		
+	public static void main(String[] args) {
 		// Step 1
-		// Converts AM/PM hour to 24-hour and vice-versa 
-		
+		// Converts AM/PM hour to 24-hour and vice-versa		
 		System.out.println("\n====== Step 1 =======\n");
-
 		
 		int ampmHr = 11;
 		String ampmStr = "PM";
 		int hr24 = tut3.ampmTo24(ampmHr, ampmStr);
 		
-		System.out.println("Converted " + ampmHr + ampmStr + " to " + hr24 + " hours");
-	
-		
+		System.out.println("Converted " + ampmHr + ampmStr + " to " + hr24 + " hours");	
 		
 		String ampmtime = tut3.hr24ToAmpm(hr24);
 		System.out.println("Converted " + hr24 + " hours to " + ampmtime);
-		
 		
 		//Step 2
 		// Defining state region 
@@ -72,13 +64,8 @@ public class Tutorial3Main {
 		state = "IA";
 		region = tut3.region22(state);
 		
-		System.out.println(state + " is located in " + region + " region");
+		System.out.println(state + " is located in " + region + " region");		
 
-		
-
-		
-		
-	
 		//Step 3
 		// Printing Data Table "addresses3".
 		System.out.println("\n====== Step 3 =======\n");
@@ -98,7 +85,5 @@ public class Tutorial3Main {
 			System.out.println("--------------");
 			System.out.println(addr31[i]);
 		}
-		
-
 	}
 }
