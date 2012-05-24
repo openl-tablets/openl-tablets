@@ -34,6 +34,7 @@ public class RuleFinderInXML {
         if (destinationOfSeacrh == null) {
             throw new IllegalArgumentException("Destination file for search cannot be null");
         }
+        this.destinationOfSeacrh = destinationOfSeacrh;
         this.parser = initParser();
         this.searcherHandler = initSearcher();
     }
