@@ -277,7 +277,7 @@ public class DecisionTableHelper {
             
             //Set type of condition values(for Ranges and Array)
             grid.setCellValue(column, 2,
-                    checkTypeOfValues(originalTable, column, decisionTable.getSignature().getParameterType(i).getName(), isThatVCondition, vColumnCounter) );
+                    checkTypeOfValues(originalTable, column, decisionTable.getSignature().getParameterTypes()[i].getDisplayName(0)/* getParameterType(i) .getTypes()getName()*/, isThatVCondition, vColumnCounter) );
             
             //merge columns
             int mergedColumnsCounts = originalTable.getColumnWidth(i);
@@ -307,7 +307,7 @@ public class DecisionTableHelper {
      */
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
             boolean isThatVCondition, int vColumnCounter) {
-        final List<String> intType = Arrays.asList("Int","Long","int","long","IntValue","java.lang.Integer");
+        final List<String> intType = Arrays.asList("Int","Long","int","long","IntValue","java.lang.Integer","org.openl.meta.IntValue");
         final List<String> doubleType = Arrays.asList("Double","Float","double","float","DoubleValue","java.lang.Double");
         ILogicalTable decisionValues;
         int width = 0;
