@@ -13,6 +13,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.utils.RuleFinderInXML;
 import org.openl.util.FileTool;
 import org.openl.util.StringTool;
 
@@ -25,15 +26,11 @@ import org.openl.util.StringTool;
  *
  */
 public class EclipseBasedInterfaceResolvingStrategy extends EclipseBasedResolvingStrategy {
-    
-    private static final String SRC_FILE = "srcFile";
+
     private static final String GENERATE_JAVA_INTERFACE_BUILD_XML = "build/GenerateJavaInterface.build.xml";
-    // Path to upper level rules file
-    //
-//    private String rulesPath = null;
-    
+
     private final Log log = LogFactory.getLog(EclipseBasedInterfaceResolvingStrategy.class);
-    
+
     // Overriden to add the possibility to search for interface class in the project.
     //
     @Override
@@ -42,28 +39,30 @@ public class EclipseBasedInterfaceResolvingStrategy extends EclipseBasedResolvin
 
         String startDirs = System.getProperty(IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_PROPERTY,
                 IRulesLaunchConstants.WRAPPER_SEARCH_START_DIR_DEFAULT);
-        String wrapperSuffixes = System.getProperty(IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_PROPERTY,
+        String interfaceSuffixes = System.getProperty(IRulesLaunchConstants.WRAPPER_SOURCE_SUFFIX_PROPERTY,
                 IRulesLaunchConstants.INTERFACE_SOURCE_SUFFIX_DEFAULT);
 
         String[] srcRoots = StringTool.tokenize(startDirs, ", ");
-        String[] suffixes = StringTool.tokenize(wrapperSuffixes, ", ");
+        String[] suffixes = StringTool.tokenize(interfaceSuffixes, ", ");
 
         for (String srcRoot : srcRoots) {
             listPotentialOpenLWrappersClassNames(project, srcRoot, suffixes, list);
         }
-        
-        // Initialize the path to the rules source
-        //
-        boolean rulesPathInitialized = StringUtils.isNotBlank(getRulesPath(project));
-        
-        if (rulesPathInitialized) {
+
+        boolean anyRuleSource = false;
+        if (!list.isEmpty()) {
+            anyRuleSource = hasAnyRuleForInterface(project, list);
+        }
+
+        if (anyRuleSource) {
             return list.toArray(new String[list.size()]);
         } else {
-            // Returning empty array, means that the project is not resolved as OpenL project by current strategy
+            // Returning empty array, means that the project is not resolved as OpenL project by current strategy.
+            // Potential Interface wrappers exists, but it is not possible to get paths to the rule sources
             return new String[0];
         }
     }
-    
+
     // Overriden to create DYNAMIC module based on interface class
     //
     @Override
@@ -73,7 +72,7 @@ public class EclipseBasedInterfaceResolvingStrategy extends EclipseBasedResolvin
         module.setClassname(className);
         module.setName(getModuleName(project.getProjectFolder(), className));
         
-        String rulesPath = getRulesPath(project.getProjectFolder());
+        String rulesPath = getRulePath(project.getProjectFolder(), className);
         if (StringUtils.isNotBlank(rulesPath)) {
             module.setRulesRootPath(new PathEntry(rulesPath));
         }
@@ -81,36 +80,35 @@ public class EclipseBasedInterfaceResolvingStrategy extends EclipseBasedResolvin
         return module;
     }
     
-    private String getRulesPath(File project) {
-//        boolean result = true;
-        String rulesPath = null;
-        if (StringUtils.isBlank(rulesPath)) {
-            String relativePath = getSourceEntry(project);
-            if (StringUtils.isNotBlank(relativePath)) {
-                rulesPath = String.format("%s/%s", project.getAbsolutePath(), relativePath);
-            }            
-        }
-        return rulesPath;
-    }
-    
-    /**
-     * Try to get the relative path to the rules source file from the 
-     * {@link EclipseBasedInterfaceResolvingStrategy#GENERATE_JAVA_INTERFACE_BUILD_XML} file
-     * 
-     * @param project main folder of the project
-     * @return relative path to the rules source file
-     */
-    private String getSourceEntry(File project) {
-        String result = null;        
-        try {            
-            String line = FileTool.readLineWithText(project, GENERATE_JAVA_INTERFACE_BUILD_XML, SRC_FILE);            
-            if (StringUtils.isNotBlank(line)) {
-                result = line.substring(line.indexOf("\"") + 1, line.lastIndexOf("\""));            
+    private boolean hasAnyRuleForInterface(File project, List<String> interfaces) {
+        File destinationOfSeacrh = null;
+        try {
+            destinationOfSeacrh = new File(project.getCanonicalPath(), GENERATE_JAVA_INTERFACE_BUILD_XML);
+            RuleFinderInXML finder = getFinder(destinationOfSeacrh);
+            for (String interfaceName : interfaces) {
+                if (StringUtils.isNotBlank(finder.getRulePath(interfaceName))) {
+                    return true;
+                }
             }
         } catch (IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot find the path to the rules source.", e);
-            }            
+            // Ignore exception
+        }
+        return false;
+    }
+
+    private RuleFinderInXML getFinder(File destinationOfSeacrh) {
+        return new RuleFinderInXML(destinationOfSeacrh);
+    }
+
+    private String getRulePath(File projectFolder, String interfaceName) {
+        String result = null;
+        File destinationOfSeacrh = null;
+        try {
+            destinationOfSeacrh = new File(projectFolder.getCanonicalPath(), GENERATE_JAVA_INTERFACE_BUILD_XML);
+            RuleFinderInXML finder = getFinder(destinationOfSeacrh);
+            result = finder.getRulePath(interfaceName);
+        } catch (IOException e) {
+            log.error(String.format("Cannot find rule path for interface %s", interfaceName), e);
         }
         return result;
     }
