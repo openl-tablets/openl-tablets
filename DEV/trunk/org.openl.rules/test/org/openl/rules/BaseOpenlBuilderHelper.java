@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import junit.framework.Assert;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.openl.OpenL;
 import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.impl.OpenClassJavaWrapper;
@@ -53,7 +54,7 @@ public abstract class BaseOpenlBuilderHelper {
     
     protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {        
         UserContext ucxt = initUserContext();
-        wrapper = OpenClassJavaWrapper.createWrapper("org.openl.xls", ucxt, fileToBuildWrapper, false, dependencyManager);
+        wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, fileToBuildWrapper, false, dependencyManager);
         return wrapper;
     }
 

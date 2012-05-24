@@ -113,7 +113,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
             }
 
             if (!(datatype instanceof DomainOpenClass)) {
-                datatypes.add(datatype.getName());
+                datatypes.add(datatype.getDisplayName(INamedThing.SHORT));
             }
         }
         

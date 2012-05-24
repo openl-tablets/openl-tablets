@@ -3,6 +3,7 @@ package org.openl.engine;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.OpenL;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.runtime.EngineFactory;
@@ -40,7 +41,7 @@ public class OpenLMessagesTest {
 	public void testInSeriesCompileMessages2() {
 		// test using engine factory
 		//
-		String sourceType = "org.openl.xls";       
+		String sourceType = OpenL.OPENL_JAVA_RULE_NAME;       
 
         EngineFactory<Project1Int> engineFactory = new EngineFactory<Project1Int>(sourceType, src1, Project1Int.class);
         engineFactory.setExecutionMode(false);

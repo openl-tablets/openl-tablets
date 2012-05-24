@@ -11,7 +11,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
-        OpenL.getInstance("org.openl.rules.java", getUserEnvironmentContext());
+        OpenL.getInstance(OpenL.OPENL_JAVA_NAME, getUserEnvironmentContext());
         return super.build(category);
     }
 
@@ -19,8 +19,8 @@ public class OpenLBuilder extends AOpenLBuilder {
     public NoAntOpenLTask getNoAntOpenLTask() {
         NoAntOpenLTask op = new NoAntOpenLTask();
 
-        op.setExtendsCategory("org.openl.rules.java");
-        op.setCategory("org.openl.rules.java.ce");
+        op.setExtendsCategory(OpenL.OPENL_JAVA_NAME);
+        op.setCategory(OpenL.OPENL_JAVA_CE_NAME);
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 

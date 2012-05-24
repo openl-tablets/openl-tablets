@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -603,7 +604,31 @@ public final class FileTool {
             br.close();
             fr.close();
         }
+    }
+    
+    public static String readLineWithText(File dir, String fname, String content) throws IOException {
+        File f = new File(dir.getCanonicalPath(), fname);
 
+        FileReader fr = new FileReader(f);
+
+        BufferedReader br = new BufferedReader(fr);
+
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                if (line.indexOf(content) >= 0) {
+                    return line;
+                }
+            }
+            return StringUtils.EMPTY;
+
+        } finally {
+            br.close();
+            fr.close();
+        }
     }
 
     public static File toFile(InputStream source, String pathName) {

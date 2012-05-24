@@ -1,5 +1,6 @@
 package org.openl.j;
 
+import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.ClassFactory;
 import org.openl.conf.JavaImportTypeConfiguration;
@@ -24,7 +25,7 @@ public class OpenLBuilder extends AOpenLBuilder {
     public NoAntOpenLTask getNoAntOpenLTask() {
         NoAntOpenLTask op = new NoAntOpenLTask();
 
-        op.setCategory("org.openl.j");
+        op.setCategory(OpenL.OPENL_J_NAME);
         op.setShared(false);
 
         ClassFactory cfg = op.createGrammar();

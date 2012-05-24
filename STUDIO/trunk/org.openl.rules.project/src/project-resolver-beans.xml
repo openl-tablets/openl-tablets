@@ -8,6 +8,9 @@
   <bean id="eclipseBasedStrategy" class="org.openl.rules.project.resolving.EclipseBasedResolvingStrategy">
       <property name="treeAdaptor" ref="fileTreeAdaptor"/>
   </bean>
+  <bean id="eclipseBasedInterfaceStrategy" class="org.openl.rules.project.resolving.EclipseBasedInterfaceResolvingStrategy">
+      <property name="treeAdaptor" ref="fileTreeAdaptor"/>
+  </bean>
   <bean id="simpleXLSStrategy" class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
   
   <bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
@@ -15,6 +18,7 @@
       <list>
       	<ref bean="descriptorBasedStrategy"/>
         <ref bean="eclipseBasedStrategy"/>
+        <ref bean="eclipseBasedInterfaceStrategy"/>
         <ref bean="simpleXLSStrategy"/>
       </list>
     </property>

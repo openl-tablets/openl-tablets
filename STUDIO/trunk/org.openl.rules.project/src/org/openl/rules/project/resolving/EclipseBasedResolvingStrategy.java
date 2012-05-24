@@ -21,12 +21,13 @@ import org.openl.util.tree.TreeIterator;
 import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
 
 /**
- * Resolves projects that match default OpenL Eclipse-based convention: 1.
- * "openlbuilder" specified in ".project" file 2.
- * "openl.project.classpath.properties" file 2. Existing wrapper
+ * Resolves projects that match default OpenL Eclipse-based convention: 
+ * 1."openlbuilder" specified in ".project" file  
+ * 2. Existing java class wrapper
  * 
  * @author PUdalau
  */
+@Deprecated
 public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     
     private static final String PROJECT_FILE = ".project";
@@ -131,7 +132,11 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         }
 
     }
-
+    
+    // TODO: Refactor.
+    // listPotentialOpenLWrappersClassNames is called twice, first when calling isRulesProject, then if yes,
+    // call current method. Dont need to scan the file system twice. 
+    // authod DLiauchuk
     public ProjectDescriptor resolveProject(File folder) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setId(folder.getName());
@@ -152,7 +157,7 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         return descriptor;
     }
 
-    private Module createModule(ProjectDescriptor project, String className) {
+    protected Module createModule(ProjectDescriptor project, String className) {
         Module module = new Module();
         module.setProject(project);
         module.setClassname(className);

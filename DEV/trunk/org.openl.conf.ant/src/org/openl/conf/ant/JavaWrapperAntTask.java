@@ -411,7 +411,7 @@ public class JavaWrapperAntTask extends Task {
         
         writeJavaWrapper(javaGenerator);        
         
-        if (goal.equals(GOAL_ALL) || goal.contains(GOAL_GENERATE_DATATYPES)) {
+        if (goal.equals(GOAL_ALL_WITH_INTERFACE) || goal.equals(GOAL_ALL) || goal.contains(GOAL_GENERATE_DATATYPES)) {
             writeDatatypeBeans(openClass.getTypes());
         }
 

@@ -33,7 +33,7 @@ public class LiteralExpressionTest  extends TestCase{
     
     public void _testExpr(String expr, boolean literal, Object expected)
     {
-        OpenL openl = OpenL.getInstance("org.openl.j");
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         ProcessedCode pc = compile(expr, openl);
         
         IBoundNode top = pc.getBoundCode().getTopNode();

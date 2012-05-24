@@ -1,10 +1,15 @@
 package org.openl.rules.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class RecentlyVisitedTables {
 
@@ -37,6 +42,8 @@ public class RecentlyVisitedTables {
     }
 
     public Collection<IOpenLTable> getTables() {
+        checkTableAvailability();
+        
         return tables;
     }
 
@@ -46,6 +53,21 @@ public class RecentlyVisitedTables {
 
     public int getSize() {
         return tables.size();
+    }
+    
+    public void checkTableAvailability() {
+        List<IOpenLTable> tableForRemove = new ArrayList<IOpenLTable>();
+        
+        for (IOpenLTable table : tables) {
+            WebStudio studio = WebStudioUtils.getWebStudio();
+            IOpenLTable refreshTable = studio.getModel().getTable(table.getUri());
+
+            if (refreshTable == null) {
+                tableForRemove.add(table);
+            }
+        }
+        
+        tables.removeAll(tableForRemove);
     }
 
 }
