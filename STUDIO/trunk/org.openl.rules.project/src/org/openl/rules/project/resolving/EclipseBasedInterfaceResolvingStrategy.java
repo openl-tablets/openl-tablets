@@ -101,15 +101,18 @@ public class EclipseBasedInterfaceResolvingStrategy extends EclipseBasedResolvin
     }
 
     private String getRulePath(File projectFolder, String interfaceName) {
-        String result = null;
+        String relativePath = null;
         File destinationOfSeacrh = null;
-        try {
-            destinationOfSeacrh = new File(projectFolder.getCanonicalPath(), GENERATE_JAVA_INTERFACE_BUILD_XML);
-            RuleFinderInXML finder = getFinder(destinationOfSeacrh);
-            result = finder.getRulePath(interfaceName);
-        } catch (IOException e) {
-            log.error(String.format("Cannot find rule path for interface %s", interfaceName), e);
+        
+        String projectPath = projectFolder.getAbsolutePath();
+        destinationOfSeacrh = new File(projectPath, GENERATE_JAVA_INTERFACE_BUILD_XML);
+        RuleFinderInXML finder = getFinder(destinationOfSeacrh);
+        relativePath = finder.getRulePath(interfaceName);
+        
+        String rulesPath = null;
+        if (StringUtils.isNotBlank(relativePath)) {
+            rulesPath = String.format("%s/%s", projectPath, relativePath);
         }
-        return result;
+        return rulesPath;
     }
 }
