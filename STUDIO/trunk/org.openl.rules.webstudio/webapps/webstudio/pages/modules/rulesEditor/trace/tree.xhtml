@@ -21,6 +21,22 @@
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
+            <rich:treeNode type="decisionTableCondition"
+                iconExpanded="#{node.state != 2 ? 'webresource/images/test_ok.gif' : 'webresource/images/test_ok-error.gif'}"
+                iconCollapsed="#{node.state != 2 ? 'webresource/images/test_ok.gif' : 'webresource/images/test_ok-error.gif'}"
+                iconLeaf="#{node.state != 2 ? 'webresource/images/test_ok.gif' : 'webresource/images/test_ok-error.gif'}">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
+            <rich:treeNode type="decisionTableIndex"
+                iconExpanded="webresource/images/test_ok.gif"
+                iconCollapsed="webresource/images/test_ok.gif"
+                iconLeaf="webresource/images/test_ok.gif">
+                <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
+                    <h:outputText value="#{node.name}" />
+                </h:outputLink>
+            </rich:treeNode>
             <rich:treeNode type="rule"
                 iconExpanded="webresource/images/test_ok.gif"
                 iconCollapsed="webresource/images/test_ok.gif"

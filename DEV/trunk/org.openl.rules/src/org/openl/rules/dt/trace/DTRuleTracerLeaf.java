@@ -28,7 +28,7 @@ public class DTRuleTracerLeaf extends ATableTracerLeaf {
     }
 
     public String getDisplayName(int mode) {
-        return String.format("%s: %s", NAME, getParentTraceObject().getDecisionTable().getRuleName(ruleIndex));
+        return String.format("Returned rule: %s", getParentTraceObject().getDecisionTable().getRuleName(ruleIndex));
     }
 
     public IGridRegion getGridRegion() {

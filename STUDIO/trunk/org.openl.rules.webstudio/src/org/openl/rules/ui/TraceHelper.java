@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openl.base.INamedThing;
+import org.openl.rules.dt.trace.DTRuleTracerLeaf;
+import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.ATableTracerNode;
@@ -93,9 +95,15 @@ public class TraceHelper {
         return error;
     }
 
-    public IGridFilter makeFilter(int elementId, ProjectModel model) {
+    public IGridFilter[] makeFilters(int elementId, ProjectModel model) {
         ITableTracerObject tto = getTableTracer(elementId);
+
+        if (tto instanceof DecisionTableTraceObject || tto instanceof DTRuleTracerLeaf) {
+            return new DecisionTableTraceFilterFactory(tto, model.getFilterHolder().makeFilter()).createFilters();
+        }
+
         if (tto != null) {
+
             List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
             List<IGridRegion> r = tto.getGridRegions();
@@ -108,7 +116,9 @@ public class TraceHelper {
             IGridRegion[] aRegions = new IGridRegion[regions.size()];
             aRegions = regions.toArray(aRegions);
 
-            return new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter());
+            return new IGridFilter[] { 
+                    new ColorGridFilter(new RegionGridSelector(aRegions, true), model.getFilterHolder().makeFilter())
+            };
         }
         return null;
     }
