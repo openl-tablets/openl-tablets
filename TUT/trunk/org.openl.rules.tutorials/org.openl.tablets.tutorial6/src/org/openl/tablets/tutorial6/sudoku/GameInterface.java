@@ -1,5 +1,7 @@
 package org.openl.tablets.tutorial6.sudoku;
 
+import java.util.List;
+
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -24,21 +26,21 @@ import org.openl.types.impl.MethodsHelper;
 public class GameInterface 
 {
 	
-	static public IGridTable findTable(String methodName, Object thizz) {
+    public static IGridTable findTable(String methodName, List<IOpenMethod> methods) {
 
-		IOpenMethod m = MethodsHelper.getSingleMethod(methodName,
-				((DynamicObject) thizz).getType().getMethods());
+		IOpenMethod m = MethodsHelper.getSingleMethod(methodName, methods);
 		DecisionTable dt = (DecisionTable) m;
 		TableSyntaxNode tsn = dt.getSyntaxNode();
 
 		IGridTable gt = tsn.getTable(IXlsTableNames.VIEW_BUSINESS).getSource();
 		return gt;
 	}
-	
 
-	static public Object display(String methodName, Object thizz, final int[][] res) {
+    public static IGridTable findTable(String methodName, Object thizz) {
+        return findTable(methodName, ((DynamicObject) thizz).getType().getMethods());   
+    }
 
-
+    public static Object display(String methodName, Object thizz, final int[][] res) {
 		IGridTable gt = findTable(methodName, thizz);
 
 		TableValueFilter.Model model = new TableValueFilter.Model() {

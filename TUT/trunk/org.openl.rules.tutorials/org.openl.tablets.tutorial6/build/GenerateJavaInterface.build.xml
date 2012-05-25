@@ -4,18 +4,15 @@
 	
 	
 <target name="generate">
-	<echo message="Generating org.openl.tablets.tutorial6 Wrapper"/>
+	<echo message="Generating org.openl.tablets.tutorial6 Interface"/>
 
 	<openlgen openlName="org.openl.xls" userHome="." 
 		srcFile="rules/SudokuRules3.xls"
-	    targetClass="org.openl.tablets.tutorial6.sudoku.SudokuWrapper"
-		displayName="Sudoku Solver"
-		
+	    targetClass="org.openl.tablets.tutorial6.sudoku.SudokuRulesInterface"
+		displayName="Sudoku Solver"		
 		targetSrcDir="gen"
+		goal="all with interface"
 	>
 	</openlgen>	
-	
-	
-	
 </target>
 </project>
