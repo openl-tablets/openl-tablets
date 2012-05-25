@@ -12,7 +12,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class RecentlyVisitedTables {
-
+    private IOpenLTable lastVisitedTable = null;
     public static final int DEFAULT_SIZE = 10;
 
     public int size;
@@ -68,6 +68,14 @@ public class RecentlyVisitedTables {
         }
         
         tables.removeAll(tableForRemove);
+    }
+
+    public IOpenLTable getLastVisitedTable() {
+        return lastVisitedTable;
+    }
+
+    public void setLastVisitedTable(IOpenLTable lastVisitedTable) {
+        this.lastVisitedTable = lastVisitedTable;
     }
 
 }
