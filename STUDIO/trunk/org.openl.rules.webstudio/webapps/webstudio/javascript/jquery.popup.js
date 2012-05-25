@@ -7,9 +7,10 @@
 (function($) {
     $.fn.popup = function(options) {
         var defaults = {
-            left  : 0,
-            top   : 0,
-            zIndex: 9000
+            left     : 0,
+            top      : 0,
+            zIndex   : 9000,
+            closeIcon: false
         };
         options = $.extend({}, defaults, options);
 
@@ -22,8 +23,20 @@
                 'z-index' : options.zIndex,
                 'left'    : options.left,
                 'top'     : options.top,
-                'height': options.height
+                'height'  : options.height
             });
+            
+            if (options.closeIcon) {
+                if ($(".jquery-popup-close-icon").length == 0) {
+                    var closeIcon = $("<span />").addClass("jquery-popup-close-icon")
+                        .append($("<img src='" + options.closeIcon + "'>"))
+                        .click(function() {
+                            popup.hide();
+                            $(document).off("click.jquery.popup");
+                        });
+                    popup.append(closeIcon);
+                }
+            }
 
             if (options.minWidth) {
                 popup.css({

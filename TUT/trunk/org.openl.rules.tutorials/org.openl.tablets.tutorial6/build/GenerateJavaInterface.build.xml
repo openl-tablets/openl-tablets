@@ -1,0 +1,18 @@
+<project name="GenJavaWrapper" default="generate" basedir="../">
+
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	
+	
+<target name="generate">
+	<echo message="Generating org.openl.tablets.tutorial6 Interface"/>
+
+	<openlgen openlName="org.openl.xls" userHome="." 
+		srcFile="rules/SudokuRules3.xls"
+	    targetClass="org.openl.tablets.tutorial6.sudoku.SudokuRulesInterface"
+		displayName="Sudoku Solver"		
+		targetSrcDir="gen"
+		goal="all with interface"
+	>
+	</openlgen>	
+</target>
+</project>

@@ -6,6 +6,8 @@ package org.openl.tablets.tutorial8;
 
 import static java.lang.System.out;
 
+import org.openl.rules.runtime.RuleEngineFactory;
+
 /**
  * Tutorial 8. Example of TBasic tables.
  * <p>
@@ -17,8 +19,9 @@ public class Tutorial8Main {
         out.println();
         out.println("* OpenL Tutorial 8\n");
 
-        out.println("Getting wrapper...");
-        Tutorial_8Wrapper tutorial8 = new Tutorial_8Wrapper();
+        out.println("Getting interface...");
+        Tutorial_8RulesInterface tutorial8 = new RuleEngineFactory<Tutorial_8RulesInterface>(Tutorial_8RulesInterface.__src, 
+                Tutorial_8RulesInterface.class).makeInstance();
 
         out.println("* Executing OpenL tables...\n");
         out.println("factorial(int):");

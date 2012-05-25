@@ -6,6 +6,8 @@ package org.openl.tablets.tutorial1;
 
 import java.util.Calendar;
 
+import org.openl.rules.runtime.RuleEngineFactory;
+
 /**
  * @author snshor
  *
@@ -20,7 +22,12 @@ import java.util.Calendar;
 public class Tutorial1Main {
 
 	//Creates new instance of Java Wrapper for our lesson
-	static Tutorial_1Wrapper tut1 = new Tutorial_1Wrapper();
+	static Tutorial_1RulesInterface tut1;
+	
+	static {
+	    tut1 = new RuleEngineFactory<Tutorial_1RulesInterface>(Tutorial_1RulesInterface.__src, 
+	            Tutorial_1RulesInterface.class).makeInstance();
+	}
 
 	public static void main(String[] args) 
 	{

@@ -10,21 +10,21 @@ import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Driver{
+  protected int age = 0;
+
   protected java.lang.String gender;
 
-  protected int age;
+  protected boolean hadTraining = false;
 
   protected java.lang.String maritalStatus;
 
-  protected int numAccidents;
-
-  protected int numMovingViolations;
-
-  protected int numDUI;
-
-  protected boolean hadTraining;
-
   protected java.lang.String name;
+
+  protected int numAccidents = 0;
+
+  protected int numDUI = 0;
+
+  protected int numMovingViolations = 0;
 
   protected java.lang.String state;
 
@@ -46,48 +46,6 @@ public Driver(String name, String gender, int age, String maritalStatus, String 
     this.numDUI = numDUI;
     this.hadTraining = hadTraining;
 }
-  public java.lang.String getGender() {
-   return gender;
-}
-  public int getAge() {
-   return age;
-}
-  public java.lang.String getMaritalStatus() {
-   return maritalStatus;
-}
-  public int getNumAccidents() {
-   return numAccidents;
-}
-  public int getNumMovingViolations() {
-   return numMovingViolations;
-}
-  public int getNumDUI() {
-   return numDUI;
-}
-  public boolean getHadTraining() {
-   return hadTraining;
-}
-  public void setGender(java.lang.String gender) {
-   this.gender = gender;
-}
-  public void setAge(int age) {
-   this.age = age;
-}
-  public void setMaritalStatus(java.lang.String maritalStatus) {
-   this.maritalStatus = maritalStatus;
-}
-  public void setNumAccidents(int numAccidents) {
-   this.numAccidents = numAccidents;
-}
-  public void setNumMovingViolations(int numMovingViolations) {
-   this.numMovingViolations = numMovingViolations;
-}
-  public void setNumDUI(int numDUI) {
-   this.numDUI = numDUI;
-}
-  public void setHadTraining(boolean hadTraining) {
-   this.hadTraining = hadTraining;
-}
 
 public boolean equals(Object obj) {
     EqualsBuilder builder = new EqualsBuilder();
@@ -105,6 +63,74 @@ public boolean equals(Object obj) {
     builder.append(another.getNumDUI(),getNumDUI());
     builder.append(another.getHadTraining(),getHadTraining());
     return builder.isEquals();
+}
+  public int getAge() {
+   return age;
+}
+  public java.lang.String getGender() {
+   return gender;
+}
+  public boolean getHadTraining() {
+   return hadTraining;
+}
+  public java.lang.String getMaritalStatus() {
+   return maritalStatus;
+}
+  public java.lang.String getName() {
+   return name;
+}
+  public int getNumAccidents() {
+   return numAccidents;
+}
+  public int getNumDUI() {
+   return numDUI;
+}
+  public int getNumMovingViolations() {
+   return numMovingViolations;
+}
+  public java.lang.String getState() {
+   return state;
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getGender());
+    builder.append(getAge());
+    builder.append(getMaritalStatus());
+    builder.append(getState());
+    builder.append(getNumAccidents());
+    builder.append(getNumMovingViolations());
+    builder.append(getNumDUI());
+    builder.append(getHadTraining());
+    return builder.toHashCode();
+}
+  public void setAge(int age) {
+   this.age = age;
+}
+  public void setGender(java.lang.String gender) {
+   this.gender = gender;
+}
+  public void setHadTraining(boolean hadTraining) {
+   this.hadTraining = hadTraining;
+}
+  public void setMaritalStatus(java.lang.String maritalStatus) {
+   this.maritalStatus = maritalStatus;
+}
+  public void setName(java.lang.String name) {
+   this.name = name;
+}
+  public void setNumAccidents(int numAccidents) {
+   this.numAccidents = numAccidents;
+}
+  public void setNumDUI(int numDUI) {
+   this.numDUI = numDUI;
+}
+  public void setNumMovingViolations(int numMovingViolations) {
+   this.numMovingViolations = numMovingViolations;
+}
+  public void setState(java.lang.String state) {
+   this.state = state;
 }
 
 public String toString() {
@@ -130,32 +156,6 @@ public String toString() {
     builder.append(getHadTraining());
     builder.append(" }");
     return builder.toString();
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getName());
-    builder.append(getGender());
-    builder.append(getAge());
-    builder.append(getMaritalStatus());
-    builder.append(getState());
-    builder.append(getNumAccidents());
-    builder.append(getNumMovingViolations());
-    builder.append(getNumDUI());
-    builder.append(getHadTraining());
-    return builder.toHashCode();
-}
-  public java.lang.String getName() {
-   return name;
-}
-  public java.lang.String getState() {
-   return state;
-}
-  public void setName(java.lang.String name) {
-   this.name = name;
-}
-  public void setState(java.lang.String state) {
-   this.state = state;
 }
 
 }

@@ -12,15 +12,15 @@ import java.lang.String;
 import org.apache.commons.lang.ArrayUtils;
 
 public class Policy{
-  protected java.lang.String clientTier;
-
   protected java.lang.String clientTerm;
+
+  protected java.lang.String clientTier;
 
   protected org.openl.generated.beans.Driver[] drivers;
 
-  protected org.openl.generated.beans.Vehicle[] vehicles;
-
   protected java.lang.String name;
+
+  protected org.openl.generated.beans.Vehicle[] vehicles;
 
 
 
@@ -36,30 +36,6 @@ public Policy(String name, String clientTier, String clientTerm, Driver[] driver
     this.drivers = drivers;
     this.vehicles = vehicles;
 }
-  public java.lang.String getClientTier() {
-   return clientTier;
-}
-  public java.lang.String getClientTerm() {
-   return clientTerm;
-}
-  public org.openl.generated.beans.Driver[] getDrivers() {
-   return drivers;
-}
-  public org.openl.generated.beans.Vehicle[] getVehicles() {
-   return vehicles;
-}
-  public void setClientTier(java.lang.String clientTier) {
-   this.clientTier = clientTier;
-}
-  public void setClientTerm(java.lang.String clientTerm) {
-   this.clientTerm = clientTerm;
-}
-  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
-   this.drivers = drivers;
-}
-  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
-   this.vehicles = vehicles;
-}
 
 public boolean equals(Object obj) {
     EqualsBuilder builder = new EqualsBuilder();
@@ -73,6 +49,46 @@ public boolean equals(Object obj) {
     builder.append(another.getDrivers(),getDrivers());
     builder.append(another.getVehicles(),getVehicles());
     return builder.isEquals();
+}
+  public java.lang.String getClientTerm() {
+   return clientTerm;
+}
+  public java.lang.String getClientTier() {
+   return clientTier;
+}
+  public org.openl.generated.beans.Driver[] getDrivers() {
+   return drivers;
+}
+  public java.lang.String getName() {
+   return name;
+}
+  public org.openl.generated.beans.Vehicle[] getVehicles() {
+   return vehicles;
+}
+
+public int hashCode() {
+    HashCodeBuilder builder = new HashCodeBuilder();
+    builder.append(getName());
+    builder.append(getClientTier());
+    builder.append(getClientTerm());
+    builder.append(getDrivers());
+    builder.append(getVehicles());
+    return builder.toHashCode();
+}
+  public void setClientTerm(java.lang.String clientTerm) {
+   this.clientTerm = clientTerm;
+}
+  public void setClientTier(java.lang.String clientTier) {
+   this.clientTier = clientTier;
+}
+  public void setDrivers(org.openl.generated.beans.Driver[] drivers) {
+   this.drivers = drivers;
+}
+  public void setName(java.lang.String name) {
+   this.name = name;
+}
+  public void setVehicles(org.openl.generated.beans.Vehicle[] vehicles) {
+   this.vehicles = vehicles;
 }
 
 public String toString() {
@@ -90,22 +106,6 @@ public String toString() {
     builder.append(ArrayUtils.toString(getVehicles()));
     builder.append(" }");
     return builder.toString();
-}
-
-public int hashCode() {
-    HashCodeBuilder builder = new HashCodeBuilder();
-    builder.append(getName());
-    builder.append(getClientTier());
-    builder.append(getClientTerm());
-    builder.append(getDrivers());
-    builder.append(getVehicles());
-    return builder.toHashCode();
-}
-  public java.lang.String getName() {
-   return name;
-}
-  public void setName(java.lang.String name) {
-   this.name = name;
 }
 
 }
