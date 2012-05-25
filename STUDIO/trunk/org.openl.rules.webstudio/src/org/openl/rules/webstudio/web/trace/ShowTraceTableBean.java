@@ -58,9 +58,9 @@ public class ShowTraceTableBean {
         return traceHelper.getTraceTable(traceElementId);
     }
 
-    public IGridFilter getTraceFilter() {
+    public IGridFilter[] getTraceFilters() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        return traceHelper.makeFilter(traceElementId, model);
+        return traceHelper.makeFilters(traceElementId, model);
     }
 
     public ParameterWithValueDeclaration[] getInputParameters() {

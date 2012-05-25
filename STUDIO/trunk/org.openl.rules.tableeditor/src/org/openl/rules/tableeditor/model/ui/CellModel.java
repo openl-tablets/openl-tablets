@@ -197,8 +197,15 @@ public class CellModel implements ICellModel {
             return buf;
         }
 
-        if (font.isUnderlined()) {
-            buf.append("text-decoration: underline;");
+        if (font.isUnderlined() || font.isStrikeout()) {
+            buf.append("text-decoration:");
+            if (font.isUnderlined()) {
+                buf.append(" underline");
+            }
+            if (font.isStrikeout()) {
+                buf.append(" line-through");
+            }
+            buf.append(";");
         }
 
         buf.append("font-family: ").append(font.getName());

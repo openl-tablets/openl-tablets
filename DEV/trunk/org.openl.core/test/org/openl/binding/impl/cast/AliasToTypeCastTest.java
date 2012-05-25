@@ -15,12 +15,12 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class TypeToAliasCastTest {
+public class AliasToTypeCastTest {
     @Test
     public void testSingle() {
         IDomain<String> strDomain = new StringDomain(new String[] { "Val1", "Val2" });
         DomainOpenClass domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null);
-        TypeToAliasCast cast = new TypeToAliasCast(JavaOpenClass.STRING, domain);
+        AliasToTypeCast cast = new AliasToTypeCast(domain, JavaOpenClass.STRING);
 
         Object value = cast.convert("Val1");
         assertNotNull(value);
@@ -43,7 +43,7 @@ public class TypeToAliasCastTest {
         IDomain<String> strDomain = new StringDomain(strArray);
         DomainOpenClass domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null);
         IOpenClass arrayDomain = domain.getAggregateInfo().getIndexedAggregateType(domain, 1);
-        TypeToAliasCast cast = new TypeToAliasCast(JavaOpenClass.STRING, arrayDomain);
+        AliasToTypeCast cast = new AliasToTypeCast(arrayDomain, JavaOpenClass.STRING);
 
         Object[] value = (Object[]) cast.convert(strArray);
         assertNotNull(value);

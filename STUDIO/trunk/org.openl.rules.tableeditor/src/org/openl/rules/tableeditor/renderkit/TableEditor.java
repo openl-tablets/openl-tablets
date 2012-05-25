@@ -1,5 +1,6 @@
 package org.openl.rules.tableeditor.renderkit;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.faces.component.UIComponent;
@@ -23,7 +24,7 @@ public class TableEditor {
     private String view;
     private boolean showFormulas;
     private boolean collapseProps;
-    private IGridFilter filter;
+    private IGridFilter[] filters;
     private String beforeSaveAction;
     private String afterSaveAction;
     private String saveFailureAction;
@@ -48,7 +49,7 @@ public class TableEditor {
         linkTarget = (String) attributes.get(Constants.ATTRIBUTE_LINK_TARGET);
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
-        filter = (IGridFilter) component.getAttributes().get(Constants.ATTRIBUTE_FILTER);
+        castToFilters(component.getAttributes().get(Constants.ATTRIBUTE_FILTERS));
         beforeSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
         afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
         saveFailureAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_SAVE_FAILURE_ACTION);
@@ -56,6 +57,23 @@ public class TableEditor {
         onSaveFailure = (String) attributes.get(Constants.ATTRIBUTE_ON_SAVE_FAILURE);
         onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
         excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
+    }
+
+    private void castToFilters(Object filtersParam) {
+        if (filtersParam == null) {
+            filters = null;
+        } else if (filtersParam instanceof IGridFilter[]) {
+            filters = (IGridFilter[]) filtersParam;
+        } else if (filtersParam instanceof IGridFilter) {
+            filters = new IGridFilter[] { (IGridFilter) filtersParam };
+        } else if (filtersParam instanceof Collection) {
+            @SuppressWarnings("unchecked")
+            Collection<IGridFilter> collection = (Collection<IGridFilter>) filtersParam;
+            filters = collection.toArray(new IGridFilter[collection.size()]);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupported type of parameter \"%s\"",
+                    Constants.ATTRIBUTE_FILTERS));
+        }
     }
 
     public String getId() {
@@ -114,12 +132,12 @@ public class TableEditor {
         this.collapseProps = collapseProps;
     }
 
-    public IGridFilter getFilter() {
-        return filter;
+    public IGridFilter[] getFilters() {
+        return filters;
     }
 
-    public void setFilter(IGridFilter filter) {
-        this.filter = filter;
+    public void setFilters(IGridFilter[] filters) {
+        this.filters = filters;
     }
 
     public String getBeforeSaveAction() {
@@ -194,9 +212,8 @@ public class TableEditor {
         this.linkTarget = linkTarget;
     }
 
-    public boolean isShowLinks(){
+    public boolean isShowLinks() {
         return linkBase != null;
     }
 
 }
-
