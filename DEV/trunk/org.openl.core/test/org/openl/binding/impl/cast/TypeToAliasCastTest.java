@@ -20,7 +20,9 @@ public class TypeToAliasCastTest {
 		
 		Object value = cast.convert("Val1");
 		assertNotNull(value);
-		assertEquals("Val1", value);		
+		assertEquals("Val1", value);
+		
+		assertNull(cast.convert(null));
 		
 		try {
 			cast.convert("Not Existing");
@@ -43,6 +45,8 @@ public class TypeToAliasCastTest {
 		assertNotNull(value);
 		assertEquals(strArray.length, value.length);	
 		assertTrue(Arrays.deepEquals(strArray, value));
+
+		assertNull(cast.convert(null));
 	}
 
 }
