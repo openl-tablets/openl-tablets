@@ -13,7 +13,7 @@
                 <h:panelGroup layout="block">
                     <h:outputLink title="Back" styleClass="imageButton"
                             style="background:url('webresource/images/back.png')"
-                            onclick="reloadLeft(); return false;" />
+                            onclick="sessionStorage.removeItem(SHOW_HISTORY_ITEM); reloadLeft(); return false;" />
                  </h:panelGroup>
          </h:panelGrid>
     </ui:define>
@@ -38,14 +38,15 @@
             </h:column>
             <h:column>
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
-                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}" rendered="#{recentlyVisitedTables.getFirst() != table}">
+                <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}&amp;saveTable=false" rendered="#{!studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}"
+                onclick="reloadLeft();">
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
                         <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />
                     </h:panelGroup>
                 </h:outputLink>
-                <h:panelGroup rendered="#{recentlyVisitedTables.getFirst() == table}" style="font-weight:bold;" >
+                <h:panelGroup rendered="#{studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}" style="font-weight:bold;" >
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
