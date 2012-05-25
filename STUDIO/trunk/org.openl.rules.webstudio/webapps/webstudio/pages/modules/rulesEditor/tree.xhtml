@@ -10,14 +10,14 @@
 
    <ui:define name="toolbar">
         <h:form id="rulesTreeViewForm">
-            <h:panelGrid id="rulesTreeView" columns="2" style="width:100%">
-                <h:panelGroup rendered="#{studio.currentProject != null}" layout="block">
+            <h:panelGrid id="rulesTreeView" columns="2" layout="block" style="table-layout:fixed" >
+                <h:panelGroup rendered="#{studio.currentProject != null}">
                     <h:selectOneMenu value="#{treeBean.currentView}">
                         <f:selectItems value="#{treeBean.views}" />
                         <f:ajax event="change" render=":rulesTree" />
                     </h:selectOneMenu>
                  </h:panelGroup>   
-                <h:panelGroup rendered="#{studio.currentProject != null}" layout="block">
+                <h:panelGroup rendered="#{studio.currentProject != null}">
                    <h:commandLink title="Recently visited tables" styleClass="imageButton"
                             style="background:url('webresource/images/table_history.png')"
                             onclick="sessionStorage.setItem('showHistory','true'); reloadLeft(); return false;" />
