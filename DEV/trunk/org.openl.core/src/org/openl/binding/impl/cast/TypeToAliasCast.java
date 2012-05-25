@@ -37,7 +37,11 @@ public class TypeToAliasCast implements IOpenCast {
 	}
 	
 	public Object convert(Object from) {
-		if (toClass.isArray()) {
+        if (from == null) {
+            return null;
+        }
+
+        if (toClass.isArray()) {
 			Object[] fromArray = (Object[])from;
 			// create an array of results
         	//
