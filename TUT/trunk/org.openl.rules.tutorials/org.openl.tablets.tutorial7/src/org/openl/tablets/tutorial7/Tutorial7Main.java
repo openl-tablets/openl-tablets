@@ -6,6 +6,7 @@ package org.openl.tablets.tutorial7;
 
 import static java.lang.System.out;
 
+import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitResultComparator;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
@@ -24,8 +25,9 @@ public class Tutorial7Main {
         out.println();
         out.println("* OpenL Tutorial 7\n");
 
-        out.println("Getting wrapper...");
-        Tutorial_7Wrapper tutorial7 = new Tutorial_7Wrapper();
+        out.println("Getting Interface...");
+        Tutorial_7RulesInterface tutorial7 = new RuleEngineFactory<Tutorial_7RulesInterface>(Tutorial_7RulesInterface.__src, 
+                Tutorial_7RulesInterface.class).makeInstance();
 
         out.println("* Executing OpenL tables...\n");
         Expense expense = new Expense();
