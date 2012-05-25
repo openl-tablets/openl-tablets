@@ -7,6 +7,7 @@ package org.openl.tablets.tutorial9;
 import static java.lang.System.out;
 
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.runtime.RuleEngineFactory;
 
 /**
  * Tutorial 9. Example of Spreadsheet tables.
@@ -19,8 +20,9 @@ public class Tutorial9Main {
         out.println();
         out.println("* OpenL Tutorial 9\n");
 
-        out.println("Getting wrapper...");
-        Tutorial_9Wrapper tutorial9 = new Tutorial_9Wrapper();
+        out.println("Getting interface...");
+        Tutorial_9RulesInterface tutorial9 = new RuleEngineFactory<Tutorial_9RulesInterface>(Tutorial_9RulesInterface.__src, 
+                Tutorial_9RulesInterface.class).makeInstance();
 
         out.println("* Executing OpenL tables...\n");
         out.println("totalAssets():");
