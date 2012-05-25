@@ -6,6 +6,8 @@ import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithmTraceDecorator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
@@ -76,9 +78,13 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
 
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject)getTraceObject(params);
         tracer.push(traceObject);
+        
+        DecisionTableOptimizedAlgorithmTraceDecorator algorithmDelegator = null;
 
         try {
-            IIntIterator rules = getInvokableMethod().getAlgorithm().checkedRules(target, params, env);
+            DecisionTableOptimizedAlgorithm algorithm = getInvokableMethod().getAlgorithm();
+            algorithmDelegator = new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, traceObject);
+            IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 
             while (rules.hasNext()) {
 
@@ -99,6 +105,9 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
         } catch (RuntimeException e) {
             addErrorToTrace(traceObject, e);
         } finally {
+            if (algorithmDelegator != null) {
+                algorithmDelegator.popAll();
+            }
             tracer.pop();
         }
 

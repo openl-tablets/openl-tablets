@@ -49,10 +49,10 @@
             </deferred-value>
         </attribute>
         <attribute>
-            <description>The table filter</description>
-            <name>filter</name>
+            <description>The table filters. Can be an array, collection or single object of org.openl.rules.table.ui.IGridFilter type</description>
+            <name>filters</name>
             <deferred-value>
-                <type>org.openl.rules.table.ui.IGridFilter</type>
+                <type>java.lang.Object</type>
             </deferred-value>
         </attribute>
         <attribute>
@@ -122,10 +122,10 @@
             </deferred-value>
         </attribute>
         <attribute>
-            <description>The table filter</description>
-            <name>filter</name>
+            <description>The table filters. Can be an array, collection or single object of org.openl.rules.table.ui.IGridFilter type</description>
+            <name>filters</name>
             <deferred-value>
-                <type>org.openl.rules.table.ui.IGridFilter</type>
+                <type>java.lang.Object</type>
             </deferred-value>
         </attribute>
         <attribute>

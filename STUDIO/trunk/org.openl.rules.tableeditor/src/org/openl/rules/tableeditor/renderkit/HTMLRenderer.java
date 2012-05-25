@@ -99,7 +99,7 @@ public class HTMLRenderer {
         result.append("</div>");
 
         if (editor.getTable() != null) {
-            IGridFilter[] filters = (editor.getFilter() == null) ? null : new IGridFilter[] { editor.getFilter() };
+            IGridFilter[] filters = editor.getFilters();
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
             TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows,

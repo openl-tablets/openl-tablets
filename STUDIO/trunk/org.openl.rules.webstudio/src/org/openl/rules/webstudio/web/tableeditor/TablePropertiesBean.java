@@ -24,7 +24,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.tableeditor.renderkit.PropertyGroup;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.ui.ProjectModel;
@@ -38,8 +37,8 @@ import org.openl.util.StringTool;
 public class TablePropertiesBean {
     private IOpenLTable table;
     private ITableProperties props;
-    private List<TableProperty> listProperties;
-    private List<PropertyGroup> groups;
+    private List<PropertyRow> propertyRows;
+    private Map<String, List<TableProperty>> groups;
     private Set<String> propsToRemove = new HashSet<String>();
 
     private String newTableUri;
@@ -58,18 +57,15 @@ public class TablePropertiesBean {
 
         if (isShowProperties()) {
             this.props = table.getProperties();
-            this.listProperties = initPropertiesList();
+            initPropertyGroups();
         }
     }
 
-    public List<TableProperty> getProperties() {
-        return listProperties;
-    }
-
-    private List<TableProperty> initPropertiesList() {
-        List<TableProperty> listProp = new ArrayList<TableProperty>();
+    public void initPropertyGroups() {
+        groups = new LinkedHashMap<String, List<TableProperty>>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsForTable(table.getType());
+
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             Object value = props.getPropertyValue(propDefinition.getName());
             if (value != null) {
@@ -82,10 +78,46 @@ public class TablePropertiesBean {
                         || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
                     prop.setInheritedTableUri(getProprtiesTableUri(inheritanceLevel));
                 }
-                listProp.add(prop);
+
+                storeProperty(prop);
             }
         }
-        return listProp;
+    }
+
+    private void storeProperty(TableProperty prop) {
+        String group = prop.getGroup();
+        List<TableProperty> groupList = groups.get(group);
+        if (groupList == null) {
+            groupList = new ArrayList<TableProperty>();
+            groups.put(group, groupList);
+        }
+        if (!groupList.contains(prop)) {
+            groupList.add(prop);
+        }
+    }
+
+    private void removeProperty(TableProperty prop) {
+        String group = prop.getGroup();
+        List<TableProperty> groupList = groups.get(group);
+        if (groupList != null) {
+            groupList.remove(prop);
+        }
+        if (groupList.isEmpty()) {
+            groups.remove(group);
+        }
+    }
+
+    public List<PropertyRow> getPropertyRows() {
+        propertyRows = new ArrayList<PropertyRow>();
+
+        for (String group : groups.keySet()) {
+            propertyRows.add(new PropertyRow(PropertyRowType.GROUP, group));
+            for (TableProperty prop : groups.get(group)) {
+                propertyRows.add(new PropertyRow(PropertyRowType.PROPERTY, prop));
+            }
+        }
+
+        return propertyRows;
     }
 
     public boolean isEditable() {
@@ -107,31 +139,6 @@ public class TablePropertiesBean {
         return uri;
     }
 
-    public List<PropertyGroup> getPropertyGroups() {
-        groups = new ArrayList<PropertyGroup>();
-        Map<String, List<TableProperty>> groupProps = new LinkedHashMap<String, List<TableProperty>>();
-        if (isShowProperties()) {
-            for (TableProperty prop : listProperties) {
-                String group = prop.getGroup();
-                List<TableProperty> groupList = groupProps.get(group);
-                if (groupList == null) {
-                    groupList = new ArrayList<TableProperty>();
-                    groupProps.put(group, groupList);
-                }
-                if (!groupList.contains(prop)) {
-                    groupList.add(prop);
-                }
-            }
-        }
-        for (String groupName : groupProps.keySet()) {
-            PropertyGroup group = new PropertyGroup();
-            group.setGroup(groupName);
-            group.setProperties(groupProps.get(groupName));
-            groups.add(group);
-        }
-        return groups;
-    }
-
     public boolean isShowProperties() {
         return table.isCanContainProperties();
     }
@@ -149,8 +156,10 @@ public class TablePropertiesBean {
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsForTable(table.getType(), InheritanceLevel.TABLE, true);
         Collection<String> currentProps = new TreeSet<String>();
-        for (TableProperty prop : listProperties) {
-            currentProps.add(prop.getName());
+        for (PropertyRow row : propertyRows) {
+            if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                currentProps.add(((TableProperty) row.getData()).getName());
+            }
         }
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
@@ -173,8 +182,13 @@ public class TablePropertiesBean {
 
     public void addNew() {
         TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyToAdd);
-        listProperties.add(new TableProperty(propDefinition));
+        storeProperty(new TableProperty(propDefinition));
         propsToRemove.remove(propertyToAdd);
+    }
+
+    public void remove(TableProperty prop) {
+        removeProperty(prop);
+        propsToRemove.add(prop.getName());
     }
 
     public void save() throws Exception {
@@ -182,32 +196,33 @@ public class TablePropertiesBean {
         ProjectModel model = studio.getModel();
         TableEditorModel tableEditorModel = model.getTableEditorModel(table);
         boolean toSave = false;
-        for (TableProperty property : listProperties) {
-            String name = property.getName();
-            Object newValue = property.getValue();
-            Object oldValue = props.getPropertyValue(name);
-            boolean enumArray = property.isEnumArray();
-            if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
-                    || (!enumArray && ObjectUtils.notEqual(oldValue, newValue))) {
-                tableEditorModel.setProperty(name,
-                        newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
-                toSave = true;
+
+        for (PropertyRow row : propertyRows) {
+            if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                TableProperty property = (TableProperty) row.getData();
+                String name = property.getName();
+                Object newValue = property.getValue();
+                Object oldValue = props.getPropertyValue(name);
+                boolean enumArray = property.isEnumArray();
+                if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
+                        || (!enumArray && ObjectUtils.notEqual(oldValue, newValue))) {
+                    tableEditorModel.setProperty(name,
+                            newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
+                    toSave = true;
+                }
             }
         }
+
         for (String propToRemove : propsToRemove) {
             tableEditorModel.removeProperty(propToRemove);
             toSave = true;
         }
+
         if (toSave) {
-        	EditHelper.updateSystemProperties(table, tableEditorModel);
+            EditHelper.updateSystemProperties(table, tableEditorModel);
             this.newTableUri = tableEditorModel.save();
             studio.rebuildModel();
         }
-    }
-
-    public void remove(TableProperty prop) {
-        listProperties.remove(prop);
-        propsToRemove.add(prop.getName());
     }
 
     /*for (Constraint constraint : constraints.getAll()) {

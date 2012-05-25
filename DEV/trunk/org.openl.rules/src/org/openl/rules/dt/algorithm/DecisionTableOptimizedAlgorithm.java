@@ -221,6 +221,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author sshor
  */
 public class DecisionTableOptimizedAlgorithm {
+    private static AlgorithmDecoratorFactory DEFAULT_ALGORITHM_DECORATOR_FACTORY = new DefaultAlgorithmDecoratorFactory();
 
     /**
      * There is one evaluator per condition in DT
@@ -239,6 +240,10 @@ public class DecisionTableOptimizedAlgorithm {
 
     public IConditionEvaluator[] getEvaluators() {
         return evaluators;
+    }
+
+    public DecisionTable getTable() {
+        return table;
     }
 
     private Object evaluateTestValue(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
@@ -442,6 +447,22 @@ public class DecisionTableOptimizedAlgorithm {
      * @return iterator over <b>rule indexes</b> - integer iterator.
      */
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
+        return checkedRules(target, params, env, DEFAULT_ALGORITHM_DECORATOR_FACTORY);
+    }
+
+    /**
+     * This method is used to pass an algorithm decorator factory that is used for tracing (for example).
+     * See {@link #checkedRules(Object, Object[], IRuntimeEnv)} for full documentation
+     * 
+     * @param target target object
+     * @param params parameters of a test
+     * @param env environment
+     * @param decoratorFactory a decorator factory that will decorate an objects that are used to calculate a rule 
+     * @return iterator over <b>rule indexes</b> - integer iterator.
+     * @see #checkedRules(Object, Object[], IRuntimeEnv)
+     */
+    protected final IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env,
+            AlgorithmDecoratorFactory decoratorFactory) {
 
         // Select rules set using indexed mode
         //
@@ -457,6 +478,7 @@ public class DecisionTableOptimizedAlgorithm {
             ARuleIndex index = indexRoot;
 
             for (; conditionNumber < evaluators.length; conditionNumber++) {
+                index = decoratorFactory.create(index, conditions[conditionNumber]);
 
                 Object testValue = evaluateTestValue(conditions[conditionNumber], target, params, env);
 
@@ -478,6 +500,7 @@ public class DecisionTableOptimizedAlgorithm {
             IConditionEvaluator evaluator = evaluators[conditionNumber];
 
             IIntSelector sel = evaluator.getSelector(condition, target, params, env);
+            sel = decoratorFactory.create(sel, condition);
 
             iterator = iterator.select(sel);
         }
@@ -541,6 +564,53 @@ public class DecisionTableOptimizedAlgorithm {
         }
 
         return indexedParams;
+    }
+
+    /**
+     * A decorator factory that creates a decorators for an objects used in
+     * decision table algorithm
+     * 
+     * @author NSamatov
+     */
+    public static interface AlgorithmDecoratorFactory {
+        /**
+         * Create a decorator of a selector for given condition
+         * 
+         * @param selector original selector
+         * @param condition condition that will be used to check with selector
+         * @return a decorator for selector
+         */
+        IIntSelector create(IIntSelector selector, ICondition condition);
+
+        /**
+         * Create a decorator of a rule's index for given condition
+         * 
+         * @param index original rule's index
+         * @param condition condition that will be used to check with rule's
+         *            index
+         * @return a decorator for index
+         */
+        ARuleIndex create(ARuleIndex index, ICondition condition);
+    }
+
+    /**
+     * Default decorator factory that creates nothing: it returns original
+     * objects
+     * 
+     * @author NSamatov
+     */
+    public static class DefaultAlgorithmDecoratorFactory implements AlgorithmDecoratorFactory {
+
+        @Override
+        public IIntSelector create(IIntSelector selector, ICondition condition) {
+            return selector;
+        }
+
+        @Override
+        public ARuleIndex create(ARuleIndex index, ICondition condition) {
+            return index;
+        }
+
     }
 
 }

@@ -8,7 +8,7 @@ import org.openl.rules.tableeditor.util.Constants;
 public class TableViewerTag extends BaseTag {
 
     private ValueExpression table = null;
-    private ValueExpression filter = null;
+    private ValueExpression filters = null;
     private ValueExpression view = null;
     private ValueExpression showFormulas = null;
     private ValueExpression collapseProps = null;
@@ -28,8 +28,8 @@ public class TableViewerTag extends BaseTag {
         this.table = table;
     }
 
-    public void setFilter(ValueExpression filter) {
-        this.filter = filter;
+    public void setFilters(ValueExpression filters) {
+        this.filters = filters;
     }
 
     public void setView(ValueExpression view) {
@@ -54,7 +54,7 @@ public class TableViewerTag extends BaseTag {
         super.setProperties(component);
         component.setValueExpression(Constants.ATTRIBUTE_TABLE, table);
         component.setValueExpression(Constants.ATTRIBUTE_VIEW, view);
-        component.setValueExpression(Constants.ATTRIBUTE_FILTER, filter);
+        component.setValueExpression(Constants.ATTRIBUTE_FILTERS, filters);
         component.setValueExpression(Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
         component.setValueExpression(Constants.ATTRIBUTE_COLLAPSE_PROPS, collapseProps);
         component.setValueExpression(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS, excludeScripts);
@@ -65,7 +65,7 @@ public class TableViewerTag extends BaseTag {
         // always call the superclass method
         super.release();
         table = null;
-        filter = null;
+        filters = null;
         view = null;
         showFormulas = null;
         collapseProps = null;
