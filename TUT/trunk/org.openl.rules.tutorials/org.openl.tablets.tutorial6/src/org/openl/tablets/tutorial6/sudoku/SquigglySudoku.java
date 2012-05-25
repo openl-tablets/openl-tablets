@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.rules.runtime.RuleEngineFactory;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -22,21 +23,21 @@ public class SquigglySudoku extends SudokuSolver {
 	}
 
 	private static IAreaResolver makeAreaResolver(String methodName) {
-		SudokuWrapper sw = new SudokuWrapper();
-		IGridTable gt = GameInterface.findTable("sq1", sw.getInstance());
+	    RuleEngineFactory<SudokuRulesInterface> factory = new RuleEngineFactory<SudokuRulesInterface>
+        (SudokuRulesInterface.__src, SudokuRulesInterface.class);
+	    
+	    // Create instance of OpenL rules.
+	    factory.makeInstance();
+	    
+	    IGridTable gt = GameInterface.findTable("sq1", factory.getCompiledOpenClass().getOpenClass().getMethods());
 		gt = new GridTable(gt.getRegion(), gt.getGrid());
 
 		List<List<XY>> matrix = SquigglySudoku.selectByColor(gt);
 		
 		return new SquigglyAreaResolver(matrix);
-		
-		
 	}
 	
-	
-	static class SquigglyAreaResolver implements IAreaResolver
-	{
-
+	static class SquigglyAreaResolver implements IAreaResolver {
 		List<List<XY>> list;
 		public SquigglyAreaResolver(List<List<XY>> matrix) {
 			this.list = matrix;
@@ -49,7 +50,6 @@ public class SquigglySudoku extends SudokuSolver {
 			
 			return matrix[point.y-1][point.x];
 		}
-		
 	}
 
 	static class XY {
@@ -197,8 +197,12 @@ public class SquigglySudoku extends SudokuSolver {
 	}
 
 	public static void main(String[] args) {
-		SudokuWrapper sw = new SudokuWrapper();
-		IGridTable gt = GameInterface.findTable("sq1", sw.getInstance());
+	    RuleEngineFactory<SudokuRulesInterface> factory = new RuleEngineFactory<SudokuRulesInterface>
+	        (SudokuRulesInterface.__src, SudokuRulesInterface.class);
+	    
+	    // Create instance of OpenL rules.
+	    factory.makeInstance();
+		IGridTable gt = GameInterface.findTable("sq1", factory.getCompiledOpenClass().getOpenClass().getMethods());
 		gt = new GridTable(gt.getRegion(), gt.getGrid());
 
 		List<List<XY>> res = SquigglySudoku.selectByColor(gt);

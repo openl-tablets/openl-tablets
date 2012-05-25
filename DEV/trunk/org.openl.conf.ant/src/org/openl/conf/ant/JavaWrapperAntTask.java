@@ -405,8 +405,8 @@ public class JavaWrapperAntTask extends Task {
             // Generator for Interface
             //
             javaGenerator = new JavaInterfaceGenerator.Builder(openClass, getTargetClass())
-                .methodsToGenerate(getMethods()).ignoreNonJavaTypes(isIgnoreNonJavaTypes()).srcFile(getSrcFile())
-                .deplSrcFile(getDeplSrcFile()).build();            
+                .methodsToGenerate(getMethods()).fieldsToGenerate(getFields()).ignoreNonJavaTypes(isIgnoreNonJavaTypes())
+                .srcFile(getSrcFile()).deplSrcFile(getDeplSrcFile()).build();            
         }
         
         writeJavaWrapper(javaGenerator);        

@@ -30,9 +30,9 @@ public class Tutorial10Main {
         out.println();
         out.println("* OpenL Tutorial 10\n");
 
-        out.println("Getting wrapper...\n");
-        RuleEngineFactory<Tutorial10Rules> rulesFactory = new RuleEngineFactory<Tutorial10Rules>("rules/Tutorial_10.xlsx", Tutorial10Rules.class);
-        Tutorial10Rules rules = rulesFactory.makeInstance();
+        out.println("Getting Interface...\n");
+        Tutorial_10RulesInterface rules = new RuleEngineFactory<Tutorial_10RulesInterface>(Tutorial_10RulesInterface.__src, 
+                Tutorial_10RulesInterface.class).makeInstance();        
         
         // We should setup runtime context with proper values
         // These values will be used to dispatch call to appropriate rule
