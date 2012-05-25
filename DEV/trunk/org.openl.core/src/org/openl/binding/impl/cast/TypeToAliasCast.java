@@ -21,73 +21,72 @@ import org.openl.types.IOpenClass;
  */
 public class TypeToAliasCast implements IOpenCast {
 
-	/**
-	 * Original type of object before type conversion.
-	 */
-	private IOpenClass fromClass;
+    /**
+     * Original type of object before type conversion.
+     */
+    private IOpenClass fromClass;
 
-	/**
-	 * Result type of object after conversion.
-	 */
-	private IOpenClass toClass;
+    /**
+     * Result type of object after conversion.
+     */
+    private IOpenClass toClass;
 
-	public TypeToAliasCast(IOpenClass from, IOpenClass to) {
-		this.fromClass = from;
-		this.toClass = to;
-	}
-	
-	public Object convert(Object from) {
+    public TypeToAliasCast(IOpenClass from, IOpenClass to) {
+        this.fromClass = from;
+        this.toClass = to;
+    }
+
+    public Object convert(Object from) {
         if (from == null) {
             return null;
         }
 
         if (toClass.isArray()) {
-			Object[] fromArray = (Object[])from;
-			// create an array of results
-        	//
+            Object[] fromArray = (Object[]) from;
+            // create an array of results
+            //
             Object results = Array.newInstance(fromArray.getClass().getComponentType(), fromArray.length);
-            
+
             // populate the results array by converting single value
             //
-			for (int i = 0; i < fromArray.length; i++) {
-				Array.set(results , i, convertSingle(fromArray[i]));  
-			}
-			return results;
-		} else {
-			return convertSingle(from);
-		}		
-	}
+            for (int i = 0; i < fromArray.length; i++) {
+                Array.set(results, i, convertSingle(fromArray[i]));
+            }
+            return results;
+        } else {
+            return convertSingle(from);
+        }
+    }
 
-	protected Object convertSingle(Object from) {
-		IDomain domain = toClass.getDomain();
+    protected Object convertSingle(Object from) {
+        IDomain domain = toClass.getDomain();
 
-		// Try to get given object from type domain. If object belongs to domain
-		// true value
-		// ill be returned; false - otherwise.
-		// NOTE: EnumDomain implementation of IDomain (used by alias types)
-		// throws runtime exception if object doesn't belong to domain.
-		//
-		boolean isInDomain = domain.selectObject(from);
+        // Try to get given object from type domain. If object belongs to domain
+        // true value
+        // ill be returned; false - otherwise.
+        // NOTE: EnumDomain implementation of IDomain (used by alias types)
+        // throws runtime exception if object doesn't belong to domain.
+        //
+        boolean isInDomain = domain.selectObject(from);
 
-		// If object doesn't belong to domain throw runtime exception with
-		// appropriate message.
-		//
-		if (!isInDomain) {
-			throw new RuntimeException("Object " + from
-					+ " is outside of a valid domain");
-		}
+        // If object doesn't belong to domain throw runtime exception with
+        // appropriate message.
+        //
+        if (!isInDomain) {
+            throw new RuntimeException("Object " + from + " is outside of a valid domain");
+        }
 
-		// Return object as a converted value.
-		//
-		return from;
-	}
+        // Return object as a converted value.
+        //
+        return from;
+    }
 
-	public int getDistance(IOpenClass from, IOpenClass to) {
-	    return 4;
-	}
+    public int getDistance(IOpenClass from, IOpenClass to) {
+        return 4;
+    }
 
-	public boolean isImplicit() {
-		return true;
-	}
+    public boolean isImplicit() {
+        return true;
+    }
 
 }
