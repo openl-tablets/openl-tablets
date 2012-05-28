@@ -66,7 +66,7 @@ public class NumberUtils {
     public static Double roundValue(Double value, int scale) {
 
         if (value != null) {
-            BigDecimal roundedValue = new BigDecimal(value);
+            BigDecimal roundedValue = BigDecimal.valueOf(value);
             roundedValue = roundedValue.setScale(scale, RoundingMode.HALF_UP);
 
             return roundedValue.doubleValue();
