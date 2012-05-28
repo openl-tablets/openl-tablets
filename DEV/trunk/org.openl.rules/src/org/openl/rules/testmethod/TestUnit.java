@@ -67,8 +67,7 @@ public class TestUnit {
             Double roundedResult = NumberUtils.roundValue(result, scale);
 
             if (DoubleValue.class.isAssignableFrom(runningResult.getClass())) {
-                ((DoubleValue) runningResult).setValue(roundedResult);
-                actualResult = runningResult;
+                actualResult = new DoubleValue(roundedResult);
                 return;
             }
             

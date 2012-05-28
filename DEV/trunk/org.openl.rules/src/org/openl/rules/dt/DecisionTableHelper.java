@@ -261,7 +261,7 @@ public class DecisionTableHelper {
             // write headers
             //
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
-            
+
             if (isThatVCondition) {
                 vColumnCounter++;
                 // write simple condition
@@ -272,22 +272,22 @@ public class DecisionTableHelper {
                 //
                 grid.setCellValue(column, 0, (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern());
             }
-            
+
             grid.setCellValue(column, 1, decisionTable.getSignature().getParameterName(i));
-            
+
             //Set type of condition values(for Ranges and Array)
             grid.setCellValue(column, 2,
                     checkTypeOfValues(originalTable, column, decisionTable.getSignature().getParameterTypes()[i].getDisplayName(0)/* getParameterType(i) .getTypes()getName()*/, isThatVCondition, vColumnCounter) );
-            
+
             //merge columns
             int mergedColumnsCounts = originalTable.getColumnWidth(i);
-            
+
             if (mergedColumnsCounts > 1) {
                 for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
                     grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
                 }
             }
-            
+
             column += mergedColumnsCounts;
         }
         return column;
@@ -307,8 +307,10 @@ public class DecisionTableHelper {
      */
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
             boolean isThatVCondition, int vColumnCounter) {
-        final List<String> intType = Arrays.asList("Int","Long","int","long","IntValue","java.lang.Integer","org.openl.meta.IntValue");
-        final List<String> doubleType = Arrays.asList("Double","Float","double","float","DoubleValue","java.lang.Double");
+        final List<String> intType = Arrays.asList("byte","short","int","Byte","Short","Int",
+                "ByteValue","ShortValue","IntValue");
+        final List<String> doubleType = Arrays.asList("long","float","double","Long","Float","Double",
+                "LongValue","FloatValue","DoubleValue");
         ILogicalTable decisionValues;
         int width = 0;
         
