@@ -81,7 +81,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
-    
     private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
                                                                                                          ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
@@ -90,12 +89,14 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             ClassLoader serviceClassLoader = instantiationStrategy.getClassLoader();
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
-                instantiationStrategy.setServiceClass(serviceClass);
-            } catch (ClassNotFoundException e) {
+                instantiationStrategy.setServiceClass(RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
+                    serviceClass));
+            } catch (Exception e) {
+                e.printStackTrace();
                 if (log.isWarnEnabled()) {
                     log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
                 }
-                serviceClass = null;
+                serviceClass = instantiationStrategy.getInstanceClass();
             }
         } else {
             if (log.isWarnEnabled()) {
