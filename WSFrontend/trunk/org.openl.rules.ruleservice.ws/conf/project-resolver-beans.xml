@@ -13,6 +13,11 @@
 		<property name="treeAdaptor" ref="fileTreeAdaptor" />
 	</bean>
 	
+	<!-- Resolves projects that match OpenL Eclipse-based convention with interfaces. It is used by projectResolver bean. -->
+	<bean id="eclipseBasedInterfaceStrategy" class="org.openl.rules.project.resolving.EclipseBasedInterfaceResolvingStrategy">
+		<property name="treeAdaptor" ref="fileTreeAdaptor"/>
+  	</bean>
+	
 	<!-- Resolver for simple OpenL project with only xls file. It is used by projectResolver bean. -->
 	<bean id="simpleXLSStrategy"
 		class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy" />
@@ -24,8 +29,9 @@
 		<property name="resolvingStrategies">
 			<list>
 				<ref bean="descriptorBasedStrategy" />
-				<ref bean="eclipseBasedStrategy" />
+				<ref bean="eclipseBasedInterfaceStrategy"/>				
 				<ref bean="simpleXLSStrategy" />
+				<ref bean="eclipseBasedStrategy" />
 			</list>
 		</property>
 	</bean>
