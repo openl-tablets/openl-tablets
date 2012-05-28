@@ -65,4 +65,13 @@ public class NumberUtilsTest {
 		assertEquals(35, NumberUtils.getScale(new BigDecimalValue(new BigDecimal("12.12345678912345678912345678912345678"))));
 	}
 	
+	@Test
+	public void testRoundValue() {
+	    assertEquals(0.35, NumberUtils.roundValue(0.35, 2).doubleValue(), 0.001);
+	    
+        assertEquals(0.3, NumberUtils.roundValue(0.34, 1).doubleValue(), 0.01);
+	    assertEquals(0.4, NumberUtils.roundValue(0.35, 1).doubleValue(), 0.01);
+	    assertEquals(0.4, NumberUtils.roundValue(0.36, 1).doubleValue(), 0.01);
+	}
+	
 }
