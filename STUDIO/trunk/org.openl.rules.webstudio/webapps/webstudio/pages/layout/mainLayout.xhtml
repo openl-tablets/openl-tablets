@@ -163,11 +163,11 @@
             
             function search(params) {
                 var query;
-
+                
                 if (params) {
                     // Simple Search by text
                     if (params.constructor === String) {
-                        query = "query=" + params;
+                        query = "query=" + encodeURIComponent(params);
 
                     // Advanced Search
                     } else {
