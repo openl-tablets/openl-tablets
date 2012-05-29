@@ -327,6 +327,21 @@ form.standard table.buttonPanel {
     color: brown;
 }
 
+.message {
+    position: absolute;
+    width: 210px;
+    left: 43%;
+    z-index: 1;
+    background: #333;
+    color: white;
+    padding: 17px 11px;
+    opacity: 0.8;
+    text-align: center;
+    -moz-transition: all .4s ease-out;
+    -webkit-transition: all .4s ease-out;
+    transition: all .4s ease-out;
+}
+
 .noEntries {
     display: inline-block;
     color: #002276;

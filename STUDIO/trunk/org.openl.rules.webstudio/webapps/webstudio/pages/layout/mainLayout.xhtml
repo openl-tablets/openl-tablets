@@ -78,11 +78,11 @@
                 if (errorMessage) {
                     // TODO Create mechanism to disable editing in UI when Excel file is opened.
                     if (errorMessage.indexOf(".xls") > -1) {
-                        alert("Failed to save changes. Please close module Excel file and try again.");
+                        message("Failed to save changes. Please close module Excel file and try again.");
                     } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                         reloadCurrent();
                     } else {
-                        alert(errorMessage);
+                        message(errorMessage);
                     }
                     return;
                 }
@@ -93,7 +93,7 @@
             var urlRewrite = {
                 prefix: "#{rulesEditor}/"
             }
-            
+
             function getCurrentHash() {
                 // Because firefox has a bug with decoding location.hash value, we use location.href.split("#")[1] instead
                 var page = location.href;
@@ -101,7 +101,7 @@
             }
 
             var lastSavedHash = getCurrentHash();
-            
+
             $j(window).bind("hashchange", function() {
                 var ch = getCurrentHash();
                 if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
@@ -155,12 +155,12 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else if (code == 404) { // File Not Found
-                    alert("Sorry! Page Not Found!");
+                    message("Sorry! Page Not Found!", 7000);
                 } else {
-                    alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
+                    message("Sorry! Something went wrong. Please, try to refresh WebStudio!", 7000);
                 }
             }
-            
+
             function search(params) {
                 var query;
 
@@ -370,6 +370,42 @@
                     top : top,
                     closeIcon: closeIcon
                 });
+            }
+
+            function message(content, life, closable) {
+                var messages = $j(".message");
+
+                function remove() {
+                    message.remove();
+
+                    var top = 33;
+                    $j(".message").each(function() {
+                        $j(this).css({"top" : top + "px"});
+                        top += ($j(this).outerHeight() + 5);
+                    });
+                }
+
+                var message = $j("<div />").addClass("message").html(content);
+
+                if (closable !== false) {
+                    message.css({"cursor" : "pointer"})
+                    message.click(remove);
+                }
+
+                var top;
+                if (messages.length) {
+                    var lastMessage = $j(messages[messages.length - 1]);
+                    top = lastMessage.position().top + lastMessage.outerHeight() + 5 + "px";
+                } else {
+                    top = "33px";
+                }
+
+                message.css({"top": top});
+                $j("body").append(message);
+
+                if (life > -1) {
+                    setTimeout(remove, life);
+                }
             }
           //]]>
         </script>
