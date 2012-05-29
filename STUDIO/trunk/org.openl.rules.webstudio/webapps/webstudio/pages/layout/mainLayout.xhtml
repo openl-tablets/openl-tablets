@@ -163,11 +163,11 @@
 
             function search(params) {
                 var query;
-
+                
                 if (params) {
                     // Simple Search by text
                     if (params.constructor === String) {
-                        query = "query=" + params;
+                        query = "query=" + encodeURIComponent(params);
 
                     // Advanced Search
                     } else {
@@ -292,9 +292,11 @@
             }
 
             var NAVI_HEADER_ITEM = "naviHeader";
+            var SHOW_HISTORY_ITEM = "showHistory";
 
             function toProjectsPanel() {
                 sessionStorage.removeItem(NAVI_HEADER_ITEM);
+                sessionStorage.removeItem(SHOW_HISTORY_ITEM);
                 $j("#navigationHeader").text("Projects");
                 $j("#navigationHeader").removeAttr("title");
 
@@ -304,6 +306,12 @@
             }
 
             function toRulesPanel(header) {
+                if (sessionStorage.getItem(SHOW_HISTORY_ITEM)) {
+                    toHistoryPanel();
+                    
+                    return;
+                }
+
                 if (!header) {
                     header = sessionStorage.getItem(NAVI_HEADER_ITEM);
                 }
@@ -335,11 +343,6 @@
                     toRulesPanel();
                 } else {
                     toProjectsPanel();
-                }
-
-                if (sessionStorage.getItem("showHistory")) {
-                    sessionStorage.removeItem("showHistory");
-                    toHistoryPanel();
                 }
             }
 

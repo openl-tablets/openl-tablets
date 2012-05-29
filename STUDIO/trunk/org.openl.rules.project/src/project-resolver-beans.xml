@@ -17,9 +17,9 @@
     <property name="resolvingStrategies">
       <list>
       	<ref bean="descriptorBasedStrategy"/>
-        <ref bean="eclipseBasedStrategy"/>
-        <ref bean="eclipseBasedInterfaceStrategy"/>
+      	<ref bean="eclipseBasedInterfaceStrategy"/>
         <ref bean="simpleXLSStrategy"/>
+        <ref bean="eclipseBasedStrategy"/>
       </list>
     </property>
     <property name="workspace" value=".."/>

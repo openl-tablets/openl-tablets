@@ -3,16 +3,18 @@ package org.openl.rules.webstudio.web.test;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.base.INameSpacedThing;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
+    private final Log log = LogFactory.getLog(ComplexParameterTreeNode.class);
     public static final String COMPLEX_TYPE = "complex";
 
     public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent) {
@@ -44,14 +46,27 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 IOpenField field = fieldEntry.getValue();
                 if (!field.isConst()) {
                     String fieldName = fieldEntry.getKey();
-                    Object fieldValue = field.get(getValue(), env);
+                    Object fieldValue;
                     IOpenClass fieldType = field.getType();
-
-                    if (getValue() == fieldValue) {
-                        // avoid infinite loop because of referencing child field to an object itself
-                        Log.info("Field \"{0}\" references to an object itself. Add it as \"this\" value", fieldName);
+                    
+                    try {
+                        fieldValue = field.get(getValue(), env);
+                    } catch (RuntimeException e) {
+                        // Usually this can happen only in cases when TestResult is a OpenLRuntimeException.
+                        // So this field usually doesn't have any useful information.
+                        // For example, it can be NotSupportedOperationException in not implemented getters.
+                        if (log.isDebugEnabled()) {
+                            log.debug("Exception while trying to get a value of a field:", e);
+                        }
                         fieldType = JavaOpenClass.getOpenClass(String.class);
-                        fieldValue = "this";
+                        fieldValue = "Exception while trying to get a value of a field: " + e;
+                    }
+                    
+                    String reference = getReferenceNameToParent(fieldValue, this, "this");
+                    if (reference != null) {
+                        // Avoid infinite loop because of cyclic references
+                        fieldType = JavaOpenClass.getOpenClass(String.class);
+                        fieldValue = reference;
                     }
                     
                     fields.put(fieldName,
@@ -60,6 +75,30 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             }
             return fields;
         }
+    }
+    
+    /**
+     * Finds a reference of a field's value to any of it's parents or object
+     * itself. If field value is not referenced to any of it's parents,
+     * function will return null.
+     * 
+     * @param fieldValue field value
+     * @param parentObject object that contains a field
+     * @param referenceName reference
+     * @return reference name to a parent or null
+     */
+    private String getReferenceNameToParent(Object fieldValue, ParameterDeclarationTreeNode parentObject,
+            String referenceName) {
+        // Check reference, not value - that's why "==" instead of "equals".
+        if (parentObject.getValue() == fieldValue) {
+            return referenceName;
+        }
+
+        if (parentObject.getParent() == null) {
+            return null;
+        }
+
+        return getReferenceNameToParent(fieldValue, parentObject.getParent(), referenceName + ".parent");
     }
 
     @Override

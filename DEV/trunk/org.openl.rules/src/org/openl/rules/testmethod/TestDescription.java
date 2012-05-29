@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.table.InputArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
@@ -100,9 +101,17 @@ public class TestDescription {
     }
 
     public Object[] getArguments() {
+        InputArgumentsCloner cloner = new InputArgumentsCloner();
+
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
-            args[i] = executionParams[i].getValue();
+            Object value = executionParams[i].getValue();
+            try {
+                args[i] = cloner.deepClone(value);
+            } catch (RuntimeException e) {
+                Log.error("Failed to clone an argument \"{0}\". Original argument will be used.", executionParams[i].getName());
+                args[i] = value;
+            }
         }
         return args;
     }
