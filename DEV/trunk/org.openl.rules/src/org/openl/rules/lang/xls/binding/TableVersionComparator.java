@@ -31,10 +31,13 @@ public class TableVersionComparator implements Comparator<ITableProperties> {
     }
 
     public int compare(ITableProperties first, ITableProperties second) {
-        if (first.getActive() != second.getActive()) {
-            if (first.getActive()) {
+        boolean firstActive = first.getActive() == null || first.getActive();
+        boolean secondActive = second.getActive() == null || second.getActive();
+        
+        if (firstActive != secondActive) {
+            if (firstActive) {
                 return -1;
-            } else if (second.getActive()) {
+            } else if (secondActive) {
                 return 1;
             }
         }
