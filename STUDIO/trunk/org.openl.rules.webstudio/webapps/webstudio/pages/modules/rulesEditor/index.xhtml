@@ -8,7 +8,7 @@
     <ui:define name="content">
 
          <h:outputScript rendered="#{not empty param.error}">
-             alert('#{param.error}');
+             message('#{param.error}');
          </h:outputScript>
 
     </ui:define>
