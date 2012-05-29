@@ -58,10 +58,8 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         IOpenMember member = tsn.getMember();
         if (member != null) {
             return member.getName();
-        } else if (tsn.getType().equals("xls.other")) {
-            return tsn.getGridTable().getCell(0, 0).getObjectValue().toString();
         }
-        
+
         return StringUtils.EMPTY;
     }
 
