@@ -20,16 +20,16 @@
             <h:form id="uploadProjectForm">
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <h:outputLabel for="file" styleClass="required" value="File" />
-            
+
                 <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                     acceptedTypes="zip, xls, xlsx, xlsm" />
-            
+
                 <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                 <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
             </h:panelGrid>
-            
-            <hr />
-            
+
+            <hr/>
+
             <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                 <h:commandButton id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
                 <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
@@ -39,10 +39,11 @@
 
         <rich:tab header="Workspace">
             <h:form>
-                <div style="max-height: 292px; overflow:auto">
+                <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
                     <rich:dataTable value="#{localUpload.projects4Upload}"
                         rendered="#{not empty localUpload.projects4Upload}"
-                        var="item" width="600" styleClass="standard" rowClasses="odd,even">
+                        var="item" width="600" styleClass="standard" rowClasses="odd,even"
+                        id="uploadPrjFromLocalTable">
                         <f:facet name="header">
                             <rich:columnGroup>
                                 <rich:column>
@@ -70,7 +71,8 @@
                 
                 <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                     <h:commandButton action="#{localUpload.upload}"
-                        rendered="#{not empty localUpload.projects4Upload}" value="Upload" />
+                        rendered="#{not empty localUpload.projects4Upload}"
+                        process="@form" value="Upload" />
                     <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
                 </h:panelGrid>
             </h:form>   
