@@ -8,3 +8,4 @@ Require-Bundle: org.openl.core;visibility:=reexport,
  org.apache.ant;visibility:=reexport,
  org.openl.lib;visibility:=reexport,
  org.openl.rules;visibility:=reexport
+Export-Package: org.openl.conf.ant

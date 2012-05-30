@@ -1,5 +1,5 @@
 <project name="GenJavaWrapper" default="generate" basedir="../">
-	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaInterfaceAntTask"/>
 
 <target name="generate">
 	<echo message="Generating org.openl.tablets.tutorial7 Interface"/>
@@ -8,8 +8,7 @@
 		srcFile="rules/Tutorial_7.xls"
 		targetClass="org.openl.tablets.tutorial7.Tutorial_7RulesInterface"
 		displayName="Tutorial 7 - ColumnMatch example"
-		targetSrcDir="gen"
-		goal="all with interface"
+		targetSrcDir="gen"		
 	/>
 </target>
 </project>

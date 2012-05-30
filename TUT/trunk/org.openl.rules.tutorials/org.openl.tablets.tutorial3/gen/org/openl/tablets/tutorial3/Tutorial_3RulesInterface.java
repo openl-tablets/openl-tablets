@@ -20,16 +20,16 @@ public interface Tutorial_3RulesInterface {
 
   public org.openl.types.impl.DynamicObject getThis();
 
+  java.lang.String hr24ToAmpm(int hr24);
+
+  java.lang.String region21(java.lang.String state);
+
+  java.lang.String test21();
+
   java.lang.String region22(java.lang.String state);
 
   int ampmTo24(int ampmHr, java.lang.String ampm);
 
-  java.lang.String test21();
-
-  java.lang.String hr24ToAmpm(int hr24);
-
   java.lang.String region(java.lang.String state);
-
-  java.lang.String region21(java.lang.String state);
 
 }
