@@ -1,13 +1,18 @@
 package org.openl.util.generation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -24,13 +29,13 @@ import org.springframework.core.annotation.AnnotationUtils;
  * creation.
  * 
  * {@link InterfaceTransformer} reads methods with
- * signatures,constants(TODO),annotations and passes them to
- * {@link ClassVisitor}.
+ * signatures,constants,annotations and passes them to {@link ClassVisitor}.
  * 
  * 
  * @author PUdalau
  */
 public class InterfaceTransformer {
+    private final Log log = LogFactory.getLog(InterfaceTransformer.class);
     private Class<?> interfaceToTransform;
     private String className;
 
@@ -64,7 +69,26 @@ public class InterfaceTransformer {
             processAnnotation(annotation, av);
         }
 
-        // TODO visit constants
+        for (Field field : interfaceToTransform.getFields()) {
+            if (isConstantField(field)) {
+                try {
+                    FieldVisitor fieldVisitor = classVisitor.visitField(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC + Opcodes.ACC_FINAL,
+                        field.getName(),
+                        Type.getDescriptor(field.getType()),
+                        null,
+                        field.get(null));
+                    if (fieldVisitor != null) {
+                        for (Annotation annotation : field.getAnnotations()) {
+                            AnnotationVisitor av = fieldVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
+                                true);
+                            processAnnotation(annotation, av);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to process field '" + field.getName() + "'.",e);
+                }
+            }
+        }
 
         for (Method method : interfaceToTransform.getMethods()) {
             String ruleName = method.getName();
@@ -82,6 +106,11 @@ public class InterfaceTransformer {
             }
 
         }
+    }
+
+    private static boolean isConstantField(Field field) {
+        int modifiers = field.getModifiers();
+        return Modifier.isFinal(modifiers) && Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers);
     }
 
     private void processAnnotation(Annotation annotation, AnnotationVisitor av) {
