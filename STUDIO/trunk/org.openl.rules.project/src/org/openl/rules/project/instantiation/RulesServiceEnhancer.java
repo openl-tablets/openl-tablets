@@ -147,7 +147,6 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (RulesServiceEnhancerHelper.isEnhancedClass(serviceClass)) {
-            reset();
             this.serviceClass = serviceClass;
             try {
                 getOriginalInstantiationStrategy().setServiceClass(RulesServiceEnhancerHelper.undecorateMethods(serviceClass,

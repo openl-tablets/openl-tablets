@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +10,13 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.ClassAdapter;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.RulesFactory;
+import org.openl.util.generation.InterfaceTransformer;
 
 public abstract class RulesServiceEnhancerHelper {
 
@@ -60,18 +59,13 @@ public abstract class RulesServiceEnhancerHelper {
         return undecorateInterface(className, clazz, classLoader);
     }
     
-    private static InputStream getClassAsStream(Class<?> clazz, ClassLoader classLoader){
-        String name = clazz.getName().replace('.', '/') + ".class";
-        return clazz.getClassLoader().getResourceAsStream(name);
-    }
-
     private static Class<?> undecorateInterface(String className, Class<?> original, ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
-        ClassReader classReader = new ClassReader(getClassAsStream(original, classLoader));
-        classReader.accept(classVisitor, 0);
-        // classWriter.visitEnd();
+        InterfaceTransformer transformer = new InterfaceTransformer(original, className);
+        transformer.accept(classVisitor);
+        classWriter.visitEnd();
 
         // Create class object.
         //
