@@ -1,13 +1,13 @@
 <project name="GenJavaWrapper" default="generate" basedir="../">
 
-	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaInterfaceAntTask"/>
 	
 	
 <target name="generate">
 	<echo message="Generating org.openl.tablets.tutorial1 Interface"/>
 
 <!--
-	For possible ant ant task parameters please check our documentation
+	For possible ant task parameters please check our documentation
 	http://openl-tablets.sourceforge.net/documentation/user-guides                  	   
 		 
 -->	
@@ -16,7 +16,6 @@
 	    targetClass="org.openl.tablets.tutorial1.Tutorial_1RulesInterface"
 		displayName="Tutorial 1 - Intro to Decision Tables"
 		targetSrcDir="gen"
-		goal="all with interface"
 	>
 	</openlgen>	
 </target>
