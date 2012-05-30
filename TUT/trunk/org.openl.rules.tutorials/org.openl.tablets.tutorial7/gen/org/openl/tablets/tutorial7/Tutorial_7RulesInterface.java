@@ -22,14 +22,14 @@ public interface Tutorial_7RulesInterface {
 
   org.openl.rules.testmethod.TestUnitsResults test1TestAll();
 
-  org.openl.rules.testmethod.TestUnitsResults test2TestAll();
+  int scoreIssue(org.openl.tablets.tutorial7.Issue issue);
 
-  java.lang.String needApprovalOf(org.openl.tablets.tutorial7.Expense expense);
+  org.openl.rules.testmethod.TestUnitsResults test2TestAll();
 
   org.openl.rules.testmethod.TestUnitsResults test3TestAll();
 
   java.lang.String scoreIssueImportance(org.openl.tablets.tutorial7.Issue issue);
 
-  int scoreIssue(org.openl.tablets.tutorial7.Issue issue);
+  java.lang.String needApprovalOf(org.openl.tablets.tutorial7.Expense expense);
 
 }

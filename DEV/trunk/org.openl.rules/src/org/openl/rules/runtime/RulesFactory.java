@@ -27,9 +27,9 @@ import org.openl.types.java.OpenClassHelper;
  */
 public class RulesFactory {
 
-    private static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
-    private static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
-    private static final String JAVA_LANG_OBJECT = "java/lang/Object";
+    public static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
+    public static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
+    public static final String JAVA_LANG_OBJECT = "java/lang/Object";
 
     /**
      * Generates interface class using collection of rules.
