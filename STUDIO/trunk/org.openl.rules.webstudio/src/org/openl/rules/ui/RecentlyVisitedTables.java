@@ -6,17 +6,17 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.commons.web.jsf.FacesUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class RecentlyVisitedTables {
-    private IOpenLTable lastVisitedTable = null;
+    private VisitedTableWrapper lastVisitedTable = null;
     public static final int DEFAULT_SIZE = 10;
 
     public int size;
-    public Deque<IOpenLTable> tables = new LinkedList<IOpenLTable>();
+    public Deque<VisitedTableWrapper> tables = new LinkedList<VisitedTableWrapper>();
 
     public RecentlyVisitedTables() {
         size = DEFAULT_SIZE;
@@ -30,20 +30,22 @@ public class RecentlyVisitedTables {
     }
 
     public void add(IOpenLTable table) {
-        if (tables.contains(table)) {
-            tables.remove(table);
+        VisitedTableWrapper vtw = new VisitedTableWrapper(table);
+        
+        if (tables.contains(vtw)) {
+            tables.remove(vtw);
         }
 
         if (tables.size() >= size) {
             tables.removeLast();
         }
 
-        tables.addFirst(table);
+        tables.addFirst(vtw);
     }
 
-    public Collection<IOpenLTable> getTables() {
+    public Collection<VisitedTableWrapper> getTables() {
         checkTableAvailability();
-        
+
         return tables;
     }
 
@@ -56,9 +58,9 @@ public class RecentlyVisitedTables {
     }
     
     public void checkTableAvailability() {
-        List<IOpenLTable> tableForRemove = new ArrayList<IOpenLTable>();
+        List<VisitedTableWrapper> tableForRemove = new ArrayList<VisitedTableWrapper>();
         
-        for (IOpenLTable table : tables) {
+        for (VisitedTableWrapper table : tables) {
             WebStudio studio = WebStudioUtils.getWebStudio();
             IOpenLTable refreshTable = studio.getModel().getTable(table.getUri());
 
@@ -70,12 +72,66 @@ public class RecentlyVisitedTables {
         tables.removeAll(tableForRemove);
     }
 
-    public IOpenLTable getLastVisitedTable() {
+    public VisitedTableWrapper getLastVisitedTable() {
         return lastVisitedTable;
     }
-
-    public void setLastVisitedTable(IOpenLTable lastVisitedTable) {
+    
+    public void setLastVisitedTable(VisitedTableWrapper lastVisitedTable) {
         this.lastVisitedTable = lastVisitedTable;
+    }
+    
+    public void setLastVisitedTable(IOpenLTable lastVisitedTable) {
+        this.lastVisitedTable = new VisitedTableWrapper(lastVisitedTable);
+    }
+    
+    /*
+     * This is the class wrapper. It is used for the properly name showing
+     */
+    public class VisitedTableWrapper {
+        private IOpenLTable table;
+        
+        public IOpenLTable getTable() {
+            return this.table;
+        }
+        
+        public VisitedTableWrapper(IOpenLTable table) {
+            this.table = table;
+        }
+        
+        public String getUri() {
+            return table.getUri();
+        }
+        
+        public String getType() {
+            return table.getType();
+        }
+        
+        public String getName() {
+            return TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue()
+                    , XlsNodeTypes.getEnumByValue(table.getType()));
+        }
+        
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            
+            if (obj == this) {
+                return true;
+            }
+            
+            if (obj.getClass() != getClass()) {
+                return false;
+            }
+            
+            VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
+            
+            return wrapper.getTable().equals(this.table);
+        }
+        
+        public int hashCode() {
+            return new HashCodeBuilder(17, 31).append(getUri()).toHashCode();
+        }
     }
 
 }
