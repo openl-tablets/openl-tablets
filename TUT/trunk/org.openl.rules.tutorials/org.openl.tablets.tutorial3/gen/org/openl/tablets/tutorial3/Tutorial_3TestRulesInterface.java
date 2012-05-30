@@ -23,18 +23,18 @@ public interface Tutorial_3TestRulesInterface {
 
   public org.openl.types.impl.DynamicObject getThis();
 
-  java.lang.String region22(java.lang.String state);
+  java.lang.String hr24ToAmpm(int hr24);
 
-  int ampmTo24(int ampmHr, java.lang.String ampm);
+  java.lang.String region21(java.lang.String state);
 
   org.openl.rules.testmethod.TestUnitsResults ampmTo24TestTestAll();
 
   java.lang.String test21();
 
-  java.lang.String hr24ToAmpm(int hr24);
+  java.lang.String region22(java.lang.String state);
+
+  int ampmTo24(int ampmHr, java.lang.String ampm);
 
   java.lang.String region(java.lang.String state);
-
-  java.lang.String region21(java.lang.String state);
 
 }

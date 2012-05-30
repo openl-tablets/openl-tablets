@@ -22,16 +22,16 @@ public interface Tutorial_8RulesInterface {
 
   org.openl.rules.testmethod.TestUnitsResults test1TestAll();
 
-  double totalToPay(org.openl.tablets.tutorial8.Loan loan);
-
-  double totalPayments(org.openl.tablets.tutorial8.Payments payments);
-
-  int factorial(int n);
-
   org.openl.rules.testmethod.TestUnitsResults run3TestAll();
 
   org.openl.tablets.tutorial8.Payments listPayments(org.openl.tablets.tutorial8.Loan loan);
 
+  int factorial(int n);
+
   org.openl.rules.testmethod.TestUnitsResults run2TestAll();
+
+  double totalToPay(org.openl.tablets.tutorial8.Loan loan);
+
+  double totalPayments(org.openl.tablets.tutorial8.Payments payments);
 
 }

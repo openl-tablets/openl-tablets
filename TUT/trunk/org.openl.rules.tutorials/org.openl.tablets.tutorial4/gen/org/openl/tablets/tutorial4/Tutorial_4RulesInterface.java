@@ -110,76 +110,76 @@ public interface Tutorial_4RulesInterface {
 
   public org.openl.types.impl.DynamicObject getThis();
 
-  org.openl.meta.DoubleValue driverTypeScore(java.lang.String driverAgeType, java.lang.String driverEligibility);
-
   org.openl.meta.DoubleValue calculateDriversScore(java.lang.Object drivers);
 
-  java.lang.String driverRisk(org.openl.generated.beans.Driver driver);
+  org.openl.meta.DoubleValue driverTypeScore(java.lang.String driverAgeType, java.lang.String driverEligibility);
 
-  org.openl.meta.DoubleValue driverRiskPremium(java.lang.String driverRisk);
+  java.lang.String vehicleInjuryRating(org.openl.generated.beans.Vehicle vehicle);
 
-  org.openl.rules.calc.SpreadsheetResult[] processDrivers(org.openl.generated.beans.Driver[] drivers);
-
-  java.lang.String policyEligibility(org.openl.generated.beans.Policy policy, int score);
-
-  java.lang.String vehicleTheftRating(org.openl.generated.beans.Vehicle vehicle);
-
-  org.openl.meta.DoubleValue driverPremium(org.openl.generated.beans.Driver driver, java.lang.String driverAgeType);
-
-  java.lang.String driverEligibility(org.openl.generated.beans.Driver driver, java.lang.String ageType);
-
-  java.lang.String vehicleEligibility(java.lang.String vehicleTheftRating, java.lang.String vehicleInjuryRating);
+  org.openl.meta.DoubleValue theftRatingSurcharge(java.lang.String theftRating);
 
   org.openl.meta.DoubleValue basePrice(org.openl.generated.beans.Vehicle vehicle);
 
-  org.openl.rules.calc.SpreadsheetResult processVehicle(org.openl.generated.beans.Vehicle vehicle);
+  org.openl.meta.DoubleValue coverageSurcharge(org.openl.generated.beans.Vehicle vehicle);
 
-  org.openl.meta.DoubleValue driverAccidentPremium(org.openl.generated.beans.Driver driver, java.lang.String driverRisk);
+  org.openl.meta.DoubleValue injuryRatingSurcharge(java.lang.String injuryRating);
 
-  org.openl.meta.DoubleValue calculateDriversPremium(java.lang.Object drivers);
+  java.lang.String policyEligibility(org.openl.generated.beans.Policy policy, int score);
+
+  java.lang.String driverEligibility(org.openl.generated.beans.Driver driver, java.lang.String ageType);
+
+  org.openl.meta.DoubleValue driverRiskScore(java.lang.String driverRisk);
+
+  org.openl.rules.calc.SpreadsheetResult processDriver(org.openl.generated.beans.Driver driver);
 
   org.openl.rules.testmethod.TestUnitsResults driverAgeTypeTestTestAll();
 
   org.openl.rules.testmethod.TestUnitsResults driverEligibilityTestTestAll();
 
-  org.openl.meta.DoubleValue driverRiskScore(java.lang.String driverRisk);
-
-  org.openl.meta.DoubleValue ageSurcharge(int vehicleAge);
-
-  org.openl.meta.DoubleValue theftRatingSurcharge(java.lang.String theftRating);
-
-  org.openl.rules.calc.SpreadsheetResult processPolicy(org.openl.generated.beans.Policy policy);
-
-  org.openl.meta.DoubleValue calculateVehiclesPremium(java.lang.Object vehicles);
-
-  org.openl.rules.calc.SpreadsheetResult processDriver(org.openl.generated.beans.Driver driver);
-
-  int currentYear();
-
-  org.openl.rules.testmethod.TestUnitsResults vehicleInjuryRatingTestTestAll();
-
-  org.openl.meta.DoubleValue injuryRatingSurcharge(java.lang.String injuryRating);
-
-  java.lang.String driverAgeType(org.openl.generated.beans.Driver driver);
-
-  org.openl.rules.testmethod.TestUnitsResults vehicleTheftRatingTestTestAll();
-
-  org.openl.meta.DoubleValue clientTierScore(org.openl.generated.beans.Policy policy);
-
-  org.openl.meta.DoubleValue calculateVehiclesScore(java.lang.Object vehicles);
-
-  org.openl.meta.DoubleValue coverageSurcharge(org.openl.generated.beans.Vehicle vehicle);
-
   org.openl.meta.DoubleValue vehicleDiscount(org.openl.generated.beans.Vehicle vehicle, java.lang.String vehicleTheftRating);
-
-  org.openl.meta.DoubleValue clientDiscount(org.openl.generated.beans.Policy policy);
-
-  org.openl.rules.calc.SpreadsheetResult[] processVehicles(org.openl.generated.beans.Vehicle[] vehicles);
 
   org.openl.meta.DoubleValue vehicleEligibilityScore(java.lang.String vehicleEligibility);
 
+  org.openl.rules.calc.SpreadsheetResult processPolicy(org.openl.generated.beans.Policy policy);
+
+  org.openl.meta.DoubleValue ageSurcharge(int vehicleAge);
+
+  org.openl.rules.calc.SpreadsheetResult processVehicle(org.openl.generated.beans.Vehicle vehicle);
+
+  int currentYear();
+
+  org.openl.meta.DoubleValue clientDiscount(org.openl.generated.beans.Policy policy);
+
+  org.openl.rules.testmethod.TestUnitsResults vehicleInjuryRatingTestTestAll();
+
+  org.openl.meta.DoubleValue clientTierScore(org.openl.generated.beans.Policy policy);
+
+  org.openl.rules.testmethod.TestUnitsResults vehicleTheftRatingTestTestAll();
+
+  org.openl.meta.DoubleValue driverAccidentPremium(org.openl.generated.beans.Driver driver, java.lang.String driverRisk);
+
+  org.openl.rules.calc.SpreadsheetResult[] processVehicles(org.openl.generated.beans.Vehicle[] vehicles);
+
+  java.lang.String vehicleEligibility(java.lang.String vehicleTheftRating, java.lang.String vehicleInjuryRating);
+
+  org.openl.meta.DoubleValue calculateVehiclesScore(java.lang.Object vehicles);
+
+  org.openl.meta.DoubleValue driverRiskPremium(java.lang.String driverRisk);
+
+  org.openl.meta.DoubleValue calculateDriversPremium(java.lang.Object drivers);
+
+  java.lang.String driverAgeType(org.openl.generated.beans.Driver driver);
+
+  java.lang.String vehicleTheftRating(org.openl.generated.beans.Vehicle vehicle);
+
+  org.openl.rules.calc.SpreadsheetResult[] processDrivers(org.openl.generated.beans.Driver[] drivers);
+
+  org.openl.meta.DoubleValue driverPremium(org.openl.generated.beans.Driver driver, java.lang.String driverAgeType);
+
   org.openl.rules.testmethod.TestUnitsResults driverRiskTestTestAll();
 
-  java.lang.String vehicleInjuryRating(org.openl.generated.beans.Vehicle vehicle);
+  org.openl.meta.DoubleValue calculateVehiclesPremium(java.lang.Object vehicles);
+
+  java.lang.String driverRisk(org.openl.generated.beans.Driver driver);
 
 }

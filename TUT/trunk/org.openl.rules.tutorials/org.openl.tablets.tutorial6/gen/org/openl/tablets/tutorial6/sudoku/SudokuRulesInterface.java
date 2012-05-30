@@ -14,26 +14,26 @@ public interface SudokuRulesInterface {
 
   public org.openl.types.impl.DynamicObject getThis();
 
-  void sq1(java.util.Vector v);
-
-  void s3(java.util.Vector v);
-
-  void s2(java.util.Vector v);
-
-  java.lang.Object run(java.lang.String sname, boolean display);
-
-  void s1(java.util.Vector v);
+  int[][] solve(java.util.Vector v, java.lang.String sname);
 
   void s34b(java.util.Vector v);
 
+  void s4(java.util.Vector v);
+
   org.openl.tablets.tutorial6.sudoku.SudokuSolver solver(java.lang.String sname, int H, int W, int[][] data);
 
-  org.openl.rules.testmethod.TestUnitsResults runSudokuTestAll();
+  java.lang.Object run(java.lang.String sname, boolean display);
+
+  void s3(java.util.Vector v);
 
   void s34a(java.util.Vector v);
 
-  int[][] solve(java.util.Vector v, java.lang.String sname);
+  org.openl.rules.testmethod.TestUnitsResults runSudokuTestAll();
 
-  void s4(java.util.Vector v);
+  void sq1(java.util.Vector v);
+
+  void s2(java.util.Vector v);
+
+  void s1(java.util.Vector v);
 
 }
