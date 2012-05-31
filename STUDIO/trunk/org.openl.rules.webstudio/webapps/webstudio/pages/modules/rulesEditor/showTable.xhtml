@@ -508,10 +508,10 @@
         function isAnyTestSelected() {
             var numChecked = $j("#testTable :checked").length;
             if (numChecked > 0) {
-            	return true;
+                return true;
             }
 
-            alert('No tests selected');
+            message("No tests selected", 3000);
             return false;
         }
 

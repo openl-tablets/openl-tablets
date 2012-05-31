@@ -15,6 +15,7 @@ import javax.faces.bean.RequestScoped;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.diff.UploadExcelDiffController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -115,7 +116,7 @@ public class RevertProjectChangesBean {
             }
         } catch (Exception e) {
             log.error(e);
-            FacesUtils.addErrorMessage("Error when comparing projects");
+            throw new Message("Error when comparing projects");
         }
 
         return null;

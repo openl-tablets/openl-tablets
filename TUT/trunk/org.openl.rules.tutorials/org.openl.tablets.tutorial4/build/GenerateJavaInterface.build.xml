@@ -1,6 +1,6 @@
 <project name="GenJavaWrapper" default="generate" basedir="../">
 
-	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaWrapperAntTask"/>
+	<taskdef name="openlgen" classname="org.openl.conf.ant.JavaInterfaceAntTask"/>
 	
 	
 <target name="generate">
@@ -10,8 +10,7 @@
 		srcFile="rules/main/Tutorial_4.xls"
 	    targetClass="org.openl.tablets.tutorial4.Tutorial_4RulesInterface"
 		displayName="Tutorial 4 - UServ Product Derby"
-		targetSrcDir="gen"
-		goal="all with interface"
+		targetSrcDir="gen"		
 	/>	
 </target>
 </project>
