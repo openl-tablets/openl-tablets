@@ -29,7 +29,7 @@
     <h:panelGroup rendered="#{runAllTestsBean.numberOfTests le 1 and not empty runAllTestsBean.testedTableUri}">
     <div class="view_header">
         <h:outputText value="Results of running "/>
-        <h:outputLink value="#showTable.xhtml" target="content">
+        <h:outputLink value="#showTable.xhtml">
             <f:param name="uri" value="#{runAllTestsBean.testedTableUri}" />
             <h:outputText value="#{runAllTestsBean.testedTableName}" />
         </h:outputLink>
@@ -42,8 +42,8 @@
         <h:panelGroup rendered="#{not runAllTestsBean.expired}">
             <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
                 <h1>
-                    <h:outputLink value="#{contextPath}/faces/pages/modules/showTable.xhtml"
-                        target="content" style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
+                    <h:outputLink value="#showTable.xhtml"
+                        style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
                         <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
                         <h:outputText value="#{runAllTestsBean.getTestTableName(testUnitsResults)}" />
                     </h:outputLink>
