@@ -61,23 +61,23 @@
                             style="background:url('webresource/images/repository/checkout.gif')" />
                     </a4j:ajax>
 
-                    <h:outputLink value="test/runAllTests.xhtml" target="content"
+                    <h:outputLink value="#test/runAllTests.xhtml"
                         title="Run All Tests" rendered="#{!empty rProject and treeBean.projectHasTests}"
                         styleClass="imageButton" style="background:url('webresource/images/test_ok.gif')" />
 
                     <span style="margin-left: 17px;" />
 
-                    <h:outputLink rendered="#{studio.model.editable}" value="create/index.xhtml"
-                        target="content" title="Create new table" styleClass="actionButton">Create New</h:outputLink>
+                    <h:outputLink rendered="#{studio.model.editable}" value="#create/index.xhtml"
+                        title="Create new table" styleClass="actionButton">Create New</h:outputLink>
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
-                        value="revertModuleChanges.xhtml" target="content" title="Revert Changes"
+                        value="#revertModuleChanges.xhtml" title="Revert Changes"
                         styleClass="button">Revert</h:outputLink>
 
                     <span style="margin-left: 13px;" />
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
-                        value="rulesDependencies.xhtml" target="content" styleClass="button"
+                        value="#rulesDependencies.xhtml" styleClass="button"
                         title="Rules Dependencies">Dependencies</h:outputLink>
 
                 </div>

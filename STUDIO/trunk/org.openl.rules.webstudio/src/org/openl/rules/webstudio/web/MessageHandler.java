@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.util.StringTool;
 
 public class MessageHandler {
@@ -33,7 +32,7 @@ public class MessageHandler {
      * @return
      */
     public String getUrlForEmptySource(OpenLMessage message) {
-        return "message.xhtml" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
+        return "#message.xhtml" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool.encodeURL(message.getSummary());
     }
     
     protected String getUri(OpenLMessage message) {
@@ -53,11 +52,10 @@ public class MessageHandler {
     
     private String getUrlForCurrentModule(String errorUri, String tableUri) {
         String url = null;        
-        
+
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
-        url = WebContext.getContextPath() + "/faces/pages/modules/showTable.xhtml"
-            + "?uri=" + StringTool.encodeURL(tableUri);
+        url = "#showTable.xhtml?uri=" + StringTool.encodeURL(tableUri);
         if (StringUtils.isNotBlank(uriParser.cell)) {
             url += "&errorCell=" + uriParser.cell;
         }

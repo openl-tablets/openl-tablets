@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
@@ -45,7 +44,7 @@
                 <h:outputText value="#{node.name}" />
             </rich:treeNode>
             <rich:treeNode type="problem" onclick="changeNode(event, '#{node.url}')">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -53,7 +52,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -61,7 +60,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -69,7 +68,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -77,7 +76,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -85,7 +84,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -93,13 +92,13 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.environment" onclick="changeNode(event, '#{node.url}')"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/config_obj-error.png' : 'webresource/images/config_obj.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -107,7 +106,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -115,7 +114,7 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
@@ -123,18 +122,18 @@
                 iconCollapsed="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/run.gif'}"
                 iconExpanded="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/run.gif'}"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/run.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.properties" onclick="changeNode(event, '#{node.url}')"
                 iconLeaf="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.other" onclick="changeNode(event, '#{node.url}')">
-                <h:outputLink value="#{node.url}" title="#{node.title}" target="content">
+                <h:outputLink value="#{node.url}" title="#{node.title}">
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
