@@ -838,16 +838,20 @@ public class ArrayTool {
 
     @SuppressWarnings("unchecked")
     public static <T> T[] removeNulls(T[] array) {
-        T[] result = null;
-        if (noNulls(array)) {
+        T[] result;
+        
+        int valuableSize = getNotNullValuesCount(array);
+        
+        if (array == null || valuableSize == array.length) {
             result = array;
         } else {
-            if (array != null) {
-                result = array.clone();
-                for (int i = 0; i < array.length; i++) {
-                    if (array[i] == null) {
-                        result = (T[]) ArrayUtils.removeElement(result, array[i]);
-                    }
+            result = (T[]) Array.newInstance(array.getClass().getComponentType(), valuableSize);
+            
+            int i = 0;
+            for (T value : array) {
+                if (value != null) {
+                    result[i] = value;
+                    i++;
                 }
             }
         }

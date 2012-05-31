@@ -1,18 +1,20 @@
 package org.openl.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
 public class ArrayToolTest {
 	
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testRemoveNulls() {
 		assertNull(ArrayTool.removeNulls(null));
 		Object[] emptyArray = new Object[0];
 		
-		assertEquals(emptyArray, ArrayTool.removeNulls(emptyArray));
+		assertArrayEquals(emptyArray, ArrayTool.removeNulls(emptyArray));
+        assertArrayEquals(emptyArray, ArrayTool.removeNulls(new Object[] { null }));
 		
 		Integer value1 = Integer.valueOf(12);
 		Double value2 = Double.valueOf(11);
@@ -22,7 +24,7 @@ public class ArrayToolTest {
 		
 		Object[] actual = ArrayTool.removeNulls(array);
 		assertEquals(2, actual.length);
-		assertEquals(expected, actual);
+		assertArrayEquals(expected, actual);
 		
 		
 		Object[] allNulls = new Object[]{null, null, null, null};
