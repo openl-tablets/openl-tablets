@@ -15,7 +15,6 @@ public class TableSyntaxNodeUtils {
     private static final String DISPLAY_TABLE_PROPERTY_NAME = "display";    
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode) {
-        
         return getTableDisplayValue(tableSyntaxNode, 0);
     }
 

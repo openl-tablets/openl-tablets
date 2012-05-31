@@ -38,40 +38,40 @@ public interface Tutorial_5RulesInterface {
 
   public org.openl.types.impl.DynamicObject[] getRegionTest();
 
-  int ampmTo24(int ampmHr, java.lang.String ampm);
-
   org.openl.rules.testmethod.TestUnitsResults regionTestTestAll();
+
+  org.openl.meta.DoubleValue driverPremium(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS);
 
   org.openl.rules.testmethod.TestUnitsResults ampmTo24TestTestAll();
 
   org.openl.rules.testmethod.TestUnitsResults largeTableIndTestTestAll();
 
-  org.openl.meta.DoubleValue driverPremium(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS);
-
-  int ampmTo24Ind1(int ampmHr, java.lang.String ampm);
+  org.openl.rules.testmethod.TestUnitsResults driverPremiumIndTestTestAll();
 
   int largeTableInd(int x);
 
-  org.openl.rules.testmethod.TestUnitsResults driverPremiumIndTestTestAll();
+  int largeTable(int x);
 
   org.openl.rules.testmethod.TestUnitsResults largeTableTestTestAll();
 
   org.openl.meta.DoubleValue driverPremiumInd(java.lang.String state, java.lang.String driverAge, java.lang.String driverMS);
 
-  int largeTable(int x);
-
-  org.openl.rules.testmethod.TestUnitsResults ampmTo24Ind1TestTestAll();
+  java.lang.String regionInd(java.lang.String state);
 
   int ampmTo24Ind2(int ampmHr, java.lang.String ampm);
 
-  java.lang.String region(java.lang.String state);
+  org.openl.rules.testmethod.TestUnitsResults ampmTo24Ind1TestTestAll();
+
+  int ampmTo24(int ampmHr, java.lang.String ampm);
 
   org.openl.rules.testmethod.TestUnitsResults driverPremiumTestTestAll();
+
+  int ampmTo24Ind1(int ampmHr, java.lang.String ampm);
 
   org.openl.rules.testmethod.TestUnitsResults regionIndTestTestAll();
 
   org.openl.rules.testmethod.TestUnitsResults ampmTo24Ind2TestTestAll();
 
-  java.lang.String regionInd(java.lang.String state);
+  java.lang.String region(java.lang.String state);
 
 }
