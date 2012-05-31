@@ -78,14 +78,26 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	}
 
 	public static org.openl.meta.IntValue max(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-		validate(value1, value2, NumberOperations.MAX.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MAX.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new org.openl.meta.IntValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.IntValue[] { value1, value2 });
 	}
 	public static org.openl.meta.IntValue min(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-		validate(value1, value2, NumberOperations.MIN.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MIN.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new org.openl.meta.IntValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -122,7 +134,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	
 	//REM
 	public static org.openl.meta.IntValue rem(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-		validate(value1, value2, Formulas.REM.toString());
+	    // Commented to support operations with nulls. See also MathUtils.mod()
+		// validate(value1, value2, Formulas.REM.toString());
+		if (value1 == null || value2 == null) {
+            return new org.openl.meta.IntValue((int) 0);
+        }
 		
 		return new org.openl.meta.IntValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
 			Formulas.REM);		
@@ -269,7 +285,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
     
     public static org.openl.meta.IntValue abs(org.openl.meta.IntValue value) {
-        validate(value, NumberOperations.ABS);
+        // Commented to support operations with nulls.
+        // validate(value, NumberOperations.ABS);
+        if (value == null) {
+            return null;
+        }
         // evaluate result
         org.openl.meta.IntValue result = new org.openl.meta.IntValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
@@ -358,7 +378,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	
 	 
       
-                                                                                                                            // <<< END INSERT Functions >>>
+                                                                                                                                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -509,14 +529,13 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }   
     
     private static int[] unwrap(IntValue[] values) {
-        if (ArrayTool.noNulls(values)) {
-            int[] intArray = new int[values.length];
-            for (int i = 0; i < values.length; i++) {
-                intArray[i] = values[i].getValue();
-            }
-            return intArray;
+        values = ArrayTool.removeNulls(values);
+        
+        int[] intArray = new int[values.length];
+        for (int i = 0; i < values.length; i++) {
+            intArray[i] = values[i].getValue();
         }
-        return ArrayUtils.EMPTY_INT_ARRAY;
+        return intArray;
     }
 
 }
