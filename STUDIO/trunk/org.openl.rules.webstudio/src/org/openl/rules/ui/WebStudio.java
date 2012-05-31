@@ -185,7 +185,7 @@ public class WebStudio {
         } catch (Exception e) {
             log.error("Can not check in!", e);
             try {
-                String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
+                String redirectLink = String.format("%s/faces/pages/modules/index.xhtml?error=%s", FacesUtils.getContextPath(),
                         e.getMessage());
                 FacesUtils.redirect(redirectLink);
             } catch (IOException e1) {
@@ -206,7 +206,7 @@ public class WebStudio {
         } catch (Exception e) {
             log.error("Can not check out!", e);
             try {
-                String redirectLink = String.format("%s/faces/pages/modules/rulesEditor/index.xhtml?error=%s", FacesUtils.getContextPath(),
+                String redirectLink = String.format("%s/faces/pages/modules/index.xhtml?error=%s", FacesUtils.getContextPath(),
                         e.getMessage());
                 FacesUtils.redirect(redirectLink);
             } catch (IOException e1) {

@@ -95,7 +95,8 @@ public class Tutorial_5Main {
 				{
 					protected void run() throws Exception
 					{
-						throw new RuntimeException();
+					    bm.invoke(target, params, env);
+					    //throw new RuntimeException();
 					}
 
 					public void runNtimes(int times) throws Exception

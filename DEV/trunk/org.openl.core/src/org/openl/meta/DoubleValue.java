@@ -118,14 +118,26 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	}
 
 	public static org.openl.meta.DoubleValue max(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-		validate(value1, value2, NumberOperations.MAX.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MAX.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new org.openl.meta.DoubleValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.DoubleValue[] { value1, value2 });
 	}
 	public static org.openl.meta.DoubleValue min(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-		validate(value1, value2, NumberOperations.MIN.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MIN.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new org.openl.meta.DoubleValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -162,7 +174,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	
 	//REM
 	public static org.openl.meta.DoubleValue rem(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-		validate(value1, value2, Formulas.REM.toString());
+	    // Commented to support operations with nulls. See also MathUtils.mod()
+		// validate(value1, value2, Formulas.REM.toString());
+		if (value1 == null || value2 == null) {
+            return new org.openl.meta.DoubleValue((double) 0);
+        }
 		
 		return new org.openl.meta.DoubleValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
 			Formulas.REM);		
@@ -269,8 +285,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         double[] primitiveArray = unwrap(values);
         double product = MathUtils.product(primitiveArray);
-        
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, values);
+        // we loose the parameters, but not the result of computation.
+        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
 	}
 	
 	public static org.openl.meta.DoubleValue mod(org.openl.meta.DoubleValue number, org.openl.meta.DoubleValue divisor) {
@@ -309,7 +325,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static org.openl.meta.DoubleValue abs(org.openl.meta.DoubleValue value) {
-        validate(value, NumberOperations.ABS);
+        // Commented to support operations with nulls.
+        // validate(value, NumberOperations.ABS);
+        if (value == null) {
+            return null;
+        }
         // evaluate result
         org.openl.meta.DoubleValue result = new org.openl.meta.DoubleValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
@@ -398,7 +418,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	
 	 
       
-                                                                                    // <<< END INSERT Functions >>>    
+                                                                                                                                                            // <<< END INSERT Functions >>>    
     
     // ******* Autocasts *************
 
@@ -602,14 +622,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     private static double[] unwrap(DoubleValue[] values) {
-        if (ArrayTool.noNulls(values)) {
-            double[] primitiveArray = new double[values.length];
-            for (int i = 0; i < values.length; i++) {
-                primitiveArray[i] = values[i].getValue();
-            }
-            return primitiveArray;
+        values = ArrayTool.removeNulls(values);
+        
+        double[] primitiveArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            primitiveArray[i] = values[i].getValue();
         }
-        return ArrayUtils.EMPTY_DOUBLE_ARRAY;
+        return primitiveArray;
     }
 
 }
