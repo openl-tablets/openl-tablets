@@ -78,14 +78,26 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	}
 
 	public static org.openl.meta.FloatValue max(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, NumberOperations.MAX.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MAX.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new org.openl.meta.FloatValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.FloatValue[] { value1, value2 });
 	}
 	public static org.openl.meta.FloatValue min(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, NumberOperations.MIN.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MIN.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new org.openl.meta.FloatValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -122,7 +134,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	
 	//REM
 	public static org.openl.meta.FloatValue rem(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-		validate(value1, value2, Formulas.REM.toString());
+	    // Commented to support operations with nulls. See also MathUtils.mod()
+		// validate(value1, value2, Formulas.REM.toString());
+		if (value1 == null || value2 == null) {
+            return new org.openl.meta.FloatValue((float) 0);
+        }
 		
 		return new org.openl.meta.FloatValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
 			Formulas.REM);		
@@ -269,7 +285,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     public static org.openl.meta.FloatValue abs(org.openl.meta.FloatValue value) {
-        validate(value, NumberOperations.ABS);
+        // Commented to support operations with nulls.
+        // validate(value, NumberOperations.ABS);
+        if (value == null) {
+            return null;
+        }
         // evaluate result
         org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
@@ -358,7 +378,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	
 	 
       
-                                                                                                                            // <<< END INSERT Functions >>>
+                                                                                                                                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -519,14 +539,13 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     private static float[] unwrap(FloatValue[] values) {
-        if (ArrayTool.noNulls(values)) {
-            float[] primitiveArray = new float[values.length];
-            for (int i = 0; i < values.length; i++) {
-                primitiveArray[i] = values[i].getValue();
-            }
-            return primitiveArray;
+        values = ArrayTool.removeNulls(values);
+        
+        float[] primitiveArray = new float[values.length];
+        for (int i = 0; i < values.length; i++) {
+            primitiveArray[i] = values[i].getValue();
         }
-        return ArrayUtils.EMPTY_FLOAT_ARRAY;
+        return primitiveArray;
     }
 
 }

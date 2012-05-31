@@ -9,7 +9,7 @@
     xmlns:rich="http://richfaces.org/rich">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="rulesEditor" value="#{contextPath}/faces/pages/modules/rulesEditor" />
+    <c:set var="pathRoot" value="#{contextPath}/faces/pages/modules" />
 
     <h:head>
         #{mainBean.init}
@@ -91,7 +91,7 @@
             });
 
             var urlRewrite = {
-                prefix: "#{rulesEditor}/"
+                prefix: "#{pathRoot}/"
             }
 
             function getCurrentHash() {
@@ -431,14 +431,14 @@
 
         <div id="top">
             <ui:insert name="top">
-                <ui:include src="/pages/modules/rulesEditor/topPanel.xhtml" />
+                <ui:include src="/pages/modules/topPanel.xhtml" />
             </ui:insert>
         </div>
 
         <div id="center">
             <h:panelGroup id="left" class="ui-layout-west" layout="block">
                 <ui:insert name="left">
-                    <ui:include src="/pages/modules/rulesEditor/leftPanel.xhtml" />
+                    <ui:include src="/pages/modules/leftPanel.xhtml" />
                 </ui:insert>
             </h:panelGroup>
             <h:panelGroup class="ui-layout-center" layout="block">
@@ -446,12 +446,12 @@
                     <ui:insert name="content" />
                 </h:panelGroup>
                 <h:panelGroup id="bottom" class="ui-layout-south" layout="block">
-                    <ui:include src="/pages/modules/rulesEditor/bottomPanel.xhtml" />
+                    <ui:include src="/pages/modules/bottomPanel.xhtml" />
                 </h:panelGroup>
             </h:panelGroup>
             <h:panelGroup id="right" class="ui-layout-east" layout="block">
                 <ui:insert name="right">
-                    <ui:include src="/pages/modules/rulesEditor/rightPanel.xhtml" />
+                    <ui:include src="/pages/modules/rightPanel.xhtml" />
                 </ui:insert>
             </h:panelGroup>
         </div>
@@ -469,7 +469,7 @@
         <div style="display: none">
             <a4j:status onstart="showLoader()" onstop="hideLoader()" />
 
-            <iframe src="#{contextPath}/faces/pages/modules/rulesEditor/sourceModified.xhtml" width="0" height="0" />
+            <iframe src="#{contextPath}/faces/pages/modules/sourceModified.xhtml" width="0" height="0" />
             <iframe name="hidden" width="0" height="0" />
 
             <!-- Init RichFaces resources -->

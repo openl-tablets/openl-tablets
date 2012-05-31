@@ -38,11 +38,24 @@
 	// AVERAGE for wrapper types
 #foreach ($type in $wrapperTypes)
 	public static $tool.getTypeName($type) avg($tool.getTypeName($type)[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return ($tool.getNumericPrimitive($type)) (sum(values) / 
-            	${tool.getTypeName($type)}.valueOf(($tool.getNumericPrimitive($type)) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return ${tool.getTypeName($type)}.valueOf("0");
         }
-        return ${tool.getTypeName($type)}.valueOf("0");
+        
+        return ($tool.getNumericPrimitive($type)) (sum(values) / 
+            ${tool.getTypeName($type)}.valueOf(($tool.getNumericPrimitive($type)) valuableSize));
+    }
+#end
+    // AVERAGE for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static $tool.getTypeName($type) avg($tool.getTypeName($type)[] values) {
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return ${tool.getTypeName($type)}.ZERO;
+        }
+        
+        return divide(sum(values), ${tool.getTypeName($type)}.valueOf(valuableSize));
     }
 #end
 
@@ -64,6 +77,7 @@
     }
 #end   
 
+    // SMALL for wrapper types 
 #foreach ($type in $wrapperTypes)
 	public static $tool.getTypeName($type) small($tool.getTypeName($type)[] values, int position) {
        $tool.getTypeName($type) result = ${tool.getTypeName($type)}.valueOf("0");
@@ -71,6 +85,7 @@
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -78,6 +93,25 @@
        result = values[index];
        
        return result;
+    }
+#end 
+
+    // SMALL for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static $tool.getTypeName($type) small($tool.getTypeName($type)[] values, int position) {
+        $tool.getTypeName($type) result = ${tool.getTypeName($type)}.ZERO;
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        values = ArrayTool.removeNulls(values);
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
+        return result;
     }
 #end 
 
@@ -99,7 +133,7 @@
     }
 #end   
 
-	// BIG for wrapper types	
+    // BIG for wrapper types
 #foreach ($type in $wrapperTypes)
 	public static $tool.getTypeName($type) big($tool.getTypeName($type)[] values, int position) {
        $tool.getTypeName($type) result = ${tool.getTypeName($type)}.valueOf("0");
@@ -107,6 +141,7 @@
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -114,6 +149,25 @@
        result = values[values.length - 1 - index];
        
        return result;
+    }
+#end
+
+    // BIG for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static $tool.getTypeName($type) big($tool.getTypeName($type)[] values, int position) {
+        $tool.getTypeName($type) result = ${tool.getTypeName($type)}.ZERO;
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        values = ArrayTool.removeNulls(values);
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[values.length - 1 - index];
+       
+        return result;
     }
 #end
 
@@ -129,11 +183,24 @@
 	 // SUM for wrapper types
 #foreach ($type in $wrapperTypes)
 	public static $tool.getTypeName($type) sum($tool.getTypeName($type)[] values) {
-        $tool.getTypeName($type) sum = ${tool.getTypeName($type)}.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for ($tool.getTypeName($type) value : values) {
-                sum = ($tool.getNumericPrimitive($type)) (sum + value);
-            }            
+        $tool.getNumericPrimitive($type) sum = ${tool.getTypeName($type)}.valueOf("0");
+        for ($tool.getTypeName($type) value : values) {
+            if (value != null) {
+                sum += value;
+            }
+        }
+        return sum;
+    }
+#end
+
+     // SUM for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static $tool.getTypeName($type) sum($tool.getTypeName($type)[] values) {
+        $tool.getTypeName($type) sum = ${tool.getTypeName($type)}.ZERO;
+        for ($tool.getTypeName($type) value : values) {
+            if (value != null) {
+                sum = sum.add(value);
+            }
         }
         return sum;
     }
@@ -151,8 +218,8 @@
 #end
 #end
 
-	// MEDIAN for wrapper types
-#foreach ($type in $wrapperTypes)
+	// MEDIAN for all wrapper types
+#foreach ($type in $allWrapperTypes)
 	public static $tool.getTypeName($type) median($tool.getTypeName($type)[] values) {    
         // TODO implement
         throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
@@ -185,14 +252,34 @@
 	// PRODUCT for wrapper types
 #foreach ($type in $wrapperTypes)
 	public static double product($tool.getTypeName($type)[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for ($tool.getTypeName($type) value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for ($tool.getTypeName($type) value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
+    }
+#end
+    
+    // PRODUCT for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static $tool.getTypeName($type) product($tool.getTypeName($type)[] values) {
+        boolean hasValues = false;
+        
+        $tool.getTypeName($type) res = ${tool.getTypeName($type)}.ONE;
+        for ($tool.getTypeName($type) value : values) {
+            if (value != null) {
+                res = res.multiply(value);
+                hasValues = true;
+            }
+        }
+        
+        return hasValues ? res : ${tool.getTypeName($type)}.ZERO;
     }
 #end
 
@@ -214,8 +301,8 @@
     
 #end
 
-	// SLICE for wrapper types
-#foreach ($type in $wrapperTypes)
+	// SLICE for all wrapper types
+#foreach ($type in $allWrapperTypes)
 	public static $tool.getTypeName($type)[] slice($tool.getTypeName($type)[] values, int startIndexInclusive) {
         if (values != null) {
             return slice(values, startIndexInclusive, values.length);
@@ -253,6 +340,22 @@
         return mod(($tool.getNumericPrimitive($type)) number, ($tool.getNumericPrimitive($type)) divisor);
     }
 #end
+    
+    // MOD for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static $tool.getTypeName($type) mod($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {   
+        if (number == null || divisor == null) {
+            return ${tool.getTypeName($type)}.ZERO;
+        }
+        long quotient = quotient(number, divisor);
+        
+        long intPart = quotient;
+        if (quotient < 0) {            
+            intPart--;
+        }
+        return number.subtract(${tool.getTypeName($type)}.valueOf(intPart).multiply(divisor));
+    }
+#end
 	
 	// QUAOTIENT
 #foreach ($type in $primitiveTypes)	
@@ -270,6 +373,16 @@
         return quotient(($tool.getNumericPrimitive($type)) number, ($tool.getNumericPrimitive($type)) divisor);
     }
  #end
+
+    // QUAOTIENT for big numeric types
+#foreach ($type in $bigNumericTypes)
+    public static long quotient($tool.getTypeName($type) number, $tool.getTypeName($type) divisor) {
+        if (number == null || divisor == null) {
+            return 0;
+        }
+        return divide(number, divisor).longValue();
+    }
+ #end
  
  	// SORT
  #foreach ($type in $primitiveTypes)	
@@ -279,9 +392,10 @@
     }
 #end
 
-	// SORT for wrapper types
-#foreach ($type in $wrapperTypes)
+	// SORT for all wrapper types
+#foreach ($type in $allWrapperTypes)
 	public static $tool.getTypeName($type)[] sort($tool.getTypeName($type)[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }

@@ -778,6 +778,22 @@ public class ArrayTool {
         return result;
     }
 
+    public static int getNotNullValuesCount(Object[] values) {
+        if (ArrayUtils.isEmpty(values)) {
+            return 0;
+        }
+        
+        int count = values.length;
+        
+        for (Object value : values) {
+            if (value == null) {
+                count--;
+            }
+        }
+        
+        return count;
+    }
+
     public static byte[] sort(byte[] values) {
         Arrays.sort(values);
         return values;
@@ -820,17 +836,22 @@ public class ArrayTool {
         return clazz;
     }
 
-    public static Object[] removeNulls(Object[] array) {
-        Object[] result = null;
-        if (noNulls(array)) {
+    @SuppressWarnings("unchecked")
+    public static <T> T[] removeNulls(T[] array) {
+        T[] result;
+        
+        int valuableSize = getNotNullValuesCount(array);
+        
+        if (array == null || valuableSize == array.length) {
             result = array;
         } else {
-            if (array != null) {
-                result = array.clone();
-                for (int i = 0; i < array.length; i++) {
-                    if (array[i] == null) {
-                        result = ArrayUtils.removeElement(result, array[i]);
-                    }
+            result = (T[]) Array.newInstance(array.getClass().getComponentType(), valuableSize);
+            
+            int i = 0;
+            for (T value : array) {
+                if (value != null) {
+                    result[i] = value;
+                    i++;
                 }
             }
         }
