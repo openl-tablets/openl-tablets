@@ -38,7 +38,13 @@
 
 #foreach ($mathFunction in $mathFunctions2)
 	public static $tool.getTypeName($type) ${mathFunction.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
-		validate(value1, value2, ${mathFunction.FullName}.toString());
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, ${mathFunction.FullName}.toString());
+		if (value1 == null)
+		    return value2; 
+        if (value2 == null)
+            return value1; 
 		
 		return new $tool.getTypeName($type)(MathUtils.${mathFunction.Name}(value1.getValue(), value2.getValue()) ? value1 : value2,
             ${mathFunction.FullName},
@@ -72,7 +78,15 @@
 	
 	//REM
 	public static $tool.getTypeName($type) ${remFormula.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
-		validate(value1, value2, ${remFormula.FullName}.toString());
+	    // Commented to support operations with nulls. See also MathUtils.mod()
+		// validate(value1, value2, ${remFormula.FullName}.toString());
+		if (value1 == null || value2 == null) {
+#if (${primitiveType.isPrimitive()})
+            return new ${tool.getTypeName($type)}(($tool.getTypeName($primitiveType)) 0);
+#else
+            return new $tool.getTypeName($type)("0");
+#end
+        }
 		
 		return new $tool.getTypeName($type)(value1, value2, Operators.${remFormula.Name}(value1.getValue(), value2.getValue()), 
 			${remFormula.FullName});		
@@ -243,7 +257,11 @@
     }
     
     public static $tool.getTypeName($type) ${absFunction.Name}($tool.getTypeName($type) value) {
-        validate(value, ${absFunction.FullName});
+        // Commented to support operations with nulls.
+        // validate(value, ${absFunction.FullName});
+        if (value == null) {
+            return null;
+        }
         // evaluate result
         $tool.getTypeName($type) result = new $tool.getTypeName($type)(Operators.abs(value.getValue()));
         // create instance with information about last operation

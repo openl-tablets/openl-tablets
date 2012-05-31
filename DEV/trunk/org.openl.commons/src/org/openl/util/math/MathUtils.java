@@ -141,46 +141,75 @@ public class MathUtils {
     }
 	// AVERAGE for wrapper types
 	public static java.lang.Byte avg(java.lang.Byte[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return (byte) (sum(values) / 
-            	java.lang.Byte.valueOf((byte) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.lang.Byte.valueOf("0");
         }
-        return java.lang.Byte.valueOf("0");
+        
+        return (byte) (sum(values) / 
+            java.lang.Byte.valueOf((byte) valuableSize));
     }
 	public static java.lang.Short avg(java.lang.Short[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return (short) (sum(values) / 
-            	java.lang.Short.valueOf((short) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.lang.Short.valueOf("0");
         }
-        return java.lang.Short.valueOf("0");
+        
+        return (short) (sum(values) / 
+            java.lang.Short.valueOf((short) valuableSize));
     }
 	public static java.lang.Integer avg(java.lang.Integer[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return (int) (sum(values) / 
-            	java.lang.Integer.valueOf((int) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.lang.Integer.valueOf("0");
         }
-        return java.lang.Integer.valueOf("0");
+        
+        return (int) (sum(values) / 
+            java.lang.Integer.valueOf((int) valuableSize));
     }
 	public static java.lang.Long avg(java.lang.Long[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return (long) (sum(values) / 
-            	java.lang.Long.valueOf((long) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.lang.Long.valueOf("0");
         }
-        return java.lang.Long.valueOf("0");
+        
+        return (long) (sum(values) / 
+            java.lang.Long.valueOf((long) valuableSize));
     }
 	public static java.lang.Float avg(java.lang.Float[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return (float) (sum(values) / 
-            	java.lang.Float.valueOf((float) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.lang.Float.valueOf("0");
         }
-        return java.lang.Float.valueOf("0");
+        
+        return (float) (sum(values) / 
+            java.lang.Float.valueOf((float) valuableSize));
     }
 	public static java.lang.Double avg(java.lang.Double[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return (double) (sum(values) / 
-            	java.lang.Double.valueOf((double) values.length));
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.lang.Double.valueOf("0");
         }
-        return java.lang.Double.valueOf("0");
+        
+        return (double) (sum(values) / 
+            java.lang.Double.valueOf((double) valuableSize));
+    }
+    // AVERAGE for big numeric types
+    public static java.math.BigInteger avg(java.math.BigInteger[] values) {
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.math.BigInteger.ZERO;
+        }
+        
+        return divide(sum(values), java.math.BigInteger.valueOf(valuableSize));
+    }
+    public static java.math.BigDecimal avg(java.math.BigDecimal[] values) {
+        int valuableSize = ArrayTool.getNotNullValuesCount(values);
+        if (valuableSize == 0) {
+            return java.math.BigDecimal.ZERO;
+        }
+        
+        return divide(sum(values), java.math.BigDecimal.valueOf(valuableSize));
     }
 
 	// SMALL for primitives	
@@ -269,12 +298,14 @@ public class MathUtils {
         return result;
     }
 
+    // SMALL for wrapper types 
 	public static java.lang.Byte small(java.lang.Byte[] values, int position) {
        java.lang.Byte result = java.lang.Byte.valueOf("0");
        int index = position - 1; 
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -289,6 +320,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -303,6 +335,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -317,6 +350,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -331,6 +365,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -345,6 +380,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -352,6 +388,38 @@ public class MathUtils {
        result = values[index];
        
        return result;
+    }
+
+    // SMALL for big numeric types
+    public static java.math.BigInteger small(java.math.BigInteger[] values, int position) {
+        java.math.BigInteger result = java.math.BigInteger.ZERO;
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        values = ArrayTool.removeNulls(values);
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
+        return result;
+    }
+    public static java.math.BigDecimal small(java.math.BigDecimal[] values, int position) {
+        java.math.BigDecimal result = java.math.BigDecimal.ZERO;
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        values = ArrayTool.removeNulls(values);
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[index];
+        
+        return result;
     }
 
 	// BIG for primitives	
@@ -440,13 +508,14 @@ public class MathUtils {
         return result;
     }
 
-    // BIG for wrapper types	
+    // BIG for wrapper types
 	public static java.lang.Byte big(java.lang.Byte[] values, int position) {
        java.lang.Byte result = java.lang.Byte.valueOf("0");
        int index = position - 1; 
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -461,6 +530,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -475,6 +545,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -489,6 +560,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -503,6 +575,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -517,6 +590,7 @@ public class MathUtils {
        if (values == null) {
            throw new IllegalArgumentException("The array cannot be null");
        }
+       values = ArrayTool.removeNulls(values);
        if (index < 0 || values.length <= index) {
            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
        }        
@@ -524,6 +598,38 @@ public class MathUtils {
        result = values[values.length - 1 - index];
        
        return result;
+    }
+
+    // BIG for big numeric types
+    public static java.math.BigInteger big(java.math.BigInteger[] values, int position) {
+        java.math.BigInteger result = java.math.BigInteger.ZERO;
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        values = ArrayTool.removeNulls(values);
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[values.length - 1 - index];
+       
+        return result;
+    }
+    public static java.math.BigDecimal big(java.math.BigDecimal[] values, int position) {
+        java.math.BigDecimal result = java.math.BigDecimal.ZERO;
+        int index = position - 1; 
+        if (values == null) {
+            throw new IllegalArgumentException("The array cannot be null");
+        }
+        values = ArrayTool.removeNulls(values);
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        Arrays.sort(values);
+        result = values[values.length - 1 - index];
+       
+        return result;
     }
 
 	// SUM
@@ -545,56 +651,76 @@ public class MathUtils {
 
 	 // SUM for wrapper types
 	public static java.lang.Byte sum(java.lang.Byte[] values) {
-        java.lang.Byte sum = java.lang.Byte.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for (java.lang.Byte value : values) {
-                sum = (byte) (sum + value);
-            }            
+        byte sum = java.lang.Byte.valueOf("0");
+        for (java.lang.Byte value : values) {
+            if (value != null) {
+                sum += value;
+            }
         }
         return sum;
     }
 	public static java.lang.Short sum(java.lang.Short[] values) {
-        java.lang.Short sum = java.lang.Short.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for (java.lang.Short value : values) {
-                sum = (short) (sum + value);
-            }            
+        short sum = java.lang.Short.valueOf("0");
+        for (java.lang.Short value : values) {
+            if (value != null) {
+                sum += value;
+            }
         }
         return sum;
     }
 	public static java.lang.Integer sum(java.lang.Integer[] values) {
-        java.lang.Integer sum = java.lang.Integer.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for (java.lang.Integer value : values) {
-                sum = (int) (sum + value);
-            }            
+        int sum = java.lang.Integer.valueOf("0");
+        for (java.lang.Integer value : values) {
+            if (value != null) {
+                sum += value;
+            }
         }
         return sum;
     }
 	public static java.lang.Long sum(java.lang.Long[] values) {
-        java.lang.Long sum = java.lang.Long.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for (java.lang.Long value : values) {
-                sum = (long) (sum + value);
-            }            
+        long sum = java.lang.Long.valueOf("0");
+        for (java.lang.Long value : values) {
+            if (value != null) {
+                sum += value;
+            }
         }
         return sum;
     }
 	public static java.lang.Float sum(java.lang.Float[] values) {
-        java.lang.Float sum = java.lang.Float.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for (java.lang.Float value : values) {
-                sum = (float) (sum + value);
-            }            
+        float sum = java.lang.Float.valueOf("0");
+        for (java.lang.Float value : values) {
+            if (value != null) {
+                sum += value;
+            }
         }
         return sum;
     }
 	public static java.lang.Double sum(java.lang.Double[] values) {
-        java.lang.Double sum = java.lang.Double.valueOf("0");
-        if (ArrayTool.noNulls(values)) {
-            for (java.lang.Double value : values) {
-                sum = (double) (sum + value);
-            }            
+        double sum = java.lang.Double.valueOf("0");
+        for (java.lang.Double value : values) {
+            if (value != null) {
+                sum += value;
+            }
+        }
+        return sum;
+    }
+
+     // SUM for big numeric types
+    public static java.math.BigInteger sum(java.math.BigInteger[] values) {
+        java.math.BigInteger sum = java.math.BigInteger.ZERO;
+        for (java.math.BigInteger value : values) {
+            if (value != null) {
+                sum = sum.add(value);
+            }
+        }
+        return sum;
+    }
+    public static java.math.BigDecimal sum(java.math.BigDecimal[] values) {
+        java.math.BigDecimal sum = java.math.BigDecimal.ZERO;
+        for (java.math.BigDecimal value : values) {
+            if (value != null) {
+                sum = sum.add(value);
+            }
         }
         return sum;
     }
@@ -631,7 +757,7 @@ public class MathUtils {
         return (float) median.evaluate(doubleArray, 0, doubleArray.length);
     }
 
-	// MEDIAN for wrapper types
+	// MEDIAN for all wrapper types
 	public static java.lang.Byte median(java.lang.Byte[] values) {    
         // TODO implement
         throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
@@ -658,6 +784,16 @@ public class MathUtils {
             values.getClass().getName()));
     }
 	public static java.lang.Double median(java.lang.Double[] values) {    
+        // TODO implement
+        throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
+            values.getClass().getName()));
+    }
+	public static java.math.BigInteger median(java.math.BigInteger[] values) {    
+        // TODO implement
+        throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
+            values.getClass().getName()));
+    }
+	public static java.math.BigDecimal median(java.math.BigDecimal[] values) {    
         // TODO implement
         throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
             values.getClass().getName()));
@@ -719,64 +855,110 @@ public class MathUtils {
 	
 	// PRODUCT for wrapper types
 	public static double product(java.lang.Byte[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for (java.lang.Byte value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for (java.lang.Byte value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
     }
 	public static double product(java.lang.Short[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for (java.lang.Short value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for (java.lang.Short value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
     }
 	public static double product(java.lang.Integer[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for (java.lang.Integer value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for (java.lang.Integer value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
     }
 	public static double product(java.lang.Long[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for (java.lang.Long value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for (java.lang.Long value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
     }
 	public static double product(java.lang.Float[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for (java.lang.Float value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for (java.lang.Float value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
     }
 	public static double product(java.lang.Double[] values) {
-        double res = 0;
-        if (ArrayTool.noNulls(values)) {
-            res = 1;
-            for (java.lang.Double value : values) {
-                res = res * value;
+        boolean hasValues = false;
+        
+        double res = 1;
+        for (java.lang.Double value : values) {
+            if (value != null) {
+                res *= value;
+                hasValues = true;
             }
         }
-        return res;
+        
+        return hasValues ? res : 0;
+    }
+    
+    // PRODUCT for big numeric types
+    public static java.math.BigInteger product(java.math.BigInteger[] values) {
+        boolean hasValues = false;
+        
+        java.math.BigInteger res = java.math.BigInteger.ONE;
+        for (java.math.BigInteger value : values) {
+            if (value != null) {
+                res = res.multiply(value);
+                hasValues = true;
+            }
+        }
+        
+        return hasValues ? res : java.math.BigInteger.ZERO;
+    }
+    public static java.math.BigDecimal product(java.math.BigDecimal[] values) {
+        boolean hasValues = false;
+        
+        java.math.BigDecimal res = java.math.BigDecimal.ONE;
+        for (java.math.BigDecimal value : values) {
+            if (value != null) {
+                res = res.multiply(value);
+                hasValues = true;
+            }
+        }
+        
+        return hasValues ? res : java.math.BigDecimal.ZERO;
     }
 
 	// SLICE function
@@ -865,7 +1047,7 @@ public class MathUtils {
     } 
     
 
-	// SLICE for wrapper types
+	// SLICE for all wrapper types
 	public static java.lang.Byte[] slice(java.lang.Byte[] values, int startIndexInclusive) {
         if (values != null) {
             return slice(values, startIndexInclusive, values.length);
@@ -941,6 +1123,32 @@ public class MathUtils {
     public static java.lang.Double[] slice(java.lang.Double[] values, int startIndexInclusive, int endIndexExclusive) {
         if (values != null) {
             return (java.lang.Double[]) ArrayUtils.subarray(values, startIndexInclusive, endIndexExclusive);
+        }
+        return null;
+    }
+	public static java.math.BigInteger[] slice(java.math.BigInteger[] values, int startIndexInclusive) {
+        if (values != null) {
+            return slice(values, startIndexInclusive, values.length);
+        }
+        return null;
+    }
+    
+    public static java.math.BigInteger[] slice(java.math.BigInteger[] values, int startIndexInclusive, int endIndexExclusive) {
+        if (values != null) {
+            return (java.math.BigInteger[]) ArrayUtils.subarray(values, startIndexInclusive, endIndexExclusive);
+        }
+        return null;
+    }
+	public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values, int startIndexInclusive) {
+        if (values != null) {
+            return slice(values, startIndexInclusive, values.length);
+        }
+        return null;
+    }
+    
+    public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values, int startIndexInclusive, int endIndexExclusive) {
+        if (values != null) {
+            return (java.math.BigDecimal[]) ArrayUtils.subarray(values, startIndexInclusive, endIndexExclusive);
         }
         return null;
     }
@@ -1038,6 +1246,32 @@ public class MathUtils {
         }
         return mod((double) number, (double) divisor);
     }
+    
+    // MOD for big numeric types
+    public static java.math.BigInteger mod(java.math.BigInteger number, java.math.BigInteger divisor) {   
+        if (number == null || divisor == null) {
+            return java.math.BigInteger.ZERO;
+        }
+        long quotient = quotient(number, divisor);
+        
+        long intPart = quotient;
+        if (quotient < 0) {            
+            intPart--;
+        }
+        return number.subtract(java.math.BigInteger.valueOf(intPart).multiply(divisor));
+    }
+    public static java.math.BigDecimal mod(java.math.BigDecimal number, java.math.BigDecimal divisor) {   
+        if (number == null || divisor == null) {
+            return java.math.BigDecimal.ZERO;
+        }
+        long quotient = quotient(number, divisor);
+        
+        long intPart = quotient;
+        if (quotient < 0) {            
+            intPart--;
+        }
+        return number.subtract(java.math.BigDecimal.valueOf(intPart).multiply(divisor));
+    }
 	
 	// QUAOTIENT
 	public static long quotient(byte number, byte divisor) {
@@ -1096,6 +1330,20 @@ public class MathUtils {
         }        
         return quotient((double) number, (double) divisor);
     }
+ 
+    // QUAOTIENT for big numeric types
+    public static long quotient(java.math.BigInteger number, java.math.BigInteger divisor) {
+        if (number == null || divisor == null) {
+            return 0;
+        }
+        return divide(number, divisor).longValue();
+    }
+     public static long quotient(java.math.BigDecimal number, java.math.BigDecimal divisor) {
+        if (number == null || divisor == null) {
+            return 0;
+        }
+        return divide(number, divisor).longValue();
+    }
   
  	// SORT
  	public static byte[] sort(byte[] values) {
@@ -1123,32 +1371,48 @@ public class MathUtils {
         return values;
     }
 
-	// SORT for wrapper types
+	// SORT for all wrapper types
 	public static java.lang.Byte[] sort(java.lang.Byte[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }
  	public static java.lang.Short[] sort(java.lang.Short[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }
  	public static java.lang.Integer[] sort(java.lang.Integer[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }
  	public static java.lang.Long[] sort(java.lang.Long[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }
  	public static java.lang.Float[] sort(java.lang.Float[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }
  	public static java.lang.Double[] sort(java.lang.Double[] values) {
+        values = ArrayTool.removeNulls(values);
 		Arrays.sort(values);
         return values;
     }
-           	// <<< END INSERT Functions >>> 
+ 	public static java.math.BigInteger[] sort(java.math.BigInteger[] values) {
+        values = ArrayTool.removeNulls(values);
+		Arrays.sort(values);
+        return values;
+    }
+ 	public static java.math.BigDecimal[] sort(java.math.BigDecimal[] values) {
+        values = ArrayTool.removeNulls(values);
+		Arrays.sort(values);
+        return values;
+    }
+                             	// <<< END INSERT Functions >>> 
 
 	public static boolean eq(float x, float y) {
 		return Math.abs(x - y) <= Math.ulp(x);
@@ -1262,9 +1526,10 @@ public class MathUtils {
     public static Object max(Object[] values) {
         if (values == null) {
             throw new IllegalArgumentException("The Array must not be null");
-        }            
+        }
+        values = ArrayTool.removeNulls(values);
         if (values.length == 0) {
-            throw  new IllegalArgumentException("Array cannot be empty.");
+            throw new IllegalArgumentException("Array cannot be empty.");
         }
         if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class, true) && 
                 ClassUtils.isAssignable(values.getClass().getComponentType(), Comparable.class, true))) {
@@ -1312,7 +1577,8 @@ public class MathUtils {
     public static Object min(Object[] values) {
         if (values == null) {
             throw new IllegalArgumentException("The Array must not be null");
-        }            
+        }
+        values = ArrayTool.removeNulls(values);
         if (values.length == 0) {
             throw new IllegalArgumentException("Array cannot be empty.");
         }
@@ -1330,53 +1596,10 @@ public class MathUtils {
         return min;
     }
     
-    // AVERAGE
-    public static BigInteger avg(BigInteger[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return divide(sum(values), BigInteger.valueOf(values.length));
-        }
-        return BigInteger.valueOf(0);
-    }
-    
-    /**
-     * Returns the average value for the income array of elements.
-     * When providing a result of divide operation, the precision '5' and {@link RoundingMode.HALF_UP}
-     * settings are used.
-     * 
-     * @param values
-     * @return rounded to 5 values after comma and RoundingMode.HALF_UP value.
-     */
-    public static BigDecimal avg(BigDecimal[] values) {
-        if (ArrayTool.noNulls(values)) {
-            return divide(sum(values), BigDecimal.valueOf(values.length));
-        }
-        return BigDecimal.valueOf(0);
-    }
-    
     // SUMMARY
     public static double sum(double[] values) {
         // used commons function
         return StatUtils.sum(values);        
-    }
-    
-    public static BigInteger sum(BigInteger[] values) {
-        BigInteger sum = BigInteger.valueOf(0);
-        if (ArrayTool.noNulls(values)) {
-            for (BigInteger value : values) {
-                sum = sum.add(value);
-            }            
-        }
-        return sum;
-    }
-    
-    public static BigDecimal sum(BigDecimal[] values) {
-        BigDecimal sum = BigDecimal.valueOf(0);
-        if (ArrayTool.noNulls(values)) {
-            for (BigDecimal value : values) {
-                sum = sum.add(value);
-            }            
-        }
-        return sum;
     }
     
     // MEDIAN
@@ -1385,188 +1608,9 @@ public class MathUtils {
         return median.evaluate(values, 0, values.length);
     }
     
-    // MEDIAN for big types
-    public static BigInteger median(BigInteger[] values) {    
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
-            values.getClass().getName()));
-    }
-    
-    public static BigDecimal median(BigDecimal[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet", 
-            values.getClass().getName()));
-    }
-    
     // PRODUCT
     public static double product(double[] values) {
         // used commons function
         return StatUtils.product(values);
-    }
-    
-    public static BigInteger product(BigInteger[] values) {
-        BigInteger res = BigInteger.valueOf(0);
-        if (ArrayTool.noNulls(values)) {
-            res = BigInteger.valueOf(1);
-            for (BigInteger value : values) {
-                res = res.multiply(value);
-            }
-        }
-        return res;
-    }
-    
-    public static BigDecimal product(BigDecimal[] values) {
-        BigDecimal res = BigDecimal.valueOf(0);
-        if (ArrayTool.noNulls(values)) {
-            res = BigDecimal.valueOf(1);
-            for (BigDecimal value : values) {
-                res = res.multiply(value);
-            }
-        }
-        return res;
-    }
-    
-    // QUAOTIENT for big types
-    public static long quotient(BigInteger number, BigInteger divisor) {
-        if (number == null || divisor == null) {
-            return 0;
-        }        
-        return number.divide(divisor).longValue();
-    }
-    
-    public static long quotient(BigDecimal number, BigDecimal divisor) {
-        if (number == null || divisor == null) {
-            return 0;
-        }        
-        return divide(number, divisor).longValue();
-    }
-    
-    // MOD for big types       
-    public static BigInteger mod(BigInteger number, BigInteger divisor) {   
-        if (number == null || divisor == null) {
-            return BigInteger.valueOf(0);
-        }
-        long quotient = quotient(number, divisor);
-        
-        long intPart = quotient;
-        if (quotient < 0) {            
-            intPart--;
-        } 
-        return number.subtract(BigInteger.valueOf(intPart).multiply(divisor));
-    }
-    
-    public static BigDecimal mod(BigDecimal number, BigDecimal divisor) {   
-        if (number == null || divisor == null) {
-            return BigDecimal.valueOf(0);
-        }
-        long quotient = quotient(number, divisor);
-        
-        long intPart = quotient;
-        if (quotient < 0) {            
-            intPart--;
-        } 
-        return number.subtract(BigDecimal.valueOf(intPart).multiply(divisor));
-    }
-    
-    // SMALL for big types
-    public static BigInteger small(BigInteger[] values, int position) {
-        BigInteger result = BigInteger.valueOf(0);
-        int index = position - 1; 
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }        
-        Arrays.sort(values);
-        result = values[index];
-        
-        return result;
-    }
-    
-    public static BigDecimal small(BigDecimal[] values, int position) {
-        BigDecimal result = BigDecimal.valueOf(0);
-        int index = position - 1; 
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[index];
-        
-        return result;
-    }
-    
-    // BIG for big types
-    public static BigInteger big(BigInteger[] values, int position) {
-        BigInteger result = BigInteger.valueOf(0);
-        int index = position - 1; 
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-        
-        return result;
-    }
-    
-    public static BigDecimal big(BigDecimal[] values, int position) {
-        BigDecimal result = BigDecimal.valueOf(0);
-        int index = position - 1; 
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-        
-        return result;
-    }
-    
-    // SLICE for big types
-    public static BigInteger[] slice(BigInteger[] values, int startIndexInclusive) {
-        if (values != null) {
-            return slice(values, startIndexInclusive, values.length);
-        }
-        return null;
-    }
-    
-    public static BigInteger[] slice(BigInteger[] values, int startIndexInclusive, int endIndexExclusive) {
-        if (values != null) {
-            return (BigInteger[]) ArrayUtils.subarray(values, startIndexInclusive, endIndexExclusive);
-        }
-        return null;
-    }
-    
-    public static BigDecimal[] slice(BigDecimal[] values, int startIndexInclusive) {
-        if (values != null) {
-            return slice(values, startIndexInclusive, values.length);
-        }
-        return null;
-    }
-    
-    public static BigDecimal[] slice(BigDecimal[] values, int startIndexInclusive, int endIndexExclusive) {
-        if (values != null) {
-            return (BigDecimal[]) ArrayUtils.subarray(values, startIndexInclusive, endIndexExclusive);
-        }
-        return null;
-    }
-    
-    // SORT for big ypes
-    public static BigInteger[] sort(BigInteger[] values) {
-        Arrays.sort(values);
-        return values;
-    }
-    
-    public static BigDecimal[] sort(BigDecimal[] values) {
-        Arrays.sort(values);
-        return values;
     }
 }
