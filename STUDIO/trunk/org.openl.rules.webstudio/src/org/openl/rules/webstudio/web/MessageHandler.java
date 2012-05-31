@@ -56,7 +56,7 @@ public class MessageHandler {
         
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
-        url = WebContext.getContextPath() + "/faces/pages/modules/rulesEditor/showTable.xhtml"
+        url = WebContext.getContextPath() + "/faces/pages/modules/showTable.xhtml"
             + "?uri=" + StringTool.encodeURL(tableUri);
         if (StringUtils.isNotBlank(uriParser.cell)) {
             url += "&errorCell=" + uriParser.cell;

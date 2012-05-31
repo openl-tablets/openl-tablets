@@ -171,7 +171,7 @@ public class Explanation {
             name = "";
         } else if (url != null) {
             name = HTMLHelper.urlLink(
-                    WebContext.getContextPath()+ "/faces/pages/modules/rulesEditor/explain/showExplainTable.xhtml?uri="
+                    WebContext.getContextPath()+ "/faces/pages/modules/explain/showExplainTable.xhtml?uri="
                         + StringTool.encodeURL(url) + "&text=" + name, "show", name, "mainFrame");
         }
 

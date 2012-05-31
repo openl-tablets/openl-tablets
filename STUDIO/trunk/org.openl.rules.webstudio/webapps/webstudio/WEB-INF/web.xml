@@ -198,7 +198,7 @@
   </servlet-mapping>
 
   <welcome-file-list>
-    <welcome-file>faces/pages/modules/rulesEditor/index.xhtml</welcome-file>
+    <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
   </welcome-file-list>
 
   <error-page>
