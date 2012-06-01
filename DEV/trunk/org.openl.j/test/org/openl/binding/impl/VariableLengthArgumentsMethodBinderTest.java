@@ -1,9 +1,10 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.VariableLengthArgumentsMethodBinder.EqualTypesVarArgsBuilder;
+import org.openl.binding.impl.VariableLengthArgumentsMethodBinder.VarArgsInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -28,21 +29,17 @@ public class VariableLengthArgumentsMethodBinderTest {
     
     @Test
     public void test1() {
-        VariableLengthArgumentsMethodBinder binder = 
-            new VariableLengthArgumentsMethodBinder("test", argumentsTestCase1, new IBoundNode[0]);
-        assertEquals(1, binder.getIndexOfFirstVarArg());
+        VarArgsInfo binder = new EqualTypesVarArgsBuilder(argumentsTestCase1).build();
+        assertEquals(1, binder.getFirstVarArgIndex());
         
-        VariableLengthArgumentsMethodBinder binder1 = new VariableLengthArgumentsMethodBinder("test", argumentsTestCase2, 
-            new IBoundNode[0]);
-        assertEquals(1, binder1.getIndexOfFirstVarArg());
+        VarArgsInfo binder1 = new EqualTypesVarArgsBuilder(argumentsTestCase2).build();
+        assertEquals(1, binder1.getFirstVarArgIndex());
         
-        VariableLengthArgumentsMethodBinder binder2 = new VariableLengthArgumentsMethodBinder("test", argumentsTestCase3,
-            new IBoundNode[0]);
-        assertEquals(0, binder2.getIndexOfFirstVarArg());
+        VarArgsInfo binder2 =  new EqualTypesVarArgsBuilder(argumentsTestCase3).build();
+        assertEquals(0, binder2.getFirstVarArgIndex());
         
-        VariableLengthArgumentsMethodBinder binder3 = 
-            new VariableLengthArgumentsMethodBinder("test", argumentsTestCase4, new IBoundNode[0]);
-        assertEquals(0, binder3.getIndexOfFirstVarArg());
+        VarArgsInfo binder3 =  new EqualTypesVarArgsBuilder(argumentsTestCase4).build();
+        assertEquals(0, binder3.getFirstVarArgIndex());
     }
     
     
