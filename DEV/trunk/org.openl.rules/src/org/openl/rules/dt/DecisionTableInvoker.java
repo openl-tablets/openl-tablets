@@ -100,14 +100,14 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                     }
                 } finally {
                     tracer.pop();
+                    if (algorithmDelegator != null) {
+                        algorithmDelegator.popAll();
+                    }
                 }
             }
         } catch (RuntimeException e) {
             addErrorToTrace(traceObject, e);
         } finally {
-            if (algorithmDelegator != null) {
-                algorithmDelegator.popAll();
-            }
             tracer.pop();
         }
 
