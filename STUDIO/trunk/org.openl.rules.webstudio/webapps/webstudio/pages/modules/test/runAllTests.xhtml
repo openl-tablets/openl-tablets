@@ -19,7 +19,7 @@
         <h:outputText value="Number of Tests: " />
         <h:panelGroup>
             <h:outputText value="#{runAllTestsBean.numberOfTests}" />
-            <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests} failed)"
+            <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests} tests with #{runAllTestsBean.numberOfFailedTestCases} test cases failed)"
                 rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
                 style="color: red" />
         </h:panelGroup>
