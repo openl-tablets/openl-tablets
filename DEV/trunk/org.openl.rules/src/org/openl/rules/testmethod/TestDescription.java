@@ -132,10 +132,11 @@ public class TestDescription {
         if (ntimes <= 0) {
             return runTest(target, env, 1);
         } else {
-            try {
-                Object res = null;
+            Object res = null;
+            Throwable exception = null;
 
-                for (int j = 0; j < ntimes; j++) {
+            for (int j = 0; j < ntimes; j++) {
+                try {
                     IRuntimeContext context = getRuntimeContext();
 
                     IRuntimeContext oldContext = env.getContext();
@@ -144,13 +145,14 @@ public class TestDescription {
                     res = testedMethod.invoke(target, getArguments(), env);
 
                     env.setContext(oldContext);
+                } catch (Throwable t) {
+                    Log.error("Testing " + this, t);
+                    if (exception == null) {
+                        exception = t;
+                    }
                 }
-                return new TestUnit(this, res, null);
-            } catch (Throwable t) {
-                Log.error("Testing " + this, t);
-                return new TestUnit(this, null, t);
             }
-
+            return exception == null ? new TestUnit(this, res, null) : new TestUnit(this, null, exception);
         }
     }
 
