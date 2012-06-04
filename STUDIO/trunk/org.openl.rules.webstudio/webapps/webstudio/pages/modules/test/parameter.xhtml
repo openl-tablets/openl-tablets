@@ -19,8 +19,11 @@
         <h:outputText value="#{parameterTreeBuilder.formattedResult(parameter.value)}" escape="false" />
     </h:panelGroup>
 
-    <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="item"
+    <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="item" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
         rendered="#{not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client">
+        <!-- rowKeyConverter is a temporary solution.
+         After migrating to the newer version of RichFaces it can be removed.
+         See: https://issues.jboss.org/browse/RF-11102 for details -->
         <rich:treeNode>#{item.treeText}</rich:treeNode>
     </rich:tree>
 
