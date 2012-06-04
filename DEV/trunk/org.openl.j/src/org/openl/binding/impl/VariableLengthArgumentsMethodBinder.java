@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -43,7 +45,14 @@ public class VariableLengthArgumentsMethodBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         VarArgsInfo varArgsInfo = new EqualTypesVarArgsBuilder(argumentsTypes).build();
-        return getVarArgsMethodNode(node, bindingContext, varArgsInfo);
+        IBoundNode result = getVarArgsMethodNode(node, bindingContext, varArgsInfo);
+        
+        if (result == null) {
+            varArgsInfo = new CastableTypesVarArgsBuilder(argumentsTypes, bindingContext).build();
+            result = getVarArgsMethodNode(node, bindingContext, varArgsInfo);
+        }
+        
+        return result; 
     }
 
    
@@ -183,4 +192,31 @@ public class VariableLengthArgumentsMethodBinder extends ANodeBinder {
         }
     }
 
+    protected static class CastableTypesVarArgsBuilder extends VarArgsBuilder {
+        private final ICastFactory castFactory;
+
+        protected CastableTypesVarArgsBuilder(IOpenClass[] argumentsTypes, ICastFactory castFactory) {
+            super(argumentsTypes);
+            this.castFactory = castFactory;
+        }
+
+        @Override
+        protected boolean ensureThatTypeIsVarArg(IOpenClass type) {
+            IOpenCast cast = castFactory.getCast(type, varArgClass);
+
+            if (cast == null || !cast.isImplicit()) {
+                cast = castFactory.getCast(varArgClass, type);
+                if (cast == null || !cast.isImplicit()) {
+                    // argument is not auto castable
+                    return false;
+                }
+                
+                // Arguments will be auto casted to this type
+                varArgClass = type;
+            }
+            
+            return true;
+        }
+        
+    }
 }
