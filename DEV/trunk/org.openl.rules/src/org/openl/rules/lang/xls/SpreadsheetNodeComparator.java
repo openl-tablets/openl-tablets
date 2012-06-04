@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.calc.CellsHeaderExtractor;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -15,51 +16,46 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  */
 public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
 
-	public int compare(TableSyntaxNode o1, TableSyntaxNode o2) {
-		if (isSpreadsheet(o1) && isSpreadsheet(o2)) {
-			// compare both spreadsheets table syntax nodes
-			// check if there are usages of custom spreadsheet type
+	public int compare(TableSyntaxNode table1, TableSyntaxNode table2) {
+		if (isSpreadsheet(table1) && isSpreadsheet(table2)) {
+			// Compare both spreadsheets table syntax nodes.
+			// Check if there are usages of custom spreadsheet type
 			//
-			CellsHeaderExtractor extractor1 = extractNames(o1);
+			CellsHeaderExtractor extractor1 = extractNames(table1);
 
-			// TODO: refactor
-			// extract working with header to helper class
-			// should be simple: Helper.getMethodName(tableHeader)
-			//
-			String[] tokens = o2.getHeader().getHeaderToken().getModule()
-					.getCode().split(" ");
-			if (tokens != null && tokens.length > 2) {
-				String methodName = tokens[2].substring(0,
-						tokens[2].indexOf("("));
-
-				if (extractor1.getDependentSpreadsheetTypes().contains(
-						methodName)){
+			String methodName2 = getMethodName(table2);			
+			if (StringUtils.isNotBlank(methodName2)) {
+				if (extractor1.getDependentSpreadsheetTypes().contains(methodName2)){
 					return 1;
 				}
 			} 
-			CellsHeaderExtractor extractor2 = extractNames(o2);
-			tokens = o1.getHeader().getHeaderToken().getModule()
-					.getCode().split(" ");
-			if (tokens != null && tokens.length > 2) {
-				String methodName = tokens[2].substring(0,
-						tokens[2].indexOf("("));
-
-				if (extractor2.getDependentSpreadsheetTypes().contains(
-						methodName)){
+			CellsHeaderExtractor extractor2 = extractNames(table2);
+			
+			String methodName1 = getMethodName(table1);      
+			if (StringUtils.isNotBlank(methodName1)) {
+				if (extractor2.getDependentSpreadsheetTypes().contains(methodName1)){
 					return -1;
 				}
 			} 
 			return 0;
-		} else if (isSpreadsheet(o1)) {
-			CellsHeaderExtractor extractor1 = extractNames(o1);
-			return extractor1.getDependentSpreadsheetTypes().size() > 0 ? 1
-					: 0;
-		} else if (isSpreadsheet(o2)) {
-			CellsHeaderExtractor extractor2 = extractNames(o2);
-			return extractor2.getDependentSpreadsheetTypes().size() > 0 ? -1
-					: 0;
 		}
 		return 0;
+	}
+	
+	// TODO: refactor
+    // extract working with header to helper class
+    // should be simple: Helper.getMethodName(tableHeader)
+    //
+	private String getMethodName(TableSyntaxNode table) {
+	    String methodName = StringUtils.EMPTY;
+	
+	    String[] tokens = table.getHeader().getHeaderToken().getModule()
+                .getCode().split(" ");
+	    if (tokens != null && tokens.length > 2) {
+	        methodName = tokens[2].substring(0,
+                    tokens[2].indexOf("("));
+	    }
+	    return methodName;
 	}
 
 	private boolean isSpreadsheet(TableSyntaxNode o1) {
