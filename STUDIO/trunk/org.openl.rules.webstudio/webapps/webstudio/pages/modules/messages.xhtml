@@ -34,8 +34,7 @@
                 </span>
 
                 <h:panelGroup rendered="#{editable}">
-                    <h:outputLink title="Edit cell containing error"
-                        value="#{contextPath}/faces/pages/modules/showTable.xhtml" target="content">
+                    <h:outputLink title="Edit cell containing error" value="#showTable.xhtml">
                         <f:param name="uri" value="#{messagesBean.tableUri}" />
                         <f:param name="cell" value="#{messagesBean.errorCell}" />
                         <f:param name="mode" value="edit" />

@@ -45,13 +45,14 @@
             margin-bottom: 4px;
         }
 
-        #advancedSearch input[type="text"] {
+        #advancedSearch input[type="text"]:not([class*="rf-insp-inp"]) {
             -moz-box-sizing: border-box;
             box-sizing: border-box;
             width: 100%;
         }
 
         #advancedSearch #multiselect .jquery-multiselect-popup {
+            width: 0; /* Hack for IE 9 */
             bottom: 7px;
         }
 

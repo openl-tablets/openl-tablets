@@ -11,7 +11,9 @@ import org.openl.rules.dt.trace.DTRuleTracerLeaf;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ITableTracerObject;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.RegionGridSelector;
+import org.openl.rules.table.ui.filters.CellStyleGridFilter;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.FontGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
@@ -84,6 +86,8 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private List<IGridFilter> buildFilters() {
+        short[] resultColor = new short[] { 0, 0xaa, 0 };
+
         FontGridFilter successfulFontFilter = new FontGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(successfulChecks), false))
                 .setFontColor(IColorFilter.GREEN)
@@ -98,7 +102,7 @@ public class DecisionTableTraceFilterFactory {
                 .build();
         FontGridFilter resultFontFilter = new FontGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(resultRegions), false))
-                .setFontColor(IColorFilter.GREEN)
+                .setFontColor(resultColor)
                 .setItalic(false)
                 .setBold(true)
                 .build();
@@ -107,12 +111,25 @@ public class DecisionTableTraceFilterFactory {
                 .setUnderlined(true)
                 .build();
 
+        CellStyleGridFilter notResultBorderFilter = new CellStyleGridFilter.Builder()
+                .setSelector(new RegionGridSelector(toArray(resultRegions), true))
+                .setBorderStyle(ICellStyle.BORDER_DASHED)
+                .build();
+        CellStyleGridFilter resultBorderFilter = new CellStyleGridFilter.Builder()
+                .setSelector(new RegionGridSelector(toArray(resultRegions), false))
+                .setBorderStyle(ICellStyle.BORDER_THICK)
+                .setBorderRGB(resultColor)
+                .build();
         
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(successfulFontFilter);
         filters.add(unsuccessfulFontFilter);
         filters.add(resultFontFilter);
         filters.add(indexedFontFilter);
+        filters.add(notResultBorderFilter);
+        filters.add(resultBorderFilter);
+        filters.add(resultBorderFilter.createUpperRowBorderFilter());
+        filters.add(resultBorderFilter.createLefterColumnBorderFilter());
         
         if (selectedRegions != null) {
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
@@ -143,5 +160,5 @@ public class DecisionTableTraceFilterFactory {
 
         return new ColorGridFilter(new RegionGridSelector(region, false), colorFilter, scope);
     }
-
+    
 }

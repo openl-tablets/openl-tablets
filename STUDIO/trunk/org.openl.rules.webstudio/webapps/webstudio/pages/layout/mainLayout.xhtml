@@ -135,12 +135,6 @@
                 loadContent();
 
                 $j("body").css({"visibility": "visible"});
-
-                $j("a[target='content']").live("click", function() {
-                    var page = $j(this).attr("href");
-                    goTo(page);
-                    return false;
-                });
             });
 
             function toggleProblems(show) {
@@ -163,7 +157,7 @@
 
             function search(params) {
                 var query;
-                
+
                 if (params) {
                     // Simple Search by text
                     if (params.constructor === String) {
@@ -182,7 +176,7 @@
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
                     // Check if requested page is the same as current
-                    if (decodeURIComponent(page.replace(/^#/, '')) == decodeURIComponent(location.href.split("#")[1])) {
+                    if (decodeURIComponent(page.replace(/^#/, '')) == decodeURIComponent(getCurrentHash())) {
                         loadContent();
                     } else {
                         location.hash = page;
@@ -308,7 +302,6 @@
             function toRulesPanel(header) {
                 if (sessionStorage.getItem(SHOW_HISTORY_ITEM)) {
                     toHistoryPanel();
-                    
                     return;
                 }
 

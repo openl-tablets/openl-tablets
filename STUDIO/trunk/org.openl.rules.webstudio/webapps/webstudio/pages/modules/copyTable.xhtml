@@ -31,7 +31,7 @@
     <h:form>
         <h:outputText value="Copy as " />
         <h:selectOneMenu value="#{tableCopierWizardManager.copyType}">
-            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:propertiesTable"
+            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable"
                 immediate="true" />
             <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
             <c:if test="#{tableCopierWizardManager.table.versionable}">
@@ -59,7 +59,7 @@
                     </h:panelGrid>
                 </h:panelGroup>
 
-                <h:panelGroup id="propertiesTable">
+                <h:panelGroup id="copyPropertiesTable">
                     <table>
                         <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop">
                             <tr>
@@ -90,7 +90,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{propertiesManager.removeProperty}"
-                                        render="propertiesTable newPropertySelect"
+                                        render="copyPropertiesTable newPropertySelect"
                                         rendered="{(tableCopierWizardManager.copyType == 'CHANGE_NAMES' and prop.name != 'name') or (tableCopierWizardManager.copyType != 'CHANGE_VERSION' and prop.name == 'version') or (tableCopierWizardManager.copyType != 'CHANGE_DIMENSION' and !prop.dimensional)}">
                                         <h:graphicImage value="/images/delete.gif"
                                             alt="Remove property" title="Remove property" />
@@ -171,7 +171,7 @@
             <h:panelGroup style="text-align: center; margin-top: 10px;" layout="block">
                 <a4j:commandButton value="Add"
                     action="#{propertiesManager.addProperty}"
-                    render="propertiesTable newPropertySelect"
+                    render="copyPropertiesTable newPropertySelect"
                     oncomplete="#{rich:component('newPropertyDlg')}.hide();" />
                 <h:commandButton value="Cancel" style="margin-left: 5px;"
                     onclick="#{rich:component('newPropertyDlg')}.hide();return false;" />

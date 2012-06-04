@@ -7,8 +7,9 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.rules.dt.trace.*;
 
 public class TraceTreeBuilder extends TreeBuilder {
-    private static final int SUCCESSFUL = 1;
-    private static final int UNSUCCESSFUL = 2;
+    private static final int UNSUCCESSFUL = 0;
+    private static final int SUCCESSFUL_WITHOUT_RESULT = 1;
+    private static final int SUCCESSFUL_WITH_RESULT = 2;
 
     private TraceHelper traceHelper;
 
@@ -26,7 +27,8 @@ public class TraceTreeBuilder extends TreeBuilder {
     @Override
     protected int getState(ITreeElement<?> element) {
         if (element instanceof DTConditionTraceObject) {
-            return ((DTConditionTraceObject) element).isSuccessful() ? SUCCESSFUL : UNSUCCESSFUL;
+            DTConditionTraceObject condition = (DTConditionTraceObject) element;
+            return condition.isSuccessful() ? (condition.hasRuleResult() ? SUCCESSFUL_WITH_RESULT : SUCCESSFUL_WITHOUT_RESULT) : UNSUCCESSFUL;
         }
 
         return super.getState(element);

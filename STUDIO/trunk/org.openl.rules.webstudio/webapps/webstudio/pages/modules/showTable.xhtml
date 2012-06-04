@@ -9,7 +9,6 @@
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="pathRoot" value="#{contextPath}/faces/pages/modules" />
 
     <style>
         #content {
@@ -91,8 +90,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <h:outputLink value="#{contextPath}/faces/pages/modules/showTable.xhtml"
-                                        title="Edit Table" target="content" styleClass="toolbarButton">
+                                    <h:outputLink value="#showTable.xhtml" title="Edit Table" styleClass="toolbarButton">
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <f:param name="mode" value="edit" />
                                         <img src="webresource/images/editTable.gif" />
@@ -109,7 +107,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                                        oncomplete="goTo('#{pathRoot}/copyTable.xhtml')" title="Copy Table"
+                                        oncomplete="goTo('copyTable.xhtml')" title="Copy Table"
                                         onclick="return canLeavePage()"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
@@ -234,7 +232,7 @@
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        oncomplete="goTo('#{pathRoot}/test/benchmarkMethod.xhtml')"
+                                        oncomplete="goTo('test/benchmarkMethod.xhtml')"
                                         style="padding-right: 1px">
                                         <table style="border-collapse: collapse;">
                                             <tr>
@@ -316,7 +314,7 @@
                         <h:form>
                             <a4j:commandLink styleClass="toolbarButton" title="Run Tests"
                                 action="#{showTableBean.runAllTestsForTable}"
-                                oncomplete="goTo('#{pathRoot}/test/runAllTests.xhtml?uri=#{showTableBean.encodedUri}')">
+                                oncomplete="goTo('test/runAllTests.xhtml?uri=#{showTableBean.encodedUri}')">
                                 <img src="webresource/images/test_ok.gif" />
                                 <span>Test</span>
                             </a4j:commandLink>
@@ -348,7 +346,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
@@ -364,7 +362,7 @@
                         <ui:repeat value="#{showTableBean.targetTables}" var="targetTable" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="#showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{targetTable.uri}" />
                                 <h:outputText value="#{targetTable.name}" />
                             </h:outputLink>
@@ -383,7 +381,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -400,7 +398,7 @@
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index > 0}">
                         <div>
-                            <h:outputLink value="#showTable.xhtml" target="content">
+                            <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -437,7 +435,7 @@
             </form>
 
             <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
-                linkBase="#showTable.xhtml" linkTarget="content"
+                linkBase="#showTable.xhtml"
                 mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}"
@@ -464,27 +462,11 @@
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=900, height=700, top=20, left=100")
         }
 
-        /**
-         * Limits popup height and width inside the bordering component.
-         */
-        function adjustSize(popupId, borderingComponentId) {
-            var borderingComponent = $j("#" + borderingComponentId);
-            var popup = $j("#" + popupId);
-            var popupPosition = popup.position();
-            var maxHeight = borderingComponent.outerHeight() - popupPosition.top - 10;
-            var maxWidth = borderingComponent.outerWidth() - popupPosition.left - 10;
-            popup.css({
-                'max-height': maxHeight,
-                'max-width': maxWidth
-            });
-        }
-
         function showButtonMenu(event, popupId, buttonElem) {
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
             showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
-            adjustSize(popupId, 'content');
         }
 
         function editInExcel(f) {
@@ -497,7 +479,7 @@
         }
 
         function onAfterSave(newUri) {
-            goTo("#showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
+            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
             hideLoader();
         }
 

@@ -397,7 +397,7 @@ public class TableViewer {
 
         for (int i = 0; i < height; i++) {
             ICellStyle ls = column + left - 1 < 0 ? null : grid.getCell(column + left - 1, i + top).getStyle();
-            ICellStyle rs = column + left - 1 < 0 ? null : grid.getCell(column + left, i + top).getStyle();
+            ICellStyle rs = grid.getCell(column + left, i + top).getStyle();
 
             CellModel cmLeft = ls == null ? null : tm.findCellModel(column - 1, i, ICellStyle.RIGHT);
             CellModel cmRight = rs == null ? null : tm.findCellModel(column, i, ICellStyle.LEFT);
