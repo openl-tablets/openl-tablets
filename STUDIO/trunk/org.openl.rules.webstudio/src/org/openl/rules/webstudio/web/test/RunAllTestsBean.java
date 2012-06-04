@@ -103,6 +103,16 @@ public class RunAllTestsBean {
         }
         return cnt;
     }
+    
+    public int getNumberOfFailedTestCases() {
+        int sum = 0;
+        for (TestUnitsResults result : ranResults) {
+            if (result != null) {
+                sum += result.getNumberOfFailures();
+            }
+        }
+        return sum;
+    }
 
     /**
      * @return list of errors if there were any during execution of the test. In
