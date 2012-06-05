@@ -66,6 +66,9 @@ public class NumberUtils {
     public static Double roundValue(Double value, int scale) {
 
         if (value != null) {
+            if (value.isInfinite() || value.isNaN()) {
+                return value;
+            }
             BigDecimal roundedValue = BigDecimal.valueOf(value);
             roundedValue = roundedValue.setScale(scale, RoundingMode.HALF_UP);
 
