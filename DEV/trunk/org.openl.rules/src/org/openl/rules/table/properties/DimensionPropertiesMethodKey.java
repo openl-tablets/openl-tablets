@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties;
 
+import java.lang.reflect.Array;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -40,9 +41,18 @@ public class DimensionPropertiesMethodKey {
         equalsBuilder.append(new MethodKey(executableMethod), new MethodKey(key.getMethod()));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            equalsBuilder.append(PropertiesHelper.getMethodProperties(executableMethod)
-                .get(dimensionalPropertyNames[i]),
-                PropertiesHelper.getMethodProperties(key.getMethod()).get(dimensionalPropertyNames[i]));
+            Object propertyValue1 = PropertiesHelper.getMethodProperties(executableMethod).get(
+                    dimensionalPropertyNames[i]);
+            Object propertyValue2 = PropertiesHelper.getMethodProperties(key.getMethod()).get(
+                    dimensionalPropertyNames[i]);
+            
+            if (isEmpty(propertyValue1) && isEmpty(propertyValue2)) {
+                // There is no meaning in properties with "null" values.
+                // If such properties exists, we should skip them like there is no empty properties.
+                continue;
+            }
+            
+            equalsBuilder.append(propertyValue1, propertyValue2);
         }
         return equalsBuilder.isEquals();
     }
@@ -79,6 +89,37 @@ public class DimensionPropertiesMethodKey {
             }
         }        
         return stringBuilder.append(']').toString();
+    }
+    
+    
+    /**
+     * Check if propertyValue is null or it contains only null values
+     * 
+     * @param propertyValue checking value
+     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - false; 
+     */
+    private boolean isEmpty(Object propertyValue) {
+        if (propertyValue == null) {
+            return true;
+        }
+        
+        if (propertyValue.getClass().isArray()) {
+            // Check if an array is empty or contains only nulls
+            int length = Array.getLength(propertyValue);
+            if (length == 0) {
+                return true;
+            }
+            
+            for (int i = 0; i < length; i++) {
+                if (Array.get(propertyValue, i) != null) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
 
 }
