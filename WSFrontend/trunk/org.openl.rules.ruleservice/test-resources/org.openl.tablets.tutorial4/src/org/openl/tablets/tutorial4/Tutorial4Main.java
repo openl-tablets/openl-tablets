@@ -4,9 +4,9 @@
  */
 package org.openl.tablets.tutorial4;
 
-import org.openl.generated.beans.Driver;
-import org.openl.generated.beans.Policy;
-import org.openl.generated.beans.Vehicle;
+import org.openl.generated.beans.publisher.test.Policy;
+import org.openl.generated.beans.publisher.test.Vehicle;
+import org.openl.generated.beans.publisher.test.Driver;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.vm.trace.Tracer;
 
@@ -19,7 +19,7 @@ public class Tutorial4Main {
 	/**
 	 * Tutorial wrapper object instance.
 	 */
-	private Tutorial_4Wrapper wrapper = new Tutorial_4Wrapper();
+	private Tutorial_4PublisherTestWrapper wrapper = new Tutorial_4PublisherTestWrapper();
 
 	public static void main(String[] args) {
 

@@ -8,7 +8,7 @@
 
 	<openlgen openlName="org.openl.xls" userHome="." 
 		srcFile="rules/main/Tutorial_4.xls"
-	    targetClass="org.openl.tablets.tutorial4.Tutorial_4Wrapper"
+	    targetClass="org.openl.tablets.tutorial4.Tutorial_4PublisherTestWrapper"
 		displayName="Tutorial 4 - UServ Product Derby"
 		targetSrcDir="gen"
 	/>
