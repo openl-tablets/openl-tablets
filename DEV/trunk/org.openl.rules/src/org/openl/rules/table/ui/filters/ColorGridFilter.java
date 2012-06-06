@@ -70,7 +70,9 @@ public class ColorGridFilter extends AGridFilter {
 
             if (bb != null) {
                 for (int i = 0; i < bb.length; i++) {
-                    bb[i] = filter.filterColor(bb[i]);
+                    if (bb[i] != null) {
+                        bb[i] = filter.filterColor(bb[i]);
+                    }
                 }
             }
 
