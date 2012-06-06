@@ -69,7 +69,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(serviceBean.getClass().getClassLoader());
+        Thread.currentThread().setContextClassLoader(instantiationStrategy.getClassLoader());
         Object proxyServiceBean = null;
         try {
             proxyServiceBean = factory.getProxy();
