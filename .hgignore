@@ -15,5 +15,7 @@ POI/trunk/org.openl.lib.poi.dev/bin
 POI/trunk/org.openl.lib.poi.dev.modified/bin
 STUDIO/trunk/org.openl.rules.webstudio/webapps/webstudio/WEB-INF/classes/**
 STUDIO/trunk/org.openl.rules.webstudio/logs
-
-
+TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/_ReSharper.OpenLSmokeTests
+TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/OpenLSmokeTests/obj
+TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/_ReSharper.OpenLSmokeTests
+TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/WebDriverFrameWork/obj
