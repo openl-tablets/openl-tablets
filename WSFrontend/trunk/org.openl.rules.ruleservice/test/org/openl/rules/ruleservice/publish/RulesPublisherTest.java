@@ -32,6 +32,7 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class RulesPublisherTest {
+    private static final String DRIVER = "org.openl.generated.beans.publisher.test.Driver";
     private static final String COVERAGE = "coverage";
     private static final String DATA2 = "data2";
     private static final String NO_URL = "no_url";
@@ -136,14 +137,14 @@ public class RulesPublisherTest {
         }
         assertEquals(executedTimes, getCount() - count);
         Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
-                .loadClass("org.openl.generated.beans.Driver").newInstance();
+                .loadClass(DRIVER).newInstance();
         System.out.println(frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver }));
     }
 
     @Test
     public void testMethodAfterInterceptors() throws Exception {
         Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
-                .loadClass("org.openl.generated.beans.Driver").newInstance();
+                .loadClass(DRIVER).newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
         Class<? extends Object> returnType = frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver })
