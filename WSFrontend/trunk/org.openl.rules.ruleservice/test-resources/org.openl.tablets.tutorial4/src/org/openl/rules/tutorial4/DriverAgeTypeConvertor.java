@@ -7,7 +7,7 @@ import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterR
 public class DriverAgeTypeConvertor extends AbstractServiceMethodAfterReturningAdvice<DriverAgeType> {
 
     @Override
-    public DriverAgeType afterReturning(Method method, Object result, Object... args) throws Throwable {
+    public DriverAgeType afterReturning(Method method, Object result, Object... args) throws Exception {
         return DriverAgeType.parse((String) result);
     }
 }
