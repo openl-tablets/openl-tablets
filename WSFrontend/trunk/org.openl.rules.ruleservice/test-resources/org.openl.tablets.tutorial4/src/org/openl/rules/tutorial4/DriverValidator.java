@@ -3,7 +3,7 @@ package org.openl.rules.tutorial4;
 import java.lang.reflect.Method;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.generated.beans.Driver;
+import org.openl.generated.beans.publisher.test.Driver;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
 
 public class DriverValidator implements ServiceMethodBeforeAdvice {
