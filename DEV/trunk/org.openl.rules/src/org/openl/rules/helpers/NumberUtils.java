@@ -36,11 +36,11 @@ public class NumberUtils {
 
         if (float.class.equals(object.getClass())
                 || Float.class.equals(object.getClass())) {
-            return Double.valueOf(((Float) object).doubleValue());
+            return Double.valueOf(((Float) object).toString());
         }
         
         if (FloatValue.class.isAssignableFrom(object.getClass())) {
-            return Double.valueOf(((FloatValue) object).doubleValue());
+            return Double.valueOf(((FloatValue) object).toString());
         }
 
         if (double.class.equals(object.getClass())
@@ -112,7 +112,7 @@ public class NumberUtils {
     		/**
     		 * Process as float point value
     		 */
-    		return getScale(value.doubleValue()); 
+    		return getScale(convertToDouble(value).doubleValue()); 
     	} else {
     		/**
     		 * Process as integer value
@@ -128,6 +128,10 @@ public class NumberUtils {
 			return decimal.scale();
     	}
     	return 0;
+    }
+    
+    public static int getScale(float value) {
+        return getScale(Double.valueOf(Float.toString(value)));
     }
     
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
