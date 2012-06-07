@@ -29,6 +29,7 @@
         <script src="#{contextPath}/javascript/jquery.layout-1.3.0.js"></script>
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
+        <script src="#{contextPath}/javascript/bomjs.js"></script>
         <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script>
@@ -94,16 +95,10 @@
                 prefix: "#{pathRoot}/"
             }
 
-            function getCurrentHash() {
-                // Because firefox has a bug with decoding location.hash value, we use location.href.split("#")[1] instead
-                var page = location.href;
-                return page.indexOf("#") != -1 ? page.split("#")[1] : "";
-            }
-
-            var lastSavedHash = getCurrentHash();
+            var lastSavedHash = $location.getHash();
 
             $j(window).bind("hashchange", function() {
-                var ch = getCurrentHash();
+                var ch = $location.getHash();
                 if (ch != lastSavedHash && ch == decodeURIComponent(lastSavedHash)) {
                     // Workaround for a bug in firefox. Sometimes it decodes a loading url and then loads decoded url.
                     location.hash = lastSavedHash;
@@ -176,7 +171,7 @@
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
                     // Check if requested page is the same as current
-                    if (decodeURIComponent(page.replace(/^#/, '')) == decodeURIComponent(getCurrentHash())) {
+                    if (decodeURIComponent(page.replace(/^#/, '')) == $location.getHash(true)) {
                         loadContent();
                     } else {
                         location.hash = page;
@@ -241,7 +236,7 @@
 
                         var header;
                         if (page.indexOf("module.xhtml") > -1) {
-                            var headerParts = page.split("?")[1].split("/");
+                            var headerParts = $location.utils.getParamsQuery(page).split("/");
                             header = decodeURIComponent(headerParts[0] + " > " + headerParts[1]);
                         }
                         toRulesPanel(header);
@@ -251,7 +246,7 @@
                         mainLayout.show("east");
                         $j("#tableProperties").load(
                                 urlRewrite.prefix + "tableProperties.xhtml?"
-                                + page.split("?")[1]);
+                                + $location.utils.getParamsQuery(page));
                         openTreeNode(page);
                     } else {
                         mainLayout.hide("east");

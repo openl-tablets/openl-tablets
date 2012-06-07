@@ -1,6 +1,6 @@
 package org.openl.rules.tutorial4;
 
-import org.openl.generated.beans.Driver;
+import org.openl.generated.beans.publisher.test.Driver;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 

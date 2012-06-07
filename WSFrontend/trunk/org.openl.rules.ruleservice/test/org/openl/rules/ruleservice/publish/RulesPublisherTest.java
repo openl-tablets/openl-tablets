@@ -32,6 +32,15 @@ import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
 
 public class RulesPublisherTest {
+    private static final String DRIVER = "org.openl.generated.beans.publisher.test.Driver";
+    private static final String COVERAGE = "coverage";
+    private static final String DATA2 = "data2";
+    private static final String NO_URL = "no_url";
+    private static final String TUTORIAL4_INTERFACE = "org.openl.rules.tutorial4.Tutorial4Interface";
+    private static final String DATA1 = "data1";
+    private static final String TUTORIAL4 = "tutorial4";
+    private static final String MULTI_MODULE = "multiModule";
+    
     private static JavaClassRuleServicePublisher publisher;
     private static RulesFrontend frontend;
     private static RulesProjectResolver resolver;
@@ -62,13 +71,13 @@ public class RulesPublisherTest {
         ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
 
         Collection<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module"));
-        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("multiModule", "no_url", null, false,
+        service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(MULTI_MODULE, NO_URL, null, false,
                 modules1);
         File tut4Folder = new File("./test-resources/org.openl.tablets.tutorial4");
         ResolvingStrategy tut4ResolvingStrategy = resolver.isRulesProject(tut4Folder);
         assertNotNull(tut4ResolvingStrategy);
-        service2 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService("tutorial4", "no_url",
-                "org.openl.rules.tutorial4.Tutorial4Interface", false, tut4ResolvingStrategy.resolveProject(tut4Folder)
+        service2 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(TUTORIAL4, NO_URL,
+                TUTORIAL4_INTERFACE, false, tut4ResolvingStrategy.resolveProject(tut4Folder)
                         .getModules());
     }
 
@@ -83,9 +92,9 @@ public class RulesPublisherTest {
     @Test
     public void testMultiModuleService() throws Exception {
         //assertTrue(publisher.findServiceByName("multiModule").getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
-        assertEquals("World, Good Morning!", frontend.execute("multiModule", "worldHello", new Object[] { 10 }));
-        assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
-        assertEquals(3, Array.getLength(frontend.getValue("multiModule", "data2")));
+        assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", new Object[] { 10 }));
+        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
+        assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE, DATA2)));
     }
 
     public static interface SimpleInterface{
@@ -105,16 +114,16 @@ public class RulesPublisherTest {
     @Test
     public void testMultipleServices() throws Exception {
         assertEquals(2, publisher.getServices().size());
-        assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
-        assertEquals(2, Array.getLength(frontend.getValue("tutorial4", "coverage")));
-        publisher.undeploy("tutorial4");
-        assertNull(frontend.getValue("tutorial4", "coverage"));
-        assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
+        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
+        assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
+        publisher.undeploy(TUTORIAL4);
+        assertNull(frontend.getValue(TUTORIAL4, COVERAGE));
+        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(1, publisher.getServices().size());
     }
 
     private int getCount() throws Exception {
-        Class<?> counter = publisher.getServiceByName("tutorial4").getServiceClass().getClassLoader()
+        Class<?> counter = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
                 .loadClass("org.openl.rules.tutorial4.InvocationCounter");
         return (Integer) counter.getMethod("getCount").invoke(null);
     }
@@ -124,21 +133,21 @@ public class RulesPublisherTest {
         int count = getCount();
         final int executedTimes = 10;
         for (int i = 0; i < executedTimes; i++) {
-            assertEquals(2, Array.getLength(frontend.getValue("tutorial4", "coverage")));
+            assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
         }
         assertEquals(executedTimes, getCount() - count);
-        Object driver = publisher.getServiceByName("tutorial4").getServiceClass().getClassLoader()
-                .loadClass("org.openl.generated.beans.Driver").newInstance();
-        System.out.println(frontend.execute("tutorial4", "driverAgeType", new Object[] { driver }));
+        Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
+                .loadClass(DRIVER).newInstance();
+        System.out.println(frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver }));
     }
 
     @Test
     public void testMethodAfterInterceptors() throws Exception {
-        Object driver = publisher.getServiceByName("tutorial4").getServiceClass().getClassLoader()
-                .loadClass("org.openl.generated.beans.Driver").newInstance();
+        Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
+                .loadClass(DRIVER).newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
-        Class<? extends Object> returnType = frontend.execute("tutorial4", "driverAgeType", new Object[] { driver })
+        Class<? extends Object> returnType = frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver })
                 .getClass();
         assertTrue(returnType.isEnum());
         assertTrue(returnType.getName().equals("org.openl.rules.tutorial4.DriverAgeType"));
@@ -146,12 +155,12 @@ public class RulesPublisherTest {
 
     @Test
     public void testServiceClassResolving() throws Exception {
-        Class<?> tutorial4ServiceClass = publisher.getServiceByName("tutorial4").getServiceClass();
+        Class<?> tutorial4ServiceClass = publisher.getServiceByName(TUTORIAL4).getServiceClass();
         assertTrue(tutorial4ServiceClass.isInterface());
-        assertEquals("org.openl.rules.tutorial4.Tutorial4Interface", tutorial4ServiceClass.getName());
+        assertEquals(TUTORIAL4_INTERFACE, tutorial4ServiceClass.getName());
 
-        Class<?> multiModuleServiceClass = publisher.getServiceByName("multiModule").getServiceClass();
-        Collection<Module> modules = publisher.getServiceByName("multiModule").getModules();
+        Class<?> multiModuleServiceClass = publisher.getServiceByName(MULTI_MODULE).getServiceClass();
+        Collection<Module> modules = publisher.getServiceByName(MULTI_MODULE).getModules();
         for (Module module : modules) {
             RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
             dependencyManager.setExecutionMode(true);
@@ -168,6 +177,6 @@ public class RulesPublisherTest {
         }
 
         assertTrue(tutorial4ServiceClass.isInterface());
-        assertEquals("org.openl.rules.tutorial4.Tutorial4Interface", tutorial4ServiceClass.getName());
+        assertEquals(TUTORIAL4_INTERFACE, tutorial4ServiceClass.getName());
     }
 }
