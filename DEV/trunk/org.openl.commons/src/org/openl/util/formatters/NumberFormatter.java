@@ -38,7 +38,7 @@ public class NumberFormatter implements IFormatter {
     }
 
     public NumberFormatter(String format, Locale locale) {
-        this(new DecimalFormat(format, new DecimalFormatSymbols(locale)));
+        this(new DecimalFormat(format, createDecimalFormatSymbols(locale)));
     }
 
     public String format(Object value) {
@@ -57,6 +57,12 @@ public class NumberFormatter implements IFormatter {
             log.debug("Could not parse Number: " + value);
             return null;
         }
+    }
+
+    private static DecimalFormatSymbols createDecimalFormatSymbols(Locale locale) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
+        symbols.setNaN("NaN");
+        return symbols;
     }
 
 }
