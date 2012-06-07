@@ -177,4 +177,34 @@ public class TestDoubleValue {
         
         assertEquals("13.0", DoubleValue.round(value1, 0).toString());
     }
+
+    @Test
+    public void testRoundDouble() {
+        DoubleValue value1 = new DoubleValue(1.23456789);        
+        
+        assertEquals("1.0", DoubleValue.round(value1, wrap(0)).toString());
+
+        assertEquals("1.2", DoubleValue.round(value1, wrap(0.1)).toString());
+        assertEquals("1.23", DoubleValue.round(value1, wrap(0.01)).toString());
+        assertEquals("1.235", DoubleValue.round(value1, wrap(0.001)).toString());
+        assertEquals("1.2346", DoubleValue.round(value1, wrap(0.0001)).toString());
+        assertEquals("1.23457", DoubleValue.round(value1, wrap(0.00001)).toString());
+        assertEquals("1.234568", DoubleValue.round(value1, wrap(0.000001)).toString());
+        assertEquals("1.2345679", DoubleValue.round(value1, wrap(0.0000001)).toString());
+        assertEquals("1.23456789", DoubleValue.round(value1, wrap(0.00000001)).toString());
+        assertEquals("1.23456789", DoubleValue.round(value1, wrap(0.000000001)).toString());
+
+        assertEquals(1.2346, DoubleValue.round(value1, wrap(0.0002)).doubleValue(), 0.0002);
+        assertEquals(1.2346, DoubleValue.round(value1, wrap(0.0003)).doubleValue(), 0.0003);
+        assertEquals(1.2346, DoubleValue.round(value1, wrap(0.0004)).doubleValue(), 0.0004);
+        assertEquals(1.2346, DoubleValue.round(value1, wrap(0.0005)).doubleValue(), 0.0005);
+        
+        value1 = new DoubleValue(12.513456789);
+        
+        assertEquals("13.0", DoubleValue.round(value1, wrap(0)).toString());
+}
+    
+    private DoubleValue wrap(double d) {
+        return new DoubleValue(d);
+    }
 }
