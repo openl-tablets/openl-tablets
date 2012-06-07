@@ -32,13 +32,13 @@
 
             <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                 <h:commandButton id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
-                <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalUploadProject').hide();" />
             </h:panelGrid>
             </h:form>        
         </rich:tab>
 
         <rich:tab header="Workspace">
-            <h:form>
+            <h:form id="uploadWorkspaceProjectForm">
                 <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
                     <rich:dataTable value="#{localUpload.projects4Upload}"
                         rendered="#{not empty localUpload.projects4Upload}"
@@ -46,15 +46,16 @@
                         id="uploadPrjFromLocalTable">
                         <f:facet name="header">
                             <rich:columnGroup>
-                                <rich:column>
-                                    <h:outputText value="Selected" />
+                                <rich:column style="padding-left: 2px">
+                                    <h:selectBooleanCheckbox id="selectAll" title="select/deselect all"
+                                    onclick="changeStatus(this);"/>
                                 </rich:column>
                                 <rich:column>
                                     <h:outputText value="Name" />
                                 </rich:column>
                             </rich:columnGroup>
                         </f:facet>
-    
+
                         <rich:column style="text-align:center; width: 20px;">
                             <h:selectBooleanCheckbox value="#{item.selected}" />
                         </rich:column>
@@ -73,7 +74,7 @@
                     <h:commandButton action="#{localUpload.upload}"
                         rendered="#{not empty localUpload.projects4Upload}"
                         process="@form" value="Upload" />
-                    <input type="button" value="Cancel" onclick=" RichFaces.$('modalUploadProject').hide();" />
+                    <input type="button" value="Cancel" onclick="RichFaces.$('modalUploadProject').hide();" />
                 </h:panelGrid>
             </h:form>   
         </rich:tab>
@@ -83,7 +84,11 @@
 
   <script>
     function openUploadProjectDialog() {
-      RichFaces.$('modalUploadProject').show();
+      RichFaces.$("modalUploadProject").show();
+    }
+    
+    function changeStatus(element){
+        $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
     }
   </script>
 </ui:composition>
