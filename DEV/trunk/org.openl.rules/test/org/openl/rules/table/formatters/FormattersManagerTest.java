@@ -35,6 +35,12 @@ public class FormattersManagerTest {
     }
     
     @Test
+    public void testNaN() {
+        assertEquals("NaN", FormattersManager.getFormatter(Double.NaN).format(Double.NaN));
+        assertEquals("NaN", FormattersManager.getFormatter(Float.NaN).format(Float.NaN));
+    }
+    
+    @Test
     public void testString() {        
         IFormatter formatter = FormattersManager.getFormatter("text");
         assertTrue(formatter instanceof FormatterAdapter);
