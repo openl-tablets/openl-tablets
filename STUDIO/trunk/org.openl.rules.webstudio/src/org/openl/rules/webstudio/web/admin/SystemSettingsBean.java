@@ -8,6 +8,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.webstudio.ConfigManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -182,6 +183,18 @@ public class SystemSettingsBean {
         String type = getProductionRepositoryType();
         return configManager.isSystemProperty(
                 PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+    }
+    
+    public boolean isCustomSpreadsheetType() {
+        return OpenLSystemProperties.isCustomSpreadsheetType();
+    }
+    
+    public String getRulesDispatchingMode() {
+        if (OpenLSystemProperties.isDTDispatchingMode()) {
+            return "Decision Table";
+        } else  {
+            return "Java";
+        }
     }
 
     public void applyChanges() {
