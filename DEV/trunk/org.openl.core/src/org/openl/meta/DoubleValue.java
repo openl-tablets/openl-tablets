@@ -531,14 +531,27 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     
     /**
      *
-     * @deprecated as contains errors. Doesn`t round to the appropriate scale.
-     * Leaves the trash in the end, e.g. 1.89700000000001
+     * @deprecated This method is obsolete. Use {@link #round(DoubleValue, int)} instead
+     * @see #round(DoubleValue, int)
      */
     @Deprecated
     public static DoubleValue round(DoubleValue d, DoubleValue p) {
         validate(d, p, NumberOperations.ROUND);
         
-        return new DoubleValue(new DoubleValue(Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue()),
+        int scale;
+        double preRoundedValue;
+        
+        if (p.doubleValue() == 0) {
+            scale = 0;
+            preRoundedValue = d.doubleValue();
+        } else {
+            scale = (int) org.apache.commons.math.util.MathUtils.round(-Math.log10(p.doubleValue()), 0, java.math.BigDecimal.ROUND_UP);
+            preRoundedValue = Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue();
+        }
+        
+        double roundedValue = org.apache.commons.math.util.MathUtils.round(preRoundedValue, scale);
+        
+        return new DoubleValue(new DoubleValue(roundedValue),
           NumberOperations.ROUND,
           new DoubleValue[] { d, p });
     }    

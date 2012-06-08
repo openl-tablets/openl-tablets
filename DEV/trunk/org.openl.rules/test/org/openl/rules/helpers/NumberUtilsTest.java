@@ -1,6 +1,8 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
@@ -45,7 +47,9 @@ public class NumberUtilsTest {
 
     @Test
     public void testFloat() {
-        assertEquals(15, NumberUtils.getScale(Float.valueOf(((float) 12.45678))));
+        assertEquals(5, NumberUtils.getScale(12.45678f));
+        assertEquals(5, NumberUtils.getScale(Float.valueOf(12.45678f)));
+        assertEquals(15, NumberUtils.getScale(Float.valueOf(12.45678f).doubleValue()));
         assertEquals(0, NumberUtils.getScale(Float.NaN));
         assertEquals(0, NumberUtils.getScale(Float.NEGATIVE_INFINITY));
         assertEquals(0, NumberUtils.getScale(Float.POSITIVE_INFINITY));
@@ -82,6 +86,13 @@ public class NumberUtilsTest {
         assertEquals(Double.POSITIVE_INFINITY, NumberUtils.roundValue(Double.POSITIVE_INFINITY, 1), 0.01);
         assertEquals(Double.NEGATIVE_INFINITY, NumberUtils.roundValue(Double.NEGATIVE_INFINITY, 1), 0.01);
         assertEquals(Double.NaN, NumberUtils.roundValue(Double.NaN, 1), 0.01);
+    }
+    
+    @Test
+    public void testConvertToDouble() {
+        assertEquals("20.9", NumberUtils.convertToDouble(20.9d).toString());
+        assertEquals("20.9", NumberUtils.convertToDouble(20.9f).toString());
+        assertEquals("20.9", NumberUtils.convertToDouble(BigDecimal.valueOf(20.9)).toString());
     }
 
 }

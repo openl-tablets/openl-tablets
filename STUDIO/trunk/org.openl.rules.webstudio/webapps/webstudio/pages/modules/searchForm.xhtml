@@ -122,13 +122,13 @@
 
         function addProperty(name) {
             $j("#propertiesTable input[name='propName'][value='" + name + "']").closest("tr").show();
-            $j("#propertyItems option[value='" + name + "']").hide();
+            $j("#propertyItems option[value='" + name + "']").prop("disabled", true);
             $j("#propertyItems")[0].selectedIndex = -1;
         }
 
         function removeProperty(name) {
             $j("#propertiesTable input[name='propName'][value='" + name + "']").closest("tr").hide();
-            $j("#propertyItems option[value='" + name + "']").show();
+            $j("#propertyItems option[value='" + name + "']").prop("disabled", false);
         }
 
       //]]>

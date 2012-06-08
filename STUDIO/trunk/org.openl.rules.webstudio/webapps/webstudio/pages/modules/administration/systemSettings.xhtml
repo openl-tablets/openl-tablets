@@ -90,7 +90,12 @@
                     <span>Repository</span>
                 </a>
             </li>
-
+            <li>
+                <a href="#system">
+                    <h:graphicImage url="/webresource/images/admin/systemSettings/java_system.png" alt="Java System" />
+                    <span>System</span>
+                </a>
+            </li>
             <br style="clear:both;" />
         </ul>
         <div class="data-container">
@@ -191,6 +196,21 @@
                                     disabled="#{systemSettingsBean.productionRepositoryPathSystem}" />
                             </h:panelGrid>
                         </div>
+                    </div>
+                </h:panelGroup>
+            </div>
+            <div id="system">
+                <h:panelGroup id="javaProps" styleClass="propsPage" layout="block">
+                    <div class="propsSection">
+                        <h3>Java System</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Custom Spreadsheet Type:" />
+                                    <h:outputText value="#{systemSettingsBean.customSpreadsheetType}" />
+                                    <h:outputText value="Rules Dispatching Mode:" />
+                                    <h:outputText value="#{systemSettingsBean.rulesDispatchingMode}" />
+                                </h:panelGrid>
+                            </div>
                     </div>
                 </h:panelGroup>
             </div>
