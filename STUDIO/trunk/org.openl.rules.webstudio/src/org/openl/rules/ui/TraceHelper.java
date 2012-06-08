@@ -34,6 +34,8 @@ public class TraceHelper {
 
     private TreeCache<Integer, ITreeElement<?>> traceTreeCache = new TreeCache<Integer, ITreeElement<?>>();
     private int treeElementsNumber = 0;
+    private ITreeElement<?> treeRoot;
+    private boolean detailedTraceTree = true;
 
     private void fillRegions(ITableTracerObject tto, List<IGridRegion> regions) {
         for (ITableTracerObject child : tto.getTableTracers()) {
@@ -127,6 +129,7 @@ public class TraceHelper {
         ITreeElement<?> tree = tracer.getRoot();
         cleanCachedTree();
         cacheTree(tree);
+        treeRoot = tree;
         return tree;
     }
 
@@ -151,6 +154,18 @@ public class TraceHelper {
         ITableTracerObject tto = getTableTracer(elementId);
         TableSyntaxNode tsn = tto.getTableSyntaxNode();
         return new TableSyntaxNodeAdapter(tsn);
+    }
+
+    public ITreeElement<?> getTreeRoot() {
+        return treeRoot;
+    }
+
+    public boolean isDetailedTraceTree() {
+        return detailedTraceTree;
+    }
+
+    public void setDetailedTraceTree(boolean detailedTraceTree) {
+        this.detailedTraceTree = detailedTraceTree;
     }
 
 }

@@ -34,16 +34,19 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return rfTree;
     }
 
-    @SuppressWarnings("unchecked")
     private void addNodes(TreeNode dest, ITreeElement<?> source) {
         int index = 1;
-        for (Iterator<?> pi = source.getChildren(); pi.hasNext();) {
-            ITreeElement<?> child = (ITreeElement) pi.next();
+        for (Iterator<?> pi = getChildrenIterator(source); pi.hasNext();) {
+            ITreeElement<?> child = (ITreeElement<?>) pi.next();
             TreeNode rfChild = toRFNode(child);
             dest.addChild(index, rfChild);
             addNodes(rfChild, child);
             index++;
         }
+    }
+
+    protected Iterator<?> getChildrenIterator(ITreeElement<?> source) {
+        return source.getChildren();
     }
 
     private TreeNode toRFNode(ITreeElement<?> node) {

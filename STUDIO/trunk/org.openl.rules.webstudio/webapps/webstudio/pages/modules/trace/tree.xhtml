@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -8,6 +9,23 @@
     template="/pages/layout/framePanel.xhtml">
 
     <ui:define name="content">
+        <style>
+            .traceTreeParams {
+                border-bottom: 1px solid #dddddd;
+            }
+
+            .traceTreeFieldName {
+                font-weight: bold;
+            }
+        </style>
+        
+        <h:form>
+            <div class="traceTreeParams">
+                <h:outputText value="Detailed trace tree" styleClass="traceTreeFieldName"/>
+                <h:selectBooleanCheckbox id="toggleCheckbox" value="#{traceTreeBean.detailedTraceTree}">
+                    <f:ajax event="change" render="@form" />
+                </h:selectBooleanCheckbox>
+            </div>
 
         <br />
 
@@ -144,6 +162,7 @@
                 </h:outputLink>
             </rich:treeNode>
         </rich:tree>
+        </h:form>
 
     </ui:define>
 
