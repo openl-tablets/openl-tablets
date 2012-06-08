@@ -12,10 +12,20 @@
         <style>
             .traceTreeParams {
                 border-bottom: 1px solid #dddddd;
+                padding-bottom: 5px;
+            }
+
+            .traceTreeParams input[type="checkbox"] {
+                vertical-align: middle;
             }
 
             .traceTreeFieldName {
                 font-weight: bold;
+                margin-right: 5px;
+            }
+            
+            .tree {
+                padding-top: 5px;
             }
         </style>
 
@@ -26,8 +36,6 @@
                     <f:ajax event="change" render="traceTree" />
                 </h:selectBooleanCheckbox>
             </div>
-
-            <br />
 
             <h:panelGroup id="traceTree">
                 <rich:tree styleClass="tree" value="#{traceTreeBean.tree}" toggleType="client" var="node"
