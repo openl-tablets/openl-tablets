@@ -543,7 +543,6 @@ public class TableEditorController extends BaseTableEditorController implements 
         if (editorModel != null) {
             editorModel.cancel();
         }
-    	
     }
 
     private boolean beforeSave() {

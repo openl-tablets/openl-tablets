@@ -139,35 +139,47 @@ var TableEditor = Class.create({
         this.computeTableInfo();
 
         this.modFuncSuccess = function(response) {
-            response = eval(response.responseText);
-            if (response.status)
-                alert(response.status);
-            else {
-                if (response.response) {
-                    this.renderTable(response.response);
-                    this.selectElement();
+            this.handleResponse(response, function(data) {
+                if (data.response) {
+                    self.renderTable(data.response);
+                    self.selectElement();
                 }
-                this.processCallbacks(response, "do");
-            }
+                self.processCallbacks(data, "do");
+            });
         }.bindAsEventListener(this);
+    },
+
+    handleResponse: function(response, callback) {
+        var data = eval(response.responseText);
+        if (data.status) {
+            this.error(data.status);
+        } else {
+            callback(data);
+        }
     },
 
     /**
      * Handles response error.
      */
-    handleError: function(response, errorMessage) {
+    handleError: function(response, message) {
         if (response.status == 399) { // Redirect
             var redirectPage = response.getResponseHeader("Location");
             if (redirectPage) {
                 top.location.href = redirectPage;
-            } else {
-                alert(response.statusText);
+                return;
             }
+        }
+        if (!message) {
+            message = "Server failed to apply your changes: " + response.statusText;
+        }
+        this.error(message);
+    },
+
+    error: function(message) {
+        if (this.actions && this.actions.error) {
+            this.actions.error({"message": message});
         } else {
-            if (!errorMessage) {
-                errorMessage = "Error: " + response.status + " - " + response.statusText;
-            }
-            alert(errorMessage);
+            alert(message);
         }
     },
 
@@ -216,9 +228,12 @@ var TableEditor = Class.create({
     },
 
     /**
-     * Makes all changes persistant. Sends corresponding request to the server.
+     * Makes all changes persistent.
+     * Sends corresponding request to the server.
      */
     save: function() {
+        var self = this;
+
         var beforeSavePassed = true;
         if (this.actions && this.actions.beforeSave) {
             beforeSavePassed = this.actions.beforeSave();
@@ -226,44 +241,27 @@ var TableEditor = Class.create({
         if (beforeSavePassed == false) return;
 
         if (!Validation.isAllValidated()) { // Validation failed
-            if (this.actions && this.actions.saveFailure) {
-                this.actions.saveFailure();
-            }
-            alert('There are validation errors.');
+            self.error("There are validation errors.");
             return;
         }
 
-        var self = this;
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
             parameters: {
                 editorId: this.editorId
             },
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status) { // Error
-                    alert(response.status);
-                    if (self.actions && self.actions.saveFailure) {
-                        self.actions.saveFailure();
-                    }
-                } else {
-                    self.processCallbacks(response, "do");
+                self.handleResponse(response, function(data) {
+                    self.processCallbacks(data, "do");
                     if (self.actions && self.actions.afterSave) {
-                        self.actions.afterSave({"newUri": response.response});
+                        self.actions.afterSave({"newUri": data.response});
                     }
-                }
+                });
             },
             onFailure: function(response) {
-                self.handleError(response,
-                        "Server failed to save your changes");
-
-                if (self.actions && self.actions.saveFailure) {
-                    self.actions.saveFailure();
-                }
-
+                self.handleError(response, "Server failed to save your changes");
             }
         });
     },
-
 
     /**
      * Rolls back all changes. Sends corresponding request to the server.
@@ -454,7 +452,9 @@ var TableEditor = Class.create({
 
         new Ajax.Request(this.buildUrl(TableEditor.Operations.GET_CELL_EDITOR), {
             onSuccess  : function(response) {
-                self.editBegin(cell, eval(response.responseText), typedText);
+                self.handleResponse(response, function(data) {
+                    self.editBegin(cell, data, typedText);
+                });
             },
             parameters : {
                 editorId: this.editorId,
@@ -755,7 +755,7 @@ var TableEditor = Class.create({
 
     setAlignment: function(_align) {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
 
@@ -769,16 +769,13 @@ var TableEditor = Class.create({
         }
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_ALIGN), {
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status);
-                else {
-                    self.processCallbacks(response, "do");
+                self.handleResponse(response, function(data) {
+                    self.processCallbacks(data, "do");
                     if (self.editor) {
                         self.editor.input.style.textAlign = _align;
                     }
                     cell.style.textAlign = _align;
-                }
+                });
             },
             parameters: params,
             onFailure: self.handleError
@@ -849,7 +846,7 @@ var TableEditor = Class.create({
 
     setColor: function(_color, operation) {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
 
@@ -865,12 +862,9 @@ var TableEditor = Class.create({
 
         new Ajax.Request(this.buildUrl(operation), {
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status);
-                else {
-                    self.processCallbacks(response, "do");
-                }
+                self.handleResponse(response, function(data) {
+                    self.processCallbacks(data, "do");
+                });
             },
             parameters: params,
             onFailure: self.handleError
@@ -879,7 +873,7 @@ var TableEditor = Class.create({
 
     indent: function(_indent) {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
 
@@ -893,12 +887,10 @@ var TableEditor = Class.create({
         }
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_INDENT), {
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
+                self.handleResponse(response, function(data) {
+                    self.processCallbacks(data, "do");
                     resultPadding = 0;
+                    // TODO Refactor with css calc()
                     if (cell.style.paddingLeft.indexOf("em") > 0) {
                         resultPadding = parseFloat(cell.style.paddingLeft);
                     } else if (cell.style.paddingLeft.indexOf("px") > 0) {
@@ -908,7 +900,7 @@ var TableEditor = Class.create({
                     if (resultPadding >= 0) {
                         cell.style.paddingLeft = resultPadding + "em";
                     }
-                }
+                });
             },
             parameters: params,
             onFailure: self.handleError
@@ -917,7 +909,7 @@ var TableEditor = Class.create({
 
     setFontBold: function() {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
 
@@ -934,13 +926,10 @@ var TableEditor = Class.create({
         }
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_BOLD), {
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
+                self.handleResponse(response, function(data) {
+                    self.processCallbacks(data, "do");
                     cell.style.fontWeight = _bold ? "normal" : "bold";
-                }
+                });
             },
             parameters: params,
             onFailure: self.handleError
@@ -949,7 +938,7 @@ var TableEditor = Class.create({
 
     setFontItalic: function() {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
 
@@ -966,13 +955,10 @@ var TableEditor = Class.create({
         }
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_ITALIC), {
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
+                self.handleResponse(data, function(data) {
                     self.processCallbacks(response, "do");
                     cell.style.fontStyle = _italic ? "normal" : "italic";
-                }
+                });
             },
             parameters: params,
             onFailure: self.handleError
@@ -981,7 +967,7 @@ var TableEditor = Class.create({
 
     setFontUnderline: function() {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
 
@@ -998,13 +984,10 @@ var TableEditor = Class.create({
         }
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_UNDERLINE), {
             onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
+                self.handleResponse(response, function(data) {
+                    self.processCallbacks(data, "do");
                     cell.style.textDecoration = _underline ? "none" : "underline";
-                }
+                });
             },
             parameters: params,
             onFailure: self.handleError
@@ -1013,7 +996,7 @@ var TableEditor = Class.create({
 
     doTableOperation: function(operation) {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
+            this.error("Nothing is selected");
             return;
         }
         var params = {
