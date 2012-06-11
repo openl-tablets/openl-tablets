@@ -1,5 +1,7 @@
 package org.openl.rules.ui.tree.richfaces;
 
+import java.util.Iterator;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -32,6 +34,16 @@ public class TraceTreeBuilder extends TreeBuilder {
         }
 
         return super.getState(element);
+    }
+
+    @Override
+    protected Iterator<?> getChildrenIterator(ITreeElement<?> source) {
+        if (source instanceof DecisionTableTraceObject) {
+            DecisionTableTraceObject parent = (DecisionTableTraceObject) source;
+            return traceHelper.isDetailedTraceTree() ? parent.getChildren() : parent.getTraceResults();
+        }
+
+        return super.getChildrenIterator(source);
     }
 
 }
