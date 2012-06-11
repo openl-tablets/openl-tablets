@@ -1080,7 +1080,12 @@ public class RepositoryTreeController {
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
             clearUploadedFiles();
         } catch (Exception e) {
-            log.error("Error adding file to user workspace.", e);
+            /*If an error is IOException then an error will not be written to the console. This error throw when 
+             * upload file is exist in the upload folder*/
+            if( !e.getCause().getClass().equals(java.io.IOException.class) ) {
+                log.error("Error adding file to user workspace.", e);
+            }
+
             return e.getMessage();
         }
 
