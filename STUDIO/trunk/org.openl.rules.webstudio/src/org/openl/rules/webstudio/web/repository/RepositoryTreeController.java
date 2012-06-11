@@ -123,13 +123,19 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("File name must not be empty.");
             return null;
         }
+
         String errorMessage = uploadAndAddFile();
+
         if (errorMessage == null) {
             resetStudioModel();
             FacesUtils.addInfoMessage("File was uploaded successfully.");
         } else {
             FacesUtils.addErrorMessage(errorMessage);
         }
+
+        /*Clear the load form*/
+        this.clearForm();
+
         return null;
     }
 
@@ -592,7 +598,7 @@ public class RepositoryTreeController {
     }
 
     public String getFileName() {
-        return null;
+        return this.fileName;
     }
 
     public String getFilterString() {
@@ -911,6 +917,8 @@ public class RepositoryTreeController {
     public void uploadListener(FileUploadEvent event) {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
+        
+        this.setFileName(file.getName());
     }
 
     public void setFileName(String fileName) {
@@ -1048,6 +1056,10 @@ public class RepositoryTreeController {
         } else {
             FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file.");
         }
+        
+        /*Clear the load form*/
+        clearForm();
+        
         return null;
     }
 
@@ -1063,7 +1075,15 @@ public class RepositoryTreeController {
             }
             FacesUtils.addInfoMessage("Project was uploaded successfully.");
         }
+        
+        /*Clear the load form*/
+        clearForm();
+        
         return null;
+    }
+
+    private void clearForm() {
+        this.setFileName(null);
     }
 
     private String uploadAndAddFile() {
