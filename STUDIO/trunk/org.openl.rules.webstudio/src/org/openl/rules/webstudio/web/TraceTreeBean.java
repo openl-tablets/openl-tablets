@@ -6,7 +6,6 @@ import javax.faces.bean.RequestScoped;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.richfaces.TreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TraceTreeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -26,20 +25,32 @@ public class TraceTreeBean {
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
+        TraceHelper traceHelper = studio.getTraceHelper();
+
         if (model.hasTestSuitesToRun()) {
 
             Tracer tracer = model.traceElement(model.popLastTest());
 
-            TraceHelper traceHelper = studio.getTraceHelper();
-
             ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
             if (tree != null) {
-                TreeBuilder treeBuilder = new TraceTreeBuilder(tree, traceHelper);
-                TreeNode rfTree = treeBuilder.build();
-                return rfTree;
+                return buildTreeNode(traceHelper, tree);
             }
+        } else {
+            return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
         }
         return null;
+    }
+    
+    public boolean isDetailedTraceTree() {
+        return WebStudioUtils.getWebStudio().getTraceHelper().isDetailedTraceTree();
+    }
+    
+    public void setDetailedTraceTree(boolean detailedTraceTree) {
+        WebStudioUtils.getWebStudio().getTraceHelper().setDetailedTraceTree(detailedTraceTree);
+    }
+
+    private TreeNode buildTreeNode(TraceHelper traceHelper, ITreeElement<?> tree) {
+        return new TraceTreeBuilder(tree, traceHelper).build();
     }
 
 }

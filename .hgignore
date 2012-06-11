@@ -19,3 +19,5 @@ TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/_ReSharper.OpenLSm
 TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/OpenLSmokeTests/obj
 TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/_ReSharper.OpenLSmokeTests
 TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/WebDriverFrameWork/obj
+TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/OpenLSmokeTests/bin/Debug/*.tmp.config
+TESTS/trunk/org.openl.rules.integration.tests/TestReports

@@ -18,6 +18,8 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.FontGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
+import org.openl.util.tree.ITreeElement;
+import org.openl.vm.trace.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {
     private static final int SELECTED_ITEM_INCREMENT_SIZE = 4;
@@ -57,7 +59,13 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private void fillRegions(ITableTracerObject rootTraceObject) {
-        for (Iterator<?> iterator = rootTraceObject.getChildren(); iterator.hasNext();) {
+        Iterator<? extends ITreeElement<ITracerObject>> children;
+        if (rootTraceObject instanceof DecisionTableTraceObject) {
+            children = ((DecisionTableTraceObject) rootTraceObject).getTraceConditions();
+        } else {
+            children = rootTraceObject.getChildren();
+        }
+        for (Iterator<?> iterator = children; iterator.hasNext();) {
             ITableTracerObject child = (ITableTracerObject) iterator.next();
             List<IGridRegion> regions = child.getGridRegions();
 
