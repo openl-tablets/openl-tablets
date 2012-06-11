@@ -28,7 +28,6 @@ var TableEditor = Class.create({
     decorator: null,
     rows: 0,
     columns: 0,
-    modFuncSuccess: null,
     editCell: null,
     cellIdPrefix: null,
     actions: null,
@@ -93,7 +92,6 @@ var TableEditor = Class.create({
 
         new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
             method: "get",
-            encoding: "utf-8",
             contentType: "text/javascript",
             parameters: {
                 cell: cellPos,
@@ -137,24 +135,29 @@ var TableEditor = Class.create({
         // Handle Table Editor events END
 
         this.computeTableInfo();
-
-        this.modFuncSuccess = function(response) {
-            this.handleResponse(response, function(data) {
-                if (data.response) {
-                    self.renderTable(data.response);
-                    self.selectElement();
-                }
-                self.processCallbacks(data, "do");
-            });
-        }.bindAsEventListener(this);
     },
 
     handleResponse: function(response, callback) {
         var data = eval(response.responseText);
+
         if (data.status) {
             this.error(data.status);
+
         } else {
-            callback(data);
+            if (data.response) {
+                this.renderTable(data.response);
+                this.selectElement();
+            }
+
+            if (data.hasUndo === true || data.hasUndo === false) {
+                this.hasChanges = data.hasUndo;
+                this.undoStateUpdated(data.hasUndo);
+                this.redoStateUpdated(data.hasRedo);
+            }
+
+            if (callback) {
+                callback(data);
+            }
         }
     },
 
@@ -251,9 +254,8 @@ var TableEditor = Class.create({
             },
             onSuccess: function(response) {
                 self.handleResponse(response, function(data) {
-                    self.processCallbacks(data, "do");
                     if (self.actions && self.actions.afterSave) {
-                        self.actions.afterSave({"newUri": data.response});
+                        self.actions.afterSave({"newUri": data.uri});
                     }
                 });
             },
@@ -273,7 +275,7 @@ var TableEditor = Class.create({
                 editorId: this.editorId
             },
             onSuccess: function(response) {
-            	window.onbeforeunload = Prototype.emptyFunction;
+                window.onbeforeunload = Prototype.emptyFunction;
             },
             onFailure: function(response) {
                 self.handleError(response, "Server failed to rollback your changes");
@@ -617,9 +619,10 @@ var TableEditor = Class.create({
                 var self = this;
                 new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_CELL_VALUE), {
                     method    : "get",
-                    encoding   : "utf-8",
                     contentType : "text/javascript",
-                    onSuccess  : this.modFuncSuccess,
+                    onSuccess : function(response) {
+                        self.handleResponse(response);
+                    },
                     parameters: {
                         editorId: this.editorId,
                         row : self.selectionPos[0],
@@ -628,8 +631,7 @@ var TableEditor = Class.create({
                         editor: this.editorSwitched ? this.editorName : ''
                     },
                     onFailure: function(response) {
-                        self.handleError(response,
-                                "Error during setting the value.");
+                        self.handleError(response, "Error during setting the value.");
                     }
                 });
             }
@@ -730,12 +732,16 @@ var TableEditor = Class.create({
     },
 
     undoredo: function(redo) {
+        var self = this;
+
         if (Ajax.activeRequestCount > 0) return;
         new Ajax.Request(this.buildUrl((redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO)), {
             parameters: {
                 editorId: this.editorId
             },
-            onSuccess: this.modFuncSuccess,
+            onSuccess: function(response) {
+                self.handleResponse(response);
+            },
             onFailure: this.handleError
         })
     },
@@ -770,7 +776,6 @@ var TableEditor = Class.create({
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_ALIGN), {
             onSuccess: function(response) {
                 self.handleResponse(response, function(data) {
-                    self.processCallbacks(data, "do");
                     if (self.editor) {
                         self.editor.input.style.textAlign = _align;
                     }
@@ -862,9 +867,7 @@ var TableEditor = Class.create({
 
         new Ajax.Request(this.buildUrl(operation), {
             onSuccess: function(response) {
-                self.handleResponse(response, function(data) {
-                    self.processCallbacks(data, "do");
-                });
+                self.handleResponse(response);
             },
             parameters: params,
             onFailure: self.handleError
@@ -888,7 +891,6 @@ var TableEditor = Class.create({
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_INDENT), {
             onSuccess: function(response) {
                 self.handleResponse(response, function(data) {
-                    self.processCallbacks(data, "do");
                     resultPadding = 0;
                     // TODO Refactor with css calc()
                     if (cell.style.paddingLeft.indexOf("em") > 0) {
@@ -927,7 +929,6 @@ var TableEditor = Class.create({
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_BOLD), {
             onSuccess: function(response) {
                 self.handleResponse(response, function(data) {
-                    self.processCallbacks(data, "do");
                     cell.style.fontWeight = _bold ? "normal" : "bold";
                 });
             },
@@ -956,7 +957,6 @@ var TableEditor = Class.create({
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_ITALIC), {
             onSuccess: function(response) {
                 self.handleResponse(data, function(data) {
-                    self.processCallbacks(response, "do");
                     cell.style.fontStyle = _italic ? "normal" : "italic";
                 });
             },
@@ -985,7 +985,6 @@ var TableEditor = Class.create({
         new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_UNDERLINE), {
             onSuccess: function(response) {
                 self.handleResponse(response, function(data) {
-                    self.processCallbacks(data, "do");
                     cell.style.textDecoration = _underline ? "none" : "underline";
                 });
             },
@@ -995,18 +994,24 @@ var TableEditor = Class.create({
     },
 
     doTableOperation: function(operation) {
+        var self = this;
+
         if (!this.hasSelection()) {
             this.error("Nothing is selected");
             return;
         }
+
         var params = {
             editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1]
         }
+
         new Ajax.Request(this.buildUrl(operation), {
-            onSuccess: this.modFuncSuccess,
             parameters: params,
+            onSuccess : function(response) {
+                self.handleResponse(response);
+            },
             onFailure: this.handleError
         });
     },
@@ -1017,24 +1022,6 @@ var TableEditor = Class.create({
 
     hasSelection : function() {
         return this.selectionPos && this.currentElement;
-    },
-
-    processCallbacks: function(obj, action) {
-        function isBoolean(t) {return obj.hasUndo === true || obj.hasUndo === false}
-        try {
-            switch (action) {
-                case "do":
-                    if (obj) {
-                        if (isBoolean(obj.hasUndo)) try {this.hasChanges = obj.hasUndo; this.undoStateUpdated(obj.hasUndo)} catch (e) {}
-                        this.redoStateUpdated(obj.hasRedo)
-                    }
-                    break;
-                case "selection":
-                    if (isBoolean(obj)) this.isSelectedUpdated(obj);
-                    break;
-
-            }
-        } catch(ex) {}
     },
 
     // Callback functions
@@ -1054,7 +1041,6 @@ TableEditor.Operations = {
     GET_CELL_EDITOR : "getCellEditor",
     GET_CELL_VALUE : "getCellValue",
     SET_CELL_VALUE : "setCellValue",
-    SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",
     SET_FILL_COLOR : "setFillColor",
     SET_FONT_COLOR : "setFontColor",

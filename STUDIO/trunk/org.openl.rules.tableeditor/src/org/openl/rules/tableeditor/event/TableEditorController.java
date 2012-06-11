@@ -524,7 +524,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 if (beforeSave()) {
                     String newUri = editorModel.save();
                     afterSave(newUri);
-                    tmResponse.setResponse(newUri);
+                    tmResponse.setUri(newUri);
                 }
             } catch (IOException e) {
                 log.warn(ERROR_SAVE_TABLE, e);
@@ -612,6 +612,7 @@ public class TableEditorController extends BaseTableEditorController implements 
     public static class TableModificationResponse {
         private String response;
         private String status;
+        private String uri;
         private TableEditorModel model;
 
         public TableModificationResponse(String response, String status, TableEditorModel model) {
@@ -631,6 +632,10 @@ public class TableEditorController extends BaseTableEditorController implements 
 
         public String getStatus() {
             return status;
+        }
+
+        public String getUri() {
+            return uri;
         }
 
         public boolean isHasRedo() {
@@ -655,6 +660,10 @@ public class TableEditorController extends BaseTableEditorController implements 
 
         public void setStatus(String status) {
             this.status = status;
+        }
+
+        public void setUri(String uri) {
+            this.uri = uri;
         }
 
     }
