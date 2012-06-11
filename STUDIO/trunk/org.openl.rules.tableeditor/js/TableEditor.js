@@ -760,10 +760,7 @@ var TableEditor = Class.create({
     },
 
     setAlignment: function(_align) {
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var self = this;
@@ -850,10 +847,7 @@ var TableEditor = Class.create({
     },
 
     setColor: function(_color, operation) {
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var self = this;
@@ -875,10 +869,7 @@ var TableEditor = Class.create({
     },
 
     indent: function(_indent) {
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var self = this;
@@ -910,10 +901,7 @@ var TableEditor = Class.create({
     },
 
     setFontBold: function() {
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var self = this;
 
@@ -938,10 +926,7 @@ var TableEditor = Class.create({
     },
 
     setFontItalic: function() {
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var self = this;
 
@@ -966,10 +951,7 @@ var TableEditor = Class.create({
     },
 
     setFontUnderline: function() {
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var self = this;
 
@@ -993,13 +975,18 @@ var TableEditor = Class.create({
         });
     },
 
+    checkSelection: function() {
+        if (!this.hasSelection()) {
+            this.error("Nothing is selected");
+            return false;
+        }
+        return true;
+    },
+
     doTableOperation: function(operation) {
         var self = this;
 
-        if (!this.hasSelection()) {
-            this.error("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var params = {
             editorId: this.editorId,
