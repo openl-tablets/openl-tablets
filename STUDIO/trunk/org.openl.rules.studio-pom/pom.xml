@@ -84,8 +84,8 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.project.version.plugins</groupId>
-          <artifactId>project.version-assembly-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -94,8 +94,8 @@
   <reporting>
     <plugins>
       <plugin>
-        <groupId>org.apache.project.version.plugins</groupId>
-        <artifactId>project.version-checkstyle-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <configLocation>../org.openl.rules.studio-pom/checkstyle.xml</configLocation>
         </configuration>
@@ -119,7 +119,7 @@
       <build>
         <plugins>
           <plugin>
-            <artifactId>project.version-antrun-plugin</artifactId>
+            <artifactId>maven-antrun-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <tasks>
