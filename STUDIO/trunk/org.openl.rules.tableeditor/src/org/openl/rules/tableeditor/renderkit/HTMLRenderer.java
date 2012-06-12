@@ -456,7 +456,7 @@ public class HTMLRenderer {
 
         public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
             menuId = menuId == null ? "" : menuId;
-            String eventHandlers = "oncontextmenu=\"openMenu('" + menuId + "',this,event)\"";
+            String eventHandlers = "oncontextmenu=\"openMenu('" + menuId + "',event)\"";
             return render(eventHandlers, editor.isShowFormulas(), errorCell, editor.getId());
         }
     }

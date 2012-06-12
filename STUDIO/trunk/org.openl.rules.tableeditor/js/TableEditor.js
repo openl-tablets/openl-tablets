@@ -52,10 +52,10 @@ var TableEditor = Class.create({
         // Suppress text selection BEGIN
         this.tableContainer.onselectstart = function() { // IE
             return false;
-        }
+        };
         this.tableContainer.onmousedown = function() { // Mozilla
             return false;
-        }
+        };
         // Suppress text selection END
 
         if (editCell) this.editCell = editCell;
@@ -114,7 +114,7 @@ var TableEditor = Class.create({
     initEditMode: function() {
         var self = this;
 
-        initToolbar(self.editorId);
+        initToolbar();
         self.toolbar = $(self.editorId).down(".te_toolbar");
         self.editorWrapper = $(self.editorId + "_editorWrapper");
 
@@ -140,12 +140,12 @@ var TableEditor = Class.create({
     handleResponse: function(response, callback) {
         var data = eval(response.responseText);
 
-        if (data.status) {
-            this.error(data.status);
+        if (data.message) {
+            this.error(data.message);
 
         } else {
-            if (data.response) {
-                this.renderTable(data.response);
+            if (data.html) {
+                this.renderTable(data.html);
                 this.selectElement();
             }
 
@@ -402,7 +402,7 @@ var TableEditor = Class.create({
             var res = this.$cell(sp);
             if (!noRestore) sp[index] = tmp;
             return res;
-        }
+        };
 
         switch (event.keyCode) {
             case 37: case 38: // LEFT, UP
@@ -449,7 +449,7 @@ var TableEditor = Class.create({
             editorId: this.editorId,
             row: self.selectionPos[0],
             col: self.selectionPos[1]
-        }
+        };
 
         this.doOperation(TableEditor.Operations.GET_CELL_EDITOR, params, function(data) {
             self.editBegin(cell, data, typedText);
@@ -583,18 +583,14 @@ var TableEditor = Class.create({
 
     getCellEditorStyle: function(cell) {
         if (cell) {
-            var style = {
+            return {
                 fontFamily: cell.style.fontFamily,
-                fontSize: cell.style.fontSize,
+                fontSize  : cell.style.fontSize,
                 fontWeight: cell.style.fontWeight,
-                fontStyle: cell.style.fontStyle,
-
-                textAlign: cell.style.textAlign,
-
-                padding: '1px'
-            }
-
-            return style;
+                fontStyle : cell.style.fontStyle,
+                textAlign : cell.style.textAlign,
+                padding   : '1px'
+            };
         }
     },
 
@@ -613,7 +609,7 @@ var TableEditor = Class.create({
                     col : self.selectionPos[1],
                     value: val,
                     editor: this.editorSwitched ? this.editorName : ''
-                }
+                };
 
                 this.doOperation(TableEditor.Operations.SET_CELL_VALUE, params);
             }
@@ -688,10 +684,7 @@ var TableEditor = Class.create({
     },
 
     isCell: function(element) {
-        if (element && element.id.indexOf(this.cellIdPrefix) >= 0) {
-            return true;
-        }
-        return false;
+        return element && element.id.indexOf(this.cellIdPrefix) >= 0;
     },
 
     isToolbar: function(element) {
@@ -715,10 +708,7 @@ var TableEditor = Class.create({
     },
 
     undoredo: function(redo) {
-        var self = this;
-
         if (Ajax.activeRequestCount > 0) return;
-
         this.doOperation(redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO, { editorId: this.editorId });
     },
 
@@ -746,7 +736,7 @@ var TableEditor = Class.create({
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             align: _align
-        }
+        };
 
         this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
             if (self.editor) {
@@ -821,15 +811,12 @@ var TableEditor = Class.create({
     setColor: function(_color, operation) {
         if (!this.checkSelection()) return;
 
-        var cell = this.currentElement;
-        var self = this;
-
         var params = {
             editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             color: _color
-        }
+        };
 
         this.doOperation(operation, params);
     },
@@ -838,24 +825,23 @@ var TableEditor = Class.create({
         if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
-        var self = this;
 
         var params = {
             editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             indent: _indent
-        }
+        };
 
         this.doOperation(TableEditor.Operations.SET_INDENT, params, function(data) {
-            resultPadding = 0;
+            var resultPadding = 0;
             // TODO Refactor with css calc()
             if (cell.style.paddingLeft.indexOf("em") > 0) {
                 resultPadding = parseFloat(cell.style.paddingLeft);
             } else if (cell.style.paddingLeft.indexOf("px") > 0) {
                 resultPadding = parseFloat(cell.style.paddingLeft) * 0.063;
             }
-            resultPadding = resultPadding + parseInt(_indent);
+            resultPadding += parseInt(_indent);
             if (resultPadding >= 0) {
                 cell.style.paddingLeft = resultPadding + "em";
             }
@@ -865,8 +851,6 @@ var TableEditor = Class.create({
     setFontBold: function() {
         if (!this.checkSelection()) return;
 
-        var self = this;
-
         var cell = this.currentElement;
         var _bold = cell.style.fontWeight == "bold";
 
@@ -875,7 +859,7 @@ var TableEditor = Class.create({
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             bold: !_bold
-        }
+        };
 
         this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
             cell.style.fontWeight = _bold ? "normal" : "bold";
@@ -885,8 +869,6 @@ var TableEditor = Class.create({
     setFontItalic: function() {
         if (!this.checkSelection()) return;
 
-        var self = this;
-
         var cell = this.currentElement;
         var _italic = cell.style.fontStyle == "italic";
 
@@ -895,7 +877,7 @@ var TableEditor = Class.create({
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             italic: !_italic
-        }
+        };
 
         this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
             cell.style.fontStyle = _italic ? "normal" : "italic";
@@ -905,8 +887,6 @@ var TableEditor = Class.create({
     setFontUnderline: function() {
         if (!this.checkSelection()) return;
 
-        var self = this;
-
         var cell = this.currentElement;
         var _underline = cell.style.textDecoration == "underline";
 
@@ -915,7 +895,8 @@ var TableEditor = Class.create({
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             underline: !_underline
-        }
+        };
+
         this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
             cell.style.textDecoration = _underline ? "none" : "underline";
         });
@@ -930,15 +911,13 @@ var TableEditor = Class.create({
     },
 
     doTableOperation: function(operation) {
-        var self = this;
-
         if (!this.checkSelection()) return;
 
         var params = {
             editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1]
-        }
+        };
 
         this.doOperation(operation, params);
     },
@@ -987,7 +966,7 @@ TableEditor.Operations = {
 
 // Standalone functions
 
-TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
+TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; }
 
 /**
  *  Responsible for visual display of 'selected' element.
@@ -1022,13 +1001,13 @@ var Decorator = Class.create({
 //TableEditor Menu
 
 // @Deprecated
-function openMenu(menuId, td, event) {
+function openMenu(menuId, event) {
     event.preventDefault();
     PopupMenu.sheduleShowMenu(menuId, event, 150);
 }
 
 // @Deprecated
-function closeMenu(td) {
+function closeMenu() {
     PopupMenu.cancelShowMenu();
 }
 
@@ -1084,7 +1063,7 @@ function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
 }
 
 // @Deprecated
-function initToolbar(editorId) {
+function initToolbar() {
     $$("." + itemClass).each(function(item) {
         processItem(item, false);
         item.onmouseover = function() {
