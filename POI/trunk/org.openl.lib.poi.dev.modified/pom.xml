@@ -33,7 +33,7 @@
                         <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
                                 <artifactId>maven-shade-plugin</artifactId>
-                                <version>1.2.1</version>
+                                <version>1.7</version>
                                 <executions>
                                         <execution>
                                                 <phase>package</phase>
@@ -54,6 +54,11 @@
                                                         	</excludes>
                                                         	</filter>
                                                         </filters>
+														<!-- This is a workaround for http://jira.codehaus.org/browse/MSHADE-103
+															Shade plugin tryies to download all dependencies from Central Maven Repo,
+															Skipping user-defined repositories. But when releasing POI BasePom is not yet deployed
+															to Maven Central-->
+														<createDependencyReducedPom>false</createDependencyReducedPom>
                                                 </configuration>
                                         </execution>
                                 </executions>

@@ -84,7 +84,7 @@
                 <artifactItem>
                   <groupId>org.openl.rules</groupId>
                   <artifactId>org.openl.rules.tutorials</artifactId>
-                  <version>${openl.version.maven}</version>
+                  <version>${project.version}</version>
                   <type>jar</type>
                   <outputDirectory>templates/</outputDirectory>
                 </artifactItem>
