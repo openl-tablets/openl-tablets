@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://project.version.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://project.version.apache.org/POM/4.0.0 http://project.version.apache.org/project.version-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -53,7 +53,7 @@
 
     <!--<repository>
       <id>jboss</id>
-      <url>http://repository.jboss.com/maven2</url>
+      <url>http://repository.jboss.com/project.version2</url>
     </repository>
 
     <repository>
@@ -84,8 +84,8 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
+          <groupId>org.apache.project.version.plugins</groupId>
+          <artifactId>project.version-assembly-plugin</artifactId>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -94,8 +94,8 @@
   <reporting>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
+        <groupId>org.apache.project.version.plugins</groupId>
+        <artifactId>project.version-checkstyle-plugin</artifactId>
         <configuration>
           <configLocation>../org.openl.rules.studio-pom/checkstyle.xml</configLocation>
         </configuration>
@@ -119,7 +119,7 @@
       <build>
         <plugins>
           <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
+            <artifactId>project.version-antrun-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <tasks>
@@ -194,43 +194,43 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.j.science</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
       
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.constrainer</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.conf.ant</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <!-- STUDIO -->
