@@ -27,6 +27,7 @@
 .te_toolbar_item_over {
     border-color: orange;
     background-image: url("../img/toolbarItemTileOver.gif");
+    cursor: pointer;
 }
 
 .te_toolbar .item_separator {

@@ -27,10 +27,9 @@ public class TableEditor {
     private IGridFilter[] filters;
     private String beforeSaveAction;
     private String afterSaveAction;
-    private String saveFailureAction;
     private String onBeforeSave;
     private String onAfterSave;
-    private String onSaveFailure;
+    private String onError;
     private String excludeScripts;
     private String linkBase;
     private String linkTarget;
@@ -52,9 +51,8 @@ public class TableEditor {
         castToFilters(component.getAttributes().get(Constants.ATTRIBUTE_FILTERS));
         beforeSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
         afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
-        saveFailureAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_SAVE_FAILURE_ACTION);
         onBeforeSave = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_SAVE);
-        onSaveFailure = (String) attributes.get(Constants.ATTRIBUTE_ON_SAVE_FAILURE);
+        onError = (String) attributes.get(Constants.ATTRIBUTE_ON_ERROR);
         onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
         excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
     }
@@ -180,20 +178,12 @@ public class TableEditor {
         return excludeScripts;
     }
 
-    public String getSaveFailureAction() {
-        return saveFailureAction;
+    public String getOnError() {
+        return onError;
     }
 
-    public void setSaveFailureAction(String saveFailureAction) {
-        this.saveFailureAction = saveFailureAction;
-    }
-
-    public String getOnSaveFailure() {
-        return onSaveFailure;
-    }
-
-    public void setOnSaveFailure(String onSaveFailure) {
-        this.onSaveFailure = onSaveFailure;
+    public void setOnError(String onError) {
+        this.onError = onError;
     }
 
     public String getLinkBase() {
