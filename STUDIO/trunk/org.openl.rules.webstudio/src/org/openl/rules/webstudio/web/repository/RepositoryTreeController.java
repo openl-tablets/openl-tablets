@@ -918,7 +918,14 @@ public class RepositoryTreeController {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
         
-        this.setFileName(file.getName());
+        String fileName = file.getName();
+        
+        /*If we use IE file name will be as full file path */
+        if (fileName.indexOf("\\") > -1) {
+            fileName = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length());
+        }
+        
+        this.setFileName(fileName);
     }
 
     public void setFileName(String fileName) {
