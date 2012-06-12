@@ -435,13 +435,11 @@
             </form>
 
             <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
-                linkBase="#showTable.xhtml"
-                mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+                linkBase="#showTable.xhtml" mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
                 showFormulas="#{studio.showFormulas}"
-                beforeSaveAction="#{showTableBean.beforeSaveAction}"
-                afterSaveAction="#{showTableBean.afterSaveAction}" onBeforeSave="javascript:onBeforeSave();"
-                onAfterSave="javascript:onAfterSave(data.newUri);" onSaveFailure="javascript:onSaveFailure();"
-                excludeScripts="prototype">
+                beforeSaveAction="#{showTableBean.beforeSaveAction}" afterSaveAction="#{showTableBean.afterSaveAction}"
+                onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
+                onError="javascript:onError(data);" excludeScripts="prototype">
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
@@ -478,13 +476,14 @@
             showLoader();
         }
 
-        function onAfterSave(newUri) {
-            goTo("showTable.xhtml?uri=" + encodeURIComponent(newUri), true);
+        function onAfterSave(data) {
+            goTo("showTable.xhtml?uri=" + encodeURIComponent(data.newUri), true);
             hideLoader();
         }
 
-        function onSaveFailure() {
+        function onError(data) {
             hideLoader();
+            message(data.message, 7000);
         }
 
         function isAnyTestSelected() {

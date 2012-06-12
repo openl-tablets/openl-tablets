@@ -14,19 +14,24 @@
 
 .te_toolbar_item {
     border: 1px solid rgb(170, 180, 210);
-    background: url("../img/toolbarItemTile.gif") repeat-x bottom white;
+    background: -moz-linear-gradient(to bottom, #fff, #ccdeff);
+    background: -webkit-linear-gradient(top, #fff, #ccdeff);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ccdeff)";
+    background: linear-gradient(to bottom, #fff, #ccdeff);
 }
 
 .te_toolbar_item_disabled {
     border-color: rgb(130, 140, 170);
-    background-mage: url("../img/toolbarItemTile.gif");
     opacity: 0.15;
-    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 15);
 }
 
 .te_toolbar_item_over {
     border-color: orange;
-    background-image: url("../img/toolbarItemTileOver.gif");
+    cursor: pointer;
+    background: -moz-linear-gradient(to bottom, #fff, #ffeedd);
+    background: -webkit-linear-gradient(top, #fff, #ffeedd);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ffeedd)";
+    background: linear-gradient(to bottom, #fff, #ffeedd);
 }
 
 .te_toolbar .item_separator {
