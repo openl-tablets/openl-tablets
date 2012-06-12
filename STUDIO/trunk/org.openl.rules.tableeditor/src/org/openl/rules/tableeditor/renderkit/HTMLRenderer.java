@@ -125,9 +125,9 @@ public class HTMLRenderer {
 
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
                 String afterSave = getEditorJSAction(editor.getOnAfterSave());
-                String saveFailure = getEditorJSAction(editor.getOnSaveFailure());
+                String error = getEditorJSAction(editor.getOnError());
 
-                String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",saveFailure:" + saveFailure + "}";
+                String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + "}";
 
                 result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
                         + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ","
@@ -456,7 +456,7 @@ public class HTMLRenderer {
 
         public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
             menuId = menuId == null ? "" : menuId;
-            String eventHandlers = "oncontextmenu=\"openMenu('" + menuId + "',this,event)\"";
+            String eventHandlers = "oncontextmenu=\"openMenu('" + menuId + "',event)\"";
             return render(eventHandlers, editor.isShowFormulas(), errorCell, editor.getId());
         }
     }

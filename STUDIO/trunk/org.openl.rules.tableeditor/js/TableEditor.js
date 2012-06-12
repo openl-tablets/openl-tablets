@@ -28,7 +28,6 @@ var TableEditor = Class.create({
     decorator: null,
     rows: 0,
     columns: 0,
-    modFuncSuccess: null,
     editCell: null,
     cellIdPrefix: null,
     actions: null,
@@ -42,21 +41,21 @@ var TableEditor = Class.create({
 
     // Constructor
     initialize: function(editorId, url, editCell, actions, mode, editable) {
-        this.mode = mode ? mode : this.Modes.VIEW;
+        this.mode = mode || this.Modes.VIEW;
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
         this.tableContainer = $(editorId + "_table");
         this.actions = actions;
 
-        this.editable = editable === false ? false : true;
+        this.editable = editable !== false;
 
         // Suppress text selection BEGIN
         this.tableContainer.onselectstart = function() { // IE
             return false;
-        }
+        };
         this.tableContainer.onmousedown = function() { // Mozilla
             return false;
-        }
+        };
         // Suppress text selection END
 
         if (editCell) this.editCell = editCell;
@@ -92,9 +91,6 @@ var TableEditor = Class.create({
         }
 
         new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
-            method: "get",
-            encoding: "utf-8",
-            contentType: "text/javascript",
             parameters: {
                 cell: cellPos,
                 editorId: self.editorId
@@ -109,14 +105,16 @@ var TableEditor = Class.create({
                 self.editCell = cellPos;
                 self.startEditing();
             },
-            onFailure: self.handleError
+            onFailure: function(response) {
+                self.handleError(response);
+            }
         });
     },
 
     initEditMode: function() {
         var self = this;
 
-        initToolbar(self.editorId);
+        initToolbar();
         self.toolbar = $(self.editorId).down(".te_toolbar");
         self.editorWrapper = $(self.editorId + "_editorWrapper");
 
@@ -137,38 +135,66 @@ var TableEditor = Class.create({
         // Handle Table Editor events END
 
         this.computeTableInfo();
-
-        this.modFuncSuccess = function(response) {
-            response = eval(response.responseText);
-            if (response.status)
-                alert(response.status);
-            else {
-                if (response.response) {
-                    this.renderTable(response.response);
-                    this.selectElement();
-                }
-                this.processCallbacks(response, "do");
-            }
-        }.bindAsEventListener(this);
     },
 
-    /**
-     * Handles response error.
-     */
-    handleError: function(response, errorMessage) {
+    handleResponse: function(response, callback) {
+        var data = eval(response.responseText);
+
+        if (data.message) {
+            this.error(data.message);
+
+        } else {
+            if (data.html) {
+                this.renderTable(data.html);
+                this.selectElement();
+            }
+
+            if (data.hasUndo === true || data.hasUndo === false) {
+                this.hasChanges = data.hasUndo;
+                this.undoStateUpdated(data.hasUndo);
+                this.redoStateUpdated(data.hasRedo);
+            }
+
+            if (callback) {
+                callback(data);
+            }
+        }
+    },
+
+    handleError: function(response) {
         if (response.status == 399) { // Redirect
             var redirectPage = response.getResponseHeader("Location");
             if (redirectPage) {
                 top.location.href = redirectPage;
-            } else {
-                alert(response.statusText);
+                return;
             }
-        } else {
-            if (!errorMessage) {
-                errorMessage = "Error: " + response.status + " - " + response.statusText;
-            }
-            alert(errorMessage);
         }
+
+        this.error("Sorry! Server failed to apply your changes!");
+    },
+
+    error: function(message) {
+        if (this.actions && this.actions.error) {
+            this.actions.error({"message": message});
+        } else {
+            alert(message);
+        }
+    },
+
+    doOperation: function(operation, params, successCallback) {
+        var self = this;
+
+        new Ajax.Request(this.buildUrl(operation), {
+            parameters: params,
+
+            onSuccess: function(response) {
+                self.handleResponse(response, successCallback);
+            },
+
+            onFailure: function(response) {
+                self.handleError(response);
+            }
+        });
     },
 
     startEditing: function() {
@@ -216,9 +242,12 @@ var TableEditor = Class.create({
     },
 
     /**
-     * Makes all changes persistant. Sends corresponding request to the server.
+     * Makes all changes persistent.
+     * Sends corresponding request to the server.
      */
     save: function() {
+        var self = this;
+
         var beforeSavePassed = true;
         if (this.actions && this.actions.beforeSave) {
             beforeSavePassed = this.actions.beforeSave();
@@ -226,60 +255,23 @@ var TableEditor = Class.create({
         if (beforeSavePassed == false) return;
 
         if (!Validation.isAllValidated()) { // Validation failed
-            if (this.actions && this.actions.saveFailure) {
-                this.actions.saveFailure();
-            }
-            alert('There are validation errors.');
+            self.error("There are validation errors.");
             return;
         }
 
-        var self = this;
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
-            parameters: {
-                editorId: this.editorId
-            },
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status) { // Error
-                    alert(response.status);
-                    if (self.actions && self.actions.saveFailure) {
-                        self.actions.saveFailure();
-                    }
-                } else {
-                    self.processCallbacks(response, "do");
-                    if (self.actions && self.actions.afterSave) {
-                        self.actions.afterSave({"newUri": response.response});
-                    }
-                }
-            },
-            onFailure: function(response) {
-                self.handleError(response,
-                        "Server failed to save your changes");
-
-                if (self.actions && self.actions.saveFailure) {
-                    self.actions.saveFailure();
-                }
-
+        this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, function(data) {
+            if (self.actions && self.actions.afterSave) {
+                self.actions.afterSave({"newUri": data.uri});
             }
         });
     },
-
 
     /**
      * Rolls back all changes. Sends corresponding request to the server.
      */
     rollback: function() {
-        var self = this;
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.ROLLBACK), {
-            parameters: {
-                editorId: this.editorId
-            },
-            onSuccess: function(response) {
-            	window.onbeforeunload = Prototype.emptyFunction;
-            },
-            onFailure: function(response) {
-                self.handleError(response, "Server failed to rollback your changes");
-            }
+        this.doOperation(TableEditor.Operations.ROLLBACK, params, function(data) {
+            window.onbeforeunload = Prototype.emptyFunction;
         });
     },
 
@@ -410,7 +402,7 @@ var TableEditor = Class.create({
             var res = this.$cell(sp);
             if (!noRestore) sp[index] = tmp;
             return res;
-        }
+        };
 
         switch (event.keyCode) {
             case 37: case 38: // LEFT, UP
@@ -450,18 +442,17 @@ var TableEditor = Class.create({
         this.selectElement(cell);
 
         var typedText = undefined;
-        if (keyCode) typedText = String.fromCharCode(keyCode);
+        if (keyCode)
+            typedText = String.fromCharCode(keyCode);
 
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.GET_CELL_EDITOR), {
-            onSuccess  : function(response) {
-                self.editBegin(cell, eval(response.responseText), typedText);
-            },
-            parameters : {
-                editorId: this.editorId,
-                row : self.selectionPos[0],
-                col : self.selectionPos[1]
-            },
-            onFailure: self.handleError
+        var params = {
+            editorId: this.editorId,
+            row: self.selectionPos[0],
+            col: self.selectionPos[1]
+        };
+
+        this.doOperation(TableEditor.Operations.GET_CELL_EDITOR, params, function(data) {
+            self.editBegin(cell, data, typedText);
         });
     },
 
@@ -577,7 +568,7 @@ var TableEditor = Class.create({
 
         prevEditor.isCancelled = function () { return true; };
         prevEditor.destroy();
-        
+
         this.editorSwitched = true;
     },
 
@@ -592,18 +583,14 @@ var TableEditor = Class.create({
 
     getCellEditorStyle: function(cell) {
         if (cell) {
-            var style = {
+            return {
                 fontFamily: cell.style.fontFamily,
-                fontSize: cell.style.fontSize,
+                fontSize  : cell.style.fontSize,
                 fontWeight: cell.style.fontWeight,
-                fontStyle: cell.style.fontStyle,
-
-                textAlign: cell.style.textAlign,
-
-                padding: '1px'
-            }
-
-            return style;
+                fontStyle : cell.style.fontStyle,
+                textAlign : cell.style.textAlign,
+                padding   : '1px'
+            };
         }
     },
 
@@ -615,24 +602,18 @@ var TableEditor = Class.create({
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
                 var self = this;
-                new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_CELL_VALUE), {
-                    method    : "get",
-                    encoding   : "utf-8",
-                    contentType : "text/javascript",
-                    onSuccess  : this.modFuncSuccess,
-                    parameters: {
-                        editorId: this.editorId,
-                        row : self.selectionPos[0],
-                        col : self.selectionPos[1],
-                        value: val,
-                        editor: this.editorSwitched ? this.editorName : ''
-                    },
-                    onFailure: function(response) {
-                        self.handleError(response,
-                                "Error during setting the value.");
-                    }
-                });
+
+                var params = {
+                    editorId: this.editorId,
+                    row : self.selectionPos[0],
+                    col : self.selectionPos[1],
+                    value: val,
+                    editor: this.editorSwitched ? this.editorName : ''
+                };
+
+                this.doOperation(TableEditor.Operations.SET_CELL_VALUE, params);
             }
+
             this.editor.destroy();
             this.editorWrapper.hide();
             this.editor = null;
@@ -703,10 +684,7 @@ var TableEditor = Class.create({
     },
 
     isCell: function(element) {
-        if (element && element.id.indexOf(this.cellIdPrefix) >= 0) {
-            return true;
-        }
-        return false;
+        return element && element.id.indexOf(this.cellIdPrefix) >= 0;
     },
 
     isToolbar: function(element) {
@@ -731,13 +709,7 @@ var TableEditor = Class.create({
 
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
-        new Ajax.Request(this.buildUrl((redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO)), {
-            parameters: {
-                editorId: this.editorId
-            },
-            onSuccess: this.modFuncSuccess,
-            onFailure: this.handleError
-        })
+        this.doOperation(redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO, { editorId: this.editorId });
     },
 
     /**
@@ -754,34 +726,23 @@ var TableEditor = Class.create({
     },
 
     setAlignment: function(_align) {
-        if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var self = this;
+
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             align: _align
-        }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_ALIGN), {
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status);
-                else {
-                    self.processCallbacks(response, "do");
-                    if (self.editor) {
-                        self.editor.input.style.textAlign = _align;
-                    }
-                    cell.style.textAlign = _align;
-                }
-            },
-            parameters: params,
-            onFailure: self.handleError
+        };
+
+        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
+            if (self.editor) {
+                self.editor.input.style.textAlign = _align;
+            }
+            cell.style.textAlign = _align;
         });
     },
 
@@ -848,184 +809,117 @@ var TableEditor = Class.create({
     },
 
     setColor: function(_color, operation) {
-        if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
-        }
-
-        var cell = this.currentElement;
-        var self = this;
+        if (!this.checkSelection()) return;
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             color: _color
-        }
+        };
 
-        new Ajax.Request(this.buildUrl(operation), {
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status);
-                else {
-                    self.processCallbacks(response, "do");
-                }
-            },
-            parameters: params,
-            onFailure: self.handleError
-        });
+        this.doOperation(operation, params);
     },
 
     indent: function(_indent) {
-        if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
-        }
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
-        var self = this;
+
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             indent: _indent
-        }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_INDENT), {
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
-                    resultPadding = 0;
-                    if (cell.style.paddingLeft.indexOf("em") > 0) {
-                        resultPadding = parseFloat(cell.style.paddingLeft);
-                    } else if (cell.style.paddingLeft.indexOf("px") > 0) {
-                        resultPadding = parseFloat(cell.style.paddingLeft) * 0.063;
-                    }
-                    resultPadding = resultPadding + parseInt(_indent);
-                    if (resultPadding >= 0) {
-                        cell.style.paddingLeft = resultPadding + "em";
-                    }
-                }
-            },
-            parameters: params,
-            onFailure: self.handleError
+        };
+
+        this.doOperation(TableEditor.Operations.SET_INDENT, params, function(data) {
+            var resultPadding = 0;
+            // TODO Refactor with css calc()
+            if (cell.style.paddingLeft.indexOf("em") > 0) {
+                resultPadding = parseFloat(cell.style.paddingLeft);
+            } else if (cell.style.paddingLeft.indexOf("px") > 0) {
+                resultPadding = parseFloat(cell.style.paddingLeft) * 0.063;
+            }
+            resultPadding += parseInt(_indent);
+            if (resultPadding >= 0) {
+                cell.style.paddingLeft = resultPadding + "em";
+            }
         });
     },
 
     setFontBold: function() {
-        if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
-        }
-
-        var self = this;
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var _bold = cell.style.fontWeight == "bold";
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             bold: !_bold
-        }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_BOLD), {
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
-                    cell.style.fontWeight = _bold ? "normal" : "bold";
-                }
-            },
-            parameters: params,
-            onFailure: self.handleError
+        };
+
+        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
+            cell.style.fontWeight = _bold ? "normal" : "bold";
         });
     },
 
     setFontItalic: function() {
-        if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
-        }
-
-        var self = this;
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var _italic = cell.style.fontStyle == "italic";
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             italic: !_italic
-        }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_ITALIC), {
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
-                    cell.style.fontStyle = _italic ? "normal" : "italic";
-                }
-            },
-            parameters: params,
-            onFailure: self.handleError
+        };
+
+        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
+            cell.style.fontStyle = _italic ? "normal" : "italic";
         });
     },
 
     setFontUnderline: function() {
-        if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
-        }
-
-        var self = this;
+        if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var _underline = cell.style.textDecoration == "underline";
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             underline: !_underline
-        }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_UNDERLINE), {
-            onSuccess: function(response) {
-                response = eval(response.responseText);
-                if (response.status)
-                    alert(response.status)
-                else {
-                    self.processCallbacks(response, "do");
-                    cell.style.textDecoration = _underline ? "none" : "underline";
-                }
-            },
-            parameters: params,
-            onFailure: self.handleError
+        };
+
+        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
+            cell.style.textDecoration = _underline ? "none" : "underline";
         });
     },
 
-    doTableOperation: function(operation) {
+    checkSelection: function() {
         if (!this.hasSelection()) {
-            alert("Nothing is selected");
-            return;
+            this.error("Nothing is selected");
+            return false;
         }
+        return true;
+    },
+
+    doTableOperation: function(operation) {
+        if (!this.checkSelection()) return;
+
         var params = {
             editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1]
-        }
-        new Ajax.Request(this.buildUrl(operation), {
-            onSuccess: this.modFuncSuccess,
-            parameters: params,
-            onFailure: this.handleError
-        });
+        };
+
+        this.doOperation(operation, params);
     },
 
     unescapeHTML: function(html) {
@@ -1034,24 +928,6 @@ var TableEditor = Class.create({
 
     hasSelection : function() {
         return this.selectionPos && this.currentElement;
-    },
-
-    processCallbacks: function(obj, action) {
-        function isBoolean(t) {return obj.hasUndo === true || obj.hasUndo === false}
-        try {
-            switch (action) {
-                case "do":
-                    if (obj) {
-                        if (isBoolean(obj.hasUndo)) try {this.hasChanges = obj.hasUndo; this.undoStateUpdated(obj.hasUndo)} catch (e) {}
-                        this.redoStateUpdated(obj.hasRedo)
-                    }
-                    break;
-                case "selection":
-                    if (isBoolean(obj)) this.isSelectedUpdated(obj);
-                    break;
-
-            }
-        } catch(ex) {}
     },
 
     // Callback functions
@@ -1071,7 +947,6 @@ TableEditor.Operations = {
     GET_CELL_EDITOR : "getCellEditor",
     GET_CELL_VALUE : "getCellValue",
     SET_CELL_VALUE : "setCellValue",
-    SET_CELL_FORMULA : "setCellFormula",
     SET_ALIGN : "setAlign",
     SET_FILL_COLOR : "setFillColor",
     SET_FONT_COLOR : "setFontColor",
@@ -1091,7 +966,7 @@ TableEditor.Operations = {
 
 // Standalone functions
 
-TableEditor.isNavigationKey = function (keyCode) {return  keyCode >= 37 && keyCode <= 41}
+TableEditor.isNavigationKey = function (keyCode) { return  keyCode >= 37 && keyCode <= 41; }
 
 /**
  *  Responsible for visual display of 'selected' element.
@@ -1126,13 +1001,13 @@ var Decorator = Class.create({
 //TableEditor Menu
 
 // @Deprecated
-function openMenu(menuId, td, event) {
+function openMenu(menuId, event) {
     event.preventDefault();
     PopupMenu.sheduleShowMenu(menuId, event, 150);
 }
 
 // @Deprecated
-function closeMenu(td) {
+function closeMenu() {
     PopupMenu.cancelShowMenu();
 }
 
@@ -1188,7 +1063,7 @@ function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
 }
 
 // @Deprecated
-function initToolbar(editorId) {
+function initToolbar() {
     $$("." + itemClass).each(function(item) {
         processItem(item, false);
         item.onmouseover = function() {
