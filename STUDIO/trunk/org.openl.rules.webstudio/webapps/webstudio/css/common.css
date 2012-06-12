@@ -570,3 +570,12 @@ table.header thead td {
 .simpleView_workspace > div {
     padding: 5px 7px;
 }
+
+/*Columns style for toolbar of the project tree*/
+.rules_tree_view_first_col {
+    width: 100%;
+}
+
+.rules_tree_view_second_col {
+    width: 20px;
+}
