@@ -45,6 +45,7 @@ function init(data) {
             },
             onClick: function(node, eventInfo, e) {
               //set final styles
+              /*This part of code make error in IE 9
                 rgraph.graph.eachNode(function(n) {
                     if(n.id != node.id) delete n.selected;
                     n.setData('dim', 5, 'end');
@@ -75,6 +76,7 @@ function init(data) {
                             'edge-property:lineWidth:color'],
                     duration: 300
                });
+               */
             }
         },
 
