@@ -17,9 +17,9 @@
                     </h:selectOneMenu>
                  </h:panelGroup>   
                 <h:panelGroup rendered="#{studio.currentProject != null}">
-                   <h:commandLink title="Recently visited tables" styleClass="imageButton"
-                            style="background:url('webresource/images/table_history.png')"
-                            onclick="sessionStorage.setItem(SHOW_HISTORY_ITEM,'true'); reloadLeft(); return false;" />
+                    <h:commandLink title="Recently visited tables" styleClass="imageButton"
+                        style="background:url('webresource/images/table_history.png'); border: 0; background-color: transparent !important"
+                        onclick="sessionStorage.setItem(SHOW_HISTORY_ITEM,'true'); reloadLeft(); return false;" />
                 </h:panelGroup>
             </h:panelGrid>
         </h:form>
