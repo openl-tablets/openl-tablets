@@ -185,8 +185,8 @@
             </deferred-value>
         </attribute>
         <attribute>
-            <description>Save failure JS action.</description>
-            <name>onSaveFailure</name>
+            <description>Error JS action.</description>
+            <name>onError</name>
             <deferred-value>
                 <type>String</type>
             </deferred-value>

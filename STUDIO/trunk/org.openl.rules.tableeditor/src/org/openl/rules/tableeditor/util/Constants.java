@@ -13,10 +13,9 @@ public final class Constants {
     public static final String ATTRIBUTE_COLLAPSE_PROPS = "collapseProps";
     public static final String ATTRIBUTE_BEFORE_SAVE_ACTION = "beforeSaveAction";
     public static final String ATTRIBUTE_AFTER_SAVE_ACTION = "afterSaveAction";
-    public static final String ATTRIBUTE_SAVE_FAILURE_ACTION = "saveFailureAction";
     public static final String ATTRIBUTE_ON_BEFORE_SAVE = "onBeforeSave";
     public static final String ATTRIBUTE_ON_AFTER_SAVE = "onAfterSave";
-    public static final String ATTRIBUTE_ON_SAVE_FAILURE = "onSaveFailure";
+    public static final String ATTRIBUTE_ON_ERROR = "onError";
     public static final String ATTRIBUTE_EXCLUDE_SCRIPTS = "excludeScripts";
     public static final String ATTRIBUTE_LINK_BASE = "linkBase";
     public static final String ATTRIBUTE_LINK_TARGET = "linkTarget";

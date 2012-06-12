@@ -31,14 +31,18 @@ import org.openl.util.formatters.IFormatter;
  * Table editor controller.
  *
  * @author Andrey Naumenko
+ * @author Andrei Ostrovski
  */
-public class TableEditorController extends BaseTableEditorController implements ITableEditorController {
+public class TableEditorController extends BaseTableEditorController {
 
     private final Log log = LogFactory.getLog(TableEditorController.class);
 
+    private static final String SERVER_ERROR = "Internal server error.";
     private static final String ERROR_SET_NEW_VALUE = "Error on setting new value to the cell. ";
     private static final String ERROR_SAVE_TABLE = "Failed to save table.";
     private static final String ERROR_SET_STYLE = "Failed to set style.";
+    private static final String ERROR_INSERT_ROW = "Can not insert row.";
+    private static final String ERROR_INSERT_COLUMN = "Can not insert column.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
         + " Please close module Excel file and try again.";
 
@@ -61,19 +65,19 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             try {
                 if (row >= 0) {
                     editorModel.insertRows(1, row, col);
-                    tmResponse.setResponse(render(editorId));
+                    response.setHtml(render(editorId));
                 } else {
-                    tmResponse.setStatus("Can not insert row");
+                    response.setMessage(ERROR_INSERT_ROW);
                 }
             } catch (Exception e) {
-                tmResponse.setStatus("Internal server error");
-                log.error("Internal server error", e);
+                response.setMessage(SERVER_ERROR);
+                log.error(SERVER_ERROR, e);
             }
-            return pojo2json(tmResponse);
+            return pojo2json(response);
         }
         return null;
     }
@@ -84,19 +88,19 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             try {
                 if (col >= 0) {
                     editorModel.insertColumns(1, col, row);
-                    tmResponse.setResponse(render(editorId));
+                    response.setHtml(render(editorId));
                 } else {
-                    tmResponse.setStatus("Can not insert column");
+                    response.setMessage(ERROR_INSERT_COLUMN);
                 }
             } catch (Exception e) {
-                tmResponse.setStatus("Internal server error");
-                log.error("Internal server error", e);
+                response.setMessage(SERVER_ERROR);
+                log.error(SERVER_ERROR, e);
             }
-            return pojo2json(tmResponse);
+            return pojo2json(response);
         }
         return null;
     }
@@ -187,8 +191,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         int row = getRow();
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null
-                && col >= 0 && row >= 0) {
+        if (editorModel != null && col >= 0 && row >= 0) {
             editorModel.removeColumns(1, col, row);
             return pojo2json(new TableModificationResponse(render(editorId), editorModel));
         }
@@ -213,7 +216,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                 editorModel.setIndent(row, col, resultIndent >= 0 ? resultIndent : 0);
             } catch (Exception e) {
                 log.error(ERROR_SET_STYLE, e);
-                response.setStatus(ERROR_SET_STYLE);
+                response.setMessage(ERROR_SET_STYLE);
             }
 
             return pojo2json(response);
@@ -240,13 +243,13 @@ public class TableEditorController extends BaseTableEditorController implements 
                 message = ERROR_SET_NEW_VALUE + ex.getMessage();   
             }
 
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             if (message != null) {
-                tmResponse.setStatus(message);
+                response.setMessage(message);
             } else {
-                tmResponse.setResponse(render(editorId));
+                response.setHtml(render(editorId));
             }
-            return pojo2json(tmResponse);
+            return pojo2json(response);
         }
         return null;
     }
@@ -281,7 +284,7 @@ public class TableEditorController extends BaseTableEditorController implements 
             editorModel.setProperty(name, value);
             PropertyModificationResponse response = new PropertyModificationResponse(editorModel);
             if (!editorModel.isBusinessView()) {
-                response.setResponse(render(editorId));
+                response.setHtml(render(editorId));
             }
             if (StringUtils.isBlank(value)) {
                 ITableProperties props = editorModel.getTable().getProperties();
@@ -323,7 +326,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.setAlignment(row, col, halign);
                     } catch (Exception e) {
                         log.error(ERROR_SET_STYLE, e);
-                        response.setStatus(ERROR_SET_STYLE);
+                        response.setMessage(ERROR_SET_STYLE);
                     }
                 }
             }
@@ -347,7 +350,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                     try {
                         editorModel.setFontBold(row, col, bold);
                     } catch (Exception e) {
-                        response.setStatus(ERROR_SET_STYLE);
+                        response.setMessage(ERROR_SET_STYLE);
                         log.error(ERROR_SET_STYLE, e);
                     }
                 }
@@ -374,7 +377,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.setFontItalic(row, col, italic);
                     } catch (Exception e) {
                         log.error(ERROR_SET_STYLE, e);
-                        response.setStatus(ERROR_SET_STYLE);
+                        response.setMessage(ERROR_SET_STYLE);
                     }
                 }
             }
@@ -399,7 +402,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.setFontUnderline(row, col, underlined);
                     } catch (Exception e) {
                         log.error(ERROR_SET_STYLE, e);
-                        response.setStatus(ERROR_SET_STYLE);
+                        response.setMessage(ERROR_SET_STYLE);
                     }
                 }
             }
@@ -431,7 +434,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.setFillColor(row, col, color);
                     } catch (Exception e) {
                         log.error(ERROR_SET_STYLE, e);
-                        response.setStatus(ERROR_SET_STYLE);
+                        response.setMessage(ERROR_SET_STYLE);
                     }
                 }
             }
@@ -463,7 +466,7 @@ public class TableEditorController extends BaseTableEditorController implements 
                         editorModel.setFontColor(row, col, color);
                     } catch (Exception e) {
                         log.error(ERROR_SET_STYLE, e);
-                        response.setStatus(ERROR_SET_STYLE);
+                        response.setMessage(ERROR_SET_STYLE);
                     }
                 }
             }
@@ -488,14 +491,14 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             if (editorModel.hasUndo()) {
                 editorModel.undo();
-                tmResponse.setResponse(render(editorId));
+                response.setHtml(render(editorId));
             } else {
-                tmResponse.setStatus("No actions to undo");
+                response.setMessage("No actions to undo");
             }
-            return pojo2json(tmResponse);
+            return pojo2json(response);
         }
         return null;
     }
@@ -504,14 +507,14 @@ public class TableEditorController extends BaseTableEditorController implements 
         String editorId = getEditorId();
         TableEditorModel editorModel = getEditorModel(editorId);
         if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             if (editorModel.hasRedo()) {
                 editorModel.redo();
-                tmResponse.setResponse(render(editorId));
+                response.setHtml(render(editorId));
             } else {
-                tmResponse.setStatus("No actions to redo");
+                response.setMessage("No actions to redo");
             }
-            return pojo2json(tmResponse);
+            return pojo2json(response);
         }
         return null;
     }
@@ -519,31 +522,30 @@ public class TableEditorController extends BaseTableEditorController implements 
     public String saveTable() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
-            TableModificationResponse tmResponse = new TableModificationResponse(null, editorModel);
+            TableModificationResponse response = new TableModificationResponse(null, editorModel);
             try {
                 if (beforeSave()) {
                     String newUri = editorModel.save();
                     afterSave(newUri);
-                    tmResponse.setResponse(newUri);
+                    response.setUri(newUri);
                 }
             } catch (IOException e) {
                 log.warn(ERROR_SAVE_TABLE, e);
-                tmResponse.setStatus(ERROR_OPENED_EXCEL);
+                response.setMessage(ERROR_OPENED_EXCEL);
             } catch (Exception e) {
                 log.error(ERROR_SAVE_TABLE, e);
-                tmResponse.setStatus(ERROR_SAVE_TABLE);
+                response.setMessage(ERROR_SAVE_TABLE);
             }
-            return pojo2json(tmResponse);
+            return pojo2json(response);
         }
         return null;
     }
-    
+
     public void rollbackTable() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
             editorModel.cancel();
         }
-    	
     }
 
     private boolean beforeSave() {
@@ -611,27 +613,32 @@ public class TableEditorController extends BaseTableEditorController implements 
     }
 
     public static class TableModificationResponse {
-        private String response;
-        private String status;
+        private String html;
+        private String message;
+        private String uri;
         private TableEditorModel model;
 
-        public TableModificationResponse(String response, String status, TableEditorModel model) {
-            this.response = response;
-            this.status = status;
+        public TableModificationResponse(String html, String message, TableEditorModel model) {
+            this.html = html;
+            this.message = message;
             this.model = model;
         }
 
-        public TableModificationResponse(String response, TableEditorModel model) {
-            this.response = response;
+        public TableModificationResponse(String html, TableEditorModel model) {
+            this.html = html;
             this.model = model;
         }
 
-        public String getResponse() {
-            return response;
+        public String getHtml() {
+            return html;
         }
 
-        public String getStatus() {
-            return status;
+        public String getMessage() {
+            return message;
+        }
+
+        public String getUri() {
+            return uri;
         }
 
         public boolean isHasRedo() {
@@ -650,12 +657,16 @@ public class TableEditorController extends BaseTableEditorController implements 
         public void setHasUndo(boolean hasUndo) {
         }
 
-        public void setResponse(String response) {
-            this.response = response;
+        public void setHtml(String html) {
+            this.html = html;
         }
 
-        public void setStatus(String status) {
-            this.status = status;
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public void setUri(String uri) {
+            this.uri = uri;
         }
 
     }
