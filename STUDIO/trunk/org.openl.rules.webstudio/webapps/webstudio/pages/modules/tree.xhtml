@@ -15,9 +15,9 @@
                      <f:selectItems value="#{treeBean.views}" />
                      <f:ajax event="change" render=":rulesTree" />
                  </h:selectOneMenu>
-                 <h:commandLink title="Recently visited tables" styleClass="imageButton"
-                          style="background:url('webresource/images/table_history.png')"
-                          onclick="sessionStorage.setItem(SHOW_HISTORY_ITEM,'true'); reloadLeft(); return false;" />
+                    <h:commandLink title="Recently visited tables" styleClass="imageButton"
+                        style="background:url('webresource/images/table_history.png'); border: 0; background-color: transparent !important"
+                        onclick="sessionStorage.setItem(SHOW_HISTORY_ITEM,'true'); reloadLeft(); return false;" />
             </h:panelGrid>
         </h:form>
     </ui:define>

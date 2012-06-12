@@ -429,7 +429,6 @@ table.header thead td {
 
 .treeNodeInactive {
     opacity: 0.35;
-    filter: progid:DXImageTransform.Microsoft.Alpha(opacity = 35);
 }
 
 .hasRuleResultNode {

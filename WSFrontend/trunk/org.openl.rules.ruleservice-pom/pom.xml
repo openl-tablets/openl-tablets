@@ -134,56 +134,56 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.core</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.j</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.conf.ant</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<!-- STUDIO -->
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository.jcr</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.workspace</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.project</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
