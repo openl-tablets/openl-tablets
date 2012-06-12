@@ -41,13 +41,13 @@ var TableEditor = Class.create({
 
     // Constructor
     initialize: function(editorId, url, editCell, actions, mode, editable) {
-        this.mode = mode ? mode : this.Modes.VIEW;
+        this.mode = mode || this.Modes.VIEW;
         this.editorId = editorId;
         this.cellIdPrefix = this.editorId + "_cell-";
         this.tableContainer = $(editorId + "_table");
         this.actions = actions;
 
-        this.editable = editable === false ? false : true;
+        this.editable = editable !== false;
 
         // Suppress text selection BEGIN
         this.tableContainer.onselectstart = function() { // IE
@@ -91,8 +91,6 @@ var TableEditor = Class.create({
         }
 
         new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
-            method: "get",
-            contentType: "text/javascript",
             parameters: {
                 cell: cellPos,
                 editorId: self.editorId
@@ -107,7 +105,9 @@ var TableEditor = Class.create({
                 self.editCell = cellPos;
                 self.startEditing();
             },
-            onFailure: self.handleError
+            onFailure: function(response) {
+                self.handleError(response);
+            }
         });
     },
 
@@ -161,10 +161,7 @@ var TableEditor = Class.create({
         }
     },
 
-    /**
-     * Handles response error.
-     */
-    handleError: function(response, message) {
+    handleError: function(response) {
         if (response.status == 399) { // Redirect
             var redirectPage = response.getResponseHeader("Location");
             if (redirectPage) {
@@ -172,10 +169,8 @@ var TableEditor = Class.create({
                 return;
             }
         }
-        if (!message) {
-            message = "Server failed to apply your changes: " + response.statusText;
-        }
-        this.error(message);
+
+        this.error("Sorry! Server failed to apply your changes!");
     },
 
     error: function(message) {
@@ -184,6 +179,22 @@ var TableEditor = Class.create({
         } else {
             alert(message);
         }
+    },
+
+    doOperation: function(operation, params, successCallback) {
+        var self = this;
+
+        new Ajax.Request(this.buildUrl(operation), {
+            parameters: params,
+
+            onSuccess: function(response) {
+                self.handleResponse(response, successCallback);
+            },
+
+            onFailure: function(response) {
+                self.handleError(response);
+            }
+        });
     },
 
     startEditing: function() {
@@ -248,19 +259,9 @@ var TableEditor = Class.create({
             return;
         }
 
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SAVE), {
-            parameters: {
-                editorId: this.editorId
-            },
-            onSuccess: function(response) {
-                self.handleResponse(response, function(data) {
-                    if (self.actions && self.actions.afterSave) {
-                        self.actions.afterSave({"newUri": data.uri});
-                    }
-                });
-            },
-            onFailure: function(response) {
-                self.handleError(response, "Server failed to save your changes");
+        this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, function(data) {
+            if (self.actions && self.actions.afterSave) {
+                self.actions.afterSave({"newUri": data.uri});
             }
         });
     },
@@ -269,17 +270,8 @@ var TableEditor = Class.create({
      * Rolls back all changes. Sends corresponding request to the server.
      */
     rollback: function() {
-        var self = this;
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.ROLLBACK), {
-            parameters: {
-                editorId: this.editorId
-            },
-            onSuccess: function(response) {
-                window.onbeforeunload = Prototype.emptyFunction;
-            },
-            onFailure: function(response) {
-                self.handleError(response, "Server failed to rollback your changes");
-            }
+        this.doOperation(TableEditor.Operations.ROLLBACK, params, function(data) {
+            window.onbeforeunload = Prototype.emptyFunction;
         });
     },
 
@@ -450,20 +442,17 @@ var TableEditor = Class.create({
         this.selectElement(cell);
 
         var typedText = undefined;
-        if (keyCode) typedText = String.fromCharCode(keyCode);
+        if (keyCode)
+            typedText = String.fromCharCode(keyCode);
 
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.GET_CELL_EDITOR), {
-            onSuccess  : function(response) {
-                self.handleResponse(response, function(data) {
-                    self.editBegin(cell, data, typedText);
-                });
-            },
-            parameters : {
-                editorId: this.editorId,
-                row : self.selectionPos[0],
-                col : self.selectionPos[1]
-            },
-            onFailure: self.handleError
+        var params = {
+            editorId: this.editorId,
+            row: self.selectionPos[0],
+            col: self.selectionPos[1]
+        }
+
+        this.doOperation(TableEditor.Operations.GET_CELL_EDITOR, params, function(data) {
+            self.editBegin(cell, data, typedText);
         });
     },
 
@@ -579,7 +568,7 @@ var TableEditor = Class.create({
 
         prevEditor.isCancelled = function () { return true; };
         prevEditor.destroy();
-        
+
         this.editorSwitched = true;
     },
 
@@ -617,24 +606,18 @@ var TableEditor = Class.create({
             if (!this.editor.isCancelled()) {
                 var val = this.editor.getValue();
                 var self = this;
-                new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_CELL_VALUE), {
-                    method    : "get",
-                    contentType : "text/javascript",
-                    onSuccess : function(response) {
-                        self.handleResponse(response);
-                    },
-                    parameters: {
-                        editorId: this.editorId,
-                        row : self.selectionPos[0],
-                        col : self.selectionPos[1],
-                        value: val,
-                        editor: this.editorSwitched ? this.editorName : ''
-                    },
-                    onFailure: function(response) {
-                        self.handleError(response, "Error during setting the value.");
-                    }
-                });
+
+                var params = {
+                    editorId: this.editorId,
+                    row : self.selectionPos[0],
+                    col : self.selectionPos[1],
+                    value: val,
+                    editor: this.editorSwitched ? this.editorName : ''
+                }
+
+                this.doOperation(TableEditor.Operations.SET_CELL_VALUE, params);
             }
+
             this.editor.destroy();
             this.editorWrapper.hide();
             this.editor = null;
@@ -735,15 +718,8 @@ var TableEditor = Class.create({
         var self = this;
 
         if (Ajax.activeRequestCount > 0) return;
-        new Ajax.Request(this.buildUrl((redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO)), {
-            parameters: {
-                editorId: this.editorId
-            },
-            onSuccess: function(response) {
-                self.handleResponse(response);
-            },
-            onFailure: this.handleError
-        })
+
+        this.doOperation(redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO, { editorId: this.editorId });
     },
 
     /**
@@ -764,23 +740,19 @@ var TableEditor = Class.create({
 
         var cell = this.currentElement;
         var self = this;
+
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             align: _align
         }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_ALIGN), {
-            onSuccess: function(response) {
-                self.handleResponse(response, function(data) {
-                    if (self.editor) {
-                        self.editor.input.style.textAlign = _align;
-                    }
-                    cell.style.textAlign = _align;
-                });
-            },
-            parameters: params,
-            onFailure: self.handleError
+
+        this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
+            if (self.editor) {
+                self.editor.input.style.textAlign = _align;
+            }
+            cell.style.textAlign = _align;
         });
     },
 
@@ -853,19 +825,13 @@ var TableEditor = Class.create({
         var self = this;
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             color: _color
         }
 
-        new Ajax.Request(this.buildUrl(operation), {
-            onSuccess: function(response) {
-                self.handleResponse(response);
-            },
-            parameters: params,
-            onFailure: self.handleError
-        });
+        this.doOperation(operation, params);
     },
 
     indent: function(_indent) {
@@ -873,30 +839,26 @@ var TableEditor = Class.create({
 
         var cell = this.currentElement;
         var self = this;
+
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row : this.selectionPos[0],
             col : this.selectionPos[1],
             indent: _indent
         }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_INDENT), {
-            onSuccess: function(response) {
-                self.handleResponse(response, function(data) {
-                    resultPadding = 0;
-                    // TODO Refactor with css calc()
-                    if (cell.style.paddingLeft.indexOf("em") > 0) {
-                        resultPadding = parseFloat(cell.style.paddingLeft);
-                    } else if (cell.style.paddingLeft.indexOf("px") > 0) {
-                        resultPadding = parseFloat(cell.style.paddingLeft) * 0.063;
-                    }
-                    resultPadding = resultPadding + parseInt(_indent);
-                    if (resultPadding >= 0) {
-                        cell.style.paddingLeft = resultPadding + "em";
-                    }
-                });
-            },
-            parameters: params,
-            onFailure: self.handleError
+
+        this.doOperation(TableEditor.Operations.SET_INDENT, params, function(data) {
+            resultPadding = 0;
+            // TODO Refactor with css calc()
+            if (cell.style.paddingLeft.indexOf("em") > 0) {
+                resultPadding = parseFloat(cell.style.paddingLeft);
+            } else if (cell.style.paddingLeft.indexOf("px") > 0) {
+                resultPadding = parseFloat(cell.style.paddingLeft) * 0.063;
+            }
+            resultPadding = resultPadding + parseInt(_indent);
+            if (resultPadding >= 0) {
+                cell.style.paddingLeft = resultPadding + "em";
+            }
         });
     },
 
@@ -909,19 +871,14 @@ var TableEditor = Class.create({
         var _bold = cell.style.fontWeight == "bold";
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             bold: !_bold
         }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_BOLD), {
-            onSuccess: function(response) {
-                self.handleResponse(response, function(data) {
-                    cell.style.fontWeight = _bold ? "normal" : "bold";
-                });
-            },
-            parameters: params,
-            onFailure: self.handleError
+
+        this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
+            cell.style.fontWeight = _bold ? "normal" : "bold";
         });
     },
 
@@ -934,19 +891,14 @@ var TableEditor = Class.create({
         var _italic = cell.style.fontStyle == "italic";
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             italic: !_italic
         }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_ITALIC), {
-            onSuccess: function(response) {
-                self.handleResponse(data, function(data) {
-                    cell.style.fontStyle = _italic ? "normal" : "italic";
-                });
-            },
-            parameters: params,
-            onFailure: self.handleError
+
+        this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
+            cell.style.fontStyle = _italic ? "normal" : "italic";
         });
     },
 
@@ -959,19 +911,13 @@ var TableEditor = Class.create({
         var _underline = cell.style.textDecoration == "underline";
 
         var params = {
-            editorId: this.editorId,    
+            editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             underline: !_underline
         }
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.SET_FONT_UNDERLINE), {
-            onSuccess: function(response) {
-                self.handleResponse(response, function(data) {
-                    cell.style.textDecoration = _underline ? "none" : "underline";
-                });
-            },
-            parameters: params,
-            onFailure: self.handleError
+        this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
+            cell.style.textDecoration = _underline ? "none" : "underline";
         });
     },
 
@@ -994,13 +940,7 @@ var TableEditor = Class.create({
             col: this.selectionPos[1]
         }
 
-        new Ajax.Request(this.buildUrl(operation), {
-            parameters: params,
-            onSuccess : function(response) {
-                self.handleResponse(response);
-            },
-            onFailure: this.handleError
-        });
+        this.doOperation(operation, params);
     },
 
     unescapeHTML: function(html) {

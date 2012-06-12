@@ -537,7 +537,7 @@ public class TableEditorController extends BaseTableEditorController implements 
         }
         return null;
     }
-    
+
     public void rollbackTable() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
