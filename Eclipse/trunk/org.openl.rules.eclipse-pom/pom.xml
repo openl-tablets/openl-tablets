@@ -229,7 +229,7 @@
 			<!-- LIBs -->
 			<!-- OPENL MODIFIED POI -->
 			<!--dependency> <groupId>org.openl.rules</groupId> <artifactId>org.openl.lib.poi35.dev.modified</artifactId> 
-				<version>${openl.version.maven}</version> </dependency -->
+				<version>${project.version}</version> </dependency -->
 
 			<!-- ORIGINAL POI ARTIFACTS -->
 			<dependency>
@@ -273,49 +273,49 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.core</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.commons</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.grammars</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.j</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.j.science</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.constrainer</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.conf.ant</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 
@@ -323,86 +323,86 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.tableeditor</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository.jcr</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.workspace</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.webstudio</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.commons.web</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.security</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.security.standalone</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.diff</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.tomcat.lib</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.project</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<!-- WSFrontend -->
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice.ws</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 
@@ -412,56 +412,56 @@
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.core</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.commons</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.j</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.grammars</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.j.science</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.constrainer</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.conf.ant</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<!-- STUDIO -->
@@ -469,84 +469,84 @@
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.tableeditor</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <classifier>sources</classifier>
-                <version>${openl.version.maven}</version>
+                <version>${project.version}</version>
             </dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository.jcr</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.workspace</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.commons.web</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.security</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.security.standalone</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.diff</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.tomcat.lib</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.project</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<!-- WSFrontend -->
@@ -554,14 +554,14 @@
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice.ws</artifactId>
 				<classifier>sources</classifier>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 			<!-- Eclipse -->
@@ -604,7 +604,7 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
-				<version>${openl.version.maven}</version>
+				<version>${project.version}</version>
 			</dependency>
 
 		</dependencies>
