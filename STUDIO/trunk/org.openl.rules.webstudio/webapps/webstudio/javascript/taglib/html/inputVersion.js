@@ -4,11 +4,14 @@
     function showVersionPopup(input, event) {
         event.stopPropagation();
         input = $j(input);
-        var inputPos = input.position();
+
+        var left = input.position().left + input.offsetParent().scrollLeft();
+        var top  = input.position().top + input.offsetParent().scrollTop() + input.outerHeight();
+
         var popup = input.next();
         popup.popup({
-            left: inputPos.left,
-            top : inputPos.top + input.outerHeight()
+            left: left,
+            top : top
         });
     }
 
