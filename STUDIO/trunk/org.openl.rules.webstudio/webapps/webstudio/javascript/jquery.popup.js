@@ -17,6 +17,9 @@
         return this.each(function() {
             var popup = $(this);
 
+            // Unique click event
+            var click = "click.jquery.popup." + Date.now();
+
             popup.addClass("jquery-popup");
             popup.css({
                 'position': 'absolute',
@@ -32,7 +35,7 @@
                         .append($("<img src='" + options.closeIcon + "'>"))
                         .click(function() {
                             popup.hide();
-                            $(document).off("click.jquery.popup");
+                            $(document).off(click);
                         });
                     popup.append(closeIcon);
                 }
@@ -56,12 +59,12 @@
 
             popup.show();
 
-            $(document).on("click.jquery.popup", function(e) {
+            $(document).on(click, function(e) {
                 var clicked = e.target;
                 var clickedPopup = $(clicked).closest(popup);
                 if (!clickedPopup.length) {
                     popup.hide();
-                    $(document).off("click.jquery.popup");
+                    $(document).off(click);
                 }
             });
         });
