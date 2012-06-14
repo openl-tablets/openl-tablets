@@ -50,7 +50,7 @@ public class LaunchFileServlet extends HttpServlet {
         String wbName = null;
         String wsName = null;
         String range = null;
-        
+
         String wdPath = null;
         String wdName = null;
         String wdParStart = null;
@@ -66,19 +66,19 @@ public class LaunchFileServlet extends HttpServlet {
                 if (FileTypeHelper.isExcelFile(file)) { // Excel
                     XlsUrlParser parser = new XlsUrlParser();
                     parser.parse(uri);
-                    wbPath = StringTool.decodeURL(parser.wbPath);
-                    wbName = StringTool.decodeURL(parser.wbName); 
-                    wsName = StringTool.decodeURL(parser.wsName); 
-                    range = StringTool.decodeURL(parser.range);
+                    wbPath = parser.wbPath;
+                    wbName = parser.wbName;
+                    wsName = parser.wsName;
+                    range = parser.range;
                     isExcel = true;
-    
+
                 } else if (FileTypeHelper.isWordFile(file)) { // Word
                     WordUrlParser parser = new WordUrlParser();
                     parser.parse(uri);
-                    wdPath = StringTool.decodeURL(parser.wdPath);
-                    wdName = StringTool.decodeURL(parser.wdName); 
-                    wdParStart = StringTool.decodeURL(parser.wdParStart); 
-                    wdParEnd = StringTool.decodeURL(parser.wdParEnd);
+                    wdPath = parser.wdPath;
+                    wdName = parser.wdName;
+                    wdParStart = parser.wdParStart;
+                    wdParEnd = parser.wdParEnd;
                     isWord = true;
                 }
             } catch (Exception e) {

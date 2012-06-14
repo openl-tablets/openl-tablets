@@ -123,13 +123,19 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("File name must not be empty.");
             return null;
         }
+
         String errorMessage = uploadAndAddFile();
+
         if (errorMessage == null) {
             resetStudioModel();
             FacesUtils.addInfoMessage("File was uploaded successfully.");
         } else {
             FacesUtils.addErrorMessage(errorMessage);
         }
+
+        /*Clear the load form*/
+        this.clearForm();
+
         return null;
     }
 
@@ -592,7 +598,7 @@ public class RepositoryTreeController {
     }
 
     public String getFileName() {
-        return null;
+        return this.fileName;
     }
 
     public String getFilterString() {
@@ -911,6 +917,15 @@ public class RepositoryTreeController {
     public void uploadListener(FileUploadEvent event) {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
+        
+        String fileName = file.getName();
+        
+        /*If we use IE file name will be as full file path */
+        if (fileName.indexOf("\\") > -1) {
+            fileName = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length());
+        }
+        
+        this.setFileName(fileName);
     }
 
     public void setFileName(String fileName) {
@@ -1048,6 +1063,10 @@ public class RepositoryTreeController {
         } else {
             FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file.");
         }
+        
+        /*Clear the load form*/
+        clearForm();
+        
         return null;
     }
 
@@ -1063,7 +1082,15 @@ public class RepositoryTreeController {
             }
             FacesUtils.addInfoMessage("Project was uploaded successfully.");
         }
+        
+        /*Clear the load form*/
+        clearForm();
+        
         return null;
+    }
+
+    private void clearForm() {
+        this.setFileName(null);
     }
 
     private String uploadAndAddFile() {
@@ -1080,7 +1107,12 @@ public class RepositoryTreeController {
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
             clearUploadedFiles();
         } catch (Exception e) {
-            log.error("Error adding file to user workspace.", e);
+            /*If an error is IOException then an error will not be written to the console. This error throw when 
+             * upload file is exist in the upload folder*/
+            if( !e.getCause().getClass().equals(java.io.IOException.class) ) {
+                log.error("Error adding file to user workspace.", e);
+            }
+
             return e.getMessage();
         }
 

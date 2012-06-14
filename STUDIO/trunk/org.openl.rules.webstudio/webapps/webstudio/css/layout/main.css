@@ -79,11 +79,9 @@ html, body {
 }
 .ui-layout-resizer-sliding {	/* resizer when pane is 'slid open' */
 	opacity: .10; /* show only a slight shadow */
-	filter:  alpha(opacity=10);
 }
 .ui-layout-resizer-sliding-hover {	/* sliding resizer - hover */
 	opacity: 1.00; /* on-hover, show the resizer-bar normally */
-	filter:  alpha(opacity=100);
 }
 /* sliding resizer - add 'outside-border' to resizer on-hover 
  * this sample illustrates how to target specific panes and states */
@@ -101,13 +99,11 @@ html, body {
 }
 .ui-layout-resizer-hover .ui-layout-toggler {
 	opacity: .60;
-	filter:  alpha(opacity=60);
 }
 .ui-layout-toggler-hover , /* need when NOT resizable */
 .ui-layout-resizer-hover .ui-layout-toggler-hover { /* need specificity when IS resizable */
 	background-color: #FC6;
 	opacity: 1.00;
-	filter:  alpha(opacity=100);
 }
 .ui-layout-toggler-north ,
 .ui-layout-toggler-south {

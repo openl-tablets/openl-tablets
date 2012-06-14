@@ -31,25 +31,25 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.core</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl</groupId>
         <artifactId>org.openl.commons</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.constrainer</artifactId>
-        <version>${openl.version.maven}</version>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
