@@ -44,8 +44,8 @@
             setValue();
 
             newSelect.click(function(e) {
-                e.stopPropagation();
                 popup.popup({
+                    caller   : this,
                     left     : newSelect.position().left + newSelect.offsetParent().scrollLeft(),
                     top      : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight() - 1,
                     zIndex   : options.zIndex,
