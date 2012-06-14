@@ -369,7 +369,11 @@ public class DecisionTableOptimizedAlgorithm {
         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
     }
 
-    public void buildIndex() throws Exception {
+    public void buildIndex() throws SyntaxNodeException {
+        buildIndexInternal(false);
+    }
+    
+    protected void buildIndexInternal(boolean saveRulesMetaInfo) throws SyntaxNodeException {
 
         ArrayList<Object[][]> params = new ArrayList<Object[][]>();
 
@@ -392,7 +396,7 @@ public class DecisionTableOptimizedAlgorithm {
         Object[][] params0 = params.get(0);
         indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length - 1).intIterator());
 
-        indexNodes(indexRoot, params, 1);
+        indexNodes(indexRoot, params, 1, saveRulesMetaInfo);
     }
 
     /**
@@ -508,15 +512,16 @@ public class DecisionTableOptimizedAlgorithm {
         return iterator;
     }
 
-    private void indexNode(DecisionTableRuleNode node, ArrayList<Object[][]> params, int level) {
+    private void indexNode(DecisionTableRuleNode node, ArrayList<Object[][]> params, int level, boolean saveRulesMetaInfo) {
 
         ARuleIndex nodeIndex = evaluators[level].makeIndex(params.get(level), node.getRulesIterator());
+        node.setSaveRulesMetaInfo(saveRulesMetaInfo);
         node.setNextIndex(nodeIndex);
 
-        indexNodes(nodeIndex, params, level + 1);
+        indexNodes(nodeIndex, params, level + 1, saveRulesMetaInfo);
     }
 
-    private void indexNodes(ARuleIndex index, ArrayList<Object[][]> params, int level) {
+    private void indexNodes(ARuleIndex index, ArrayList<Object[][]> params, int level, boolean saveRulesMetaInfo) {
 
         if (index == null) {
             return;
@@ -531,10 +536,10 @@ public class DecisionTableOptimizedAlgorithm {
         while (iter.hasNext()) {
 
             DecisionTableRuleNode node = iter.next();
-            indexNode(node, params, level);
+            indexNode(node, params, level, saveRulesMetaInfo);
         }
 
-        indexNode(index.getEmptyOrFormulaNodes(), params, level);
+        indexNode(index.getEmptyOrFormulaNodes(), params, level, saveRulesMetaInfo);
     }
 
     private Object[][] prepareIndexedParams(Object[][] params) throws SyntaxNodeException {

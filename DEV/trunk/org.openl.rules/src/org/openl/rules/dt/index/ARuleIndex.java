@@ -13,7 +13,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  */
 public abstract class ARuleIndex {
 
-    private DecisionTableRuleNode emptyOrFormulaNodes;
+    protected DecisionTableRuleNode emptyOrFormulaNodes;
 
     public ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
