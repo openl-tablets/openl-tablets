@@ -76,8 +76,8 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>tomcat-maven-plugin</artifactId>
         <configuration>
-          <url>http://openl.internal.corp:8081/manager/html</url>
-          <server>openl-tomcat-server</server>
+          <url>http://localhost:8080/manager/html</url>
+          <server>myserver</server>
           <path>/webstudio</path>
           <warFile>target/${war.name}.war</warFile>
           <update>true</update>
@@ -85,6 +85,27 @@
       </plugin>
     </plugins>
   </build>
+
+	<profiles>
+		<profile>
+			<id>ws-test</id>
+			<build>
+				<plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>tomcat-maven-plugin</artifactId>
+        <configuration>
+          <url>http://localhost:8080/manager/html</url>
+          <server>myserver</server>
+          <path>/webstudio-test</path>
+          <warFile>target/${war.name}.war</warFile>
+          <update>true</update>
+        </configuration>
+      </plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
   <dependencies>
     <dependency>

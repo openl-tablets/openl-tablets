@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-databinding-aegis-2.5.1.jar" sourcepath="C:/work/workspace/cxf/cxf-rt-databinding-aegis-2.5.1-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/annox-0.5.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/aopalliance-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-3.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/cxf-api-2.5.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/cxf-common-utilities-2.5.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-api-2.5.1.jar" sourcepath="C:/work/workspace/cxf/cxf-api-2.5.1-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-common-utilities-2.5.1.jar" sourcepath="C:/work/workspace/cxf/cxf-common-utilities-2.5.1-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-bindings-soap-2.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-bindings-xml-2.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-core-2.5.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-databinding-aegis-2.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-databinding-jaxb-2.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-frontend-jaxrs-2.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-frontend-jaxws-2.5.1.jar"/>
