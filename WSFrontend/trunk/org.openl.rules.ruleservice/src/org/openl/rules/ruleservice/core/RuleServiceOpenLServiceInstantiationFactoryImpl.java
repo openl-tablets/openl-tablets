@@ -9,6 +9,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
+import org.openl.rules.project.instantiation.variation.VariationsEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -40,6 +41,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(),
                 dependencyManager);
+        if (service.isProvideVariations()) {
+            instantiationStrategy = new VariationsEnhancer(instantiationStrategy);
+        }
         if (service.isProvideRuntimeContext()) {
             instantiationStrategy = new RulesServiceEnhancer(instantiationStrategy);
         }
@@ -112,8 +116,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     public OpenLService createService(ServiceDescription serviceDescription)
             throws RuleServiceInstantiationException {
         Collection<Module> modules = ruleServiceLoader.getModulesForService(serviceDescription);
-        OpenLService openLService = new OpenLService(serviceDescription.getName(), serviceDescription.getUrl(),
-                serviceDescription.getServiceClassName(), serviceDescription.isProvideRuntimeContext(), modules);
+        OpenLService openLService = new OpenLService(serviceDescription.getName(),
+            serviceDescription.getUrl(),
+            serviceDescription.getServiceClassName(),
+            serviceDescription.isProvideRuntimeContext(),
+            serviceDescription.isProvideVariations(),
+            modules);
         try {
             initService(openLService);
         } catch (Exception e) {
@@ -133,8 +141,14 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     /* for internal tests */public OpenLService createOpenLService(String serviceName, String url,
             String serviceClassName, boolean isProvideRuntimeContext, Collection<Module> modules)
             throws RuleServiceInstantiationException {
+        return createOpenLService(serviceName, url, serviceClassName, isProvideRuntimeContext, false, modules);
+    }
+
+    /* for internal tests */public OpenLService createOpenLService(String serviceName, String url,
+            String serviceClassName, boolean isProvideRuntimeContext, boolean isProvideVariations, Collection<Module> modules)
+            throws RuleServiceInstantiationException {
         OpenLService openLService = new OpenLService(serviceName, url, serviceClassName, isProvideRuntimeContext,
-                modules);
+                isProvideVariations, modules);
         try {
             initService(openLService);
         } catch (Exception e) {

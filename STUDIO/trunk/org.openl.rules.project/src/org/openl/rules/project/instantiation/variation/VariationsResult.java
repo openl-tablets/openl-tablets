@@ -35,14 +35,14 @@ public class VariationsResult<T> {
      * @param variationID ID of variation.
      * @param result Result of the caculation with the corresponding variation.
      */
-    /* package */void registerResults(String variationID, T result) {
+    public void registerResults(String variationID, T result) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
             log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }
         variationResults.put(variationID, result);
     }
 
-    /* package */void registerFailure(String variationID, Exception exception) {
+    public void registerFailure(String variationID, Exception exception) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
             log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }

@@ -28,6 +28,7 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
     private String serviceUrl;
     private String serviceClassName;
     private boolean provideRuntimeContext;
+    private boolean supportVariations;
 
     /** {@inheritDoc} */
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
@@ -58,6 +59,7 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
                     serviceDescriptionBuilder.setUrl(serviceUrl);
                     serviceDescriptionBuilder.setServiceClassName(serviceClassName);
                     serviceDescriptionBuilder.setProvideRuntimeContext(provideRuntimeContext);
+                    serviceDescriptionBuilder.setProvideVariations(supportVariations);
                     serviceDescriptions.add(serviceDescriptionBuilder.build());
                 }
             }
@@ -109,5 +111,13 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
 
     public void setProvideRuntimeContext(boolean provideRuntimeContext) {
         this.provideRuntimeContext = provideRuntimeContext;
+    }
+
+    public boolean isSupportVariations() {
+        return supportVariations;
+    }
+
+    public void setSupportVariations(boolean supportVariations) {
+        this.supportVariations = supportVariations;
     }
 }

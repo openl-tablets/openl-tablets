@@ -19,6 +19,7 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
+import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.ruleservice.context.BigDecimalValueType;
 import org.openl.rules.ruleservice.context.BigIntegerValueType;
 import org.openl.rules.ruleservice.context.ByteValueType;
@@ -27,9 +28,12 @@ import org.openl.rules.ruleservice.context.DoubleValueType;
 import org.openl.rules.ruleservice.context.FloatValueType;
 import org.openl.rules.ruleservice.context.IntRangeBeanType;
 import org.openl.rules.ruleservice.context.IntValueType;
+import org.openl.rules.ruleservice.context.JXPathBeanType;
 import org.openl.rules.ruleservice.context.LongValueType;
 import org.openl.rules.ruleservice.context.RuntimeContextBeanType;
 import org.openl.rules.ruleservice.context.ShortValueType;
+import org.openl.rules.ruleservice.context.VariationsPackContextBeanType;
+import org.openl.rules.ruleservice.context.VariationsResultContextBeanType;
 import org.springframework.beans.factory.FactoryBean;
 
 public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<AegisDatabinding> {
@@ -90,6 +94,9 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
     protected void fillDefaultOpenLTypesMappings(AegisDatabinding aegisDatabinding) {
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
         typeMapping.register(new RuntimeContextBeanType());
+        typeMapping.register(new VariationsPackContextBeanType());
+        typeMapping.register(VariationsResult.class, VariationsPackContextBeanType.QNAME, new VariationsResultContextBeanType());
+        typeMapping.register(new JXPathBeanType());
         typeMapping.register(new IntRangeBeanType());
         typeMapping.register(new DoubleRangeBeanType());
         typeMapping.register(ShortValue.class, XMLSchemaQNames.XSD_SHORT, new ShortValueType());
