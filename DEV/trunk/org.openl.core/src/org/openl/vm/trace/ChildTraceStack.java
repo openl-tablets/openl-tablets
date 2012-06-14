@@ -10,6 +10,7 @@ package org.openl.vm.trace;
 public class ChildTraceStack implements TraceStack {
     private final TraceStack tracer;
     private final int initialSize;
+    private int pushed = 0;
 
     public ChildTraceStack(TraceStack tracer) {
         this.tracer = tracer;
@@ -19,16 +20,18 @@ public class ChildTraceStack implements TraceStack {
     @Override
     public void push(ITracerObject tracerObject) {
         tracer.push(tracerObject);
+        pushed++;
     }
 
     @Override
     public void pop() {
         tracer.pop();
+        pushed--;
     }
 
     @Override
     public void reset() {
-        while (tracer.size() - initialSize > 0) {
+        while (pushed > 0 && tracer.size() - initialSize > 0) {
             pop();
         }
     }
