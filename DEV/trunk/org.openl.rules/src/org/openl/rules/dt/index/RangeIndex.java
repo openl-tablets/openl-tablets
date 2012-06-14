@@ -9,10 +9,10 @@ import org.openl.util.OpenIterator;
 
 public class RangeIndex extends ARuleIndex {
 
-	private Comparable<?>[] index;
-	private DecisionTableRuleNode[] rules;
+	protected Comparable<?>[] index;
+	protected DecisionTableRuleNode[] rules;
 	
-	private IRangeAdaptor<?, ?> adaptor;
+	protected IRangeAdaptor<?, ?> adaptor;
 
 	public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
 			Comparable<?>[] index, DecisionTableRuleNode[] rules, IRangeAdaptor<?, ?> adaptor) {

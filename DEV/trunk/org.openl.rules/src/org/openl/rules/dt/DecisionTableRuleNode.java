@@ -10,9 +10,19 @@ public class DecisionTableRuleNode {
     private int[] rules;
 
     private ARuleIndex nextIndex;
+    
+    private boolean saveRulesMetaInfo;
 
     public DecisionTableRuleNode(int[] rules) {
         this.rules = rules;
+    }
+
+    public boolean isSaveRulesMetaInfo() {
+        return saveRulesMetaInfo;
+    }
+
+    public void setSaveRulesMetaInfo(boolean saveRulesMetaInfo) {
+        this.saveRulesMetaInfo = saveRulesMetaInfo;
     }
 
     public ARuleIndex getNextIndex() {
@@ -21,7 +31,7 @@ public class DecisionTableRuleNode {
     
     public void setNextIndex(ARuleIndex nextIndex) {
         this.nextIndex = nextIndex;
-        if(nextIndex!= null){
+        if (!saveRulesMetaInfo && nextIndex != null) {
             rules = null;
             // memory optimization: we do not need rule numbers for current
             // index if we have next index
