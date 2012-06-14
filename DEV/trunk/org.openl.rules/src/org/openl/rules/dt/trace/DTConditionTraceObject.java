@@ -14,7 +14,7 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
     private static final String TRACE_OBJECT_TYPE = "decisionTableCondition";
     private final DecisionTableTraceObject baseTraceObject;
     protected final ICondition condition;
-    protected final boolean successful;
+    protected boolean successful;
     protected final int ruleIndex;
 
     public DTConditionTraceObject(DecisionTableTraceObject baseTraceObject, ICondition condition, int ruleIndex,
@@ -35,6 +35,10 @@ public class DTConditionTraceObject extends DecisionTableTraceObject {
     @Override
     public String getType() {
         return TRACE_OBJECT_TYPE;
+    }
+
+    public void setSuccessful(boolean successful) {
+        this.successful = successful;
     }
 
     public boolean isSuccessful() {

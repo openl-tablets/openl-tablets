@@ -9,7 +9,7 @@ import java.util.Stack;
  * @author snshor
  * 
  */
-public class Tracer {
+public class Tracer implements TraceStack {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
 
@@ -71,10 +71,12 @@ public class Tracer {
         root.addChild(to);
     }
 
+    @Override
     public void pop() {
         stack.pop();
     }
 
+    @Override
     public void push(ITracerObject obj) {
         if (stack.size() == 0) {
             addTracerObject(obj);
@@ -87,8 +89,13 @@ public class Tracer {
         stack.push(obj);
     }
 
+    @Override
     public void reset() {
         init();
     }
 
+    @Override
+    public int size() {
+        return stack.size();
+    }
 }
