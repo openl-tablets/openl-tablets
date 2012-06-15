@@ -7,14 +7,23 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
+import java.math.BigInteger;
 import java.util.Iterator;
 
+import org.apache.commons.lang.ClassUtils;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
+import org.openl.util.IntegerValuesUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
@@ -88,9 +97,11 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             IOpenField indexField = componentClass.getIndexField();
 
             if (indexField != null) {
+                // If the type of the suggested index is the same as the type of indexed field
+                // simply create indexed field
                 if (indexField.getType() == indexType) {
                     return new ArrayFieldIndex(componentClass, indexField);
-                } else if (indexField.getType() == JavaOpenClass.INT && String.class.equals(indexType.getInstanceClass())) {
+                } else if (  IntegerValuesUtils.isIntegerValue(indexField.getType().getInstanceClass()) && String.class.equals(indexType.getInstanceClass())) {
                     // handles the case when index field of Datatype is of type int, and we try to get String index
                     // e.g. person["12"]
                     return new ArrayFieldIndex(componentClass, indexField);
@@ -98,7 +109,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             } 
         }
         return null;        
-    }
+    };
 
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
