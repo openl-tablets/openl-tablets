@@ -4,7 +4,7 @@
 }
 
 .jquery-multiselect-popup-header {
-    padding: 5px;
+    padding: 2px 0;
     border-bottom: 1px solid #dddddd;
 }
 
@@ -12,17 +12,20 @@
     padding: 3px 0;
 }
 
-.jquery-multiselect-popup-data div {
-    padding: 2px 5px;
+.jquery-multiselect-popup label {
+    cursor: pointer;
+    display: block;
+    padding: 2px 5px 5px;
 }
 
-.jquery-multiselect-popup-data div:hover {
+.jquery-multiselect-popup-data label:hover {
     background: #3399EE;
     color: white;
 }
 
 .jquery-multiselect-popup input[type='checkbox'] {
     margin-right: 7px;
-    cursor: pointer;
+    position: relative;
+    top: 2px;
 }
 

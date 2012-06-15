@@ -44,6 +44,7 @@
         .propEditor input[type="password"],
         .propEditor textarea {
             padding: 1px;
+            width: 91%;
         }
         .editableProp .propValue {
             border-bottom: 1px dashed #cccccc;
@@ -59,9 +60,9 @@
         }
     </style>
 
-    <h:panelGroup rendered="#{tablePropertiesBean.showProperties}">
+    <h:panelGroup rendered="#{tablePropertiesBean.showProperties}" layout="block">
     <h:form prependId="false">
-        <h:panelGroup id="propsTable">
+        <h:panelGroup id="propsTable" layout="block">
         <table>
             <a4j:repeat value="#{tablePropertiesBean.propertyRows}" var="row">
 
@@ -76,17 +77,19 @@
             <ui:param name="prop" value="#{row.data}" />
             <ui:param name="editable"
                 value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
+            <ui:param name="added" value="#{empty prop.value}" />
 
-            <tr class="#{editable ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
+            <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
                 onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
                 <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     #{prop.displayName}
                 </td>
                 <td class="propData" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
-                    <h:outputText class="propValue" value="#{prop.displayValue}"/>
+                    <h:outputText class="propValue" value="#{prop.displayValue}"
+                        style="#{added ? 'display:none' : ''}" />
 
                     <h:panelGroup rendered="#{editable}">
-                    <span class="propEditor#{!empty prop.value ? ' propHide' : ''}">
+                    <span class="propEditor#{added ? '' : ' propHide'}">
                         <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
                             rendered="#{prop.dateType}" inputStyle="width:100px" />
 

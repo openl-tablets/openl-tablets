@@ -23,19 +23,20 @@
             var newSelect = $("<input type='text'" + (selectId ? " id='" + selectId + "'" : "") + " readonly='readonly' />")
                 .insertAfter(currentSelect);
 
-            var popup = $("<div style='display:none' />")
-                .addClass("jquery-multiselect-popup");
-            var checkAll = $("<input type='checkbox' />");
-            popup.append($("<div class='jquery-multiselect-popup-header' />").append(checkAll).append($("<label>" + options.checkAllText + "</label>")));
+            var popup = $("<div style='display:none' />").addClass("jquery-multiselect-popup");
+
+            var checkAll = $("<label><input type='checkbox' />" + options.checkAllText + "</label>");
+            popup.append($("<div class='jquery-multiselect-popup-header' />").append(checkAll));
+
             var data = $("<div class='jquery-multiselect-popup-data' />");
             currentSelect.children("option").each(function() {
                 var option = $(this);
                 var selected = this.getAttribute("selected") ? true : false;
                 values[option.val()] = selected;
-                data.append("<div><input type='checkbox' value='" + option.val() + "'"
+                data.append("<label><input type='checkbox' value='" + option.val() + "'"
                         + (selected ? " checked='checked'" : "")
                         + (selectName ? " name='" + selectName + "'" : "")
-                        +" /><label>" + option.text() + "</label></div>");
+                        +" />" + option.text() + "</label>");
             });
             popup.append(data);
             popup.insertAfter(newSelect);
@@ -44,8 +45,8 @@
             setValue();
 
             newSelect.click(function(e) {
-                e.stopPropagation();
                 popup.popup({
+                    caller   : this,
                     left     : newSelect.position().left + newSelect.offsetParent().scrollLeft(),
                     top      : newSelect.position().top + newSelect.offsetParent().scrollTop() + newSelect.outerHeight() - 1,
                     zIndex   : options.zIndex,
@@ -55,7 +56,7 @@
             });
 
             checkAll.click(function(e) {
-                var checked = this.checked;
+                var checked = $(this).find("input").prop("checked");
                 popup.find(":checkbox:not(:first)").each(function() {
                     this.checked = checked;
                     values[this.value] = checked;

@@ -71,12 +71,12 @@ public class DecisionTableTraceFilterFactory {
 
             if (child instanceof DTConditionTraceObject) {
                 DTConditionTraceObject conditionTrace = (DTConditionTraceObject) child;
+                if (child instanceof DTIndexedTraceObject) {
+                    indexedRegions.addAll(regions);
+                }
                 if (conditionTrace.isSuccessful()) {
                     successfulChecks.addAll(regions);
                     allCheckedRegions.addAll(regions);
-                    if (child instanceof DTIndexedTraceObject) {
-                        indexedRegions.addAll(regions);
-                    }
                 } else {
                     unsuccessfulChecks.addAll(regions);
                     allCheckedRegions.addAll(regions);

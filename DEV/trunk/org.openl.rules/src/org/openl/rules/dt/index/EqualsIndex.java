@@ -10,7 +10,7 @@ import org.openl.util.math.MathUtils;
 
 public class EqualsIndex extends ARuleIndex {
 
-    private HashMap<Object, DecisionTableRuleNode> valueNodes = new HashMap<Object, DecisionTableRuleNode>();
+    protected HashMap<Object, DecisionTableRuleNode> valueNodes = new HashMap<Object, DecisionTableRuleNode>();
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes, HashMap<Object, DecisionTableRuleNode> valueNodes) {
         super(emptyOrFormulaNodes);
@@ -24,17 +24,14 @@ public class EqualsIndex extends ARuleIndex {
         if (value != null) {
             DecisionTableRuleNode result = valueNodes.get(value);
 			
-            if (result == null && NumberUtils.isFloatPointNumber(value)) {
+            if (result == null && isFloatPointNumber(value)) {
             	Set<Object> keys = valueNodes.keySet();
-            	Double objectValue =  NumberUtils.convertToDouble(value);
+            	Double objectValue = convertToDouble(value);
             	
             	for (Object key : keys) {
-            		if (NumberUtils.isFloatPointNumber(value)) {
-            			Double keyValue = NumberUtils.convertToDouble(key);
-            			
-            			if (MathUtils.eq(objectValue.doubleValue(), keyValue.doubleValue()))
-            				return valueNodes.get(key);
-            		}
+        			if (equalDoubleValues(objectValue, key)) {
+        				return valueNodes.get(key);
+        			}
             	}
             }
             
@@ -43,6 +40,19 @@ public class EqualsIndex extends ARuleIndex {
         }
 
         return null;
+    }
+    
+    protected boolean isFloatPointNumber(Object value) {
+        return NumberUtils.isFloatPointNumber(value);
+    }
+    
+    protected Double convertToDouble(Object value) {
+        return NumberUtils.convertToDouble(value);
+    }
+    
+    protected boolean equalDoubleValues(Double inputParamValue, Object indexValue) {
+        Double indexDoubleValue = NumberUtils.convertToDouble(indexValue);
+        return MathUtils.eq(inputParamValue, indexDoubleValue);
     }
 
     @Override

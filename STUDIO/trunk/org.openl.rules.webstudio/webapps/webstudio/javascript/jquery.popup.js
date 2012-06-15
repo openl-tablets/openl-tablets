@@ -20,6 +20,11 @@
             // Unique click event
             var click = "click.jquery.popup." + Date.now();
 
+            function hide() {
+                popup.hide();
+                $(document).off(click);
+            }
+
             popup.addClass("jquery-popup");
             popup.css({
                 'position': 'absolute',
@@ -33,10 +38,7 @@
                 if ($(".jquery-popup-close-icon").length == 0) {
                     var closeIcon = $("<span />").addClass("jquery-popup-close-icon")
                         .append($("<img src='" + options.closeIcon + "'>"))
-                        .click(function() {
-                            popup.hide();
-                            $(document).off(click);
-                        });
+                        .click(hide);
                     popup.append(closeIcon);
                 }
             }
@@ -62,9 +64,8 @@
             $(document).on(click, function(e) {
                 var clicked = e.target;
                 var clickedPopup = $(clicked).closest(popup);
-                if (!clickedPopup.length) {
-                    popup.hide();
-                    $(document).off(click);
+                if (!clickedPopup.length && clicked !== options.caller) {
+                    hide();
                 }
             });
         });

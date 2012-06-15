@@ -347,18 +347,17 @@
             }
 
             function showPopupMenu(event, popupId, elem, params) {
-                elem = $j(elem);
+                var elem = $j(elem);
                 var elemPos = elem.position();
-
-                event.stopPropagation();
 
                 var left = elemPos.left + ((params && params.offsetLeft) || 0);
                 var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
                 var closeIcon = (params && params.closeIcon && 'webresource/images/close.gif') || false;
 
                 $j("#" + popupId).popup({
-                    left: left,
-                    top : top,
+                    caller   : event.target,
+                    left     : left,
+                    top      : top,
                     closeIcon: closeIcon
                 });
             }

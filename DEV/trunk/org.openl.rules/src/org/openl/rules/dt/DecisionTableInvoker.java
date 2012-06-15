@@ -12,7 +12,10 @@ import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.ChildTraceStack;
+import org.openl.vm.trace.TraceStack;
 import org.openl.vm.trace.Tracer;
 
 /**
@@ -79,11 +82,15 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject)getTraceObject(params);
         tracer.push(traceObject);
         
+        DecisionTableOptimizedAlgorithm algorithm = null;
         DecisionTableOptimizedAlgorithmTraceDecorator algorithmDelegator = null;
-
+        TraceStack conditionsStack = new ChildTraceStack(tracer);
+        
         try {
-            DecisionTableOptimizedAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-            algorithmDelegator = new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, traceObject);
+            algorithm = getInvokableMethod().getAlgorithm();
+            algorithmDelegator = new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, conditionsStack, traceObject);
+            algorithmDelegator.buildIndex(); // Rebuild index with rules meta info
+            
             IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 
             while (rules.hasNext()) {
@@ -100,15 +107,23 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
                     }
                 } finally {
                     tracer.pop();
-                    if (algorithmDelegator != null) {
-                        algorithmDelegator.popAll();
-                    }
+                    conditionsStack.reset();
                 }
             }
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             addErrorToTrace(traceObject, e);
         } finally {
+            conditionsStack.reset();
             tracer.pop();
+
+            // Restore index without rules meta info (memory optimization)
+            if (algorithm != null) {
+                try {
+                    algorithm.buildIndex();
+                } catch (SyntaxNodeException e) {
+                    addErrorToTrace(traceObject, e);
+                }
+            }
         }
 
         return returnValue;
@@ -141,5 +156,5 @@ public class DecisionTableInvoker extends RulesMethodInvoker {
     
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         return invokeOptimized(target, params, env);
-    }    
+    }
 }

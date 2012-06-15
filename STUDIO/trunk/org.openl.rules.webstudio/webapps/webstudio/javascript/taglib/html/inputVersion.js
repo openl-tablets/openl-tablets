@@ -2,16 +2,16 @@
 	var initVersion = "0.0.0";
 
     function showVersionPopup(input, event) {
-        event.stopPropagation();
-        input = $j(input);
+        var jinput = $j(input);
 
-        var left = input.position().left + input.offsetParent().scrollLeft();
-        var top  = input.position().top + input.offsetParent().scrollTop() + input.outerHeight();
+        var left = jinput.position().left + jinput.offsetParent().scrollLeft();
+        var top  = jinput.position().top + jinput.offsetParent().scrollTop() + jinput.outerHeight();
 
-        var popup = input.next();
+        var popup = jinput.next();
         popup.popup({
-            left: left,
-            top : top
+            caller: input,
+            left  : left,
+            top   : top
         });
     }
 
