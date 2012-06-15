@@ -461,6 +461,7 @@
         }
 
         function showButtonMenu(event, popupId, buttonElem) {
+            event.stopPropagation();
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);

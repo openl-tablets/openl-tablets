@@ -57,9 +57,9 @@
                         </h:outputLink>
                     </rich:treeNode>
                     <rich:treeNode type="decisionTableIndex" styleClass="#{node.state == 2 ? 'hasRuleResultNode' : 'noRuleResultNode'}"
-                        iconExpanded="webresource/images/test_success.png"
-                        iconCollapsed="webresource/images/test_success.png"
-                        iconLeaf="webresource/images/test_success.png">
+                        iconExpanded="#{node.state > 0 ? 'webresource/images/test_success.png' : 'webresource/images/test_fail.png'}"
+                        iconCollapsed="#{node.state > 0 ? 'webresource/images/test_success.png' : 'webresource/images/test_fail.png'}"
+                        iconLeaf="#{node.state > 0 ? 'webresource/images/test_success.png' : 'webresource/images/test_fail.png'}">
                         <h:outputLink value="#{node.url}" title="#{node.title}" target="mainFrame">
                             <h:outputText value="#{node.name}" />
                         </h:outputLink>
