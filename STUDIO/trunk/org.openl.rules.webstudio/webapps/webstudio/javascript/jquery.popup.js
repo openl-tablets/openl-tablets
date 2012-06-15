@@ -26,13 +26,6 @@
             }
 
             popup.addClass("jquery-popup");
-            popup.css({
-                'position': 'absolute',
-                'z-index' : options.zIndex,
-                'left'    : options.left,
-                'top'     : options.top,
-                'height'  : options.height
-            });
             
             if (options.closeIcon) {
                 if ($(".jquery-popup-close-icon").length == 0) {
@@ -43,19 +36,35 @@
                 }
             }
 
+            // Position
+            popup.css({
+                'position': 'absolute',
+                'z-index' : options.zIndex,
+                'left'    : options.left,
+                'top'     : options.top
+            });
+
+            // Width
             if (options.minWidth) {
                 popup.css({
-                    'min-width': options.minWidth,
+                    'min-width': options.minWidth
                 });
             }
 
+            // Height
             if (options.maxHeight) {
-                popup.css({
-                    'max-height': options.maxHeight,
-                });
+                if (options.maxHeight.toString().indexOf("calc") > -1) {
+                    popup[0].style.maxHeight = "-moz-" + options.maxHeight;
+                    popup[0].style.maxHeight = "-webkit-" + options.maxHeight;
+                    popup[0].style.maxHeight = options.maxHeight;
+                } else {
+                    popup.css({
+                        'max-height': options.maxHeight
+                    });
+                }
             } else if (options.height) {
                 popup.css({
-                    'height': options.height,
+                    'height': options.height
                 });
             }
 
