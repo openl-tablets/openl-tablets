@@ -67,15 +67,18 @@ public class JarClassLocator implements ClassLocator {
 
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.getName().endsWith(".class")) {
-                    String className = entry.getName().replace(".class", "").replace('/', '.');
-                    if (className.startsWith(packageName) && !className.contains("$")) {
-                        try {
-                            classes.add(Class.forName(className, true, classLoader));
-                        } catch (Throwable t) {
-                            for (LocatorExceptionHandler handler : handlers) {
-                                handler.handleClassInstatiateException(t);
+                    String fullClassName = entry.getName().replace(".class", "").replace('/', '.');
+                    if (fullClassName.startsWith(packageName)) {
+                        String className = fullClassName.substring(packageName.length() + 1);
+                        if (!className.contains(".") && !className.contains("$")) {
+                            try {
+                                classes.add(Class.forName(fullClassName, true, classLoader));
+                            } catch (Throwable t) {
+                                for (LocatorExceptionHandler handler : handlers) {
+                                    handler.handleClassInstatiateException(t);
+                                }
+                                continue;
                             }
-                            continue;
                         }
                     }
                 }
