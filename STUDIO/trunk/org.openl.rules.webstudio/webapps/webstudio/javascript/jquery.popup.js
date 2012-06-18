@@ -26,37 +26,48 @@
             }
 
             popup.addClass("jquery-popup");
+
+            if (options.closeIcon && $(".jquery-popup-close-icon").length == 0) {
+                var closeIcon = $("<span />").addClass("jquery-popup-close-icon")
+                    .append($("<img src='" + options.closeIcon + "'>"))
+                    .click(hide);
+                popup.append(closeIcon);
+            }
+
+            // Position
             popup.css({
                 'position': 'absolute',
                 'z-index' : options.zIndex,
                 'left'    : options.left,
-                'top'     : options.top,
-                'height'  : options.height
+                'top'     : options.top
             });
-            
-            if (options.closeIcon) {
-                if ($(".jquery-popup-close-icon").length == 0) {
-                    var closeIcon = $("<span />").addClass("jquery-popup-close-icon")
-                        .append($("<img src='" + options.closeIcon + "'>"))
-                        .click(hide);
-                    popup.append(closeIcon);
+
+            // Width
+            options.minWidth && popup.css('min-width', options.minWidth);
+            options.width    && popup.css('width', options.width);
+            if (options.maxWidth) {
+                if (options.maxWidth.toString().indexOf("calc") > -1) {
+                    popup[0].style.maxWidth = "-moz-" + options.maxWidth;
+                    popup[0].style.maxWidth = "-webkit-" + options.maxWidth;
+                    popup[0].style.maxWidth = options.maxWidth;
+                } else {
+                    popup.css('max-width', options.maxWidth);
                 }
             }
 
-            if (options.minWidth) {
-                popup.css({
-                    'min-width': options.minWidth,
-                });
-            }
-
+            // Height
+            options.minHeight && popup.css('min-height', options.minHeight);
+            options.height    && popup.css('height', options.height);
             if (options.maxHeight) {
-                popup.css({
-                    'max-height': options.maxHeight,
-                });
-            } else if (options.height) {
-                popup.css({
-                    'height': options.height,
-                });
+                if (options.maxHeight.toString().indexOf("calc") > -1) {
+                    popup[0].style.maxHeight = "-moz-" + options.maxHeight;
+                    popup[0].style.maxHeight = "-webkit-" + options.maxHeight;
+                    popup[0].style.maxHeight = options.maxHeight;
+                } else {
+                    popup.css({
+                        'max-height': options.maxHeight
+                    });
+                }
             }
 
             popup.show();

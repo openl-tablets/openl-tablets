@@ -318,15 +318,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static org.openl.meta.DoubleValue pow(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        //
-        // validate(value1, value2, NumberOperations.POW);
-        if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.DoubleValue((double) 0);
-        } else if (value2 == null) {
-            return value1;
-        }
+        validate(value1, value2, NumberOperations.POW);
         
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.DoubleValue[] { value1, value2 });
@@ -418,7 +410,18 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public void setValue(double value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>    
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.DoubleValue) {
+            org.openl.meta.DoubleValue secondObj = (org.openl.meta.DoubleValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+                                                                                                                                                                            // <<< END INSERT Functions >>>    
     
     // ******* Autocasts *************
 
@@ -617,16 +620,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     @Deprecated
     public void setFormat(String format) {
 //        this.format = format;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof DoubleValue) {
-            DoubleValue secondObj = (DoubleValue) obj;
-            return value == secondObj.doubleValue();
-        }
-
-        return false;
     }
 
     @Override

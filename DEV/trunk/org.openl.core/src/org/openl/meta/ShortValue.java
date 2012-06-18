@@ -278,15 +278,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
     
     public static org.openl.meta.ShortValue pow(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        //
-        // validate(value1, value2, NumberOperations.POW);
-        if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.ShortValue((short) 0);
-        } else if (value2 == null) {
-            return value1;
-        }
+        validate(value1, value2, NumberOperations.POW);
         
         return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.ShortValue[] { value1, value2 });
@@ -378,7 +370,18 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public void setValue(short value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.ShortValue) {
+            org.openl.meta.ShortValue secondObj = (org.openl.meta.ShortValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 
@@ -513,15 +516,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     public int compareTo(Number o) {
         return value - o.shortValue();
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ShortValue) {
-            ShortValue secondObj = (ShortValue) obj;
-            return value == secondObj.longValue();
-        }
-        return false;
     }
 
     @Override

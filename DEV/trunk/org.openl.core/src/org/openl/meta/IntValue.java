@@ -278,15 +278,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
     
     public static org.openl.meta.IntValue pow(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        //
-        // validate(value1, value2, NumberOperations.POW);
-        if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.IntValue((int) 0);
-        } else if (value2 == null) {
-            return value1;
-        }
+        validate(value1, value2, NumberOperations.POW);
         
         return new org.openl.meta.IntValue(new org.openl.meta.IntValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.IntValue[] { value1, value2 });
@@ -378,7 +370,18 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public void setValue(int value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.IntValue) {
+            org.openl.meta.IntValue secondObj = (org.openl.meta.IntValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -512,15 +515,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
     public int compareTo(Number o) {        
         return value < o.intValue() ? -1 : (value == o.intValue() ? 0 : 1);
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof IntValue) {
-            IntValue secondObj = (IntValue) obj;
-            return value == secondObj.intValue();
-        }
-        return false;
     }
 
     @Override

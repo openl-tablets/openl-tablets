@@ -415,7 +415,7 @@ public class Operators {
     }
 
     public static boolean eq(Object x, Object y) {
-        return strict_eq(x, y);
+        return x.equals(y);
     }
 
     public static boolean strict_eq(Object x, Object y) {
