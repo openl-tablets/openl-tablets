@@ -1209,19 +1209,43 @@ public class RulesUtils {
     }
     
     public static int max(int a, int b){
-    	return Math.max(a, b);
+        return Math.max(a, b);
     }
     
     public static double max(double a, double b){
-    	return Math.max(a, b);
+        return Math.max(a, b);
     }
     
     public static float max(float a, float b){
-    	return Math.max(a, b);
+        return Math.max(a, b);
     }
     
     public static long max(long a, long b){
-    	return Math.max(a, b);
+        return Math.max(a, b);
+    }
+
+    public static Integer max(Integer a, Integer b) {
+        return a == null ? b : (b == null ? a : Math.max(a, b));
+    }
+
+    public static Double max(Double a, Double b) {
+        return a == null ? b : (b == null ? a : Math.max(a, b));
+    }
+
+    public static Float max(Float a, Float b) {
+        return a == null ? b : (b == null ? a : Math.max(a, b));
+    }
+
+    public static Long max(Long a, Long b) {
+        return a == null ? b : (b == null ? a : Math.max(a, b));
+    }
+
+    public static java.math.BigInteger max(java.math.BigInteger a, java.math.BigInteger b) {
+        return a == null ? b : (b == null ? a : a.max(b));
+    }
+
+    public static java.math.BigDecimal max(java.math.BigDecimal a, java.math.BigDecimal b) {
+        return a == null ? b : (b == null ? a : a.max(b));
     }
     
     public static int min(int a, int b){
@@ -1229,15 +1253,39 @@ public class RulesUtils {
     }
     
     public static double min(double a, double b){
-    	return Math.min(a, b);
+        return Math.min(a, b);
     }
     
     public static float min(float a, float b){
-    	return Math.min(a, b);
+        return Math.min(a, b);
     }
     
     public static long min(long a, long b){
-    	return Math.min(a, b);
+        return Math.min(a, b);
+    }
+    
+    public static Integer min(Integer a, Integer b) {
+        return a == null ? b : (b == null ? a : Math.min(a, b));
+    }
+
+    public static Double min(Double a, Double b) {
+        return a == null ? b : (b == null ? a : Math.min(a, b));
+    }
+
+    public static Float min(Float a, Float b) {
+        return a == null ? b : (b == null ? a : Math.min(a, b));
+    }
+
+    public static Long min(Long a, Long b) {
+        return a == null ? b : (b == null ? a : Math.min(a, b));
+    }
+
+    public static java.math.BigInteger min(java.math.BigInteger a, java.math.BigInteger b) {
+        return a == null ? b : (b == null ? a : a.min(b));
+    }
+
+    public static java.math.BigDecimal min(java.math.BigDecimal a, java.math.BigDecimal b) {
+        return a == null ? b : (b == null ? a : a.min(b));
     }
     
     public static double nextAfter(double start, double direction){
