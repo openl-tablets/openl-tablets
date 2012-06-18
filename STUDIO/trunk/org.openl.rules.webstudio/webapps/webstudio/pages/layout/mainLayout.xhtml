@@ -361,6 +361,7 @@
                     closeIcon: closeIcon
                 };
                 if (params && params.fitToScreen === true) {
+                    popupParams.maxWidth = "calc(100% - " + left + "px)";
                     popupParams.maxHeight = "calc(100% - " + top + "px)";
                 }
 

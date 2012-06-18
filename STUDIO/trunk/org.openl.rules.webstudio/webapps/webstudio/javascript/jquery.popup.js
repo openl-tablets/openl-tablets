@@ -26,14 +26,12 @@
             }
 
             popup.addClass("jquery-popup");
-            
-            if (options.closeIcon) {
-                if ($(".jquery-popup-close-icon").length == 0) {
-                    var closeIcon = $("<span />").addClass("jquery-popup-close-icon")
-                        .append($("<img src='" + options.closeIcon + "'>"))
-                        .click(hide);
-                    popup.append(closeIcon);
-                }
+
+            if (options.closeIcon && $(".jquery-popup-close-icon").length == 0) {
+                var closeIcon = $("<span />").addClass("jquery-popup-close-icon")
+                    .append($("<img src='" + options.closeIcon + "'>"))
+                    .click(hide);
+                popup.append(closeIcon);
             }
 
             // Position
@@ -45,13 +43,21 @@
             });
 
             // Width
-            if (options.minWidth) {
-                popup.css({
-                    'min-width': options.minWidth
-                });
+            options.minWidth && popup.css('min-width', options.minWidth);
+            options.width    && popup.css('width', options.width);
+            if (options.maxWidth) {
+                if (options.maxWidth.toString().indexOf("calc") > -1) {
+                    popup[0].style.maxWidth = "-moz-" + options.maxWidth;
+                    popup[0].style.maxWidth = "-webkit-" + options.maxWidth;
+                    popup[0].style.maxWidth = options.maxWidth;
+                } else {
+                    popup.css('max-width', options.maxWidth);
+                }
             }
 
             // Height
+            options.minHeight && popup.css('min-height', options.minHeight);
+            options.height    && popup.css('height', options.height);
             if (options.maxHeight) {
                 if (options.maxHeight.toString().indexOf("calc") > -1) {
                     popup[0].style.maxHeight = "-moz-" + options.maxHeight;
@@ -62,10 +68,6 @@
                         'max-height': options.maxHeight
                     });
                 }
-            } else if (options.height) {
-                popup.css({
-                    'height': options.height
-                });
             }
 
             popup.show();
