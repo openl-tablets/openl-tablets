@@ -370,15 +370,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public void setValue(float value) {
         this.value = value;
     }
-	
-	
-	
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.FloatValue) {
+            org.openl.meta.FloatValue secondObj = (org.openl.meta.FloatValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
 
-
-	
-	 
-      
-                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        return false;
+    }
+                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -522,15 +525,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     public int compareTo(Number o) {        
         return Float.compare(value, o.floatValue());
-    } 
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof FloatValue) {
-            FloatValue secondObj = (FloatValue) obj;
-            return value == secondObj.floatValue();
-        }
-        return false;
     }
 
     @Override

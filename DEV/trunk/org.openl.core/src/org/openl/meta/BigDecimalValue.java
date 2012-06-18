@@ -372,15 +372,18 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public void setValue(java.math.BigDecimal value) {
         this.value = value;
     }
-	
-	
-	
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.BigDecimalValue) {
+            org.openl.meta.BigDecimalValue secondObj = (org.openl.meta.BigDecimalValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
 
-
-	
-	 
-      
-                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        return false;
+    }
+                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 
@@ -540,17 +543,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
             throw new OpenlNotCheckedException("Can`t compare BigDecimalValue with unknown type.");
         }
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof BigDecimalValue) {
-            BigDecimalValue secondObj = (BigDecimalValue) obj;
-            return Operators.eq(value, secondObj.getValue());
-        }
-
-        return false;
-    }
-
+    
     @Override
     public int hashCode() {
         return value.hashCode();
