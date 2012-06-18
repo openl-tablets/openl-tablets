@@ -53,7 +53,7 @@ public class ProjectIndexer extends FileIndexer {
 	    for (; filesTreeIter.hasNext();) {
 			File file = filesTreeIter.next();
 			String fileName = file.getName();
-			if (!file.isHidden()
+			if (!file.isHidden() && !file.isDirectory()
 			        && (FileTypeHelper.isExcelFile(fileName) || FileTypeHelper.isWordFile(fileName)))
 				try {
 					String canonPath = file.getCanonicalPath(); 										

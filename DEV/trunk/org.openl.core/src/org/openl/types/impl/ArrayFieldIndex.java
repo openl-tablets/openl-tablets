@@ -11,6 +11,8 @@ import java.lang.reflect.Array;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
+import org.openl.util.IntegerValuesUtils;
+import org.openl.util.NumberUtils;
 
 public class ArrayFieldIndex implements IOpenIndex {
     private IOpenClass elementType;
@@ -41,9 +43,11 @@ public class ArrayFieldIndex implements IOpenIndex {
                 // handles the case when index field of Datatype is of type int, and we try to get String index
                 // e.g. person["12"], so we need to try cast String index value to Integer, and then compare them.
                 // see DatatypeArrayTest
-                if (index instanceof String && fieldValue instanceof Integer) {
-                    index = castStringToInteger((String)index);
+                if (index instanceof String &&
+                        IntegerValuesUtils.isIntegerValue(fieldValue.getClass()) /*fieldValue instanceof Integer*/) {
+                    index = IntegerValuesUtils.createNewObjectByType(fieldValue.getClass(),(String)index);//castStringToInteger((String)index);
                 }
+                
                 if (index.equals(fieldValue)) {
                     return obj;
                 }

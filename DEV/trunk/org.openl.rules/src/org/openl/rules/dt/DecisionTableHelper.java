@@ -387,12 +387,13 @@ public class DecisionTableHelper {
      */
     private static boolean isRangeValue(String cellValue) {
         String valuePattern = "-?\\$?[0-9]+\\.?[0-9]*[KMB]?";// -$67M 
-        Pattern p = Pattern.compile("(\\s*"+valuePattern+"\\s(\\.\\.|\\.\\.\\.)\\s"+valuePattern+"\\s*)|" +// -1 .. 13K
+        Pattern p = Pattern.compile("(\\s*"+valuePattern+"\\s(\\.\\.|\\.\\.\\.|-)\\s"+valuePattern+"\\s*)|" +// -1 .. 13K
                                     "(\\s*[<>]{1}[=\\s]*"+valuePattern+"\\s*)|" +//<-$4K
                                     "(\\s*"+valuePattern+"\\+\\s*)|" +//"0.67B+
                                     "(\\s*(\\[|\\()"+valuePattern+"\\s*(;|\\.\\.)\\s*"+valuePattern+"(\\]|\\))\\s*)|" +//[6.000; $12)
                                     "(\\s*"+valuePattern+" and more\\s*)|" +
-                                    "\\s*more than "+valuePattern+"\\s*");
+                                    "\\s*more than "+valuePattern+"\\s*|" +
+                                    "\\s*less than "+valuePattern+"\\s*");
         Matcher m = p.matcher(cellValue);
 
         return m.matches();
