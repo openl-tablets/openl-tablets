@@ -370,15 +370,18 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public void setValue(short value) {
         this.value = value;
     }
-	
-	
-	
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.ShortValue) {
+            org.openl.meta.ShortValue secondObj = (org.openl.meta.ShortValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
 
-
-	
-	 
-      
-                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        return false;
+    }
+                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 
@@ -513,15 +516,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     public int compareTo(Number o) {
         return value - o.shortValue();
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ShortValue) {
-            ShortValue secondObj = (ShortValue) obj;
-            return value == secondObj.longValue();
-        }
-        return false;
     }
 
     @Override
