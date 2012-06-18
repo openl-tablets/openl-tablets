@@ -382,7 +382,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
         return false;
     }
-                                                                                                                                                                        	 // <<< END INSERT Functions >>>
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
     

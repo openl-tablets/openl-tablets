@@ -383,7 +383,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
         return false;
     }
-                                                                                                                                                                                                                    // <<< END INSERT Functions >>>        
+        // <<< END INSERT Functions >>>
 
     // ******* Autocasts 8*************    
 

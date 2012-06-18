@@ -381,7 +381,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         return false;
     }
-                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 

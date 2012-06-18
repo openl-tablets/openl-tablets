@@ -381,7 +381,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
         return false;
     }
-                                                                                                                                                                                                                    // <<< END INSERT Functions >>>    
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
