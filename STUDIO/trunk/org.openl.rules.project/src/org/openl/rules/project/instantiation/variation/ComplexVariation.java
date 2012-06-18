@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation.variation;
 
+import java.beans.Introspector;
 import java.util.Stack;
 
 /**
@@ -65,5 +66,13 @@ public class ComplexVariation extends Variation {
         for (int i = variations.length - 1; i >= 0; i--) {
             variations[i].applyModification(modifiedArguments, stack);
         }
+    }
+
+    public Variation[] getVariations() {
+        return variations;
+    }
+    
+    public static void main(String[] args)throws Exception {
+        System.out.println(Introspector.getBeanInfo(ComplexVariation.class, Object.class).getPropertyDescriptors().length);
     }
 }
