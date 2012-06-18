@@ -28,7 +28,7 @@ public class DeepCloninigVariaion extends Variation {
      * @param variation Delegated variation.
      */
     public DeepCloninigVariaion(Variation variation) {
-        this(variation + DEEP_CLONING_SUFFIX, variation);
+        this(variation.getVariationID() + DEEP_CLONING_SUFFIX, variation);
     }
 
     /**

@@ -1,8 +1,5 @@
 package org.openl.rules.ruleservice.context;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
@@ -13,27 +10,21 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.project.instantiation.variation.Variation;
-import org.openl.rules.project.instantiation.variation.VariationsPack;
+import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariation;
 
 /**
- *FIXME
- * Defines IRulesRuntime context deserialization from XML: new
- * {@link DefaultRulesRuntimeContext} will be used(By default Aegis creates
- * Proxy that does not provide some necessary methods, e.g. <code>clone()</code>
- * ).
+ * Custom mapping for {@link ArgumentReplacementVariationType} due to it is not
+ * usual bean and should be initialized through non-default constructor.
  * 
  * @author PUdalau
  */
-public class VariationsPackContextBeanType extends BeanType {
+public class ArgumentReplacementVariationType extends BeanType {
 
-    public static final Class<?> TYPE_CLASS = Map.class;
+    public static final Class<?> TYPE_CLASS = ArgumentReplacementVariation.class;
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
-    public VariationsPackContextBeanType() {
+    public ArgumentReplacementVariationType() {
         super();
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
@@ -44,7 +35,9 @@ public class VariationsPackContextBeanType extends BeanType {
         BeanTypeInfo inf = getTypeInfo();
 
         try {
-            VariationsPack variationsPack = null;
+            String variationID = "";
+            int updatedArgumentIndex = 0;
+            Object valueToSet = null;
             // Read child elements
             while (reader.hasMoreElementReaders()) {
                 MessageReader childReader = reader.getNextElementReader();
@@ -57,15 +50,22 @@ public class VariationsPackContextBeanType extends BeanType {
                 AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
                     context.getGlobalContext(),
                     defaultType);
-                if (type != null && qName.getLocalPart().equals("variations")) {
-                    Object variations = type.readObject(childReader, context);
-                    variationsPack = new VariationsPack((List<Variation>) variations);//FIXME
+                if (type != null) {
+                    String propertyName = qName.getLocalPart();
+                    Object propertyValue = type.readObject(childReader, context);
+                    if ("variationID".equals(propertyName)) {
+                        variationID = String.valueOf(propertyValue);
+                    } else if ("updatedArgumentIndex".equals(propertyName)) {
+                        updatedArgumentIndex = (Integer) propertyValue;
+                    } else if ("valueToSet".equals(propertyName)) {
+                        valueToSet = propertyValue;
+                    }
                 } else {
                     childReader.readToEnd();
                 }
             }
 
-            return variationsPack;
+            return new ArgumentReplacementVariation(variationID, updatedArgumentIndex, valueToSet);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }
