@@ -318,7 +318,15 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static org.openl.meta.DoubleValue pow(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, NumberOperations.POW);
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        //
+        // validate(value1, value2, NumberOperations.POW);
+        if (value1 == null) {
+            return value2 == null ? null : new org.openl.meta.DoubleValue((double) 0);
+        } else if (value2 == null) {
+            return value1;
+        }
         
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.DoubleValue[] { value1, value2 });
@@ -410,15 +418,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public void setValue(double value) {
         this.value = value;
     }
-	
-	
-	
-
-
-	
-	 
-      
-                                                                                                                                                            // <<< END INSERT Functions >>>    
+    // <<< END INSERT Functions >>>    
     
     // ******* Autocasts *************
 
