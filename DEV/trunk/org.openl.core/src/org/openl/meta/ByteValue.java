@@ -279,7 +279,15 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
     
     public static org.openl.meta.ByteValue pow(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, NumberOperations.POW);
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        //
+        // validate(value1, value2, NumberOperations.POW);
+        if (value1 == null) {
+            return value2 == null ? null : new org.openl.meta.ByteValue((byte) 0);
+        } else if (value2 == null) {
+            return value1;
+        }
         
         return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.ByteValue[] { value1, value2 });
@@ -371,15 +379,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public void setValue(byte value) {
         this.value = value;
     }
-	
-	
-	
-
-
-	
-	 
-      
-                                                                                                                                                        	 // <<< END INSERT Functions >>>
+    // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
     

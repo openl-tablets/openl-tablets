@@ -278,7 +278,15 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
     
     public static org.openl.meta.IntValue pow(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, NumberOperations.POW);
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        //
+        // validate(value1, value2, NumberOperations.POW);
+        if (value1 == null) {
+            return value2 == null ? null : new org.openl.meta.IntValue((int) 0);
+        } else if (value2 == null) {
+            return value1;
+        }
         
         return new org.openl.meta.IntValue(new org.openl.meta.IntValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.IntValue[] { value1, value2 });
@@ -370,15 +378,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public void setValue(int value) {
         this.value = value;
     }
-	
-	
-	
-
-
-	
-	 
-      
-                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+    // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
