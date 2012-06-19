@@ -17,6 +17,7 @@ public final class ServiceDescription {
     private String url;
     private String serviceClassName;
     private boolean provideRuntimeContext;
+    private boolean provideVariations;
     private Collection<ModuleDescription> modules;
 
     /**
@@ -26,14 +27,16 @@ public final class ServiceDescription {
      * @param url
      * @param serviceClassName
      * @param provideRuntimeContext
+     * @param provideVariations
      * @param modules
      */
     ServiceDescription(String name, String url, String serviceClassName, boolean provideRuntimeContext,
-            Collection<ModuleDescription> modules) {
+             boolean provideVariations, Collection<ModuleDescription> modules) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
+        this.provideVariations = provideVariations;
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
@@ -42,7 +45,12 @@ public final class ServiceDescription {
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext, builder.modules);
+        this(builder.name,
+            builder.url,
+            builder.serviceClassName,
+            builder.provideRuntimeContext,
+            builder.provideVariations,
+            builder.modules);
     }
 
     /**
@@ -80,6 +88,16 @@ public final class ServiceDescription {
      */
     public boolean isProvideRuntimeContext() {
         return provideRuntimeContext;
+    }
+
+    /**
+     * This flag defines whether variations will be supported or not.
+     * 
+     * @return <code>true</code> if variations should be injected in service
+     *         class, and <code>false</code> otherwise.
+     */
+    public boolean isProvideVariations() {
+        return provideVariations;
     }
 
     /**
@@ -132,6 +150,7 @@ public final class ServiceDescription {
         private String url;
         private String serviceClassName;
         private boolean provideRuntimeContext;
+        private boolean provideVariations = false;
         private Collection<ModuleDescription> modules;
 
         /**
@@ -217,13 +236,23 @@ public final class ServiceDescription {
         }
 
         /**
-         * Sets class name to the builder.
+         * Sets class name to the builder. (Optional)
          * 
          * @param serviceClassName
          * @return
          */
         public ServiceDescriptionBuilder setServiceClassName(String serviceClassName) {
             this.serviceClassName = serviceClassName;
+            return this;
+        }
+
+        /**
+         * Sets flag that is responsible for variations support.
+         * @param provideVariations
+         * @return
+         */
+        public ServiceDescriptionBuilder setProvideVariations(boolean provideVariations) {
+            this.provideVariations = provideVariations;
             return this;
         }
 
