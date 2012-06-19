@@ -380,13 +380,16 @@ public class RepositoryTreeController {
             if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
                 repositoryTreeState.refreshSelectedNode();
             } else {
-                repositoryTreeState.deleteSelectedNodeFromTree();
+                /*After deleting project we need to erase it from repository*/
+                eraseProject();
+                //repositoryTreeState.deleteSelectedNodeFromTree();
             }
             resetStudioModel();
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
         }
+        
         return null;
     }
 
@@ -434,7 +437,11 @@ public class RepositoryTreeController {
         try {
             project.erase();
             userWorkspace.refresh();
+            
             repositoryTreeState.deleteSelectedNodeFromTree();
+            repositoryTreeState.invalidateTree();
+            repositoryTreeState.invalidateSelection();
+            
             resetStudioModel();
         } catch (ProjectException e) {
             repositoryTreeState.invalidateTree();
