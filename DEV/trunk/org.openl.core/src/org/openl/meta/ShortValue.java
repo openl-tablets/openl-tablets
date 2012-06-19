@@ -381,7 +381,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
         return false;
     }
-                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
 

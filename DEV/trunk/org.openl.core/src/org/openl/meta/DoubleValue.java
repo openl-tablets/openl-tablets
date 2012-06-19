@@ -421,7 +421,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
         return false;
     }
-                                                                                                                                                                            // <<< END INSERT Functions >>>    
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
 
