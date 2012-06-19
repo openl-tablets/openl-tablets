@@ -261,6 +261,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public void processSelection(TreeSelectionChangeEvent event) {
         List<Object> selection = new ArrayList<Object>(event.getNewSelection());
+        
+        /*If there are no selected nodes*/
+        if (selection.isEmpty()) {
+           return;
+        }
+
         Object currentSelectionKey = selection.get(0);
         UITree tree = (UITree) event.getSource();
 
