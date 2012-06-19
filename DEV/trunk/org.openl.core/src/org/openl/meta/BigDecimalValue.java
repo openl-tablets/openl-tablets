@@ -280,15 +280,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
     
     public static org.openl.meta.BigDecimalValue pow(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        //
-        // validate(value1, value2, NumberOperations.POW);
-        if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.BigDecimalValue("0");
-        } else if (value2 == null) {
-            return value1;
-        }
+        validate(value1, value2, NumberOperations.POW);
         
         return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.BigDecimalValue[] { value1, value2 });
@@ -380,7 +372,18 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public void setValue(java.math.BigDecimal value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.BigDecimalValue) {
+            org.openl.meta.BigDecimalValue secondObj = (org.openl.meta.BigDecimalValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 
@@ -540,17 +543,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
             throw new OpenlNotCheckedException("Can`t compare BigDecimalValue with unknown type.");
         }
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof BigDecimalValue) {
-            BigDecimalValue secondObj = (BigDecimalValue) obj;
-            return Operators.eq(value, secondObj.getValue());
-        }
-
-        return false;
-    }
-
+    
     @Override
     public int hashCode() {
         return value.hashCode();
