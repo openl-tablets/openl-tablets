@@ -24,6 +24,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private final Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
 
     private boolean provideRuntimeContext;
+    private boolean supportVariations;
 
     /** {@inheritDoc} */
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
@@ -57,7 +58,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                 Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName());
                 ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
-                        .setProvideRuntimeContext(provideRuntimeContext);
+                        .setProvideRuntimeContext(provideRuntimeContext).setProvideVariations(supportVariations);
 
                 for (Module module : modulesOfProject) {
                     ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
@@ -86,4 +87,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         this.provideRuntimeContext = provideRuntimeContext;
     }
 
+    public boolean isSupportVariations() {
+        return supportVariations;
+    }
+
+    public void setSupportVariations(boolean supportVariations) {
+        this.supportVariations = supportVariations;
+    }
 }

@@ -17,6 +17,7 @@
 		class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
 		<property name="writeXsiTypes" value="true" />
 		<property name="overrideTypes" ref="rootClassNamesBindingFactoryBean" />
+		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
 	</bean>
 
 	<!-- <bean id="dataBinding" class="org.apache.cxf.jaxb.JAXBDataBinding" 
