@@ -418,7 +418,18 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public void setValue(double value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>    
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.DoubleValue) {
+            org.openl.meta.DoubleValue secondObj = (org.openl.meta.DoubleValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
 
@@ -617,16 +628,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     @Deprecated
     public void setFormat(String format) {
 //        this.format = format;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof DoubleValue) {
-            DoubleValue secondObj = (DoubleValue) obj;
-            return value == secondObj.doubleValue();
-        }
-
-        return false;
     }
 
     @Override

@@ -379,7 +379,18 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public void setValue(byte value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.ByteValue) {
+            org.openl.meta.ByteValue secondObj = (org.openl.meta.ByteValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts *************
     
@@ -515,16 +526,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     
     public int compareTo(Number o) {        
         return (int)(value - o.byteValue());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ByteValue) {
-            ByteValue secondObj = (ByteValue) obj;
-            return Operators.eq(value, secondObj.byteValue());
-        }
-
-        return false;
     }
 
     @Override

@@ -380,7 +380,18 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     public void setValue(java.math.BigInteger value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>        
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.BigIntegerValue) {
+            org.openl.meta.BigIntegerValue secondObj = (org.openl.meta.BigIntegerValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
 
     // ******* Autocasts 8*************    
 
@@ -527,16 +538,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         } else {
             throw new OpenlNotCheckedException("Can`t compare BigIntegerValue with unknown type.");
         }
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof BigIntegerValue) {
-            BigIntegerValue secondObj = (BigIntegerValue) obj;
-            return Operators.eq(value, secondObj.getValue());
-        }
-
-        return false;
     }
 
     @Override

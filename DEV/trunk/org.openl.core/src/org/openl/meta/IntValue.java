@@ -378,7 +378,18 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public void setValue(int value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.IntValue) {
+            org.openl.meta.IntValue secondObj = (org.openl.meta.IntValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -512,15 +523,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
     public int compareTo(Number o) {        
         return value < o.intValue() ? -1 : (value == o.intValue() ? 0 : 1);
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof IntValue) {
-            IntValue secondObj = (IntValue) obj;
-            return value == secondObj.intValue();
-        }
-        return false;
     }
 
     @Override

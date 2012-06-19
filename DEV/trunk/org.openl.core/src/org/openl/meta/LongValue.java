@@ -378,7 +378,18 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public void setValue(long value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>    
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.LongValue) {
+            org.openl.meta.LongValue secondObj = (org.openl.meta.LongValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -511,16 +522,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     public int compareTo(Number o) {
         return value < o.longValue() ? -1 : (value == o.longValue() ? 0 : 1);        
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof LongValue) {
-            LongValue secondObj = (LongValue) obj;
-            return value == secondObj.longValue();
-        }
-
-        return false;
     }
 
     @Override

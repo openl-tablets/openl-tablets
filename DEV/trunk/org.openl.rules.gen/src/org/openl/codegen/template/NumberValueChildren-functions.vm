@@ -345,3 +345,15 @@
     public void setValue($tool.getTypeName($primitiveType) value) {
         this.value = value;
     }
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof $tool.getTypeName($type)) {
+            $tool.getTypeName($type) secondObj = ($tool.getTypeName($type)) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        
