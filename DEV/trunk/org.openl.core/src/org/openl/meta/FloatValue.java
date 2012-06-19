@@ -381,7 +381,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
         return false;
     }
-                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 

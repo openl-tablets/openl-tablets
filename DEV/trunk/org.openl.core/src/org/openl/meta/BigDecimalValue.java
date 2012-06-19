@@ -383,7 +383,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
         return false;
     }
-                                                                                                                                                                                                                    // <<< END INSERT Functions >>>
+        // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 

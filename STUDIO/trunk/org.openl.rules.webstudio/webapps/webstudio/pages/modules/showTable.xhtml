@@ -465,7 +465,7 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
-            showPopupMenu(event, popupId, button, {'offsetLeft' : -1});
+            showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'fitToScreen' : true});
         }
 
         function editInExcel(f) {
