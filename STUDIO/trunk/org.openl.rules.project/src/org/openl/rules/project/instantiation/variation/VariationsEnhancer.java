@@ -106,7 +106,6 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = interfaceClass.getDeclaredMethods();
-
         for (Method serviceMethod : serviceMethods) {
             try {
                 Method originalMethod = VariationsEnhancerHelper.getMethodForEnhanced(serviceClass, serviceMethod);

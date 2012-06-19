@@ -280,7 +280,15 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
     
     public static org.openl.meta.BigDecimalValue pow(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
-        validate(value1, value2, NumberOperations.POW);
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        //
+        // validate(value1, value2, NumberOperations.POW);
+        if (value1 == null) {
+            return value2 == null ? null : new org.openl.meta.BigDecimalValue("0");
+        } else if (value2 == null) {
+            return value1;
+        }
         
         return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.BigDecimalValue[] { value1, value2 });
