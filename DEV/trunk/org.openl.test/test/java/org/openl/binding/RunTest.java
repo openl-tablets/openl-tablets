@@ -171,14 +171,15 @@ public class RunTest extends TestCase {
 
         
         // Testing new implementation of s1 == s2 for Strings. To achieve old
-        // identity test Strings must be downcasted to Object
+        // identity test Strings must be upcasted to Object
         _runNoError("String a=\"a\"; String b = \"b\"; a + b == a + 'b'", new Boolean(true), OpenL.OPENL_J_NAME);
         _runNoError("String a=\"a\"; String b = \"b\"; a + b == a + 'c'", new Boolean(false), OpenL.OPENL_J_NAME);
         _runNoError("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", new Boolean(false), OpenL.OPENL_J_NAME);
         _runNoError("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", new Boolean(true), OpenL.OPENL_J_NAME);
-        _runNoError("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", new Boolean(false),
-                OpenL.OPENL_J_NAME);
-
+        _runNoError("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", new Boolean(true),
+            OpenL.OPENL_J_NAME);        
+        _runNoError("String a=\"a\"; String b = \"b\"; (Object)(a + b) ==== (Object)(a + 'b')", new Boolean(false),
+            OpenL.OPENL_J_NAME);
         
         _runNoError("boolean a=true; boolean b = false; a == !b", new Boolean(true), OpenL.OPENL_J_NAME);
         _runNoError("boolean a=true; boolean b = false; a != b", new Boolean(true), OpenL.OPENL_J_NAME);
