@@ -278,15 +278,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
     
     public static org.openl.meta.LongValue pow(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        //
-        // validate(value1, value2, NumberOperations.POW);
-        if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.LongValue((long) 0);
-        } else if (value2 == null) {
-            return value1;
-        }
+        validate(value1, value2, NumberOperations.POW);
         
         return new org.openl.meta.LongValue(new org.openl.meta.LongValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.LongValue[] { value1, value2 });
@@ -378,7 +370,18 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public void setValue(long value) {
         this.value = value;
     }
-    // <<< END INSERT Functions >>>    
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof org.openl.meta.LongValue) {
+            org.openl.meta.LongValue secondObj = (org.openl.meta.LongValue) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
 
@@ -511,16 +514,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     public int compareTo(Number o) {
         return value < o.longValue() ? -1 : (value == o.longValue() ? 0 : 1);        
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof LongValue) {
-            LongValue secondObj = (LongValue) obj;
-            return value == secondObj.longValue();
-        }
-
-        return false;
     }
 
     @Override

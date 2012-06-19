@@ -250,19 +250,7 @@
     }
     
     public static $tool.getTypeName($type) ${powFunction.Name}($tool.getTypeName($type) value1, $tool.getTypeName($type) value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        //
-        // validate(value1, value2, ${powFunction.FullName});
-        if (value1 == null) {
-#if (${primitiveType.isPrimitive()})
-            return value2 == null ? null : new $tool.getTypeName($type)(($primitiveType) 0);
-#else
-            return value2 == null ? null : new $tool.getTypeName($type)("0");
-#end
-        } else if (value2 == null) {
-            return value1;
-        }
+        validate(value1, value2, ${powFunction.FullName});
         
         return new $tool.getTypeName($type)(new $tool.getTypeName($type)(Operators.${powFunction.Name}(value1.getValue(), value2.getValue())), 
             ${powFunction.FullName}, new $tool.getTypeName($type)[] { value1, value2 });
@@ -345,3 +333,15 @@
     public void setValue($tool.getTypeName($primitiveType) value) {
         this.value = value;
     }
+    
+    //Equals
+	@Override
+    public boolean equals(Object obj) {
+        if (obj instanceof $tool.getTypeName($type)) {
+            $tool.getTypeName($type) secondObj = ($tool.getTypeName($type)) obj;
+            return Operators.eq(getValue(), secondObj.getValue());
+        }
+
+        return false;
+    }
+        

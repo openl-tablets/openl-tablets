@@ -99,30 +99,45 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     private static IMethodCaller findSingleBinaryOperatorMethodCaller(String methodName,
-                                                                      IOpenClass[] types,
+                                                                      IOpenClass[] argumentTypes,
                                                                       IBindingContext bindingContext) {
-
-        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, types);
-
+        
+        // An attempt to find the method <namespace>.<methodName>(argumentTypes) in the binding context.
+        // This is the most privileged place for searching.
+        // @author DLiauchuk
+        //
+        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, 
+            argumentTypes);
         if (methodCaller != null) {
             return methodCaller;
         }
 
-        IOpenClass[] types2 = { types[1] };
-
-        methodCaller = MethodSearch.getMethodCaller(methodName, types2, bindingContext, types[0]);
-
+        IOpenClass[] types2 = { argumentTypes[1] };
+        
+        // An attempt to find method <methodName>(argumentTypes[1]), using the first argument type as a possible 
+        // collection of suitable methods.
+        //
+        // TODO: Investigate which case covers this branch. How the method, e.g. foo(Type2) may be suitable
+        // for foo(Type1, Type2). Why it has more priority than next items for search?
+        // @author DLiauchuk
+        //
+        methodCaller = MethodSearch.getMethodCaller(methodName, types2, bindingContext, argumentTypes[0]);
         if (methodCaller != null) {
             return methodCaller;
         }
-
-        methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[0]);
-
+        
+        // An attempt to find method <methodName>(argumentTypes), using the first argument type as a possible
+        // collection of suitable methods, e.g. {@link DoubleValue#add(DoubleValue value1, DoubleValue value2).
+        //
+        methodCaller = MethodSearch.getMethodCaller(methodName, argumentTypes, bindingContext, argumentTypes[0]);
         if (methodCaller != null) {
             return methodCaller;
         }
-
-        methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[1]);
+        
+        // An attempt to find method <methodName>(argumentTypes), using the second argument type as a possible
+        // collection of suitable methods.
+        //
+        methodCaller = MethodSearch.getMethodCaller(methodName, argumentTypes, bindingContext, argumentTypes[1]);
 
         return methodCaller;
     }

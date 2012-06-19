@@ -354,12 +354,18 @@
                 var top = elemPos.top + elem.outerHeight() + ((params && params.offsetTop) || 0);
                 var closeIcon = (params && params.closeIcon && 'webresource/images/close.gif') || false;
 
-                $j("#" + popupId).popup({
+                var popupParams = {
                     caller   : event.target,
                     left     : left,
                     top      : top,
                     closeIcon: closeIcon
-                });
+                };
+                if (params && params.fitToScreen === true) {
+                    popupParams.maxWidth = "calc(100% - " + left + "px)";
+                    popupParams.maxHeight = "calc(100% - " + top + "px)";
+                }
+
+                $j("#" + popupId).popup(popupParams);
             }
 
             function message(content, life, closable) {
