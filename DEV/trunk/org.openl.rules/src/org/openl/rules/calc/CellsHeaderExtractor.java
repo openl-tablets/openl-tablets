@@ -25,6 +25,12 @@ public class CellsHeaderExtractor {
     /** table representing row section in the spreadsheet **/
     private ILogicalTable rowNamesTable;
     
+    // regex that represents the next line:
+    // [any_symbols] : SpreadsheetResult<custom_spreadsheet_result_name>
+    //
+    // package scope just for tests
+    static final String DEPENDENT_CSR_REGEX = "^.*\\s*:\\s*SpreadsheetResult[^\\s\\[\\]].*";
+    
     public CellsHeaderExtractor(ILogicalTable columnNamesTable, ILogicalTable rowNamesTable) {
         this.columnNamesTable = columnNamesTable;
         this.rowNamesTable = rowNamesTable;
@@ -87,14 +93,10 @@ public class CellsHeaderExtractor {
     }
     
     private List<String> getDependencies(String[] cellNames) {
-        List<String> dependentSpreadsheets = new ArrayList<String>(); 
+        List<String> dependentSpreadsheets = new ArrayList<String>();
         
-        // regex that represents the next line:
-        // [any_symbols] : SpreadsheetResult<custom_spreadsheet_result_name>
-        //
-        String regex = String.format("^.*\\s*:\\s*%s[^\\s].*", SpreadsheetResult.class.getSimpleName());
         for (String cellName : cellNames) {
-            if (cellName.matches(regex)) {
+            if (cellName.matches(DEPENDENT_CSR_REGEX)) {
                 String[] res = cellName.split(SpreadsheetResult.class.getSimpleName());
                 dependentSpreadsheets.add(res[res.length - 1]);
             }
