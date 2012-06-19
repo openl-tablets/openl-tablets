@@ -308,9 +308,9 @@ public class DecisionTableHelper {
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
             boolean isThatVCondition, int vColumnCounter) {
         final List<String> intType = Arrays.asList("byte","short","int","Byte","Short","Int",
-                "ByteValue","ShortValue","IntValue");
+                "ByteValue","ShortValue","IntValue","BigIntegerValue");
         final List<String> doubleType = Arrays.asList("long","float","double","Long","Float","Double",
-                "LongValue","FloatValue","DoubleValue");
+                "LongValue","FloatValue","DoubleValue","BigDecimalValue");
         ILogicalTable decisionValues;
         int width = 0;
         
@@ -350,9 +350,9 @@ public class DecisionTableHelper {
             
             if (RuleRowHelper.isCommaSeparatedArray(cellValue)) {
                 return typeName+"[]";
-            } else if (isRangeValue(cellValue.getSource().getCell(0, 0).getStringValue())) {
+            } else if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
                 INumberRange range = null;
-                
+
                 /**try to create range by values**/
                 if (intType.contains(typeName)) {
                     try {
@@ -375,8 +375,15 @@ public class DecisionTableHelper {
                 }
             }
         }
-        
+
         return null;
+    }
+
+    private static boolean maybeIsRange(String cellValue) {
+        Pattern p = Pattern.compile(".*(more|less|[;<>\\[\\(+\\.-]).*");
+        Matcher m = p.matcher(cellValue);
+        
+        return m.matches();
     }
     
     /**
