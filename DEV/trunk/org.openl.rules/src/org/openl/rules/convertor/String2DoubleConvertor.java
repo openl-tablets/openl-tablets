@@ -14,9 +14,13 @@ public class String2DoubleConvertor extends NumberConvertor implements IString2D
         if (format == null) {
             format = DEFAULT_DOUBLE_FORMAT;
         }
-
+        // NOTE!!! Using new DecimalFormat(format), depends on the users locale.
+        // E.g. if locale on the users machine is ru_RU, the ','(comma) delimiter will
+        // be used. It is not appropriate for many cases, e.g. formatting the value for writing its
+        // value to the Java class(Java expects '.' dot delimiter).
+        //
         DecimalFormat df = new DecimalFormat(format);
-
+        
         return df.format(((Number) data).doubleValue());
     }
 
