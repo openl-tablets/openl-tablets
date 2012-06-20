@@ -6,6 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import junit.framework.Assert;
 
@@ -92,19 +95,20 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
             fail(e.getMessage());        
         } 
     }
-/*    
-    @Test    
+    
+    @Test
     public void testDefaultValues6() {
         Class<?> clazz = null;
         
         try {
         	clazz = Class.forName("org.openl.generated.beans.TestOpenLGrammar", true, Thread.currentThread().getContextClassLoader());
         	checkTestOpenLGramar(clazz);
-        } catch (Throwable e) {            
+        } catch (Throwable e) {   
+            e.printStackTrace();
             fail(e.getMessage());        
         } 
     }
-*/
+
     private void checkTestBigTypes(Class<?> clazz) throws InstantiationException,
                                                     IllegalAccessException,
                                                     NoSuchMethodException,
@@ -211,6 +215,17 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
 		
 		methodName = "getStr";
 		testValue(clazz, instance, methodName, "Hello World");
+		
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+		Date expectedDate = null;
+		try {
+            expectedDate = format.parse("01/01/2012");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+		        
+		methodName = "getDateVal";
+        testValue(clazz, instance, methodName, expectedDate);
 	}
 
     private void testValue(Class<?> clazz, Object instance, String methodName, Object expectedResult) throws NoSuchMethodException,
