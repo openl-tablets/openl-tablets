@@ -394,9 +394,7 @@ public class RepositoryTreeController {
             if (wasMarkedForDeletion && !repositoryTreeState.isHideDeleted()) {
                 repositoryTreeState.refreshSelectedNode();
             } else {
-                /*After deleting project we need to erase it from repository*/
-                eraseProject();
-                //repositoryTreeState.deleteSelectedNodeFromTree();
+                repositoryTreeState.deleteSelectedNodeFromTree();
             }
             resetStudioModel();
         } catch (ProjectException e) {
