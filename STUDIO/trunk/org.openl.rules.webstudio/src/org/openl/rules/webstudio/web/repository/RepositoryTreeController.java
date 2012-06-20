@@ -296,6 +296,13 @@ public class RepositoryTreeController {
 
     public String createDeploymentProject() {
         try {
+            if (userWorkspace.hasDDProject(projectName)) {
+                String msg = "Cannot create project because project with such name already exists.";
+                FacesUtils.addErrorMessage(msg, null);
+                
+                return null;
+            }
+            
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
             createdProject.checkOut();
@@ -313,7 +320,14 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("Project name must not be empty.");
             return null;
         }
-
+        
+        if (userWorkspace.hasProject(projectName)) {
+            String msg = "Cannot create project because project with such name already exists.";
+            FacesUtils.addErrorMessage(msg, null);
+            
+            return msg;
+        }
+        
         InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
         String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
         if (sampleRulesSource == null) {
@@ -1059,10 +1073,6 @@ public class RepositoryTreeController {
      * @return
      */
     public String updateFile() {
-        if (getLastUploadedFile() == null) {
-            FacesUtils.addErrorMessage("Please select file to be uploaded.");
-            return null;
-        }
         String errorMessage = uploadAndUpdateFile();
         if (errorMessage == null) {
             resetStudioModel();
@@ -1081,6 +1091,13 @@ public class RepositoryTreeController {
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             try {
+                if (userWorkspace.hasProject(projectName)) {
+                    String msg = "Cannot create project because project with such name already exists.";
+                    FacesUtils.addErrorMessage(msg, null);
+
+                    return null;
+                }
+
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
@@ -1089,10 +1106,10 @@ public class RepositoryTreeController {
             }
             FacesUtils.addInfoMessage("Project was uploaded successfully.");
         }
-        
+
         /*Clear the load form*/
         clearForm();
-        
+
         return null;
     }
 
