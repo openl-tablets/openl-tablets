@@ -22,11 +22,11 @@ import org.apache.commons.logging.LogFactory;
 public class VariationsResult<T> {
     private final Log log = LogFactory.getLog(VariationsResult.class);
     private LinkedHashMap<String, T> variationResults;
-    private LinkedHashMap<String, Exception> variationFailures;
+    private LinkedHashMap<String, String> variationFailures;
 
     public VariationsResult() {
         variationResults = new LinkedHashMap<String, T>();
-        variationFailures = new LinkedHashMap<String, Exception>();
+        variationFailures = new LinkedHashMap<String, String>();
     }
 
     /**
@@ -35,18 +35,18 @@ public class VariationsResult<T> {
      * @param variationID ID of variation.
      * @param result Result of the caculation with the corresponding variation.
      */
-    /* package */void registerResults(String variationID, T result) {
+    public void registerResults(String variationID, T result) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
             log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }
         variationResults.put(variationID, result);
     }
 
-    /* package */void registerFailure(String variationID, Exception exception) {
+    public void registerFailure(String variationID, String errorMessage) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
             log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }
-        variationFailures.put(variationID, exception);
+        variationFailures.put(variationID, errorMessage);
     }
 
     /**
@@ -62,9 +62,9 @@ public class VariationsResult<T> {
     /**
      * 
      * @param variationID ID of needed variation.
-     * @return Error that occurred during the calculation of variation.
+     * @return Error message that occurred during the calculation of variation.
      */
-    public Exception getFailureErrorForVariation(String variationID) {
+    public String getFailureErrorForVariation(String variationID) {
         return variationFailures.get(variationID);
     }
 
@@ -78,7 +78,7 @@ public class VariationsResult<T> {
     /**
      * @return All failed calculations of variations.
      */
-    public LinkedHashMap<String, Exception> getVariationFailures() {
+    public LinkedHashMap<String, String> getVariationFailures() {
         return variationFailures;
     }
 

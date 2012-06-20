@@ -21,7 +21,7 @@ public class ObjectTypeWriter implements TypeWriter {
         String fieldinternalName = Type.getInternalName(fieldClass);
         methodVisitor.visitTypeInsn(Opcodes.NEW, fieldinternalName); 
         methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor.visitLdcInsn(String.valueOf(fieldType.getDefaultValue()));
+        methodVisitor.visitLdcInsn(fieldType.getDefaultValueAsString());
         methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, fieldinternalName, "<init>", 
             "(Ljava/lang/String;)V"); 
         return 5;

@@ -92,7 +92,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
             fail(e.getMessage());        
         } 
     }
-    
+/*    
     @Test    
     public void testDefaultValues6() {
         Class<?> clazz = null;
@@ -104,7 +104,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
             fail(e.getMessage());        
         } 
     }
-
+*/
     private void checkTestBigTypes(Class<?> clazz) throws InstantiationException,
                                                     IllegalAccessException,
                                                     NoSuchMethodException,

@@ -144,8 +144,8 @@ class VariationsInvocationHandler implements InvocationHandler {
                 Object result = member.invoke(serviceClassInstance, modifiedArguments);
                 variationsResults.registerResults(variation.getVariationID(), result);
             } catch (Exception e) {
-                log.debug("Failed to calculate \"" + variation.getVariationID() + "\"", e);
-                variationsResults.registerFailure(variation.getVariationID(), e);
+                log.warn("Failed to calculate \"" + variation.getVariationID() + "\"", e);
+                variationsResults.registerFailure(variation.getVariationID(), e.getMessage());
             }
         } finally {
             if (modifiedArguments != null) {
