@@ -29,6 +29,7 @@ public class String2DateConvertor extends LocaleDependConvertor implements IStri
 
     public synchronized Date parseDate(String data, String format) {
         DateFormat df = format == null ? defaultFormat : new SimpleDateFormat(format, getLocale());
+        df.setLenient(false);
 
         try {
             return df.parse(data);
