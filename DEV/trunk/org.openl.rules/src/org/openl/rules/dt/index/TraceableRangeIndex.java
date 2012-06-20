@@ -1,6 +1,7 @@
 package org.openl.rules.dt.index;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -44,13 +45,17 @@ public class TraceableRangeIndex extends RangeIndex {
                 cachingTraceStack.push(new DTIndexedTraceObject(baseTraceObject, condition, result, true));
             }
         } else {
-            for (ITracerObject to : cachingTraceStack.getTraceObjects()) {
-                DTIndexedTraceObject traceObject = (DTIndexedTraceObject) to;
+            Iterator<ITracerObject> iterator = cachingTraceStack.getTraceObjects().iterator();
+            while (iterator.hasNext()) {
+                DTIndexedTraceObject traceObject = (DTIndexedTraceObject) iterator.next();
                 if (traceObject.getLinkedRule() == result && !traceObject.isSuccessful()) {
                     // Parameter is not equal to range boundaries but inside
                     // them (it is linked to result and result != emptyOrFormulaNodes)
-                    // We should change trace result to successful.
+                    // We should change trace result to successful and move it to the stack's end
+                    // because we found that a result a result after checking all boundaries.
+                    iterator.remove();
                     traceObject.setSuccessful(true);
+                    cachingTraceStack.push(traceObject);
                     break;
                 }
             }
