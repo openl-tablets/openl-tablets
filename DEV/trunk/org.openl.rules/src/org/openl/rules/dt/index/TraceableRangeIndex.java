@@ -61,6 +61,14 @@ public class TraceableRangeIndex extends RangeIndex {
         return result;
     }
 
+    @Override
+    protected Object convertValueForSearch(Object value) {
+        if (value instanceof ComparableValueTraceDecorator) {
+            value = ((ComparableValueTraceDecorator) value).delegate;
+        }
+        return new ComparableValueTraceDecorator(super.convertValueForSearch(value));
+    }
+
     private static class CachingTraceStack implements TraceStack {
         private final TraceStack delegate;
         private List<ITracerObject> stack = new ArrayList<ITracerObject>();

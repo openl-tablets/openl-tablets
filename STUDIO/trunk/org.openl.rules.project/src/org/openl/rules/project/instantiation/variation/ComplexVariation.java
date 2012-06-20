@@ -66,4 +66,8 @@ public class ComplexVariation extends Variation {
             variations[i].applyModification(modifiedArguments, stack);
         }
     }
+
+    public Variation[] getVariations() {
+        return variations;
+    }
 }

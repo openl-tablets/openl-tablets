@@ -19,9 +19,9 @@ public class CheckRangeValuesTest {
                 "more than 1"," 1.0 .. 13.45","1 ... 13.3 ","< 4.00000001","> 67.09",">=6.7"," <= 67","0.67+",
                 "[6.000; 12)","[67 .. 10.0]","(6.7; 123]","4.5 and more","more than 0.1",
                 " -1 .. 13K","1M ... -13 ","<-$4K","> $67",">=67M"," <= -67","0.67B+",
-                "[6.000; $12)","[67 .. 10.0]","(-123; -6]","4.5K and more","more than -0.1"};
+                "[6.000; $12)","[67 .. 10.0]","(-123; -6]","4.5K and more","more than -0.1","67 +"};
         
-        String[] falseResult = new String[]{"6; 12]","67 +"," 1 aa 13",
+        String[] falseResult = new String[]{"6; 12]"," 1 aa 13",
                                     " <= -67KM","0.67N+","[6.000; $-12)"};
         
         for (int i = 0; i < trueResult.length; i++) {
