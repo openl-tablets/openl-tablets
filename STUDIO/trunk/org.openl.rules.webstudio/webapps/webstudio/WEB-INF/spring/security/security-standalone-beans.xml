@@ -96,11 +96,6 @@
 
   <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
     <property name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint" />
-    <property name="accessDeniedHandler">
-      <bean class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
-        <property name="errorPage" value="/accessDenied.jsp" />
-      </bean>
-    </property>
   </bean>
 
   <bean id="loginUrlAuthenticationEntryPoint"
@@ -117,6 +112,7 @@
     <property name="accessDecisionManager" ref="accessDecisionManager" />
     <property name="securityMetadataSource">
       <security:filter-security-metadata-source lowercase-comparisons="true">
+        <security:intercept-url pattern="/faces/pages/modules/administration/*" access="ROLE_ADMIN" />
         <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
       </security:filter-security-metadata-source>
     </property>
