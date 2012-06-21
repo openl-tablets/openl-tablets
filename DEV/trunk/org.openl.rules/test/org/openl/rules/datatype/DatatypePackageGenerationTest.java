@@ -21,6 +21,7 @@ public class DatatypePackageGenerationTest extends BaseOpenlBuilderHelper {
             assertNotNull("Check that there is class Driver with appropriate package", Class.forName("org.table.Driver"));
             assertNotNull("Check that there is class Policy with appropriate package", Class.forName("org.modue.package.Policy"));
             assertNotNull("Check that there is class Vehicle with appropriate package", Class.forName("org.modue.package.Vehicle"));
+            assertNotNull("Check that there is class Vehicle with appropriate package", Class.forName("Org.Table.TEST.ContainsCapitalLetters"));
         } catch (ClassNotFoundException e) {
            fail();
         }
@@ -44,5 +45,6 @@ public class DatatypePackageGenerationTest extends BaseOpenlBuilderHelper {
         assertTrue(hasErrorInPackageName(findTable("Datatype WithSpecialSymbols2")));
         assertTrue(hasErrorInPackageName(findTable("Datatype StartsWithDigit")));
         assertFalse(hasErrorInPackageName(findTable("Datatype Driver")));
+        assertFalse(hasErrorInPackageName(findTable("Datatype ContainsCapitalLetters")));
     }
 }

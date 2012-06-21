@@ -16,7 +16,7 @@ public class InheritanceLevelCheckerTest {
     
     @Test
     public void testUnExistingName() {
-        // property region unable to define on TABLE level for testing. it is defined in TablePropertyDefinition.xlsx
+        // property region can be defined on TABLE level for testing. it is defined in TablePropertyDefinition.xlsx
         String propertyName = "region";
         
         boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName);

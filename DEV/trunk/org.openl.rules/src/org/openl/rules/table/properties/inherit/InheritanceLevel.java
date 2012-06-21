@@ -20,5 +20,14 @@ public enum InheritanceLevel {
     public String toString() {
         return displayName;
     }
+    
+    public static InheritanceLevel getEnumByValue(String value) {
+        for (InheritanceLevel level : InheritanceLevel.values()) {
+            if (level.getDisplayName().equals(value)) {
+                return level;
+            }
+        }
+        return null;
+    }
 
 }
