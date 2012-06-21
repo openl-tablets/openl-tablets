@@ -131,7 +131,7 @@ public class ShowTableBean {
             }
         }
 
-        paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { "uri", "mode" });
+        paramsWithoutUri = WebTool.listRequestParams(paramMap, new String[] { Constants.REQUEST_PARAM_URI, "mode" });
     }
 
     private void initTests(final ProjectModel model) {

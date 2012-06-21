@@ -14,6 +14,7 @@ import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -29,7 +30,7 @@ public class ShowExplainTableBean {
     public ShowExplainTableBean() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        uri = FacesUtils.getRequestParameter("uri");
+        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
         table = model.getTable(uri);
     }
 
