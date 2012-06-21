@@ -188,7 +188,7 @@
     <servlet-name>DownloadServlet</servlet-name>
     <url-pattern>/action/download</url-pattern>
   </servlet-mapping>
-  
+
   <servlet>
     <servlet-name>LaunchFileServlet</servlet-name>
     <servlet-class>org.openl.rules.webstudio.web.servlet.LaunchFileServlet</servlet-class>
@@ -204,8 +204,8 @@
   </welcome-file-list>
 
   <error-page>
-    <exception-type>javax.faces.application.ViewExpiredException</exception-type>
-    <location>/pages/sessionExpired.xhtml</location>
+    <error-code>403</error-code>
+    <location>/faces/pages/accessDenied.xhtml</location>
   </error-page>
 
 </web-app>
