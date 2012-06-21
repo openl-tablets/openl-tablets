@@ -1,13 +1,18 @@
 package org.openl.rules.table.properties.inherit;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.binding.impl.BindHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 /**
  * Class to check properties according to some situations.
@@ -16,6 +21,68 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  *
  */
 public class PropertiesChecker {
+    
+    /**
+     * We need to check loaded properties that all values are appropriate for
+     * this table. If there is any problem an error should be thrown. Now we
+     * check 2 situations:<br>
+     * 1) properties can be defined on TABLE level.<br>
+     * 2) properties can be defined for current type of table.
+     * 
+     * @param propertyNamesToCheck properties names that are physically defined
+     *            in table.
+     * @param tableType type of he table. Shows whether it is a decision table
+     *            or a data or some other.
+     * 
+     * TODO: Refactor with strategy pattern
+     */
+    public static void checkProperties(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode, 
+            InheritanceLevel level) {
+
+        checkPropertiesLevel(propertyNamesToCheck, tableSyntaxNode, level);
+        checkPropertiesForTableType(propertyNamesToCheck, tableSyntaxNode);
+    }
+
+    public static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode, 
+            InheritanceLevel level) {
+
+        for (String propertyNameToCheck : propertyNamesToCheck) {
+            if (!PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
+
+                String message = String.format("Property '%s' can`t be defined on the '%s' level",
+                    propertyNameToCheck,
+                    level.getDisplayName());
+
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                tableSyntaxNode.addError(error);
+                BindHelper.processError(error);
+            }
+        }
+    }
+
+    /**
+     * Checks if properties can be defined for given type of table.
+     * 
+     * @param propertyNamesToCheck
+     * @param tableType
+     * 
+     */
+    public static void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+
+        String tableType = tableSyntaxNode.getType();
+
+        for (String propertyNameToCheck : propertyNamesToCheck) {
+            if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
+                String message = String.format("Property '%s' can`t be defined in table of type '%s'",
+                    propertyNameToCheck,
+                    tableType);
+
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                tableSyntaxNode.addError(error);
+                BindHelper.processError(error);
+            }
+        }
+    }
     
     /**
      * Checks if property with given name is suitable for given level. Checks according to the property 

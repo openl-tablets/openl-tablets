@@ -7,7 +7,7 @@ import org.openl.rules.datatype.gen.FieldDescription;
 
 public class ObjectTypeWriter implements TypeWriter {
 
-    public int getConstantForVarInsn() {        
+    public int getConstantForVarInsn() {
         return Opcodes.ALOAD;
     }
 
@@ -21,10 +21,15 @@ public class ObjectTypeWriter implements TypeWriter {
         String fieldinternalName = Type.getInternalName(fieldClass);
         methodVisitor.visitTypeInsn(Opcodes.NEW, fieldinternalName); 
         methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor.visitLdcInsn(fieldType.getDefaultValueAsString());
+
+        String value = updateValue(fieldType);
+        methodVisitor.visitLdcInsn(value);
         methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, fieldinternalName, "<init>", 
             "(Ljava/lang/String;)V"); 
         return 5;
     }
 
+    protected String updateValue(FieldDescription fieldType) {
+        return String.valueOf(fieldType.getDefaultValue());
+    }
 }

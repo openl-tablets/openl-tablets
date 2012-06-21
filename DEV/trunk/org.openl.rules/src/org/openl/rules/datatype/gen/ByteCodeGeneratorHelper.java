@@ -1,6 +1,7 @@
 package org.openl.rules.datatype.gen;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.types.writers.BooleanTypeWriter;
 import org.openl.rules.datatype.gen.types.writers.CharTypeWriter;
+import org.openl.rules.datatype.gen.types.writers.DateTypeWriter;
 import org.openl.rules.datatype.gen.types.writers.DoubleTypeWriter;
 import org.openl.rules.datatype.gen.types.writers.FloatTypeWriter;
 import org.openl.rules.datatype.gen.types.writers.LongTypeWriter;
@@ -37,6 +39,7 @@ public class ByteCodeGeneratorHelper {
         typeWriters.put(long.class, new LongTypeWriter());
         typeWriters.put(float.class, new FloatTypeWriter());
         typeWriters.put(double.class, new DoubleTypeWriter());
+        typeWriters.put(Date.class, new DateTypeWriter());
         typeWriters.put(Object.class, new ObjectTypeWriter());
     }
     

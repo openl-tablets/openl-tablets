@@ -63,7 +63,10 @@ public class PropertyTableBinder extends DataNodeBinder {
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
         propertiesInstance.setPropertiesSection(tsn.getTable());
         propertiesInstance.setCurrentTableType(tsn.getType());
-
+        
+        PropertiesChecker.checkProperties(propertiesInstance.getAllProperties().keySet(), tsn, 
+            InheritanceLevel.getEnumByValue((String)propertiesInstance.getPropertyValueAsString("scope")));
+        
         tsn.setTableProperties(propertiesInstance);
 
         analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext) cxt, propertyNode);
