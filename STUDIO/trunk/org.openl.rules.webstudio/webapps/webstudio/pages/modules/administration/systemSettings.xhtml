@@ -221,7 +221,8 @@
         execute="@this" render="commonProps securityProps repositoryProps restartMessage"
         onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
     <h:outputText value=" " />
-    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage" />
+    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+        styleClass="button-primary" />
 
     </h:form>
 

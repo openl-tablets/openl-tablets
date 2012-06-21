@@ -53,12 +53,13 @@ input[type='button']:active, button:active,
 input[type='submit']:disabled, input[type='reset']:disabled,
 input[type='button']:disabled, button:disabled,
 .button:disabled, .imageButton:disabled {
-    border-color: #eeeeee;
-    color: #999999;
+    border-color: #eeeeee !important;
+    color: #999999 !important;
+    background: #fbfbfb !important;
     cursor: default;
 }
 
-.button, .actionButton {
+.button, .button-primary {
     text-decoration: none;
 }
 
@@ -66,10 +67,14 @@ input[type='button']:disabled, button:disabled,
     padding: 5px 6px;
 }
 
-.actionButton {
+.button-primary {
+    background: #f70 !important;
+    border-color: #f70 !important;
+    color: white !important;
+}
+
+a.button-primary {
     padding: 6px 8px;
-    background: orange;
-    color: white;
 }
 
 .imageButton {
@@ -80,7 +85,7 @@ input[type='button']:disabled, button:disabled,
 }
 
 .buttonPanel .button,
-.buttonPanel .actionButton,
+.buttonPanel .button-primary,
 .buttonPanel .imageButton {
     margin: 0px 2px;
 }
