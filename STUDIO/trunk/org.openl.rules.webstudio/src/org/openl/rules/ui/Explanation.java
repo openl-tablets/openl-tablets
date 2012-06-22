@@ -88,7 +88,7 @@ public class Explanation {
         String ret = value.getFunction().getFunctionName() + "(";
         ExplanationNumberValue<?>[] params = value.getFunction().getParams();
 
-        for (int i = 0; i < params.length; i++) {
+        for (int i = 0; params != null && i < params.length; i++) {
             if (i > 0) {
                 ret += ", ";
             }

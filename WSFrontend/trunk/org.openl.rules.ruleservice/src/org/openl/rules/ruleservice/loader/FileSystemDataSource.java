@@ -150,7 +150,14 @@ public class FileSystemDataSource implements DataSource {
                 getLocalWorkspaceFileFilter()));
         Deployment deployment = new Deployment(localFolderAPI);
         deployments.add(deployment);
+        validateDeployment(deployment);
         return Collections.unmodifiableCollection(deployments);
+    }
+
+    private void validateDeployment(Deployment deployment) {
+        if (deployment.getProjects().isEmpty() && log.isWarnEnabled()) {
+            log.warn("Data source with path '" + getLoadDeploymentsFromDirectory() + "' does not contain projects. Make sure you have specified correct folder.");
+        }
     }
 
     /** {@inheritDoc} */

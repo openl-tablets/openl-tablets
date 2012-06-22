@@ -110,7 +110,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
                 map.put(pair, "");
             } else {
                 String key = pair.substring(0, idx);
-                String value = pair.substring(idx + 1, pair.length());
+                String value = StringTool.decodeURL(pair.substring(idx + 1, pair.length()));
                 map.put(key, value);
             }
         }
@@ -129,6 +129,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
             int indexQuestionMark = file.indexOf('?');
             file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
+            file = StringTool.decodeURL(file);
 
             map.put(PROTOCOL, protocol);
             map.put(HOST, host);
