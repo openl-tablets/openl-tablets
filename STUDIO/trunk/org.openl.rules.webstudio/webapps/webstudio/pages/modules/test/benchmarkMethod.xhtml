@@ -20,45 +20,12 @@
       //]]>
     </script>
 
-    <style>
-        .matrix {
-            border-collapse: collapse;
-        }
-        .matrixColumn {
-            border: 1px solid #999999;
-            padding: 5px 7px;
-        }
-
-        .paramColumn {
-            border: 1px solid #999999;
-            padding: 0px 0px;
-        }
-        
-        .paramColumn table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        
-        .paramColumn th, .paramColumn td {
-            padding: 5px 7px;
-        }
-
-        .paramColumn th+th, .paramColumn td+td {
-            border-left: 1px dotted #999999;
-        }
-        
-        .paramColumn td {
-            border-top: 1px dotted #999999
-        }
-    </style>
-
     <div class="view_header">Results of benchmarking</div>
 
     <div class="content">
         <h:form id="BMForm">
             <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
-                binding="#{benchmarkMethodBean.htmlDataTableBM}" styleClass="matrix"
-                columnClasses="none,matrixColumn,paramColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn">
+                binding="#{benchmarkMethodBean.htmlDataTableBM}" styleClass="table">
                 <h:column>
                     <h:outputText value="#{benchmarkMethodBean.i}." />
                 </h:column>
@@ -70,6 +37,8 @@
                         <f:param name="uri" value="#{benchmarkMethodBean.uri}" />
                         <h:outputText value="#{benchmarkMethodBean.tableName}" />
                     </h:outputLink>
+                    <h:outputText value="#{benchmarkMethodBean.tableInfo}" styleClass="badge"
+                        style="margin-left: 5px" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
@@ -140,7 +109,7 @@
                     <h:selectBooleanCheckbox id="BM" value="#{benchmarkMethodBean.bencmarkSelected}" />
                 </h:column>
             </h:dataTable>
-            
+
             <br />
 
             <a4j:commandButton action="#{benchmarkMethodBean.compare}"
@@ -150,8 +119,7 @@
             <br />
             <br />
         <h:dataTable id="comparedBMTable" value="#{benchmarkMethodBean.comparedBenchmarks}" var="item"
-            binding="#{benchmarkMethodBean.htmlDataTableBMCompared}" styleClass="matrix"
-            columnClasses="none,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn,matrixColumn">
+            binding="#{benchmarkMethodBean.htmlDataTableBMCompared}" styleClass="table">
             <h:column>
                 <h:outputText value="#{benchmarkMethodBean.comparedI}." />
             </h:column>

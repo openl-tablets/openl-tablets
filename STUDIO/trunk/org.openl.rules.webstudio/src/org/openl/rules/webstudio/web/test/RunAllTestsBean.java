@@ -249,6 +249,6 @@ public class RunAllTestsBean {
     }
 
     public String getTestedTableName() {
-        return ProjectHelper.createTestName(WebStudioUtils.getProjectModel().getMethod(uri));
+        return ProjectHelper.getTestName(WebStudioUtils.getProjectModel().getMethod(uri));
     }
 }
