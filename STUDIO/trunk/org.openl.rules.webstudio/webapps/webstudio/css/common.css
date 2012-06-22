@@ -208,25 +208,24 @@ fieldset {
     padding: 18px 10px;
 }
 
-table.testtable {
-    color: #222222;
-    background-color: #ffffff;
+.table {
+    color: #222;
+    background: #fff;
     font-size: 100%;
-    border: 1px solid #888895;
+    border: 1px solid #fff;
     empty-cells: show;
     border-collapse: collapse;
 }
 
-table.testtable th {
-    border-left: 1px dotted #777777;
-    border-right: 1px dotted #777777;
-    border-bottom: 1px solid #BBBBBB;
-    background-color: #fbfbfb;
-    padding: 5px 4px;
+.table th {
+    border: 1px dotted #ccc;
+    border-bottom-style: solid;
+    padding: 6px 7px;
+    text-align: left;
 }
 
-table.testtable td {
-    border: 1px dotted #BBBBBB;
+.table td {
+    border: 1px dotted #ccc;
     padding: 4px 7px;
 }
 
