@@ -16,6 +16,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
     private String[] fieldsToGenerate;
 
     private boolean ignoreNonJavaTypes;
+    private boolean ignoreTestMethods;
 
     private String srcFile; 
     private String deplSrcFile;
@@ -27,6 +28,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         this.methodsToGenerate = builder.methodsToGenerate;
         this.fieldsToGenerate = builder.fieldsToGenerate;
         this.ignoreNonJavaTypes = builder.ignoreNonJavaTypes;
+        this.ignoreTestMethods = builder.ignoreTestMethods;
         this.srcFile = builder.srcFile;
         this.deplSrcFile = builder.deplSrcFile;
     }
@@ -62,7 +64,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
     private void addMethods(StringBuffer buf) {
         for (IOpenMethod method : moduleOpenClass.getMethods()) {            
             if (!JavaWrapperGenerator.shouldBeGenerated(method, methodsToGenerate, moduleOpenClass.getName(), 
-                ignoreNonJavaTypes)) {
+                ignoreNonJavaTypes, ignoreTestMethods)) {
                 continue;
             }
             buf.append("  ");
@@ -73,7 +75,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
     
     private void addFieldMethods(StringBuffer buf) {
         for (IOpenField field : moduleOpenClass.getFields().values()) {            
-            if (!JavaWrapperGenerator.shouldBeGenerated(field, fieldsToGenerate, ignoreNonJavaTypes)) {
+            if (!JavaWrapperGenerator.shouldBeGenerated(field, fieldsToGenerate, ignoreNonJavaTypes, ignoreTestMethods)) {
                 continue;
             }
             addFieldAccessor(field, buf);            
@@ -103,6 +105,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         private boolean ignoreNonJavaTypes;        
         private String srcFile; 
         private String deplSrcFile;
+        private boolean ignoreTestMethods;
 
         public Builder (IOpenClass moduleOpenClass, String targetClass) {
             if (moduleOpenClass == null) {
@@ -131,6 +134,11 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
         public Builder ignoreNonJavaTypes(boolean ignoreNonJavaTypes) {
             this.ignoreNonJavaTypes = ignoreNonJavaTypes;
+            return this;
+        }
+
+        public Builder ignoreTestMethods(boolean ignoreTestMethods) {
+            this.ignoreTestMethods = ignoreTestMethods;
             return this;
         }
 

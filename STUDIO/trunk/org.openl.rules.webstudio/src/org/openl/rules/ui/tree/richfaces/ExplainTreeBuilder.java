@@ -34,7 +34,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     private String getUrlToElement(ITreeElement<?> element, String url) {
         return FacesUtils.getContextPath() + showTablePage
         + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
-        + "&text=" + getDisplayName(element, INamedThing.REGULAR);
+        + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
     }
 
 }

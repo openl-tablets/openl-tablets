@@ -21,6 +21,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.util.WordLauncher;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringTool;
 
@@ -44,7 +45,7 @@ public class LaunchFileServlet extends HttpServlet {
 
         boolean local = WebTool.isLocalRequest(request);
 
-        String uri = request.getParameter("uri");
+        String uri = request.getParameter(Constants.REQUEST_PARAM_URI);
 
         String wbPath = null;
         String wbName = null;
