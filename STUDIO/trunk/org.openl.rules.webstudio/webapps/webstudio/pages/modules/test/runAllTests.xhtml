@@ -52,7 +52,7 @@
 
         <h:panelGroup rendered="#{not runAllTestsBean.expired}">
             <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
-            <div style="margin-bottom: 25px">
+            <div style="margin-bottom: 31px">
                 <h1>
                     <h:outputLink value="#showTable.xhtml"
                         styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
