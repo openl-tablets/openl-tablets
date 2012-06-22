@@ -101,7 +101,7 @@ hr {
 }
 
 h1 {
-    font-size: 160%;
+    font-size: 150%;
 }
 
 h2 {
@@ -227,6 +227,23 @@ fieldset {
 .table td {
     border: 1px dotted #ccc;
     padding: 4px 7px;
+}
+
+.badge {
+    background: #999;
+    border-radius: 1px;
+    color: #fff;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 7px 3px;
+    padding-top: 4px\9; /* IE 9*/
+    white-space: nowrap;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    vertical-align: 12%;
+}
+
+.badge-error {
+    background: #f54;
 }
 
 .code {

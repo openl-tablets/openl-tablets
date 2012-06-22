@@ -7,6 +7,20 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
+    <style>
+        .testSuccess,
+        .testError {
+            text-decoration: none;
+            border-bottom: 1px dashed #ccc;
+        }
+        .testSuccess {
+            color: #2a1;
+        }
+        .testError {
+            color: #f23;
+        }
+    </style>
+
     <script>
         function open_explain_win(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
@@ -16,13 +30,10 @@
 
     <h:panelGroup rendered="#{runAllTestsBean.numberOfTests > 1}">
     <div class="view_header">
-        <h:outputText value="Number of Tests: " />
-        <h:panelGroup>
-            <h:outputText value="#{runAllTestsBean.numberOfTests}" />
-            <h:outputText value=" (#{runAllTestsBean.numberOfFailedTests} tests with #{runAllTestsBean.numberOfFailedTestCases} test cases failed)"
-                rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
-                style="color: red" />
-        </h:panelGroup>
+        <span>Number of Tests: #{runAllTestsBean.numberOfTests}</span>
+        <h:outputText value="#{runAllTestsBean.numberOfFailedTests} tests failed"
+            rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
+            styleClass="badge badge-error" style="margin-left: 5px" />
     </div>
     </h:panelGroup>
 
@@ -41,12 +52,14 @@
 
         <h:panelGroup rendered="#{not runAllTestsBean.expired}">
             <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
+            <div style="margin-bottom: 25px">
                 <h1>
                     <h:outputLink value="#showTable.xhtml"
-                        style="color: #{testUnitsResults.numberOfFailures > 0 ? 'red' : '#009600'};">
+                        styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
                         <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
                         <h:outputText value="#{runAllTestsBean.getTestTableName(testUnitsResults)}" />
                     </h:outputLink>
+                    <span class="badge" style="font-size: 55%">#{runAllTestsBean.getTestTableInfo(testUnitsResults)}</span>
                 </h1>
                 <table class="table">
                     <tr>
@@ -133,6 +146,7 @@
                         </tr>
                     </ui:repeat>
                 </table>
+            </div>
             </ui:repeat>
         </h:panelGroup>
     </div>
