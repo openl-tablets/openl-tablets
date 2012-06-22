@@ -1,22 +1,44 @@
 package org.openl.rules.domaintree;
 
+import static org.openl.types.java.JavaOpenClass.BOOLEAN;
+import static org.openl.types.java.JavaOpenClass.BYTE;
+import static org.openl.types.java.JavaOpenClass.CHAR;
+import static org.openl.types.java.JavaOpenClass.CLASS;
+import static org.openl.types.java.JavaOpenClass.DOUBLE;
+import static org.openl.types.java.JavaOpenClass.FLOAT;
+import static org.openl.types.java.JavaOpenClass.INT;
+import static org.openl.types.java.JavaOpenClass.LONG;
+import static org.openl.types.java.JavaOpenClass.OBJECT;
+import static org.openl.types.java.JavaOpenClass.SHORT;
+import static org.openl.types.java.JavaOpenClass.STRING;
+import static org.openl.types.java.JavaOpenClass.VOID;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Collections;
-import java.util.Comparator;
 
 import org.openl.base.INamedThing;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
 import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
 import org.openl.meta.IMetaInfo;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
+import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -25,8 +47,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ArrayOpenClass;
 import org.openl.types.java.JavaOpenClass;
-
-import static org.openl.types.java.JavaOpenClass.*;
 
 /**
  * @author Aliaksandr Antonik.
@@ -48,6 +68,7 @@ public class DomainTree {
         predefinedTypes = new HashMap<String, IOpenClass>();
 
         //primitives
+        predefinedTypes.put(BYTE.getSimpleName(), BYTE);
         predefinedTypes.put(INT.getSimpleName(), INT);
         predefinedTypes.put(BOOLEAN.getSimpleName(), BOOLEAN);
         predefinedTypes.put(LONG.getSimpleName(), LONG);
@@ -67,11 +88,23 @@ public class DomainTree {
 
         predefinedTypes.put(STRING.getSimpleName(), STRING);
         predefinedTypes.put("Date", JavaOpenClass.getOpenClass(Date.class));
+        
         predefinedTypes.put("BigInteger", JavaOpenClass.getOpenClass(BigInteger.class));
         predefinedTypes.put("BigDecimal", JavaOpenClass.getOpenClass(BigDecimal.class));
+        
         predefinedTypes.put("IntRange", JavaOpenClass.getOpenClass(IntRange.class));
         predefinedTypes.put("DoubleRange", JavaOpenClass.getOpenClass(DoubleRange.class));
+        predefinedTypes.put("CharRange", JavaOpenClass.getOpenClass(CharRange.class));
+        
+        predefinedTypes.put("BigDecimalValue", JavaOpenClass.getOpenClass(BigDecimalValue.class));
+        predefinedTypes.put("BigIntegerValue", JavaOpenClass.getOpenClass(BigIntegerValue.class));
+        predefinedTypes.put("ByteValue", JavaOpenClass.getOpenClass(ByteValue.class));
         predefinedTypes.put("DoubleValue", JavaOpenClass.getOpenClass(DoubleValue.class));
+        predefinedTypes.put("FloatValue", JavaOpenClass.getOpenClass(FloatValue.class));
+        predefinedTypes.put("IntValue", JavaOpenClass.getOpenClass(IntValue.class));
+        predefinedTypes.put("LongValue", JavaOpenClass.getOpenClass(LongValue.class));
+        predefinedTypes.put("ShortValue", JavaOpenClass.getOpenClass(ShortValue.class));
+        predefinedTypes.put("StringValue", JavaOpenClass.getOpenClass(StringValue.class));
     }
 
     /**
