@@ -11,6 +11,12 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.data.DataOpenField;
+import org.openl.rules.data.ITable;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -649,7 +655,17 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
 
         return true;
     }
-    
+
+    public static boolean shouldBeGenerated(IOpenField field, String[] fieldToGenerate, boolean ignoreNonJavaTypes, boolean ignoreTestMethods) {
+        if (ignoreTestMethods && field instanceof DataOpenField) {
+            ITable table = ((DataOpenField) field).getTable();
+            if (table != null && table.getTableSyntaxNode().getType().equals(XlsNodeTypes.XLS_TEST_METHOD.toString())) {
+                return false;
+            }
+        }
+        return shouldBeGenerated(field, fieldToGenerate, ignoreNonJavaTypes);
+    }
+
     public static boolean shouldBeGenerated(IOpenMethod method, String[] methodsToGenerate, String nameOfTheModule, boolean ignoreNonJavaTypes) {
 
         // TODO fix a) provide isConstructor() in OpenMethod b) provide better
@@ -681,6 +697,17 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
 
         }
         return true;
+    }
+    
+    public static boolean shouldBeGenerated(IOpenMethod method,
+            String[] methodsToGenerate,
+            String nameOfTheModule,
+            boolean ignoreNonJavaTypes,
+            boolean ignoreTestMethods) {
+        if (ignoreTestMethods && method instanceof TestSuiteMethod) {
+            return false;
+        }
+        return shouldBeGenerated(method, methodsToGenerate, nameOfTheModule, ignoreNonJavaTypes);
     }
     
     private String getMethodFieldName(IOpenMethod method) {
