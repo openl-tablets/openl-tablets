@@ -124,8 +124,7 @@ public class RunAllTestsBean {
     }
 
     /*
-     * ------------------------------ EXPECTED VALUE
-     * SECTION----------------------------
+     * ------------------------------ EXPECTED VALUE SECTION ----------------------------
      */
 
     /**
@@ -158,13 +157,11 @@ public class RunAllTestsBean {
     }
 
     /*
-     * ------------------------------ END EXPECTED VALUE
-     * ----------------------------
+     * ------------------------------ END EXPECTED VALUE ----------------------------
      */
 
     /*
-     * ------------------------------ ACTUAL VALUE
-     * SECTION----------------------------
+     * ------------------------------ ACTUAL VALUE SECTION ----------------------------
      */
 
     public Object getActualParameter(Object objTestUnit) {
@@ -193,8 +190,7 @@ public class RunAllTestsBean {
     }
 
     /*
-     * ------------------------------ END ACTUAL VALUE
-     * ----------------------------
+     * ------------------------------ END ACTUAL VALUE ----------------------------
      */
 
     public ParameterWithValueDeclaration[] getParamDescriptions(Object objTestUnit) {
@@ -244,11 +240,15 @@ public class RunAllTestsBean {
         return uri;
     }
 
-    public String getTestTableName(Object testResults){
-        return ProjectHelper.createTestName(((TestUnitsResults)testResults).getTestSuite().getTestSuiteMethod());
+    public String getTestTableName(Object testResults) {
+        return ProjectHelper.getTestName(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
     }
 
-    public String getTestedTableName(){
+    public String getTestTableInfo(Object testResults) {
+        return ProjectHelper.getTestInfo(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
+    }
+
+    public String getTestedTableName() {
         return ProjectHelper.createTestName(WebStudioUtils.getProjectModel().getMethod(uri));
     }
 }

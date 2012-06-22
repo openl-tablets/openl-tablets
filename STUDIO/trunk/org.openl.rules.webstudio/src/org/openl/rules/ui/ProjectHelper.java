@@ -162,38 +162,44 @@ public class ProjectHelper {
         }
         return false;
     }
-    
+
     public static String createTestName(IOpenMethod testMethod) {
+        String name = getTestName(testMethod);
+        String info = getTestInfo(testMethod);
+        return String.format("%s (%s)", name, info);
+    }
+
+    public static String getTestName(IOpenMethod testMethod) {
         IMemberMetaInfo mi = testMethod.getInfo();
         TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
+        return TableSyntaxNodeUtils.getTableDisplayValue(tnode)[INamedThing.SHORT];
+    }
 
-        String name = TableSyntaxNodeUtils.getTableDisplayValue(tnode)[INamedThing.SHORT];
+    public static String getTestInfo(IOpenMethod testMethod) {
+        String info = null;
+
         if (testMethod instanceof TestSuiteMethod) {
-           TestSuiteMethod testSuite = (TestSuiteMethod)testMethod;
-           if (testSuite.isRunmethod()) {
-               if (testSuite.nUnitRuns() < 1) {
-                   name += getTestAdditionalInfo(NO, RUNS);
-               } else {
-                   name += getNumberOfTests(testSuite.nUnitRuns(), RUNS);
-               }
-           } else {
-               if (testSuite.getNumberOfTests() < 1) {
-                   name += getTestAdditionalInfo(NO, TEST_CASES);
-               } else {
-                   name += getNumberOfTests(testSuite.getNumberOfTests(), TEST_CASES);
-               }
-           }
-        }
-        
-        return name;
-    }
-    
-    private static String getNumberOfTests(int param1, String param2) {        
-        return String.format(" (%d %s)", param1, param2);
+            TestSuiteMethod testSuite = (TestSuiteMethod)testMethod;
+            if (testSuite.isRunmethod()) {
+                if (testSuite.nUnitRuns() < 1) {
+                    info = formatTestInfo(NO, RUNS);
+                } else {
+                    info = formatTestInfo(testSuite.nUnitRuns(), RUNS);
+                }
+            } else {
+                if (testSuite.getNumberOfTests() < 1) {
+                    info = formatTestInfo(NO, TEST_CASES);
+                } else {
+                    info = formatTestInfo(testSuite.getNumberOfTests(), TEST_CASES);
+                }
+            }
+         }
+
+         return info;
     }
 
-    private static String getTestAdditionalInfo(String param1, String param2) {
-        return String.format(" (%s %s)", param1, param2);
+    private static String formatTestInfo(Object param1, Object param2) {
+        return String.format("%s %s", param1, param2);
     }
 
 }
