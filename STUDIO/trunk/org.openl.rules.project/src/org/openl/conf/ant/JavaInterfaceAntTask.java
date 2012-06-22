@@ -20,6 +20,8 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     private static final String RULES_XML = "rules.xml";    
     private static final String DEFAULT_CLASSPATH = "./bin";
 
+    private boolean ignoreTestMethods = false;
+
     protected ProjectDescriptor createNewProject() {
         ProjectDescriptor project = new ProjectDescriptor();      
         project.setId(getDisplayName());
@@ -46,7 +48,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     protected OpenLToJavaGenerator getJavaGenerator() {
         return new JavaInterfaceGenerator.Builder(getOpenClass(), getTargetClass())
         .methodsToGenerate(getMethods()).fieldsToGenerate(getFields()).ignoreNonJavaTypes(isIgnoreNonJavaTypes())
-        .srcFile(getSrcFile()).deplSrcFile(getDeplSrcFile()).build();
+        .ignoreTestMethods(isIgnoreTestMethods()).srcFile(getSrcFile()).deplSrcFile(getDeplSrcFile()).build();
     }
 
     @Override
@@ -114,5 +116,13 @@ public class JavaInterfaceAntTask extends JavaAntTask {
         copy.setRulesRootPath(module.getRulesRootPath());
         copy.setType(module.getType());
         return copy;
+    }
+
+    public boolean isIgnoreTestMethods() {
+        return ignoreTestMethods;
+    }
+
+    public void setIgnoreTestMethods(boolean ignoreTestMethods) {
+        this.ignoreTestMethods = ignoreTestMethods;
     }
 }
