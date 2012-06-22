@@ -29,7 +29,7 @@
         <h:panelGroup rendered="#{not runTestMethodBean.expired}">
             <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
 
-            <table class="testtable">
+            <table class="table">
                 <tr>
                     <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
                         <ui:repeat value="#{runTestMethodBean.testDescription.parametersNames}" var="parameterHeader">
