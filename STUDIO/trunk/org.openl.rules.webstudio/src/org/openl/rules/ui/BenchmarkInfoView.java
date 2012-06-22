@@ -16,16 +16,19 @@ public class BenchmarkInfoView {
     private final BenchmarkInfo benchmarkInfo;
     private final String uri;
     private final String testName;
+    private final String testInfo;
     private final ParameterWithValueDeclaration params[];
 
-    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName) {
-        this(benchmarkInfo, uri, testName, new ParameterWithValueDeclaration[0]);
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName, String testInfo) {
+        this(benchmarkInfo, uri, testName, testInfo, new ParameterWithValueDeclaration[0]);
     }
     
-    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName, ParameterWithValueDeclaration params[]) {
+    public BenchmarkInfoView(BenchmarkInfo benchmarkInfo, String uri, String testName,
+            String testInfo, ParameterWithValueDeclaration params[]) {
         this.benchmarkInfo = benchmarkInfo;
         this.uri = uri;
         this.testName = testName;
+        this.testInfo = testInfo;
         this.params = params;
     }
 
@@ -49,6 +52,10 @@ public class BenchmarkInfoView {
      */
     public String getTestName() {
         return testName;
+    }
+
+    public String getTestInfo() {
+        return testInfo;
     }
 
     /**
