@@ -40,6 +40,7 @@ import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.RegionsPool;
+import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
@@ -53,6 +54,7 @@ import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.rules.table.xls.writers.XlsCellStringWriter;
 import org.openl.types.IOpenClass;
 import org.openl.util.EnumUtils;
+import org.openl.util.StringTool;
 
 /**
  * @author snshor
@@ -242,8 +244,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             return getUri() + "&" + "cell=" + getCell(colStart, rowStart).getUri();
         }
 
-        return getUri() + "&" + "range=" + getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd,
-            rowEnd).getUri();
+        String range = getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd, rowEnd).getUri();
+        return getUri() + "&" + XlsURLConstants.RANGE + "=" + StringTool.encodeURL(range);
     }
 
     /**

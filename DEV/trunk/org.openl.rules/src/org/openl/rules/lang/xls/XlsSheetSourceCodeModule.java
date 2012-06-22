@@ -9,6 +9,7 @@ import org.openl.rules.indexer.IDocumentType;
 import org.openl.rules.indexer.IIndexElement;
 import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.StringTool;
 
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexElement {
     private String sheetName;
@@ -75,7 +76,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule, IIndexEl
     }
 
     public String getUri(int textpos) {
-        return workbookSource.getUri(0) + "?" + XlsURLConstants.SHEET + "=" + sheetName;
+        return workbookSource.getUri(0) + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(sheetName);
     }
 
     public XlsWorkbookSourceCodeModule getWorkbookSource() {
