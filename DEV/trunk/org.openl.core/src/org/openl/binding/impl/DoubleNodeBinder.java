@@ -6,6 +6,8 @@
 
 package org.openl.binding.impl;
 
+import java.math.BigDecimal;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -29,7 +31,12 @@ public class DoubleNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Double.valueOf(s.substring(0, len - 1)), JavaOpenClass.DOUBLE);
         }
 
-        return new LiteralBoundNode(node, Double.valueOf(s), JavaOpenClass.DOUBLE);
+        Double doubleValue = Double.valueOf(s);
+        if (!doubleValue.isInfinite() || doubleValue.toString().equals(s)) {
+            return new LiteralBoundNode(node, doubleValue, JavaOpenClass.DOUBLE);
+        }
+        
+        return new LiteralBoundNode(node, new BigDecimal(s), JavaOpenClass.getOpenClass(BigDecimal.class));
     }
     
     @Override

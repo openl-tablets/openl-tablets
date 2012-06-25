@@ -4,6 +4,8 @@
 
 package org.openl.binding.impl;
 
+import java.math.BigInteger;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -41,7 +43,17 @@ public class IntNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Long.decode(s.substring(0, len - 1)), JavaOpenClass.LONG);
         }
 
-        return new LiteralBoundNode(node, Integer.decode(s), JavaOpenClass.INT);
+        try {
+            return new LiteralBoundNode(node, Integer.decode(s), JavaOpenClass.INT);
+        } catch (NumberFormatException e) {
+            try {
+                // Possibly too big for integer - try long
+                return new LiteralBoundNode(node, Long.decode(s), JavaOpenClass.LONG);
+            } catch (NumberFormatException e1) {
+                // Possibly too big for long - try BigInteger
+                return new LiteralBoundNode(node, new BigInteger(s), JavaOpenClass.getOpenClass(BigInteger.class));
+            }
+        }
     }
     
     @Override
