@@ -137,14 +137,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields);
         }
         
-        Class<?> beanClass = beanGenerator.generateAndLoadBeanClass(); 
-        
-        if (beanClass == null) {
-            String errorMessage = String.format("Can't generate bean for datatype '%s'", datatypeName);
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+        try {
+            return beanGenerator.generateAndLoadBeanClass();
+        } catch (RuntimeException e) {
+            String errorMessage = String.format("Can't generate bean for datatype '%s': %s", datatypeName, e.getMessage());
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, e, tableSyntaxNode);
         }
-        
-        return beanClass;
     }
     
     /**
