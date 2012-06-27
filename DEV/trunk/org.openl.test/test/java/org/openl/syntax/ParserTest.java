@@ -6,10 +6,17 @@
 
 package org.openl.syntax;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.openl.OpenL;
+import org.openl.binding.INodeBinder;
+import org.openl.binding.impl.DoubleNodeBinder;
+import org.openl.binding.impl.IntNodeBinder;
+import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
@@ -18,7 +25,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.NaryNode;
-import org.openl.syntax.impl.UnaryNode;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.text.ILocation;
@@ -136,6 +142,22 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(type, bn.getType());
     }
 
+    @SuppressWarnings("unchecked")
+    public void _testNumberParseAndBind(INodeBinder binder, String src, Object res, Class<?> type) throws Exception {
+
+        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+
+        TreeIterator it = new TreeIterator<ISyntaxNode>(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
+
+        ILiteralNode ln = (ILiteralNode) it.select(ASelector.selectClass(ILiteralNode.class)).next();
+
+        LiteralBoundNode literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
+        Assert.assertEquals(type, literalBoundNode.getType().getInstanceClass());
+        Assert.assertEquals(res, literalBoundNode.getValue());
+    }
+
+
     public void testArray() {
         _testType("new int[10]", "op.new.array");
         _testType("new int[10][]", "op.new.array");
@@ -229,6 +251,15 @@ public class ParserTest extends TestCase {
 
         // new Parser().parse("y - (x.z + t); x+y", null, new JGrammar());
 
+    }
+
+    public void testNumberParseAndBind() throws Exception {
+        _testNumberParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class);
+        _testNumberParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class);
+        _testNumberParseAndBind(new IntNodeBinder(), "10000000000000000000", new BigInteger("10000000000000000000"), BigInteger.class);
+        
+        _testNumberParseAndBind(new DoubleNodeBinder(), "1e+308", Double.valueOf("1e+308"), double.class);
+        _testNumberParseAndBind(new DoubleNodeBinder(), "2e+308", new BigDecimal("2e+308"), BigDecimal.class);
     }
 
 }

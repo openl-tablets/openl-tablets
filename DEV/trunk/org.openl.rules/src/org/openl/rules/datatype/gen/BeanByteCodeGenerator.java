@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.objectweb.asm.ClassWriter;
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public abstract class BeanByteCodeGenerator {
@@ -78,8 +79,8 @@ public abstract class BeanByteCodeGenerator {
             }
         } catch (Exception ex) {
             log.error(this, ex);
+            throw RuntimeExceptionWrapper.wrap(ex);
         } 
-        return null;
     }
     
     protected boolean addWriter(BeanByteCodeWriter writer) {
