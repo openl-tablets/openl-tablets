@@ -7,6 +7,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
+import org.openl.types.java.JavaListAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.OpenClassHelper;
 
@@ -62,5 +63,9 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             index.setValue(ary, new Integer(i), getChildernMap().get(i).getValueForced());
         }
         return ary;
+    }
+    
+    public boolean isJavaList() {
+        return getType().getAggregateInfo() instanceof JavaListAggregateInfo;
     }
 }

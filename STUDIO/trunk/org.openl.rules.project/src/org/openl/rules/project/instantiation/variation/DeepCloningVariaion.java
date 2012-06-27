@@ -12,8 +12,8 @@ import org.openl.rules.table.InputArgumentsCloner;
  * 
  * @author PUdalau
  */
-public class DeepCloninigVariaion extends Variation {
-    private final Log log = LogFactory.getLog(DeepCloninigVariaion.class);
+public class DeepCloningVariaion extends Variation {
+    private final Log log = LogFactory.getLog(DeepCloningVariaion.class);
 
     /**
      * Suffix for generated variation ID if it have not been specified.
@@ -23,11 +23,11 @@ public class DeepCloninigVariaion extends Variation {
 
     /**
      * Constructs deep-cloning variation with the generated ID(ID of delegated
-     * variation + {@link DeepCloninigVariaion.DEEP_CLONING_SUFFIX}).
+     * variation + {@link DeepCloningVariaion.DEEP_CLONING_SUFFIX}).
      * 
      * @param variation Delegated variation.
      */
-    public DeepCloninigVariaion(Variation variation) {
+    public DeepCloningVariaion(Variation variation) {
         this(variation.getVariationID() + DEEP_CLONING_SUFFIX, variation);
     }
 
@@ -37,7 +37,7 @@ public class DeepCloninigVariaion extends Variation {
      * @param variationID Unique variation ID.
      * @param variation Delegated variation.
      */
-    public DeepCloninigVariaion(String variationID, Variation variation) {
+    public DeepCloningVariaion(String variationID, Variation variation) {
         super(variationID);
         this.variation = variation;
     }

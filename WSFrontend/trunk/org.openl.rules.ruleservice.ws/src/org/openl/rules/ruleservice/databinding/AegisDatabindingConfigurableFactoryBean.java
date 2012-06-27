@@ -13,7 +13,7 @@ import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariation;
 import org.openl.rules.project.instantiation.variation.ComplexVariation;
-import org.openl.rules.project.instantiation.variation.DeepCloninigVariaion;
+import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
 import org.openl.rules.project.instantiation.variation.JXPathVariation;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -78,7 +78,7 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
         }
         if (supportVariations) {
             overrideTypes.add(JXPathVariation.class.getName());
-            overrideTypes.add(DeepCloninigVariaion.class.getName());
+            overrideTypes.add(DeepCloningVariaion.class.getName());
             overrideTypes.add(ComplexVariation.class.getName());
             overrideTypes.add(ArgumentReplacementVariation.class.getName());
         }

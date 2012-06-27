@@ -1,6 +1,10 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
 
 import org.junit.Test;
 import org.openl.util.RangeWithBounds.BoundType;
@@ -83,5 +87,14 @@ public class DoubleRangeParsingTest {
         assertEquals(new DoubleRange("5 or less"), new DoubleRange("<=5"));
         assertEquals(new DoubleRange("10 and more"), new DoubleRange(10, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING));
         assertEquals(new DoubleRange("5 and more"), new DoubleRange(">=5"));
+    }
+    
+    @Test
+    public void testIsTruncated() {
+        assertFalse(DoubleRange.isTruncated(Float.valueOf(15.89f), 1.89));
+        assertFalse(DoubleRange.isTruncated(Double.valueOf(15.89d), 1.89));
+        assertTrue(DoubleRange.isTruncated(new BigDecimal("2e+308"), new BigDecimal("2e+308").doubleValue()));
+        assertFalse(DoubleRange.isTruncated(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
+        assertFalse(DoubleRange.isTruncated(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY));
     }
 }
