@@ -10,18 +10,21 @@ var DateEditor = Class.create(BaseTextEditor, {
 
     editor_initialize: function() {
         this.createInput();
-        this.input.style.width = "85%";
+
+        this.input.style.width =    "-moz-calc(100% - 25px)";
+        this.input.style.width = "-webkit-calc(100% - 25px)";
+        this.input.style.width =         "calc(100% - 25px)";
 
         var self = this;
 
         this.input.onkeydown = function(event) {
-        	return self.keyPressed(event || window.event)
+            return self.keyPressed(event || window.event);
         }
         this.input.oncontextmenu = function(event) {
-        	return false;
+            return false;
         }
         this.input.onclick = function() {
-        	datePickerController.show(self.getId());
+            datePickerController.show(self.getId());
         };
     },
 

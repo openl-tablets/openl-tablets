@@ -11,7 +11,7 @@ import org.openl.generated.test.beans.Policy;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariation;
-import org.openl.rules.project.instantiation.variation.DeepCloninigVariaion;
+import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
 import org.openl.rules.project.instantiation.variation.JXPathVariation;
 import org.openl.rules.project.instantiation.variation.NoVariation;
 import org.openl.rules.project.instantiation.variation.Variation;
@@ -81,9 +81,9 @@ public class VariationsTest {
         assertTrue(jxpathVariation instanceof JXPathVariation);
         assertEquals(((JXPathVariation) jxpathVariation).getPath(), path);
         Variation cloningVariation = VariationsFactory.getVariation("clone", 1, path, new Object(), true);
-        assertTrue(((DeepCloninigVariaion) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
-        assertTrue(cloningVariation instanceof DeepCloninigVariaion);
-        assertTrue(((DeepCloninigVariaion) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
+        assertTrue(((DeepCloningVariaion) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
+        assertTrue(cloningVariation instanceof DeepCloningVariaion);
+        assertTrue(((DeepCloningVariaion) cloningVariation).getDelegatedVariation() instanceof JXPathVariation);
     }
 
     @Test
