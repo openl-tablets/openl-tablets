@@ -119,11 +119,22 @@
                                     <!-- Show tree for not explanable values, e.g. java beans -->
                                     <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueActual(testUnit) and empty runAllTestsBean.getSpreadsheetResult(testUnit)}">
                                         <div style="display: inline-block;">
-                                            <ui:repeat value="#{runAllTestsBean.getActualParameter(testUnit)}" var="actualParam">
-                                                <ui:include src="/pages/modules/test/parameter.xhtml">
-                                                    <ui:param name="parameter" value="#{actualParam}" />
-                                                </ui:include>
-                                            </ui:repeat>
+                                            <h:panelGroup rendered="#{not runAllTestsBean.isResultThrowable(testUnit)}">
+                                                <ui:repeat value="#{runAllTestsBean.getActualParameter(testUnit)}" var="actualParam">
+                                                    <ui:include src="/pages/modules/test/parameter.xhtml">
+                                                        <ui:param name="parameter" value="#{actualParam}" />
+                                                    </ui:include>
+                                                </ui:repeat>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{runAllTestsBean.isResultThrowable(testUnit)}">
+                                                <ui:repeat value="#{runAllTestsBean.getResultMessages(testUnit)}" var="actualParam">
+                                                    <c:set var="messageBoxClass"
+                                                        value="#{message.severity == 'ERROR' ? 'error_box' : (message.severity == 'WARN' ? 'warning_box' : 'info_box')}" />
+                                                    <div class="#{messageBoxClass}">
+                                                        <h:outputText id="summary" value="#{actualParam.summary}" />
+                                                    </div>
+                                                </ui:repeat>
+                                            </h:panelGroup>
                                         </div>
                                     </h:panelGroup>
 
