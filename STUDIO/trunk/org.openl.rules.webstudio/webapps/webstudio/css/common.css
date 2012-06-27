@@ -547,12 +547,13 @@ table.header thead td {
 .view_header {
      font-size: 110%;
      height: 14px;
-     padding: 7px 7px 7px 9px;
-     color: #171717;
+     padding: 8px 7px 8px 9px;
+     color: #333;
      white-space: nowrap;
      text-overflow: ellipsis;
      overflow: hidden;
-     border-bottom: 1px solid #dddddd;
+     border-bottom: 1px solid #f9f9f9;
+     background: rgba(220, 220, 220, 0.1);
 }
 
 .view_toolbar {
@@ -572,8 +573,8 @@ table.header thead td {
 }
 
 .view_workspace {
-    top: 63px; /* 14px - header height
-                + 14px - header padding
+    top: 65px; /* 14px - header height
+                + 16px - header padding
                 + 1px  - header border
                 + 34px - toolbar height
                */
