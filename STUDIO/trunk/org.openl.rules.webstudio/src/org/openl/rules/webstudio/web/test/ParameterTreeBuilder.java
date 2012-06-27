@@ -64,7 +64,7 @@ public class ParameterTreeBuilder {
             Object value,
             String fieldName,
             ParameterDeclarationTreeNode parent) {
-        if (parent == null || parent.getType().isArray() || parent.getType().getField(fieldName).isWritable()) {
+        if (parent == null || OpenClassHelper.isCollection(parent.getType()) || parent.getType().getField(fieldName).isWritable()) {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
