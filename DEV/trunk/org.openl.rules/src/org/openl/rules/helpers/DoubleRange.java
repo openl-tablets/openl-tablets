@@ -3,6 +3,7 @@
  */
 package org.openl.rules.helpers;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -15,6 +16,7 @@ import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
+import org.openl.util.math.MathUtils;
 
 /**
  * The <code>DoubleRange</code> class stores range of floats. Examples :
@@ -70,6 +72,26 @@ public class DoubleRange implements INumberRange {
         lowerBoundType = res.getLeftBoundType();
         upperBound = res.getMax().doubleValue();
         upperBoundType = res.getRightBoundType();
+        
+        if (isTruncated(res.getMin(), lowerBound)) {
+            // For example, is converted from BigDecimal to Double
+            throw new IllegalArgumentException("lowerBound value is truncated");
+        }
+        if (isTruncated(res.getMax(), upperBound)) {
+            // For example, is converted from BigDecimal to Double
+            throw new IllegalArgumentException("upperBound value is truncated");
+        }
+    }
+
+    /**
+     * Returns true if converted value is truncated
+     * 
+     * @param from converting number
+     * @param to converted double value
+     * @return true if converted value is truncated
+     */
+    protected static boolean isTruncated(Number from, double to) {
+        return from instanceof BigDecimal && Double.isInfinite(to);
     }
 
     /**

@@ -15,7 +15,6 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
-
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -26,8 +25,8 @@ import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.BeanResultComparator;
+import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -121,6 +120,15 @@ public class RunAllTestsBean {
     public List<OpenLMessage> getErrors(Object objTestUnit) {
         Object result = getActualResultInternal(objTestUnit);
         return TestResultsHelper.getErrors(result);
+    }
+
+    public List<OpenLMessage> getResultMessages(Object objTestUnit) {
+        Object result = getActualResultInternal(objTestUnit);
+        return TestResultsHelper.getUserMessagesAndErrors(result);
+    }
+    
+    public boolean isResultThrowable(Object testUnit) {
+        return getActualResultInternal(testUnit) instanceof Throwable;
     }
 
     /*

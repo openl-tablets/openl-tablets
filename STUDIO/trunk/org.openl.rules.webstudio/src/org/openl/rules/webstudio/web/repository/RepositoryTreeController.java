@@ -1089,13 +1089,6 @@ public class RepositoryTreeController {
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             try {
-                if (userWorkspace.hasProject(projectName)) {
-                    String msg = "Cannot create project because project with such name already exists.";
-                    FacesUtils.addErrorMessage(msg, null);
-
-                    return null;
-                }
-
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
