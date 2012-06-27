@@ -68,8 +68,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-primary {
-    background: #f70 !important;
-    border-color: #f70 !important;
+    background: #ff8111 !important;
+    border-color: #ff8111 !important;
     color: white !important;
 }
 
