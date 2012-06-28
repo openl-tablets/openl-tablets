@@ -48,13 +48,12 @@ public class TableEditorController extends BaseTableEditorController {
 
     public String edit() {
         String editorId = getEditorId();
-        String cellToEdit = getRequestParam(Constants.REQUEST_PARAM_CELL);
         String errorCell = getRequestParam(Constants.REQUEST_PARAM_ERROR_CELL);
         TableEditorModel editorModel = getEditorModel(editorId);
         TableEditor editor = editorModel.getTableEditor();
         if (editor.isEditable()) {
             editor.setMode("edit");
-            return new HTMLRenderer().renderEditor(editor, cellToEdit, errorCell);
+            return new HTMLRenderer().renderEditor(editor, errorCell);
         }
         return StringUtils.EMPTY;
     }
