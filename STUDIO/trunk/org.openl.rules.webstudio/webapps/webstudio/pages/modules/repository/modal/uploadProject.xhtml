@@ -42,8 +42,7 @@
                 <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
                     <rich:dataTable value="#{localUpload.projects4Upload}"
                         rendered="#{not empty localUpload.projects4Upload}"
-                        var="item" width="600" styleClass="standard" rowClasses="odd,even"
-                        id="uploadPrjFromLocalTable">
+                        var="item" styleClass="table table-striped" id="uploadPrjFromLocalTable" style="width: 98%">
                         <f:facet name="header">
                             <rich:columnGroup>
                                 <rich:column style="padding-left: 2px">
@@ -56,7 +55,7 @@
                             </rich:columnGroup>
                         </f:facet>
 
-                        <rich:column style="text-align:center; width: 20px;">
+                        <rich:column style="text-align: center; width: 20px;">
                             <h:selectBooleanCheckbox value="#{item.selected}" />
                         </rich:column>
                         <rich:column>

@@ -7,7 +7,7 @@
   xmlns:c="http://java.sun.com/jsp/jstl/core">
 
   <rich:dataTable id="descriptorTable" value="#{deploymentController.items}" var="item"
-    cellspacing="0px" styleClass="standard" rowClasses="odd,even" >
+    cellspacing="0px" styleClass="table table-striped">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -28,19 +28,19 @@
       </rich:columnGroup>
     </f:facet>
 
-    <rich:column style="text-align:center">
+    <rich:column style="text-align: center">
       <h:selectBooleanCheckbox value="#{item.selected}" onclick="updateButtonState()" />
     </rich:column>
-    <rich:column style="text-align:center">
+    <rich:column style="text-align: center">
       <h:outputText value="#{item.name}" />
     </rich:column>
-    <rich:column style="text-align:center">
+    <rich:column style="text-align: center">
       <h:outputText value="#{item.versionName}" />
     </rich:column>
-    <rich:column style="text-align:center">
+    <rich:column style="text-align: center">
       <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}" />
     </rich:column>
-    <rich:column style="text-align:center">
+    <rich:column style="text-align: center">
       <h:commandLink action="#{deploymentController.deleteItem}" immediate="true"
         onclick="if(!window.confirm('Are you sure you want to delete the descriptor?')) {return false;}" rendered="#{artefact.checkedOut}" title="Delete">
         <f:param name="key" value="#{item.name}" />

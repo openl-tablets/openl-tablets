@@ -4,7 +4,14 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:dataTable value="#{node.versions}" var="version" styleClass="standard" rowClasses="odd,even">
+  <style>
+    .padding {
+        padding: 6px 7px !important;
+    }
+  </style>
+
+  <rich:dataTable value="#{node.versions}" var="version" styleClass="table table-striped"
+    columnClasses="padding">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>

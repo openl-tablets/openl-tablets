@@ -5,7 +5,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-  <rich:dataTable value="#{node.childNodes}" var="el" styleClass="standard" rowClasses="odd,even">
+  <rich:dataTable value="#{node.childNodes}" var="el" styleClass="table table-striped">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>
@@ -20,14 +20,14 @@
       </rich:columnGroup>
     </f:facet>
 
-      <rich:column style="text-align:center;">
+      <rich:column style="text-align: center;">
         <h:graphicImage url="/webresource/images/repository/folder.gif" alt="Folder" title="Folder" rendered="#{el.type=='folder'}" />
         <h:graphicImage url="/webresource/images/repository/file.gif" alt="File" title="File" rendered="#{el.type=='file'}" />
       </rich:column>
       <rich:column>
         <h:outputText value="#{el.name}" />
       </rich:column>
-      <rich:column style="text-align:center;">
+      <rich:column style="text-align: center;">
         <h:commandLink action="#{repositoryTreeController.deleteElement}"
           onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
           rendered="#{artefact.project.checkedOut}" title="Delete">
