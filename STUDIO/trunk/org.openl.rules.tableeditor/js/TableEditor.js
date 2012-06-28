@@ -92,7 +92,6 @@ var TableEditor = Class.create({
 
         new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
             parameters: {
-                cell: cellPos,
                 editorId: self.editorId
             },
             onSuccess: function(data) {

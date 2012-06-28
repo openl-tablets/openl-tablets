@@ -91,7 +91,7 @@ public class HTMLRenderer {
         String mode = editor.getMode();
 
         if (Constants.MODE_EDIT.equals(mode)) {
-            result.append(renderEditor(editor, cellToEdit, errorCell));
+            result.append(renderEditor(editor, errorCell));
         } else {
             result.append(renderViewer(editor, actionLinks, errorCell));
         }
@@ -213,9 +213,8 @@ public class HTMLRenderer {
         return jsCode;
     }
 
-    public String renderEditor(TableEditor editor, String cellToEdit, String errorCell) {
+    public String renderEditor(TableEditor editor, String errorCell) {
         StringBuilder result = new StringBuilder();
-        cellToEdit = cellToEdit == null ? "" : cellToEdit;
 
         String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
 
