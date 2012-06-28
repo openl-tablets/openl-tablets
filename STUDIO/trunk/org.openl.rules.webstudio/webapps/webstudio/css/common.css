@@ -120,7 +120,7 @@ a {
 }
 
 form {
-    margin: 0px;
+    margin: 0;
 }
 
 fieldset {
@@ -229,6 +229,11 @@ fieldset {
     padding: 4px 7px;
 }
 
+.table-striped tr:nth-child(2n+1) td,
+.table-striped tr:nth-child(2n+1) th {
+    background: #fafafa;
+}
+
 .badge {
     background: #999;
     border-radius: 1px;
@@ -251,7 +256,7 @@ fieldset {
     font-size: 110%;
 }
 
-span.codeerror {
+.codeerror {
     color: red;
     font-weight: bold;
 }
@@ -268,18 +273,18 @@ span.codeerror {
 }
 
 .title em {
-    display:none;
+    display: none;
 }
 
 .title:hover em {
     display: block;
     position: absolute;
     z-index: 1;
-    background-color: #000000;
+    background-color: #000;
     border-radius: 4px;
     white-space: nowrap;
     line-height: normal;
-    color: #FFF;
+    color: #fff;
     text-decoration: none;
     padding: 3px 5px;
     bottom: 22px;
@@ -370,69 +375,6 @@ form.standard table.buttonPanel {
     margin: 7px 0 3px 10px;
 }
 
-/* Standard table that should be used to display any tabular data */
-table.standard {
-  border: none;
-  border-bottom: 1px solid #c3c3c3;
-}
-
-table.standard caption {
-  background-color: #BFC0CE;
-  color: black;
-  font-weight: bold;
-  text-align: left;
-  padding: 5px;
-}
-
-table.standard thead td {
-  border-color: gray white;
-  border-style: solid;
-  border-width: 1px 0px 0px 0px;
-  color: #052679;
-  padding: 5px 8px 6px;
-}
-
-table.standard thead td a {
-  color: rgb(5, 38, 121);
-  text-decoration: none;
-}
-
-table.standard td {
-  border-right: 1px solid white;
-  border-bottom: none;
-  padding: 5px 5px 5px 2px;
-}
-
-table.standard td .right {
-  text-align: right;
-}
-
-table.standard td .left {
-  text-align: left;
-}
-
-/* For verticale table header */
-table.standard td.header {
-  padding: 0px 5px 5px 2px;
-  font-weight: bold;
-}
-
-table.standard tr.even {
-  background-color: rgb(235, 238, 247);
-}
-
-table.standard tr.odd {
-  background-color: white;
-}
-
-table.header {
-  border-bottom: medium none !important;
-}
-
-table.header thead td {
-  padding: 1px 8px 1px !important;
-}
-
 .treeMenu {
     width: 100%;
     border-bottom: 1px solid #cccccc;
@@ -458,6 +400,63 @@ table.header thead td {
 
 .noRuleResultNode {
     font-style: italic;
+}
+
+.view_header {
+     font-size: 110%;
+     height: 14px;
+     padding: 8px 7px 8px 9px;
+     color: #333;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     overflow: hidden;
+     border-bottom: 1px solid #f9f9f9;
+     background: rgba(220, 220, 220, 0.1);
+}
+
+.view_toolbar {
+    height: 34px;
+}
+
+.view_toolbar > div {
+    padding: 7px 5px 6px 7px;
+}
+
+.view_workspace,
+.simpleView_workspace {
+    width: 100%;
+    overflow: auto;
+    position: absolute;
+    bottom: 0;
+}
+
+.view_workspace {
+    top: 65px; /* 14px - header height
+                + 16px - header padding
+                + 1px  - header border
+                + 34px - toolbar height
+               */
+}
+
+.simpleView_workspace {
+    top: 29px; /* 14px - header height
+                + 14px - header padding
+                + 1px  - header border
+               */
+}
+
+.view_workspace > div,
+.simpleView_workspace > div {
+    padding: 5px 7px;
+}
+
+/*Columns style for toolbar of the project tree*/
+.rules_tree_view_first_col {
+    width: 100%;
+}
+
+.rules_tree_view_second_col {
+    width: 20px;
 }
 
 /* RichFaces styles */
@@ -520,13 +519,13 @@ table.header thead td {
     background: #e6e6e6 !important;
 }
 
-.rf-dt-hdr-c, .rf-dt-shdr-c {
-    background: #fbfbfb !important;
-    color: #222222 !important;
+.rf-dt {
+    border: 1px solid #fff !important;
 }
 
-.rf-dt-hdr-c {
-    border-right: none !important;
+.rf-dt-hdr-c, .rf-dt-shdr-c {
+    background: #fff !important;
+    color: #222 !important;
 }
 
 .rf-pp-hdr {
@@ -556,61 +555,4 @@ table.header thead td {
 .rf-fu-btn-add, .rf-fu-btn-upl, .rf-fu-btn-clr {
     height: 21px !important;
     background: #f7f7f7 !important;
-}
-
-.view_header {
-     font-size: 110%;
-     height: 14px;
-     padding: 8px 7px 8px 9px;
-     color: #333;
-     white-space: nowrap;
-     text-overflow: ellipsis;
-     overflow: hidden;
-     border-bottom: 1px solid #f9f9f9;
-     background: rgba(220, 220, 220, 0.1);
-}
-
-.view_toolbar {
-    height: 34px;
-}
-
-.view_toolbar > div {
-    padding: 7px 5px 6px 7px;
-}
-
-.view_workspace,
-.simpleView_workspace {
-    width: 100%;
-    overflow: auto;
-    position: absolute;
-    bottom: 0;
-}
-
-.view_workspace {
-    top: 65px; /* 14px - header height
-                + 16px - header padding
-                + 1px  - header border
-                + 34px - toolbar height
-               */
-}
-
-.simpleView_workspace {
-    top: 29px; /* 14px - header height
-                + 14px - header padding
-                + 1px  - header border
-               */
-}
-
-.view_workspace > div,
-.simpleView_workspace > div {
-    padding: 5px 7px;
-}
-
-/*Columns style for toolbar of the project tree*/
-.rules_tree_view_first_col {
-    width: 100%;
-}
-
-.rules_tree_view_second_col {
-    width: 20px;
 }
