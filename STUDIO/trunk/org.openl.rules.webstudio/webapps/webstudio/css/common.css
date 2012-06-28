@@ -68,8 +68,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-primary {
-    background: #f70 !important;
-    border-color: #f70 !important;
+    background: #ff8111 !important;
+    border-color: #ff8111 !important;
     color: white !important;
 }
 
@@ -462,8 +462,22 @@ table.header thead td {
 
 /* RichFaces styles */
 
+.rf-trn, .rf-tr-nd {
+    background: none !important;
+}
+
+.rf-trn {
+    padding: 2px 0 !important;
+    cursor: pointer !important;
+}
+
+.rf-trn:hover {
+    background: #f7f7f7 !important
+}
+
 .rf-trn-sel {
     font-weight: bold;
+    background: none !important;
 }
 
 .rf-tab-hdr {
