@@ -52,7 +52,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
                 return MIN (propertyValue1, propertyValue2);
             }
         });
-        // <<< END INSERT >>>
+// <<< END INSERT >>>
         tablesPriorityRules.add(new FilledPropertiesPriorityRule());
     }
 

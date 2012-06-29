@@ -175,7 +175,7 @@ public interface ITableProperties {
 	void setCustom1(java.lang.String[] custom1);
 	java.lang.String[] getCustom2();
 	void setCustom2(java.lang.String[] custom2);
-	// <<< END INSERT >>>
+// <<< END INSERT >>>
 	
 	
     void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties);

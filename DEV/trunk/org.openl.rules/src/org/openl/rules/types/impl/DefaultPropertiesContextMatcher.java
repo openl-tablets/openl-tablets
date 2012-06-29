@@ -227,7 +227,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-        // <<< END INSERT >>>
+// <<< END INSERT >>>
     }
 
 }
