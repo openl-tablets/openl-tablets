@@ -33,5 +33,5 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 	void setLang(org.openl.rules.enumeration.LanguagesEnum lang);	
 	org.openl.rules.enumeration.RegionsEnum getRegion();
 	void setRegion(org.openl.rules.enumeration.RegionsEnum region);	
-	// <<< END INSERT >>>
+// <<< END INSERT >>>
 }

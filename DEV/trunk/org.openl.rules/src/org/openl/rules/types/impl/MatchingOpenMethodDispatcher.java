@@ -242,7 +242,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 		selectCandidatesByProperty("state", selected, context);
 		selectCandidatesByProperty("region", selected, context);
 	}
-    // <<< END INSERT MatchingProperties >>>
+// <<< END INSERT MatchingProperties >>>
 
     private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
 
