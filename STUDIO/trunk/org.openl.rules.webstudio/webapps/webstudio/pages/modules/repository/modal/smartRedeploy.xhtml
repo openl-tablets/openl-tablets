@@ -16,9 +16,9 @@
 
     <h:form id="smartRedeployForm">
       <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
-      <h:outputText value="There are no deployment projects containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty  smartRedeployController.items}"/>
+      <h:outputText value="There are no deployment projects containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty smartRedeployController.items}"/>
       <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
-        styleClass="standard" rowClasses="odd,even" rendered="#{not empty smartRedeployController.items}">
+        styleClass="table table-striped" rendered="#{not empty smartRedeployController.items}">
         <f:facet name="header">
           <rich:columnGroup>
             <rich:column>
@@ -33,7 +33,7 @@
           </rich:columnGroup>
         </f:facet>
 
-        <rich:column style="text-align:center">
+        <rich:column style="text-align: center">
           <h:selectBooleanCheckbox value="#{item.selected}" disabled="#{item.disabled}" onclick="updateSmartRedeployBtn()"/>
         </rich:column>
         <rich:column>
