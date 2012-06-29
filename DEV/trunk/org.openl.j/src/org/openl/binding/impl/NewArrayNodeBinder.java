@@ -63,7 +63,10 @@ public class NewArrayNodeBinder extends ANodeBinder {
         IBoundNode[] exprAry = new IBoundNode[exprsize];
 
         for (int i = 0; i < exprAry.length; i++) {
-            exprAry[i] = bindTypeNode(expressions.get(i), bindingContext, JavaOpenClass.INT);
+            // Array dimension expressions are pushed in reverse order, and, to handle them correctly, we should 
+            // invert expressions array.
+            // TODO push array dimension and initialization expressions in BExGrammar directly. 
+            exprAry[exprsize - i - 1] = bindTypeNode(expressions.get(i), bindingContext, JavaOpenClass.INT);
         }
 
         ISyntaxNode typeNode = indexChild;

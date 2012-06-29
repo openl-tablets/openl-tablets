@@ -29,8 +29,8 @@ public class ArraysInitializationsTest extends BaseOpenlBuilderHelper {
         assertFalse(findTable("Method Integer[] localVarArrayInit()").hasErrors());
         assertTrue(Arrays.deepEquals((Integer[]) invokeMethod("localVarArrayInit"), new Integer[] { 1, 2 }));
         assertFalse(findTable("Method Integer[][] localVarArrayTwoDimsInit()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[][]) invokeMethod("localVarArrayTwoDimsInit"), new Integer[][] {
-                { 1, 2 }, { 3, 4 } }));
+        assertArrayEquals((Integer[][]) invokeMethod("localVarArrayTwoDimsInit"), new Integer[][] {
+                { 11, 12, 13 }, { 21, 22, 23 } });
     }
 
     @Test
