@@ -89,5 +89,5 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
 		setValue("region", region);
 	}	
-	// <<< END INSERT >>>
+// <<< END INSERT >>>
 }

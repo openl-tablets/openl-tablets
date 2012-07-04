@@ -92,7 +92,7 @@ public class Action extends FunctionalRow implements IAction {
         }
         
         RuleExecutionObject newTarget = new RuleExecutionObject(ruleExecutionType, target, ruleNum);
-        return getMethod().invoke(newTarget, mergeParams(target, params, env, (Object[]) value), env);
+        return getMethod().invoke(newTarget, mergeParams(newTarget, params, env, (Object[]) value), env);
     }
 
     public void prepareAction(IOpenClass methodType,

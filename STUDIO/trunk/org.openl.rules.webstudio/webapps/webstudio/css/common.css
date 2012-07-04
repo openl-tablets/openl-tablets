@@ -431,17 +431,15 @@ form.standard table.buttonPanel {
 }
 
 .view_workspace {
-    top: 65px; /* 14px - header height
+    top: 64px; /* 14px - header height
                 + 16px - header padding
-                + 1px  - header border
                 + 34px - toolbar height
                */
 }
 
 .simpleView_workspace {
-    top: 29px; /* 14px - header height
-                + 14px - header padding
-                + 1px  - header border
+    top: 30px; /* 14px - header height
+                + 16px - header padding
                */
 }
 

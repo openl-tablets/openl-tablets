@@ -415,7 +415,15 @@ public class Operators {
     }
 
     public static boolean eq(Object x, Object y) {
-        return x.equals(y);
+        if (x == y) {
+            return true;
+        }
+        
+        if (x != null && y != null) {
+            return x.equals(y);
+        }
+        
+        return false;
     }
 
     public static boolean strict_eq(Object x, Object y) {
