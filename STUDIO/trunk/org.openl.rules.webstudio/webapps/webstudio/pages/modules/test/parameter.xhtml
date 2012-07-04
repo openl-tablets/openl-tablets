@@ -5,6 +5,12 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich">
 
+        <style>
+            .spreadsheet .rf-trn-ico-lf {
+                display: none;
+            }
+        </style>
+
     <h:panelGroup rendered="#{not empty parameter and parameter.type.simple}">
         <h:outputText value="#{parameter.value}"
             rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />
@@ -20,11 +26,18 @@
     </h:panelGroup>
 
     <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="item" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
-        rendered="#{not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client">
+        rendered="#{not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client"
+        nodeType="#{item.nodeType}">
         <!-- rowKeyConverter is a temporary solution.
          After migrating to the newer version of RichFaces it can be removed.
          See: https://issues.jboss.org/browse/RF-11102 for details -->
-        <rich:treeNode>#{item.treeText}</rich:treeNode>
+        <rich:treeNode type="simple">#{item.treeText}</rich:treeNode>
+        <rich:treeNode type="complex">#{item.treeText}</rich:treeNode>
+        <rich:treeNode type="collection">#{item.treeText}</rich:treeNode>
+        <rich:treeNode type="unmodifiable">#{item.treeText}</rich:treeNode>
+        <rich:treeNode type="spreadsheet" styleClass="spreadsheet">
+            <h:outputText escape="false" value="#{item.treeText}"/>
+        </rich:treeNode>
     </rich:tree>
 
 </ui:composition>
