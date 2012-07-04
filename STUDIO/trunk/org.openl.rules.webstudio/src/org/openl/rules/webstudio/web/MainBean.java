@@ -4,7 +4,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.OpenL;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.rules.project.instantiation.ReloadType;
 //import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -54,6 +56,10 @@ public class MainBean {
     }
 
     public void selectModule() throws Exception {
+        /* delete all previous cached config */
+        OpenL.reset();
+        OpenLConfiguration.reset();
+        
         WebStudio studio = WebStudioUtils.getWebStudio();
         String projectId = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
