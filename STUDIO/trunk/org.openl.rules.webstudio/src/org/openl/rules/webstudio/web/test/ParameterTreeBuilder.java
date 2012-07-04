@@ -26,6 +26,8 @@ public class ParameterTreeBuilder {
             String fieldName, ParameterDeclarationTreeNode parent) {
         if (OpenClassHelper.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent);
+        } else if (isSpreadsheetResult(value)) {
+            return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent);
         } else if (!fieldType.isSimple()) {
             return createComplexBeanNode(fieldType, value, fieldName, parent);
         } else {
@@ -45,6 +47,13 @@ public class ParameterTreeBuilder {
                 fieldType.getDisplayName(INamedThing.SHORT)));
             return node;
         }
+    }
+
+    public static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
+            Object value,
+            String fieldName,
+            ParameterDeclarationTreeNode parent) {
+        return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent);
     }
 
     /**
@@ -89,7 +98,7 @@ public class ParameterTreeBuilder {
         return value instanceof Date;
     }
     
-    public boolean isSpreadsheetResult(Object value) {
+    public static boolean isSpreadsheetResult(Object value) {
     	if (value != null) {
     		return SpreadsheetResultHelper.isSpreadsheetResult(value.getClass());
     	} 
