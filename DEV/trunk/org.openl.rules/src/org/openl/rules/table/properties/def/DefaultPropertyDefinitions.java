@@ -381,7 +381,7 @@ public class DefaultPropertyDefinitions
 		definitions[24].setName("failOnMiss");
 		definitions[24].setPrimaryKey(false);
 		definitions[24].setSystem(false);
-		definitions[24].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT});
+		definitions[24].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[24].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[25] = new TablePropertyDefinition();
 		definitions[25].setBusinessSearch(true);

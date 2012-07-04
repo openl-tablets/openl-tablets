@@ -258,7 +258,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCustom2(java.lang.String[] custom2) {
 		setFieldValue("custom2", custom2);
 	}	
-    // <<< END INSERT >>>
+// <<< END INSERT >>>
 
     /**
      * {@inheritDoc}

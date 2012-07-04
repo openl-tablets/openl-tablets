@@ -17,7 +17,7 @@
  * Help: http://groups.google.com/group/jquery-ui-layout
  */
 
-// NOTE: For best readability, view with a fixed-width font and tabs equal to 4-chars
+// NOTE: Modified by Andrei Ostrovski
 
 ;(function ($) {
 
@@ -423,25 +423,7 @@ $.fn.layout = function (opts) {
 		,	minWidth:				0
 		,	minHeight:				0
 		}
-
-	//	STATE MANAGMENT
-	,	useStateCookie:				false		// Enable cookie-based state-management - can fine-tune with cookie.autoLoad/autoSave
-	,	cookie: {
-			name:					""			// If not specified, will use Layout.name, else just "Layout"
-		,	autoSave:				true		// Save a state cookie when page exits?
-		,	autoLoad:				true		// Load the state cookie when Layout inits?
-		//	Cookie Options
-		,	domain:					""
-		,	path:					""
-		,	expires:				""			// 'days' to keep cookie - leave blank for 'session cookie'
-		,	secure:					false
-		//	List of options to save in the cookie - must be pane-specific
-		,	keys:					"north.size,south.size,east.size,west.size,"+
-									"north.isClosed,south.isClosed,east.isClosed,west.isClosed,"+
-									"north.isHidden,south.isHidden,east.isHidden,west.isHidden"
-		}
 	}
-
 
 	// PREDEFINED EFFECTS / DEFAULTS
 ,	effects = { // LIST *PREDEFINED EFFECTS* HERE, even if effect has no settings
@@ -476,9 +458,7 @@ $.fn.layout = function (opts) {
 	,	east:		{}
 	,	west:		{}
 	,	center:		{}
-	,	cookie:		{} // State Managment data storage
 	}
-
 
 	// INTERNAL CONFIG DATA - DO NOT CHANGE THIS!
 ,	_c = {
@@ -680,9 +660,9 @@ $.fn.layout = function (opts) {
 	* @return	{Object}		Creates a data struture that perfectly matches 'options', ready to be imported
 	*/
 ,	_transformData = function (d) {
-		var a, json = { cookie:{}, defaults:{fxSettings:{}}, north:{fxSettings:{}}, south:{fxSettings:{}}, east:{fxSettings:{}}, west:{fxSettings:{}}, center:{fxSettings:{}} };
+		var a, json = { defaults:{fxSettings:{}}, north:{fxSettings:{}}, south:{fxSettings:{}}, east:{fxSettings:{}}, west:{fxSettings:{}}, center:{fxSettings:{}} };
 		d = d || {};
-		if (d.effects || d.cookie || d.defaults || d.north || d.south || d.west || d.east || d.center)
+		if (d.effects || d.defaults || d.north || d.south || d.west || d.east || d.center)
 			json = $.extend( true, json, d ); // already in json format - add to base keys
 		else
 			// convert 'flat' to 'nest-keys' format - also handles 'empty' user-options
@@ -1180,10 +1160,6 @@ $.fn.layout = function (opts) {
 
 		$.layout.browser.boxModel = $.support.boxModel;
 
-		// update options with saved state, if option enabled
-		if (o.useStateCookie && o.cookie.autoLoad)
-			loadCookie(); // Update options from state-cookie
-
 		// TEMP state so isInitialized returns true during init process
 		state.creatingLayout = true;
 
@@ -1296,9 +1272,7 @@ $.fn.layout = function (opts) {
 
 ,	unload = function () {
 		var o = options;
-		state.cookie = getState(); // save state in case onunload has custom state-management
 		_execCallback(null, o.onunload_start);
-		if (o.useStateCookie && o.cookie.autoSave) saveCookie();
 		_execCallback(null, o.onunload_end || o.onunload);
 	}
 
@@ -1442,7 +1416,6 @@ $.fn.layout = function (opts) {
 			$.extend( effects, opts.effects );
 			delete opts.effects;
 		}
-		$.extend( options.cookie, opts.cookie );
 
 		// see if any 'global options' were specified
 		var globals = "name,containerClass,zIndex,scrollToBookmarkOnLoad,resizeWithWindow,resizeWithWindowDelay,resizeWithWindowMaxDelay,"+
@@ -4073,195 +4046,6 @@ debugData( test, pane );
 		;
 	};
 
-
-	/*
-	* LAYOUT STATE MANAGEMENT
-	*
-	* @example .layout({ cookie: { name: "myLayout", keys: "west.isClosed,east.isClosed" } })
-	* @example .layout({ cookie__name: "myLayout", cookie__keys: "west.isClosed,east.isClosed" })
-	* @example myLayout.getState( "west.isClosed,north.size,south.isHidden" );
-	* @example myLayout.saveCookie( "west.isClosed,north.size,south.isHidden", {expires: 7} );
-	* @example myLayout.deleteCookie();
-	* @example myLayout.loadCookie();
-	* @example var hSaved = myLayout.state.cookie;
-	*/
-
-	function isCookiesEnabled () {
-		// TODO: is the cookieEnabled property common enough to be useful???
-		return (navigator.cookieEnabled != 0);
-	};
-	
-	/**
-	* Read & return data from the cookie - as JSON
-	*
-	* @param {Object=}	opts
-	*/
-	function getCookie (opts) {
-		var
-			o		= $.extend( {}, options.cookie, opts || {} )
-		,	name	= o.name || options.name || "Layout"
-		,	c		= document.cookie
-		,	cs		= c ? c.split(';') : []
-		,	pair	// loop var
-		;
-		for (var i=0, n=cs.length; i < n; i++) {
-			pair = $.trim(cs[i]).split('='); // name=value pair
-			if (pair[0] == name) // found the layout cookie
-				// convert cookie string back to a hash
-				return decodeJSON( decodeURIComponent(pair[1]) );
-		}
-		return "";
-	};
-
-	/**
-	* Get the current layout state and save it to a cookie
-	*
-	* @param {(string|Array)=}	keys
-	* @param {Object=}	opts
-	*/
-	function saveCookie (keys, opts) {
-		var
-			o		= $.extend( {}, options.cookie, opts || {} )
-		,	name	= o.name || options.name || "Layout"
-		,	params	= ''
-		,	date	= ''
-		,	clear	= false
-		;
-		if (o.expires.toUTCString)
-			date = o.expires;
-		else if (typeof o.expires == 'number') {
-			date = new Date();
-			if (o.expires > 0)
-				date.setDate(date.getDate() + o.expires);
-			else {
-				date.setYear(1970);
-				clear = true;
-			}
-		}
-		if (date)		params += ';expires='+ date.toUTCString();
-		if (o.path)		params += ';path='+ o.path;
-		if (o.domain)	params += ';domain='+ o.domain;
-		if (o.secure)	params += ';secure';
-
-		if (clear) {
-			state.cookie = {}; // clear data
-			document.cookie = name +'='+ params; // expire the cookie
-		}
-		else {
-			state.cookie = getState(keys || o.keys); // read current panes-state
-			document.cookie = name +'='+ encodeURIComponent( encodeJSON(state.cookie) ) + params; // write cookie
-		}
-
-		return $.extend({}, state.cookie); // return COPY of state.cookie
-	};
-
-	/**
-	* Remove the state cookie
-	*/
-	function deleteCookie () {
-		saveCookie('', { expires: -1 });
-	};
-
-	/**
-	* Get data from the cookie and USE IT to loadState
-	*
-	* @param {Object=}	opts
-	*/
-	function loadCookie (opts) {
-		var o = getCookie(opts); // READ the cookie
-		if (o) {
-			state.cookie = $.extend({}, o); // SET state.cookie
-			loadState(o);	// LOAD the retrieved state
-		}
-		return o;
-	};
-
-	/**
-	* Update layout options from the cookie, if one exists
-	*
-	* @param {Object=}	opts
-	* @param {boolean=}	animate
-	*/
-	function loadState (opts, animate) {
-		opts = _transformData(opts);
-		$.extend( true, options, opts ); // update layout options
-		// if layout has already been initialized, then UPDATE layout state
-		if (state.initialized) {
-			var pane, o, s, h, c, a = !animate;
-			$.each(_c.allPanes.split(","), function (idx, pane) {
-				o = opts[ pane ];
-				if (typeof o != 'object') return; // no key, continue
-				s = o.size;
-				c = o.initClosed;
-				h = o.initHidden;
-				if (s > 0 || s=="auto") sizePane(pane, s);
-				if (h === true)			hide(pane, a);
-				else if (c === false)	open(pane, false, a );
-				else if (c === true)	close(pane, false, a);
-				else if (h === false)	show(pane, false, a);
-			});
-		}
-	};
-
-	/**
-	* Get the *current layout state* and return it as a hash
-	*
-	* @param {(string|Array)=}	keys
-	*/
-	function getState (keys) {
-		var
-			data	= {}
-		,	alt		= { isClosed: 'initClosed', isHidden: 'initHidden' }
-		,	pair, pane, key, val
-		;
-		if (!keys) keys = options.cookie.keys; // if called by user
-		if ($.isArray(keys)) keys = keys.join(",");
-		// convert keys to an array and change delimiters from '__' to '.'
-		keys = keys.replace(/__/g, ".").split(',');
-		// loop keys and create a data hash
-		for (var i=0,n=keys.length; i < n; i++) {
-			pair = keys[i].split(".");
-			pane = pair[0];
-			key  = pair[1];
-			if (_c.allPanes.indexOf(pane) < 0) continue; // bad pane!
-			val = state[ pane ][ key ];
-			if (val == undefined) continue;
-			if (key=="isClosed" && state[pane]["isSliding"])
-				val = true; // if sliding, then *really* isClosed
-			( data[pane] || (data[pane]={}) )[ alt[key] ? alt[key] : key ] = val;
-		}
-		return data;
-	};
-
-	/**
-	* Stringify a JSON hash so can save in a cookie or db-field
-	*/
-	function encodeJSON (JSON) {
-		return parse( JSON );
-		function parse (h) {
-			var D=[], i=0, k, v, t; // k = key, v = value
-			for (k in h) {
-				v = h[k];
-				t = typeof v;
-				if (t == 'string')		// STRING - add quotes
-					v = '"'+ v +'"';
-				else if (t == 'object')	// SUB-KEY - recurse into it
-					v = parse(v);
-				D[i++] = '"'+ k +'":'+ v;
-			}
-			return "{"+ D.join(",") +"}";
-		};
-	};
-
-	/**
-	* Convert stringified JSON back to a hash object
-	*/
-	function decodeJSON (str) {
-		try { return window["eval"]("("+ str +")") || {}; }
-		catch (e) { return {}; }
-	};
-
-
 /*
  * #####################
  * CREATE/RETURN LAYOUT
@@ -4326,14 +4110,6 @@ debugData( test, pane );
 	,	addPinBtn:		addPinBtn		// utility - ditto
 	,	allowOverflow:	allowOverflow	// utility - pass calling element (this)
 	,	resetOverflow:	resetOverflow	// utility - ditto
-	,	encodeJSON:		encodeJSON		// method - pass a JSON object
-	,	decodeJSON:		decodeJSON		// method - pass a string of encoded JSON
-	,	getState:		getState		// method - returns hash of current layout-state
-	,	getCookie:		getCookie		// method - update options from cookie - returns hash of cookie data
-	,	saveCookie:		saveCookie		// method - optionally pass keys-list and cookie-options (hash)
-	,	deleteCookie:	deleteCookie	// method
-	,	loadCookie:		loadCookie		// method - update options from cookie - returns hash of cookie data
-	,	loadState:		loadState		// method - pass a hash of state to use to update options
 	,	cssWidth:		cssW			// utility - pass element and target outerWidth
 	,	cssHeight:		cssH			// utility - ditto
 	,	enableClosable: enableClosable
