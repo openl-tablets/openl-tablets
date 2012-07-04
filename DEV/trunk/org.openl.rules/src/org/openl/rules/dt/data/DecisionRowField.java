@@ -25,6 +25,10 @@ public class DecisionRowField implements IOpenField {
         
         Object[] res = conditionOrAction.getParamValues()[ruleNum];
         
+        if (res == null) {
+            res = new Object[conditionOrAction.getParams().length];
+        }
+        
         return res;
     }
 
