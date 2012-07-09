@@ -19,6 +19,12 @@
         <script src="#{contextPath}/javascript/jquery.layout.js"></script>
         <h:outputScript name="jsf.js" library="javax.faces" />
 
+        <style>
+            .ui-layout-resizer {
+                display: none !important;
+            }
+        </style>
+
         <script>
           //<![CDATA[
             var $j = $.noConflict();
@@ -37,6 +43,7 @@
                 $j('body').layout({
                     closable: false,
                     resizable: false,
+                    slidable: false,
                     spacing_open: 1
                 });
                 $j("body").css({"visibility": "visible"});
