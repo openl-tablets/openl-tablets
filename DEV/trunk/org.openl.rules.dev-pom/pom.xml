@@ -221,6 +221,12 @@
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
 				<version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.openl.rules</groupId>
+                        <artifactId>org.openl.lib.poi.dev</artifactId>
+                    </exclusion>
+                </exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
