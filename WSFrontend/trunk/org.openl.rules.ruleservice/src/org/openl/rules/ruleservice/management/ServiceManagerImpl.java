@@ -81,7 +81,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         if (log.isInfoEnabled()) {
             log.info("Assembling services after service manager start");
         }
-        processServices();
+        synchronized (this) {
+            processServices();
+        }
     }
 
     public void onDeploymentAdded() {
@@ -103,7 +105,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     @SuppressWarnings("unchecked")
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
-            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
+            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer
+                    .getServicesToBeDeployed(getRuleServiceLoader());
             Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 newServices.put(serviceDescription.getName(), serviceDescription);
