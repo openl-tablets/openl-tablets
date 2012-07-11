@@ -47,8 +47,12 @@
 
                 $j("#center").layout({
                     spacing_open: 1,
-                    west__size: 230
-                });
+                    spacing_closed: 17,
+                    minSize: 110,
+                    west__size: 230,
+                    slidable: false
+                }).addCloseBtn("#west-closer", "west");
+
                 $j("body").css({"visibility": "visible"});
             });
 
@@ -109,6 +113,7 @@
 
             <div id="center">
                 <div id="left" class="ui-layout-west">
+                    <span id="west-closer" class="pane-closer" title="Close" />
                     <ui:insert name="left" />
                 </div>
                 <div id="content" class="ui-layout-center">

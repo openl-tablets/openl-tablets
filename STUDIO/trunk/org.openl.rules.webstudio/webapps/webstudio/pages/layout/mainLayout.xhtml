@@ -117,15 +117,24 @@
             $j(function () {
                 mainLayout = $j("#center").layout({
                     spacing_open: 1,
+                    spacing_closed: 17,
+                    minSize: 110,
                     west__size: 230,
                     east__size: 230,
-                    east__initHidden: true
+                    east__initHidden: true,
+                    slidable: false
                 });
+                mainLayout.addCloseBtn("#west-closer", "west");
+                mainLayout.addCloseBtn("#east-closer", "east");
 
                 centerLayout = $j("#center .ui-layout-center").layout({
                     spacing_open: 1,
-                    south__size: 110
+                    spacing_closed: 17,
+                    minSize: 57,
+                    south__size: 110,
+                    slidable: false
                 });
+                centerLayout.addCloseBtn("#south-closer", "south");
 
                 loadingPanel = $j("#loadingPanel");
                 loadContent();
@@ -202,13 +211,13 @@
             }
 
             function reloadLeft() {
-                $j("#left").load(urlRewrite.prefix + "leftPanel.xhtml", function() {
+                $j("#leftContent").load(urlRewrite.prefix + "leftPanel.xhtml", function() {
                     reopenLeftPanel();
                 });
             }
 
             function reloadBottom() {
-                $j("#bottom").load(urlRewrite.prefix + "bottomPanel.xhtml");
+                $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
             }
 
             function getCurrentPage() {
@@ -431,8 +440,11 @@
 
         <div id="center">
             <h:panelGroup id="left" class="ui-layout-west" layout="block">
+                <span id="west-closer" class="pane-closer" title="Close" />
                 <ui:insert name="left">
-                    <ui:include src="/pages/modules/leftPanel.xhtml" />
+                    <div id="leftContent">
+                        <ui:include src="/pages/modules/leftPanel.xhtml" />
+                    </div>
                 </ui:insert>
             </h:panelGroup>
             <h:panelGroup class="ui-layout-center" layout="block">
@@ -440,10 +452,14 @@
                     <ui:insert name="content" />
                 </h:panelGroup>
                 <h:panelGroup id="bottom" class="ui-layout-south" layout="block">
-                    <ui:include src="/pages/modules/bottomPanel.xhtml" />
+                    <span id="south-closer" class="pane-closer" title="Close" />
+                    <div id="bottomContent">
+                        <ui:include src="/pages/modules/bottomPanel.xhtml" />
+                    </div>
                 </h:panelGroup>
             </h:panelGroup>
             <h:panelGroup id="right" class="ui-layout-east" layout="block">
+                <span id="east-closer" class="pane-closer" title="Close" />
                 <ui:insert name="right">
                     <ui:include src="/pages/modules/rightPanel.xhtml" />
                 </ui:insert>

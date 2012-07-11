@@ -12,13 +12,9 @@ html, body {
 
 #top {
     border-top: 1px solid #f3f3f3;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid #ddd;
     height: 49px;
     position: relative;
-}
-
-#left, #right {
-    /*background: #fefefe;*/
 }
 
 #center {
@@ -39,92 +35,113 @@ html, body {
     padding: 7px;
 }
 
-#bottom {
-    /*background: #fefefe;*/
-}
-
 #footer {
 	border-top: 1px solid #dddddd;
     background: #f9f9f9;
 }
 
-/*
- *	RESIZER-BARS
- */
 .ui-layout-resizer	{
-	background: #dddddd;
+    background: #ddd;
 }
-.ui-layout-resizer-west {
+.ui-layout-resizer-west,
+.ui-layout-resizer-east {
     cursor: col-resize !important;
 }
+
 .ui-layout-resizer-south {
     cursor: row-resize !important;
 }
-/* NOTE: It looks best when 'hover' and 'dragging' are set to the same color,
-	otherwise color shifts while dragging when bar can't keep up with mouse */
-.ui-layout-resizer-open-hover ,	/* hover-color to 'resize' */
-.ui-layout-resizer-dragging {	/* resizer beging 'dragging' */
-	background: #C4E1A4;
+
+.ui-layout-resizer-open-hover,
+.ui-layout-resizer-dragging {
+    background: #C4E1A4;
 }
 .ui-layout-resizer-dragging {
-	cursor: default !important;
+    cursor: default !important;
 }
-/* NOTE: Add a 'dragging-limit' color to provide visual feedback when resizer hits min/max size limits */
-.ui-layout-resizer-dragging-limit {	/* CLONED resizer at min or max size-limit */
+
+.ui-layout-resizer-dragging-limit {
     background: #E1A4A4; /* red */
 }
 
-.ui-layout-resizer-closed-hover	{ /* hover-color to 'slide open' */
-	background: #EBD5AA;
+.ui-layout-resizer-closed {
+    background: transparent;
+    cursor: default !important;
 }
-.ui-layout-resizer-sliding {	/* resizer when pane is 'slid open' */
-	opacity: .10; /* show only a slight shadow */
-}
-.ui-layout-resizer-sliding-hover {	/* sliding resizer - hover */
-	opacity: 1.00; /* on-hover, show the resizer-bar normally */
-}
-/* sliding resizer - add 'outside-border' to resizer on-hover 
- * this sample illustrates how to target specific panes and states */
-.ui-layout-resizer-north-sliding-hover	{ border-bottom-width:	1px; }
-.ui-layout-resizer-south-sliding-hover	{ border-top-width:		1px; }
-.ui-layout-resizer-west-sliding-hover	{ border-right-width:	1px; }
-.ui-layout-resizer-east-sliding-hover	{ border-left-width:	1px; }
 
-/*
- *	TOGGLER-BUTTONS
- */
-.ui-layout-toggler {
-	border: 1px solid #BBB; /* match pane-border */
-	background-color: #BBB;
+.ui-layout-resizer-west-closed  { border-right: 1px solid #ddd; }
+.ui-layout-resizer-east-closed  { border-left: 1px solid #ddd; }
+.ui-layout-resizer-south-closed { border-top: 1px solid #ddd; }
+
+.ui-layout-toggler-open {
+    display: none !important;
 }
-.ui-layout-resizer-hover .ui-layout-toggler {
-	opacity: .60;
+
+.ui-layout-toggler-west,
+.ui-layout-toggler-east,
+.ui-layout-toggler-south,
+.pane-closer {
+    cursor: pointer;
+    position: absolute;
+    opacity: 0.2;
 }
-.ui-layout-toggler-hover , /* need when NOT resizable */
-.ui-layout-resizer-hover .ui-layout-toggler-hover { /* need specificity when IS resizable */
-	background-color: #FC6;
-	opacity: 1.00;
+
+.ui-layout-toggler-west,
+.ui-layout-toggler-east,
+.ui-layout-pane-west .pane-closer,
+.ui-layout-pane-east .pane-closer {
+    height: 14px !important;
+    width: 7px !important;
+    top: 8px !important;
 }
-.ui-layout-toggler-north ,
+
+.ui-layout-toggler-south,
+.ui-layout-pane-south .pane-closer {
+    width: 14px !important;
+    height: 7px !important;
+}
+
 .ui-layout-toggler-south {
-	border-width: 0 1px; /* left/right borders */
-}
-.ui-layout-toggler-west ,
-.ui-layout-toggler-east {
-	border-width: 1px 0; /* top/bottom borders */
-}
-/* hide the toggler-button when the pane is 'slid open' */
-.ui-layout-resizer-sliding  ui-layout-toggler {
-	display: none;
-}
-/*
- *	style the text we put INSIDE the togglers
- */
-.ui-layout-toggler .content {
-	color:			#666;
-	font-size:		12px;
-	font-weight:	bold;
-	width:			100%;
-	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
+    top: 5px !important;
 }
 
+.ui-layout-pane-south .pane-closer {
+    top: 12px !important;
+}
+
+.ui-layout-toggler-west:hover,
+.ui-layout-toggler-east:hover,
+.ui-layout-toggler-south:hover,
+.pane-closer:hover {
+    opacity: 0.4;
+}
+
+.ui-layout-toggler-west {
+    background: url(webresource/images/a_right.png) no-repeat;
+    left: 5px !important;
+}
+
+.ui-layout-toggler-east {
+    background: url(webresource/images/a_left.png) no-repeat;
+    left: 4px !important;
+}
+
+.ui-layout-toggler-south {
+    background: url(webresource/images/a_up.png) no-repeat;
+    left: 4px !important;
+}
+
+.ui-layout-pane-west .pane-closer {
+    background: url(webresource/images/a_left.png) no-repeat;
+    right: 5px;
+}
+
+.ui-layout-pane-east .pane-closer {
+    background: url(webresource/images/a_right.png) no-repeat;
+    left: 5px;
+}
+
+.ui-layout-pane-south .pane-closer {
+    background: url(webresource/images/a_down.png) no-repeat;
+    left: 5px;
+}
