@@ -794,7 +794,6 @@ public class RulesUtils {
         return ArrayTool.containsAll(ary1, ary2);
     }
 
-//
     public static int indexOf(Object[] array, Object obj) {
         return ArrayUtils.indexOf(array, obj);
     }
@@ -1288,107 +1287,106 @@ public class RulesUtils {
         return a == null ? b : (b == null ? a : a.min(b));
     }
     
-    public static double nextAfter(double start, double direction){
-    	return Math.nextAfter(start, direction);
+    public static double nextAfter(double start, double direction) {
+        return Math.nextAfter(start, direction);
     }
     
-    public static float nextAfter(float start, float direction){
-    	return Math.nextAfter(start, direction);
+    public static float nextAfter(float start, float direction) {
+        return Math.nextAfter(start, direction);
     }
     
-    public static float nextAfter(float f){
-    	return Math.nextUp(f);
+    public static float nextAfter(float f) {
+        return Math.nextUp(f);
     }
     
-    public static double nextAfter(double d){
-    	return Math.nextUp(d);
+    public static double nextAfter(double d) {
+        return Math.nextUp(d);
     }
     
-    public static double pow(double a, double b){
-    	return Math.pow(a, b);
+    public static double pow(double a, double b) {
+        return Math.pow(a, b);
     }
     
-    public static double random(){
-    	return Math.random();
+    public static double random() {
+        return Math.random();
     }
     
-    public static double rint(double a){
-    	return Math.rint(a);
+    public static double rint(double a) {
+        return Math.rint(a);
     }
     
-    public static double scalb(double d, int scaleFactor){
-    	return Math.scalb(d, scaleFactor);
+    public static double scalb(double d, int scaleFactor) {
+        return Math.scalb(d, scaleFactor);
     }
     
-    public static float scalb(float f, int scaleFactor){
-    	return Math.scalb(f, scaleFactor);
+    public static float scalb(float f, int scaleFactor) {
+        return Math.scalb(f, scaleFactor);
     }
     
-    public static double signum(double d){
-    	return Math.signum(d);
+    public static double signum(double d) {
+        return Math.signum(d);
     }
     
-    public static double signum(float f){
-    	return Math.signum(f);
+    public static double signum(float f) {
+        return Math.signum(f);
     }
     
-    public static double sin(double a){
-    	return Math.sin(a);
+    public static double sin(double a) {
+        return Math.sin(a);
     }
     
-    public static double sinh(double x){
-    	return Math.sinh(x);
+    public static double sinh(double x) {
+        return Math.sinh(x);
     }
     
-    public static double sqrt(double a){
-    	return Math.sqrt(a);
+    public static double sqrt(double a) {
+        return Math.sqrt(a);
     }
     
-    public static double tan(double a){
-    	return Math.tan(a);
+    public static double tan(double a) {
+        return Math.tan(a);
     }
     
-    public static double tanh(double x){
-    	return Math.tanh(x);
+    public static double tanh(double x) {
+        return Math.tanh(x);
     }
     
-    public static double toDegrees(double angrad){
-    	return Math.toDegrees(angrad);
+    public static double toDegrees(double angrad) {
+        return Math.toDegrees(angrad);
     }
     
-    public static double toRadians(double angdeg){
-    	return Math.toRadians(angdeg);
+    public static double toRadians(double angdeg) {
+        return Math.toRadians(angdeg);
     }
     
-    public static double ulp(double d){
-    	return Math.ulp(d);
+    public static double ulp(double d) {
+        return Math.ulp(d);
     }
     
-    public static float ulp(float f){
-    	return Math.ulp(f);
+    public static float ulp(float f) {
+        return Math.ulp(f);
     }
-    
-    //Delegation Methods from org.apache.commons.lang.ArrayUtils class
-    public static boolean[] add(boolean[] array, boolean element){
+
+    public static boolean[] add(boolean[] array, boolean element) {
         return ArrayUtils.add(array, element);
     }
-    
+
     public static boolean[] add(boolean[] array, int index, boolean element){
         return ArrayUtils.add(array, index, element);
     }
-        
+
     public static byte[] add(byte[] array, byte element){
         return ArrayUtils.add(array, element);
     }
-        
+
     public static byte[] add(byte[] array, int index, byte element){
         return ArrayUtils.add(array, index, element);
     }
-        
+
     public static char[] add(char[] array, char element){
         return ArrayUtils.add(array, element);
     }
-        
+
     public static char[] add(char[] array, int index, char element){
         return ArrayUtils.add(array, index, element);
     }
@@ -1441,6 +1439,72 @@ public class RulesUtils {
         return ArrayUtils.add(array, element);
     }
     
+    public static Object[] addIgnoreNull(Object[] array, int index, Object element) {
+        if (element != null) {
+            return ArrayUtils.add(array, index, element);
+        }
+        return array;
+    }
+
+    public static Object[] addIgnoreNull(Object[] array, Object element) {
+        if (element != null) {
+            return ArrayUtils.add(array, element);
+        }
+        return array;
+    }
+
+    /**
+     * Use {@link #addIgnoreNull(Object[], int, Object)} instead.
+     */
+    @Deprecated
+    public static Object[] addArrayElementIgnoreNull(Object[] array, int index, Object element) {
+        return addIgnoreNull(array, index, element);
+    }
+
+    /**
+     * Use {@link #addIgnoreNull(Object[], Object)} instead.
+     */
+    @Deprecated
+    public static Object[] addArrayElementIgnoreNull(Object[] array, Object element) {
+        return addIgnoreNull(array, element);
+    }
+
+    public static boolean[] addAll(boolean[] array1, boolean[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static byte[] addAll(byte[] array1, byte[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static char[] addAll(char[] array1, char[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static double[] addAll(double[] array1, double[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static float[] addAll(float[] array1, float[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static int[] addAll(int[] array1, int[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static long[] addAll(long[] array1, long[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static Object[] addAll(Object[] array1, Object[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+    
+    public static short[] addAll(short[] array1, short[] array2){
+        return ArrayUtils.addAll(array1, array2);
+    }
+
     public static boolean[] remove(boolean[] array, int index){
         return ArrayUtils.remove(array, index);
     }
@@ -1511,61 +1575,6 @@ public class RulesUtils {
     
     public static short[] removeElement(short[] array, short element){
         return ArrayUtils.removeElement(array, element);
-    }
-    
-    //Method which ignore null param value
-    public static Object[] addArrayElementIgnoreNull(Object[] array, int index, Object element){
-        
-        if(element != null){
-            return ArrayUtils.add(array, index, element);
-        }else{
-            return array;
-        }
-    }
-       
-    public static Object[] addArrayElementIgnoreNull(Object[] array, Object element){
-        
-        if(element != null){
-            return ArrayUtils.add(array, element);
-        }else{
-            return array;
-        }
-    }
-    
-    public static boolean[] addAll(boolean[] array1, boolean[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static byte[] addAll(byte[] array1, byte[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static char[] addAll(char[] array1, char[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static double[] addAll(double[] array1, double[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static float[] addAll(float[] array1, float[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static int[] addAll(int[] array1, int[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static long[] addAll(long[] array1, long[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static Object[] addAll(Object[] array1, Object[] array2){
-        return ArrayUtils.addAll(array1, array2);
-    }
-    
-    public static short[] addAll(short[] array1, short[] array2){
-        return ArrayUtils.addAll(array1, array2);
     }
 
 }
