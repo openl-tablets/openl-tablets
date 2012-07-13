@@ -3,6 +3,7 @@ package org.openl.rules.calc.trace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -67,7 +68,11 @@ public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
         return buf.toString();
     }
 
-    private String getStringResult() {        
-        return String.valueOf(getResult());
+    private String getStringResult() {
+        Object result = getResult();
+        if (result != null && result.getClass().isArray()) {
+            return ArrayUtils.toString(result);
+        }
+        return String.valueOf(result);
     }
 }
