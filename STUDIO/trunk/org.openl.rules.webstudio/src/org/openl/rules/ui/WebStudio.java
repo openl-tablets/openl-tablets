@@ -55,13 +55,13 @@ public class WebStudio {
 
     public static final String TRACER_NAME = "tracer";
 
-    private static final RulesTreeView TYPE_VIEW = new TypeView();
-    private static final RulesTreeView FILE_VIEW = new FileView();
-    private static final RulesTreeView CATEGORY_VIEW = new CategoryView();
-    private static final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
-    private static final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
+    private final RulesTreeView TYPE_VIEW = new TypeView();
+    private final RulesTreeView FILE_VIEW = new FileView();
+    private final RulesTreeView CATEGORY_VIEW = new CategoryView();
+    private final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
+    private final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
 
-    private static final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW,
+    private final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW,
         CATEGORY_DETAILED_VIEW, CATEGORY_INVERSED_VIEW };
 
     private static final String USER_SETTINGS_FILENAME = "user-settings.properties";

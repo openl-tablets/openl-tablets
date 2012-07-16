@@ -9,7 +9,7 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class TypeView implements RulesTreeView {
 
-    private static final BaseTableTreeNodeBuilder[] sorters = {
+    private final BaseTableTreeNodeBuilder[] sorters = {
         new TableTreeNodeBuilder(),
         new OpenMethodInstancesGroupTreeNodeBuilder(),
         new TableInstanceTreeNodeBuilder(),

@@ -11,7 +11,7 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class CategoryView implements RulesTreeView {
 
-    private static final BaseTableTreeNodeBuilder[] sorters = {
+    private final BaseTableTreeNodeBuilder[] sorters = {
         new ModulePropertiesTableNodeBuilder(), 
         new CategoryTreeNodeBuilder(),
         new CategoryPropertiesTableNodeBuilder(),
