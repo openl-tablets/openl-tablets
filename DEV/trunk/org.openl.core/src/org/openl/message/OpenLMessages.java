@@ -33,6 +33,13 @@ public class OpenLMessages {
     public static OpenLMessages getCurrentInstance() {
         return currentInstance.get();
     }
+    
+    /**
+     * Removes current instance of OpenL messages for current thread.
+     */
+    public static void removeCurrentInstance() {
+        currentInstance.remove();
+    }
 
     /**
      * Gets copy list of OpenL messages.
