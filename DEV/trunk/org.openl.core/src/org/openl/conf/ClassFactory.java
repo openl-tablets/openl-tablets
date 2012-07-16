@@ -163,11 +163,14 @@ public class ClassFactory extends AConfigurationElement {
     }
 
     public synchronized Object getResource(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        if (isSingleton() && cachedObject != null) {
+        if (isSingleton()) {
+            if (cachedObject == null) {
+                cachedObject = getResourceInternal(cxt);
+            }
             return cachedObject;
         }
 
-        return cachedObject = getResourceInternal(cxt);
+        return getResourceInternal(cxt);
     }
 
     /*
