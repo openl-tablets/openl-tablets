@@ -98,7 +98,11 @@ public class CellsHeaderExtractor {
         for (String cellName : cellNames) {
             if (cellName.matches(DEPENDENT_CSR_REGEX)) {
                 String[] res = cellName.split(SpreadsheetResult.class.getSimpleName());
-                dependentSpreadsheets.add(res[res.length - 1]);
+                String dependentMethodName = res[res.length - 1];
+                /*If we have the array of spreadsheetresult we need to delete [] from the method name*/
+                dependentMethodName = dependentMethodName.replace("[]", "");
+                
+                dependentSpreadsheets.add(dependentMethodName);
             }
         }
         return dependentSpreadsheets;
