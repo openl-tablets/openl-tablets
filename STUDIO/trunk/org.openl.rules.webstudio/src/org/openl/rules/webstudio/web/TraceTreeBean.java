@@ -1,8 +1,12 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.Iterator;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
+import org.openl.rules.dt.trace.DTRuleTracerLeaf;
+import org.openl.rules.dt.trace.DecisionTableTraceObject;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
@@ -47,6 +51,37 @@ public class TraceTreeBean {
     
     public void setDetailedTraceTree(boolean detailedTraceTree) {
         WebStudioUtils.getWebStudio().getTraceHelper().setDetailedTraceTree(detailedTraceTree);
+    }
+    
+    public boolean hasDecisionTables() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        ProjectModel model = studio.getModel();
+        TraceHelper traceHelper = studio.getTraceHelper();
+
+        if (model.hasTestSuitesToRun()) {
+            Tracer tracer = model.traceElement(model.popLastTest());
+
+            ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
+            return tree != null && hasDecisionTables(tree);
+        } else {
+            return hasDecisionTables(traceHelper.getTreeRoot());
+        }
+    }
+
+    private boolean hasDecisionTables(ITreeElement<?> node) {
+        Iterator<? extends ITreeElement<?>> children = node.getChildren();
+
+        while (children.hasNext()) {
+            ITreeElement<?> child = children.next();
+            if (child instanceof DecisionTableTraceObject || child instanceof DTRuleTracerLeaf) {
+                return true;
+            }
+            if (hasDecisionTables(child)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private TreeNode buildTreeNode(TraceHelper traceHelper, ITreeElement<?> tree) {
