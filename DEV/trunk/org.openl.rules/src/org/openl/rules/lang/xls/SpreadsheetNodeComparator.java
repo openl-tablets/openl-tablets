@@ -52,8 +52,12 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
 	    String[] tokens = table.getHeader().getHeaderToken().getModule()
                 .getCode().split(" ");
 	    if (tokens != null && tokens.length > 2) {
-	        methodName = tokens[2].substring(0,
-                    tokens[2].indexOf("("));
+	        try {
+    	        methodName = tokens[2].substring(0,
+                        tokens[2].indexOf("("));
+	        } catch (Exception e) {
+	            methodName =  tokens[2];
+    	    }
 	    }
 	    return methodName;
 	}
