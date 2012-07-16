@@ -205,9 +205,9 @@ public class SpreadsheetComponentsBuilder {
                 if (symbolicTypeDefinition.getType() != null) {
 
                     SyntaxNodeException error = null;
-                    
+
                     String typeIdentifier = symbolicTypeDefinition.getType().getIdentifier(); 
-                    
+
                     IOpenClass type = findType(typeIdentifier);
 
                     if (type == null) {
@@ -250,7 +250,13 @@ public class SpreadsheetComponentsBuilder {
             // gets the name of the type, remove square brackets for array type declaration.
             //
             String cleanTypeIdentifier = JavaClassGeneratorHelper.cleanTypeName(typeIdentifier);
+           
             IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, cleanTypeIdentifier);
+
+            if (type == null) {
+                return result;
+            }
+
             int typeDimension = JavaClassGeneratorHelper.getDimension(typeIdentifier);
             result = type.getAggregateInfo().getIndexedAggregateType(type, typeDimension);
         } else {
