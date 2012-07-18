@@ -16,78 +16,73 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  */
 public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
 
-	public int compare(TableSyntaxNode table1, TableSyntaxNode table2) {
-		if (isSpreadsheet(table1) && isSpreadsheet(table2)) {
-			// Compare both spreadsheets table syntax nodes.
-			// Check if there are usages of custom spreadsheet type
-			//
-			CellsHeaderExtractor extractor1 = extractNames(table1);
+    public int compare(TableSyntaxNode table1, TableSyntaxNode table2) {
+        if (isSpreadsheet(table1) && isSpreadsheet(table2)) {
+            // Compare both spreadsheets table syntax nodes.
+            // Check if there are usages of custom spreadsheet type
+            //
+            CellsHeaderExtractor extractor1 = extractNames(table1);
 
-			String methodName2 = getMethodName(table2);			
-			if (StringUtils.isNotBlank(methodName2)) {
-				if (extractor1.getDependentSpreadsheetTypes().contains(methodName2)){
-					return 1;
-				}
-			} 
-			CellsHeaderExtractor extractor2 = extractNames(table2);
-			
-			String methodName1 = getMethodName(table1);      
-			if (StringUtils.isNotBlank(methodName1)) {
-				if (extractor2.getDependentSpreadsheetTypes().contains(methodName1)){
-					return -1;
-				}
-			} 
-			return 0;
-		}
-		return 0;
-	}
-	
-	// TODO: refactor
+            String methodName2 = getMethodName(table2);
+            if (StringUtils.isNotBlank(methodName2)) {
+                if (extractor1.getDependentSpreadsheetTypes().contains(methodName2)) {
+                    return 1;
+                }
+            }
+            CellsHeaderExtractor extractor2 = extractNames(table2);
+
+            String methodName1 = getMethodName(table1);
+            if (StringUtils.isNotBlank(methodName1)) {
+                if (extractor2.getDependentSpreadsheetTypes().contains(methodName1)) {
+                    return -1;
+                }
+            }
+            return 0;
+        }
+        return 0;
+    }
+
+    // TODO: refactor
     // extract working with header to helper class
     // should be simple: Helper.getMethodName(tableHeader)
     //
-	private String getMethodName(TableSyntaxNode table) {
-	    String methodName = StringUtils.EMPTY;
-	
-	    String[] tokens = table.getHeader().getHeaderToken().getModule()
-                .getCode().split(" ");
-	    if (tokens != null && tokens.length > 2) {
-	        try {
-    	        methodName = tokens[2].substring(0,
-                        tokens[2].indexOf("("));
-	        } catch (Exception e) {
-	            methodName =  tokens[2];
-    	    }
-	    }
-	    return methodName;
-	}
+    private String getMethodName(TableSyntaxNode table) {
+        String methodName = StringUtils.EMPTY;
 
-	private boolean isSpreadsheet(TableSyntaxNode o1) {
-		return XlsNodeTypes.XLS_SPREADSHEET.equals(o1.getNodeType());
-	}
+        String[] tokens = table.getHeader().getHeaderToken().getModule().getCode().split(" ");
+        if (tokens != null && tokens.length > 2) {
+            try {
+                methodName = tokens[2].substring(0, tokens[2].indexOf("("));
+            } catch (Exception e) {
+                methodName = tokens[2];
+            }
+        }
+        return methodName;
+    }
 
-	private CellsHeaderExtractor extractNames(TableSyntaxNode tableSyntaxNode) {
-		CellsHeaderExtractor extractor = null;
+    private boolean isSpreadsheet(TableSyntaxNode o1) {
+        return XlsNodeTypes.XLS_SPREADSHEET.equals(o1.getNodeType());
+    }
 
-		// try to get previously stored extractor
-		//
-		extractor = ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader())
-				.getCellHeadersExtractor();
+    private CellsHeaderExtractor extractNames(TableSyntaxNode tableSyntaxNode) {
+        CellsHeaderExtractor extractor = null;
 
-		if (extractor == null) {
-			extractor = new CellsHeaderExtractor(tableSyntaxNode.getTableBody()
-					.getRow(0).getColumns(1), tableSyntaxNode.getTableBody()
-					.getColumn(0).getRows(1));
-			extractor.extract();
+        // try to get previously stored extractor
+        //
+        extractor = ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader()).getCellHeadersExtractor();
 
-			// set cells header extractor to the table syntax node, to avoid
-			// extracting several times
-			//
-			((SpreadsheetHeaderNode) tableSyntaxNode.getHeader())
-					.setCellHeadersExtractor(extractor);
-		}
+        if (extractor == null) {
+            extractor = new CellsHeaderExtractor(tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
+                    tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
+            extractor.extract();
 
-		return extractor;
-	}
+            // set cells header extractor to the table syntax node, to avoid
+            // extracting several times
+            //
+            ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader()).setCellHeadersExtractor(extractor);
+        }
+
+        return extractor;
+    }
 
 }
