@@ -21,7 +21,7 @@ public class RulesProjectBuilder {
     public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
         workspace.createProject(projectName);
         project = workspace.getProject(projectName);
-        project.checkOut();
+        project.edit();
     }
     
     protected RulesProject getProject() {
@@ -73,8 +73,8 @@ public class RulesProjectBuilder {
         }
     }
 
-    public void checkIn() throws ProjectException {
-        project.checkIn();
+    public void save() throws ProjectException {
+        project.save();
     }
 
     private void checkName(String artefactName) throws ProjectException {

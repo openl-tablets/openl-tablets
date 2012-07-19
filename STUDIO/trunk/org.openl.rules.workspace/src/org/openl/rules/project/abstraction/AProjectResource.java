@@ -40,7 +40,7 @@ public class AProjectResource extends AProjectArtefact {
         super.update(artefact, user, major, minor);
         AProjectResource resource = (AProjectResource)artefact;
         setContent(resource.getContent());
-        save(user, major, minor);
+        commit(user, major, minor);
     }
     
     @Override
@@ -49,7 +49,7 @@ public class AProjectResource extends AProjectArtefact {
             super.smartUpdate(artefact, user, major, minor);
             AProjectResource resource = (AProjectResource) artefact;
             setContent(resource.getContent());
-            save(user, major, minor);
+            commit(user, major, minor);
         }
     }
 }

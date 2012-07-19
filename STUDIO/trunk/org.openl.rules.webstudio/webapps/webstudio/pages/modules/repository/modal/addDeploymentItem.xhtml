@@ -10,20 +10,20 @@
 
   <rich:popupPanel id="addDeployEntry" width="400" autosized="true">
     <f:facet name="header">
-        <h:outputText value="Add deployment descriptor" />
+        <h:outputText value="Add project" />
     </f:facet>
       <f:facet name="controls">
             <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('addDeployEntry').hide();" alt="Close" />
         </f:facet>
     <h:form id="addDeployEntryForm">
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{not empty availableProjects}">
-            <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+            <h:outputLabel for="projectName" styleClass="required" value="Name" />
             <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
                 <f:selectItems value="#{deploymentController.projects}" />
                 <f:ajax event="change" render="projectVersion" execute="@this" />
             </h:selectOneMenu>
 
-            <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
+            <h:outputLabel for="projectVersion" styleClass="required" value="Version" />
             <h:selectOneMenu id="projectVersion" value="#{deploymentController.version}">
                 <f:selectItems value="#{deploymentController.projectVersions}" />
             </h:selectOneMenu>

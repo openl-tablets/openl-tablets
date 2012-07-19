@@ -95,7 +95,7 @@ public class TestMUWM {
         }
 
         AProject p = uw.getProject(name);
-        p.checkOut(wu);
+        p.edit(wu);
 
         AProjectFolder uwpf;
         try {
@@ -128,7 +128,7 @@ public class TestMUWM {
             uwpf.addResource("some-file", resource);
         }
 
-        p.checkIn(wu);
+        p.save(wu);
 
         for (RulesProject uwp : uw.getProjects()) {
             System.out.println("-> opening " + uwp.getName());

@@ -1,7 +1,6 @@
 package org.openl.rules.ui;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -174,45 +173,33 @@ public class WebStudio {
         listeners.add(listener);
     }
 
-    public void checkInProject(HttpSession session) {
+    public void saveProject(HttpSession session) {
         try {
             RulesProject project = getCurrentProject(session);
             if (project == null) {
                 return;
             }
-            project.checkIn();
+            project.save();
             reset(ReloadType.FORCED);
             model.getProjectTree();
         } catch (Exception e) {
-            log.error("Can not check in!", e);
-            try {
-                String redirectLink = String.format("%s/faces/pages/modules/index.xhtml?error=%s", FacesUtils.getContextPath(),
-                        e.getMessage());
-                FacesUtils.redirect(redirectLink);
-            } catch (IOException e1) {
-                log.error("Can`t redirect to with message page", e);
-            }
+            log.error("Can not Save changes", e);
+            // TODO Display message - e.getMessage()
         }
     }
 
-    public void checkOutProject(HttpSession session) {
+    public void editProject(HttpSession session) {
         try {
             RulesProject project = getCurrentProject(session);
             if (project == null) {
                 return;
             }
-            project.checkOut();
+            project.edit();
             reset(ReloadType.FORCED);
             model.getProjectTree();
         } catch (Exception e) {
-            log.error("Can not check out!", e);
-            try {
-                String redirectLink = String.format("%s/faces/pages/modules/index.xhtml?error=%s", FacesUtils.getContextPath(),
-                        e.getMessage());
-                FacesUtils.redirect(redirectLink);
-            } catch (IOException e1) {
-                log.error("Can`t redirect to with message page", e);
-            }
+            log.error("Can not Open project in Edit mode", e);
+            // TODO Display message - e.getMessage()
         }
     }
 

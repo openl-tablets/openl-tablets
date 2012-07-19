@@ -18,8 +18,8 @@ public abstract class UserWorkspaceProject extends AProject {
     protected WorkspaceUser getUser() {
         return user;
     }
-    
-    public boolean isCheckedOut() {
+
+    public boolean isOpenedForEditing() {
         return isLockedByMe();
     }
 
@@ -59,18 +59,18 @@ public abstract class UserWorkspaceProject extends AProject {
 
     public abstract void openVersion(CommonVersion version) throws ProjectException;
 
-    public void checkOut() throws ProjectException {
-        checkOut(getUser());
+    public void edit() throws ProjectException {
+        edit(getUser());
     }
-    
-    public void checkIn() throws ProjectException {
-        checkIn(getUser());
+
+    public void save() throws ProjectException {
+        save(getUser());
     }
-    
-    public void checkIn(int major, int minor) throws ProjectException {
-        checkIn(getUser(), major, minor);
+
+    public void save(int major, int minor) throws ProjectException {
+        save(getUser(), major, minor);
     }
-    
+
     public void close() throws ProjectException {
         close(user);
     }

@@ -763,7 +763,7 @@ public class ProjectModel {
         RulesProject project = getProject();
 
         if (project != null) {
-            return project.isCheckedOut() || project.isLocalOnly();
+            return project.isOpenedForEditing() || project.isLocalOnly();
         }
 
         return false;
