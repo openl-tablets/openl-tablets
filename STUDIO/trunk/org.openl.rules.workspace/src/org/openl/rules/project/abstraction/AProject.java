@@ -95,18 +95,18 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    public void checkIn(CommonUser user) throws ProjectException {
+    public void save(CommonUser user) throws ProjectException {
         ProjectVersion currentVersion = getLastVersion();
-        checkIn(user, currentVersion.getMajor(), currentVersion.getMinor());
+        save(user, currentVersion.getMajor(), currentVersion.getMinor());
     }
 
-    public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
-        save(user, major, minor);
+    public void save(CommonUser user, int major, int minor) throws ProjectException {
+        commit(user, major, minor);
         unlock(user);
         refresh();
     }
 
-    public void checkOut(CommonUser user) throws ProjectException {
+    public void edit(CommonUser user) throws ProjectException {
         lock(user);
     }
 
@@ -173,7 +173,7 @@ public class AProject extends AProjectFolder {
             super.update(artefact, user, major, minor);
         } catch (Exception e) {
             rollbackTransaction(transaction);
-            throw new ProjectException("Failed to check-in project: " + e.getMessage(), e);
+            throw new ProjectException("Failed to save project: " + e.getMessage(), e);
         }
         finalizeTransaction(transaction);
     }
@@ -188,7 +188,7 @@ public class AProject extends AProjectFolder {
                 super.smartUpdate(artefact, user, major, minor);
             } catch (Exception e) {
                 rollbackTransaction(transaction);
-                throw new ProjectException("Failed to check-in project: " + e.getMessage(), e);
+                throw new ProjectException("Failed to save project: " + e.getMessage(), e);
             }
             finalizeTransaction(transaction);
         }

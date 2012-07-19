@@ -325,7 +325,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user, 0, 0);
             AProject createdProject = getProject(name);
             designTimeRepository.getProject(name).unlock(user);
-            createdProject.checkOut(user);
+            createdProject.edit(user);
         } catch (ProjectException e) {
             if (designTimeRepository.hasProject(name)) {
                 designTimeRepository.getProject(name).erase(user);

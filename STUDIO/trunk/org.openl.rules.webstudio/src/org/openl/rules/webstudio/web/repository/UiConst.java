@@ -19,8 +19,7 @@ public class UiConst {
     public static final String ICON_FOLDER = "/webresource/images/repository/folder.gif";
     public static final String ICON_REPOSITORY = "/webresource/images/repository/storage.gif";
 
-    //
-    public static final String ICON_PROJECT_CHECKED_OUT = "/webresource/images/repository/checkedout.gif";
+    public static final String ICON_PROJECT_OPENED_FOR_EDITING = "/webresource/images/repository/checkedout.gif";
     public static final String ICON_PROJECT_CLOSED = "/webresource/images/repository/closed.gif";
     public static final String ICON_PROJECT_CLOSED_LOCKED = "/webresource/images/repository/closed-locked.gif";
     public static final String ICON_PROJECT_DELETED = "/webresource/images/repository/deleted.gif";

@@ -39,8 +39,7 @@ public class TreeProject extends TreeFolder {
             return "Deleted";
         }
 
-        if (userProject.isCheckedOut()) {
-            // "Checked-out"
+        if (userProject.isOpenedForEditing()) {
             return null;
         }
 
@@ -80,10 +79,10 @@ public class TreeProject extends TreeFolder {
             return "Deleted";
         }
 
-        if (userProject.isCheckedOut()) {
-            return "Checked-out";
+        if (userProject.isOpenedForEditing()) {
+            return "Editing";
         }
-        
+
         StringBuilder status = new StringBuilder();
 
         if (userProject.isOpened()) {
@@ -175,8 +174,8 @@ public class TreeProject extends TreeFolder {
             return UiConst.ICON_PROJECT_DELETED;
         }
 
-        if (project.isCheckedOut()) {
-            return UiConst.ICON_PROJECT_CHECKED_OUT;
+        if (project.isOpenedForEditing()) {
+            return UiConst.ICON_PROJECT_OPENED_FOR_EDITING;
         }
 
         boolean isLocked = project.isLocked();
