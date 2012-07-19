@@ -30,12 +30,12 @@
         </style>
 
         <h:form>
-            <div class="traceTreeParams">
+            <h:panelGroup styleClass="traceTreeParams" rendered="#{traceTreeBean.hasDecisionTables()}">
                 <h:outputText value="Detailed trace tree" styleClass="traceTreeFieldName"/>
                 <h:selectBooleanCheckbox id="toggleCheckbox" value="#{traceTreeBean.detailedTraceTree}">
                     <f:ajax event="change" render="traceTree" />
                 </h:selectBooleanCheckbox>
-            </div>
+            </h:panelGroup>
 
             <h:panelGroup id="traceTree">
                 <rich:tree styleClass="tree" value="#{traceTreeBean.tree}" toggleType="client" var="node"

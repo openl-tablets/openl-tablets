@@ -29,7 +29,7 @@
     <rich:column style="text-align: center;">
         <h:commandLink action="#{dep.delete}"
             onclick="if(!window.confirm('Are you sure you want to delete the project dependency?')) {return false;}"
-            rendered="#{artefact.checkedOut}" title="Delete">
+            rendered="#{artefact.openedForEditing}" title="Delete">
             <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
         </h:commandLink>
     </rich:column>
@@ -42,7 +42,7 @@
   <br/>
 
   <h:panelGrid columns="1" styleClass="buttonPanel" cellpadding="4px;" cellspacing="0px;">
-    <h:commandButton value="Add" disabled="#{!artefact.checkedOut}"
+    <h:commandButton value="Add" disabled="#{!artefact.openedForEditing}"
       onclick="showAddDependency();return false;" />
   </h:panelGrid>
 </ui:composition>
