@@ -186,15 +186,19 @@ public class SystemSettingsBean {
     }
     
     public boolean isCustomSpreadsheetType() {
-        return OpenLSystemProperties.isCustomSpreadsheetType();
+        return OpenLSystemProperties.isCustomSpreadsheetType(configManager.getProperties());
+    }
+    
+    public void setCustomSpreadsheetType(boolean customSpreadsheetType) {
+        configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
     
     public String getRulesDispatchingMode() {
-        if (OpenLSystemProperties.isDTDispatchingMode()) {
-            return "Decision Table";
-        } else  {
-            return "Java";
-        }
+        return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
+    }
+
+    public void setRulesDispatchingMode(String dispatchingMode) {
+        configManager.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, dispatchingMode);
     }
 
     public void applyChanges() {

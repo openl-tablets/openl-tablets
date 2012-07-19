@@ -134,7 +134,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
                     IDependencyManager.class });
             
             if (ctr != null) {
-                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(), getModule().getProperties(), 
+                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(), prepareExternalParameters(), 
                         getDependencyManager() });
             }
 

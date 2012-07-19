@@ -1044,6 +1044,7 @@ public class ProjectModel {
 
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, 
             studio.getDependencyManager());
+        instantiationStrategy.setExternalParameters(studio.getSystemConfigManager().getProperties());
 
         try {
             if(reloadType == ReloadType.FORCED){

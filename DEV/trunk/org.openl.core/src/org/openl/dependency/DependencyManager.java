@@ -11,6 +11,7 @@ import org.openl.syntax.code.IDependency;
 public abstract class DependencyManager implements IDependencyManager {
     
     private boolean executionMode;
+    private Map<String, Object> externalParameters;
     
     private Map<String, CompiledDependency> compiledDependencies = new HashMap<String, CompiledDependency>();  
     
@@ -75,4 +76,12 @@ public abstract class DependencyManager implements IDependencyManager {
         return null;
     }
     
+    @Override
+    public Map<String, Object> getExternalParameters() {
+        return externalParameters;
+    }
+    
+    public void setExternalParameters(Map<String, Object> parameters) {
+        this.externalParameters = parameters;
+    }
 }

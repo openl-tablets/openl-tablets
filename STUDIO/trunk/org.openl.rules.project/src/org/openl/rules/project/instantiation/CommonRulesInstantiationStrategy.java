@@ -1,5 +1,7 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.Map;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 
@@ -27,6 +29,8 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * {@link IDependencyManager} for projects that have dependent modules.
      */
     private IDependencyManager dependencyManager;
+    
+    private Map<String, Object> externalParameters;
 
     /**
      * Creates rules instantiation strategy with empty {@link ClassLoader}.(See
@@ -140,4 +144,14 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * @throws IllegalAccessException
      */
     protected abstract Object instantiate(Class<?> rulesClass) throws RulesInstantiationException;
+    
+    @Override
+    public Map<String, Object> getExternalParameters() {
+        return externalParameters;
+    }
+    
+    @Override
+    public void setExternalParameters(Map<String, Object> parameters) {
+        this.externalParameters = parameters;
+    }
 }
