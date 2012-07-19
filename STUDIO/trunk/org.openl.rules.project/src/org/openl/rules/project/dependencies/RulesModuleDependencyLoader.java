@@ -42,6 +42,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
                 
                 SingleModuleInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(dependencyModule, 
                     dependencyManager.isExecutionMode(), dependencyManager, moduleClassLoader);
+                strategy.setExternalParameters(dependencyManager.getExternalParameters());
                 CompiledOpenClass compiledOpenClass = strategy.compile();
                 
                 return new CompiledDependency(dependencyName, compiledOpenClass);

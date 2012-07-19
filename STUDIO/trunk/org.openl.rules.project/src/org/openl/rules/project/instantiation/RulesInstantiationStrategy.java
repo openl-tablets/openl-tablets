@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.SimpleBundleClassLoader;
@@ -98,4 +99,13 @@ public interface RulesInstantiationStrategy {
      * @return Modules used for compilation.
      */
     Collection<Module> getModules();
+    
+    /**
+     * Some additional options for compilation defined externally(e.g. external
+     * dependencies, overridden system properties)
+     */
+    Map<String, Object> getExternalParameters();
+
+    void setExternalParameters(Map<String, Object> parameters);
+
 }

@@ -4,10 +4,11 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.data.DataBase;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.AliasDatatypeBoundNode;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
@@ -63,13 +64,13 @@ public class XlsPreBinder extends XlsBinder {
     protected XlsLazyModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
             IDataBase dbase,
-            Set<CompiledOpenClass> moduleDependencies) {
+            Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
         return new XlsLazyModuleOpenClass(null,
             XlsHelper.getModuleName(moduleNode),
             new XlsMetaInfo(moduleNode),
             openl,
             dbase,
             prebindHandler,
-            moduleDependencies);
+            moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
     }
 }

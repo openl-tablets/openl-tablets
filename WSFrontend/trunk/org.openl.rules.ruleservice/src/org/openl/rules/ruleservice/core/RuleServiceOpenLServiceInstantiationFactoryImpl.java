@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +34,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private RuleServiceInstantiationStrategyFactory instantiationStrategyFactory = new RuleServiceInstantiationStrategyFactoryImpl();
 
     private IDependencyManager dependencyManager;
+    
+    private Map<String, Object> externalParameters;
 
     private void initService(OpenLService service) throws RulesInstantiationException, ClassNotFoundException {
         if (service == null) {
@@ -41,6 +44,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(),
                 dependencyManager);
+        instantiationStrategy.setExternalParameters(externalParameters);
+        
         if (service.isProvideVariations()) {
             instantiationStrategy = new VariationsEnhancer(instantiationStrategy);
         }
@@ -194,4 +199,14 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
         this.instantiationStrategyFactory = instantiationStrategyFactory;
     }
+
+    public Map<String, Object> getExternalParameters() {
+        return externalParameters;
+    }
+
+    public void setExternalParameters(Map<String, Object> externalParameters) {
+        this.externalParameters = externalParameters;
+    }
+
+    
 }

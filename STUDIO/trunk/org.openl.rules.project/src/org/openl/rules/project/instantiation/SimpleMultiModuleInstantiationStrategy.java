@@ -3,9 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,13 +13,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.SimpleEngineFactory;
-import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.runtime.AOpenLEngineFactory;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.code.IDependency;
-import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * The simplest way of multimodule instantiation strategy. There will be created
@@ -131,7 +123,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
 		if (factory == null
 				|| (serviceClass != null && !factory.getInterfaceClass()
 						.equals(serviceClass))) {
-            factory = new SimpleEngineFactory(createMainModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
+            factory = new SimpleEngineFactory(createVirtualSourceCodeModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
 
             for (Module module : getModules()) {
                 for (InitializingListener listener : getInitializingListeners()) {
@@ -145,23 +137,4 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         return factory;
     }
 
-    private IOpenSourceCodeModule createMainModule() {
-        List<IDependency> dependencies = new ArrayList<IDependency>();
-
-        for (Module module : getModules()) {
-            IDependency dependency = createDependency(module);
-            dependencies.add(dependency);
-        }
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("external-dependencies", dependencies);
-        IOpenSourceCodeModule source = new VirtualSourceCodeModule();
-        source.setParams(params);
-
-        return source;
-    }
-
-    private IDependency createDependency(Module module) {
-        return new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
-    }
 }
