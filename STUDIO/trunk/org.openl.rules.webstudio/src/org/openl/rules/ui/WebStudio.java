@@ -129,6 +129,7 @@ public class WebStudio {
 
     private void initDependencyManager() {
         this.dependencyManager = new RulesProjectDependencyManager();
+        dependencyManager.setExternalParameters(systemConfigManager.getProperties());
         
         dependencyManager.setExecutionMode(false);
         

@@ -206,7 +206,7 @@ public class XlsBinder implements IOpenBinder {
      */
     private IBoundNode bindWithDependencies(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext,
             Set<CompiledOpenClass> moduleDependencies) {
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), moduleDependencies);        
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(), moduleDependencies, bindingContext);        
         
         RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode, 
             bindingContext, moduleDependencies, moduleOpenClass);
@@ -267,7 +267,7 @@ public class XlsBinder implements IOpenBinder {
 
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
 
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(),  null);
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode, openl, getModuleDatabase(),  null, bindingContext);
         
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
 
@@ -317,7 +317,7 @@ public class XlsBinder implements IOpenBinder {
         ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector = propertiesSelector.not().and(dataTypeSelector.not());
         
         IBoundNode topNode = null;
-        if (OpenLSystemProperties.isCustomSpreadsheetType()) {
+        if (OpenLSystemProperties.isCustomSpreadsheetType(moduleContext.getExternalParams())) {
             topNode = bindInternalWithCustomSpreadsheetTypes(moduleNode, openl, moduleContext, moduleOpenClass,
                 notPropertiesAndNotDatatypeSelector);
         } else {        
@@ -393,16 +393,10 @@ public class XlsBinder implements IOpenBinder {
      */
     protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode, OpenL openl, 
     	IDataBase dbase,	
-        Set<CompiledOpenClass> moduleDependencies) {
+        Set<CompiledOpenClass> moduleDependencies, IBindingContext bindingContext) {
 
-        XlsModuleOpenClass module = null;
-        if (moduleDependencies == null) {
-            module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
-                openl, dbase);
-        } else {
-            module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
-                openl, dbase, moduleDependencies);
-        }
+        XlsModuleOpenClass module = new XlsModuleOpenClass(null, XlsHelper.getModuleName(moduleNode), new XlsMetaInfo(moduleNode),
+                openl, dbase, moduleDependencies, OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()));
         
         return module;
     }

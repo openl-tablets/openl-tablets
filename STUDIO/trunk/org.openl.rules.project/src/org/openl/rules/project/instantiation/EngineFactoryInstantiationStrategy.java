@@ -2,8 +2,6 @@ package org.openl.rules.project.instantiation;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.OpenL;
-import org.openl.conf.IUserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RuleEngineFactory;
@@ -48,7 +46,7 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
             File sourceFile = new File(getModule().getRulesRootPath().getPath());
             
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
-            source.setParams(getModule().getProperties());
+            source.setParams(prepareExternalParameters());
             
             String userHome = null;
             try {

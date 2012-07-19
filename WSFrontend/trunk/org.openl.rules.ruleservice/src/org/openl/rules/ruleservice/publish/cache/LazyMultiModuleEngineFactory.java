@@ -53,6 +53,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
     private Class<?> interfaceClass;
     private Collection<Module> modules;
     private IDependencyManager dependencyManager;
+    private Map<String, Object> externalParameters;
 
     public LazyMultiModuleEngineFactory(Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
@@ -175,7 +176,8 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        return new LazyMethod(method.getName(), argTypes, dependencyManager, true, Thread.currentThread().getContextClassLoader(), method){
+        return new LazyMethod(method.getName(), argTypes, dependencyManager, true,
+            Thread.currentThread().getContextClassLoader(), method, externalParameters){
             @Override
             public Module getModule(IRuntimeEnv env) {
                 return declaringModule;
@@ -185,7 +187,8 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private LazyField makeLazyField(IOpenField field) {
         final Module declaringModule = getModuleForMember(field);
-        return new LazyField(field.getName(), dependencyManager, true, Thread.currentThread().getContextClassLoader(), field){
+        return new LazyField(field.getName(), dependencyManager, true, Thread.currentThread().getContextClassLoader(),
+            field, externalParameters){
             @Override
             public Module getModule(IRuntimeEnv env) {
                 return declaringModule;
@@ -215,6 +218,9 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
 
         Map<String, Object> params = new HashMap<String, Object>();
+        if (getExternalParameters() != null) {
+            params.putAll(getExternalParameters());
+        }
         params.put("external-dependencies", dependencies);
         IOpenSourceCodeModule source = new VirtualSourceCodeModule();
         source.setParams(params);
@@ -226,4 +232,12 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         return new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
     }
 
+    
+    public Map<String, Object> getExternalParameters() {
+        return externalParameters;
+    }
+    
+    public void setExternalParameters(Map<String, Object> parameters) {
+        this.externalParameters = parameters;
+    }
 }

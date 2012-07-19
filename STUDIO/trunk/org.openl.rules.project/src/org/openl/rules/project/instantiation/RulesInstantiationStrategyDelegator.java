@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,5 +82,15 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
     @Override
     public Collection<Module> getModules() {
         return instantiationStrategy.getModules();
+    }
+    
+    @Override
+    public Map<String, Object> getExternalParameters() {
+        return instantiationStrategy.getExternalParameters();
+    }
+
+    @Override
+    public void setExternalParameters(Map<String, Object> parameters) {
+        instantiationStrategy.setExternalParameters(parameters);
     }
 }
