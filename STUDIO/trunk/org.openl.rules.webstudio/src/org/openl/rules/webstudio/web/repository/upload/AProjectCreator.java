@@ -34,9 +34,9 @@ public abstract class AProjectCreator {
         RulesProjectBuilder projectBuilder = null;
         try {
             projectBuilder = getProjectBuilder();
-            
-            projectBuilder.checkIn();
-            projectBuilder.getProject().checkOut();
+
+            projectBuilder.save();
+            projectBuilder.getProject().edit();
         } catch (Exception e) {
             if (projectBuilder != null) {
                 projectBuilder.cancel();

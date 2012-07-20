@@ -15,6 +15,7 @@ import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
@@ -53,6 +54,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
     private Class<?> interfaceClass;
     private IDependencyManager dependencyManager;
     private Collection<Module> modules;
+    private Map<String, Object> externalParameters;
 
     public DispatchedMultiModuleEngineFactory(Collection<Module> modules, Class<?> interfaceClass) {
         super(RULES_XLS_OPENL_NAME);
@@ -148,7 +150,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
             dependencyManager,
             true,
             Thread.currentThread().getContextClassLoader(),
-            method) {
+            method, externalParameters) {
             @Override
             public Module getModule(IRuntimeEnv env) {
                 return dispatcher.getResponsibleModule(modules,
@@ -203,7 +205,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 }
             };
             moduleOpenClass.addField(new LazyField(field.getName(), dependencyManager, true, Thread.currentThread()
-                .getContextClassLoader(), field) {
+                .getContextClassLoader(), field, externalParameters) {
                 @Override
                 public Module getModule(IRuntimeEnv env) {
                     return dispatcher.getResponsibleModule(modules,
@@ -220,7 +222,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private CompiledOpenClass initializeOpenClass() {
         // FIXME name
-        XlsModuleOpenClass moduleOpenClass = new XlsModuleOpenClass(null, "lazy dispatched", null, getOpenL(), new DataBase());
+        XlsModuleOpenClass moduleOpenClass = new XlsModuleOpenClass(null, "lazy dispatched", null, getOpenL(), new DataBase(), OpenLSystemProperties.isDTDispatchingMode(externalParameters));
         List<Method> unannotatedMethos = new ArrayList<Method>();
         for (Method method : interfaceClass.getMethods()) {
             try {
@@ -269,5 +271,13 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 DispatchedData.class.getSimpleName(),
                 DispatchedMethod.class.getSimpleName()));
         }
+    }
+    
+    public Map<String, Object> getExternalParameters() {
+        return externalParameters;
+    }
+    
+    public void setExternalParameters(Map<String, Object> parameters) {
+        this.externalParameters = parameters;
     }
 }

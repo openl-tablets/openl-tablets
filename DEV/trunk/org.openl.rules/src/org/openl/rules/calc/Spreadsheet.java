@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -45,9 +44,19 @@ public class Spreadsheet extends ExecutableRulesMethod {
     /** Custom return type of the spreadsheet method. Is a public type of the spreadsheet*/
     private IOpenClass spreadsheetCustomType;
 
-    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
+    /**
+     * Whether <code>spreadsheetCustomType</code> should be generated or not.
+     */
+    private boolean customSpreadsheetType;
+
+    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheetType) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
+        this.customSpreadsheetType = customSpreadsheetType;
+    }
+    
+    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
+        this(header, boundNode, false);
     }
     
     @Override
@@ -60,8 +69,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
 	public boolean isCustomSpreadsheetType() {
-		return super.getType().getInstanceClass().equals(SpreadsheetResult.class) 
-				&& OpenLSystemProperties.isCustomSpreadsheetType();
+		return customSpreadsheetType;
 	}
 
     private IOpenClass getCustomSpreadsheetResultType() {

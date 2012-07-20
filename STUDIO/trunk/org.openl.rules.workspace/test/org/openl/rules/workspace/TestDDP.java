@@ -23,12 +23,12 @@ public class TestDDP {
             uw.createDDProject(name);
 
             ADeploymentProject ddp = uw.getDDProject(name);
-            ddp.checkOut(wu);
+            ddp.edit(wu);
 
             ddp.addProjectDescriptor("prj1", new CommonVersionImpl(1, 10, 100));
             ddp.addProjectDescriptor("prj2", new CommonVersionImpl(2, 20, 200));
 
-            ddp.checkIn(wu);
+            ddp.save(wu);
         } catch (Exception e) {
             System.out.println("Cannot create new DDP " + name);
         }

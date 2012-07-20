@@ -101,13 +101,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         rulesRepository = new TreeRepository(rpName, rpName, filter, UiConst.TYPE_REPOSITORY);
         rulesRepository.setData(null);
 
-        String dpName = "Deployments";
+        String dpName = "Deploy Configurations";
         deploymentRepository = new TreeRepository(dpName, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
         //Such keys are used for correct order of repositories.
         root.addChild("1st - Projects", rulesRepository);
-        root.addChild("2nd - Deployments", deploymentRepository);
+        root.addChild("2nd - Deploy Configurations", deploymentRepository);
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
@@ -353,19 +353,19 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         this.hideDeleted = hideDeleted;
     }
 
-    //for any project
-    public boolean getCanCheckOut() {
+    // For any project
+    public boolean getCanEdit() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut() || selectedProject.isLocked()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
 
         return isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
-    public boolean getCanCheckIn() {
+    public boolean getCanSave() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isCheckedOut() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT_PROJECTS);
+        return selectedProject.isOpenedForEditing() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean getCanClose() {
@@ -392,7 +392,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
             return false;
         }
 
@@ -408,7 +408,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanRedeploy() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
             return false;
         }
 
@@ -426,12 +426,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         String projectName = selectedArtefact.getProject().getName();
         String projectId = String.valueOf(projectName.hashCode());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
-        return (project.isCheckedOut() && isGranted(PRIVILEGE_EDIT_PROJECTS));
+        return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS));
     }
 
     //for deployment project
     public boolean getCanDeploy() {
-        return !getSelectedProject().isCheckedOut() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
+        return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
 
 }

@@ -33,8 +33,8 @@ public abstract class FileDependencyLoader implements IDependencyLoader {
 
     public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) {
         IOpenSourceCodeModule sourceCode = getSourceCodeModule(dependencyName);
-
         if (sourceCode != null) {
+            sourceCode.setParams(dependencyManager.getExternalParameters());
             OpenL openl = OpenL.getInstance(openlName);
             CompiledOpenClass compiledOpenClass = OpenLManager.compileModuleWithErrors(openl, sourceCode, 
                 dependencyManager.isExecutionMode(), dependencyManager);

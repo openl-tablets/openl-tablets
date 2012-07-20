@@ -174,9 +174,9 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String checkInProject() {
+    public String saveProject() {
         try {
-            repositoryTreeState.getSelectedProject().checkIn(major, minor);
+            repositoryTreeState.getSelectedProject().save(major, minor);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
@@ -187,13 +187,13 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String checkOutProject() {
+    public String editProject() {
         try {
-            repositoryTreeState.getSelectedProject().checkOut();
+            repositoryTreeState.getSelectedProject().edit();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
-            String msg = "Failed to check out project.";
+            String msg = "Failed to edit project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
@@ -302,10 +302,10 @@ public class RepositoryTreeController {
                 
                 return null;
             }
-            
+
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
-            createdProject.checkOut();
+            createdProject.edit();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";

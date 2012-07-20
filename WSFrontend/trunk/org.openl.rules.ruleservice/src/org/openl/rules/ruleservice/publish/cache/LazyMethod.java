@@ -1,8 +1,11 @@
 package org.openl.rules.ruleservice.publish.cache;
 
+import java.util.Map;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -21,18 +24,20 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     private Class<?>[] argTypes;
 
     public LazyMethod(String methodName, Class<?>[] argTypes, IDependencyManager dependencyManager,
-            boolean executionMode, ClassLoader classLoader, IOpenMethod original) {
-        super(dependencyManager, executionMode, classLoader, original);
+            boolean executionMode, ClassLoader classLoader, IOpenMethod original, Map<String, Object> externalParameters) {
+        super(dependencyManager, executionMode, classLoader, original, externalParameters);
         this.methodName = methodName;
         this.argTypes = argTypes;
     }
 
     public IOpenMethod getMember(IRuntimeEnv env) {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(env),
+            SingleModuleInstantiationStrategy instantiationStrategy = getCache().getInstantiationStrategy(getModule(env),
                 isExecutionMode(),
                 getDependencyManager(),
-                getClassLoader()).compile();
+                getClassLoader());
+            instantiationStrategy.setExternalParameters(getExternalParameters());
+            CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
         } catch (Exception e) {

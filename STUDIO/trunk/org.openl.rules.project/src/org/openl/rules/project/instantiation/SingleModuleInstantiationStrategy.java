@@ -3,6 +3,8 @@ package org.openl.rules.project.instantiation;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
@@ -51,5 +53,16 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     @Override
     public Collection<Module> getModules() {
         return Collections.singleton(getModule());
+    }
+    
+    protected Map<String, Object> prepareExternalParameters() {
+        Map<String, Object> externalProperties = new HashMap<String, Object>();
+        if (getModule().getProperties() != null) {
+            externalProperties.putAll(getModule().getProperties());
+        }
+        if (getExternalParameters() != null) {
+            externalProperties.putAll(getExternalParameters());
+        }
+        return externalProperties;
     }
 }

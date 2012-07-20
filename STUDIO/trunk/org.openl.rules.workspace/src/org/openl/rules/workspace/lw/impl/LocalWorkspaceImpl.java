@@ -181,8 +181,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
-    // --- protected
-
     public void removeProject(String name) throws ProjectException {
         AProject project = getProject(name);
         notifyRemoved(project);
@@ -197,7 +195,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         for (AProject lp : localProjects.values()) {
             if (!isLocalOnly(lp)) {
                 try {
-                    lp.checkIn(user);
+                    lp.save(user);
                 } catch (ProjectException e) {
                     String msg = MsgHelper.format("Error saving local project ''{0}''!", lp.getName());
                     log.error(msg, e);

@@ -113,10 +113,10 @@ public class SmartRedeployController {
                 item.setDisabled(true);
                 item.setMessages("Up to date");
             } else if (cmp < 0) {
-                if (deploymentProject.isCheckedOut()) {
+                if (deploymentProject.isOpenedForEditing()) {
                     // prevent loosing of user's changes
                     item.setDisabled(true);
-                    item.setMessages("Checked-out");
+                    item.setMessages("Opened for Editing");
                     item.setStyleForMessages(UiConst.STYLE_WARNING);
                     item.setStyleForName(UiConst.STYLE_WARNING);
                 } else if (deploymentProject.isLocked()) {
@@ -232,12 +232,12 @@ public class SmartRedeployController {
                 FacesUtils.addWarnMessage("Deployment project '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
-                deploymentProject.checkOut();
+                deploymentProject.edit();
 
                 // rewrite project->version
                 deploymentProject.addProjectDescriptor(project.getName(), project.getVersion());
 
-                deploymentProject.checkIn();
+                deploymentProject.save();
 
                 FacesUtils.addInfoMessage("Deployment project '" + deploymentName + "' successfully updated");
                 return deploymentProject;

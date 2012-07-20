@@ -5,7 +5,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-    <h:outputText value="Project Name" />
+    <h:outputText value="Name" />
     <h:outputText value="#{node.name}" style="font-weight: bold" />
 
     <h:outputText value="Version" />
@@ -13,12 +13,6 @@
 
     <h:outputText value="Status" />
     <h:outputText value="#{node.status}" />
-
-    <ui:remove>
-      <h:outputText value="Description" />
-      <h:inputTextarea value="" rows="3" cols="40" />
-
-    </ui:remove>
 
     <h:outputText value="Created At" />
     <h:outputText value="#{node.createdAt}">
