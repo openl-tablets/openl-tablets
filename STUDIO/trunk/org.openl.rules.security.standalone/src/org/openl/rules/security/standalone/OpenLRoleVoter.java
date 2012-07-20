@@ -1,17 +1,18 @@
 package org.openl.rules.security.standalone;
 
-import org.openl.rules.security.Privileges;
+import java.util.Collection;
+
+import org.openl.rules.security.PredefinedRole;
+import org.openl.rules.security.Role;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Collection;
-
 /**
  * <p>
  * Based on {@link org.springframework.security.access.vote.RoleVoter}. If Authentication has
- * {@link org.openl.rules.security.Privileges#ROLE_ADMIN} authority it will get
+ * {@link org.openl.rules.security.PredefinedRole#ROLE_ADMIN} authority it will get
  * access even if it is not specified explicitly.
  * </p>
  * <p>
@@ -76,9 +77,12 @@ public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
                     String authority = grantedAuthority.getAuthority();
-                    if (attr.equals(authority) || Privileges.ROLE_ADMIN.equals(authority)) {
-                        // admin is always right, even if it is not stated
-                        // directly
+                    if (attr.equals(authority)) {
+                        return ACCESS_GRANTED;
+                    }
+                    
+                    Role role = PredefinedRole.findRole(authority);
+                    if (role != null && role.hasAuthority(attr)) {
                         return ACCESS_GRANTED;
                     }
                 }

@@ -52,8 +52,10 @@
         <div id="ll" style="position: absolute; top: 8px; right: 255px;">
             <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a><a
                 href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : ''}">Repository</a>
-            <h:panelGroup rendered="#{studio.isAccessGranted('ROLE_ADMIN')}">
-            <a href="#{contextPath}/faces/pages/modules/administration/index.xhtml" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
+            
+            <c:set var="adminUrl" value="/faces/pages/modules/administration/index.xhtml" />
+            <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
+                <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
             </h:panelGroup>
         </div>
     </div>
