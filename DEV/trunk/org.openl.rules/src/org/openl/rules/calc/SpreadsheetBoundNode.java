@@ -6,6 +6,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -43,7 +44,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     protected Spreadsheet createSpreadsheet()
     {
-    		return new Spreadsheet(getHeader(), this);
+    		return new Spreadsheet(getHeader(), this, OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext().getExternalParams()));
     }		
     
     

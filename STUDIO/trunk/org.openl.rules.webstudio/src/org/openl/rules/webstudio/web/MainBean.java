@@ -34,14 +34,14 @@ public class MainBean {
         return StringUtils.EMPTY;
     }
 
-    public void checkInProject() {
+    public void saveProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.checkInProject(FacesUtils.getSession());
+        studio.saveProject(FacesUtils.getSession());
     }
 
-    public void checkOutProject() {
+    public void editProject() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.checkOutProject(FacesUtils.getSession());
+        studio.editProject(FacesUtils.getSession());
     }
 
     public void reload() {

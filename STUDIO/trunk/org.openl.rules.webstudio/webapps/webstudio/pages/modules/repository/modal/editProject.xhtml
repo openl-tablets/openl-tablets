@@ -1,0 +1,33 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalEditProject" width="400" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Confirm Edit" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('modalEditProject').hide();" alt="Close" />
+    </f:facet>
+
+    <h:form id="editProjectForm">
+      <h:panelGroup id="modalEditProjectData">
+        <h:outputText value="Are you sure you want to edit the project '#{node.name}'? All your local changes will be lost. 
+          Your project in local workspace will be replaced by project that will be checked out from repository." />
+      </h:panelGroup>
+
+      <hr />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton value="Edit Project" action="#{repositoryTreeController.editProject}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalEditProject')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+
+  </rich:popupPanel>
+
+</ui:composition>

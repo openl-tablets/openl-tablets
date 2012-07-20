@@ -766,7 +766,7 @@ public class ProjectModel {
         RulesProject project = getProject();
 
         if (project != null) {
-            return (project.isCheckedOut() || project.isLocalOnly()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
+            return (project.isOpenedForEditing() || project.isLocalOnly()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
         }
 
         return false;
@@ -1051,6 +1051,7 @@ public class ProjectModel {
 
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, 
             studio.getDependencyManager());
+        instantiationStrategy.setExternalParameters(studio.getSystemConfigManager().getProperties());
 
         try {
             if(reloadType == ReloadType.FORCED){

@@ -9,12 +9,17 @@
 		service classes. -->
 	<bean id="instantiationStrategyFactory"
 		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl"/>
-	
+
 	<bean id="ruleServiceInstantiationFactory"
 		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
 		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
+		<!-- <property name="externalParameters">
+			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+				<property name="location" value="system.properties"/>
+			</bean>
+		</property> -->
 	</bean>
 	
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->

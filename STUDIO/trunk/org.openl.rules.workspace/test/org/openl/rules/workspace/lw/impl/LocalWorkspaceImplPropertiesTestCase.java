@@ -87,7 +87,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         folder1File1.addProperty(new PropertyImpl("p4", now));
         folder1File2.addProperty(new PropertyImpl("p5", "file2"));
         folder1File2.addProperty(new PropertyImpl("p6", now));
-        localProject.checkIn(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
 
         assertTrue("Properties file was not created for project root folder",
                 getPropertiesFileForFolderArtefact(localProject).exists());
@@ -112,12 +112,12 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         folder1.addProperty(new PropertyImpl("p2", now));
         folder2.addProperty(new PropertyImpl("p1", "xyz"));
 
-        localProject.checkIn(TestHelper.getWorkspaceUser());
-        localProject.checkIn(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
     }
 
     public void testPropertyFolderIgnored() throws ProjectException, WorkspaceException {
-        localProject.checkIn(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
         AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
         try {
             project.getArtefact(FolderHelper.PROPERTIES_FOLDER);
@@ -141,7 +141,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         folder1.setExpirationDate(date4);
         folder1File2.setEffectiveDate(date5);
         folder1File2.setExpirationDate(date6);
-        localProject.checkIn(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
 
         AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
         AProjectFolder folder1 = (AProjectFolder) project.getArtefact("folder1");
@@ -162,7 +162,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
                         new RepositoryProjectVersionImpl(2, 2, 0, null)) };
 
         localProject.setDependencies(Arrays.asList(dependencies));
-        localProject.checkIn(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
 
         AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
         List<ProjectDependency> deps = new ArrayList<ProjectDependency>(project.getDependencies());
@@ -173,7 +173,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
     }
 
     public void testProjectDependencyNotNull() throws ProjectException, WorkspaceException {
-        localProject.checkIn(TestHelper.getWorkspaceUser());
+        localProject.save(TestHelper.getWorkspaceUser());
 
         AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
         assertNotNull("dependencies are null", project.getDependencies());

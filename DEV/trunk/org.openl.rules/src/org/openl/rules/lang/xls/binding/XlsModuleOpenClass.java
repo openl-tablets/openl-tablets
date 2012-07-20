@@ -13,7 +13,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -31,22 +30,31 @@ import org.openl.types.impl.MethodKey;
 public class XlsModuleOpenClass extends ModuleOpenClass {
 
     private IDataBase dataBase = null;
+
+    /**
+     * Whether DecisionTable should be used as a dispatcher for overloaded
+     * tables. By default(this flag equals false) dispatching logic will be
+     * performed in Java code.
+     */
+    private boolean useDescisionTableDispatcher;
 	
-	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase) {
-        this(schema, name, metaInfo, openl, dbase, null);
-	}
-	
+    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl,
+            IDataBase dbase, boolean useDescisionTableDispatcher) {
+        this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher);
+    }
+    
 	/**
 	 * Constructor for module with dependent modules
 	 *
 	 */
-	public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase, 
-          Set<CompiledOpenClass> usingModules) {
-	    super(schema, name, openl, usingModules);
-	    this.dataBase = dbase;
-	    this.metaInfo = metaInfo;
-	}
-	
+    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase, 
+            Set<CompiledOpenClass> usingModules, boolean useDescisionTableDispatcher) {
+          super(schema, name, openl, usingModules);
+          this.dataBase = dbase;
+          this.metaInfo = metaInfo;
+          this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+      }
+      
 	
     // TODO: should be placed to ModuleOpenClass
 	public IDataBase getDataBase() {
@@ -171,7 +179,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Create decorator for existed method.
         //
         OpenMethodDispatcher decorator;
-        if (OpenLSystemProperties.isDTDispatchingMode()) {
+        if (useDescisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
         } else {            
             decorator = new MatchingOpenMethodDispatcher(existedMethod, this);

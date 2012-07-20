@@ -48,8 +48,8 @@ public class TreeDProject extends TreeFile {
             return UiConst.ICON_PROJECT_DELETED;
         }
 
-        if (project.isCheckedOut()) {
-            return UiConst.ICON_PROJECT_CHECKED_OUT;
+        if (project.isOpenedForEditing()) {
+            return UiConst.ICON_PROJECT_OPENED_FOR_EDITING;
         }
 
         boolean isLocked = project.isLocked();

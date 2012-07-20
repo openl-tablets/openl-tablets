@@ -29,8 +29,8 @@
 	<c:set var="openMessage" value="Open project for viewing in rules editor" />
     <c:set var="openVersionMessage" value="Open the specified project version for viewing in rules editor" />
     <c:set var="closeMessage" value="Close project" />
-    <c:set var="checkOutMessage" value="Make project available for editing in rules editor and lock it from editing by other users" />
-    <c:set var="checkInMessage" value="Save project changes to repository as a new version and make it available for editing by other users" />
+    <c:set var="editMessage" value="Make project available for editing in Rules Editor and lock it from editing by other users" />
+    <c:set var="saveMessage" value="Save project changes to repository as a new version and make it available for editing by other users" />
     <c:set var="copyMessage" value="Create a new project with identical content and different name in repository" />
 
   <h:panelGroup rendered="#{node.type == 'file'}">
@@ -86,8 +86,8 @@
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
           </h:commandButton>
 
-          <h:commandButton id="checkOutId1" rendered="#{repositoryTreeState.canCheckOut}" value="Check Out" action="#{repositoryTreeController.checkOutProject}">
-              <rich:tooltip showDelay="500">#{checkOutMessage}</rich:tooltip>
+          <h:commandButton rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{repositoryTreeController.editProject}">
+              <rich:tooltip showDelay="500">#{editMessage}</rich:tooltip>
           </h:commandButton>
         </h:panelGrid>
 
@@ -103,13 +103,13 @@
           <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
           </h:commandButton>
-          <h:commandButton id="checkOutId2" rendered="#{repositoryTreeState.canCheckOut}" value="Check Out" onclick="#{rich:component('modalCheckOutProject')}.show();return false;">
-              <rich:tooltip showDelay="500">#{checkOutMessage}</rich:tooltip>
+          <h:commandButton rendered="#{repositoryTreeState.canEdit}" value="Edit" onclick="#{rich:component('modalEditProject')}.show();return false;">
+              <rich:tooltip showDelay="500">#{editMessage}</rich:tooltip>
           </h:commandButton>
         </h:panelGrid>
 
-        <h:commandButton id="checkInId1" rendered="#{repositoryTreeState.canCheckIn}" value="Check In" onclick="openCheckInDialog();return false;">
-            <rich:tooltip showDelay="500">#{checkInMessage}</rich:tooltip>
+        <h:commandButton rendered="#{repositoryTreeState.canSave}" value="Save" onclick="openSaveDialog();return false;">
+            <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
         </h:commandButton>
         
         <h:commandButton id="copyId1" value="Copy" onclick="openCopyProjectDialog();return false;">
@@ -120,19 +120,19 @@
             <rich:tooltip showDelay="500">#{deleteMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton id="redeployId" rendered="#{repositoryTreeState.canRedeploy}" value="Redeploy" onclick="openSmartRedeployDialog();return false;">
-            <rich:tooltip showDelay="500">Redeploy selected deployments with the latest version of this project</rich:tooltip>
+        <h:commandButton rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();return false;">
+            <rich:tooltip showDelay="500">Deploy selected deployments with the latest version of this project</rich:tooltip>
         </h:commandButton>
         
         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare" onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;">
             <rich:tooltip showDelay="500">Compare tables in Excel file between two project versions</rich:tooltip>
         </h:commandButton>
 
-        <h:commandButton id="addFolder2" rendered="#{artefact.checkedOut}" value="Add Folder" onclick="openNewFolderDialog();return false;">
+        <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder" onclick="openNewFolderDialog();return false;">
             <rich:tooltip showDelay="500">#{addFolderMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton id="uploadFile2" rendered="#{artefact.checkedOut}" value="Upload File" onclick="openNewFileDialog();return false;">
+        <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File" onclick="openNewFileDialog();return false;">
             <rich:tooltip showDelay="500">#{uploadFileMessage}</rich:tooltip>
         </h:commandButton>
         
@@ -171,7 +171,7 @@
     <h:panelGroup layout="block" rendered="#{node.type == 'drepository'}">
         <div>
             <div class="view_header">
-                <span>Deployments</span>
+                <span>Deploy Configurations</span>
             </div>
             <div>
                 <div>
@@ -206,12 +206,12 @@
           <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton id="checkOutId3" rendered="#{repositoryTreeState.canCheckOut}" value="Check Out" action="#{deploymentController.checkOut}">
+      <h:commandButton rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{deploymentController.edit}">
           <rich:tooltip showDelay="500">Make project available for editing and lock it from editing by other users</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton id="checkInId2" rendered="#{repositoryTreeState.canCheckIn}" value="Check In" action="#{deploymentController.checkIn}">
-          <rich:tooltip showDelay="500">#{checkInMessage}</rich:tooltip>
+      <h:commandButton rendered="#{repositoryTreeState.canSave}" value="Save" action="#{deploymentController.save}">
+          <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
       </h:commandButton>
 
       <h:commandButton id="copyId2" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;">
@@ -230,7 +230,7 @@
       <rich:tab header="Versions">
         <ui:include src="/pages/modules/repository/node/versions.xhtml" />
       </rich:tab>
-      <rich:tab header="Descriptors">
+      <rich:tab header="Projects to Deploy">
         <ui:include src="/pages/modules/repository/node/descriptors.xhtml" />
       </rich:tab>
     </rich:tabPanel>

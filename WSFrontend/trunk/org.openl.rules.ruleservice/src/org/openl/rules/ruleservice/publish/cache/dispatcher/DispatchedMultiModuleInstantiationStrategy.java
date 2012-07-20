@@ -80,6 +80,7 @@ public class DispatchedMultiModuleInstantiationStrategy extends MultiModuleInsta
                 }
             }
             factory.setDependencyManager(getDependencyManager());
+            factory.setExternalParameters(getExternalParameters());
         }
 
         return factory;

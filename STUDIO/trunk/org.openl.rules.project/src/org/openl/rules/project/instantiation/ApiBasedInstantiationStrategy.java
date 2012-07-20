@@ -92,7 +92,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {
             File sourceFile = new File(getModule().getRulesRootPath().getPath());
             IOpenSourceCodeModule source = new FileSourceCodeModule(sourceFile, null);
-            source.setParams(getModule().getProperties());
+            source.setParams(prepareExternalParameters());
 
             factory = new SimpleEngineFactory(source);
             factory.setExecutionMode(isExecutionMode());

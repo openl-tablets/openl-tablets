@@ -117,7 +117,7 @@ public class AProjectFolder extends AProjectArtefact {
                 }
             }
         }
-        save(user, major, minor);
+        commit(user, major, minor);
     }
     
     @Override
@@ -159,7 +159,7 @@ public class AProjectFolder extends AProjectArtefact {
                     }
                 }
             }
-            save(user, major, minor);
+            commit(user, major, minor);
         }
     }
 
