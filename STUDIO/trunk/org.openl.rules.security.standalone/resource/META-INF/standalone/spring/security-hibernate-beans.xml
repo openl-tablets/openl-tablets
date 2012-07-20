@@ -127,7 +127,7 @@
       </property>
       <property name="locations">
         <list>
-          <value>classpath:META-INF/standalone/data/default_prinicipals.xml</value>
+          <value>classpath:META-INF/standalone/data/default_principals.xml</value>
         </list>
       </property>
     </bean>

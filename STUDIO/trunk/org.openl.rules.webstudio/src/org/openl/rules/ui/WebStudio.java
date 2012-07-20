@@ -26,7 +26,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.RulesFileDependencyLoader;
-import org.openl.rules.security.AccessManager;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -456,11 +455,6 @@ public class WebStudio {
 
     public boolean isNeedRestart() {
         return needRestart;
-    }
-
-    @Deprecated
-    public boolean isAccessGranted(String privilege) {
-        return AccessManager.isGranted(privilege);
     }
 
 }
