@@ -47,7 +47,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private final Log log = LogFactory.getLog(JcrEntityAPI.class);
-    private static final String[] ALLOWED_PROPS = {ArtefactProperties.PROP_EFFECTIVE_DATE, ArtefactProperties.PROP_EXPIRATION_DATE, ArtefactProperties.PROP_LINE_OF_BUSINESS};
+    private static final String[] ALLOWED_PROPS = {ArtefactProperties.PROP_EFFECTIVE_DATE, ArtefactProperties.PROP_EXPIRATION_DATE, 
+        ArtefactProperties.PROP_LINE_OF_BUSINESS, ArtefactProperties.VERSION_COMMENT};
 
     private Map<String, org.openl.rules.common.Property> properties;
     private Map<String, Object> props;
@@ -325,7 +326,15 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             for (RVersion rv : getVersionHistory()) {
                 RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
                         .getUserName());
-                vers.add(new RepositoryProjectVersionImpl(rv, rvii));
+                String versionComment = "";
+                
+                try {
+                    JcrEntityAPI entity = this.getVersion(rv);
+                    versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
+                } catch (Exception e) {
+                }
+                
+                vers.add(new RepositoryProjectVersionImpl(rv, rvii, versionComment));
             }
 
         } catch (RRepositoryException e) {
