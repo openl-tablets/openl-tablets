@@ -16,6 +16,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -97,6 +98,7 @@ public class RepositoryTreeController {
     private String version;
     private int major;
     private int minor;
+    private String saveComment;
 
     private String filterString;
     private boolean hideDeleted;
@@ -176,7 +178,10 @@ public class RepositoryTreeController {
 
     public String saveProject() {
         try {
-            repositoryTreeState.getSelectedProject().save(major, minor);
+            UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+
+            project.save(major, minor);
+            
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
@@ -636,6 +641,10 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String getVersionComment() {
+        return "";
+    }
+
     public int getMajor() {
         ProjectVersion v = getProjectVersion();
         if (v != null) {
@@ -961,7 +970,16 @@ public class RepositoryTreeController {
 
     public void setLineOfBusiness(String lineOfBusiness) {
         try {
-            repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness);
+            repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness); 
+        } catch (PropertyException e) {
+            log.error("Failed to set LOB!", e);
+            FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
+        }
+    }
+    
+    public void setVersionComment(String versionComment) {
+        try {
+            repositoryTreeState.getSelectedNode().getData().setVersionComment(versionComment);
         } catch (PropertyException e) {
             log.error("Failed to set LOB!", e);
             FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
@@ -1232,5 +1250,4 @@ public class RepositoryTreeController {
     private void resetStudioModel() {
         studio.reset(ReloadType.FORCED);
     }
-
 }
