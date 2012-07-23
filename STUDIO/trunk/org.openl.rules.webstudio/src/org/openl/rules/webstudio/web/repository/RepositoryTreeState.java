@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY;
-import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE;
-import static org.openl.rules.security.Privileges.PRIVILEGE_READ;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_READ_PROJECTS;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -360,12 +360,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             return false;
         }
 
-        return isGranted(PRIVILEGE_EDIT);
+        return isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean getCanSave() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isOpenedForEditing() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT);
+        return selectedProject.isOpenedForEditing() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean getCanClose() {
@@ -379,11 +379,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE_PROJECTS);
     }
 
     public boolean getCanErase() {
-        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE);
+        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE_PROJECTS);
     }
 
     public boolean getCanExport() {
@@ -396,14 +396,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             return false;
         }
 
-        return isGranted(PRIVILEGE_READ);
+        return isGranted(PRIVILEGE_READ_PROJECTS);
     }
 
     public boolean getCanCompare() {
         if (getSelectedProject().isLocalOnly()) {
             return false;
         }
-        return isGranted(PRIVILEGE_READ);
+        return isGranted(PRIVILEGE_READ_PROJECTS);
     }
 
     public boolean getCanRedeploy() {
@@ -412,11 +412,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             return false;
         }
 
-        return isGranted(PRIVILEGE_DEPLOY);
+        return isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
 
     public boolean getCanUndelete() {
-        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT);
+        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
 
@@ -426,12 +426,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         String projectName = selectedArtefact.getProject().getName();
         String projectId = String.valueOf(projectName.hashCode());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
-        return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT));
+        return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS));
     }
 
     //for deployment project
     public boolean getCanDeploy() {
-        return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY);
+        return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
 
 }

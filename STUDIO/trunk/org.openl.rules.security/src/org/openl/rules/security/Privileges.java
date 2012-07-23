@@ -1,24 +1,38 @@
 package org.openl.rules.security;
 
+import org.springframework.security.core.GrantedAuthority;
+
 /**
- * Constants for all Roles.
- *
+ * Constants for all Privileges.
+ * 
  * @author Aleh Bykhavets
+ * @author NSamatov
  */
-public class Privileges {
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+public enum Privileges implements GrantedAuthority {
+    PRIVILEGE_VIEW_PROJECTS,
+    PRIVILEGE_READ_PROJECTS,
+    PRIVILEGE_CREATE_PROJECTS,
+    PRIVILEGE_EDIT_PROJECTS,
+    PRIVILEGE_ERASE_PROJECTS,
+    PRIVILEGE_DELETE_PROJECTS,
 
-    public static final String PRIVILEGE_DEPLOY = "DEPLOY_DEPLOYMENT_PROJECTS";
-    public static final String PRIVILEGE_EDIT = "EDIT_PROJECTS";
-    public static final String PRIVILEGE_VIEW = "VIEW_PROJECTS";
-    public static final String PRIVILEGE_READ = "READ_PROJECTS";
-    public static final String PRIVILEGE_ERASE = "ERASE_PROJECTS";
-    public static final String PRIVILEGE_DELETE = "DELETE_PROJECTS";
-    public static final String PRIVILEGE_CREATE_EMPTY = "CREATE_EMPTY_PROJECTS";
-    public static final String PRIVILEGE_CREATE = "CREATE_PROJECTS";
+    PRIVILEGE_DEPLOY_PROJECTS,
 
-    public static final String PRIVILEGE_EDIT_DEPLOYMENT = "EDIT_DEPLOYMENT_PROJECTS";
-    public static final String PRIVILEGE_CREATE_DEPLOYMENT = "CREATE_DEPLOYMENT_PROJECTS";
-    public static final String PRIVILEGE_DELETE_DEPLOYMENT = "DELETE_DEPLOYMENT_PROJECTS";
-    public static final String PRIVILEGE_ERASE_DEPLOYMENT = "ERASE_DEPLOYMENT_PROJECTS";
+    PRIVILEGE_EDIT_DEPLOYMENT,
+    PRIVILEGE_CREATE_DEPLOYMENT,
+    PRIVILEGE_DELETE_DEPLOYMENT,
+    PRIVILEGE_ERASE_DEPLOYMENT,
+
+    PRIVILEGE_CREATE_TABLES,
+    PRIVILEGE_EDIT_TABLES,
+    PRIVILEGE_REMOVE_TABLES,
+
+    PRIVILEGE_RUN,
+    PRIVILEGE_TRACE,
+    PRIVILEGE_BENCHMARK;
+
+    @Override
+    public String getAuthority() {
+        return toString();
+    }
 }

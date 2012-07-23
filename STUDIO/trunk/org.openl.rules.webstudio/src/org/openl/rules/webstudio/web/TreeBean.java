@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.PRIVILEGE_RUN;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +47,10 @@ public class TreeBean {
             }
         }
         return views;
+    }
+
+    public boolean getCanRun() {
+        return isGranted(PRIVILEGE_RUN);
     }
 
     public boolean isProjectHasTests() {

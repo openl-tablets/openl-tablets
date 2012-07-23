@@ -1,15 +1,21 @@
 package org.openl.commons.web.jsf.facelets.acegi;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.openl.commons.web.jsf.FacesUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.lang.reflect.InvocationTargetException;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * As part of the EL Specification, you can incorporate static Java methods into
@@ -72,5 +78,29 @@ public class AcegiFunctions {
         }
 
         return "";
+    }
+
+    /**
+     * Returns true if current user has access to a given URI
+     * (look for FilterSecurityInterceptor configuration)
+     * 
+     * @param uri URI that will be checked
+     * @return true if current user has access to a given URI
+     */
+    public static boolean hasAccessTo(String uri) {
+        return getPrivilegeEvaluator().isAllowed(uri, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
+        ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext((ServletContext) FacesUtils.getExternalContext().getContext());
+        Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
+
+        if (wipes.size() == 0) {
+            throw new IllegalStateException(
+                    "No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
+                            + "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
+        }
+
+        return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
     }
 }

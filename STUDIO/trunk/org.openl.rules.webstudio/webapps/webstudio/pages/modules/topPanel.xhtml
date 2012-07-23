@@ -53,21 +53,21 @@
                             style="background:url('webresource/images/refresh.png')" />
 
                         <h:commandLink action="#{mainBean.saveProject}" title="Save &amp; Close Project"
-                            rendered="#{!empty rProject and rProject.openedForEditing}" styleClass="imageButton"
+                            rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}" styleClass="imageButton"
                             style="background:url('webresource/images/repository/checkin.gif')" />
                         <h:commandLink action="#{mainBean.editProject}" title="Edit Project"
-                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked}"
+                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.editable}"
                             styleClass="imageButton"
                             style="background:url('webresource/images/repository/checkout.gif')" />
                     </a4j:ajax>
 
                     <h:outputLink value="#test/runAllTests.xhtml"
-                        title="Run All Tests" rendered="#{!empty rProject and treeBean.projectHasTests}"
+                        title="Run All Tests" rendered="#{!empty rProject and treeBean.projectHasTests and treeBean.canRun}"
                         styleClass="imageButton" style="background:url('webresource/images/test_ok.gif')" />
 
                     <span style="margin-left: 17px;" />
 
-                    <h:outputLink rendered="#{studio.model.editable}" value="#create/index.xhtml"
+                    <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
                         title="Create new table" styleClass="button-primary">Create New</h:outputLink>
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
