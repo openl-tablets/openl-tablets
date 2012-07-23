@@ -29,6 +29,8 @@
           <h:outputLabel for="minor" styleClass="required" value="Minor Version" />
           <rich:inputNumberSpinner id="minor" minValue="0" maxValue="32000" value="#{repositoryTreeController.minor}" inputSize="4" cycled="false"
                    onchange="saveDlgAdjustNextVersion()"/>
+          <h:outputText value="Comment" />
+          <h:inputTextarea value="#{repositoryTreeController.versionComment}" type="text" size="35" readonly="false" title="#{repositoryTreeController.versionComment}"/>
         </h:panelGrid>
 
         <script>
