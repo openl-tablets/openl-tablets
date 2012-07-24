@@ -96,9 +96,19 @@ public class AcegiFunctions {
         Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
         if (wipes.size() == 0) {
-            throw new IllegalStateException(
-                    "No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
-                            + "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
+            return new WebInvocationPrivilegeEvaluator() {
+
+                @Override
+                public boolean isAllowed(String arg0, Authentication arg1) {
+                    return true;
+                }
+
+                @Override
+                public boolean isAllowed(String arg0, String arg1, String arg2, Authentication arg3) {
+                    return true;
+                }
+                
+            };
         }
 
         return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
