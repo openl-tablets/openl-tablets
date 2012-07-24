@@ -27,7 +27,6 @@ public class SystemSettingsBean {
     private static final String DATE_PATTERN = "data.format.date";
 
     private static final String AUTO_LOGIN = "security.login.auto";
-    private static final String HIDE_LOGOUT = "security.logout.hidden";
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
@@ -95,14 +94,6 @@ public class SystemSettingsBean {
 
     public void setAutoLogin(boolean autoLogin) {
         configManager.setProperty(AUTO_LOGIN, autoLogin);
-    }
-
-    public boolean isHideLogout() {
-        return configManager.getBooleanProperty(HIDE_LOGOUT);
-    }
-
-    public void setHideLogout(boolean hideLogout) {
-        configManager.setProperty(HIDE_LOGOUT, hideLogout);
     }
 
     public String getProjectHistoryHome() {
