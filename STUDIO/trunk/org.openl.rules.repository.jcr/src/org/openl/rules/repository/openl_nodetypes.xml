@@ -48,6 +48,7 @@
         <propertyDefinition name="effectiveDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="expirationDate" requiredType="Date" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         <propertyDefinition name="LOB" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
+        <propertyDefinition name="versionComment" requiredType="String" autoCreated="false" mandatory="false" onParentVersion="COPY" protected="false" multiple="false"/>
         
         <!-- Custom properties:    
         		* 5 String attributes (names attribute1, .., attribute5)

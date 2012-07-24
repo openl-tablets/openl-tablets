@@ -107,8 +107,8 @@
               <rich:tooltip showDelay="500">#{editMessage}</rich:tooltip>
           </h:commandButton>
         </h:panelGrid>
-
-        <h:commandButton rendered="#{repositoryTreeState.canSave}" value="Save" onclick="openSaveDialog();return false;">
+        
+        <h:commandButton rendered="#{repositoryTreeState.canSaveProject}" value="Save" onclick="openSaveDialog();return false;">
             <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
         </h:commandButton>
         

@@ -365,7 +365,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanSave() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isOpenedForEditing() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT_PROJECTS);
+        return selectedProject.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS);
+    }
+    
+    public boolean getCanSaveProject() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        return selectedProject.isModified() && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean getCanClose() {
