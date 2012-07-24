@@ -140,9 +140,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         Method interfaceMethod = MethodUtils.getMatchingAccessibleMethod(serviceClass, calledMethod.getName(),
                 calledMethod.getParameterTypes());
         Object result = null;
-        // boolean isWrappedException = true;
         try {
-            beforeInvocation(interfaceMethod, args);
             Method beanMethod = MethodUtils.getMatchingAccessibleMethod(serviceBean.getClass(), calledMethod.getName(),
                     calledMethod.getParameterTypes());
             if (beanMethod == null) {
@@ -160,20 +158,16 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         "Called method not found in service bean. Please, check that excel file contains method with name \""
                                 + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
             }
+            beforeInvocation(interfaceMethod, args);
             try {
                 result = beanMethod.invoke(serviceBean, args);
                 result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Exception e) {
                 result = afterInvocation(interfaceMethod, null, e, args);
-                // isWrappedException = false;
             }
             return result;
         } catch (Throwable t) {
-            // if (isWrappedException) {
             throw new RuleServiceWrapperException(getExceptionMessage(calledMethod, t, args), t);
-            // } else {
-            // throw t;
-            // }
         }
     }
 

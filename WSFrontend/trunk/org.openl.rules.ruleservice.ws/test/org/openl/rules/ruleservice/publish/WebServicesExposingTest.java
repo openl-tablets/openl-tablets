@@ -89,7 +89,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                 break;
             }
         }
-        assertEquals(2, applicationContext.getBean(RuleServicePublisher.class).getServices()
+        assertEquals(2, applicationContext.getBean(WebServicesRuleServicePublisher.class).getServices()
                 .size());
         assertNotSame(multimoduleService, serviceManager.getRuleService().getServiceByName("multimodule"));
         // uncomment after the smart redeployment will be implemented
