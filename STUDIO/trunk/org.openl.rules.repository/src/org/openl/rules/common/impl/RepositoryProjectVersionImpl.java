@@ -5,6 +5,7 @@ import java.util.StringTokenizer;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
+import org.openl.rules.repository.RVersion;
 
 
 public class RepositoryProjectVersionImpl implements ProjectVersion {
@@ -16,7 +17,8 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private int revision;
     private transient String versionName;
     private VersionInfo versionInfo;
-    
+    private String versionComment;
+
     public RepositoryProjectVersionImpl(String version){
         StringTokenizer tokenizer = new StringTokenizer(version, DELIMETER);
         major = Integer.valueOf(tokenizer.nextToken());
@@ -36,6 +38,14 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.minor = minor;
         this.revision = revision;
         this.versionInfo = versionInfo;
+    }
+
+    public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment) {
+        major = version.getMajor();
+        minor = version.getMinor();
+        revision = version.getRevision();
+        this.versionInfo = versionInfo;
+        this.versionComment = versionComment;
     }
 
     public int compareTo(CommonVersion o) {
@@ -89,5 +99,13 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         result = 31 * result + minor;
         result = 31 * result + revision;
         return result;
+    }
+    
+    public String getVersionComment() {
+        if (versionComment != null) {
+            return versionComment;
+        } else {
+            return "";
+        }
     }
 }

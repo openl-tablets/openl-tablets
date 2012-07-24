@@ -27,7 +27,7 @@
     <h:outputLabel for="#{prefix}lineOfBusiness" value="Line of business" />
     <h:inputText id="#{prefix}lineOfBusiness" maxlength="100" size="20" value="#{repositoryTreeController.lineOfBusiness}" rendered="#{artefact.project.openedForEditing}"/>
     <h:outputText value="#{repositoryTreeController.lineOfBusiness}" rendered="#{!artefact.project.openedForEditing}"/>
-    
+
     <h:outputLabel for="#{prefix}attribute1" value="#{repositoryTreeController.propUINames['attribute1']}"
         rendered="#{not empty repositoryTreeController.propUINames['attribute1']}" />
     <h:panelGroup rendered="#{not empty repositoryTreeController.propUINames['attribute1']}">

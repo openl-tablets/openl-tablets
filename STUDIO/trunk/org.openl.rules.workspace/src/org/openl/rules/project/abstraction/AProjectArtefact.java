@@ -231,4 +231,16 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     public boolean isModified(){
         return impl.isModified();
     }
+
+    public void setVersionComment(String versionComment) throws PropertyException {
+        addProperty(new PropertyImpl(ArtefactProperties.VERSION_COMMENT, versionComment));
+    }
+    
+    public String getVersionComment() {
+        try {
+            return getProperty(ArtefactProperties.VERSION_COMMENT).getString();
+        } catch (PropertyException e) {
+            return null;
+        }
+    }
 }

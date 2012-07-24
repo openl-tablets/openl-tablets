@@ -36,4 +36,5 @@ public interface ArtefactProperties {
     String DEPENDENCIES_FILE = "openl_repository_dependencies.xml";
     // Deployment Descriptor
     String DESCRIPTORS_FILE = "openl_repository_descriptors.xml";
+    String VERSION_COMMENT = "versionComment";
 }
