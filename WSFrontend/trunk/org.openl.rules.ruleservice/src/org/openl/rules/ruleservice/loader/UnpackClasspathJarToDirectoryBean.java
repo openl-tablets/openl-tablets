@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -94,15 +96,16 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 continue;
             }
             InputStream is = jar.getInputStream(file);
+            InputStream bufferedInputStream = new BufferedInputStream(is);
 
             FileOutputStream fos = new FileOutputStream(f);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
             while (is.available() > 0) {
-                fos.write(is.read());
+                bos.write(bufferedInputStream.read());
             }
-            fos.close();
-            is.close();
+            bos.close();
+            bufferedInputStream.close();
         }
-
     }
 
     private static boolean checkOrCreateFolder(File location) {

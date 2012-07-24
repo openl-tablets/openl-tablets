@@ -22,7 +22,7 @@ public class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
 			fail("Cannot find Decision table");
 		} else {
 			// https://jira.exigenservices.com/browse/EPBDS-3104, after fix should be DT
-			assertEquals(XlsNodeTypes.XLS_OTHER, XlsNodeTypes.getEnumByValue(tsn.getType()));
+			assertEquals(XlsNodeTypes.XLS_DT, XlsNodeTypes.getEnumByValue(tsn.getType()));
 			
 			// test that it invokes successfully, means that it was compiled succesfully
 			//
