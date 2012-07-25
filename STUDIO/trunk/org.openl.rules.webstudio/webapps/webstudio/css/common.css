@@ -307,25 +307,21 @@ fieldset {
 }
 
 .tab-panel-vertical .data-container {
-    padding: 1px 0 0 100px;
+    padding: 16px 25px 15px 125px;
 }
 
-.fields-block {
-    padding: 15px 25px;
-}
-
-.fields-section {
+.fields section {
     margin-bottom: 31px;
 }
 
-.fields-section > h3 {
+.fields section > h3 {
     color: #ee8811;
     font: normal 110% Verdana;
     margin: 5px 0;
     padding-bottom: 3px;
 }
 
-.fields-section > div {
+.fields section > div {
     margin-left: 11px;
     color: rgb(71,71,71);
 }
