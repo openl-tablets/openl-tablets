@@ -132,9 +132,6 @@ public class RulesProject extends UserWorkspaceProject {
         return getAPI() == local;
     }
 
-    
-    
-    
     public void openVersion(CommonVersion version) throws ProjectException {
         FolderAPI openedProject = repository.getVersion(version);
         File source;

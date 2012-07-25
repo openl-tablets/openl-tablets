@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
 import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -23,7 +24,9 @@ import org.openl.rules.workspace.WorkspaceUser;
 public class ADeploymentProject extends UserWorkspaceProject {
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
-
+    /* this button is used for rendering the save button (only for deployment configuration)*/
+    private boolean modifiedDescriptors = false;
+    
     public ADeploymentProject(FolderAPI api, WorkspaceUser user) {
         super(api, user);
     }
@@ -64,6 +67,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     
     
     public void openVersion(CommonVersion version) throws ProjectException {
+        modifiedDescriptors = false;
         FolderAPI openedProjectVersion = getAPI().getVersion(version);
         openedVersion = new ADeploymentProject(openedProjectVersion, getUser());
         refresh();
@@ -71,6 +75,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void close(CommonUser user) throws ProjectException {
+        modifiedDescriptors = false;
         super.close(user);
         openedVersion = null;
         refresh();
@@ -90,6 +95,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public void edit(CommonUser user) throws ProjectException {
+        modifiedDescriptors = false;
         super.edit(user);
         open();
     }
@@ -117,6 +123,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 e.printStackTrace();
             }
         }
+        
+        modifiedDescriptors = false;
         super.save(user, major, minor);
         open();
     }
@@ -129,6 +137,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 break;
             }
         }
+        
+        modifiedDescriptors = true;
     }
 
     public Collection<ProjectDescriptor> getProjectDescriptors() {
@@ -138,6 +148,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
         getDescriptors().clear();
         getDescriptors().addAll(projectDescriptors);
+        
+        modifiedDescriptors = true;
     }
 
     @Override
@@ -173,5 +185,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     public boolean getCanDeploy() {
         return !isOpenedForEditing();
+    }
+    
+    public boolean isModifiedDescriptors() {
+        return modifiedDescriptors;
     }
 }

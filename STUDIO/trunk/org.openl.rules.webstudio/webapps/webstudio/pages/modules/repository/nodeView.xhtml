@@ -210,7 +210,7 @@
           <rich:tooltip showDelay="500">Make project available for editing and lock it from editing by other users</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton rendered="#{repositoryTreeState.canSave}" value="Save" action="#{deploymentController.save}">
+      <h:commandButton rendered="#{repositoryTreeState.canSaveDeployment}" value="Save" action="#{deploymentController.save}">
           <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
       </h:commandButton>
 
