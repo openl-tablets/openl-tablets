@@ -11,8 +11,8 @@
     <script src="#{contextPath}/javascript/jquery.easytabs.min.js"></script>
 
     <style>
-        .fields-section div table tr { margin-bottom: 20px; }
-        .fields-section div .titleColumn { width: 153px; padding: 5px 0; }
+        .fields section div table tr { margin-bottom: 20px; }
+        .fields section div .titleColumn { width: 153px; padding: 5px 0; }
 
         .restartMessage { position: absolute; top: 7px; right: 33px; -moz-animation: restartMessage_anm 0.6s; -webkit-animation: restartMessage_anm 1.3s; }
         @-moz-keyframes restartMessage_anm {
@@ -79,8 +79,8 @@
         </ul>
         <div class="data-container">
             <div id="common">
-                <h:panelGroup id="commonProps" styleClass="fields-block" layout="block">
-                    <div class="fields-section">
+                <h:panelGroup id="commonProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>User Workspace</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -92,8 +92,8 @@
                                     disabled="#{jsffn:isSystemProp('workspace.local.home')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
-                    <div class="fields-section">
+                    </section>
+                    <section>
                         <h3>History</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -102,8 +102,8 @@
                                     disabled="#{jsffn:isSystemProp('project.history.home')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
-                    <div class="fields-section">
+                    </section>
+                    <section>
                         <h3>Other</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -112,12 +112,12 @@
                                     disabled="#{jsffn:isSystemProp('data.format.date')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
             <div id="security">
-                <h:panelGroup id="securityProps" styleClass="fields-block" layout="block">
-                    <div class="fields-section">
+                <h:panelGroup id="securityProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>Security</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -126,12 +126,12 @@
                                     disabled="#{jsffn:isSystemProp('security.login.auto')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
             <div id="repository">
-                <h:panelGroup id="repositoryProps" styleClass="fields-block" layout="block">
-                    <div class="fields-section">
+                <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>Design Repository</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -151,8 +151,8 @@
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                             </h:panelGrid>
                         </div>
-                    </div>
-                    <div class="fields-section">
+                    </section>
+                    <section>
                         <h3>Production Repository</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -172,12 +172,12 @@
                                     disabled="#{systemSettingsBean.productionRepositoryPathSystem}" />
                             </h:panelGrid>
                         </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
             <div id="system">
-                <h:panelGroup id="javaProps" styleClass="fields-block" layout="block">
-                    <div class="fields-section">
+                <h:panelGroup id="javaProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>System</h3>
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -190,7 +190,7 @@
                                     </h:selectOneMenu>
                                 </h:panelGrid>
                             </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
         </div>
