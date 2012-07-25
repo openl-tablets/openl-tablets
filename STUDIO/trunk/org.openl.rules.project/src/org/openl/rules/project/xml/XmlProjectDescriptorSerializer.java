@@ -5,13 +5,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.model.Configuration;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.Property;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class XmlProjectDescriptorSerializer implements
@@ -19,7 +23,6 @@ public class XmlProjectDescriptorSerializer implements
 
 	private static final String PROJECT_DESCRIPTOR_TAG = "project";
 	private static final String MODULE_TAG = "module";
-	private static final String CONFIGURATION_TAG = "configuration";
 	private static final String PATH_TAG = "entry";
 	private static final String PROPERTY_TAG = "property";
 
@@ -34,7 +37,7 @@ public class XmlProjectDescriptorSerializer implements
 		xstream.aliasType(PROJECT_DESCRIPTOR_TAG, ProjectDescriptor.class);
 		xstream.aliasType(MODULE_TAG, Module.class);
 		xstream.aliasType(PATH_TAG, PathEntry.class);
-		xstream.aliasType(CONFIGURATION_TAG, Configuration.class);
+		// xstream.aliasType(CONFIGURATION_TAG, Configuration.class);
 		xstream.aliasType(PROPERTY_TAG, Property.class);
 		xstream.addDefaultImplementation(ArrayList.class, Collection.class);
 
