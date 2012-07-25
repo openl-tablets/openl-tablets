@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich"
     template="/pages/layout/adminLayout.xhtml">
 
     <ui:define name="content">
-        <h:panelGroup layout="block">
-            <div>
-                <div class="view_header">
-                    <span>System Settings</span>
-                </div>
-                <div>
-                    <div>
-                        <ui:include src="/pages/modules/administration/systemSettings.xhtml" />
-                    </div>
-                </div>
-            </div>
-        </h:panelGroup>
+        <style>
+            #header {
+                height: 31px !important;
+                border-bottom: 1px solid #f3f3f3;
+            }
+            .simpleView_workspace {
+                top: 50px;
+            }
+            .rf-tab-lbl {
+                font-size: 110% !important;
+                color: #333;
+                font-family: Verdana;
+            }
+        </style>
+        <div>
+            <rich:tabPanel switchType="client">
+                <rich:tab header="System Settings">
+                    <ui:include src="/pages/modules/administration/systemSettings.xhtml" />
+                </rich:tab>
+                <rich:tab header="User Management">
+                    <ui:include src="/pages/modules/administration/users.xhtml" />
+                </rich:tab>
+            </rich:tabPanel>
+        </div>
     </ui:define>
 
 </ui:composition>
