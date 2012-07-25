@@ -114,7 +114,7 @@ public class DeploymentController {
     public String deleteItem() {
         String projectName = FacesUtils.getRequestParameter("key");
         ADeploymentProject project = getSelectedProject();
-
+        
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
@@ -285,5 +285,9 @@ public class DeploymentController {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+    
+    public boolean isModified() {
+        return getSelectedProject().isModifiedDescriptors();
     }
 }
