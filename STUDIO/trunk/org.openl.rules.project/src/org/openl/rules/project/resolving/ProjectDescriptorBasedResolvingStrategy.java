@@ -14,7 +14,6 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
     public final static String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
 
     public boolean isRulesProject(File folder) {
-
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         if (descriptorFile.exists()) {
             log.debug(String.format(
@@ -28,10 +27,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
     }
 
     public ProjectDescriptor resolveProject(File folder) {
-
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
-
         try {
             return descriptorManager.readDescriptor(descriptorFile);
         } catch (Exception ex) {

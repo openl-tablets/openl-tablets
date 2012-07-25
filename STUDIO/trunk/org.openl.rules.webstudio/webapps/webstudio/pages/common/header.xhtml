@@ -43,16 +43,14 @@
             <span id="userName" title="Current user" style="margin: 0 1px 0 9px">
                 <authz:authentication operation="username" />
             </span>
-            <c:if test="#{not systemConfig['security.logout.hidden']}">
             <a href="#{contextPath}/security_logout" title="Logout"
                 onclick="return confirm('Are you sure you want to logout?')">Logout</a>
-            </c:if>
         </div>
 
         <div id="ll" style="position: absolute; top: 8px; right: 255px;">
             <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a><a
                 href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : ''}">Repository</a>
-            
+
             <c:set var="adminUrl" value="/faces/pages/modules/administration/index.xhtml" />
             <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
                 <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>

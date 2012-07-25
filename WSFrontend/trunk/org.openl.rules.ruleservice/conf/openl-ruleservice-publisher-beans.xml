@@ -11,8 +11,11 @@
 
 	<!-- Initializes OpenL Engine instances according to web services configuration 
 		description and calls DeploymentAdmin to expose corresponding web service. -->
-	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
+	<bean id="javaClassRuleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
 		<property name="frontend" ref="frontend"/>
 	</bean>
 	
+	<bean id="ruleServicePublisher" class="org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher">
+		<property name="defaultRuleServicePublisher" ref="javaClassRuleServicePublisher"/>
+	</bean>
 </beans>
