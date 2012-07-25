@@ -20,9 +20,12 @@ public class ProjectDescriptor {
 	private List<Module> modules;
 	private List<PathEntry> classpath;
 	private ClassLoader classLoader;
-	private Configuration configuration = new Configuration();
+	private Configuration configuration;
 
 	public Configuration getConfiguration() {
+		if (configuration == null) {
+			this.configuration = new Configuration();
+		}
 		return configuration;
 	}
 
