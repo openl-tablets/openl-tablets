@@ -12,20 +12,6 @@
     <c:set var="wizard" value="#{tableCopierWizardManager.wizard}" />
     <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
-    <style>
-        .section h3 {
-            margin: 30px 0 15px;
-            font-size: 110%;
-            font-weight: bold;
-            border-bottom: 1px solid #EBCF89;
-            color: #EC9D0F;
-            padding-bottom: 3px;
-        }
-        .section > div {
-            margin-left: 10px;
-        }
-    </style>
-
     <div class="view_header">Copy Table</div>
     <div class="content" style="padding: 13px 9px">
     <h:form>
@@ -43,8 +29,8 @@
         </h:selectOneMenu>
     </h:form>
 
-    <h:form id="copyTableForm" prependId="false">
-        <div class="section">
+    <h:form id="copyTableForm" prependId="false" style="margin-top: 31px">
+        <div class="fields-section">
             <h3>Name and Properties</h3>
             <div>
                 <h:panelGroup id="technicalNamePanel">
@@ -108,7 +94,7 @@
             </div>
         </div>
 
-        <div class="section">
+        <div class="fields-section">
             <h3>Save To</h3>
             <div>
                 <span style="cursor: pointer; border-bottom: 1px dashed #777777"
