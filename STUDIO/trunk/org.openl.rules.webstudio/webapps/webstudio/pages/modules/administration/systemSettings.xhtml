@@ -145,9 +145,6 @@
                                 <h:outputText value="Auto Login:" />
                                 <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}"
                                     disabled="#{jsffn:isSystemProp('security.login.auto')}" />
-                                <h:outputText value="Hide Logout link:" />
-                                <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}"
-                                    disabled="#{jsffn:isSystemProp('security.logout.hidden')}" />
                             </h:panelGrid>
                         </div>
                     </div>
