@@ -5,14 +5,14 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalUploadProject" width="500" autosized="true">
+  <rich:popupPanel id="modalImportProject" width="500" autosized="true">
     <f:facet name="header">
-      <h:outputText value="Upload Project" />
+      <h:outputText value="Import Project" />
     </f:facet>
 
     <f:facet name="controls">
       <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
-        onclick=" RichFaces.$('modalUploadProject').hide();" alt="Close" />
+        onclick=" RichFaces.$('modalImportProject').hide();" alt="Close" />
     </f:facet>
 
     <rich:tabPanel switchType="client">
@@ -31,8 +31,8 @@
             <hr/>
 
             <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-                <h:commandButton id="sbt" value="Upload" action="#{repositoryTreeController.upload}" />
-                <input type="button" value="Cancel" onclick="RichFaces.$('modalUploadProject').hide();" />
+                <h:commandButton id="sbt" value="Import" action="#{repositoryTreeController.upload}" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalImportProject').hide();" />
             </h:panelGrid>
             </h:form>        
         </rich:tab>
@@ -72,8 +72,8 @@
                 <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                     <h:commandButton action="#{localUpload.upload}"
                         rendered="#{not empty localUpload.projects4Upload}"
-                        process="@form" value="Upload" />
-                    <input type="button" value="Cancel" onclick="RichFaces.$('modalUploadProject').hide();" />
+                        process="@form" value="Import" />
+                    <input type="button" value="Cancel" onclick="RichFaces.$('modalImportProject').hide();" />
                 </h:panelGrid>
             </h:form>   
         </rich:tab>
@@ -82,10 +82,10 @@
   </rich:popupPanel>
 
   <script>
-    function openUploadProjectDialog() {
-      RichFaces.$("modalUploadProject").show();
+    function openImportProjectDialog() {
+      RichFaces.$("modalImportProject").show();
     }
-    
+
     function changeStatus(element){
         $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
     }
