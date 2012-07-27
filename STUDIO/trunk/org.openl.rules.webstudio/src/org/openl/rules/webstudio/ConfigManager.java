@@ -34,6 +34,8 @@ public class ConfigManager {
     private FileConfiguration configurationToSave;
     private FileConfiguration defaultConfiguration;
     private CompositeConfiguration compositeConfiguration;
+    
+    private static final String PROP_WEBSTUDIO_HOME = "webstudio.home";
 
     public ConfigManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation) {
@@ -42,8 +44,11 @@ public class ConfigManager {
 
     public ConfigManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation, boolean autoSave) {
+        String webstudioHome = System.getProperty(PROP_WEBSTUDIO_HOME);
+        
         this.useSystemProperties = useSystemProperties;
-        this.propsLocation = propsLocation;
+        //Add the web studio home part to the props location
+        this.propsLocation = webstudioHome+propsLocation;
         this.defaultPropsLocation = defaultPropsLocation;
         this.autoSave = autoSave;
 
