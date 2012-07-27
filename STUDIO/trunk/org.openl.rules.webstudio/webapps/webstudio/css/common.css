@@ -251,6 +251,81 @@ fieldset {
     background: #f54;
 }
 
+.tab-panel-vertical {
+    border: 1px solid #ddd;
+    border-width: 1px 1px 1px 0;
+    height: 350px;
+    margin: 13px 24px 13px 3px;
+}
+
+.tab-panel-vertical ul {
+    height: 350px;
+    list-style: none;
+    margin: 0; padding: 0;
+    background: #f5f5f5;
+    float: left;
+    border-right: 1px solid #ddd;
+}
+
+.tab-panel-vertical ul li {
+    width: 100px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.tab-panel-vertical ul li:hover {
+     opacity: 1;
+}
+
+.tab-panel-vertical ul li.selected-tab {
+    font-weight: bold;
+    position: relative;
+    left: 1px;
+    border: 1px solid #ddd;
+    border-left: 0;
+    border-right: 0;
+    background: #fff;
+    opacity: 1;
+}
+
+.tab-panel-vertical ul li:first-child.selected-tab {
+    border-top: 0;
+}
+
+.tab-panel-vertical ul li a {
+    display: block;
+    padding: 15px 5px;
+    outline: none;
+    text-decoration: none;
+    color: #222;
+}
+
+.tab-panel-vertical ul li a span {
+    display: block;
+}
+
+.tab-panel-vertical .data-container {
+    padding: 16px 25px 15px 125px;
+}
+
+.fields section {
+    margin-bottom: 31px;
+}
+
+.fields section > h3 {
+    color: #ee8811;
+    font: normal 110% Verdana;
+    margin: 5px 0;
+    padding-bottom: 3px;
+}
+
+.fields section > div {
+    margin-left: 11px;
+    color: rgb(71,71,71);
+}
+
 .code {
     font-family: Courier New, monospace;
     font-size: 110%;
@@ -483,7 +558,7 @@ form.standard table.buttonPanel {
     background: none !important;
     border-left: none !important;
     border-top: none !important;
-    border-right-color: #eeeeee !important;
+    border-right-color: #eee !important;
 }
 
 .rf-tab-hdr-act {
