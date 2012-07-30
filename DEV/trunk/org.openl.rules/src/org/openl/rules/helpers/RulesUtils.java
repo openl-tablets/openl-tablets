@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -977,6 +978,54 @@ public class RulesUtils {
 
     public static int year(Date d) {
         return DateTool.year(d);
+    }
+    
+    public static int dayOfWeek(Date d) {
+        return DateTool.dayOfWeek(d);
+    }
+    
+    public static int dayOfYear(Date d) {
+        return DateTool.dayOfYear(d);
+    }
+    
+    public static int weekOfYear(Date d) {
+        return DateTool.weekOfYear(d);
+    }
+    
+    public static int weekOfMonth(Date d) {
+        return DateTool.weekOfMonth(d);
+    }
+    
+    public static int second(Date d) {
+        return DateTool.second(d);
+    }
+
+    public static int millisecond(Date d) {
+        return DateTool.millisecond(d);
+    }
+    
+    public static int minute(Date d) {
+        return DateTool.minute(d);
+    }
+    
+    /**
+     * @param d Date
+     * @return hour from 0 to 12
+     */
+    public static int hour(Date d) {
+        return DateTool.hour(d);
+    }
+
+    /**
+     * @param d Date
+     * @return hour from 0 to 24
+     */
+    public static int hourOfDay(Date d) {
+        return DateTool.hourOfDay(d);
+    }
+    
+    public static String amPm(Date d) {
+        return DateTool.amPm(d);
     }
     
     // Math functions
