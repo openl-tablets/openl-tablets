@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets" >
 
-  <rich:popupPanel id="modalNewProject" width="400" autosized="true">
+  <rich:popupPanel id="modalNewProject" autosized="true">
     <f:facet name="header">
       <h:outputText value="New Project" />
     </f:facet>
@@ -15,24 +15,51 @@
           onclick="RichFaces.$('modalNewProject').hide();" alt="Close" />
     </f:facet>
 
-    <h:form id="newProjectForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-        <h:outputText styleClass="required" value="Project Name" />
-        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" />
-        <h:outputText styleClass="required" value="Project Template" />
-        <h:selectOneMenu value="#{repositoryTreeController.newProjectTemplate}" style="width: 196px;">
-            <f:selectItems value="#{repositoryTreeController.newProjectTemplates}" />
-        </h:selectOneMenu>
-      </h:panelGrid>
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+            <rich:tabPanel switchType="client">
+                <rich:tab header="Tempaletes">
+                    <h:form id="createProjectFormTempl">
+                    <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                        <h:outputText styleClass="required" value="Project Template" />
+                        <h:selectOneMenu value="#{repositoryTreeController.newProjectTemplate}" style="width: 196px;">
+                            <f:selectItems value="#{repositoryTreeController.newProjectTemplates}" />
+                        </h:selectOneMenu>
+                        <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
+                    </h:panelGrid>
 
-      <hr />
+                    <hr/>
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton id="sbt" value="Create"
-            action="#{repositoryTreeController.createNewRulesProject}" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
-      </h:panelGrid>
-    </h:form>
+                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+                        <h:commandButton id="sbtTempaletes" value="Create"
+                            action="#{repositoryTreeController.createNewRulesProject}" />
+                        <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+                    </h:panelGrid>
+                    </h:form>
+                </rich:tab>
+                <rich:tab header="Files">
+                    <h:form id="createProjectFormFiles">
+                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                            <h:outputLabel for="file" styleClass="required" value="File" />
+
+                            <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                                acceptedTypes="xls, xlsx, xlsm" />
+
+                            <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                            <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
+                        </h:panelGrid>
+
+                        <hr/>
+
+                        <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+                            <h:commandButton id="sbtFiles" value="Create"
+                                action="#{repositoryTreeController.createProjectWithFiles}" />
+                            <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+                        </h:panelGrid>
+                    </h:form>
+                </rich:tab>
+            </rich:tabPanel>
+         </h:panelGrid>
   </rich:popupPanel>
 
   <script>

@@ -347,6 +347,8 @@ public class RepositoryTreeController {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
+                
+                FacesUtils.addInfoMessage("Project was created successfully.");
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
             }
@@ -1120,6 +1122,48 @@ public class RepositoryTreeController {
         clearForm();
 
         return null;
+    }
+    
+    public String createProjectWithFiles() {        
+        String errorMessage = createProject();
+        if (errorMessage == null) {
+            try {
+                AProject createdProject = userWorkspace.getProject(projectName);
+                repositoryTreeState.addRulesProjectToTree(createdProject);
+                resetStudioModel();
+            } catch (ProjectException e) {
+                FacesUtils.addErrorMessage(e.getMessage());
+            }
+            FacesUtils.addInfoMessage("Project was created successfully.");
+        }
+
+        /*Clear the load form*/
+        clearForm();
+
+        return null;
+    }
+
+    private String createProject() {
+        String errorMessage = null;
+
+        if (StringUtils.isNotBlank(projectName)) {
+            if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
+                ProjectUploader projectUploader = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter);
+                errorMessage = projectUploader.uploadProject();                     
+            } else {
+                errorMessage = "There are no uploaded files.";
+            }
+        } else {
+            errorMessage = "Project name must not be empty.";
+        }
+
+        if (errorMessage == null) {
+            clearUploadedFiles();
+        } else {
+            FacesUtils.addErrorMessage(errorMessage);
+        }
+
+        return errorMessage;
     }
 
     private void clearForm() {
