@@ -8,7 +8,7 @@ public class DependencyModuleUrlStub {
     private DependencyModuleUrlStub(){};
     
     public static String getUrlForError(OpenLMessage message) {        
-        return "message.xhtml" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool.encodeURL(String.format("Dependency error: %s",
+        return "#message.xhtml" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + StringTool.encodeURL(String.format("Dependency error: %s",
             message.getSummary()));
     }
 }
