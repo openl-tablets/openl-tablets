@@ -11,6 +11,7 @@ import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -43,6 +44,10 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     public Object executeAction(int column, Object target, Object[] params, IRuntimeEnv env) {
+
+        if (target instanceof IDynamicObject) {
+            target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, column);
+        }
 
         if (isSingleReturnParam) {
 
@@ -91,8 +96,7 @@ public class Action extends FunctionalRow implements IAction {
             return null;
         }
         
-        RuleExecutionObject newTarget = new RuleExecutionObject(ruleExecutionType, target, ruleNum);
-        return getMethod().invoke(newTarget, mergeParams(newTarget, params, env, (Object[]) value), env);
+        return getMethod().invoke(target, mergeParams(target, params, env, (Object[]) value), env);
     }
 
     public void prepareAction(IOpenClass methodType,

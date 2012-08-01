@@ -23,8 +23,8 @@ public class RuleExecutionObject extends DelegatedDynamicObject {
     private int ruleNum; // the index of the current rule  that is being executed
 //    private IDynamicObject target;
 
-    public RuleExecutionObject(IOpenClass rulesType, Object target, int ruleNum) {
-        super(rulesType , (IDynamicObject)target);
+    public RuleExecutionObject(IOpenClass rulesType, IDynamicObject target, int ruleNum) {
+        super(rulesType , target);
 //        this.target = (IDynamicObject)target;
         this.ruleNum = ruleNum;
     }
