@@ -5,6 +5,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
+import org.openl.types.impl.DynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
 public class DataOpenField extends AOpenField {
@@ -53,7 +54,11 @@ public class DataOpenField extends AOpenField {
 
         if (data == null) {
             data = this.data;
-            ((IDynamicObject) target).setFieldValue(getName(), data);
+
+            //if target is spreadsheet result we mustn't set value to spreadsheet cell. Because this result isn't final value of a cell
+            if (target instanceof DynamicObject) {
+                ((IDynamicObject) target).setFieldValue(getName(), data);
+            }
         }
 
         return data;
