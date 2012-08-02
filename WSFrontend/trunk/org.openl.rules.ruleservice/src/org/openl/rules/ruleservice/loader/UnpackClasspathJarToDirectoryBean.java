@@ -78,7 +78,12 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         if (jarPath.lastIndexOf("!") == -1) {
             return null;
         }
-        return jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
+        String path = jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
+        
+        //Workaround for WebSphere 8.5
+        path = path.replaceAll("%20", " ");
+        
+        return path;
     }
 
     private static void unpack(File jarFile, String destDir) throws IOException {
@@ -100,7 +105,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
             FileOutputStream fos = new FileOutputStream(f);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
-            while (is.available() > 0) {
+            while (bufferedInputStream.available() > 0) {
                 bos.write(bufferedInputStream.read());
             }
             bos.close();
