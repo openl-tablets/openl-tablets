@@ -120,11 +120,13 @@ public class RecentlyVisitedTables {
             ITableProperties tableProps = table.getProperties();
             String dimension = "";
             
-            for (int i=0; i < dimensionProps.length; i++) {
-                String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
-                
-                if (propValue != null && !propValue.isEmpty()) {
-                    dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+            if (tableProps != null) {
+                for (int i=0; i < dimensionProps.length; i++) {
+                    String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
+                    
+                    if (propValue != null && !propValue.isEmpty()) {
+                        dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                    }
                 }
             }
             
