@@ -685,8 +685,8 @@ public class RepositoryTreeController {
 
     public String getProjectName() {
         // EPBDS-92 - clear newProject dialog every time
-        // return projectName;
-        return null;
+        //return null;
+        return projectName;
     }
 
     private ProjectVersion getProjectVersion() {
@@ -956,6 +956,9 @@ public class RepositoryTreeController {
         }
         
         this.setFileName(fileName);
+        
+        
+        this.setProjectName(fileName);
     }
 
     public void setFileName(String fileName) {
@@ -1168,6 +1171,7 @@ public class RepositoryTreeController {
 
     private void clearForm() {
         this.setFileName(null);
+        this.setProjectName(null);
     }
 
     private String uploadAndAddFile() {

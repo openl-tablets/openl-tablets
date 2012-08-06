@@ -22,10 +22,12 @@
                 <h:outputLabel for="file" styleClass="required" value="File" />
 
                 <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                    acceptedTypes="zip, xls, xlsx, xlsm" />
-
+                    acceptedTypes="zip" maxFilesQuantity="1" >
+                    <a4j:ajax event="uploadcomplete" execute="@none" render="projectName" />
+                </rich:fileUpload>
+                
                 <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-                <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
+                <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" disabled="true"/>
             </h:panelGrid>
 
             <hr/>
