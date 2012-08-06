@@ -40,7 +40,7 @@
         </rich:tab>
 
         <rich:tab header="Workspace">
-            <h:form id="uploadWorkspaceProjectForm">
+            <h:form id="uploadWorkspaceProjectForm" prependId="false">
                 <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
                     <rich:dataTable value="#{localUpload.projects4Upload}"
                         rendered="#{not empty localUpload.projects4Upload}"
@@ -58,7 +58,7 @@
                         </f:facet>
 
                         <rich:column style="text-align: center; width: 20px;">
-                            <h:selectBooleanCheckbox value="#{item.selected}" />
+                            <h:selectBooleanCheckbox value="#{item.selected}" onclick="changeAllProjectCheck(this)" />
                         </rich:column>
                         <rich:column>
                             <h:outputText value="#{item.projectName}" />
@@ -88,8 +88,23 @@
       RichFaces.$("modalImportProject").show();
     }
 
-    function changeStatus(element){
+    function changeStatus(element) {
         $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
+    }
+    
+    function changeAllProjectCheck(element) {
+        if($j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']:checked").val() == "on") {
+	        if( !element.checked ) {
+	            $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", element.checked);
+	        }
+        }
+        
+        checkedCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']:checked").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
+        allCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size()
+        
+        if (checkedCount == allCount) {
+            $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
+        }
     }
   </script>
 </ui:composition>
