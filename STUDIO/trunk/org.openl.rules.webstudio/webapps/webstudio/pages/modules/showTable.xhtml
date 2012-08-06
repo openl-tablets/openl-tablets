@@ -545,6 +545,13 @@
             if(!element.checked && $('allTestCheck').checked) {
                 $('allTestCheck').checked = false;
             }
+
+            checkedCount = $j("#unitsMenu INPUT[type='checkbox']:checked").not("INPUT[id='allTestCheck']").size();
+            allCount = $j("#unitsMenu INPUT[type='checkbox']").not("INPUT[id='allTestCheck']").size()
+
+            if (checkedCount == allCount) {
+                $('allTestCheck').checked = true;
+            }
         }
       //]]>
     </script>
