@@ -44,7 +44,13 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     protected Spreadsheet createSpreadsheet()
     {
-    		return new Spreadsheet(getHeader(), this, OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext().getExternalParams()));
+        /*
+         * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
+         * and the customspreadsheet property is true
+         * */
+        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext().getExternalParams());
+        
+        return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
     }		
     
     
