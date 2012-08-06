@@ -124,14 +124,26 @@ public class ProjectUploader {
         AProjectCreator projectCreator = null;
 
         if (!uploadedFiles.isEmpty()) {
-            projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
-                    uploadedFiles);
-        }        
+            if (FileTypeHelper.isZipFile(FilenameUtils.getName(getLastElement().getName()))) {
+                /*Create project creator for single zip file*/
+                String file = FilenameUtils.getName(getLastElement().getName());
+                File projectFile = FileTool.toTempFile(getLastElement().getInputStream(), file);
+                projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
+            } else {
+                projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
+                        uploadedFiles);
+            }
+
+        }
         return projectCreator;
     }
-    
-    private UploadedFile getFirstElement() {
-        return uploadedFiles.get(0);
+
+    private UploadedFile getLastElement() {
+        if (!uploadedFiles.isEmpty()) {
+            return uploadedFiles.get(uploadedFiles.size() - 1);
+        } else {
+            return null;
+        }
     }
 
 }
