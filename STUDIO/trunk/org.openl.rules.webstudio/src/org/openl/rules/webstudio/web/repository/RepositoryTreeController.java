@@ -957,8 +957,11 @@ public class RepositoryTreeController {
         
         this.setFileName(fileName);
         
-        
-        this.setProjectName(fileName);
+        if (fileName.indexOf(".") > -1) {
+            this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
+        } else {
+            this.setProjectName(fileName);
+        }
     }
 
     public void setFileName(String fileName) {
