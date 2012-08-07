@@ -23,7 +23,7 @@
         <rich:column>
           <h:outputText value="Created At" />
         </rich:column>
-        <rich:column>
+        <rich:column rendered="#{node.type == 'project'}">
           <h:outputText value="Comment" />
         </rich:column>
       </rich:columnGroup>
@@ -39,7 +39,7 @@
         	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
         </h:outputText>
       </rich:column>
-      <rich:column>
+      <rich:column rendered="#{node.type == 'project'}">
         <h:outputText value="#{version.versionComment}" />
       </rich:column>
   </rich:dataTable>
