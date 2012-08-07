@@ -948,14 +948,7 @@ public class RepositoryTreeController {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
         
-        String fileName = file.getName();
-        
-        /*If we use IE file name will be as full file path */
-        if (fileName.indexOf("\\") > -1) {
-            fileName = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length());
-        }
-        
-        this.setFileName(fileName);
+        this.setFileName(FilenameUtils.getName(file.getName()));
         
         if (fileName.indexOf(".") > -1) {
             this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
@@ -1175,6 +1168,7 @@ public class RepositoryTreeController {
     private void clearForm() {
         this.setFileName(null);
         this.setProjectName(null);
+        this.uploadedFiles.clear();
     }
 
     private String uploadAndAddFile() {

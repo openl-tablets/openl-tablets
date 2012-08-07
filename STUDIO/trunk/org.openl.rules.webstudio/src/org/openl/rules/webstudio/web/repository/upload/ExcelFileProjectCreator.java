@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository.upload;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.richfaces.model.UploadedFile;
@@ -31,7 +32,7 @@ public class ExcelFileProjectCreator extends AProjectCreator {
 
         if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
             for (UploadedFile file : uploadedFiles) {
-                projectBuilder.addFile(file.getName(), file.getInputStream());
+                projectBuilder.addFile(FilenameUtils.getName(file.getName()), file.getInputStream());
             }
         } else {
             projectBuilder.addFile(rulesSourceName, rulesSource);
