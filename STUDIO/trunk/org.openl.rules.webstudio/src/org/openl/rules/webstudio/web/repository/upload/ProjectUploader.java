@@ -98,7 +98,7 @@ public class ProjectUploader {
         if (userWorkspace.hasProject(projectName)) {
             problem = NAME_ALREADY_EXISTS;
         } else if (!NameChecker.checkName(projectName)) {
-            problem = INVALID_PROJECT_NAME;
+            problem = INVALID_PROJECT_NAME + " " + NameChecker.BAD_NAME_MSG;
         }
         return problem;
     }
