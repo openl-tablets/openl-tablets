@@ -63,11 +63,11 @@ public class ProjectUploader {
             } else {
                 errorMessage = "Can`t create project from given file.";
             }
-        } catch (ZipException e) {                    
+        } catch (ZipException e) {
             errorMessage = e.getMessage();
-        } catch (FileNotFoundException e) {                    
+        } catch (FileNotFoundException e) {
             errorMessage = e.getMessage();
-        } catch (IOException e) {                    
+        } catch (IOException e) {
             errorMessage = e.getMessage();
         }
         return errorMessage;
@@ -83,11 +83,11 @@ public class ProjectUploader {
             } else {
                 errorMessage = "Can`t create project from given file.";
             }
-        } catch (ZipException e) {                    
+        } catch (ZipException e) {
             errorMessage = e.getMessage();
-        } catch (FileNotFoundException e) {                    
+        } catch (FileNotFoundException e) {
             errorMessage = e.getMessage();
-        } catch (IOException e) {                    
+        } catch (IOException e) {
             errorMessage = e.getMessage();
         }
         return errorMessage;
