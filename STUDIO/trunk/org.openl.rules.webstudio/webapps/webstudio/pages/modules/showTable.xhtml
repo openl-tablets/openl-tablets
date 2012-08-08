@@ -146,14 +146,15 @@
                         <c:set var="runLink"
                             value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}?uri=#{showTableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none">
+                            <c:set var="columnSize" value="#{fn:length(showTableBean.tests[0].executionParams)}" />
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px">
                                 <tr>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeTestMethodStatus(this)" />
-                                    </td>
-                                    <td>
-                                    </td>
-                                    
+                                    <th>
+                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeTestMethodStatus(this)" title="Check/Uncheck All" />
+                                    </th>
+                                    <th colspan="#{columnSize}">
+                                        Test Parameter(s)
+                                    </th>
                                 </tr>
                                 <ui:repeat var="test" value="#{showTableBean.tests}">
                                 <tr>
