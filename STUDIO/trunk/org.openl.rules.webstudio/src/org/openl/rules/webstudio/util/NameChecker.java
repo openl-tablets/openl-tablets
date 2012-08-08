@@ -16,7 +16,7 @@ public class NameChecker {
             + NameChecker.getForbiddenCharacters() + "), special characters, start with space, end with space or dot!";
     public static final String FOLDER_EXISTS = "Cannot create folder because folder with such name already exists.";
     public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
-    
+
     protected static boolean checkForbiddenChars(String artefactName) {
         // check for forbidden chars
         for (char c : FORBIDDEN_CHARS) {
