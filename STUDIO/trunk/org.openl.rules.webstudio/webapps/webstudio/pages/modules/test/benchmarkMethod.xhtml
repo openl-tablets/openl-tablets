@@ -6,20 +6,6 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <script>
-      //<![CDATA[
-        function toggleSelectAll(nItems) {
-            var selectAllCheckBox = document.getElementById("BMForm:BMTable:selectAll");
-            for(i = 0; i < nItems; i++) {
-                var checkbox = document.getElementById("BMForm:BMTable:" + i + ":BM");
-                if (checkbox) {
-                    checkbox.checked = selectAllCheckBox.checked;
-                }
-            }
-        }
-      //]]>
-    </script>
-
     <div class="view_header">Results of benchmarking</div>
 
     <div class="content">
@@ -103,10 +89,10 @@
                 </h:column>
                 <h:column>
                     <f:facet name="header">
-                        <h:selectBooleanCheckbox id="selectAll"
-                            onclick="toggleSelectAll(#{benchmarkMethodBean.benchmarkCount})" />
+                        <h:selectBooleanCheckbox id="allBenchCheck"
+                            onclick="changeAllItemStatus(this, 'BMForm')" title="Check/Uncheck All" />
                     </f:facet>
-                    <h:selectBooleanCheckbox id="BM" value="#{benchmarkMethodBean.bencmarkSelected}" />
+                    <h:selectBooleanCheckbox id="BM" value="#{benchmarkMethodBean.bencmarkSelected}" onclick="changeItemStatus(this, 'BMForm', 'BMForm:BMTable:allBenchCheck')" />
                 </h:column>
             </h:dataTable>
 

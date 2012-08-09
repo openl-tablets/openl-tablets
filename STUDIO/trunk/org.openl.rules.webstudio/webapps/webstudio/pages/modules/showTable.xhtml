@@ -150,7 +150,7 @@
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px">
                                 <tr>
                                     <th>
-                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeTestMethodStatus(this)" title="Check/Uncheck All" />
+                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'unitsMenu')" title="Check/Uncheck All" />
                                     </th>
                                     <th colspan="#{columnSize}">
                                         Test Parameter(s)
@@ -159,7 +159,7 @@
                                 <ui:repeat var="test" value="#{showTableBean.tests}">
                                 <tr>
                                     <td>
-                                        <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" onclick="changeAllTestCheck(this)" />
+                                        <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'unitsMenu', 'allTestCheck')" />
                                     </td>
                                     <ui:repeat var="parameter" value="#{test.executionParams}">
                                     <td>
@@ -536,23 +536,6 @@
                 }
             }
             return true;
-        }
-        
-        function changeTestMethodStatus(element) {
-            $j("#unitsMenu INPUT[type='checkbox']").prop("checked", element.checked);
-        }
-        
-        function changeAllTestCheck(element) {
-            if(!element.checked && $('allTestCheck').checked) {
-                $('allTestCheck').checked = false;
-            }
-
-            checkedCount = $j("#unitsMenu INPUT[type='checkbox']:checked").not("INPUT[id='allTestCheck']").size();
-            allCount = $j("#unitsMenu INPUT[type='checkbox']").not("INPUT[id='allTestCheck']").size()
-
-            if (checkedCount == allCount) {
-                $('allTestCheck').checked = true;
-            }
         }
       //]]>
     </script>
