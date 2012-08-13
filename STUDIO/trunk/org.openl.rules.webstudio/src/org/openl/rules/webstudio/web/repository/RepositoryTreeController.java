@@ -685,8 +685,8 @@ public class RepositoryTreeController {
 
     public String getProjectName() {
         // EPBDS-92 - clear newProject dialog every time
-        // return projectName;
-        return null;
+        //return null;
+        return projectName;
     }
 
     private ProjectVersion getProjectVersion() {
@@ -948,14 +948,13 @@ public class RepositoryTreeController {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
         
-        String fileName = file.getName();
+        this.setFileName(FilenameUtils.getName(file.getName()));
         
-        /*If we use IE file name will be as full file path */
-        if (fileName.indexOf("\\") > -1) {
-            fileName = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length());
+        if (fileName.indexOf(".") > -1) {
+            this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
+        } else {
+            this.setProjectName(fileName);
         }
-        
-        this.setFileName(fileName);
     }
 
     public void setFileName(String fileName) {
@@ -1168,6 +1167,8 @@ public class RepositoryTreeController {
 
     private void clearForm() {
         this.setFileName(null);
+        this.setProjectName(null);
+        this.uploadedFiles.clear();
     }
 
     private String uploadAndAddFile() {
