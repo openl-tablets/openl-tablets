@@ -146,19 +146,20 @@
                         <c:set var="runLink"
                             value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}?uri=#{showTableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none">
+                            <c:set var="columnSize" value="#{fn:length(showTableBean.tests[0].executionParams)}" />
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px">
                                 <tr>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeTestMethodStatus(this)" />
-                                    </td>
-                                    <td>
-                                    </td>
-                                    
+                                    <th>
+                                        <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'unitsMenu')" title="Check/Uncheck All" />
+                                    </th>
+                                    <th colspan="#{columnSize}">
+                                        Test Parameter(s)
+                                    </th>
                                 </tr>
                                 <ui:repeat var="test" value="#{showTableBean.tests}">
                                 <tr>
                                     <td>
-                                        <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" onclick="changeAllTestCheck(this)" />
+                                        <h:selectBooleanCheckbox value="#{showTableBean.selectedTests[test]}" onclick="changeItemStatus(this, 'unitsMenu', 'allTestCheck')" />
                                     </td>
                                     <ui:repeat var="parameter" value="#{test.executionParams}">
                                     <td>
@@ -535,16 +536,6 @@
                 }
             }
             return true;
-        }
-        
-        function changeTestMethodStatus(element) {
-            $j("#unitsMenu INPUT[type='checkbox']").prop("checked", element.checked);
-        }
-        
-        function changeAllTestCheck(element) {
-            if(!element.checked && $('allTestCheck').checked) {
-                $('allTestCheck').checked = false;
-            }
         }
       //]]>
     </script>

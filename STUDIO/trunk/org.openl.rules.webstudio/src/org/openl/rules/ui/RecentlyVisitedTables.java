@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class RecentlyVisitedTables {
@@ -107,8 +109,32 @@ public class RecentlyVisitedTables {
         }
         
         public String getName() {
-            return TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue()
+            String tableName = table.getName();
+            
+            if (tableName == null || tableName.isEmpty()) {
+                tableName = TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue()
                     , XlsNodeTypes.getEnumByValue(table.getType()));
+            }
+                
+            String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+            ITableProperties tableProps = table.getProperties();
+            String dimension = "";
+            
+            if (tableProps != null) {
+                for (int i=0; i < dimensionProps.length; i++) {
+                    String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
+                    
+                    if (propValue != null && !propValue.isEmpty()) {
+                        dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                    }
+                }
+            }
+            
+            if (!dimension.isEmpty()) {
+                return tableName +"["+ dimension +"]";
+            } else {
+                return tableName;
+            }
         }
         
         public boolean equals(Object obj) {

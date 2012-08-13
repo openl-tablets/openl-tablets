@@ -6,15 +6,15 @@
 
     <h:panelGroup id="topPanel" layout="block">
         <div class="buttonPanel">
-            <h:outputLink onclick="openNewProjectDialog();return false;" styleClass="button-primary" title="Create new project">
+            <h:outputLink onclick="openNewProjectDialog();return false;" styleClass="button-primary" title="Create new project" rendered="#{repositoryTreeState.canCreate}">
                 <h:outputText value="Create New" />
             </h:outputLink>
 
-            <h:outputLink onclick="openImportProjectDialog();return false;" styleClass="button" title="Import existing project or Excel file with rules to Repository">
+            <h:outputLink onclick="openImportProjectDialog();return false;" styleClass="button" title="Import existing project to Repository" rendered="#{repositoryTreeState.canCreate}">
                 <h:outputText value="Import" />
             </h:outputLink>
 
-            <h:outputLink onclick="openNewDeploymentProjectDialog();return false;" styleClass="button" title="Create new Deploy Configuration">
+            <h:outputLink onclick="openNewDeploymentProjectDialog();return false;" styleClass="button" title="Create new Deploy Configuration" rendered="#{repositoryTreeState.canCreateDeployment}">
                 <h:outputText value="Create Deploy Configuration" />
             </h:outputLink>
         </div>

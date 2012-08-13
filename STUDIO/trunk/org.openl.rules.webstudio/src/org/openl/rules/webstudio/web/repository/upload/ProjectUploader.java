@@ -63,11 +63,11 @@ public class ProjectUploader {
             } else {
                 errorMessage = "Can`t create project from given file.";
             }
-        } catch (ZipException e) {                    
+        } catch (ZipException e) {
             errorMessage = e.getMessage();
-        } catch (FileNotFoundException e) {                    
+        } catch (FileNotFoundException e) {
             errorMessage = e.getMessage();
-        } catch (IOException e) {                    
+        } catch (IOException e) {
             errorMessage = e.getMessage();
         }
         return errorMessage;
@@ -83,11 +83,11 @@ public class ProjectUploader {
             } else {
                 errorMessage = "Can`t create project from given file.";
             }
-        } catch (ZipException e) {                    
+        } catch (ZipException e) {
             errorMessage = e.getMessage();
-        } catch (FileNotFoundException e) {                    
+        } catch (FileNotFoundException e) {
             errorMessage = e.getMessage();
-        } catch (IOException e) {                    
+        } catch (IOException e) {
             errorMessage = e.getMessage();
         }
         return errorMessage;
@@ -98,7 +98,7 @@ public class ProjectUploader {
         if (userWorkspace.hasProject(projectName)) {
             problem = NAME_ALREADY_EXISTS;
         } else if (!NameChecker.checkName(projectName)) {
-            problem = INVALID_PROJECT_NAME;
+            problem = INVALID_PROJECT_NAME + " " + NameChecker.BAD_NAME_MSG;
         }
         return problem;
     }
@@ -124,14 +124,26 @@ public class ProjectUploader {
         AProjectCreator projectCreator = null;
 
         if (!uploadedFiles.isEmpty()) {
-            projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
-                    uploadedFiles);
-        }        
+            if (FileTypeHelper.isZipFile(FilenameUtils.getName(getLastElement().getName()))) {
+                /*Create project creator for single zip file*/
+                String file = FilenameUtils.getName(getLastElement().getName());
+                File projectFile = FileTool.toTempFile(getLastElement().getInputStream(), file);
+                projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
+            } else {
+                projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
+                        uploadedFiles);
+            }
+
+        }
         return projectCreator;
     }
-    
-    private UploadedFile getFirstElement() {
-        return uploadedFiles.get(0);
+
+    private UploadedFile getLastElement() {
+        if (!uploadedFiles.isEmpty()) {
+            return uploadedFiles.get(uploadedFiles.size() - 1);
+        } else {
+            return null;
+        }
     }
 
 }
