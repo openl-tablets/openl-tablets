@@ -317,6 +317,10 @@ public class RepositoryTreeController {
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
+        
+        /*Clear the load form*/
+        this.clearForm();
+        
         return null;
     }
 
@@ -353,6 +357,9 @@ public class RepositoryTreeController {
                 creationMessage = e.getMessage();
             }
         }
+        
+        /*Clear the load form*/
+        this.clearForm();
         
         return creationMessage;
     }
