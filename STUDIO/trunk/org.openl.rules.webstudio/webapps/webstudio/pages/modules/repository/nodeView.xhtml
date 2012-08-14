@@ -112,7 +112,7 @@
             <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton id="copyId1" value="Copy" onclick="openCopyProjectDialog();return false;">
+        <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy" onclick="openCopyProjectDialog();return false;">
             <rich:tooltip showDelay="500">#{copyMessage}</rich:tooltip>
         </h:commandButton>
         
