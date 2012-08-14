@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.AbsolutePosition;
@@ -25,6 +27,8 @@ import org.openl.util.text.TextInterval;
  * @author snshor
  */
 public class Tokenizer {
+	
+	private final Log log = LogFactory.getLog(Tokenizer.class);
 
     private static final int EOF = -1;
     private static String TOKEN_TYPE = "token";
@@ -90,7 +94,7 @@ public class Tokenizer {
             Reader reader = source.getCharacterStream();
 
             int startToken = 0;
-            int position = 0;
+            int position = -1;
             int character;
             StringBuffer buffer = null;
 
@@ -99,22 +103,26 @@ public class Tokenizer {
                 position += 1;
 
                 if ((character == EOF || isDelimiter(character)) && buffer != null) {
-                    String value = buffer.toString().trim();
+                    String value = buffer.toString();
                     if (value.isEmpty()) {
                         buffer = null;
                     } else {
                         TextInterval location = new TextInterval(new AbsolutePosition(startToken),
                                 new AbsolutePosition(position));
 
+                        log.info("startToken: " + startToken + " endToken: " + position + " value: " + "'" + value + "'");
+                        
                         return new IdentifierNode(TOKEN_TYPE, location, value, source);
                     }
                 } else {
-                    if (buffer == null) {
-                        buffer = new StringBuffer();
-                        startToken = position;
-                    }
+					if (character != EOF && !isDelimiter(character)) {
+						if (buffer == null) {
+							buffer = new StringBuffer();
+							startToken = position;
+						}
 
-                    buffer.append((char) character);
+						buffer.append((char) character);
+					}
                 }
 
             } while (character != EOF);
@@ -155,11 +163,13 @@ public class Tokenizer {
                         buffer = null;
                     }
                 } else {
-                    if (buffer == null) {
-                        buffer = new StringBuffer();
-                        startToken = position;
-                    }
-                    buffer.append((char) character);
+                	if (!isDelimiter(character)){
+						if (buffer == null) {
+							buffer = new StringBuffer();
+							startToken = position;
+						}
+						buffer.append((char) character);
+                	}
                 }
 
             } while (character != EOF);
@@ -171,7 +181,7 @@ public class Tokenizer {
         return nodes.toArray(new IdentifierNode[nodes.size()]);
     }
 
-    public static IdentifierNode firstToken(IOpenSourceCodeModule source, String delimiter)
+	public static IdentifierNode firstToken(IOpenSourceCodeModule source, String delimiter)
             throws OpenLCompilationException {
         return getTokenizer(delimiter).firstToken(source);
     }

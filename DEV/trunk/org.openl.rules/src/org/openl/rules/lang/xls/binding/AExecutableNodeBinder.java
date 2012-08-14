@@ -19,6 +19,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.text.TextInfo;
 
 /**
  * Node binder for executable nodes with check for duplicates.
@@ -47,9 +48,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
 
         SubTextSourceCodeModule headerSource = new SubTextSourceCodeModule(source, tableSyntaxNode.getHeader()
-            .getHeaderToken()
-            .getIdentifier()
-            .length());
+            .getHeaderToken().getSourceLocation().getEnd().getAbsolutePosition(new TextInfo(source.getCode())));
         IBindingContextDelegator bindingContextDelegator = (IBindingContextDelegator) bindingContext;
 
         return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContextDelegator);
