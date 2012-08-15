@@ -394,7 +394,7 @@ public class HTMLRenderer {
                 for (int col = 0; col < tableModel.getCells()[row].length; col++) {
 
                     ICellModel cell = tableModel.getCells()[row][col];
-                    if ((cell == null) || !cell.isReal()) {
+                    if (cell == null || !cell.isReal()) {
                         continue;
                     }
 
@@ -413,7 +413,7 @@ public class HTMLRenderer {
                                 selectErrorCell = true;
                             }
                         }
-                        ((CellModel) (cell)).atttributesToHtml(s, tableModel, selectErrorCell);
+                        ((CellModel) cell).atttributesToHtml(s, tableModel, selectErrorCell);
                     }
 
                     StringBuilder cellId = new StringBuilder();
@@ -426,9 +426,6 @@ public class HTMLRenderer {
                     }
                     s.append(">");
                     String cellContent = cell.getContent(showFormulas);
-                    if (cellContent != null) {
-                        cellContent.replaceAll("", "");
-                    }
                     s.append(cellContent).append("</td>\n");
                     if (cell.getComment() != null) {
                         s.append("<script type=\"text/javascript\">")

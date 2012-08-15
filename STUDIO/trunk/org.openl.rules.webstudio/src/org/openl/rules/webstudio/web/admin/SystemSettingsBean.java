@@ -27,7 +27,6 @@ public class SystemSettingsBean {
     private static final String DATE_PATTERN = "data.format.date";
 
     private static final String AUTO_LOGIN = "security.login.auto";
-    private static final String HIDE_LOGOUT = "security.logout.hidden";
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
@@ -95,14 +94,6 @@ public class SystemSettingsBean {
 
     public void setAutoLogin(boolean autoLogin) {
         configManager.setProperty(AUTO_LOGIN, autoLogin);
-    }
-
-    public boolean isHideLogout() {
-        return configManager.getBooleanProperty(HIDE_LOGOUT);
-    }
-
-    public void setHideLogout(boolean hideLogout) {
-        configManager.setProperty(HIDE_LOGOUT, hideLogout);
     }
 
     public String getProjectHistoryHome() {
@@ -186,15 +177,19 @@ public class SystemSettingsBean {
     }
     
     public boolean isCustomSpreadsheetType() {
-        return OpenLSystemProperties.isCustomSpreadsheetType();
+        return OpenLSystemProperties.isCustomSpreadsheetType(configManager.getProperties());
+    }
+    
+    public void setCustomSpreadsheetType(boolean customSpreadsheetType) {
+        configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
     
     public String getRulesDispatchingMode() {
-        if (OpenLSystemProperties.isDTDispatchingMode()) {
-            return "Decision Table";
-        } else  {
-            return "Java";
-        }
+        return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
+    }
+
+    public void setRulesDispatchingMode(String dispatchingMode) {
+        configManager.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, dispatchingMode);
     }
 
     public void applyChanges() {

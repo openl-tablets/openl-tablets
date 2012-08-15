@@ -84,7 +84,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 
                 copyProperties(deploymentPRJ, deploymentProject);
 
-                deploymentPRJ.checkIn(user);
+                deploymentPRJ.save(user);
                 rRepository.notifyChanges();
             }
         } catch (Exception e) {

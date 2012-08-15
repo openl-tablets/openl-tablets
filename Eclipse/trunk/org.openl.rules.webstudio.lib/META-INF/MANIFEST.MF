@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.webstudio.lib
 Bundle-SymbolicName: org.openl.rules.webstudio.lib;singleton:=true
-Bundle-Version: 5.9.3
+Bundle-Version: 5.9.4
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
 Require-Bundle: org.openl.lib;visibility:=reexport
@@ -37,7 +37,7 @@ Bundle-ClassPath: lib/antlr-2.7.7.jar,
  lib/hibernate-validator-4.2.0.Final.jar,
  lib/hsqldb-2.2.8.jar,
  lib/javassist-3.15.0-GA.jar,
- lib/javax.faces-2.1.7.jar,
+ lib/javax.faces-2.1.11.jar,
  lib/jboss-logging-3.1.0.CR2.jar,
  lib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar,
  lib/jcr-2.0.jar,
@@ -63,10 +63,9 @@ Bundle-ClassPath: lib/antlr-2.7.7.jar,
  lib/spring-expression-3.1.1.RELEASE.jar,
  lib/spring-jdbc-3.1.1.RELEASE.jar,
  lib/spring-orm-3.1.1.RELEASE.jar,
- lib/spring-security-config-3.1.0.RELEASE.jar,
- lib/spring-security-core-3.1.0.RELEASE.jar,
- lib/spring-security-crypto-3.1.0.RELEASE.jar,
- lib/spring-security-web-3.1.0.RELEASE.jar,
+ lib/spring-security-config-3.1.1.RELEASE.jar,
+ lib/spring-security-core-3.1.1.RELEASE.jar,
+ lib/spring-security-web-3.1.1.RELEASE.jar,
  lib/spring-tx-3.1.1.RELEASE.jar,
  lib/spring-web-3.1.1.RELEASE.jar,
  lib/standard-1.1.2.jar,

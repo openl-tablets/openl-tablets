@@ -21,8 +21,7 @@
 
   <context-param>
     <description>
-      Location of the XML file that defines the root application context
-      Applied by ContextLoaderListener.
+      Location of the XML file that defines the root application context, applied by ContextLoaderListener.
     </description>
     <param-name>contextConfigLocation</param-name>
     <param-value>
@@ -31,13 +30,13 @@
       <!-- Security -->
 
       <!-- Standalone security -->
-      classpath:META-INF/standalone/spring/security-*-beans.xml <!-- Security Standalone project -->
+      classpath:META-INF/standalone/spring/security-*-beans.xml
       /WEB-INF/spring/security/security-beans.xml
       /WEB-INF/spring/security/security-standalone-beans.xml
 
       <!-- No actual security -->
-      <!--/WEB-INF/spring/security/security-beans.xml-->
-      <!--/WEB-INF/spring/security/security-none-beans.xml-->
+      <!--/WEB-INF/spring/security/security-beans.xml
+      /WEB-INF/spring/security/security-none-beans.xml-->
     </param-value>
   </context-param>
 
@@ -144,6 +143,16 @@
 
   <filter-mapping>
     <filter-name>SessionTimeoutFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>ThreadLocalFilter</filter-name>
+    <filter-class>org.openl.rules.webstudio.filter.ThreadLocalFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>ThreadLocalFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

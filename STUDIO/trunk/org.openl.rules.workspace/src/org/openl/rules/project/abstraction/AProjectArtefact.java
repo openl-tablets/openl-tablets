@@ -194,10 +194,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         }
     }
 
-    protected void save(CommonUser user, int major, int minor) throws ProjectException {
+    protected void commit(CommonUser user, int major, int minor) throws ProjectException {
         getAPI().commit(user, major, minor, getProject().getVersion().getRevision() + 1);
     }
-    
+
     public void refresh() {
         // TODO
     }
@@ -230,5 +230,17 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     
     public boolean isModified(){
         return impl.isModified();
+    }
+
+    public void setVersionComment(String versionComment) throws PropertyException {
+        addProperty(new PropertyImpl(ArtefactProperties.VERSION_COMMENT, versionComment));
+    }
+    
+    public String getVersionComment() {
+        try {
+            return getProperty(ArtefactProperties.VERSION_COMMENT).getString();
+        } catch (PropertyException e) {
+            return null;
+        }
     }
 }

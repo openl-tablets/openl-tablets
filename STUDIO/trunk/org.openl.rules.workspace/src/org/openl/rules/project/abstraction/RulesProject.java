@@ -35,12 +35,12 @@ public class RulesProject extends UserWorkspaceProject {
         return local;
     }
 
-    public void checkOut(CommonUser user) throws ProjectException {
-        super.checkOut(user);
+    public void edit(CommonUser user) throws ProjectException {
+        super.edit(user);
         open();
     }
 
-    public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
+    public void save(CommonUser user, int major, int minor) throws ProjectException {
         smartUpdate(local, repository, user, major, minor);
         local.setCurrentVersion(repository.getVersion());
         local.commit(user, 0, 0, 0);// save persistence
@@ -132,9 +132,6 @@ public class RulesProject extends UserWorkspaceProject {
         return getAPI() == local;
     }
 
-    
-    
-    
     public void openVersion(CommonVersion version) throws ProjectException {
         FolderAPI openedProject = repository.getVersion(version);
         File source;
@@ -161,11 +158,8 @@ public class RulesProject extends UserWorkspaceProject {
         new AProject(to).smartUpdate(new AProject(from), user, major, minor);
     }
 
-
-
-
-    /** is checked-out by me? -- in LW + locked by me */
-    public boolean isCheckedOut() {
+    // Is Opened for Editing by me? -- in LW + locked by me
+    public boolean isOpenedForEditing() {
         if (isLocalOnly()) {
             return false;
         }

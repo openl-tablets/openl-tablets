@@ -16,7 +16,7 @@
 
     <h:form id="smartRedeployForm">
       <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
-      <h:outputText value="There are no deployment projects containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty smartRedeployController.items}"/>
+      <h:outputText value="There are no deploy configurations containing project '#{repositoryTreeState.selectedProject.name}'" rendered="#{empty smartRedeployController.items}"/>
       <rich:dataTable id="smartRedeployTable" value="#{smartRedeployController.items}" var="item"
         styleClass="table table-striped" rendered="#{not empty smartRedeployController.items}">
         <f:facet name="header">
@@ -25,7 +25,7 @@
               <h:outputText value="Selected" />
             </rich:column>
             <rich:column>
-              <h:outputText value="Deployment Project" />
+              <h:outputText value="Deploy Configuration" />
             </rich:column>
             <rich:column>
               <h:outputText value="Message" />

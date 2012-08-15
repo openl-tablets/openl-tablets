@@ -9,11 +9,13 @@ package org.openl.syntax.impl;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.AbsolutePosition;
@@ -25,11 +27,13 @@ import org.openl.util.text.TextInterval;
  * @author snshor
  */
 public class Tokenizer {
+	
+	private final Log log = LogFactory.getLog(Tokenizer.class);
 
     private static final int EOF = -1;
     private static String TOKEN_TYPE = "token";
 
-    private static Map<String, Tokenizer> tokenizers = new HashMap<String, Tokenizer>();
+    private static Map<String, Tokenizer> tokenizers = new ConcurrentHashMap<String, Tokenizer>();
 
     private boolean[] delimitersTable = {};
 
@@ -46,7 +50,6 @@ public class Tokenizer {
      * @param delimiters string of delimiters (each char is delimiter)
      */
     private void makeTable(String delimiters) {
-
         if (StringUtils.isEmpty(delimiters)) {
             return;
         }
@@ -87,12 +90,11 @@ public class Tokenizer {
      * @throws OpenLCompilationException
      */
     private IdentifierNode firstToken(IOpenSourceCodeModule source) throws OpenLCompilationException {
-
         try {
             Reader reader = source.getCharacterStream();
 
             int startToken = 0;
-            int position = 0;
+            int position = -1;
             int character;
             StringBuffer buffer = null;
 
@@ -101,26 +103,32 @@ public class Tokenizer {
                 position += 1;
 
                 if ((character == EOF || isDelimiter(character)) && buffer != null) {
+                    String value = buffer.toString();
+                    if (value.isEmpty()) {
+                        buffer = null;
+                    } else {
+                        TextInterval location = new TextInterval(new AbsolutePosition(startToken),
+                                new AbsolutePosition(position));
 
-                    TextInterval location = new TextInterval(new AbsolutePosition(startToken),
-                        new AbsolutePosition(position));
-
-                    return new IdentifierNode(TOKEN_TYPE, location, buffer.toString().trim(), source);
-                } else {
-                    if (buffer == null) {
-                        buffer = new StringBuffer();
-                        startToken = position;
+                        log.info("startToken: " + startToken + " endToken: " + position + " value: " + "'" + value + "'");
+                        
+                        return new IdentifierNode(TOKEN_TYPE, location, value, source);
                     }
+                } else {
+					if (character != EOF && !isDelimiter(character)) {
+						if (buffer == null) {
+							buffer = new StringBuffer();
+							startToken = position;
+						}
 
-                    buffer.append((char) character);
+						buffer.append((char) character);
+					}
                 }
 
             } while (character != EOF);
 
-            return new IdentifierNode(TOKEN_TYPE,
-                new TextInterval(new AbsolutePosition(0), new AbsolutePosition(0)),
-                StringUtils.EMPTY,
-                source);
+            return new IdentifierNode(TOKEN_TYPE, new TextInterval(new AbsolutePosition(0), new AbsolutePosition(0)),
+                    StringUtils.EMPTY, source);
 
         } catch (IOException e) {
             throw new OpenLCompilationException("Parsing error", e, null, source);
@@ -144,24 +152,24 @@ public class Tokenizer {
                 position += 1;
 
                 if (character == EOF || isDelimiter(character)) {
-
                     if (buffer != null) {
-
-                        TextInterval location = new TextInterval(new AbsolutePosition(startToken),
-                            new AbsolutePosition(position));
-
-                        IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, buffer.toString().trim(), source);
+                        String value = buffer.toString().trim();
+                        if (!value.isEmpty()) {
+                            TextInterval location = new TextInterval(new AbsolutePosition(startToken),
+                                    new AbsolutePosition(position));
+                            IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, value, source);
+                            nodes.add(node);
+                        }
                         buffer = null;
-
-                        nodes.add(node);
                     }
                 } else {
-                    if (buffer == null) {
-                        buffer = new StringBuffer();
-                        startToken = position;
-                    }
-
-                    buffer.append((char) character);
+                	if (!isDelimiter(character)){
+						if (buffer == null) {
+							buffer = new StringBuffer();
+							startToken = position;
+						}
+						buffer.append((char) character);
+                	}
                 }
 
             } while (character != EOF);
@@ -173,15 +181,17 @@ public class Tokenizer {
         return nodes.toArray(new IdentifierNode[nodes.size()]);
     }
 
-    public static IdentifierNode firstToken(IOpenSourceCodeModule source, String delimiter) throws OpenLCompilationException {
+	public static IdentifierNode firstToken(IOpenSourceCodeModule source, String delimiter)
+            throws OpenLCompilationException {
         return getTokenizer(delimiter).firstToken(source);
     }
 
-    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source, String delimiter) throws OpenLCompilationException {
+    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source, String delimiter)
+            throws OpenLCompilationException {
         return getTokenizer(delimiter).parse(source);
     }
 
-    private static synchronized Tokenizer getTokenizer(String delimeter) {
+    private static Tokenizer getTokenizer(String delimeter) {
 
         Tokenizer tokenizer = tokenizers.get(delimeter);
 

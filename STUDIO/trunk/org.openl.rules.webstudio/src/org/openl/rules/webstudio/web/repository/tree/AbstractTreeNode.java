@@ -291,6 +291,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     public Collection<ProjectVersion> getVersions() {
         if (data instanceof AProjectArtefact) {
             RulesProject project = findProjectContainingCurrentArtefact();
+            
             List<ProjectVersion> result;
             if (project != null) {
                 result = project.getVersionsForArtefact((getData()).getArtefactPath().withoutFirstSegment());

@@ -31,7 +31,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/hibernate-validator-4.2.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb-2.2.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javassist-3.15.0-GA.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/javax.faces-2.1.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.faces-2.1.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-3.1.0.CR2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcr-2.0.jar"/>
@@ -57,10 +57,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-expression-3.1.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-jdbc-3.1.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-orm-3.1.1.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-security-config-3.1.0.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-security-core-3.1.0.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-security-crypto-3.1.0.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-security-web-3.1.0.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-security-config-3.1.1.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-security-core-3.1.1.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-security-web-3.1.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-tx-3.1.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-web-3.1.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/standard-1.1.2.jar"/>

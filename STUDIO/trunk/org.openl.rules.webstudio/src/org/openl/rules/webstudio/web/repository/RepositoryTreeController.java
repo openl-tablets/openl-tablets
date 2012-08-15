@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_PROJECTS;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -16,6 +16,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -97,6 +98,7 @@ public class RepositoryTreeController {
     private String version;
     private int major;
     private int minor;
+    private String saveComment;
 
     private String filterString;
     private boolean hideDeleted;
@@ -174,9 +176,12 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String checkInProject() {
+    public String saveProject() {
         try {
-            repositoryTreeState.getSelectedProject().checkIn(major, minor);
+            UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+
+            project.save(major, minor);
+            
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
@@ -187,13 +192,13 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String checkOutProject() {
+    public String editProject() {
         try {
-            repositoryTreeState.getSelectedProject().checkOut();
+            repositoryTreeState.getSelectedProject().edit();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {
-            String msg = "Failed to check out project.";
+            String msg = "Failed to edit project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
@@ -302,16 +307,20 @@ public class RepositoryTreeController {
                 
                 return null;
             }
-            
+
             userWorkspace.createDDProject(projectName);
             ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
-            createdProject.checkOut();
+            createdProject.edit();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
         } catch (ProjectException e) {
             String msg = "Failed to create deployment project '" + projectName + "'.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
+        
+        /*Clear the load form*/
+        this.clearForm();
+        
         return null;
     }
 
@@ -342,10 +351,15 @@ public class RepositoryTreeController {
                 AProject createdProject = userWorkspace.getProject(projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
+                
+                FacesUtils.addInfoMessage("Project was created successfully.");
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
             }
         }
+        
+        /*Clear the load form*/
+        this.clearForm();
         
         return creationMessage;
     }
@@ -636,6 +650,10 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String getVersionComment() {
+        return "";
+    }
+
     public int getMajor() {
         ProjectVersion v = getProjectVersion();
         if (v != null) {
@@ -674,8 +692,8 @@ public class RepositoryTreeController {
 
     public String getProjectName() {
         // EPBDS-92 - clear newProject dialog every time
-        // return projectName;
-        return null;
+        //return null;
+        return projectName;
     }
 
     private ProjectVersion getProjectVersion() {
@@ -937,14 +955,13 @@ public class RepositoryTreeController {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
         
-        String fileName = file.getName();
+        this.setFileName(FilenameUtils.getName(file.getName()));
         
-        /*If we use IE file name will be as full file path */
-        if (fileName.indexOf("\\") > -1) {
-            fileName = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length());
+        if (fileName.indexOf(".") > -1) {
+            this.setProjectName(fileName.substring(0, fileName.lastIndexOf(".")));
+        } else {
+            this.setProjectName(fileName);
         }
-        
-        this.setFileName(fileName);
     }
 
     public void setFileName(String fileName) {
@@ -961,7 +978,16 @@ public class RepositoryTreeController {
 
     public void setLineOfBusiness(String lineOfBusiness) {
         try {
-            repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness);
+            repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness); 
+        } catch (PropertyException e) {
+            log.error("Failed to set LOB!", e);
+            FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
+        }
+    }
+    
+    public void setVersionComment(String versionComment) {
+        try {
+            repositoryTreeState.getSelectedNode().getData().setVersionComment(versionComment);
         } catch (PropertyException e) {
             log.error("Failed to set LOB!", e);
             FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
@@ -1103,9 +1129,53 @@ public class RepositoryTreeController {
 
         return null;
     }
+    
+    public String createProjectWithFiles() {        
+        String errorMessage = createProject();
+        if (errorMessage == null) {
+            try {
+                AProject createdProject = userWorkspace.getProject(projectName);
+                repositoryTreeState.addRulesProjectToTree(createdProject);
+                resetStudioModel();
+            } catch (ProjectException e) {
+                FacesUtils.addErrorMessage(e.getMessage());
+            }
+            FacesUtils.addInfoMessage("Project was created successfully.");
+        }
+
+        /*Clear the load form*/
+        clearForm();
+
+        return null;
+    }
+
+    private String createProject() {
+        String errorMessage = null;
+
+        if (StringUtils.isNotBlank(projectName)) {
+            if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
+                ProjectUploader projectUploader = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter);
+                errorMessage = projectUploader.uploadProject();                     
+            } else {
+                errorMessage = "There are no uploaded files.";
+            }
+        } else {
+            errorMessage = "Project name must not be empty.";
+        }
+
+        if (errorMessage == null) {
+            clearUploadedFiles();
+        } else {
+            FacesUtils.addErrorMessage(errorMessage);
+        }
+
+        return errorMessage;
+    }
 
     private void clearForm() {
         this.setFileName(null);
+        this.setProjectName(null);
+        this.uploadedFiles.clear();
     }
 
     private String uploadAndAddFile() {
@@ -1226,11 +1296,10 @@ public class RepositoryTreeController {
     }
     
     public boolean getCanDelete(){
-        return isGranted(PRIVILEGE_DELETE);
+        return isGranted(PRIVILEGE_DELETE_PROJECTS);
     }
 
     private void resetStudioModel() {
         studio.reset(ReloadType.FORCED);
     }
-
 }

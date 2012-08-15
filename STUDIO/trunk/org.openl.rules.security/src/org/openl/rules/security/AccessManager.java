@@ -7,6 +7,7 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -45,6 +46,18 @@ public final class AccessManager {
         check(configAttributes);
     }
 
+
+    /**
+     * Inquires whether current user has specified privilege.
+     *
+     * @param authority privilege to check.
+     * @return <code>true</code> if current user has the privilege;
+     *         <code>false</code> otherwise.
+     */
+    public static boolean isGranted(GrantedAuthority authority) {
+        return isGranted(authority.getAuthority());
+    }
+    
     /**
      * Inquires whether current user has specified privilege.
      *
@@ -86,4 +99,5 @@ public final class AccessManager {
     public void setStaticAccessDecisionManager(AccessDecisionManager accessDecisionManager) {
         useAccessDecisionManager(accessDecisionManager);
     }
+
 }

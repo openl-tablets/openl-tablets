@@ -39,7 +39,7 @@
             <h:column>
                 <c:set var="encodedTableUri" value="#{jsffn:encodeURL(table.uri)}" />
                 <h:outputLink value="#showTable.xhtml?uri=#{encodedTableUri}&amp;saveTable=false" rendered="#{!studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}"
-                onclick="reloadLeft();">
+                onclick="reloadLeft();" style="white-space:nowrap;" >
                     <h:outputText value="#{table.name}" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
@@ -47,7 +47,7 @@
                     </h:panelGroup>
                 </h:outputLink>
                 <h:panelGroup rendered="#{studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}" style="font-weight:bold;" >
-                    <h:outputText value="#{table.name}" />
+                    <h:outputText value="#{table.name}" style="white-space:nowrap;" />
                     <h:panelGroup rendered="#{empty table.name}">
                         <h:outputText value="Environment" rendered="#{table.type == 'xls.environment'}" />
                         <h:outputText value="Properties" rendered="#{table.type == 'xls.properties'}" />

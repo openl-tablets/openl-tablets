@@ -87,6 +87,7 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
                 }
             }
             factory.setDependencyManager(getDependencyManager());
+            factory.setExternalParameters(getExternalParameters());
             factory.setInterfaceClass(serviceClass);
         }
 

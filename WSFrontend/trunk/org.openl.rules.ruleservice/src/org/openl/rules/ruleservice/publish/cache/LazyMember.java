@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish.cache;
 
+import java.util.Map;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IMemberMetaInfo;
@@ -18,6 +20,8 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private IDependencyManager dependencyManager;
     private boolean executionMode;
     private T original;
+    private Map<String, Object> externalParameters;
+    
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it
      * contains generated classes for datatypes.(If we use different
@@ -27,11 +31,12 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private ClassLoader classLoader;
 
     public LazyMember(IDependencyManager dependencyManager,
-			boolean executionMode, ClassLoader classLoader, T original) {
+			boolean executionMode, ClassLoader classLoader, T original, Map<String, Object> externalParameters) {
 		this.dependencyManager = dependencyManager;
 		this.executionMode = executionMode;
 		this.classLoader = classLoader;
 		this.original = original;
+		this.externalParameters = externalParameters;
 	}
 
 	/**
@@ -94,5 +99,9 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 
     public IOpenClass getDeclaringClass() {
         return original.getDeclaringClass();
+    }
+
+    public Map<String, Object> getExternalParameters() {
+        return externalParameters;
     }
 }

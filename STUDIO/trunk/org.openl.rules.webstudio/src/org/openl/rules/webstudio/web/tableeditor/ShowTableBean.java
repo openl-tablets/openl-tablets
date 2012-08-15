@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -298,7 +301,8 @@ public class ShowTableBean {
     public boolean isCopyable() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
         return projectModel.isEditable() && table.isCanContainProperties()
-                && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType()); 
+                && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
+                && isGranted(PRIVILEGE_CREATE_TABLES); 
     }
 
     /**
@@ -306,7 +310,7 @@ public class ShowTableBean {
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
-        return table.isExecutable() && isEditable();
+        return table.isExecutable() && isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }    
 
     public boolean isEditable() {
@@ -405,6 +409,26 @@ public class ShowTableBean {
     public void setCollapseProperties() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setCollapseProperties(!studio.isCollapseProperties());
+    }
+    
+    public boolean getCanEdit() {
+        return isGranted(PRIVILEGE_EDIT_TABLES);
+    }
+    
+    public boolean getCanRemove() {
+        return isGranted(PRIVILEGE_REMOVE_TABLES);
+    }
+
+    public boolean getCanRun() {
+        return isGranted(PRIVILEGE_RUN);
+    }
+
+    public boolean getCanTrace() {
+        return isGranted(PRIVILEGE_TRACE);
+    }
+
+    public boolean getCanBenchmark() {
+        return isGranted(PRIVILEGE_BENCHMARK);
     }
 
     public static class TestRunsResultBean {

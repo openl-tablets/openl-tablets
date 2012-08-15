@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -76,7 +78,12 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         if (jarPath.lastIndexOf("!") == -1) {
             return null;
         }
-        return jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
+        String path = jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
+        
+        //Workaround for WebSphere 8.5
+        path = path.replaceAll("%20", " ");
+        
+        return path;
     }
 
     private static void unpack(File jarFile, String destDir) throws IOException {
@@ -94,15 +101,16 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 continue;
             }
             InputStream is = jar.getInputStream(file);
+            InputStream bufferedInputStream = new BufferedInputStream(is);
 
             FileOutputStream fos = new FileOutputStream(f);
-            while (is.available() > 0) {
-                fos.write(is.read());
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            while (bufferedInputStream.available() > 0) {
+                bos.write(bufferedInputStream.read());
             }
-            fos.close();
-            is.close();
+            bos.close();
+            bufferedInputStream.close();
         }
-
     }
 
     private static boolean checkOrCreateFolder(File location) {

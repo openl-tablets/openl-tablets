@@ -30,7 +30,7 @@
       <rich:column style="text-align: center;">
         <h:commandLink action="#{repositoryTreeController.deleteElement}"
           onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
-          rendered="#{artefact.project.checkedOut}" title="Delete">
+          rendered="#{artefact.project.openedForEditing}" title="Delete">
           <f:param name="element" value="#{el.name}" />
           <h:graphicImage url="/webresource/images/error.png" styleClass="actionImage" alt="Delete" />
         </h:commandLink>

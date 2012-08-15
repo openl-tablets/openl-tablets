@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
+    template="/pages/layout/simpleView.xhtml">
+
+    <ui:define name="workspace">
+
+    <script>
+      $j(document).ready(function() {
+          $j('#tab-container-users').easytabs({
+              animate: false,
+              tabActiveClass: "selected-tab",
+              panelActiveClass: "displayed"
+          });
+      });
+    </script>
+
+    <h:form>
+
+    <div id="tab-container-users" class="tab-panel-vertical">
+        <ul>
+            <li>
+                <a href="#users">
+                    <h:graphicImage url="/webresource/images/admin/users/users.png" alt="Users" />
+                    <span>Users</span>
+                </a>
+            </li>
+            <li>
+                <a href="#groups">
+                    <h:graphicImage url="/webresource/images/admin/users/groups.png" alt="Groups &amp; Privileges" />
+                    <span>Groups &amp; Privileges</span>
+                </a>
+            </li>
+            <br style="clear:both;" />
+        </ul>
+        <div class="data-container">
+            <div id="users">
+                <div class="fields">
+                    <section>
+                        <div>
+                            Users
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <div id="groups">
+                <div class="fields">
+                    <section>
+                        <div>
+                            Groups
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </h:form>
+
+    </ui:define>
+
+</ui:composition>

@@ -24,10 +24,34 @@ public class DateTool {
         return DateDifference.getDifferenceInDays(endDate, startDate);
     }
 
+    public static int dayOfWeek(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.DAY_OF_WEEK);
+    }
+
     public static int dayOfMonth(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.DAY_OF_MONTH);
+    }
+
+    public static int dayOfYear(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.DAY_OF_YEAR);
+    }
+
+    public static int weekOfMonth(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.WEEK_OF_MONTH);
+    }
+
+    public static int weekOfYear(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.WEEK_OF_YEAR);
     }
 
     public static Date firstDateOfQuarter(int absQuarter) {
@@ -52,20 +76,14 @@ public class DateTool {
         return c.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
-    public static int month(Date d) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return c.get(Calendar.MONTH);
-    }
-    
     public static int monthDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInMonths(endDate, startDate);
     }
-    
+
     public static int yearDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInYears(endDate, startDate);
     }
-    
+
     public static int weekDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInWeeks(endDate, startDate);
     }
@@ -74,10 +92,58 @@ public class DateTool {
         return month(d) / 3;
     }
 
+    public static int second(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.SECOND);
+    }
+
+    public static int minute(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.MINUTE);
+    }
+
+    /**
+     * @param d Date
+     * @return hour from 0 to 12
+     */
+    public static int hour(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.HOUR);
+    }
+
+    /**
+     * @param d Date
+     * @return hour from 0 to 24
+     */
+    public static int hourOfDay(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static int month(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c.get(Calendar.MONTH);
+    }
+
     public static int year(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.YEAR);
     }
-
+    
+    public static String amPm(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        
+        if( c.get(Calendar.AM_PM) == Calendar.AM ) {
+            return "AM";
+        } else {
+            return "PM";
+        }
+    }
 }

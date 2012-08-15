@@ -75,25 +75,25 @@ public class DeploymentController {
         checker.check(items);
     }
 
-    public String checkIn() {
+    public String save() {
         try {
-            getSelectedProject().checkIn();
+            getSelectedProject().save();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to check-in!", e);
-            FacesUtils.addErrorMessage("failed to check in", e.getMessage());
+            log.error("Failed to save changes", e);
+            FacesUtils.addErrorMessage("Failed to save changes", e.getMessage());
         }
 
         return null;
     }
 
-    public String checkOut() {
+    public String edit() {
         try {
-            getSelectedProject().checkOut();
+            getSelectedProject().edit();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to check-out!", e);
-            FacesUtils.addErrorMessage("failed to check out", e.getMessage());
+            log.error("Failed to edit", e);
+            FacesUtils.addErrorMessage("Failed to edit", e.getMessage());
         }
 
         return null;
@@ -114,7 +114,7 @@ public class DeploymentController {
     public String deleteItem() {
         String projectName = FacesUtils.getRequestParameter("key");
         ADeploymentProject project = getSelectedProject();
-
+        
         try {
             project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
         } catch (ProjectException e) {
@@ -230,14 +230,6 @@ public class DeploymentController {
         return version;
     }
 
-    public boolean isCheckinable() {
-        return true;
-    }
-
-    public boolean isCheckoutable() {
-        return true;
-    }
-
     public String openSelectedProjects() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         for (DeploymentDescriptorItem item : items) {
@@ -245,7 +237,7 @@ public class DeploymentController {
                 String projectName = item.getName();
                 try {
                     RulesProject project = workspace.getProject(projectName);
-                    if (!project.isCheckedOut()) {
+                    if (!project.isOpenedForEditing()) {
                         project.openVersion(item.getVersion());
                     }
                     repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(projectName));
@@ -293,5 +285,9 @@ public class DeploymentController {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+    
+    public boolean isModified() {
+        return getSelectedProject().isModifiedDescriptors();
     }
 }

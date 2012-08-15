@@ -40,8 +40,6 @@ public class DataNodeBinder extends AXlsTableBinder {
     private static final int TYPE_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
 
-    private IdentifierNode[] parsedHeader;
-
     protected String getFormatErrorMessage() {
         return FORMAT_ERROR_MESSAGE;
     }
@@ -74,8 +72,8 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
-        parsedHeader = Tokenizer.tokenize(source, " \n\r");
-        checkParsedHeader(source);
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
+        checkParsedHeader(parsedHeader, source);
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
@@ -213,7 +211,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param source source code
      * @throws error if length of header is less than {@link #HEADER_NUM_TOKENS}
      */
-    private void checkParsedHeader(IOpenSourceCodeModule source) throws SyntaxNodeException {
+    private void checkParsedHeader(IdentifierNode[] parsedHeader, IOpenSourceCodeModule source) throws SyntaxNodeException {
 
         try {
             parsedHeader = Tokenizer.tokenize(source, " \n\r");

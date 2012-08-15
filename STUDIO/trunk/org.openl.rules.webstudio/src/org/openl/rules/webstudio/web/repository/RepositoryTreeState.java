@@ -1,34 +1,15 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY;
-import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE;
-import static org.openl.rules.security.Privileges.PRIVILEGE_READ;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
-import org.openl.rules.webstudio.web.repository.tree.TreeFile;
-import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
-import org.openl.rules.webstudio.web.repository.tree.TreeProject;
-import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.filter.IFilter;
-import org.openl.util.filter.AllFilter;
-import org.richfaces.component.UITree;
-
-import org.richfaces.event.TreeSelectionChangeEvent;
+import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE_PROJECTS;
+import static org.openl.rules.security.Privileges.PRIVILEGE_READ_PROJECTS;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +19,27 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeFile;
+import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.filter.AllFilter;
+import org.openl.util.filter.IFilter;
+import org.richfaces.component.UITree;
+import org.richfaces.event.TreeSelectionChangeEvent;
 
 /**
  * Used for holding information about rulesRepository tree.
@@ -101,13 +103,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         rulesRepository = new TreeRepository(rpName, rpName, filter, UiConst.TYPE_REPOSITORY);
         rulesRepository.setData(null);
 
-        String dpName = "Deployments";
+        String dpName = "Deploy Configurations";
         deploymentRepository = new TreeRepository(dpName, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
         deploymentRepository.setData(null);
 
         //Such keys are used for correct order of repositories.
         root.addChild("1st - Projects", rulesRepository);
-        root.addChild("2nd - Deployments", deploymentRepository);
+        root.addChild("2nd - Deploy Configurations", deploymentRepository);
 
         Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
@@ -353,19 +355,55 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         this.hideDeleted = hideDeleted;
     }
 
-    //for any project
-    public boolean getCanCheckOut() {
+    public boolean getCanCreate() {
+        return isGranted(PRIVILEGE_CREATE_PROJECTS);
+    }
+
+    // For any project
+    public boolean getCanEdit() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut() || selectedProject.isLocked()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
 
-        return isGranted(PRIVILEGE_EDIT);
+        return isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
-    public boolean getCanCheckIn() {
+    public boolean getCanSave() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isCheckedOut() /*&& selectedProject.isModified()*/ && isGranted(PRIVILEGE_EDIT);
+        return selectedProject.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS);
+    }
+
+    public boolean getCanCreateDeployment() {
+        return isGranted(PRIVILEGE_CREATE_DEPLOYMENT);
+    }
+
+    public boolean getCanEditDeployment() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
+            return false;
+        }
+
+        return isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
+    }
+
+    public boolean getCanDeleteDeployment() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject.isLocalOnly()) {
+            // any user can delete own local project
+            return true;
+        }
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
+    }
+
+    public boolean getCanSaveDeployment() {
+        ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
+        return selectedProject.isOpenedForEditing() && selectedProject.isModifiedDescriptors() && isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
+    }
+    
+    public boolean getCanSaveProject() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        return selectedProject.isModified() && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean getCanClose() {
@@ -379,11 +417,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE_PROJECTS);
     }
 
     public boolean getCanErase() {
-        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE);
+        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE_PROJECTS);
     }
 
     public boolean getCanExport() {
@@ -392,31 +430,31 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
             return false;
         }
 
-        return isGranted(PRIVILEGE_READ);
+        return isGranted(PRIVILEGE_READ_PROJECTS);
     }
 
     public boolean getCanCompare() {
         if (getSelectedProject().isLocalOnly()) {
             return false;
         }
-        return isGranted(PRIVILEGE_READ);
+        return isGranted(PRIVILEGE_READ_PROJECTS);
     }
 
     public boolean getCanRedeploy() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isCheckedOut()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
             return false;
         }
 
-        return isGranted(PRIVILEGE_DEPLOY);
+        return isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
 
     public boolean getCanUndelete() {
-        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT);
+        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
 
@@ -426,12 +464,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         String projectName = selectedArtefact.getProject().getName();
         String projectId = String.valueOf(projectName.hashCode());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
-        return (project.isCheckedOut() && isGranted(PRIVILEGE_EDIT));
+        return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS));
     }
 
     //for deployment project
     public boolean getCanDeploy() {
-        return !getSelectedProject().isCheckedOut() && isGranted(PRIVILEGE_DEPLOY);
+        return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
 
 }

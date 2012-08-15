@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -12,28 +11,8 @@
     <script src="#{contextPath}/javascript/jquery.easytabs.min.js"></script>
 
     <style>
-        #tab-container { border: 1px solid rgb(195,195,195); border-width: 1px 0; height: 350px; background: #F7F7F7; margin: 13px 3px; }
-        #tab-container ul { height: 350px; list-style: none; margin: 0; padding: 0; background: #DDDDDD; float: left; border-right: 1px solid rgb(190,190,190); }
-        #tab-container ul li { width: 100px; margin: 0; padding: 0; text-align: center; }
-        #tab-container ul li a { display: block; padding: 15px 0; outline: none; text-decoration: none; color: rgb(31,31,31); }
-        #tab-container ul li a span { display: block; }
-        #tab-container ul li.selected-tab {
-            font-weight: bold; position: relative; left: 1px; border: 1px solid rgb(195,195,195); border-left: 0; border-right: 1px dashed rgb(230,230,230); box-shadow: -2px 1px 2px rgb(210,210,210);
-            background: #F7F7F7;
-            background: -moz-linear-gradient(to right, #FEFEFE, #F7F7F7);
-            background: -webkit-linear-gradient(left center, #FEFEFE, #F7F7F7);
-            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FEFEFE, endColorstr=#F7F7F7, GradientType=1)";
-            background: linear-gradient(to right, #FEFEFE, #F7F7F7);
-        }
-        #tab-container ul li:first-child.selected-tab { border-top: 0; }
-        #tab-container .data-container { padding: 1px 0 0 100px; }
-
-        .propsPage { padding: 15px 25px; }
-        .propsPage .propsSection { margin-bottom: 31px; }
-        .propsPage .propsSection h3 { margin: 5px 0px; font-size: 110%; font-weight: bold; border-bottom: 1px solid #EBCF89; color: #EC9D0F; padding-bottom: 3px; }
-        .propsPage .propsSection div { margin-left: 11px; color: rgb(71,71,71); }
-        .propsPage .propsSection div table tr { margin-bottom: 20px; }
-        .propsPage .propsSection div .titleColumn { width: 153px; padding: 5px 0; }
+        .fields section div table tr { margin-bottom: 20px; }
+        .fields section div .titleColumn { width: 153px; padding: 5px 0; }
 
         .restartMessage { position: absolute; top: 7px; right: 33px; -moz-animation: restartMessage_anm 0.6s; -webkit-animation: restartMessage_anm 1.3s; }
         @-moz-keyframes restartMessage_anm {
@@ -70,7 +49,7 @@
         </h:panelGroup>
     </h:panelGroup>
 
-    <div id="tab-container">
+    <div id="tab-container" class="tab-panel-vertical">
         <ul>
             <li>
                 <a href="#common">
@@ -100,8 +79,8 @@
         </ul>
         <div class="data-container">
             <div id="common">
-                <h:panelGroup id="commonProps" styleClass="propsPage" layout="block">
-                    <div class="propsSection">
+                <h:panelGroup id="commonProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>User Workspace</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -113,8 +92,8 @@
                                     disabled="#{jsffn:isSystemProp('workspace.local.home')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
-                    <div class="propsSection">
+                    </section>
+                    <section>
                         <h3>History</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -123,8 +102,8 @@
                                     disabled="#{jsffn:isSystemProp('project.history.home')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
-                    <div class="propsSection">
+                    </section>
+                    <section>
                         <h3>Other</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -133,29 +112,26 @@
                                     disabled="#{jsffn:isSystemProp('data.format.date')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
             <div id="security">
-                <h:panelGroup id="securityProps" styleClass="propsPage" layout="block">
-                    <div class="propsSection">
+                <h:panelGroup id="securityProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>Security</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                 <h:outputText value="Auto Login:" />
                                 <h:selectBooleanCheckbox value="#{systemSettingsBean.autoLogin}"
                                     disabled="#{jsffn:isSystemProp('security.login.auto')}" />
-                                <h:outputText value="Hide Logout link:" />
-                                <h:selectBooleanCheckbox value="#{systemSettingsBean.hideLogout}"
-                                    disabled="#{jsffn:isSystemProp('security.logout.hidden')}" />
                             </h:panelGrid>
                         </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
             <div id="repository">
-                <h:panelGroup id="repositoryProps" styleClass="propsPage" layout="block">
-                    <div class="propsSection">
+                <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
+                    <section>
                         <h3>Design Repository</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -175,8 +151,8 @@
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                             </h:panelGrid>
                         </div>
-                    </div>
-                    <div class="propsSection">
+                    </section>
+                    <section>
                         <h3>Production Repository</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
@@ -196,29 +172,32 @@
                                     disabled="#{systemSettingsBean.productionRepositoryPathSystem}" />
                             </h:panelGrid>
                         </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
             <div id="system">
-                <h:panelGroup id="javaProps" styleClass="propsPage" layout="block">
-                    <div class="propsSection">
-                        <h3>Java System</h3>
+                <h:panelGroup id="javaProps" styleClass="fields" layout="block">
+                    <section>
+                        <h3>System</h3>
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <h:outputText value="Custom Spreadsheet Type:" />
-                                    <h:outputText value="#{systemSettingsBean.customSpreadsheetType}" />
+                                    <h:selectBooleanCheckbox value="#{systemSettingsBean.customSpreadsheetType}"/>
                                     <h:outputText value="Rules Dispatching Mode:" />
-                                    <h:outputText value="#{systemSettingsBean.rulesDispatchingMode}" />
+                                    <h:selectOneMenu value="#{systemSettingsBean.rulesDispatchingMode}">
+                                        <f:selectItem itemLabel="Decision Table" itemValue="dt"/>
+                                        <f:selectItem itemLabel="Java" itemValue="java"/>
+                                    </h:selectOneMenu>
                                 </h:panelGrid>
                             </div>
-                    </div>
+                    </section>
                 </h:panelGroup>
             </div>
         </div>
     </div>
 
     <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
-        execute="@this" render="commonProps securityProps repositoryProps restartMessage"
+        execute="@this" render="commonProps securityProps repositoryProps javaProps restartMessage"
         onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
     <h:outputText value=" " />
     <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"

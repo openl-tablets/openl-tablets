@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
 import org.openl.rules.common.ProjectDescriptor.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -23,7 +24,9 @@ import org.openl.rules.workspace.WorkspaceUser;
 public class ADeploymentProject extends UserWorkspaceProject {
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
-
+    /* this button is used for rendering the save button (only for deployment configuration)*/
+    private boolean modifiedDescriptors = false;
+    
     public ADeploymentProject(FolderAPI api, WorkspaceUser user) {
         super(api, user);
     }
@@ -64,6 +67,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     
     
     public void openVersion(CommonVersion version) throws ProjectException {
+        modifiedDescriptors = false;
         FolderAPI openedProjectVersion = getAPI().getVersion(version);
         openedVersion = new ADeploymentProject(openedProjectVersion, getUser());
         refresh();
@@ -71,6 +75,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void close(CommonUser user) throws ProjectException {
+        modifiedDescriptors = false;
         super.close(user);
         openedVersion = null;
         refresh();
@@ -86,16 +91,17 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public boolean isOpened() {
-        return openedVersion != null || isCheckedOut();
+        return openedVersion != null || isOpenedForEditing();
     }
 
-    public void checkOut(CommonUser user) throws ProjectException {
-        super.checkOut(user);
+    public void edit(CommonUser user) throws ProjectException {
+        modifiedDescriptors = false;
+        super.edit(user);
         open();
     }
 
     @Override
-    public void checkIn(CommonUser user, int major, int minor) throws ProjectException {
+    public void save(CommonUser user, int major, int minor) throws ProjectException {
         if (CollectionUtils.isEmpty(descriptors)) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 getArtefact(ArtefactProperties.DESCRIPTORS_FILE).delete();
@@ -111,13 +117,15 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
                             descriptorsAsString.getBytes("UTF-8")));
                 }
-                resource.save(user, major, minor);
+                resource.commit(user, major, minor);
             } catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
-        super.checkIn(user, major, minor);
+        
+        modifiedDescriptors = false;
+        super.save(user, major, minor);
         open();
     }
 
@@ -129,6 +137,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 break;
             }
         }
+        
+        modifiedDescriptors = true;
     }
 
     public Collection<ProjectDescriptor> getProjectDescriptors() {
@@ -138,13 +148,15 @@ public class ADeploymentProject extends UserWorkspaceProject {
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
         getDescriptors().clear();
         getDescriptors().addAll(projectDescriptors);
+        
+        modifiedDescriptors = true;
     }
 
     @Override
     public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
-        checkIn(user, major, minor);
+        save(user, major, minor);
     }
 
     private List<ProjectDescriptor> getDescriptors() {
@@ -165,14 +177,17 @@ public class ADeploymentProject extends UserWorkspaceProject {
         }
         return descriptors;
     }
-    
-    
+
     @Override
     public void refresh() {
         descriptors = null;
     }
 
     public boolean getCanDeploy() {
-        return !isCheckedOut();
+        return !isOpenedForEditing();
+    }
+    
+    public boolean isModifiedDescriptors() {
+        return modifiedDescriptors;
     }
 }

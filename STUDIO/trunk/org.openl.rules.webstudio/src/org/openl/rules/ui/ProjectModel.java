@@ -1,5 +1,9 @@
 package org.openl.rules.ui;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_TABLES;
+import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_PROJECTS;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,8 +24,8 @@ import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -37,9 +41,9 @@ import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.search.IOpenLSearch;
 import org.openl.rules.search.ISearchTableRow;
 import org.openl.rules.search.OpenLAdvancedSearchResult;
+import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.search.OpenLAdvancedSearchResultViewer;
 import org.openl.rules.search.OpenLBussinessSearchResult;
-import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -60,7 +64,6 @@ import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -763,10 +766,14 @@ public class ProjectModel {
         RulesProject project = getProject();
 
         if (project != null) {
-            return project.isCheckedOut() || project.isLocalOnly();
+            return (project.isOpenedForEditing() || project.isLocalOnly()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
         }
 
         return false;
+    }
+    
+    public boolean isCanCreateTable() {
+        return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }
 
     public boolean isReady() {
@@ -1044,6 +1051,7 @@ public class ProjectModel {
 
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, 
             studio.getDependencyManager());
+        instantiationStrategy.setExternalParameters(studio.getSystemConfigManager().getProperties());
 
         try {
             if(reloadType == ReloadType.FORCED){

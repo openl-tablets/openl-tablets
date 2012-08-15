@@ -12,13 +12,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.openl.commons.web.util.WebTool;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.security.AccessManager;
+import org.openl.rules.security.PredefinedRole;
 import org.openl.rules.security.none.SimpleAuthenticationToken;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -28,7 +26,7 @@ public class AuthenticationFilter implements Filter {
 
     private static Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     static {
-        authorities.add(new GrantedAuthorityImpl(Privileges.ROLE_ADMIN));
+        authorities.add(PredefinedRole.ROLE_ADMIN);
     }
 
     /**

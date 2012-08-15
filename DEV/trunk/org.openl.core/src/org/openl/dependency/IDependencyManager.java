@@ -1,5 +1,7 @@
 package org.openl.dependency;
 
+import java.util.Map;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.code.IDependency;
 
@@ -40,4 +42,9 @@ public interface IDependencyManager {
      */
     boolean isExecutionMode();
     
+    /**
+     * Some additional options for compilation defined externally(e.g. external
+     * dependencies, overridden system properties)
+     */
+    Map<String, Object> getExternalParameters();
 }

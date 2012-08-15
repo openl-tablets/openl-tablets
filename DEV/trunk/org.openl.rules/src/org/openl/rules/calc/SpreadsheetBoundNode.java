@@ -6,6 +6,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -43,7 +44,13 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     protected Spreadsheet createSpreadsheet()
     {
-    		return new Spreadsheet(getHeader(), this);
+        /*
+         * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
+         * and the customspreadsheet property is true
+         * */
+        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(builder.getBindingContext().getExternalParams());
+        
+        return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
     }		
     
     

@@ -1,8 +1,11 @@
 package org.openl.rules.ruleservice.publish.cache;
 
+import java.util.Map;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
@@ -16,15 +19,17 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
     private String fieldName;
 
     public LazyField(String fieldName, IDependencyManager dependencyManager,
-            boolean executionMode, ClassLoader classLoader, IOpenField original) {
-        super(dependencyManager, executionMode, classLoader, original);
+            boolean executionMode, ClassLoader classLoader, IOpenField original, Map<String, Object> externalParameters) {
+        super(dependencyManager, executionMode, classLoader, original, externalParameters);
         this.fieldName = fieldName;
     }
 
     public IOpenField getMember(IRuntimeEnv env) {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(env), isExecutionMode(),
-                    getDependencyManager(), getClassLoader()).compile();
+            SingleModuleInstantiationStrategy instantiationStrategy = getCache().getInstantiationStrategy(getModule(env), isExecutionMode(),
+                    getDependencyManager(), getClassLoader());
+            instantiationStrategy.setExternalParameters(getExternalParameters());
+            CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
             return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy field.", e);

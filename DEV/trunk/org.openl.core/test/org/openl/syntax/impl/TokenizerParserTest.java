@@ -24,7 +24,7 @@ public class TokenizerParserTest {
 		String testValue = "   Rules double hello (int param1, String param2)";
 		IOpenSourceCodeModule source = new StringSourceCodeModule(testValue, null);
 		try {
-			assertEquals("", Tokenizer.firstToken(source, " \n\r").getIdentifier());
+			assertEquals("Rules", Tokenizer.firstToken(source, " \n\r").getIdentifier());
 		} catch (Exception e) {
 			fail("Should not throw exception");
 		}

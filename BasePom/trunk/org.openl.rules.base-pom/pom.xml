@@ -4,7 +4,7 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.base-pom</artifactId>
-	<version>5.9.3-SNAPSHOT</version>
+	<version>5.9.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenL - Base</name>
 	<description>Base project with all configurations</description>
@@ -90,15 +90,17 @@
 	<scm>
        		<connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
        		<developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
+       		<url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
    	</scm>
 
 	<properties>
-		<openl.version.eclipse>5.9.3</openl.version.eclipse>
-		<openl.version.maven>5.9.3-SNAPSHOT</openl.version.maven>
+		<openl.version.eclipse>5.9.4</openl.version.eclipse>
+		<openl.version.maven>5.9.4-SNAPSHOT</openl.version.maven>
 		<org.springframework.version>3.1.1.RELEASE</org.springframework.version>
-		<org.springsecurity.version>3.1.0.RELEASE</org.springsecurity.version>
+		<org.springsecurity.version>3.1.1.RELEASE</org.springsecurity.version>
 		<org.hibernate.version>4.1.0.Final</org.hibernate.version>
-		<org.richfaces.version>4.0.0.Final</org.richfaces.version>
+        <org.mojarra.version>2.1.11</org.mojarra.version>
+        <org.richfaces.version>4.0.0.Final</org.richfaces.version>
 		<org.apache.cxf.version>2.5.1</org.apache.cxf.version>
 		<openl.mapping.version>1.1.2</openl.mapping.version>
 		<org.slf4j.version>1.6.4</org.slf4j.version>
@@ -478,7 +480,7 @@
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.faces</artifactId>
-                <version>2.1.7</version>
+                <version>${org.mojarra.version}</version>
             </dependency>
 
 			<!-- RichFaces -->
@@ -1161,12 +1163,6 @@
                 <groupId>org.apache.poi</groupId>
                 <artifactId>ooxml-schemas</artifactId>
                 <version>1.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi-ooxml-schemas</artifactId>
-                <version>3.8</version>
             </dependency>
 
 			<dependency>
