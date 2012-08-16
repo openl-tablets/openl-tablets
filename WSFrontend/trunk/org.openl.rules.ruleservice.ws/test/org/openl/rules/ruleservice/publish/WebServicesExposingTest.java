@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
@@ -47,12 +46,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-
-    @AfterClass
-    public static void clearRepository() throws Exception {
-        ProductionRepositoryFactoryProxy.release();
-    }
-
+    
     @Test
     public void testServerPrototypes() {
         assertNotNull(applicationContext);
@@ -80,8 +74,9 @@ public class WebServicesExposingTest implements ApplicationContextAware {
                 TestConfigurer.getLastVersion(rulesLoader, "domain"));
 
         ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
-        new JcrProductionDeployer(new WorkspaceUserImpl("test")).deploy(testDeploymentProject,
-                domainDeployment.getProjects());
+        ProductionRepositoryFactoryProxy proxy = applicationContext.getBean("productionRepositoryFactoryProxy", ProductionRepositoryFactoryProxy.class);
+        new JcrProductionDeployer(proxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE).deploy(testDeploymentProject,
+                domainDeployment.getProjects(), new WorkspaceUserImpl("test"));
         for (int i = 0; i < 12; i++) {// waiting for redeploying of services
                                       // during.
             Thread.sleep(5000); // notifications come asynchroniously

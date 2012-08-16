@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class MultipleRuleServicePublisherTest {
@@ -17,9 +17,10 @@ public class MultipleRuleServicePublisherTest {
 
     @Test
     public void test() throws Exception {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+        ConfigurableApplicationContext applicationContext = new ClassPathXmlApplicationContext(
                 "classpath:multipleruleservicepublisher/openl-ruleservice-multipleruleservice-beans.xml");
         Assert.assertNotNull(applicationContext);
+        applicationContext.close();
     }
 
     public static class OtherJavaClassRuleServicePublisher extends

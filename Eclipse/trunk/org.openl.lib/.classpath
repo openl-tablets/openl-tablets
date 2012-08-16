@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/commons-configuration-1.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm-3.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep-2.2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cloning-1.7.9.jar"/>

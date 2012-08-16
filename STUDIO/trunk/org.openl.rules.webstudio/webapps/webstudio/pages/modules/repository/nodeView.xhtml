@@ -194,7 +194,7 @@
       </h:panelGrid>
     </h:panelGroup>
     <h:panelGrid columns="7" cellpadding="3" cellspacing="0" rendered="#{not artefact.deleted}">
-      <h:commandButton id="deployId" rendered="#{repositoryTreeState.canDeploy}" value="Deploy" action="#{deploymentController.deploy}">
+      <h:commandButton id="deployId" rendered="#{repositoryTreeState.canDeploy}" value="Deploy" onclick="openSelectRepositoryDialog();return false;">
           <rich:tooltip showDelay="500">Deploy into operations or staging</rich:tooltip>
       </h:commandButton>
 

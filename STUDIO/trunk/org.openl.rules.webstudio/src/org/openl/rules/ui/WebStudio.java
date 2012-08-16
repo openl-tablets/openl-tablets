@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -31,7 +32,6 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
-import org.openl.rules.webstudio.ConfigManager;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -82,8 +82,8 @@ public class WebStudio {
 
     private RulesProjectDependencyManager dependencyManager;
 
-    private ConfigManager systemConfigManager;
-    private ConfigManager userSettingsManager;
+    private ConfigurationManager systemConfigManager;
+    private ConfigurationManager userSettingsManager;
 
     private boolean needRestart = false;
 
@@ -91,7 +91,7 @@ public class WebStudio {
         boolean initialized = false;
 
         systemConfigManager = WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-            .getBean(ConfigManager.class);
+            .getBean(ConfigurationManager.class);
 
         try {
             initialized = init(session);
@@ -104,7 +104,7 @@ public class WebStudio {
             projectResolver.setWorkspace(workspacePath);
         }
 
-        userSettingsManager = new ConfigManager(false,
+        userSettingsManager = new ConfigurationManager(false,
                 systemConfigManager.getStringProperty("user.settings.home") + File.separator
                     + WebStudioUtils.getRulesUserSession(session).getUserName() + File.separator
                     + USER_SETTINGS_FILENAME,
@@ -138,11 +138,11 @@ public class WebStudio {
         
     }
 
-    public ConfigManager getSystemConfigManager() {
+    public ConfigurationManager getSystemConfigManager() {
         return systemConfigManager;
     }
 
-    public ConfigManager getUserSettingsManager() {
+    public ConfigurationManager getUserSettingsManager() {
         return userSettingsManager;
     }
 

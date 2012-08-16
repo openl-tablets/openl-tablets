@@ -12,6 +12,7 @@ import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
  * This class is responsible for creating <code>ProductionDeployer</code>
  * instances for given users.
  */
+@Deprecated
 public class ProductionDeployerManagerImpl implements ProductionDeployerManager {
     /**
      * User name -> Production deployer.
@@ -25,7 +26,7 @@ public class ProductionDeployerManagerImpl implements ProductionDeployerManager 
     public synchronized ProductionDeployer getDeployer(WorkspaceUser user) throws DeploymentException {
         ProductionDeployer productionDeployer = deployers.get(user.getUserId());
         if (productionDeployer == null) {
-            deployers.put(user.getUserId(), productionDeployer = new JcrProductionDeployer(user));
+//            deployers.put(user.getUserId(), productionDeployer = new JcrProductionDeployer(user));
         }
 
         return productionDeployer;

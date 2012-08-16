@@ -27,6 +27,20 @@
         }
 
         .pathInput { width: 211px; }
+        
+        .fields .repositoryConfig {
+            margin-left: 0px;
+        }
+        
+        .repositoryConfig {
+            border-style: dotted;
+            border-color: gray;
+            border-width: thin;
+        }
+        
+        .repositoryConfig .repositoryConfigButton {
+            vertical-align: top;
+        }
     </style>
 
     <script>
@@ -133,7 +147,7 @@
                 <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
                     <section>
                         <h3>Design Repository</h3>
-                        <div>
+                        <div class="repositoryConfig">
                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                 <h:outputText value="Repository Name:" />
                                 <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
@@ -153,25 +167,61 @@
                         </div>
                     </section>
                     <section>
-                        <h3>Production Repository</h3>
-                        <div>
-                            <h:panelGrid columns="2" columnClasses="titleColumn">
-                                <h:outputText value="Repository Name:" />
-                                <h:inputText value="#{systemSettingsBean.productionRepositoryName}" disabled="true" />
-                                <h:outputText value="Repository Type:" />
-                                <h:selectOneMenu value="#{systemSettingsBean.productionRepositoryType}">
-                                    <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
-                                    <f:selectItem itemValue="local" itemLabel="Local" />
-                                    <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
-                                    <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                                </h:selectOneMenu>
-                                <h:outputText id="productionRepositoryPathTitle"
-                                    value="Repository #{systemSettingsBean.productionRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
-                                <h:inputText id="productionRepositoryPath"
-                                    value="#{systemSettingsBean.productionRepositoryPath}" styleClass="pathInput"
-                                    disabled="#{systemSettingsBean.productionRepositoryPathSystem}" />
-                            </h:panelGrid>
-                        </div>
+                        <h3>Production Repositories</h3>
+                        <table>
+                        <tr>
+                        <a4j:repeat value="#{systemSettingsBean.productionRepositoryConfigurations}" var="repository">
+                            <td class="repositoryConfig">
+                                <table>
+                                <tr>
+                                <td>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <h:outputText value="Repository Name:" />
+                                    <h:inputText value="#{repository.name}" />
+                                    <h:outputText value="Repository Type:" />
+                                    <h:selectOneMenu value="#{repository.type}">
+                                        <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
+                                        <f:selectItem itemValue="local" itemLabel="Local" />
+                                        <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                                        <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                    </h:selectOneMenu>
+                                    <h:outputText id="productionRepositoryPathTitle"
+                                        value="Repository #{repository.type == 'local' ? 'Directory' : 'URL'}:" />
+                                    <h:inputText id="productionRepositoryPath"
+                                        value="#{repository.path}" styleClass="pathInput"
+                                        disabled="#{repository.productionRepositoryPathSystem}" />
+                                </h:panelGrid>
+                                </td>
+                                <td class="repositoryConfigButton">
+                                    <a4j:commandLink action="#{systemSettingsBean.saveProductionRepository(repository.configName)}" title="Save repository" styleClass="toolbarButton menuButton"
+                                        render="repositoryProps"
+                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                        <img src="webresource/images/admin/systemSettings/save.png" alt="Save" title="Save repository"/>
+                                    </a4j:commandLink>
+                                </td>
+                                <td class="repositoryConfigButton">
+                                    <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}" title="Delete repository" styleClass="toolbarButton menuButton"
+                                        render="repositoryProps"
+                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                        <img src="webresource/images/admin/systemSettings/delete.png" alt="Delete" title="Delete repository"/>
+                                    </a4j:commandLink>
+                                </td>
+                                </tr>
+                                </table>
+                            </td>
+                        </a4j:repeat>
+                        <td class="addRepositoryConfig">
+                            <a4j:commandLink action="#{systemSettingsBean.addProductionRepository}" title="Add" styleClass="toolbarButton menuButton"
+                                render="repositoryProps"
+                                onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                <img src="webresource/images/admin/systemSettings/add.png" alt="Add" title="Add new repository"/>
+                            </a4j:commandLink>
+                        </td>
+                        </tr>
+                        </table>
                     </section>
                 </h:panelGroup>
             </div>

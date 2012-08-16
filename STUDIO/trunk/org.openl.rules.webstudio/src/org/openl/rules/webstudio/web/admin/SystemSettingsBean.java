@@ -1,15 +1,26 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.webstudio.ConfigManager;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -20,6 +31,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @ManagedBean
 @RequestScoped
 public class SystemSettingsBean {
+    private final Log log = LogFactory.getLog(SystemSettingsBean.class);
 
     private static final String WORKSPACES_ROOT = "workspace.root";
     private static final String LOCAL_WORKSPACE = "workspace.local.home";
@@ -45,8 +57,7 @@ public class SystemSettingsBean {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
     };
 
-    private static final String PRODUCTION_REPOSITORY_FACTORY = "production-repository.factory";
-    private static final String PRODUCTION_REPOSITORY_NAME = "production-repository.name";
+    private static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
@@ -62,7 +73,15 @@ public class SystemSettingsBean {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
     };
 
-    private ConfigManager configManager = WebStudioUtils.getWebStudio().getSystemConfigManager();
+    private ConfigurationManager configManager = WebStudioUtils.getWebStudio().getSystemConfigManager();
+
+    private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
+    
+    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    private ConfigurationManagerFactory productionConfigManagerFactory;
+    
+    @ManagedProperty(value="#{deploymentManager}")
+    private DeploymentManager deploymentManager;
 
     public String getWorkspacesRoot() {
         return configManager.getStringProperty(WORKSPACES_ROOT);
@@ -139,43 +158,20 @@ public class SystemSettingsBean {
         return configManager.isSystemProperty(
                 DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
-
-    public String getProductionRepositoryName() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_NAME);
-    }
-
-    public void setProductionRepositoryName(String name) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_NAME, name);
-    }
-
-    public String getProductionRepositoryType() {
-        String factory = configManager.getStringProperty(PRODUCTION_REPOSITORY_FACTORY);
-        return (String) PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
-    }
-
-    public void setProductionRepositoryType(String type) {
-        configManager.setProperty(
-                PRODUCTION_REPOSITORY_FACTORY, PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.get(type));
-    }
-
-    public String getProductionRepositoryPath() {
-        String type = getProductionRepositoryType();
-        return configManager.getStringProperty(
-                PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
-    }
-
-    public void setProductionRepositoryPath(String path) {
-        String type = getProductionRepositoryType();
-        configManager.setProperty(
-                PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
-    }
-
-    public boolean isProductionRepositoryPathSystem() {
-        String type = getProductionRepositoryType();
-        return configManager.isSystemProperty(
-                PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
-    }
     
+    public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
+        productionRepositoryConfigurations.clear();
+        
+        String[] repositoryConfigNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+        for (String configName : repositoryConfigNames) {
+            ConfigurationManager productionConfig = getProductionConfigManager(configName);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
+            productionRepositoryConfigurations.add(config);
+        }
+        
+        return productionRepositoryConfigurations;
+    }
+
     public boolean isCustomSpreadsheetType() {
         return OpenLSystemProperties.isCustomSpreadsheetType(configManager.getProperties());
     }
@@ -193,6 +189,14 @@ public class SystemSettingsBean {
     }
 
     public void applyChanges() {
+        for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+            saveProductionRepository(prodConfig);
+        }
+
+        saveSystemConfig();
+    }
+
+    private void saveSystemConfig() {
         boolean saved = configManager.save();
         if (saved) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
@@ -201,9 +205,183 @@ public class SystemSettingsBean {
 
     public void restoreDefaults() {
         boolean restored = configManager.restoreDefaults();
+        // TODO remove production repository properties
         if (restored) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
         }
     }
 
+    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
+        this.productionConfigManagerFactory = productionConfigManagerFactory;
+    }
+    
+    public void setDeploymentManager(DeploymentManager deploymentManager) {
+        this.deploymentManager = deploymentManager;
+    }
+
+    public void addProductionRepository() {
+        try {
+            String emptyConfigName = "";
+            RepositoryConfiguration template = new RepositoryConfiguration(emptyConfigName, getProductionConfigManager(emptyConfigName));
+            
+            String templateName = template.getName();
+            String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+            long maxNumber = getMaxNumberOfTemplatedNames(configNames, templateName);
+            
+            String newNum = String.valueOf(maxNumber + 1);
+            String newConfignName = getConfigName(templateName + newNum);
+            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfignName, getProductionConfigManager(newConfignName));
+            newConfig.setName(templateName + newNum);
+            newConfig.save();
+            
+            configNames = (String[]) ArrayUtils.add(configNames, newConfignName);
+            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
+            saveSystemConfig();
+            
+            deploymentManager.addRepository(newConfignName);
+            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            FacesUtils.addErrorMessage(e.getMessage());
+        }
+    }
+
+    public void deleteProductionRepository(String configName) {
+        try {
+            deploymentManager.removeRepository(configName);
+            
+            String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+            configNames = (String[]) ArrayUtils.removeElement(configNames, configName);
+            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
+            
+            String repositoryName = "";
+            for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+                if (prodConfig.getConfigName().equals(configName)) {
+                    repositoryName = prodConfig.getName();
+                    prodConfig.delete();
+                    break;
+                }
+            }
+    
+            saveSystemConfig();
+            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            FacesUtils.addErrorMessage(e.getMessage());
+        }
+    }
+    
+    public void saveProductionRepository(String configName) {
+        for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+            if (prodConfig.getConfigName().equals(configName)) {
+                try {
+                    if (prodConfig.isNameChanged()) {
+                        validate(prodConfig);
+                    }
+    
+                    saveProductionRepository(prodConfig);
+                    FacesUtils.addInfoMessage("Repository '" + prodConfig.getName() + "' is saved successfully");
+                    break;
+                } catch (Exception e) {
+                    FacesUtils.addErrorMessage(e.getMessage());
+                }
+            }
+        }
+    }
+
+    private void validate(RepositoryConfiguration prodConfig) {
+        // Check for name uniqueness.
+        for (RepositoryConfiguration other : productionRepositoryConfigurations) {
+            if (other != prodConfig && prodConfig.getName().equals(other.getName())) {
+                String msg = "All repository names must be unique";
+                throw new IllegalArgumentException(msg);
+            }
+        }
+    }
+
+    private void saveProductionRepository(RepositoryConfiguration prodConfig) {
+        boolean changed = prodConfig.save();
+        if (changed) {
+            try {
+                deploymentManager.removeRepository(prodConfig.getConfigName());
+            } catch (RRepositoryException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+
+            if (prodConfig.isNameChangedIgnoreCase()) {
+                prodConfig = renameConfigName(prodConfig);
+            }
+
+            deploymentManager.addRepository(prodConfig.getConfigName());
+        }
+    }
+
+    private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
+        // Move config to a new file
+        String newConfigName = getConfigName(prodConfig.getName());
+        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
+        newConfig.copyContent(prodConfig);
+        newConfig.save();
+        
+        // Rename link to a file in system config
+        String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
+        for (int i = 0; i < configNames.length; i++) {
+            if (configNames[i].equals(prodConfig.getConfigName())) {
+                // Found necessary link - rename it
+                configNames[i] = newConfigName;
+                configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
+                saveSystemConfig();
+                break;
+            }
+        }
+        
+        // Delete old config file
+        prodConfig.delete();
+        
+        return newConfig;
+    }
+
+    private ConfigurationManager getProductionConfigManager(String configName) {
+        return productionConfigManagerFactory.getConfigurationManager(configName);
+    }
+    
+    private String getConfigName(String repositoryName) {
+        String configName = "rules-";
+        if (repositoryName != null) {
+            configName += repositoryName.toLowerCase();
+        }
+        configName += ".properties";
+        
+        return configName;
+    }
+
+    private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName) {
+        Pattern pattern = Pattern.compile("rules-" + templateName.toLowerCase() + "\\d+\\.properties");
+        
+        int startPosition = ("rules-" + templateName).length();
+        int suffixLength = ".properties".length();
+        
+        long maxNumber = 0;
+        for (String configName : configNames) {
+            if (pattern.matcher(configName).matches()) {
+                long sequenceNumber;
+                try {
+                    sequenceNumber = Long.parseLong(configName.substring(startPosition, configName.length() - suffixLength));
+                } catch (NumberFormatException ignore) {
+                    continue;
+                }
+                
+                if (sequenceNumber > maxNumber) {
+                    maxNumber = sequenceNumber;
+                }
+            }
+        }
+        return maxNumber;
+    }
 }

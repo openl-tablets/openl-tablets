@@ -8,16 +8,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+@DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;

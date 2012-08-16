@@ -27,8 +27,6 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void createProject(String name) throws ProjectException;
 
-    DeployID deploy(ADeploymentProject deploymentProject) throws ProjectException;
-
     ADeploymentProject getDDProject(String name) throws ProjectException;
 
     List<ADeploymentProject> getDDProjects() throws ProjectException;
