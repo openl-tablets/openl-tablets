@@ -999,10 +999,6 @@ public class RulesUtils {
     public static int second(Date d) {
         return DateTool.second(d);
     }
-
-    public static int millisecond(Date d) {
-        return DateTool.millisecond(d);
-    }
     
     public static int minute(Date d) {
         return DateTool.minute(d);
@@ -1155,7 +1151,7 @@ public class RulesUtils {
         return value.setScale(scale, roundingMethod);
     }
     
-    public static Object[] removeNulls(Object[] array) {
+    public static <T> T[] removeNulls(T[] array) {
     	return ArrayTool.removeNulls(array);
     }
     
