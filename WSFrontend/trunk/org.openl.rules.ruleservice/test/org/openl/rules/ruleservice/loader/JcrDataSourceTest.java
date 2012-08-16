@@ -8,6 +8,7 @@ import static org.openl.rules.ruleservice.Constants.VERSION;
 
 import java.util.Collection;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,11 +18,16 @@ import org.openl.rules.project.abstraction.Deployment;
 
 public class JcrDataSourceTest {
 
-    private static DataSource dataSource;
+    private static JcrDataSource dataSource;
 
     @BeforeClass
     public static void setDataSource() throws Exception {
         dataSource = new JcrDataSource();
+    }
+    
+    @AfterClass
+    public static void releaseDataSource() throws Exception {
+        dataSource.destroy();
     }
 
     @Test

@@ -1,6 +1,7 @@
-package org.openl.rules.webstudio;
+package org.openl.config;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,12 +19,11 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author Andrei Astrouski
  * 
- * TODO Move to Commons project
  * TODO Separate configuration sets from the manager
  */
-public class ConfigManager {
+public class ConfigurationManager {
 
-    private final Log log = LogFactory.getLog(ConfigManager.class);
+    private final Log log = LogFactory.getLog(ConfigurationManager.class);
 
     private boolean useSystemProperties;
     private String propsLocation;
@@ -35,12 +35,12 @@ public class ConfigManager {
     private FileConfiguration defaultConfiguration;
     private CompositeConfiguration compositeConfiguration;
 
-    public ConfigManager(boolean useSystemProperties,
+    public ConfigurationManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation) {
         this(useSystemProperties, propsLocation, defaultPropsLocation, false);
     }
 
-    public ConfigManager(boolean useSystemProperties,
+    public ConfigurationManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation, boolean autoSave) {
         this.useSystemProperties = useSystemProperties;
         this.propsLocation = propsLocation;
@@ -96,6 +96,10 @@ public class ConfigManager {
         return compositeConfiguration.getString(key);
     }
 
+    public String[] getStringArrayProperty(String key) {
+        return compositeConfiguration.getStringArray(key);
+    }
+
     public boolean getBooleanProperty(String key) {
         return compositeConfiguration.getBoolean(key);
     }
@@ -104,17 +108,37 @@ public class ConfigManager {
         Map<String, Object> properties = new HashMap<String, Object>();
         for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
-            properties.put(key, getStringProperty(key));
+            
+            Object value = compositeConfiguration.getProperty(key);
+            if (value instanceof Collection || value != null && value.getClass().isArray()) {
+                properties.put(key, getStringArrayProperty(key));
+            } else {
+                properties.put(key, getStringProperty(key));
+            }
         }
         return properties;
     }
 
     public void setProperty(String key, Object value) {
         if (key != null && value != null) {
-            String defaultValue = compositeConfiguration.getString(key);
-            if (defaultValue != null) {
-                if (!defaultValue.equals(value.toString())) {
-                    getConfigurationToSave().setProperty(key, value.toString());
+            if (!(value instanceof Collection) && !value.getClass().isArray()) {
+                String defaultValue = compositeConfiguration.getString(key);
+                if (defaultValue != null) {
+                    if (!defaultValue.equals(value.toString())) {
+                        getConfigurationToSave().setProperty(key, value.toString());
+                    }
+                }
+            } else {
+                String[] defaultValue = compositeConfiguration.getStringArray(key);
+                if (defaultValue != null) {
+                    if (value instanceof Collection) {
+                        @SuppressWarnings("unchecked")
+                        Collection<String> v = (Collection<String>) value; 
+                        value = v.toArray(new String[v.size()]);
+                    }
+                    if (!defaultValue.equals(value)) {
+                        getConfigurationToSave().setProperty(key, value);
+                    }
                 }
             }
         }
@@ -157,6 +181,17 @@ public class ConfigManager {
         }
 
         return false;
+    }
+    
+    public boolean delete() {
+        boolean deleted = false;
+        
+        if (configurationToSave != null) {
+            deleted = configurationToSave.getFile().delete();
+            configurationToSave = null;
+        }
+        
+        return deleted;
     }
 
 }

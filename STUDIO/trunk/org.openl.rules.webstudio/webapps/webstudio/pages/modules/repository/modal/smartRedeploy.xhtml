@@ -50,6 +50,14 @@
         <input value="Reset All" type="button" onclick="selectAll4SmartRedeploy(false); return false;" />
       </h:panelGrid>
 
+      <h:panelGroup id="selectProductionRepository">
+        <h:outputText value="Select a production repository:" />
+        <h:selectOneMenu value="#{smartRedeployController.repositoryConfigName}">
+          <br/>
+          <f:selectItems value="#{smartRedeployController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
+        </h:selectOneMenu>
+      </h:panelGroup>
+
       <h:panelGrid id="processing" columns="2" cellpadding="4" cellspacing="0"
         styleClass="dr-mpnl-pnl"
         style="width:100px; height:28px; position:absolute; top:120px; left:150px; border-width:2px; visibility:hidden;" >

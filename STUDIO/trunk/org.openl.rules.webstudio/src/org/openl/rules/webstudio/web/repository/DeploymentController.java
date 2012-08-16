@@ -1,9 +1,23 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -13,20 +27,9 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.model.SelectItem;
 
 /**
  * Deployment controller.
@@ -41,12 +44,16 @@ public class DeploymentController {
     private String projectName;
     private String version;
     private String cachedForProject;
+    private String repositoryConfigName;
 
     @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
     @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
+
+    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    private ConfigurationManagerFactory productionConfigManagerFactory;
 
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
@@ -127,12 +134,16 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
+            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
+            RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig);
+
             try {
-                DeployID id = deploymentManager.deploy(project);
-                FacesUtils.addInfoMessage("Project '" + project.getName()
-                                + "' successfully deployed with id: " + id.getName());
+                DeployID id = deploymentManager.deploy(project, repositoryConfigName);
+                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'", 
+                        project.getName(), id.getName(), repo.getName());
+                FacesUtils.addInfoMessage(message);
             } catch (Exception e) {
-                String msg = "Failed to deploy '" + project.getName() + "'";
+                String msg = String.format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
                 log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -275,6 +286,10 @@ public class DeploymentController {
         this.deploymentManager = deploymentManager;
     }
 
+    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
+        this.productionConfigManagerFactory = productionConfigManagerFactory;
+    }
+
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
@@ -289,5 +304,32 @@ public class DeploymentController {
     
     public boolean isModified() {
         return getSelectedProject().isModifiedDescriptors();
+    }
+
+    public String getRepositoryConfigName() {
+        return repositoryConfigName;
+    }
+
+    public void setRepositoryConfigName(String repositoryConfigName) {
+        this.repositoryConfigName = repositoryConfigName;
+    }
+    
+    public Collection<RepositoryConfiguration> getRepositories() {
+        List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
+        Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
+        for (String configName : repositoryConfigNames) {
+            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
+            repos.add(config);
+        }
+        
+        Collections.sort(repos, new Comparator<RepositoryConfiguration>() {
+            @Override
+            public int compare(RepositoryConfiguration o1, RepositoryConfiguration o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+            
+        });
+        return repos;
     }
 }

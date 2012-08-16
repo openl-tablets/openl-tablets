@@ -92,11 +92,6 @@ public class StartupListener implements ServletContextListener {
 
     public void contextDestroyed(ServletContextEvent event) {
         try {
-            ProductionRepositoryFactoryProxy.release();
-        } catch (RRepositoryException e) {
-            log.error("Failed to release production repository", e);
-        }
-        try {
             RulesRepositoryFactory.release();
         } catch (RRepositoryException e) {
             log.error("Failed to release rules repository", e);
