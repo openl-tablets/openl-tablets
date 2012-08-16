@@ -301,9 +301,17 @@ public interface IWritableGrid extends IGrid {
             IGridRegion headerRegion = grid.getCell(leftCell, topCell).getAbsoluteRegion();
 
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+            
+            actions.add(new UndoableClearAction(leftCell, headerRegion.getBottom() + 1));
             actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1, leftCell, headerRegion
                     .getBottom() + 1, tableRegion.getRight())));
             actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME));
+            
+            // clear cells for properties
+            for (int prpCell = leftCell + 1; prpCell < leftCell + 3; prpCell++) {
+                actions.add(new UndoableClearAction(prpCell, headerRegion.getBottom() + 1));
+            }
+            
             if (regionWidth > 3) {
                 // clear cells
                 for (int j = leftCell + 3; j < leftCell + regionWidth; j++) {

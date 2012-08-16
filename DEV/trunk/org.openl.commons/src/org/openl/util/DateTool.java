@@ -92,12 +92,6 @@ public class DateTool {
         return month(d) / 3;
     }
 
-    public static int millisecond(Date d) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
-        return c.get(Calendar.MILLISECOND);
-    }
-
     public static int second(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);

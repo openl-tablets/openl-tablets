@@ -81,7 +81,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         min = res.getMin().intValue();
         if (!res.getMin().equals(min)) {
             // For example, is converted from Long to Integer
-            throw new IllegalArgumentException("Min value is truncated");
+            throw new IllegalArgumentException("Min value is out of int values range.");
         }
         if(res.getLeftBoundType() == BoundType.EXCLUDING){
             min++;
@@ -90,10 +90,13 @@ public class IntRange extends IntRangeDomain implements INumberRange {
         max = res.getMax().intValue();
         if (!res.getMax().equals(max)) {
             // For example, is converted from Long to Integer
-            throw new IllegalArgumentException("Max value is truncated");
+            throw new IllegalArgumentException("Max value is out of int values range.");
         }
         if(res.getRightBoundType() == BoundType.EXCLUDING){
             max--;
+        }
+        if (min > max) {
+            throw new RuntimeException(max + " must be more or equal than " + min);
         }
     }
 }
