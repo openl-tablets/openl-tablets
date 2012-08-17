@@ -25,6 +25,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
+ * TODO Move methods for production repository to another class
  * 
  * @author Andrei Astrouski
  */
@@ -189,11 +190,22 @@ public class SystemSettingsBean {
     }
 
     public void applyChanges() {
-        for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
-            saveProductionRepository(prodConfig);
+        try {
+            for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+                validate(prodConfig);
+            }
+    
+            for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+                saveProductionRepository(prodConfig);
+            }
+    
+            saveSystemConfig();
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+            FacesUtils.addErrorMessage(e.getMessage());
         }
-
-        saveSystemConfig();
     }
 
     private void saveSystemConfig() {
@@ -221,17 +233,24 @@ public class SystemSettingsBean {
 
     public void addProductionRepository() {
         try {
-            String emptyConfigName = "";
+            String emptyConfigName = "_new_";
             RepositoryConfiguration template = new RepositoryConfiguration(emptyConfigName, getProductionConfigManager(emptyConfigName));
             
             String templateName = template.getName();
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
-            long maxNumber = getMaxNumberOfTemplatedNames(configNames, templateName);
+            long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
+            
+            String templatePath = template.getPath();
+            String[] paths = new String[configNames.length];
+            for (int i = 0; i < configNames.length; i++) {
+                paths[i] = new RepositoryConfiguration(configNames[i], getProductionConfigManager(configNames[i])).getPath();
+            }
             
             String newNum = String.valueOf(maxNumber + 1);
             String newConfignName = getConfigName(templateName + newNum);
             RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfignName, getProductionConfigManager(newConfignName));
             newConfig.setName(templateName + newNum);
+            newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
             newConfig.save();
             
             configNames = (String[]) ArrayUtils.add(configNames, newConfignName);
@@ -279,9 +298,7 @@ public class SystemSettingsBean {
         for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
             if (prodConfig.getConfigName().equals(configName)) {
                 try {
-                    if (prodConfig.isNameChanged()) {
-                        validate(prodConfig);
-                    }
+                    validate(prodConfig);
     
                     saveProductionRepository(prodConfig);
                     FacesUtils.addInfoMessage("Repository '" + prodConfig.getName() + "' is saved successfully");
@@ -293,12 +310,19 @@ public class SystemSettingsBean {
         }
     }
 
-    private void validate(RepositoryConfiguration prodConfig) {
+    private void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
-            if (other != prodConfig && prodConfig.getName().equals(other.getName())) {
-                String msg = "All repository names must be unique";
-                throw new IllegalArgumentException(msg);
+            if (other != prodConfig) {
+                if (prodConfig.getName().equals(other.getName())) {
+                    String msg = String.format("Repository name '%s' already exists", prodConfig.getName());
+                    throw new RepositoryValidationException(msg);
+                }
+                
+                if (prodConfig.getPath().equals(other.getPath())) {
+                    String msg = String.format("Repository path '%s' already exists", prodConfig.getPath());
+                    throw new RepositoryValidationException(msg);
+                }
             }
         }
     }
@@ -361,11 +385,19 @@ public class SystemSettingsBean {
         return configName;
     }
 
-    private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName) {
-        Pattern pattern = Pattern.compile("rules-" + templateName.toLowerCase() + "\\d+\\.properties");
+    private long getMaxTemplatedConfigName(String[] configNames, String templateName) {
+        return getMaxNumberOfTemplatedNames(configNames, templateName, "rules-", ".properties");
+    }
+
+    private long getMaxTemplatedPath(String[] configNames, String templateName) {
+        return getMaxNumberOfTemplatedNames(configNames, templateName, "", "");
+    }
+    
+    private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName, String prefix, String suffix) {
+        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName.toLowerCase() + "\\E\\d+\\Q" + suffix + "\\E");
         
-        int startPosition = ("rules-" + templateName).length();
-        int suffixLength = ".properties".length();
+        int startPosition = (prefix + templateName).length();
+        int suffixLength = suffix.length();
         
         long maxNumber = 0;
         for (String configName : configNames) {
