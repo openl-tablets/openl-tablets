@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.AbsolutePosition;
@@ -28,8 +26,6 @@ import org.openl.util.text.TextInterval;
  */
 public class Tokenizer {
 	
-	private final Log log = LogFactory.getLog(Tokenizer.class);
-
     private static final int EOF = -1;
     private static String TOKEN_TYPE = "token";
 
@@ -110,8 +106,6 @@ public class Tokenizer {
                         TextInterval location = new TextInterval(new AbsolutePosition(startToken),
                                 new AbsolutePosition(position));
 
-                        log.info("startToken: " + startToken + " endToken: " + position + " value: " + "'" + value + "'");
-                        
                         return new IdentifierNode(TOKEN_TYPE, location, value, source);
                     }
                 } else {
