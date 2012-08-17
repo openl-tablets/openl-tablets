@@ -32,6 +32,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @ManagedBean
 @RequestScoped
 public class SystemSettingsBean {
+    private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
+
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
 
     private static final String WORKSPACES_ROOT = "workspace.root";
@@ -247,17 +249,17 @@ public class SystemSettingsBean {
             }
             
             String newNum = String.valueOf(maxNumber + 1);
-            String newConfignName = getConfigName(templateName + newNum);
-            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfignName, getProductionConfigManager(newConfignName));
+            String newConfigName = getConfigName(templateName + newNum);
+            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
             newConfig.save();
             
-            configNames = (String[]) ArrayUtils.add(configNames, newConfignName);
+            configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
             saveSystemConfig();
             
-            deploymentManager.addRepository(newConfignName);
+            deploymentManager.addRepository(newConfigName);
             FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -311,6 +313,10 @@ public class SystemSettingsBean {
     }
 
     private void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
+        if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
+            String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
+            throw new RepositoryValidationException(msg);
+        }
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
@@ -318,7 +324,7 @@ public class SystemSettingsBean {
                     String msg = String.format("Repository name '%s' already exists", prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
-                
+
                 if (prodConfig.getPath().equals(other.getPath())) {
                     String msg = String.format("Repository path '%s' already exists", prodConfig.getPath());
                     throw new RepositoryValidationException(msg);
