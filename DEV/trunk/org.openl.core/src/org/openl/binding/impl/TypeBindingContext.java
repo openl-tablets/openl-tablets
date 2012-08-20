@@ -1,9 +1,10 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 /**
@@ -13,18 +14,18 @@ import org.openl.types.IOpenField;
  * @author PUdalau
  */
 public class TypeBindingContext extends BindingContextDelegator {
-    private IOpenClass componentType;
+    private RootDictionaryContext context;
 
-    public TypeBindingContext(IBindingContext delegate, IOpenClass componentType) {
+    public TypeBindingContext(IBindingContext delegate, ILocalVar localVar) {
         super(delegate);
-        this.componentType = componentType;
+        context = new RootDictionaryContext(new IOpenField[]{localVar}, 1);
     }
 
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
         IOpenField res = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
-            res = componentType.getField(name, strictMatch);
+            res = context.findField(name);
         }
 
         return res != null ? res : super.findVar(namespace, name, strictMatch);

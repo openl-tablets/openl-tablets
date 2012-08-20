@@ -167,6 +167,19 @@ public class BindHelper {
             return new ErrorBoundNode(node);
         }
     }
+    
+    /**
+     * Analyzes the binding context and returns the name for
+     * internal/temporary/service variable with the name: varNamePrefix + '$' +
+     * available_index.
+     */
+    public static String getTemporaryVarName(IBindingContext bindingContext, String namespace, String varNamePrefix){
+        int index = 0;
+        while(bindingContext.findVar(namespace, varNamePrefix+"$"+index, true) != null){
+            index++;
+        }
+        return varNamePrefix+"$"+index;
+    }
 
     
 }
