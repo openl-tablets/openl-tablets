@@ -7,6 +7,10 @@
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
+  <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
+  <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
+  <import resource="classpath:META-INF/standalone/spring/security-properties-beans.xml" />
+
   <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
     of "securityContextPersistenceFilter" in the list below -->
 
