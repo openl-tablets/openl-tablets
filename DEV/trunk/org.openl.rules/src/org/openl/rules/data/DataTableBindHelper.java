@@ -32,7 +32,7 @@ public class DataTableBindHelper {
     protected static final String CONSTRUCTOR_FIELD = "this";
 
     private static final String CODE_DELIMETERS = ". \n\r";
-    private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
+    private static final String INDEX_ROW_REFERENCE_DELIMITER = ". >\n\r";
 
     /**
      * Foreign keys row is optional for data table. It consists reference for
