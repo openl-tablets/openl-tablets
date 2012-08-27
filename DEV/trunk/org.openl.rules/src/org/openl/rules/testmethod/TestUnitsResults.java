@@ -9,8 +9,16 @@ import java.util.List;
 import org.apache.commons.lang.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.data.ColumnDescriptor;
+import org.openl.rules.data.FieldChain;
+import org.openl.rules.data.ITableModel;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 
 /**
  * Test units results for the test table.
@@ -44,13 +52,51 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public void addTestUnit(TestUnit testUnit) {
-        if (TestMethodFactory.shouldBeConverted(testUnit)) {
-            testUnits.add(TestMethodFactory.updateTestUnit(testUnit));
-        } else {
-            testUnits.add(testUnit);
-        }
+        testUnits.add(updateTestUnit(testUnit));
     }
     
+    /**
+     * Creates the list of test unit results. 
+     * 
+     * @param testedMethod method that is tested by test
+     * @param testObj instance of the object that was used as input test data
+     * @param runningResult result of running the test
+     * @param ex exception during test running
+     * @return list of test unit results
+     */
+    public TestUnit updateTestUnit(TestUnit testUnit) {
+        ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
+        List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
+        IOpenClass resultType = testSuite.getTestedMethod().getType();
+        for (ColumnDescriptor columnDescriptor : dataModel.getDescriptor()) {
+            if (columnDescriptor != null) {
+                IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
+                if (nodes.length > 1 && TestMethodHelper.EXPECTED_RESULT_NAME.equals(nodes[0].getIdentifier())) {
+                    // get the field name next to _res_ field, e.g.
+                    // "_res_.$Value$Name"
+                    if (nodes.length > 2) {
+                        IOpenField[] fieldSequence = new IOpenField[nodes.length - 1];
+                        IOpenClass currentType = resultType;
+                        for (int i = 0; i < fieldSequence.length; i++) {
+                            fieldSequence[i] = currentType.getField(nodes[i + 1].getIdentifier());
+                            currentType = fieldSequence[i].getType();
+                        }
+                        fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                    } else {
+                        fieldsToTest.add(resultType.getField(nodes[1].getIdentifier()));
+                    }
+                }
+            }
+        }
+        if (fieldsToTest.size() > 0) {
+            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(testUnit.getActualResult(),
+                testUnit.getExpectedResult(),
+                fieldsToTest);
+            testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
+        }
+        return testUnit;
+    }
+
     public void addTestUnits(List<TestUnit> testUnits) {
         testUnits.addAll(testUnits);
     }

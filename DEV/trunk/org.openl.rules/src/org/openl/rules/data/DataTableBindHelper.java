@@ -390,7 +390,7 @@ public class DataTableBindHelper {
                     constructorField,
                     foreignKeyTable,
                     foreignKey,
-                    header);
+                    header, fieldAccessorChainTokens);
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;      
             }
@@ -454,7 +454,7 @@ public class DataTableBindHelper {
             boolean constructorField,
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
-            StringValue header) {
+            StringValue header, IdentifierNode[] fieldChainTokens) {
         ColumnDescriptor currentColumnDescriptor;
 
         if (foreignKeyTable != null) {
@@ -462,9 +462,9 @@ public class DataTableBindHelper {
                 foreignKeyTable,
                 foreignKey,
                 header,
-                openl, constructorField);
+                openl, constructorField, fieldChainTokens);
         } else {
-            currentColumnDescriptor = new ColumnDescriptor(descriptorField, header, openl, constructorField);
+            currentColumnDescriptor = new ColumnDescriptor(descriptorField, header, openl, constructorField, fieldChainTokens);
         }
         return currentColumnDescriptor;
     }
