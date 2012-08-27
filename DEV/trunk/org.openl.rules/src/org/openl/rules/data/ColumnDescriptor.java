@@ -17,6 +17,7 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -39,12 +40,14 @@ public class ColumnDescriptor {
     private boolean constructor = false;    
 
     private Map<String, Integer> uniqueIndex = null;
+    private IdentifierNode[] fieldChainTokens;
 
-    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl, boolean constructor) {
+    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl, boolean constructor, IdentifierNode[] fieldChainTokens) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
         this.constructor = constructor;
+        this.fieldChainTokens = fieldChainTokens;
         if (field != null)
             this.valuesAnArray = isValuesAnArray(field.getType());
     }
@@ -118,6 +121,10 @@ public class ColumnDescriptor {
 
     public boolean isConstructor() {        
         return constructor;
+    }
+
+    public IdentifierNode[] getFieldChainTokens() {
+        return fieldChainTokens;
     }
 
     /**

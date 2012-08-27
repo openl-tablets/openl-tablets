@@ -1,6 +1,5 @@
 package org.openl.rules.testmethod;
 
-import java.util.List;
 import java.util.Set;
 
 import org.openl.binding.BindingDependencies;
@@ -10,7 +9,6 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -103,10 +101,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         }
     }
 
-    public synchronized IOpenClass getMethodBasedClass(List<IdentifierNode[]> columnIdentifiers) {
+    public synchronized IOpenClass getMethodBasedClass() {
 
         if (methodBasedClass == null) {
-            methodBasedClass = TestMethodFactory.getTestMethodOpenClass(testedMethod, tableName, columnIdentifiers);
+            methodBasedClass = new TestMethodOpenClass(tableName, testedMethod);
         }
 
         return methodBasedClass;
