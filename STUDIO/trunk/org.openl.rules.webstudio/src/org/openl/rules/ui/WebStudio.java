@@ -32,6 +32,7 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.webstudio.web.admin.SystemSettingsBean;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -71,6 +72,7 @@ public class WebStudio {
     private ProjectModel model = new ProjectModel(this);
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
+    private boolean updateSystemProperties;
 
     private RulesTreeView treeView;
     private String tableView;
@@ -102,6 +104,7 @@ public class WebStudio {
             workspacePath = systemConfigManager.getStringProperty("workspace.local.home");
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
+            updateSystemProperties = systemConfigManager.getBooleanProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES);
         }
 
         userSettingsManager = new ConfigurationManager(false,
@@ -157,6 +160,7 @@ public class WebStudio {
 
         projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         projectResolver.setWorkspace(workspacePath);
+        updateSystemProperties = systemConfigManager.getBooleanProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES);
 
         return true;
     }
@@ -395,6 +399,15 @@ public class WebStudio {
 
     public void setTableUri(String tableUri) {
         this.tableUri = tableUri;
+    }
+
+    public boolean isUpdateSystemProperties() {
+        return updateSystemProperties;
+    }
+
+    public void setUpdateSystemProperties(boolean updateSystemProperties) {
+        this.updateSystemProperties = updateSystemProperties;
+        systemConfigManager.setProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public boolean isShowFormulas() {
