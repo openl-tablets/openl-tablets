@@ -40,6 +40,7 @@ public class SystemSettingsBean {
     private static final String LOCAL_WORKSPACE = "workspace.local.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String DATE_PATTERN = "data.format.date";
+    public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
 
     private static final String AUTO_LOGIN = "security.login.auto";
 
@@ -116,6 +117,14 @@ public class SystemSettingsBean {
 
     public void setAutoLogin(boolean autoLogin) {
         configManager.setProperty(AUTO_LOGIN, autoLogin);
+    }
+
+    public boolean isUpdateSystemProperties() {
+        return configManager.getBooleanProperty(UPDATE_SYSTEM_PROPERTIES);
+    }
+
+    public void setUpdateSystemProperties(boolean autoLogin) {
+        configManager.setProperty(UPDATE_SYSTEM_PROPERTIES, autoLogin);
     }
 
     public String getProjectHistoryHome() {

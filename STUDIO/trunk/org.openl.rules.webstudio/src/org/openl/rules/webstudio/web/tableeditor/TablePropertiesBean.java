@@ -219,7 +219,9 @@ public class TablePropertiesBean {
         }
 
         if (toSave) {
-            EditHelper.updateSystemProperties(table, tableEditorModel);
+            if (studio.isUpdateSystemProperties()) {
+                EditHelper.updateSystemProperties(table, tableEditorModel);
+            }
             this.newTableUri = tableEditorModel.save();
             studio.rebuildModel();
         }

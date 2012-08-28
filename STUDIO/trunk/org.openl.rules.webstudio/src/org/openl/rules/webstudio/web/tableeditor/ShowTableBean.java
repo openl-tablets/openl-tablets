@@ -386,7 +386,11 @@ public class ShowTableBean {
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);    	
     	
-    	return EditHelper.updateSystemProperties(table, editorModel);
+        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
+            return EditHelper.updateSystemProperties(table, editorModel);
+        }else{
+            return true;
+        }
     }
 
     public void afterSaveAction(String newUri) {
