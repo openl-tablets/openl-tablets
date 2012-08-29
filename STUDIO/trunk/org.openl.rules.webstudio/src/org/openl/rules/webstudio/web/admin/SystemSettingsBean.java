@@ -36,12 +36,9 @@ public class SystemSettingsBean {
 
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
 
-    private static final String WORKSPACES_ROOT = "workspace.root";
-    private static final String LOCAL_WORKSPACE = "workspace.local.home";
+    private static final String USER_WORKSPACE_HOME = "user.workspace.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String DATE_PATTERN = "data.format.date";
-
-    private static final String AUTO_LOGIN = "security.login.auto";
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
@@ -82,24 +79,16 @@ public class SystemSettingsBean {
     
     @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
-    
+
     @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    public String getWorkspacesRoot() {
-        return configManager.getStringProperty(WORKSPACES_ROOT);
+    public String getUserWorkspaceHome() {
+        return configManager.getStringProperty(USER_WORKSPACE_HOME);
     }
 
-    public void setWorkspacesRoot(String workspacesRoot) {
-        configManager.setProperty(WORKSPACES_ROOT, workspacesRoot);
-    }
-
-    public String getLocalWorkspace() {
-        return configManager.getStringProperty(LOCAL_WORKSPACE);
-    }
-
-    public void setLocalWorkspace(String localWorkspace) {
-        configManager.setProperty(LOCAL_WORKSPACE, localWorkspace);
+    public void setUserWorkspaceHome(String userWorkspaceHome) {
+        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -108,14 +97,6 @@ public class SystemSettingsBean {
 
     public void setDatePattern(String datePattern) {
         configManager.setProperty(DATE_PATTERN, datePattern);
-    }
-
-    public boolean isAutoLogin() {
-        return configManager.getBooleanProperty(AUTO_LOGIN);
-    }
-
-    public void setAutoLogin(boolean autoLogin) {
-        configManager.setProperty(AUTO_LOGIN, autoLogin);
     }
 
     public String getProjectHistoryHome() {

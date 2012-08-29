@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.security.AccessManager;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -31,10 +30,6 @@ public class RulesUserSession {
         }
 
         return userWorkspace;
-    }
-    
-    public boolean isLocalUser(){
-        return AccessManager.LOCAL_USER_ID.equals(userWorkspace.getUser().getUserId());
     }
 
     public MultiUserWorkspaceManager getWorkspaceManager() {

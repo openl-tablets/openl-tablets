@@ -5,9 +5,8 @@
        default-autowire="no">
 
   <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl">
-    <property name="localWorkspace" value="#{systemConfig['workspace.local.home']}" />
-    <property name="workspacesRoot" value="#{systemConfig['workspace.root']}" />
-    <property name="autoLogin" value="#{systemConfig['security.login.auto']}" />
+    <property name="workspaceHome" value="#{systemConfig['user.workspace.home']}" />
+    <property name="singleUserMode" value="#{systemConfig['user.mode'] == 'single'}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
   </bean>

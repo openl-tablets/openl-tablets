@@ -21,7 +21,7 @@
       <security:filter-chain pattern="/javascript/**" filters="none" />
       <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
       <security:filter-chain pattern="/**"
-        filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,localUserFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
+        filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
     </security:filter-chain-map>
   </bean>
 
@@ -38,17 +38,6 @@
   </bean>
   <bean id="logoutUrl" class="java.lang.String">
     <constructor-arg value="/security_logout" />
-  </bean>
-
-  <bean id="localUserFilter" class="org.openl.rules.security.LocalUserFilter">
-    <property name="userDetailsService" ref="userDetailsService" />
-    <property name="autoLogin" value="#{systemConfig['security.login.auto']}" />
-    <property name="ignoredUrls">
-      <list>
-        <ref bean="logoutUrl" />
-        <ref bean="loginUrl" />
-      </list>
-    </property>
   </bean>
 
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">

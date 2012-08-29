@@ -20,6 +20,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public abstract class BusinessTableCreationWizard extends WizardBase {
 
@@ -107,13 +108,18 @@ public abstract class BusinessTableCreationWizard extends WizardBase {
     }
 
     protected Map<String, Object> buildSystemProperties() {
+        // TODO Set user.mode property via faces-config.xml
+        String userMode = WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode");
         Map<String, Object> result = new LinkedHashMap<String, Object>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
         for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
+            String systemValueDescriptor = systemPropDef.getSystemValueDescriptor();
+            if (userMode.equals("single") && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+                continue;
+            }
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
-                Object systemValue = SystemValuesManager.getInstance().
-                    getSystemValue(systemPropDef.getSystemValueDescriptor());
+                Object systemValue = SystemValuesManager.getInstance().getSystemValue(systemValueDescriptor);
                 if (systemValue != null) {
                     result.put(systemPropDef.getName(), systemValue);
                 }
