@@ -386,8 +386,11 @@ public class ShowTableBean {
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
-        return EditHelper.updateSystemProperties(table, editorModel,
-                WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
+        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
+            return EditHelper.updateSystemProperties(table, editorModel,
+                    WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
+        }
+        return true;
     }
 
     public void afterSaveAction(String newUri) {

@@ -219,8 +219,10 @@ public class TablePropertiesBean {
         }
 
         if (toSave) {
-            EditHelper.updateSystemProperties(table, tableEditorModel,
+            if (studio.isUpdateSystemProperties()) {
+                EditHelper.updateSystemProperties(table, tableEditorModel,
                     WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
+            }
             this.newTableUri = tableEditorModel.save();
             studio.rebuildModel();
         }

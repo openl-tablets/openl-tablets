@@ -142,8 +142,10 @@ public abstract class BusinessTableCreationWizard extends WizardBase {
         }
 
         // Put system properties.
-        Map<String, Object> systemProperties = buildSystemProperties();
-        properties.putAll(systemProperties);
+        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
+            Map<String, Object> systemProperties = buildSystemProperties();
+            properties.putAll(systemProperties);
+        }
 
         return properties;
     }

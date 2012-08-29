@@ -3,6 +3,7 @@ package org.openl.rules.testmethod.result;
 import java.util.List;
 
 import org.openl.rules.helpers.NumberUtils;
+import org.openl.types.IOpenField;
 
 public class TestResultComparatorFactory {
     
@@ -28,5 +29,11 @@ public class TestResultComparatorFactory {
     
     public static TestResultComparator getBeanComparator(Object actualResult, Object expectedResult, List<String> fieldsToTest) {
         return new BeanResultComparator(fieldsToTest);
+    }
+
+    public static TestResultComparator getOpenLBeanComparator(Object actualResult,
+            Object expectedResult,
+            List<IOpenField> fieldsToTest) {
+        return new OpenLBeanResultComparator(fieldsToTest);
     }
 }
