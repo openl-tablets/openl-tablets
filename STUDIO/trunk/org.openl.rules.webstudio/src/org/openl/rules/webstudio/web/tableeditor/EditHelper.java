@@ -12,33 +12,39 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 
 public final class EditHelper {
-	
-	private EditHelper(){}
-	
-	public static boolean updateSystemProperties(IOpenLTable table, TableEditorModel tableEditorModel) {
+
+    private EditHelper() {}
+
+    public static boolean updateSystemProperties(IOpenLTable table, TableEditorModel tableEditorModel,
+            String userMode) {
         boolean result = true;
         if (table.isCanContainProperties()) {
             List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
             for (TablePropertyDefinition systemProperty : systemPropertiesDefinitions) {
-                result = updateSystemValue(tableEditorModel, systemProperty);
+                result = updateSystemValue(tableEditorModel, systemProperty, userMode);
             }
-        } 
+        }
         return result;
-    } 
-	
-	private static boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition systemProperty) {
-		final Log log = LogFactory.getLog(EditHelper.class);
-		boolean result = false;
-        Object systemValue = null;
+    }
+
+    private static boolean updateSystemValue(TableEditorModel editorModel, TablePropertyDefinition systemProperty,
+            String userMode) {
+        final Log log = LogFactory.getLog(EditHelper.class);
+        boolean result = false;
+        String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
+
+        if (userMode.equals("single") && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+            return true;
+        }
 
         if (systemProperty.getSystemValuePolicy().equals(SystemValuePolicy.ON_EACH_EDIT)) {
-            systemValue = SystemValuesManager.getInstance().getSystemValue(systemProperty.getSystemValueDescriptor());
+            Object systemValue = SystemValuesManager.getInstance().getSystemValue(systemValueDescriptor);
             if (systemValue != null) {
                 try {
-                	if (editorModel != null) {
-                		editorModel.setProperty(systemProperty.getName(), systemValue);
+                    if (editorModel != null) {
+                        editorModel.setProperty(systemProperty.getName(), systemValue);
                         result = true;
-                	}                    
+                    }
                 } catch (Exception e) {
                     log.error(String.format("Can`t update system property '%s' with value '%s'", systemProperty.getName(),
                             systemValue), e);

@@ -21,12 +21,14 @@ import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
  */
 public class StudioLaunchTarget extends ALaunchTarget {
 
-    static public final String STUDIO_PROJECT_NAME = "org.openl.rules.webstudio";
+    public static final String WORKSPACE_HOME_PROPERTY_NAME = "user.workspace.home";
 
-    static public final String MAIN_CLASS_NAME = "org.openl.rules.webstudio.util.StartTomcat";
+    public static final String STUDIO_PROJECT_NAME = "org.openl.rules.webstudio";
 
-    static public final String VM_ARGS = "-Xms256M -Xmx1024M -XX:+UseParallelOldGC -XX:MaxPermSize=256M -XX:PermSize=128M"
-        + " -D" + IRulesLaunchConstants.LOCAL_WORKSPACE_PROPERTY_NAME + "=${workspace_loc}"
+    public static final String MAIN_CLASS_NAME = "org.openl.rules.webstudio.util.StartTomcat";
+
+    public static final String VM_ARGS = "-Xms256M -Xmx1024M -XX:+UseParallelOldGC -XX:MaxPermSize=256M -XX:PermSize=128M"
+        + " -D" + WORKSPACE_HOME_PROPERTY_NAME + "=${workspace_loc}"
         + " -D" + IRulesLaunchConstants.START_PROJECT_PROPERTY_NAME + "=";
 
     private IResource resource;
