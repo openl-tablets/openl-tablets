@@ -2,6 +2,7 @@ package org.openl.rules.workspace.deploy.impl.jcr;
 
 import junit.framework.TestCase;
 
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -49,6 +50,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
     /**
      * <code>JcrProductionDeployer</code> instance to be used in tests.
      */
+    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
     private JcrProductionDeployer instance;
 
     private Map<String, Object> props;
@@ -89,7 +91,10 @@ public class JcrProductionDeployerTestCase extends TestCase {
     protected void setUp() throws Exception {
         ensureTestFolderExistsAndClear();
 
-        instance = new JcrProductionDeployer(getWorkspaceUser());
+        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
+        productionRepositoryFactoryProxy.setConfigManagerFactory(new ConfigurationManagerFactory(true, null, ""));
+        
+        instance = new JcrProductionDeployer(productionRepositoryFactoryProxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
         project1 = makeProject();
         project2 = makeProject2();
@@ -104,17 +109,17 @@ public class JcrProductionDeployerTestCase extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        ProductionRepositoryFactoryProxy.release();
+        productionRepositoryFactoryProxy.destroy();
         deleteTestFolder();
     }
 
     public void testDeploy() throws IOException, ProjectException, PropertyException {
         ADeploymentProject deploymentProject = new ADeploymentProject(new MockFolder("deployment project"), null);
-        DeployID id = instance.deploy(deploymentProject, projects);
+        DeployID id = instance.deploy(deploymentProject, projects, getWorkspaceUser());
 
-        ProductionRepositoryFactoryProxy.reset();
+        productionRepositoryFactoryProxy.destroy();
 
-        RProductionRepository pr = ProductionRepositoryFactoryProxy.getRepositoryInstance();
+        RProductionRepository pr = productionRepositoryFactoryProxy.getRepositoryInstance(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
         assertTrue(pr.hasDeploymentProject(id.getName()));
         final Collection<String> names = pr.getDeploymentProjectNames();
         assertTrue(names.contains(id.getName()));
@@ -162,9 +167,9 @@ public class JcrProductionDeployerTestCase extends TestCase {
 
     public void testDeploySameId() throws DeploymentException {
         List<AProject> projects = Collections.singletonList(project1);
-        instance.deploy(new ADeploymentProject(new MockFolder("deployment project"), null), new DeployID("test"), projects);
+        instance.deploy(new ADeploymentProject(new MockFolder("deployment project"), null), projects, getWorkspaceUser());
         try {
-            instance.deploy(new ADeploymentProject(new MockFolder("deployment project"), null), new DeployID("test"), projects);
+            instance.deploy(new ADeploymentProject(new MockFolder("deployment project"), null), projects, getWorkspaceUser());
             fail("exception expected");
         } catch (DeploymentException e) {
             assertNull(e.getCause());

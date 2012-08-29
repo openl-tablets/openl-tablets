@@ -1,6 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,12 +14,15 @@ import javax.faces.bean.RequestScoped;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
@@ -40,7 +46,12 @@ public class SmartRedeployController {
     @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
+    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    private ConfigurationManagerFactory productionConfigManagerFactory;
+
     private List<DeploymentProjectItem> items;
+
+    private String repositoryConfigName;
 
     public synchronized List<DeploymentProjectItem> getItems() {
         AProject project = getSelectedProject();
@@ -190,13 +201,16 @@ public class SmartRedeployController {
         }
 
         // redeploy takes more time
+        ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
+        RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig);
         for (ADeploymentProject deploymentProject : successfulyUpdated) {
             try {
-                DeployID id = deploymentManager.deploy(deploymentProject);
-                FacesUtils.addInfoMessage("Project '" + project.getName()
-                                + "' successfully deployed with id: " + id.getName());
+                DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
+                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'", 
+                        project.getName(), id.getName(), repo.getName());
+                FacesUtils.addInfoMessage(message);
             } catch (Exception e) {
-                String msg = "Failed to deploy '" + project.getName() + "'";
+                String msg = String.format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
                 log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -211,6 +225,10 @@ public class SmartRedeployController {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
+        this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
     private ADeploymentProject update(String deploymentName, AProject project) {
@@ -249,5 +267,32 @@ public class SmartRedeployController {
         }
 
         return null;
+    }
+
+    public String getRepositoryConfigName() {
+        return repositoryConfigName;
+    }
+
+    public void setRepositoryConfigName(String repositoryConfigName) {
+        this.repositoryConfigName = repositoryConfigName;
+    }
+    
+    public Collection<RepositoryConfiguration> getRepositories() {
+        List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
+        Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
+        for (String configName : repositoryConfigNames) {
+            ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
+            RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
+            repos.add(config);
+        }
+
+        Collections.sort(repos, new Comparator<RepositoryConfiguration>() {
+            @Override
+            public int compare(RepositoryConfiguration o1, RepositoryConfiguration o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+            
+        });
+        return repos;
     }
 }

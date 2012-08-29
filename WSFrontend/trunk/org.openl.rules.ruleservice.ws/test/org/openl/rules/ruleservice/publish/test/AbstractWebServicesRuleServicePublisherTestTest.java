@@ -12,11 +12,13 @@ import org.apache.cxf.endpoint.Client;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+@DirtiesContext
 public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWebServicesRuleServicePublisherTest {
     private static final String SERVICE_NAME_TUTORIAL4 = "tutorial4";
 

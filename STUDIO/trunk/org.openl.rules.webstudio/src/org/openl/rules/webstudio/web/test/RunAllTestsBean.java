@@ -225,7 +225,7 @@ public class RunAllTestsBean {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
         TestUnit testUnit = (TestUnit) objTestUnit;
         BeanResultComparator comparator = (BeanResultComparator)testUnit.getTestUnitResultComparator().getComparator();
-        List<ComparedResult> fieldsToTest = comparator.getFieldsToCompare();
+        List<ComparedResult> fieldsToTest = comparator.getComparisonResults();
 
         SpreadsheetOpenClass spreadsheetOpenClass = ((Spreadsheet)testUnit.getTest().getTestedMethod()).getSpreadsheetType();
 

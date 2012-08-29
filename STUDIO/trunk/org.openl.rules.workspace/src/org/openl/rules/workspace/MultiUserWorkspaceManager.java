@@ -3,9 +3,6 @@ package org.openl.rules.workspace;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.workspace.deploy.DeploymentException;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
-import org.openl.rules.workspace.deploy.ProductionDeployerManager;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -22,7 +19,6 @@ import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
  * @author Aleh Bykhavets
  */
 public class MultiUserWorkspaceManager implements UserWorkspaceListener {
-    private ProductionDeployerManager productionDeployerManager;
     /** Design Time Repository */
     private DesignTimeRepository designTimeRepository;
     /** Manager of Local Workspaces */
@@ -32,13 +28,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
 
     protected UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
-        ProductionDeployer deployer;
-        try {
-            deployer = productionDeployerManager.getDeployer(user);
-        } catch (DeploymentException e) {
-            throw new WorkspaceException("can not get production deployer", e);
-        }
-        return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository, deployer);
+        return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository);
     }
 
     public LocalWorkspaceManager getLocalWorkspaceManager() {
@@ -73,10 +63,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
 
     public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {
         this.localWorkspaceManager = localWorkspaceManager;
-    }
-
-    public void setProductionDeployerManager(ProductionDeployerManager productionDeployerManager) {
-        this.productionDeployerManager = productionDeployerManager;
     }
 
     /**

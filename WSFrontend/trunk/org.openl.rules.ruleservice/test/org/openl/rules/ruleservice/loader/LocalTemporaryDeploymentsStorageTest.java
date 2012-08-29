@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,6 +22,11 @@ public class LocalTemporaryDeploymentsStorageTest {
     @BeforeClass
     public static void setDataSource() throws Exception {
         dataSource = new JcrDataSource();
+    }
+
+    @AfterClass
+    public static void releaseDataSource() throws Exception {
+        ((JcrDataSource) dataSource).destroy();
     }
 
     @Before

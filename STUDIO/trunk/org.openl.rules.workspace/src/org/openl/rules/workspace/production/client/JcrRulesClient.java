@@ -20,8 +20,17 @@ import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
  * for higher level utility methods on top of production repository API.
  */
 public class JcrRulesClient {
+    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private String repositoryPropertiesFile;
+    
+    public JcrRulesClient(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy,
+            String repositoryPropertiesFile) {
+        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
+        this.repositoryPropertiesFile = repositoryPropertiesFile;
+    }
+
     public void addListener(RDeploymentListener l) throws RRepositoryException {
-        ProductionRepositoryFactoryProxy.getRepositoryInstance().addListener(l);
+        productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile).addListener(l);
     }
 
     /**
@@ -42,7 +51,7 @@ public class JcrRulesClient {
         AProject fetchedDeployment = new AProject(new LocalFolderAPI(destFolder, new ArtefactPathImpl(
                 destFolder.getName()), new LocalWorkspaceImpl(null, destFolder.getParentFile(), null, null)));
 
-        FolderAPI rDeployment = ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentProject(
+        FolderAPI rDeployment = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile).getDeploymentProject(
                 deployID.getName());
         final AProject deploymentProject = new AProject(rDeployment);
         // TODO: solve problem with fetching deployment when it is not uploaded
@@ -72,15 +81,15 @@ public class JcrRulesClient {
      * @throws RRepositoryException on repository error
      */
     public Collection<String> getDeploymentNames() throws RRepositoryException {
-        return ProductionRepositoryFactoryProxy.getRepositoryInstance().getDeploymentProjectNames();
+        return productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile).getDeploymentProjectNames();
     }
 
     public void release() throws RRepositoryException {
-        ProductionRepositoryFactoryProxy.release();
+        productionRepositoryFactoryProxy.destroy();
     }
 
     public void removeListener(RDeploymentListener l) throws RRepositoryException {
-        ProductionRepositoryFactoryProxy.getRepositoryInstance().removeListener(l);
+        productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile).removeListener(l);
     }
 
 }

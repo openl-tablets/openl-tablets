@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import java.math.BigInteger;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
@@ -18,14 +20,13 @@ public class NegativeIntNodeBinder extends ANodeBinder {
         Number value = (Number)child.getValue();
         
         
-        if (value instanceof Integer)
-        {
+        if (value instanceof Integer) {
             return new LiteralBoundNode(node, -value.intValue(), JavaOpenClass.INT);
+        } else if (value instanceof Long) {
+            return new LiteralBoundNode(node, -value.longValue(), JavaOpenClass.LONG);
+        } else if (value instanceof BigInteger) {
+            return new LiteralBoundNode(node, ((BigInteger) value).negate(), JavaOpenClass.getOpenClass(BigInteger.class));
         }
-        else if (value instanceof Long)
-        {
-            return new LiteralBoundNode(node, -value.intValue(), JavaOpenClass.LONG);
-        }    
         throw new RuntimeException("Unsupported integer type: " + value.getClass()); 
     }
     
