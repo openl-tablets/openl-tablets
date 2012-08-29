@@ -100,14 +100,14 @@ public class SystemSettingsBean {
         configManager.setProperty(DATE_PATTERN, datePattern);
     }
 
-    }
-
     public boolean isUpdateSystemProperties() {
         return configManager.getBooleanProperty(UPDATE_SYSTEM_PROPERTIES);
     }
 
-    public void setUpdateSystemProperties(boolean autoLogin) {
-        configManager.setProperty(UPDATE_SYSTEM_PROPERTIES, autoLogin);
+    public void setUpdateSystemProperties(boolean updateSystemProperties) {
+        configManager.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
+    }
+
     public String getProjectHistoryHome() {
         return configManager.getStringProperty(PROJECT_HISTORY_HOME);
     }
