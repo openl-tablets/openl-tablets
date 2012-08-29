@@ -1,6 +1,9 @@
 package org.openl.rules.testmethod.result;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -12,37 +15,26 @@ import org.openl.vm.SimpleVM;
  * @author PUdalau
  * 
  */
-public class OpenLBeanResultComparator implements TestResultComparator {
-    private List<IOpenField> fieldsToCompare;
+public class OpenLBeanResultComparator extends BeanResultComparator {
+    private Map<String, IOpenField> fieldMap;
 
     public OpenLBeanResultComparator(List<IOpenField> fields) {
-        this.fieldsToCompare = fields;
+        super(new ArrayList<String>(makeFieldMap(fields).keySet()));
+        fieldMap = makeFieldMap(fields);
     }
 
-    public List<IOpenField> getFieldsToCompare() {
-        return fieldsToCompare;
-    }
-
-    public boolean compareResult(Object actualResult, Object expectedResult) {
-        if (actualResult == null || expectedResult == null) {
-            return actualResult == expectedResult;
-        } else {
-            IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-
-            for (IOpenField fieldToCompare : fieldsToCompare) {
-                Object actualFieldValue = fieldToCompare.get(actualResult, env);
-                Object expectedFieldValue = fieldToCompare.get(expectedResult, env);
-
-                TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
-                    expectedFieldValue);
-                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
-
-                if (!compare) {
-                    return false;
-                }
-            }
-            return true;
+    private static Map<String, IOpenField> makeFieldMap(List<IOpenField> fields) {
+        Map<String, IOpenField> fieldMap = new HashMap<String, IOpenField>();
+        for (IOpenField field : fields) {
+            fieldMap.put(field.getName(), field);
         }
+        return fieldMap;
+    }
 
+    @Override
+    protected Object getFieldValue(Object target, String fieldName) {
+        IOpenField field = fieldMap.get(fieldName);
+        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        return field.get(target, env);
     }
 }

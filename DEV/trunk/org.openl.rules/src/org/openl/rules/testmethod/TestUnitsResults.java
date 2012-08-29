@@ -52,7 +52,11 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public void addTestUnit(TestUnit testUnit) {
-        testUnits.add(updateTestUnit(testUnit));
+        if (!testSuite.isVirtualTestSuite()) {
+            testUnits.add(updateTestUnit(testUnit));
+        } else {
+            testUnits.add(testUnit);
+        }
     }
     
     /**
@@ -63,6 +67,8 @@ public class TestUnitsResults implements INamedThing {
      * @param runningResult result of running the test
      * @param ex exception during test running
      * @return list of test unit results
+     * 
+     * FIXME it should be moved to compile phase and all info about bean comparator should be located in {@link TestDescription}
      */
     public TestUnit updateTestUnit(TestUnit testUnit) {
         ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
