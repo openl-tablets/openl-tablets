@@ -14,7 +14,6 @@ import org.openl.config.ClassPathConfigLocator;
 import org.openl.config.ConfigLocator;
 import org.openl.config.ConfigManager;
 import org.openl.config.SysConfigManager;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -28,7 +27,13 @@ public class StartupListener implements ServletContextListener {
 
     private final Log log = LogFactory.getLog(StartupListener.class);
 
-    private static final String PROP_WEBSTUDIO_HOME = "webstudio.home";
+    private static final String PROPERTY_TYPE_FILE = "0";
+    private static final String PROPERTY_TYPE_STRING = "1";
+
+    private static final String[][] SYSTEM_PROPERTIES = new String[][] {
+        { "webstudio.home", PROPERTY_TYPE_FILE },
+        { "security.mode",  PROPERTY_TYPE_STRING }
+    };
 
     private class WebConfigLocator extends ConfigLocator {
         private ServletContext context;
@@ -71,31 +76,35 @@ public class StartupListener implements ServletContextListener {
         // Replace system config manager
         SysConfigManager.setConfigManager(configManager);
 
-        initHomeDirectory(context);
+        initSystemProperties(context);
     }
 
-    private void initHomeDirectory(ServletContext context) {
-        String webstudioHome = System.getProperty(PROP_WEBSTUDIO_HOME);
-        if (webstudioHome == null) {
-            // Set default value
-            webstudioHome = context.getInitParameter(PROP_WEBSTUDIO_HOME);
-            System.setProperty(PROP_WEBSTUDIO_HOME, webstudioHome);
+    private void initSystemProperties(ServletContext context) {
+        for (int i = 0; i < SYSTEM_PROPERTIES.length; i++) {
+            String propertyName  = SYSTEM_PROPERTIES[i][0];
+            String propertyType = SYSTEM_PROPERTIES[i][1];
+            String propertyValue = System.getProperty(propertyName);
+
+            if (propertyValue == null) {
+                // Set default value
+                propertyValue = context.getInitParameter(propertyName);
+                System.setProperty(propertyName, propertyValue);
+            }
+
+            if (propertyType.equals(PROPERTY_TYPE_FILE)) {
+                File propertyFile = new File(
+                        StringUtils.defaultString(propertyValue));
+                if (!propertyFile.exists()) {
+                    log.fatal("You did not set up correctly " + propertyName + " variable: " + propertyValue);
+                    return;
+                }
+            }
+
+            log.info(propertyName + ": " + propertyValue);
         }
-        File webstudioHomeDir = new File(
-                StringUtils.defaultString(webstudioHome));
-        if (!webstudioHomeDir.exists()) {
-            log.fatal("You did not set up correctly webstudio.home variable: " + webstudioHome);
-            return;
-        }
-        log.info(context.getServletContextName() + " home: " + webstudioHome);
     }
 
     public void contextDestroyed(ServletContextEvent event) {
-        try {
-            ProductionRepositoryFactoryProxy.release();
-        } catch (RRepositoryException e) {
-            log.error("Failed to release production repository", e);
-        }
         try {
             RulesRepositoryFactory.release();
         } catch (RRepositoryException e) {

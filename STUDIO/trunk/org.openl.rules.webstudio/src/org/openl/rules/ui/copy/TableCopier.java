@@ -384,7 +384,9 @@ public class TableCopier extends WizardBase {
      */
     protected Map<String, Object> buildProperties() {
         Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
-        newProperties.putAll(buildSystemProperties());
+        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
+            newProperties.putAll(buildSystemProperties());
+        }
 
         // TODO validateIfNecessaryPropertiesWereChanged(tableProperties);
 

@@ -5,13 +5,8 @@ import org.openl.rules.security.AccessManager;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.deploy.DeploymentException;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
-import org.openl.rules.workspace.deploy.ProductionDeployerManager;
-import org.openl.rules.workspace.deploy.impl.ProductionDeployerManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.Log;
-
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class RulesUserSession {
@@ -21,16 +16,6 @@ public class RulesUserSession {
     private UserWorkspace userWorkspace;
 
     private MultiUserWorkspaceManager workspaceManager;
-
-    private ProductionDeployer deployer;
-    private ProductionDeployerManager deployerManager = new ProductionDeployerManagerImpl();
-
-    public synchronized ProductionDeployer getDeployer() throws DeploymentException {
-        if (deployer == null) {
-            deployer = deployerManager.getDeployer(new WorkspaceUserImpl(user.getUsername()));
-        }
-        return deployer;
-    }
 
     public String getUserName() {
         if (user == null) {

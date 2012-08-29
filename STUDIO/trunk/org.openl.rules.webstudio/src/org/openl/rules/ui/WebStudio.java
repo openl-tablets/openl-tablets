@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.config.ConfigurationManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -31,7 +32,7 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
-import org.openl.rules.webstudio.ConfigManager;
+import org.openl.rules.webstudio.web.admin.SystemSettingsBean;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -71,6 +72,7 @@ public class WebStudio {
     private ProjectModel model = new ProjectModel(this);
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
+    private boolean updateSystemProperties;
 
     private RulesTreeView treeView;
     private String tableView;
@@ -82,8 +84,8 @@ public class WebStudio {
 
     private RulesProjectDependencyManager dependencyManager;
 
-    private ConfigManager systemConfigManager;
-    private ConfigManager userSettingsManager;
+    private ConfigurationManager systemConfigManager;
+    private ConfigurationManager userSettingsManager;
 
     private boolean needRestart = false;
 
@@ -91,7 +93,7 @@ public class WebStudio {
         boolean initialized = false;
 
         systemConfigManager = WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-            .getBean(ConfigManager.class);
+            .getBean(ConfigurationManager.class);
 
         try {
             initialized = init(session);
@@ -102,9 +104,10 @@ public class WebStudio {
             workspacePath = systemConfigManager.getStringProperty("workspace.local.home");
             projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
             projectResolver.setWorkspace(workspacePath);
+            updateSystemProperties = systemConfigManager.getBooleanProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES);
         }
 
-        userSettingsManager = new ConfigManager(false,
+        userSettingsManager = new ConfigurationManager(false,
                 systemConfigManager.getStringProperty("user.settings.home") + File.separator
                     + WebStudioUtils.getRulesUserSession(session).getUserName() + File.separator
                     + USER_SETTINGS_FILENAME,
@@ -138,11 +141,11 @@ public class WebStudio {
         
     }
 
-    public ConfigManager getSystemConfigManager() {
+    public ConfigurationManager getSystemConfigManager() {
         return systemConfigManager;
     }
 
-    public ConfigManager getUserSettingsManager() {
+    public ConfigurationManager getUserSettingsManager() {
         return userSettingsManager;
     }
 
@@ -157,6 +160,7 @@ public class WebStudio {
 
         projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         projectResolver.setWorkspace(workspacePath);
+        updateSystemProperties = systemConfigManager.getBooleanProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES);
 
         return true;
     }
@@ -395,6 +399,15 @@ public class WebStudio {
 
     public void setTableUri(String tableUri) {
         this.tableUri = tableUri;
+    }
+
+    public boolean isUpdateSystemProperties() {
+        return updateSystemProperties;
+    }
+
+    public void setUpdateSystemProperties(boolean updateSystemProperties) {
+        this.updateSystemProperties = updateSystemProperties;
+        systemConfigManager.setProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public boolean isShowFormulas() {

@@ -33,6 +33,10 @@ public class JcrDataSource implements DataSource, DisposableBean {
     private static final String SEPARATOR = "#";
 
     private Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
+    
+    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For backward compatibility
+    private boolean shouldDestroyProxy = false;
 
     /** {@inheritDoc} */
     public Collection<Deployment> getDeployments() {
@@ -108,7 +112,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
     private RProductionRepository getRProductionRepository() {
         RProductionRepository rProductionRepository = null;
         try {
-            rProductionRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
+            rProductionRepository = getProductionRepositoryFactoryProxy().getRepositoryInstance(getRepositoryPropertiesFile());
             return rProductionRepository;
         } catch (RRepositoryException e) {
             if (log.isErrorEnabled()) {
@@ -198,7 +202,33 @@ public class JcrDataSource implements DataSource, DisposableBean {
         if (log.isDebugEnabled()) {
             log.debug("JCR data source releasing");
         }
-        getRProductionRepository().release();
+        productionRepositoryFactoryProxy.releaseRepository(repositoryPropertiesFile);
+        
+        if (shouldDestroyProxy) {
+            productionRepositoryFactoryProxy.destroy();
+        }
+    }
+
+    public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
+        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
+    }
+
+    public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
+        if (productionRepositoryFactoryProxy == null) {
+            // Lazy initialization for backward compatibility
+            productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
+            // We create a proxy (not spring container) - that's why we should destroy it
+            shouldDestroyProxy = true;
+        }
+        return productionRepositoryFactoryProxy;
+    }
+
+    public void setRepositoryPropertiesFile(String repositoryPropertiesFile) {
+        this.repositoryPropertiesFile = repositoryPropertiesFile;
+    }
+
+    public String getRepositoryPropertiesFile() {
+        return repositoryPropertiesFile;
     }
 
     private RDeploymentListener buildRDeploymentListener(DataSourceListener dataSourceListener) {

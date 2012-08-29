@@ -13,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
@@ -21,9 +20,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.deploy.DeploymentException;
-import org.openl.rules.workspace.deploy.ProductionDeployer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -42,7 +38,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
     private final DesignTimeRepository designTimeRepository;
-    private final ProductionDeployer deployer;
 
     private final HashMap<String, RulesProject> userRulesProjects;
     private final HashMap<String, ADeploymentProject> userDProjects;
@@ -50,11 +45,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
 
     public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
-            DesignTimeRepository designTimeRepository, ProductionDeployer deployer) {
+            DesignTimeRepository designTimeRepository) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
-        this.deployer = deployer;
 
         userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
@@ -96,19 +90,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
         designTimeRepository.createProject(name);
 
         refresh();
-    }
-
-    public DeployID deploy(ADeploymentProject deploymentProject) throws DeploymentException, RepositoryException {
-        Collection<ProjectDescriptor> projectDescriptors = deploymentProject.getProjectDescriptors();
-        Collection<AProject> projects = new ArrayList<AProject>();
-        for (ProjectDescriptor descriptor : projectDescriptors) {
-            projects.add(designTimeRepository.getProject(descriptor.getProjectName(), descriptor.getProjectVersion()));
-        }
-
-        // TODO DeployID id = RepositoryUtils.getDeployID(project);
-        DeployID id = new DeployID(deploymentProject.getName() + "#" + deploymentProject.getVersion().getVersionName());
-        deployer.deploy(deploymentProject, id, projects);
-        return id;
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {

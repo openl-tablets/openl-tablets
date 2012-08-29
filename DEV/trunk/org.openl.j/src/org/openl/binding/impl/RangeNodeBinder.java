@@ -21,8 +21,10 @@ public class RangeNodeBinder extends ANodeBinder {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        if (children[0] instanceof ErrorBoundNode) {
-            return new ErrorBoundNode(node);
+        for (IBoundNode child : children) {
+            if (child instanceof ErrorBoundNode) {
+                return new ErrorBoundNode(node);
+            }
         }
 
         RangeWithBounds range = null;

@@ -1,0 +1,43 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalSelectRepository" width="200" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Select a production repository" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="closeSelectRepository();" alt="Close" />
+    </f:facet>
+
+    <h:form id="selectRepositoryForm">
+      <h:selectOneMenu value="#{deploymentController.repositoryConfigName}">
+        <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
+      </h:selectOneMenu>
+
+      <hr />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton id="deployBtn" value="Deploy" action="#{deploymentController.deploy}" />
+        <input id="cancelBtn" type="button" value="Cancel" onclick="closeSelectRepository();" />
+      </h:panelGrid>
+    </h:form>
+  </rich:popupPanel>
+
+  <script>
+    function openSelectRepositoryDialog() {
+      RichFaces.$('modalSelectRepository').show();
+      window._deployInProgress = false;
+    }
+
+    function closeSelectRepository() {
+      if (window._deployInProgress) return;
+      RichFaces.$('modalSelectRepository').hide();
+    }
+
+  </script>
+</ui:composition>

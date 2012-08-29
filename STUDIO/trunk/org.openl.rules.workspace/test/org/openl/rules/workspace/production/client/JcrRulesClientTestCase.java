@@ -1,6 +1,8 @@
 package org.openl.rules.workspace.production.client;
 
 import junit.framework.TestCase;
+
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.workspace.TestHelper;
 import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
 import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
@@ -29,9 +31,10 @@ public class JcrRulesClientTestCase extends TestCase {
     private static final String PROJECT_NAME2 = "project2";
     private JcrRulesClient instance;
     private AProject project;
+    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private JcrProductionDeployer getDeployer() throws DeploymentException {
-        return new JcrProductionDeployer(getWorkspaceUser());
+        return new JcrProductionDeployer(productionRepositoryFactoryProxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
     }
 
     private AProject makeProject() throws ProjectException {
@@ -53,22 +56,25 @@ public class JcrRulesClientTestCase extends TestCase {
     @Override
     protected void setUp() throws Exception {
         ensureTestFolderExistsAndClear();
+        
+        productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
+        productionRepositoryFactoryProxy.setConfigManagerFactory(new ConfigurationManagerFactory(true, null, ""));
 
-        instance = new JcrRulesClient();
+        instance = new JcrRulesClient(productionRepositoryFactoryProxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
         project = makeProject();
     }
 
     @Override
     protected void tearDown() throws Exception {
-        ProductionRepositoryFactoryProxy.release();
+        productionRepositoryFactoryProxy.destroy();
         deleteTestFolder();
     }
 
     public void testFetchProject() throws Exception {
         JcrProductionDeployer deployer = getDeployer();
         DeployID id = deployer.deploy(new ADeploymentProject(new MockFolder("deployment project"), null),
-                Collections.singletonList(project));
+                Collections.singletonList(project), getWorkspaceUser());
 
         File destDir = new File(TestHelper.FOLDER_TEST, "download");
         instance.fetchDeployment(id, destDir);
@@ -79,15 +85,15 @@ public class JcrRulesClientTestCase extends TestCase {
 
     public void testFetchRedeployedProject() throws Exception {
         JcrProductionDeployer deployer = getDeployer();
-        DeployID id = deployer.deploy(new ADeploymentProject(new MockFolder("deployment project"), null),
-                Collections.singletonList(makeProject2()));
+        deployer.deploy(new ADeploymentProject(new MockFolder("deployment project"), null),
+                Collections.singletonList(makeProject2()), getWorkspaceUser());
 
         File destDir = new File(TestHelper.FOLDER_TEST);
         TestHelper.clearDirectory(destDir);
 
         try {
-            deployer.deploy(new ADeploymentProject(new MockFolder("deployment project"), null), id,
-                    Collections.singletonList(makeProject2()));
+            deployer.deploy(new ADeploymentProject(new MockFolder("deployment project"), null), 
+                    Collections.singletonList(makeProject2()), getWorkspaceUser());
             fail("exception expected");
         } catch (DeploymentException e) {
             // ok

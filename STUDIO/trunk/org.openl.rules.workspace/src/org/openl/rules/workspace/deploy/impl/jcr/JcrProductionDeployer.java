@@ -1,7 +1,9 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
-import org.openl.config.ConfigSet;
+import java.util.Collection;
+
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -16,23 +18,17 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * Implementation of <code>ProductionDeployer</code> that uses <i>JCR</i> as
  * production repository.
  */
 public class JcrProductionDeployer implements ProductionDeployer {
-    /**
-     * The user.
-     */
-    private final WorkspaceUser user;
+    private final ProductionRepositoryFactoryProxy repositoryFactoryProxy;
+    private final String repositoryConfigName;
 
-    private Map<String, Object> config;
-
-    public JcrProductionDeployer(WorkspaceUser user) {
-        this.user = user;
+    public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName) {
+        this.repositoryFactoryProxy = repositoryFactoryProxy;
+        this.repositoryConfigName = repositoryConfigName;
     }
 
     private void copyProperties(AProjectArtefact newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
@@ -53,18 +49,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
      * @throws DeploymentException if any deployment error occures
      */
 
-    public synchronized DeployID deploy(ADeploymentProject deploymentProject, DeployID id, Collection<AProject> projects) throws DeploymentException {
-
+    public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
+      DeployID id = generateDeployID(deploymentProject);
+      
         boolean alreadyDeployed = false;
         try {
-            if (ProductionRepositoryFactoryProxy.getConfig() == null
-                    && config != null) {
-                ConfigSet configSet = new ConfigSet();
-                configSet.addProperties(config);
-                ProductionRepositoryFactoryProxy.setConfig(configSet);
-            }
-
-            RProductionRepository rRepository = ProductionRepositoryFactoryProxy.getRepositoryInstance();
+            RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
 
             if (rRepository.hasDeploymentProject(id.getName())) {
                 alreadyDeployed = true;
@@ -75,7 +65,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 AProject deploymentPRJ = new AProject(deployment);
                 deploymentPRJ.lock(user);
                 for (AProject p : projects) {
-                    deployProject(deploymentPRJ, p);
+                    deployProject(deploymentPRJ, p, user);
                 }
                 
                 copyProperties(deploymentPRJ, deploymentProject);
@@ -95,37 +85,27 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return id;
     }
 
-    public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects) throws DeploymentException {
-        String idKey = generatedDeployID(projects);
-        return deploy(deploymentProject, new DeployID(idKey), projects);
-    }
-    
-    private void deployProject(AProject deployment, AProject project) throws RRepositoryException,
+    private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws RRepositoryException,
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
         AProject copiedProject = new AProject(rProject);
         copiedProject.update(project, user);
     }
-
-    private String generatedDeployID(Collection<AProject> projects) {
-        StringBuilder name = new StringBuilder();
-        for (AProject p : projects) {
-            name.append(p.getName());
-            if (p.getVersion() != null) {
-                name.append('-').append(p.getVersion().getVersionName());
-            }
-            name.append('_');
+    
+    private DeployID generateDeployID(ADeploymentProject ddProject) {
+        StringBuilder sb = new StringBuilder(ddProject.getName());
+        ProjectVersion projectVersion = ddProject.getVersion();
+        if (projectVersion != null) {
+            sb.append('#').append(projectVersion.getVersionName());
         }
-        name.append(System.currentTimeMillis());
-        return name.toString();
+        return new DeployID(sb.toString());
+
     }
 
-    public Map<String, Object> getConfig() {
-        return config;
+    @Override
+    public void destroy() throws RRepositoryException {
+        if (repositoryFactoryProxy != null) {
+            repositoryFactoryProxy.releaseRepository(repositoryConfigName);
+        }
     }
-
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
-    }
-
 }

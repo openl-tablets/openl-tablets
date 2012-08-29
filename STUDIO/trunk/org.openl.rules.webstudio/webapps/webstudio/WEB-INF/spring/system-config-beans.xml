@@ -8,10 +8,20 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd"
     default-autowire="no">
 
-    <bean id="configManager" class="org.openl.rules.webstudio.ConfigManager">
+    <bean id="systemConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
         <constructor-arg name="useSystemProperties" value="true" />
-        <constructor-arg name="propsLocation" value="#{systemProperties['webstudio.home']}/system-settings/system.properties" />
-        <constructor-arg name="defaultPropsLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/system.properties" />
+        <constructor-arg name="defaultPropertiesLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/system.properties" />
+        <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
+    </bean>
+
+    <bean id="productionRepositoryConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
+        <constructor-arg name="useSystemProperties" value="true" />
+        <constructor-arg name="defaultPropertiesLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/rules-production.properties" />
+        <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
+    </bean>
+
+    <bean id="configManager" factory-bean="systemConfigManagerFactory" factory-method="getConfigurationManager">
+        <constructor-arg name="propertiesName" value="system.properties" />
     </bean>
     <bean id="systemConfig" class="java.util.HashMap">
         <constructor-arg value="#{configManager.properties}" />

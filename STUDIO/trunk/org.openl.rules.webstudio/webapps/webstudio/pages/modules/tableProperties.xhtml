@@ -76,7 +76,7 @@
 
             <ui:param name="prop" value="#{row.data}" />
             <ui:param name="editable"
-                value="#{tablePropertiesBean.editable and !prop.system and prop.canBeOverridenInTable and prop.name != 'version'}" />
+                value="#{tablePropertiesBean.editable and (!prop.system or !studio.updateSystemProperties) and prop.canBeOverridenInTable and prop.name != 'version'}" />
             <ui:param name="added" value="#{empty prop.value}" />
 
             <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
