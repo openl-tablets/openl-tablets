@@ -19,6 +19,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +48,7 @@ import org.richfaces.event.TreeSelectionChangeEvent;
  * @author Andrey Naumenko
  */
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
