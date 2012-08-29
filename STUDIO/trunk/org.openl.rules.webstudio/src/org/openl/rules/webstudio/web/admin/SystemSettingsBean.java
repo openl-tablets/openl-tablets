@@ -39,6 +39,7 @@ public class SystemSettingsBean {
     private static final String USER_WORKSPACE_HOME = "user.workspace.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String DATE_PATTERN = "data.format.date";
+    public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
@@ -99,6 +100,14 @@ public class SystemSettingsBean {
         configManager.setProperty(DATE_PATTERN, datePattern);
     }
 
+    }
+
+    public boolean isUpdateSystemProperties() {
+        return configManager.getBooleanProperty(UPDATE_SYSTEM_PROPERTIES);
+    }
+
+    public void setUpdateSystemProperties(boolean autoLogin) {
+        configManager.setProperty(UPDATE_SYSTEM_PROPERTIES, autoLogin);
     public String getProjectHistoryHome() {
         return configManager.getStringProperty(PROJECT_HISTORY_HOME);
     }

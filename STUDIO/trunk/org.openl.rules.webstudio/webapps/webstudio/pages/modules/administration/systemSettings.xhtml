@@ -112,6 +112,9 @@
                         <h3>Other</h3>
                         <div>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
+                                <h:outputText value="Update system properties after editing: " />
+                                <h:selectBooleanCheckbox value="#{systemSettingsBean.updateSystemProperties}"
+                                    disabled="#{jsffn:isSystemProp('update.system.properties')}"/>
                                 <h:outputText value="Date Format:" />
                                 <h:inputText value="#{systemSettingsBean.datePattern}"
                                     disabled="#{jsffn:isSystemProp('data.format.date')}" />

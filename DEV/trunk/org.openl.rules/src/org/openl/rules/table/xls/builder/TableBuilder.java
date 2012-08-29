@@ -405,14 +405,16 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
-        writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
-        Set<String> keys = properties.keySet();
-        for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
-            String key = iterator.next();
-            writeCell(1, currentRow, 1, 1, key, style);
-            Object value = properties.get(key);
-            writeCell(2, currentRow, 1, 1, value, style);
-            currentRow++;
+        if (!properties.isEmpty()) {
+            writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
+            Set<String> keys = properties.keySet();
+            for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
+                String key = iterator.next();
+                writeCell(1, currentRow, 1, 1, key, style);
+                Object value = properties.get(key);
+                writeCell(2, currentRow, 1, 1, value, style);
+                currentRow++;
+            }
         }
     }
 
