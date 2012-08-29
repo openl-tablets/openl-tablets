@@ -1,5 +1,7 @@
 package org.openl.rules.common.impl;
 
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.openl.rules.common.CommonVersion;
@@ -12,49 +14,42 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private static final long serialVersionUID = -5156747482692477220L;
     public static final String DELIMETER = ".";
 
-    private int major;
-    private int minor;
     private int revision;
     private transient String versionName;
     private VersionInfo versionInfo;
     private String versionComment;
+    private Map<String, Object> versionProperties;
 
     public RepositoryProjectVersionImpl(String version){
         StringTokenizer tokenizer = new StringTokenizer(version, DELIMETER);
-        major = Integer.valueOf(tokenizer.nextToken());
-        minor = Integer.valueOf(tokenizer.nextToken());
         revision = Integer.valueOf(tokenizer.nextToken());
     }
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
-        major = version.getMajor();
-        minor = version.getMinor();
         revision = version.getRevision();
         this.versionInfo = versionInfo;
     }
 
-    public RepositoryProjectVersionImpl(int major, int minor, int revision, VersionInfo versionInfo) {
-        this.major = major;
-        this.minor = minor;
+    public RepositoryProjectVersionImpl(int revision, VersionInfo versionInfo) {
         this.revision = revision;
         this.versionInfo = versionInfo;
     }
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment) {
-        major = version.getMajor();
-        minor = version.getMinor();
         revision = version.getRevision();
         this.versionInfo = versionInfo;
         this.versionComment = versionComment;
     }
 
+    public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment,
+            Map<String, Object> versionProperties) {
+        revision = version.getRevision();
+        this.versionInfo = versionInfo;
+        this.versionComment = versionComment;
+        this.versionProperties = versionProperties;
+    }
+
     public int compareTo(CommonVersion o) {
-        if (major != o.getMajor()) {
-            return major < o.getMajor() ? -1 : 1;
-        }
-        if (minor != o.getMinor()) {
-            return minor < o.getMinor() ? -1 : 1;
-        }
         if (revision != o.getRevision()) {
             return revision < o.getRevision() ? -1 : 1;
         }
@@ -67,14 +62,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         return this == o || o instanceof ProjectVersion && compareTo((ProjectVersion) o) == 0;
     }
 
-    public int getMajor() {
-        return major;
-    }
-
-    public int getMinor() {
-        return minor;
-    }
-
     public int getRevision() {
         return revision;
     }
@@ -85,8 +72,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
-                    .toString();
+                versionName = Integer.toString(revision);
         }
 
         return versionName;
@@ -95,9 +81,8 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     @Override
     public int hashCode() {
         int result;
-        result = major;
-        result = 31 * result + minor;
-        result = 31 * result + revision;
+        
+        result = 31 * revision;
         return result;
     }
     
@@ -107,5 +92,13 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         } else {
             return "";
         }
+    }
+    
+    public Map<String, Object> getVersionProperties() {
+        return versionProperties;
+    }
+
+    public void setVersionProperties(Map<String, Object> versionProperties) {
+        this.versionProperties = versionProperties;
     }
 }

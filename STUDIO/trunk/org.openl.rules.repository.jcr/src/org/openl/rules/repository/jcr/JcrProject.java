@@ -112,10 +112,6 @@ public class JcrProject extends JcrEntity implements RProject {
         return project.isMarked4Deletion();
     }
 
-    public void riseVersion(int major, int minor) throws RRepositoryException {
-        project.riseVersion(major, minor);
-    }
-
     public void setDependencies(Collection<? extends ProjectDependency> dependencies) throws RRepositoryException {
         this.dependencies.updateDependencies(dependencies);
     }

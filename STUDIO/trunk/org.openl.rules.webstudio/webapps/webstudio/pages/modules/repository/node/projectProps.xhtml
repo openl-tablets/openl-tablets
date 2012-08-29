@@ -22,9 +22,11 @@
     <h:outputText value="Created By" />
     <h:outputText value="#{node.createdBy}" />
   </h:panelGrid>
+  
+  
+	  <ui:include src="/pages/modules/repository/node/dynamicProps.xhtml">
+	    <ui:param name="prefix" value="project"/>
+	  </ui:include>
 
-  <ui:include src="/pages/modules/repository/node/properties.xhtml">
-    <ui:param name="prefix" value="project"/>
-  </ui:include>
 
 </ui:composition>

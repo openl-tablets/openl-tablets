@@ -83,15 +83,6 @@ public class JcrVersion implements RVersion {
             return new CommonUserImpl(modifiedBy);
         }
     }
-
-    public int getMajor() {
-        return version.getMajor();
-    }
-
-    public int getMinor() {
-        return version.getMinor();
-    }
-
     // --- protected
 
     public int getRevision() {
@@ -103,18 +94,7 @@ public class JcrVersion implements RVersion {
     }
 
     protected void initVersion(Node node) throws RepositoryException {
-        int major = 0;
-        int minor = 0;
         long revision = 0;
-
-        try {
-            long l = node.getProperty(ArtefactProperties.PROP_VERSION).getLong();
-            int i = (int) l;
-            major = i >> 16;
-            minor = i & (0xFFFF);
-        } catch (RepositoryException e) {
-            // ignore
-        }
 
         try {
             revision = node.getProperty(ArtefactProperties.PROP_REVISION).getLong();
@@ -122,7 +102,7 @@ public class JcrVersion implements RVersion {
             // ignore
         }
 
-        version = new CommonVersionImpl(major, minor, (int) revision);
+        version = new CommonVersionImpl((int) revision);
 
         if (node.hasProperty(ArtefactProperties.PROP_MODIFIED_BY)) {
             modifiedBy = node.getProperty(ArtefactProperties.PROP_MODIFIED_BY).getString();
@@ -134,16 +114,16 @@ public class JcrVersion implements RVersion {
         int newRevision = version.getRevision();
         newRevision++;
 
-        version = new CommonVersionImpl(version.getMajor(), version.getMinor(), newRevision);
+        version = new CommonVersionImpl(newRevision);
     }
 
-    protected void set(int major, int minor) {
+    protected void set() {
         // keep revision unchanged
-        version = new CommonVersionImpl(major, minor, version.getRevision());
+        version = new CommonVersionImpl(version.getRevision());
     }
 
-    protected void set(int major, int minor, int revision) {
-        version = new CommonVersionImpl(major, minor, revision);
+    protected void set(int revision) {
+        version = new CommonVersionImpl(revision);
     }
 
     protected void updateRevision(Node node) throws RepositoryException {
@@ -151,8 +131,10 @@ public class JcrVersion implements RVersion {
     }
 
     protected void updateVersion(Node node) throws RepositoryException {
+        /*
         long l = ((version.getMajor() & 0x7FFF) << 16) | (version.getMinor() & 0x7FFF);
         node.setProperty(ArtefactProperties.PROP_VERSION, l);
+        */
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
 }

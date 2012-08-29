@@ -48,8 +48,6 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
     private Map<String, Object> props;
 
     private JcrLock lock;
-
-    private CommonVersionImpl risedVersion;
     private JcrVersion version;
 
 
@@ -320,31 +318,7 @@ public class JcrEntity extends JcrCommonArtefact implements REntity {
         lock.unlock(user);
     }
 
-    public void riseVersion(int major, int minor) throws RRepositoryException {
-        int ma = version.getMajor();
-        int mi = version.getMinor();
-
-        // clear in case of invalid input
-        risedVersion = null;
-
-        if (major < ma) {
-            throw new RRepositoryException("New major version is less than current!", null);
-        } else if (major == ma) {
-            if (minor < mi) {
-                throw new RRepositoryException(
-                        "New minor version cannot be less than current, when major version remains unchanged!", null);
-            }
-        }
-
-        risedVersion = new CommonVersionImpl(major, minor, version.getRevision());
-    }
-
     public void commit(CommonUser user) throws RRepositoryException {
-        if (risedVersion != null) {
-            version.set(risedVersion.getMajor(), risedVersion.getMinor());
-            risedVersion = null;
-        }
-
         try {
             Node n = node();
             NodeUtil.smartCheckout(n, true);

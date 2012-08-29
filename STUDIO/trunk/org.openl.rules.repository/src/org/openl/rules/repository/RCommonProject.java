@@ -51,8 +51,6 @@ public interface RCommonProject {
 
     void lock(CommonUser user) throws RRepositoryException;
 
-    void riseVersion(int major, int minor) throws RRepositoryException;
-
     /**
      * Unmarks the project from deletion.
      *

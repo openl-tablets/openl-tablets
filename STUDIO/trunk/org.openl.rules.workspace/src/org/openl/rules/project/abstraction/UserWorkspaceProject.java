@@ -62,13 +62,9 @@ public abstract class UserWorkspaceProject extends AProject {
     public void edit() throws ProjectException {
         edit(getUser());
     }
-
+    
     public void save() throws ProjectException {
         save(getUser());
-    }
-
-    public void save(int major, int minor) throws ProjectException {
-        save(getUser(), major, minor);
     }
 
     public void close() throws ProjectException {

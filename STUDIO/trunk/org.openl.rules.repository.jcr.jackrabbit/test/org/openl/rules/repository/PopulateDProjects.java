@@ -12,8 +12,8 @@ public class PopulateDProjects {
     private static class RV2 implements RVersion {
         private CommonVersion version;
 
-        private RV2(int major, int minor, int revision) {
-            version = new CommonVersionImpl(major, minor, revision);
+        private RV2(int revision) {
+            version = new CommonVersionImpl(revision);
         }
 
         public int compareTo(CommonVersion o) {
@@ -26,14 +26,6 @@ public class PopulateDProjects {
 
         public CommonUser getCreatedBy() {
             return null;
-        }
-
-        public int getMajor() {
-            return version.getMajor();
-        }
-
-        public int getMinor() {
-            return version.getMinor();
         }
 
         public int getRevision() {
@@ -56,8 +48,8 @@ public class PopulateDProjects {
                 System.out.println("> No deployments projects detected. Trying to create test set...");
 
                 RDeploymentDescriptorProject dp1 = repository.createDDProject("ddp1");
-                dp1.createProjectDescriptor("prj1").setProjectVersion(new RV2(0, 0, 10));
-                dp1.createProjectDescriptor("prj2").setProjectVersion(new RV2(0, 0, 20));
+                dp1.createProjectDescriptor("prj1").setProjectVersion(new RV2(10));
+                dp1.createProjectDescriptor("prj2").setProjectVersion(new RV2(20));
 
                 dp1.commit(user);
             } else {

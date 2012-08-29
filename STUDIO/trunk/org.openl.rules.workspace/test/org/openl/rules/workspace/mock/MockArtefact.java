@@ -26,7 +26,7 @@ import javax.transaction.UserTransaction;
 
 public class MockArtefact implements ArtefactAPI {
 
-    private final static ProjectVersion INITIAL_VERSION = new RepositoryProjectVersionImpl(0, 0, 0, null);
+    private final static ProjectVersion INITIAL_VERSION = new RepositoryProjectVersionImpl(0, null);
     private String name;
     private PropertiesContainerImpl properties;
     private Map<String, Object> props;
@@ -92,7 +92,7 @@ public class MockArtefact implements ArtefactAPI {
         return LockInfoImpl.NO_LOCK;
     }
 
-    public void commit(CommonUser user, int major, int minor, int revision) throws ProjectException {
+    public void commit(CommonUser user, int revision) throws ProjectException {
     }
 
     public void lock(CommonUser user) throws ProjectException {

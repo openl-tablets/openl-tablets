@@ -11,7 +11,9 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
+import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 
 import com.google.common.collect.Iterators;
@@ -298,6 +300,7 @@ public abstract class AbstractTreeNode implements TreeNode {
             } else {
                 result = getData().getVersions();
             }
+            
             Collections.sort(result, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
             return result;
         } else {
@@ -342,6 +345,11 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public void refresh(){
         data.refresh();
+    }
+    
+    /*dimension props information*/
+    public List<TableProperty> getDimensionProps() {
+        return RepositoryProjectPropsBean.getProjectPropsToolTip(this.getData());
     }
 
 }

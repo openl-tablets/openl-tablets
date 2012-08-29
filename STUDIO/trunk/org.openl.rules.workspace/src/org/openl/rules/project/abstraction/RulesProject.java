@@ -39,11 +39,12 @@ public class RulesProject extends UserWorkspaceProject {
         super.edit(user);
         open();
     }
-
-    public void save(CommonUser user, int major, int minor) throws ProjectException {
-        smartUpdate(local, repository, user, major, minor);
+    
+    @Override
+    public void save(CommonUser user) throws ProjectException {
+        smartUpdate(local, repository, user);
         local.setCurrentVersion(repository.getVersion());
-        local.commit(user, 0, 0, 0);// save persistence
+        local.commit(user, 0);// save persistence
         unlock(user);
         refresh();
     }
@@ -144,18 +145,18 @@ public class RulesProject extends UserWorkspaceProject {
         }
         source.mkdir();
         local.setCurrentVersion(openedProject.getVersion());
-        update(openedProject, local, getUser(), version.getMajor(), version.getMinor());
+        update(openedProject, local, getUser());
         setAPI(local);
         refresh();
     }
 
     // FIXME
-    private void update(FolderAPI from, FolderAPI to, CommonUser user, int major, int minor) throws ProjectException {
-        new AProject(to).update(new AProject(from), user, major, minor);
+    private void update(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
+        new AProject(to).update(new AProject(from), user);
     }
     
-    private void smartUpdate(FolderAPI from, FolderAPI to, CommonUser user, int major, int minor) throws ProjectException {
-        new AProject(to).smartUpdate(new AProject(from), user, major, minor);
+    private void smartUpdate(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
+        new AProject(to).smartUpdate(new AProject(from), user);
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me

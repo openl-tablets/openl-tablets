@@ -77,6 +77,6 @@ public class Deployment extends AProject {
 		String projectName = project.getName();
 		addFolder(projectName);
 		init();
-		getProject(projectName).update(project, null, 0, 0);
+		getProject(projectName).update(project, null);
 	}
 }

@@ -37,10 +37,6 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
     private void copyProperties(AProjectArtefact newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
         try {
-            newArtefact.setEffectiveDate(artefact.getEffectiveDate());
-            newArtefact.setExpirationDate(artefact.getExpirationDate());
-            newArtefact.setLineOfBusiness(artefact.getLineOfBusiness());
-
             newArtefact.setProps(artefact.getProps());
         } catch (PropertyException e) {
             throw new RRepositoryException("", e);
@@ -108,7 +104,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
         AProject copiedProject = new AProject(rProject);
-        copiedProject.update(project, user, project.getVersion().getMajor(), project.getVersion().getMinor());
+        copiedProject.update(project, user);
     }
 
     private String generatedDeployID(Collection<AProject> projects) {

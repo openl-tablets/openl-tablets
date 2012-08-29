@@ -134,6 +134,4 @@ public interface REntity {
      * @throws RRepositoryException if failed
      */
     void commit(CommonUser user) throws RRepositoryException;
-
-    void riseVersion(int major, int minor) throws RRepositoryException;
 }

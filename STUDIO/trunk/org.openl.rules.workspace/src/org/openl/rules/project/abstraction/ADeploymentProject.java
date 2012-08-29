@@ -101,7 +101,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void save(CommonUser user, int major, int minor) throws ProjectException {
+    public void save(CommonUser user) throws ProjectException {
         if (CollectionUtils.isEmpty(descriptors)) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 getArtefact(ArtefactProperties.DESCRIPTORS_FILE).delete();
@@ -117,7 +117,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, new ByteArrayInputStream(
                             descriptorsAsString.getBytes("UTF-8")));
                 }
-                resource.commit(user, major, minor);
+                resource.commit(user);
             } catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -125,7 +125,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         }
         
         modifiedDescriptors = false;
-        super.save(user, major, minor);
+        super.save(user);
         open();
     }
 
@@ -153,10 +153,10 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+    public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         ADeploymentProject deploymentProject = (ADeploymentProject) artefact;
         setProjectDescriptors(deploymentProject.getProjectDescriptors());
-        save(user, major, minor);
+        save(user);
     }
 
     private List<ProjectDescriptor> getDescriptors() {

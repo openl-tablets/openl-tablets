@@ -72,7 +72,7 @@ public interface ArtefactAPI{
 
     LockInfo getLockInfo();
     
-    void commit(CommonUser user, int major, int minor, int revision) throws ProjectException;
+    void commit(CommonUser user, int revision) throws ProjectException;
     void lock(CommonUser user) throws ProjectException;
 
     void unlock(CommonUser user) throws ProjectException;

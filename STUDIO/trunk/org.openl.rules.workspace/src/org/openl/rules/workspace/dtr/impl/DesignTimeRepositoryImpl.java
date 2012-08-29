@@ -85,7 +85,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             throws ProjectException {
         createDDProject(name);
         ADeploymentProject newProject = getDDProject(name);
-        newProject.update(project, user, 0, 0);
+        newProject.update(project, user);
     }
 
     public void copyProject(AProject project, String name, WorkspaceUser user) throws ProjectException {
@@ -96,7 +96,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         try {
             AProject newProject = wrapProject(rulesRepository.createRulesProject(name), false);
 
-            newProject.update(project, user, 0, 0);
+            newProject.update(project, user);
         } catch (RRepositoryException e) {
             throw new RepositoryException("Failed to create project ''{0}''!", e, name);
         } catch (Exception e) {
@@ -254,7 +254,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         return inCache;
     }
 
-    public void updateProject(AProject sourceProject, WorkspaceUser user, int major, int minor)
+    public void updateProject(AProject sourceProject, WorkspaceUser user)
             throws RepositoryException {
         String name = sourceProject.getName();
         AProject dest = getProject(name);
@@ -272,13 +272,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
         try {
             AProject project4Write = wrapProject(rulesRepository.getRulesProject(name), false);
-
+            /*
             if (major != 0 || minor != 0) {
                 String msg = MsgHelper.format("Raising project version (''{0}'' -> {1}.{2})...", name, major, minor);
                 log.debug(msg);
             }
-
-            project4Write.update(sourceProject, user, major, minor);
+            */
+            project4Write.update(sourceProject, user);
         } catch (Exception e) {
             throw new RepositoryException("Failed to update project ''{0}''.", e, name);
         } finally {
