@@ -45,7 +45,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         this.creationDate = source.lastModified();
         this.path = path;
         this.workspace = workspace;
-        currentVersion = new RepositoryProjectVersionImpl(0, 0, 0, null);
+        currentVersion = new RepositoryProjectVersionImpl(0, null);
         properties = new PropertiesContainerImpl();
         load();
     }
@@ -202,7 +202,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         return new File(workspace.getLocation(), projectName);
     }
     
-    public void commit(CommonUser user, int major, int minor, int revision) throws ProjectException {
+    public void commit(CommonUser user, int revision) throws ProjectException {
         modified = false;
         creationDate = source.lastModified();
         save();

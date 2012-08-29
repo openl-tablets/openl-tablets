@@ -90,7 +90,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
         int i = 0;
         for (ProjectVersion version : versions) {
-            selectItems[i] = new SelectItem(version.getMajor() + "." + version.getMinor() + "." + version.getRevision());
+            selectItems[i] = new SelectItem(version.getRevision());
             i++;
         }
 

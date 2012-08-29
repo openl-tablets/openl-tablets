@@ -21,9 +21,6 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
 
     private JcrVersion version;
 
-    // when null -- don't rise version on commit
-    private CommonVersionImpl risedVersion;
-
     protected JcrCommonProject(Node node) throws RepositoryException {
         super(node);
 
@@ -64,11 +61,6 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
     }
 
     public void commit(CommonUser user) throws RRepositoryException {
-        if (risedVersion != null) {
-            version.set(risedVersion.getMajor(), risedVersion.getMinor());
-            risedVersion = null;
-        }
-
         try {
             Node n = node();
             NodeUtil.smartCheckout(n, true);
@@ -138,24 +130,7 @@ public class JcrCommonProject extends JcrEntity implements RCommonProject {
         }
     }
 
-    public void riseVersion(int major, int minor) throws RRepositoryException {
-        int ma = version.getMajor();
-        int mi = version.getMinor();
-
-        // clear in case of invalid input
-        risedVersion = null;
-
-        if (major < ma) {
-            throw new RRepositoryException("New major version is less than current!", null);
-        } else if (major == ma) {
-            if (minor < mi) {
-                throw new RRepositoryException(
-                        "New minor version cannot be less than current, when major version remains unchanged!", null);
-            }
-        }
-
-        risedVersion = new CommonVersionImpl(major, minor, version.getRevision());
-    }
+  
 
     public void undelete(CommonUser user) throws RRepositoryException {
         if (!isMarked4Deletion()) {

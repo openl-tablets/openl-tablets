@@ -8,7 +8,7 @@
 
   <c:set var="availableProjects" value="#{deploymentController.projects}" />
 
-  <rich:popupPanel id="addDeployEntry" width="400" autosized="true">
+  <rich:popupPanel id="addDeployEntry" autosized="true">
     <f:facet name="header">
         <h:outputText value="Add project" />
     </f:facet>
@@ -16,17 +16,44 @@
             <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('addDeployEntry').hide();" alt="Close" />
         </f:facet>
     <h:form id="addDeployEntryForm">
-        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{not empty availableProjects}">
+        <h:panelGrid styleClass="formfields" columnClasses="label," rendered="#{not empty availableProjects}">
             <h:outputLabel for="projectName" styleClass="required" value="Name" />
             <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
                 <f:selectItems value="#{deploymentController.projects}" />
                 <f:ajax event="change" render="projectVersion" execute="@this" />
             </h:selectOneMenu>
 
-            <h:outputLabel for="projectVersion" styleClass="required" value="Version" />
-            <h:selectOneMenu id="projectVersion" value="#{deploymentController.version}">
-                <f:selectItems value="#{deploymentController.projectVersions}" />
-            </h:selectOneMenu>
+            <rich:dataTable id="projectVersion" value="#{deploymentController.projectVersions}" var="version" styleClass="table table-striped"
+			    columnClasses="padding">
+			    <f:facet name="header">
+			      <rich:columnGroup>
+			        <rich:column>
+			          <h:outputText value="Version" />
+			        </rich:column>
+			        <rich:column>
+			          <h:outputText value="Comment" />
+			        </rich:column>
+			        <rich:column>
+                      <h:outputText value="Action" />
+                    </rich:column>
+			      </rich:columnGroup>
+			    </f:facet>
+		      <rich:column style="text-align: center;">
+		        <h:outputText value="#{version.versionName}" />
+		        <rich:tooltip showDelay="500" rendered="#{!empty version.versionProperties}" >
+		           <a4j:repeat value="#{repositoryProjectPropsBean.getVersionPropToolTip(version.versionProperties)}" var="prop">
+		               <h:outputText value="#{prop.displayName} : #{prop.displayValue}"/><br/>
+		           </a4j:repeat>
+		        </rich:tooltip>
+		      </rich:column>
+		      <rich:column>
+		        <h:outputText value="#{version.versionComment}" />
+		      </rich:column>
+		      <rich:column>
+                <h:commandButton value="Add" action="#{deploymentController.addItem(version.versionName)}" immediate="true"/>
+              </rich:column>   
+		  </rich:dataTable>
+
         </h:panelGrid>
 
         <h:panelGrid columns="1" styleClass="formfields" rendered="#{empty availableProjects}">
@@ -37,7 +64,6 @@
         <hr />
 
         <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0" rendered="#{not empty availableProjects}">
-          <h:commandButton value="Add" action="#{deploymentController.addItem}" />
           <input type="button" value="Cancel" onclick="#{rich:component('addDeployEntry')}.hide();" />
         </h:panelGrid>
 

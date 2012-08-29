@@ -54,8 +54,8 @@ import org.springframework.util.FileCopyUtils;
 
 //FIXME refactor to use AProjectArtefacts
 public class RepositoryConvertor {
-    public static final CommonVersion from = new CommonVersionImpl(5, 0, 7);
-    public static final CommonVersion to = new CommonVersionImpl(5, 7, 4);
+    public static final CommonVersion from = new CommonVersionImpl(7);
+    public static final CommonVersion to = new CommonVersionImpl(4);
     private final CommonUser system = new CommonUserImpl("system");
     private String rulesProjectsLocation = "/DESIGN/rules";
     private String deploymentProjectsLocation = "/DESIGN/deployments";
@@ -197,7 +197,7 @@ public class RepositoryConvertor {
                     } else {
                         user = system;
                     }
-                    jcrProject.commit(user, version.getMajor(), version.getMinor(), version.getRevision());
+                    jcrProject.commit(user, version.getRevision());
                 }
             }
             if (project.isMarked4Deletion()) {
@@ -337,7 +337,7 @@ public class RepositoryConvertor {
                     } else {
                         user = system;
                     }
-                    jcrDDproject.commit(user, version.getMajor(), version.getMinor(), version.getRevision());
+                    jcrDDproject.commit(user, version.getRevision());
                 }
             }
             if (project.isMarked4Deletion()) {

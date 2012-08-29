@@ -40,44 +40,8 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         this.impl = impl;
     }
 
-    public Date getEffectiveDate() {
-        try {
-            return getProperty(ArtefactProperties.PROP_EFFECTIVE_DATE).getDate();
-        } catch (PropertyException e) {
-            return null;
-        }
-    }
-
-    public Date getExpirationDate() {
-        try {
-            return getProperty(ArtefactProperties.PROP_EXPIRATION_DATE).getDate();
-        } catch (PropertyException e) {
-            return null;
-        }
-    }
-
-    public String getLineOfBusiness() {
-        try {
-            return getProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS).getString();
-        } catch (PropertyException e) {
-            return null;
-        }
-    }
-
     public Map<String, Object> getProps() {
         return getAPI().getProps();
-    }
-
-    public void setEffectiveDate(Date date) throws PropertyException {
-        addProperty(new PropertyImpl(ArtefactProperties.PROP_EFFECTIVE_DATE, date));
-    }
-
-    public void setExpirationDate(Date date) throws PropertyException {
-        addProperty(new PropertyImpl(ArtefactProperties.PROP_EXPIRATION_DATE, date));
-    }
-
-    public void setLineOfBusiness(String lineOfBusiness) throws PropertyException {
-        addProperty(new PropertyImpl(ArtefactProperties.PROP_LINE_OF_BUSINESS, lineOfBusiness));
     }
 
     public void setProps(Map<String, Object> props) throws PropertyException {
@@ -134,7 +98,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     public ProjectVersion getLastVersion() {
         List<ProjectVersion> versions = getVersions();
         if (versions.size() == 0) {
-            return new RepositoryProjectVersionImpl(0, 0, 0, null);
+            return new RepositoryProjectVersionImpl(0, null);
         }
         ProjectVersion max = versions.get(versions.size() - 1);
         return max;
@@ -144,7 +108,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         return getAPI().getVersions();
     }
 
-    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+    public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         try {
             setProps(artefact.getProps());
         } catch (PropertyException e1) {
@@ -171,20 +135,17 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
      * @param artefact A source artefact to extract data from.
      * @throws ProjectException
      */
-    public void smartUpdate(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+    public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         if (artefact.isModified()) {
             try {
-                setProps(artefact.getProps());
-            } catch (PropertyException e1) {
-                // TODO log
-                e1.printStackTrace();
-            }
-            try {
                 getAPI().removeAllProperties();
-
+                setProps(artefact.getProps());
+            
                 // set all properties
                 for (Property property : artefact.getProperties()) {
-                    addProperty(property);
+                    if(!artefact.getProps().containsKey(property.getName())){
+                        addProperty(property);
+                    }
                 }
             } catch (PropertyException e) {
                 // TODO log
@@ -194,8 +155,8 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         }
     }
 
-    protected void commit(CommonUser user, int major, int minor) throws ProjectException {
-        getAPI().commit(user, major, minor, getProject().getVersion().getRevision() + 1);
+    protected void commit(CommonUser user) throws ProjectException {
+        getAPI().commit(user, getProject().getVersion().getRevision() + 1);
     }
 
     public void refresh() {
