@@ -32,7 +32,7 @@ public class StartupListener implements ServletContextListener {
 
     private static final String[][] SYSTEM_PROPERTIES = new String[][] {
         { "webstudio.home", PROPERTY_TYPE_FILE },
-        { "security.mode",  PROPERTY_TYPE_STRING }
+        { "user.mode",  PROPERTY_TYPE_STRING }
     };
 
     private class WebConfigLocator extends ConfigLocator {
