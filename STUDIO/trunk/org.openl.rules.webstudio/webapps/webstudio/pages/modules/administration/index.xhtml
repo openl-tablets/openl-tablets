@@ -25,7 +25,7 @@
                 <rich:tab header="System Settings">
                     <ui:include src="/pages/modules/administration/systemSettings.xhtml" />
                 </rich:tab>
-                <rich:tab header="User Management">
+                <rich:tab header="User Management" rendered="#{systemConfig['user.mode'] != 'single'}">
                     <ui:include src="/pages/modules/administration/users.xhtml" />
                 </rich:tab>
             </rich:tabPanel>

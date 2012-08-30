@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
@@ -73,7 +72,7 @@
     
     <h:panelGroup rendered="#{!artefact.deleted}">
       <h:panelGrid columns="10" cellpadding="3" cellspacing="0">
-        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
+        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{not (systemConfig['user.mode'] == 'single' and artefact.opened)}">
           <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open" action="#{repositoryTreeController.openProject}">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
@@ -91,7 +90,7 @@
           </h:commandButton>
         </h:panelGrid>
 
-        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
+        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{systemConfig['user.mode'] == 'single' and artefact.opened}">
           <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>

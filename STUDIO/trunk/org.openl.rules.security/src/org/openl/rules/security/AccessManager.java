@@ -15,8 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public final class AccessManager {
 
-    public static final String LOCAL_USER_ID = "LOCAL";
-
     private static AccessDecisionManager accessDecisionManager;
 
     /**
