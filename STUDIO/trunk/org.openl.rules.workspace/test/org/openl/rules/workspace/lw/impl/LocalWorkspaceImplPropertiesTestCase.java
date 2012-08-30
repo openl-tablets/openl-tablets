@@ -154,7 +154,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
 
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {
         LocalWorkspaceManagerImpl workspaceManager = new LocalWorkspaceManagerImpl();
-        workspaceManager.setWorkspacesRoot(TestHelper.FOLDER_TEST);
+        workspaceManager.setWorkspaceHome(TestHelper.FOLDER_TEST);
         workspaceManager.setLocalWorkspaceFileFilter(new NotFileFilter(new NameFileFilter(".studioProps")));
         return workspaceManager.createWorkspace(TestHelper.getWorkspaceUser());
     }

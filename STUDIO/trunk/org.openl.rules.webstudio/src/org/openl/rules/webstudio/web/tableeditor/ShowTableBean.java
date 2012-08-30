@@ -49,8 +49,8 @@ import org.openl.util.StringTool;
  */
 @ManagedBean
 @RequestScoped
-public class ShowTableBean {    
-    
+public class ShowTableBean {
+
 //    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
     // Test in current table (only for test tables)
@@ -378,19 +378,19 @@ public class ShowTableBean {
     }
 
     public boolean beforeSaveAction() {
-    	String editorId = FacesUtils.getRequestParameter(
+        String editorId = FacesUtils.getRequestParameter(
                 org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
         Map<?, ?> editorModelMap = (Map<?, ?>) FacesUtils.getSessionParam(
                 org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
-        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);    	
-    	
+        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
-            return EditHelper.updateSystemProperties(table, editorModel);
-        }else{
-            return true;
+            return EditHelper.updateSystemProperties(table, editorModel,
+                    WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
         }
+        return true;
     }
 
     public void afterSaveAction(String newUri) {
@@ -400,9 +400,8 @@ public class ShowTableBean {
     }
 
     public String getTreeNodeId() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        String id = studio.getModel().getTreeNodeId(getUri());
-        return id;
+        final ProjectModel model = WebStudioUtils.getProjectModel();
+        return model.getTreeNodeId(getUri());
     }
 
     public void setShowFormulas() {
@@ -414,11 +413,11 @@ public class ShowTableBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setCollapseProperties(!studio.isCollapseProperties());
     }
-    
+
     public boolean getCanEdit() {
         return isGranted(PRIVILEGE_EDIT_TABLES);
     }
-    
+
     public boolean getCanRemove() {
         return isGranted(PRIVILEGE_REMOVE_TABLES);
     }

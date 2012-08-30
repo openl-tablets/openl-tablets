@@ -12,23 +12,23 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  *
  */
 public class SystemValuesManager {
-    
+
     private Map<String, ISystemValue> systemValues = new HashMap<String, ISystemValue>();
-    
+
     private static volatile SystemValuesManager instance;
-    
-    private final String currentUserDescription = "currentUser";
-    private final String currentDatedescription = "currentDate";
-    
+
+    public final static String CURRENT_USER_DESCRIPTOR = "currentUser";
+    public final static String CURRENT_DATE_DESCRIPTOR = "currentDate";
+
     private SystemValuesManager() {        
         for (TablePropertyDefinition propDef :TablePropertyDefinitionUtils.getSystemProperties()) {
-            if (currentUserDescription.equals(propDef.getSystemValueDescriptor())) {
-                if (!systemValues.containsKey(currentUserDescription)) {
-                    systemValues.put(currentUserDescription, new CurrentUserValue());
+            if (CURRENT_USER_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
+                if (!systemValues.containsKey(CURRENT_USER_DESCRIPTOR)) {
+                    systemValues.put(CURRENT_USER_DESCRIPTOR, new CurrentUserValue());
                 }                
-            } else if (currentDatedescription.equals(propDef.getSystemValueDescriptor())) {
-                if (!systemValues.containsKey(currentDatedescription)) {
-                    systemValues.put(currentDatedescription, new CurrentDateValue());
+            } else if (CURRENT_DATE_DESCRIPTOR.equals(propDef.getSystemValueDescriptor())) {
+                if (!systemValues.containsKey(CURRENT_DATE_DESCRIPTOR)) {
+                    systemValues.put(CURRENT_DATE_DESCRIPTOR, new CurrentDateValue());
                 }
             }            
         }

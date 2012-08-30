@@ -20,9 +20,9 @@
   </context-param>
 
   <context-param>
-    <description>Security mode ('embedded', 'sso' or 'none')</description>
-    <param-name>security.mode</param-name>
-    <param-value>embedded</param-value>
+    <description>User mode ('single', 'multi' or 'sso')</description>
+    <param-name>user.mode</param-name>
+    <param-value>single</param-value>
   </context-param>
 
   <context-param>

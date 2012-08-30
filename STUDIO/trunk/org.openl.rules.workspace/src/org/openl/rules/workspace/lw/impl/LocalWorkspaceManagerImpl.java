@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.security.AccessManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -24,9 +23,8 @@ import org.springframework.beans.factory.InitializingBean;
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener, InitializingBean {
     private final Log log = LogFactory.getLog(LocalWorkspaceManagerImpl.class);
 
-    private String localWorkspace;
-    private String workspacesRoot = "/tmp/rules-workspaces/";
-    private boolean autoLogin = false;
+    private String workspaceHome = "/tmp/rules-workspaces/";
+    private boolean singleUserMode = false;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
 
@@ -34,17 +32,16 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
 
     public void afterPropertiesSet() throws Exception {
-        if (!FolderHelper.checkOrCreateFolder(new File(workspacesRoot))) {
-            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspacesRoot);
+        if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {
+            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);
         }
-        log.info("Location of Local Workspaces: " + workspacesRoot);
-        log.info("Allow local user:" + autoLogin);
+        log.info("Location of Local Workspaces: " + workspaceHome);
+        log.info("Single user mode:" + singleUserMode);
     }
 
-    protected LocalWorkspaceImpl createLocalWorkspace(WorkspaceUser user) throws WorkspaceException {
-        log.debug(MsgHelper.format("Referencing eclipse workspace for user ''{0}'' at ''{1}''", user.getUserId(),
-                localWorkspace));
-        File localWorkspaceDir = new File(localWorkspace);
+    protected LocalWorkspaceImpl createSingleUserWorkspace(WorkspaceUser user) throws WorkspaceException {
+        log.debug(MsgHelper.format("Workspace home: ''{0}''", workspaceHome));
+        File localWorkspaceDir = new File(workspaceHome);
         if (!localWorkspaceDir.exists()) {
             localWorkspaceDir.mkdir();
         }
@@ -54,7 +51,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     protected LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
-        File f = FolderHelper.generateSubLocation(new File(workspacesRoot), userId);
+        File f = FolderHelper.generateSubLocation(new File(workspaceHome), userId);
         if (!FolderHelper.checkOrCreateFolder(f)) {
             throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, f.getAbsolutePath());
         }
@@ -67,8 +64,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            if (autoLogin && AccessManager.LOCAL_USER_ID.equals(userId)) {
-                lwi = createLocalWorkspace(user);
+            if (singleUserMode) {
+                lwi = createSingleUserWorkspace(user);
             } else {
                 lwi = createWorkspace(user);
             }
@@ -77,8 +74,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         return lwi;
     }
 
-    public void setAutoLogin(boolean autoLogin) {
-        this.autoLogin = autoLogin;
+    public void setSingleUserMode(boolean singleUserMode) {
+        this.singleUserMode = singleUserMode;
     }
 
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
@@ -89,12 +86,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
     }
 
-    public void setLocalWorkspace(String localWorkspace) {
-        this.localWorkspace = localWorkspace;
-    }
-
-    public void setWorkspacesRoot(String workspacesRoot) {
-        this.workspacesRoot = workspacesRoot;
+    public void setWorkspaceHome(String workspaceHome) {
+        this.workspaceHome = workspaceHome;
     }
 
     public void workspaceReleased(LocalWorkspace workspace) {
