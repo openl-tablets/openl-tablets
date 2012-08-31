@@ -63,96 +63,89 @@
     <ui:param name="propsFormName" value="#{prefix}PropsTableForm" />
     <ui:param name="panelFormName" value="#{prefix}RepoPropsPanel" />
     
-    <h:form id="#{propsFormName}" prependId="true">
-        <h:panelGroup id="repoPropsTable" layout="block">
-        <table>
-            
-            <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="prop">
-            
-            <h:panelGroup >
-            <ui:param name="added" value="#{empty prop.value}" />
-            <ui:param name="pref" value="#{prop.name}" />
+    <h:panelGroup id="#{propsFormName}repoPropsTable" layout="block">
+    <table>
+        
+        <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="prop">
+        
+        <h:panelGroup>
+        <ui:param name="added" value="#{empty prop.value}" />
+        <ui:param name="pref" value="#{prop.name}" />
 
-            <tr class="editableProp"
-                onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
-                <td class="propName" onclick="editProperty(this.parentNode)">
-                    #{prop.displayName}
-                </td>
-                <td class="propData" onclick="editProperty(this.parentNode)">
-                     <h:outputText class="propValue" value="#{prop.displayValue}"
-                        style="#{added ? 'display:none' : ''}" />
-                    
-                    <h:panelGroup >
-                    <span class="propEditor#{added ? '' : ' propHide'}">
-                        <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
-                            rendered="#{prop.dateType}" inputStyle="width:100px" />
+        <tr class="editableProp"
+            onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
+            <td class="propName" onclick="editProperty(this.parentNode)">
+                #{prop.displayName}
+            </td>
+            <td class="propData" onclick="editProperty(this.parentNode)">
+                 <h:outputText class="propValue" value="#{prop.displayValue}"
+                    style="#{added ? 'display:none' : ''}" />
+                
+                <h:panelGroup>
+                <span class="propEditor#{added ? '' : ' propHide'}">
+                    <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
+                        rendered="#{prop.dateType}" inputStyle="width:100px" />
 
-                        <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
+                    <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 
-                        <h:selectOneMenu id="repoMultiselect" value="#{prop.stringValue}"
-                            rendered="#{prop.enumArray}">
-                            <f:selectItems value="#{prop.enumArrayItems}"/>
-                        </h:selectOneMenu>
-
-                        <h:inputText value="#{prop.value}" id="text" 
-                            rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
-
-                        <h:inputText id="array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
-
-                        <span class="propDescription">#{prop.description}</span>
-                    </span>
-                    </h:panelGroup>
-                </td>
-                <td style="padding: 0 7px">
-                <h:panelGroup >
-                        <a4j:commandLink id="savePropsButton" title="Save"
-			                 action="#{repositoryProjectPropsBean.save(prop)}" 
-			                 render="#{propsFormName}\\:repoPropsTable @form nodeView" style="display: none; margin-left: 2px">
-			                 <img style="opacity: 0.5" src="webresource/images/ok.png" />
-			             </a4j:commandLink>
-                        
-                        <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
-                            render="#{propsFormName}\\:repoPropsTable @form nodeView"
-                            style="display: none">
-                            <img style="opacity: 0.5" src="webresource/images/close.gif" />
-                        </a4j:commandLink>
-                 </h:panelGroup>
-                    
-                </td>
-            </tr>
-            </h:panelGroup>
-
-            </a4j:repeat>
-        </table>
-
-        <h:panelGroup style="margin: 8px 0" layout="block">
-            <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('##{panelFormName}\\:addRepoPropsPanel').fadeIn()"
-                rendered="#{(!empty repositoryProjectPropsBean.propsForSelect)}" style="margin-left: 4px">Add</h:outputLink>
-        </h:panelGroup>
-        </h:panelGroup>
-    </h:form>
-
-    <h:panelGroup>
-    <h:form id="#{panelFormName}" name="#{panelFormName}" prependId="true">
-        <h:panelGroup id="addRepoPropsPanel" layout="block"
-            style="display: none; margin: 7px 3px; padding: 8px; border: 1px solid #eeeeee; background: #f5f5f5; text-align: left">
-            <div style="display: inline-block; text-align: left;">
-                <div style="color: #555555; margin-bottom: 8px">Select property to add</div>
-                <div>
-                    <h:selectOneMenu value="#{repositoryProjectPropsBean.propertyToAdd}">
-                        <f:selectItems value="#{repositoryProjectPropsBean.propsForSelect}" />
+                    <ui:remove>
+                    <h:selectOneMenu id="repoMultiselect" value="#{prop.stringValue}"
+                        rendered="#{prop.enumArray}">
+                        <f:selectItems value="#{prop.enumArrayItems}"/>
                     </h:selectOneMenu>
-                </div>
-                <div style="margin-top: 9px">
-                    <a4j:commandButton value="Add" onclick="$j('#addPropsPanel').hide()"
-                        action="#{repositoryProjectPropsBean.addNew}" render="#{propsFormName}\\:repoPropsTable @form nodeView"
-                        oncomplete="$j('##{propsFormName}\\:addPropBtn').fadeIn()" />
-                    <a href="javascript:void(0)" onclick="$j('##{panelFormName}\\:addRepoPropsPanel').hide();$j('##{propsFormName}\\:addPropBtn').fadeIn()"
-                        style="margin-left: 3px">Cancel</a>
-                </div>
-            </div>
+                    </ui:remove>
+
+                    <h:inputText value="#{prop.value}" id="text" 
+                        rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
+
+                    <h:inputText id="array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
+
+                    <span class="propDescription">#{prop.description}</span>
+                </span>
+                </h:panelGroup>
+            </td>
+            <td style="padding: 0 7px">
+            <span>
+                <a4j:commandLink id="savePropsButton" title="Save"
+	                 action="#{repositoryProjectPropsBean.save(prop)}" 
+	                 render="#{propsFormName}repoPropsTable" style="display: none; margin-left: 2px"><img
+                     style="opacity: 0.5" src="webresource/images/ok.png" />
+	             </a4j:commandLink>
+                 <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
+                     render="#{propsFormName}repoPropsTable" style="display: none; margin-left: 2px"><img
+                     style="opacity: 0.5" src="webresource/images/close.gif" />
+                 </a4j:commandLink>
+             </span>
+            </td>
+        </tr>
         </h:panelGroup>
-    </h:form>
+
+        </a4j:repeat>
+    </table>
+
+    <div style="margin: 8px 0">
+        <h:outputLink id="#{propsFormName}addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('##{panelFormName}addRepoPropsPanel').fadeIn()"
+            rendered="#{!empty repositoryProjectPropsBean.propsForSelect}" style="margin-left: 4px">Add</h:outputLink>
+    </div>
+    </h:panelGroup>
+
+    <h:panelGroup id="#{panelFormName}addRepoPropsPanel" layout="block"
+        style="display: none; margin: 7px 3px; padding: 8px; border: 1px solid #eeeeee; background: #f5f5f5; text-align: left">
+        <div style="display: inline-block; text-align: left;">
+            <div style="color: #555555; margin-bottom: 8px">Select property to add</div>
+            <div>
+                <h:selectOneMenu value="#{repositoryProjectPropsBean.propertyToAdd}">
+                    <f:selectItems value="#{repositoryProjectPropsBean.propsForSelect}" />
+                </h:selectOneMenu>
+            </div>
+            <div style="margin-top: 9px">
+                <a4j:commandButton value="Add" onclick="$j('##{panelFormName}addRepoPropsPanel').hide()"
+                    action="#{repositoryProjectPropsBean.addNew}" render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel"
+                    oncomplete="$j('##{propsFormName}addPropBtn').fadeIn()" />
+                <a href="javascript:void(0)" onclick="$j('##{panelFormName}addRepoPropsPanel').hide();$j('##{propsFormName}addPropBtn').fadeIn()"
+                    style="margin-left: 3px">Cancel</a>
+            </div>
+        </div>
     </h:panelGroup>
 
     <script>
