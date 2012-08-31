@@ -10,10 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
@@ -179,31 +181,45 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private void loadProps() throws RepositoryException {
         Node n = node();
         
+        /*Set dimension props*/
         for (TablePropertyDefinition prop : bussinedDimensionProps) {
             String propName = prop.getName();
             if (n.hasProperty(propName)) {
-
-                Value value = n.getProperty(propName).getValue();
-                Object propValue = null;
-                int valueType = value.getType();
-                switch (valueType) {
-                    case PropertyType.DATE:
-                        propValue = value.getDate().getTime();
-                        break;
-                    case PropertyType.LONG:
-                        propValue = new Date(value.getLong());
-                        break;
-                    case PropertyType.DOUBLE:
-                        propValue = value.getDouble();
-                        break;
-                    default:
-                        propValue = value.getString();
-                        break;
-                }
-                props.put(propName, propValue);
+                props.put(propName, getPropValueByType(propName));
             }
         }
+        
+        /*Set attrs*/
+        for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
+            String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
+            if (n.hasProperty(propName)) {
+                props.put(propName, getPropValueByType(propName));
+            }
+        }
+    }
+    
+    private Object getPropValueByType(String propName) throws RepositoryException {
+        Node n = node();
 
+        Value value = n.getProperty(propName).getValue();
+        Object propValue = null;
+        int valueType = value.getType();
+        switch (valueType) {
+            case PropertyType.DATE:
+                propValue = value.getDate().getTime();
+                break;
+            case PropertyType.LONG:
+                propValue = new Date(value.getLong());
+                break;
+            case PropertyType.DOUBLE:
+                propValue = value.getDouble();
+                break;
+            default:
+                propValue = value.getString();
+                break;
+        }
+        
+        return propValue;
     }
 
     public org.openl.rules.common.Property removeProperty(String name) throws PropertyException {
