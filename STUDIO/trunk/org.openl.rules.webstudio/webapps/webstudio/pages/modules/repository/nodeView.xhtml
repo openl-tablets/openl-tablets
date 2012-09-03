@@ -119,7 +119,7 @@
             <rich:tooltip showDelay="500">#{deleteMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();return false;">
+        <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();return false;">
             <rich:tooltip showDelay="500">Deploy selected deployments with the latest version of this project</rich:tooltip>
         </h:commandButton>
         
