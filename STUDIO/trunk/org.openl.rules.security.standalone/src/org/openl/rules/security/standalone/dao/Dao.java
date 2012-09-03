@@ -2,13 +2,15 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
+import org.openl.rules.security.standalone.persistence.PersistentObject;
+
 /**
  * Base interface to be implemented by DAO interfaces. All Dao interfaces (like
  * UserDao, etc) should extend this interface.
  *
  * @author Andrey Naumenko
  */
-public interface Dao {
+public interface Dao<T extends PersistentObject> {
     /**
      * Checks whether given object can be deleted. i.e. has no non-deletable
      * relations in DB.
@@ -17,14 +19,14 @@ public interface Dao {
      *
      * @return <code>true</code>
      */
-    boolean canBeDeleted(Object obj);
+    boolean canBeDeleted(T obj);
 
     /**
      * Delete given object.
      *
      * @param obj object to delete.
      */
-    void delete(Object obj);
+    void delete(T obj);
 
     /**
      * Gets object by primary id.
@@ -35,6 +37,8 @@ public interface Dao {
      *         found.
      */
     Object getById(Long id);
+
+    List<T> getAll();
 
     /**
      * Load object by primary id.
@@ -51,7 +55,7 @@ public interface Dao {
      *
      * @param obj object to save.
      */
-    void save(Object obj);
+    void save(T obj);
 
     /**
      * Saves or updates (necessary operation is determined automatically, see
@@ -59,12 +63,12 @@ public interface Dao {
      *
      * @param obj object to save/update
      */
-    void saveOrUpdate(Object obj);
+    void saveOrUpdate(T obj);
 
     /**
      * Updates object.
      *
      * @param obj object to update.
      */
-    void update(Object obj);
+    void update(T obj);
 }

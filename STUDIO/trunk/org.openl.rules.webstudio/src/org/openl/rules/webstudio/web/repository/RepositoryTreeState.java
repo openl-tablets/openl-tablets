@@ -1,15 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_READ_PROJECTS;
+import static org.openl.rules.security.PredefinedPrivileges.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

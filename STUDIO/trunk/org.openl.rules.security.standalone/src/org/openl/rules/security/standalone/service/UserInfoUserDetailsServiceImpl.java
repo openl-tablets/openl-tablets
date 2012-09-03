@@ -1,16 +1,17 @@
 package org.openl.rules.security.standalone.service;
 
-import org.openl.rules.security.standalone.authentication.UserInfo;
+import org.openl.rules.security.PredefinedGroups;
+import org.openl.rules.security.PredefinedPrivileges;
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.User;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
 
 /**
@@ -21,51 +22,38 @@ import java.util.StringTokenizer;
  * @author adjusted to new security model.
  */
 public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsService {
-    private UserDao userDao;
 
-    /**
-     * Creates new instance of
-     * <code>org.openl.rules.security.standalone.model.User</code> based on
-     * persistent user object.
-     *
-     * @param user persistent user object
-     * @return model user object
-     */
-    private static org.openl.rules.security.standalone.model.User modelUserFromUser(User user) {
-        org.openl.rules.security.standalone.model.User ret = new org.openl.rules.security.standalone.model.User();
-        ret.setFirstName(user.getFirstName());
-        ret.setLastName(user.getSurname());
-        ret.setLoginName(user.getLoginName());
-        ret.setPassword(user.getPasswordHash());
+    protected UserDao userDao;
 
-        return ret;
-    }
-
-    protected Collection<GrantedAuthority> createGrantedAuthorities(User user) {
-        Collection<GrantedAuthority> grantedSet = new LinkedHashSet<GrantedAuthority>();
+    protected Collection<Privilege> createPrivileges(User user) {
+        Collection<Privilege> grantedList = new ArrayList<Privilege>();
         String privileges = user.getPrivileges();
         if (privileges != null) {
             StringTokenizer st = new StringTokenizer(privileges, ",");
             while (st.hasMoreElements()) {
                 String privilege = st.nextToken();
-                grantedSet.add(new GrantedAuthorityImpl(privilege));
+                if (privilege.startsWith("GROUP")) {
+                    grantedList.add(PredefinedGroups.valueOf(privilege));
+                } else {
+                    grantedList.add(PredefinedPrivileges.valueOf(privilege));
+                }
             }
         }
 
-        return grantedSet;
+        return grantedList;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public UserInfo loadUserByUsername(String name) throws UsernameNotFoundException, DataAccessException {
+    @Override
+    public org.openl.rules.security.User loadUserByUsername(String name)
+            throws UsernameNotFoundException, DataAccessException {
         User user = userDao.getUserByName(name);
         if (user == null) {
             throw new UsernameNotFoundException("Unknown user: '" + name + "'");
         }
 
-        Collection<GrantedAuthority> grantedAuthorities = createGrantedAuthorities(user);
-        return new UserInfo(modelUserFromUser(user), grantedAuthorities);
+        Collection<Privilege> privileges = createPrivileges(user);
+        return new SimpleUser(user.getFirstName(), user.getSurname(),
+                user.getLoginName(), user.getPasswordHash(), privileges);
     }
 
     public void setUserDao(UserDao userDao) {
