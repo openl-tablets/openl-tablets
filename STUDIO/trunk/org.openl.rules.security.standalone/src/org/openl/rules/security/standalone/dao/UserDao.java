@@ -7,7 +7,7 @@ import org.openl.rules.security.standalone.persistence.User;
  *
  * @author Andrey Naumenko
  */
-public interface UserDao extends Dao {
+public interface UserDao extends Dao<User> {
     /**
      * Return User by name or <code>null</code> if no such User.
      *
