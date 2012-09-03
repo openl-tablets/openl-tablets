@@ -11,7 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.openl.rules.security.PredefinedRole;
+import org.openl.rules.security.PredefinedGroups;
 import org.openl.rules.security.none.SimpleAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +24,7 @@ public class AuthenticationFilter implements Filter {
 
     private static Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     static {
-        authorities.add(PredefinedRole.ROLE_ADMIN);
+        authorities.add(PredefinedGroups.GROUP_ADMIN);
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
