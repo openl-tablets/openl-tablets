@@ -152,7 +152,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         theFile1 = (AProjectResource) folder1.getArtefact(FILE1_1);
 
         assertNotNull(theFile1);
-/*
+        
         final Map<String, Object> fileProps = theFile1.getProps();
 
         if (props != null) {
@@ -163,7 +163,6 @@ public class JcrProductionDeployerTestCase extends TestCase {
                 assertEquals(fileProps.get(ATTRIBUTE + i), props.get(ATTRIBUTE + i));
             }
         }
- */
     }
 
     public void testDeploySameId() throws DeploymentException {
