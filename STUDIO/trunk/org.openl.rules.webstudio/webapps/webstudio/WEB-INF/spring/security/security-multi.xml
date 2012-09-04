@@ -105,7 +105,7 @@
     <property name="accessDecisionManager" ref="accessDecisionManager" />
     <property name="securityMetadataSource">
       <security:filter-security-metadata-source lowercase-comparisons="true">
-        <security:intercept-url pattern="/faces/pages/modules/administration/*" access="GROUP_ADMIN" />
+        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="GROUP_ADMIN" />
         <security:intercept-url pattern="/**" access="PRIVILEGE_VIEW_PROJECTS" />
       </security:filter-security-metadata-source>
     </property>
@@ -167,6 +167,7 @@
 
   <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
     <property name="userDao" ref="openlUserDao" />
+    <property name="groupDao" ref="groupDao" />
   </bean>
 
   <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
