@@ -8,4 +8,7 @@ import org.openl.rules.security.standalone.persistence.Group;
  * @author Andrey Naumenko
  */
 public interface GroupDao extends Dao<Group> {
+
+    Group getGroupByName(String name);
+
 }

@@ -10,7 +10,7 @@
     <ui:define name="workspace">
 
     <script>
-      $j(document).ready(function() {
+      $j(function() {
           $j('#tab-container-users').easytabs({
               animate: false,
               tabActiveClass: "selected-tab",
@@ -40,7 +40,7 @@
                 <div class="fields">
                     <section>
                         <div>
-                            <ui:include src="/pages/modules/administration/users.xhtml" />
+                            <ui:include src="/pages/modules/administration/users/users.xhtml" />
                         </div>
                     </section>
                 </div>
@@ -49,7 +49,7 @@
                 <div class="fields">
                     <section>
                         <div>
-                            <ui:include src="/pages/modules/administration/groups.xhtml" />
+                            <ui:include src="/pages/modules/administration/users/groups.xhtml" />
                         </div>
                     </section>
                 </div>
