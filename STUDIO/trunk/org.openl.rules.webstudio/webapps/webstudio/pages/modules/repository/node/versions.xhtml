@@ -11,7 +11,6 @@
         padding: 6px 7px !important;
     }
   </style>
-<h:form>
   <rich:dataTable value="#{node.versions}" var="version" styleClass="table table-striped"
     columnClasses="padding">
     <f:facet name="header">
@@ -54,12 +53,11 @@
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}" style="text-align: center;">
 	     <a4j:commandLink id="savePropsButton" title="Open Version ##{version.versionName}"
-	         action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView content :nodeTabPanel projectTree">
+	         action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree">
 	         <img src="webresource/images/view.png" />
 	     </a4j:commandLink>
       </rich:column>
   </rich:dataTable>
-</h:form>
 
   <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
     <h:outputText value="No version history" />
