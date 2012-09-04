@@ -606,12 +606,27 @@ form.standard table.buttonPanel {
 
 .rf-pp-hdr {
     background: #f7f7f7 !important;
-    padding: 4px 0 !important;
-    border-bottom: 1px solid #dddddd;
+    padding: 7px 0 !important;
+    border-bottom: 1px solid #eee;
 }
 
 .rf-pp-hdr-cnt {
     color: #222222 !important;
+    font-size: 12px !important;
+}
+
+.rf-pp-cntr {
+    border-color: #ddd !important;
+    box-shadow: 0 1px 31px #ddd;
+}
+
+.rf-pp-shade {
+    background-color: #f3f3f3 !important;
+    opacity: 0.8 !important;
+}
+
+.rf-pp-shdw {
+    display: none !important;
 }
 
 .rf-pp-cnt-scrlr {

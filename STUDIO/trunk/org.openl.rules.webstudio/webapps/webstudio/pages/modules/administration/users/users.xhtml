@@ -6,7 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j">
 
     <h:form>
-    <h:dataTable value="#{usersBean.users}" var="user" styleClass="table table-striped">
+    <h:dataTable id="userList" value="#{usersBean.users}" var="user" styleClass="table table-striped">
         <h:column>
             <f:facet name="header">
                 Username
@@ -54,6 +54,8 @@
     <br />
     <br />
 
-    <a4j:commandLink value="Add New User" />
+    <a href="#" onclick="RichFaces.$('modalAddUser').show()">Add New User</a>
+
+    <ui:include src="/pages/modules/administration/users/addUser.xhtml" />
 
 </ui:composition>
