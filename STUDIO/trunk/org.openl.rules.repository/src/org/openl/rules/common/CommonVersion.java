@@ -24,5 +24,9 @@ public interface CommonVersion extends Comparable<CommonVersion> {
 
     int getRevision();
 
+    int getMajor();
+
+    int getMinor();
+
     String getVersionName();
 }
