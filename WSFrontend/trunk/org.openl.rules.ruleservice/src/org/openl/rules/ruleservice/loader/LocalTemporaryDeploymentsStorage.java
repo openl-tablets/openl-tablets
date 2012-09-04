@@ -222,8 +222,7 @@ public class LocalTemporaryDeploymentsStorage {
                 getLocalWorkspaceFolderFilter(), getLocalWorkspaceFileFilter()));
         Deployment loadedDeployment = new Deployment(localFolderAPI);
         try {
-            loadedDeployment.update(deployment, null, deployment.getCommonVersion().getMajor(), deployment
-                    .getCommonVersion().getMinor());
+            loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
         } catch (ProjectException e) {
             if (log.isWarnEnabled()) {

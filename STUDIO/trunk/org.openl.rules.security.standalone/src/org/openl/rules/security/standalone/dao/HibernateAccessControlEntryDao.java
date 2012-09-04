@@ -7,8 +7,10 @@ import org.openl.rules.security.standalone.persistence.AccessControlEntry;
  *
  * @author Andrey Naumenko
  */
-public class HibernateAccessControlEntryDao extends BaseHibernateDao implements AccessControlEntryDao {
+public class HibernateAccessControlEntryDao extends BaseHibernateDao<AccessControlEntry> implements AccessControlEntryDao {
+
     public HibernateAccessControlEntryDao() {
         super(AccessControlEntry.class);
     }
+
 }

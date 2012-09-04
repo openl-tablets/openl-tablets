@@ -105,7 +105,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
 
     public static class TestConfigurer implements ServiceConfigurer {
         private static CommonVersion getLastVersion(RuleServiceLoader loader, String deploymentName) {
-            CommonVersion lastVersion = new CommonVersionImpl(0, 0, 0);
+            CommonVersion lastVersion = new CommonVersionImpl(0);
             for (Deployment deployment : loader.getDeployments()) {
                 if (deployment.getDeploymentName().equals(deploymentName)) {
                     if (lastVersion.compareTo(deployment.getCommonVersion()) < 0) {
@@ -134,7 +134,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         }
 
         private ServiceDescription resolveMultimoduleService(RuleServiceLoader loader) {
-            final String multiModuleDeploymentName = "multimodule";
+            final String multiModuleDeploymentName = "multi-module";
             final String domainDeploymentName = "domain";
             ServiceDescription.ServiceDescriptionBuilder builder = new ServiceDescription.ServiceDescriptionBuilder();
             builder.setUrl(MULTIMODULE_SERVICE_URL).setName("multimodule").setProvideRuntimeContext(false)

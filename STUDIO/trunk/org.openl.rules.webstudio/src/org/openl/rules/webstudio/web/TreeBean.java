@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_RUN;
+import static org.openl.rules.security.PredefinedPrivileges.PRIVILEGE_RUN;
 
 import java.util.ArrayList;
 import java.util.List;
