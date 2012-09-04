@@ -8,7 +8,6 @@
     template="/pages/layout/simpleView.xhtml">
 
     <ui:define name="workspace">
-    <script src="#{contextPath}/javascript/jquery.easytabs.min.js"></script>
 
     <style>
         .fields section div table tr { margin-bottom: 20px; }
@@ -27,24 +26,24 @@
         }
 
         .pathInput { width: 211px; }
-        
+
         .fields .repositoryConfig {
             margin-left: 0px;
         }
-        
+
         .repositoryConfig {
             border-style: dotted;
             border-color: gray;
             border-width: thin;
         }
-        
+
         .repositoryConfig .repositoryConfigButton {
             vertical-align: top;
         }
     </style>
 
     <script>
-      $j(document).ready(function() {
+      $j(function() {
           $j('#tab-container').easytabs({
               animate: false,
               tabActiveClass: "selected-tab",

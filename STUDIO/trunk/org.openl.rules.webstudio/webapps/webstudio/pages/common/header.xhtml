@@ -53,7 +53,7 @@
             <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a><a
                 href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : ''}">Repository</a>
 
-            <c:set var="adminUrl" value="/faces/pages/modules/administration/index.xhtml" />
+            <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
             <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
                 <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
             </h:panelGroup>

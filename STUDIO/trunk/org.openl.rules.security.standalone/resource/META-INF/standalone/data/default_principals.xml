@@ -9,7 +9,7 @@
   <User UserId="6" LoginName="u4" Password="7b8d62fd2f0f5b2e3ba5437e5b983128" Privileges="GROUP_ANALYST" />
   <User UserId="7" LoginName="a1" Password="8a8bb7cd343aa2ad99b7d762030857a2" Privileges="GROUP_ADMIN" />
 
-  <UserGroup GroupId="1" GroupName="Лузеры" Description="[null]" Privileges="PRIVILEGE_VIEW_PROJECTS,PRIVILEGE_EDIT_PROJECTS" />
+  <UserGroup GroupId="1" GroupName="lusers" Description="[null]" Privileges="PRIVILEGE_VIEW_PROJECTS,PRIVILEGE_EDIT_PROJECTS" />
   <UserGroup GroupId="2" GroupName="Гарин и Гиперболоиды" Description="[null]" Privileges="PRIVILEGE_VIEW_PROJECTS,PRIVILEGE_EDIT_PROJECTS,PRIVILEGE_DELETE_PROJECTS,PRIVILEGE_DEPLOY_PROJECTS" />
 
   <User2Group UserId="6" GroupId="2" />
