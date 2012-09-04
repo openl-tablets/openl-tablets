@@ -77,7 +77,7 @@
             <td class="propName" onclick="editProperty(this.parentNode)">
                 #{prop.displayName}
             </td>
-            <td class="propData" onclick="editProperty(this.parentNode)">
+            <td class="propData" onclick="#{repositoryTreeState.canClose ? 'editProperty(this.parentNode)' : '' }">
                  <h:outputText class="propValue" value="#{prop.displayValue}"
                     style="#{added ? 'display:none' : ''}" />
                 
@@ -87,13 +87,9 @@
                         rendered="#{prop.dateType}" inputStyle="width:100px" />
 
                     <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
-
-                    <ui:remove>
-                    <h:selectOneMenu id="repoMultiselect" value="#{prop.stringValue}"
-                        rendered="#{prop.enumArray}">
-                        <f:selectItems value="#{prop.enumArrayItems}"/>
-                    </h:selectOneMenu>
-                    </ui:remove>
+                    
+                    <oh:multiselect id="multiselect" items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
+                            rendered="#{prop.enumArray}" />
 
                     <h:inputText value="#{prop.value}" id="text" 
                         rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
@@ -108,11 +104,13 @@
             <span>
                 <a4j:commandLink id="savePropsButton" title="Save"
 	                 action="#{repositoryProjectPropsBean.save(prop)}" 
-	                 render="#{propsFormName}repoPropsTable" style="display: none; margin-left: 2px"><img
+	                 render="#{propsFormName}repoPropsTable nodeView" style="display: none; margin-left: 2px"
+	                 rendered="#{repositoryTreeState.canClose}"><img
                      style="opacity: 0.5" src="webresource/images/ok.png" />
 	             </a4j:commandLink>
                  <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
-                     render="#{propsFormName}repoPropsTable" style="display: none; margin-left: 2px"><img
+                     render="#{propsFormName}repoPropsTable nodeView" style="display: none; margin-left: 2px"
+                     rendered="#{repositoryTreeState.canClose}"><img
                      style="opacity: 0.5" src="webresource/images/close.gif" />
                  </a4j:commandLink>
              </span>
@@ -125,7 +123,7 @@
 
     <div style="margin: 8px 0">
         <h:outputLink id="#{propsFormName}addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('##{panelFormName}addRepoPropsPanel').fadeIn()"
-            rendered="#{!empty repositoryProjectPropsBean.propsForSelect}" style="margin-left: 4px">Add</h:outputLink>
+            rendered="#{!empty repositoryProjectPropsBean.propsForSelect and repositoryTreeState.canClose}" style="margin-left: 4px">Add</h:outputLink>
     </div>
     </h:panelGroup>
 
@@ -155,7 +153,6 @@
             elem.find(".propValue").hide();
             elem.find(".propEditor").show();
             $j("#savePropsButton").show();
-
         }
 
         function showRemoveBtn(row) {

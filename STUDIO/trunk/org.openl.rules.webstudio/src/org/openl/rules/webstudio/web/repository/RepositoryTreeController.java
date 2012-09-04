@@ -315,10 +315,10 @@ public class RepositoryTreeController {
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
-        
+
         /*Clear the load form*/
         this.clearForm();
-        
+
         return null;
     }
 
@@ -327,20 +327,21 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("Project name must not be empty.");
             return null;
         }
-        
+
         if (userWorkspace.hasProject(projectName)) {
             String msg = "Cannot create project because project with such name already exists.";
             FacesUtils.addErrorMessage(msg, null);
             
             return msg;
         }
-        
+
         InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
         String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
         if (sampleRulesSource == null) {
             FacesUtils.addErrorMessage(errorMessage);
             return null;
         }
+
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
         ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
         String creationMessage = projectCreator.createRulesProject();
@@ -355,7 +356,7 @@ public class RepositoryTreeController {
                 creationMessage = e.getMessage();
             }
         }
-        
+
         /*Clear the load form*/
         this.clearForm();
         

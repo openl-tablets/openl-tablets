@@ -105,7 +105,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
 
     public static class TestConfigurer implements ServiceConfigurer {
         private static CommonVersion getLastVersion(RuleServiceLoader loader, String deploymentName) {
-            CommonVersion lastVersion = new CommonVersionImpl(0);
+            CommonVersion lastVersion = new CommonVersionImpl(0, 0, 0);
             for (Deployment deployment : loader.getDeployments()) {
                 if (deployment.getDeploymentName().equals(deploymentName)) {
                     if (lastVersion.compareTo(deployment.getCommonVersion()) < 0) {
