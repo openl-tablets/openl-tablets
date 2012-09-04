@@ -2,8 +2,8 @@ package org.openl.rules.security.standalone;
 
 import java.util.Collection;
 
-import org.openl.rules.security.PredefinedRole;
-import org.openl.rules.security.Role;
+import org.openl.rules.security.PredefinedGroups;
+import org.openl.rules.security.Group;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -12,12 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 /**
  * <p>
  * Based on {@link org.springframework.security.access.vote.RoleVoter}. If Authentication has
- * {@link org.openl.rules.security.PredefinedRole#ROLE_ADMIN} authority it will get
+ * {@link org.openl.rules.security.PredefinedGroup#GROUP_ADMIN} authority it will get
  * access even if it is not specified explicitly.
  * </p>
  * <p>
  * Votes if any {@link ConfigAttribute#getAttribute()} starts with a prefix
- * indicating that it is a role. The prefix string is <Code>ROLE_</code>.
+ * indicating that it is a role. The prefix string is <Code>GROUP_</code>.
  * </p>
  * <p>
  * Abstains from voting if no configuration attribute commences with the role
@@ -25,7 +25,7 @@ import org.springframework.security.core.GrantedAuthority;
  * {@link org.springframework.security.core.GrantedAuthority} to a <code>ConfigAttribute</code>
  * starting with the role prefix. Votes to deny access if there is no exact
  * matching <code>GrantedAuthority</code> to a <code>ConfigAttribute</code>
- * starting with the role prefix ({@link org.openl.rules.security.Privileges#ROLE_PREFIX}).
+ * starting with the role prefix ({@link org.openl.rules.security.Privileges#GROUP_PREFIX}).
  * </p>
  * <p>
  * All comparisons and prefixes are case sensitive.
@@ -80,9 +80,9 @@ public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
                     if (attr.equals(authority)) {
                         return ACCESS_GRANTED;
                     }
-                    
-                    Role role = PredefinedRole.findRole(authority);
-                    if (role != null && role.hasAuthority(attr)) {
+
+                    Group group = PredefinedGroups.findGroup(authority);
+                    if (group != null && group.hasPrivilege(attr)) {
                         return ACCESS_GRANTED;
                     }
                 }

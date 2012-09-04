@@ -229,8 +229,7 @@ fieldset {
     padding: 4px 7px;
 }
 
-.table-striped tr:nth-child(2n+1) td,
-.table-striped tr:nth-child(2n+1) th {
+.table-striped tr:nth-child(2n+1) td {
     background: #fafafa;
 }
 
@@ -245,6 +244,10 @@ fieldset {
     white-space: nowrap;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     vertical-align: 12%;
+}
+
+.badge-info {
+    background: #59c;
 }
 
 .badge-error {

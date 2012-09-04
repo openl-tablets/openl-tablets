@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j">
+
+    <hr />
+
+    <h:form>
+        <h:panelGrid columns="2">
+            <label class="required">Username</label>
+            <h:inputText value="" />
+            <label class="required">Password</label>
+            <h:inputSecret value="" />
+            <label class="required">Confirm</label>
+            <h:inputSecret value="" />
+            <label>First Name</label>
+            <h:inputText value="" />
+            <label>Last Name</label>
+            <h:inputText value="" />
+        </h:panelGrid>
+
+        <br />
+        <br />
+
+        <a4j:commandButton value="Save" />
+    </h:form>
+
+</ui:composition>

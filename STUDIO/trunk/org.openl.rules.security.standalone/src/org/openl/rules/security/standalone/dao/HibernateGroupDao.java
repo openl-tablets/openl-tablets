@@ -7,8 +7,10 @@ import org.openl.rules.security.standalone.persistence.Group;
  *
  * @author Andrey Naumenko
  */
-public class HibernateGroupDao extends BaseHibernateDao implements GroupDao {
+public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupDao {
+
     public HibernateGroupDao() {
         super(Group.class);
     }
+
 }

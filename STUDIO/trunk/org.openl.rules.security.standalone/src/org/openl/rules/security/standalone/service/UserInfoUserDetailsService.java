@@ -1,6 +1,6 @@
 package org.openl.rules.security.standalone.service;
 
-import org.openl.rules.security.standalone.authentication.UserInfo;
+import org.openl.rules.security.User;
 
 import org.springframework.dao.DataAccessException;
 
@@ -30,5 +30,5 @@ public interface UserInfoUserDetailsService extends UserDetailsService {
      * @throws org.springframework.dao.DataAccessException if user could not be
      *             found for a repository-specific reason
      */
-    UserInfo loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;
+    User loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException;
 }

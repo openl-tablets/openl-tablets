@@ -1,5 +1,7 @@
 package org.openl.rules.security.standalone.dao;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.openl.rules.security.standalone.persistence.PersistentObject;
@@ -10,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Andrey Naumenko
  */
-public abstract class BaseHibernateDao implements Dao {
+public abstract class BaseHibernateDao<T extends PersistentObject> implements Dao<T> {
 
-    private Class persistentClass;
+    private Class<T> persistentClass;
 
     private SessionFactory sessionFactory;
 
-    public BaseHibernateDao(Class persistentClass) {
+    public BaseHibernateDao(Class<T> persistentClass) {
         this.persistentClass = persistentClass;
     }
 
@@ -28,38 +30,52 @@ public abstract class BaseHibernateDao implements Dao {
         return sessionFactory.getCurrentSession();
     }
 
+    @Override
     @Transactional
-    public boolean canBeDeleted(Object obj) {
+    public boolean canBeDeleted(T obj) {
         return true;
     }
 
+    @Override
     @Transactional
-    public void delete(Object obj) {
+    public void delete(T obj) {
         getSession().delete(getSession().load(obj.getClass(), ((PersistentObject) obj).getId()));
     }
 
+    @Override
     @Transactional
     public Object getById(Long id) {
         return getSession().get(persistentClass, id);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional
+    public List<T> getAll() {
+        return getSession().createCriteria(persistentClass).list();
+    }
+
+    @Override
     @Transactional
     public Object loadById(Long id) {
         return getSession().load(persistentClass, id);
     }
 
+    @Override
     @Transactional
-    public void save(Object obj) {
+    public void save(T obj) {
         getSession().save(obj);
     }
 
+    @Override
     @Transactional
-    public void saveOrUpdate(Object obj) {
+    public void saveOrUpdate(T obj) {
         getSession().saveOrUpdate(obj);
     }
 
+    @Override
     @Transactional
-    public void update(Object obj) {
+    public void update(T obj) {
         getSession().update(obj);
     }
 
