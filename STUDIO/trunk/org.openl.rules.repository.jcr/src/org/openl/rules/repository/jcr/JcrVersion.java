@@ -137,4 +137,16 @@ public class JcrVersion implements RVersion {
         */
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
+
+    @Override
+    public int getMajor() {
+        // TODO Auto-generated method stub
+        return -1;
+    }
+
+    @Override
+    public int getMinor() {
+        // TODO Auto-generated method stub
+        return -1;
+    }
 }

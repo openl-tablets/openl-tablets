@@ -28,12 +28,12 @@ public interface RVersion extends CommonVersion {
             return 0;
         }
         
-        public Integer getMinor() {
-            return null;
+        public int getMinor() {
+            return 0;
         }
         
-        public Integer getMajor() {
-            return null;
+        public int getMajor() {
+            return 0;
         }
         
         public CommonUser getCreatedBy() {

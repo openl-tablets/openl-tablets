@@ -393,7 +393,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
         return selectedProject.isOpenedForEditing() && selectedProject.isModifiedDescriptors() && isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
     }
-    
+
     public boolean getCanSaveProject() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         return selectedProject.isModified() && isGranted(PRIVILEGE_EDIT_PROJECTS);
@@ -401,7 +401,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanClose() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isLockedByMe() || (!selectedProject.isLocalOnly() && selectedProject.isOpened());
+        
+        if (selectedProject != null) {
+            return selectedProject.isLockedByMe() || (!selectedProject.isLocalOnly() && selectedProject.isOpened());
+        } else {
+            return false;
+        }
     }
 
     public boolean getCanDelete() {

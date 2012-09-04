@@ -36,6 +36,18 @@ public class PopulateDProjects {
             return version.getVersionName();
         }
 
+        @Override
+        public int getMajor() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public int getMinor() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
     }
 
     public static void main(String[] args) {
