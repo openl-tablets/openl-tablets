@@ -123,7 +123,7 @@
 
     <div style="margin: 8px 0">
         <h:outputLink id="#{propsFormName}addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('##{panelFormName}addRepoPropsPanel').fadeIn()"
-            rendered="#{!empty repositoryProjectPropsBean.propsForSelect and repositoryTreeState.canClose}" style="margin-left: 4px">Add</h:outputLink>
+            rendered="#{!empty repositoryProjectPropsBean.propsForSelect and repositoryTreeState.canSave}" style="margin-left: 4px">Add</h:outputLink>
     </div>
     </h:panelGroup>
 

@@ -144,26 +144,27 @@ public class RepositoryTreeController {
         String errorMessage = null;
         
         if (projectArtefact instanceof AProjectFolder) {
-        	if(folderName != null && !folderName.isEmpty()){
-	        	if (NameChecker.checkName(folderName)){
-	            		if(!NameChecker.checkIsFolderPresent((AProjectFolder) projectArtefact, folderName)){     
-			            	AProjectFolder folder = (AProjectFolder) projectArtefact;
-			            	
-			            	try {
-			                    AProjectFolder addedFolder = folder.addFolder(folderName);
-			                    repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
-			                    resetStudioModel();
-			                } catch (ProjectException e) {
-                                            log.error("Failed to create folder '" + folderName + "'.", e);
-			                    errorMessage = e.getMessage();
-			                }
-	            		} else {
-	            			errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_EXISTS;
-	            		}
-	            } else {
-	                errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
-	            }
-        	} else {
+            if(folderName != null && !folderName.isEmpty()){
+                if (NameChecker.checkName(folderName)){
+                    if(!NameChecker.checkIsFolderPresent((AProjectFolder) projectArtefact, folderName)){     
+                        AProjectFolder folder = (AProjectFolder) projectArtefact;
+
+                        try {
+                            AProjectFolder addedFolder = folder.addFolder(folderName);
+                            repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
+                            resetStudioModel();
+                            } catch (ProjectException e) {
+                                log.error("Failed to create folder '" + folderName + "'.", e);
+                                errorMessage = e.getMessage();
+                            }
+                        } else {
+                            errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_EXISTS;
+                        }
+                    } else {
+                        
+                    errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
+                }
+            } else {
                 errorMessage = "Folder name '" + folderName + "' is invalid. " + NameChecker.FOLDER_NAME_EMPTY;
             }
         }
@@ -783,17 +784,10 @@ public class RepositoryTreeController {
     }
 
     public String openProjectVersion(String version) {
-        try {
-            this.version = version;
-            repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
-            repositoryTreeState.refreshSelectedNode();
-            resetStudioModel();
-        } catch (ProjectException e) {
-            String msg = "Failed to open project version.";
-            log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
-        }
-        return null;
+       this.version = version;
+       openProjectVersion();
+       
+       return null;
     }
 
     public String refreshTree() {

@@ -17,6 +17,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -32,13 +33,16 @@ public class RepositoryProjectPropsBean {
     private List<TablePropertyDefinition> bussinedDimensionProps;
     private String propertyToAdd;
     private List<TableProperty> propsStore;
-    private RulesRepositoryArtefact storeDataBean;
+    private String storeProjName;
+    private String storeProjVersion;
 
     public RepositoryProjectPropsBean() {
         bussinedDimensionProps = TablePropertyDefinitionUtils.getDimensionalTableProperties();
 
-        if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null) {
-            storeDataBean = repositoryTreeState.getSelectedNode().getData();
+        if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null
+                && storeProjName == null) {
+            storeProjName = repositoryTreeState.getSelectedNode().getData().getName();
+            storeProjVersion = repositoryTreeState.getSelectedNode().getData().getVersion().getVersionName();
         }
     }
 
@@ -164,14 +168,36 @@ public class RepositoryProjectPropsBean {
         /*
          * propsStore = initSettedProps(); return propsStore;
          */
-        if (propsStore == null || propsStore.isEmpty() || storeDataBean == null
-                || !storeDataBean.equals(repositoryTreeState.getSelectedNode().getData())) {
-            storeDataBean = repositoryTreeState.getSelectedNode().getData();
+        if (propsStore == null || propsStore.isEmpty() || storeProjName == null
+                || !isTheSameBean(repositoryTreeState.getSelectedNode().getData())) {
+            
+            if (repositoryTreeState.getSelectedNode().getData() != null) {
+                storeProjName = repositoryTreeState.getSelectedNode().getData().getName();
+                storeProjVersion = repositoryTreeState.getSelectedNode().getData().getVersion().getVersionName();
+            }
 
             propsStore = initSettedProps();
         }
 
         return propsStore;
+    }
+
+    private boolean isTheSameBean(RulesRepositoryArtefact obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (obj instanceof AProjectArtefact) {
+            if (storeProjName != null && storeProjVersion != null) {
+                if ( ((AProjectArtefact) obj).getName().equals(storeProjName) && ((AProjectArtefact) obj).getVersion().getVersionName().equals(storeProjVersion) ) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        return false;
     }
 
     public void setPropsStore(List<TableProperty> propsStore) {
