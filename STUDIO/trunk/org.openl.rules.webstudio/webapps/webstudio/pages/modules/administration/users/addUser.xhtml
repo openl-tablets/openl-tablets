@@ -18,25 +18,48 @@
         </f:facet>
 
         <h:form>
-            <h:panelGrid columns="2">
+            <h:panelGrid columns="3" cellspacing="5">
                 <label class="required">Username</label>
-                <h:inputText value="#{usersBean.user.username}" />
+                <h:inputText id="username" value="#{usersBean.username}"
+                    validator="#{usersBean.validateUsername}" />
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="username" styleClass="error" />
+                </a4j:outputPanel>
+
                 <label class="required">Password</label>
-                <h:inputSecret value="#{usersBean.user.password}" />
+                <h:inputSecret id="password" value="#{usersBean.password}" />
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="password" styleClass="error" />
+                </a4j:outputPanel>
+
                 <label class="required">Confirm</label>
-                <h:inputSecret value="#{usersBean.confirmPassword}" />
+                <h:inputSecret id="confirmPassword" value="#{usersBean.confirmPassword}"
+                    validator="#{usersBean.validateConfirmPassword}" />
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="confirmPassword" styleClass="error" />
+                </a4j:outputPanel>
+
                 <label>First Name</label>
-                <h:inputText value="#{usersBean.user.firstName}" />
+                <h:inputText id="firstName" value="#{usersBean.firstName}" />
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="firstName" styleClass="error" />
+                </a4j:outputPanel>
+
                 <label>Last Name</label>
-                <h:inputText value="#{usersBean.user.lastName}" />
+                <h:inputText id="lastName" value="#{usersBean.lastName}" />
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="lastName" styleClass="error" />
+                </a4j:outputPanel>
+
                 <label class="required">Groups</label>
             </h:panelGrid>
 
             <br />
             <br />
 
-            <a4j:commandButton value="Save" action="#{usersBean.addUser}" oncomplete="RichFaces.$('modalAddUser').hide()"
-                render=":userList" styleClass="button-primary" />
+            <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) RichFaces.$('modalAddUser').hide()" render=":userList"
+                styleClass="button-primary" />
             <input type="button" value="Cancel" onclick="RichFaces.$('modalAddUser').hide()" />
         </h:form>
 

@@ -21,7 +21,7 @@
 
                 <h:outputText value="Name" styleClass="required" />
                 <h:inputText id="tableName" value="#{wizard.tableName}" 
-                validator="#{wizard.validateTechnicalName}" immediate="true" />
+                    validator="#{wizard.validateTechnicalName}" immediate="true" />
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="tableName" styleClass="error" />
                 </a4j:outputPanel>
