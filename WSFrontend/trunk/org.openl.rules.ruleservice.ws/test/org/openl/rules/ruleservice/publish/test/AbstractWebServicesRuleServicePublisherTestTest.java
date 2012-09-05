@@ -48,7 +48,7 @@ public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWeb
         assertNotNull(client);
         Object result = client.invoke("getCoverage")[0];
         Method method = Thread.currentThread().getContextClassLoader()
-                .loadClass("org.openl.rules.tutorial4.ArrayOfString").getMethod("getStrings");
+                .loadClass("org.openl.rules.tutorial4.ArrayOfString").getMethod("getString");
         List<?> listResult = (List<?>) method.invoke(result);
         assertEquals(2, listResult.size());
     }
