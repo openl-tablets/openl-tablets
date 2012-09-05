@@ -8,9 +8,9 @@
     <h:outputText value="Folder Name" />
     <h:outputText value="#{node.name}" />
   </h:panelGrid>
-
+<ui:remove>
   <ui:include src="/pages/modules/repository/node/properties.xhtml">
     <ui:param name="prefix" value="folder"/>
   </ui:include>
-
+</ui:remove>
 </ui:composition>
