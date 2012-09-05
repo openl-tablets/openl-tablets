@@ -4,8 +4,10 @@ import java.util.Iterator;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.ILocalVar;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.util.BooleanUtils;
@@ -20,10 +22,14 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class SelectFirstIndexNodeBinder extends ANodeBinder {
 
-    private static class ConditionalSelectIndexNode extends ABoundNode {
+    private static final String TEMPORARY_VAR_NAME = "selectFirstIndex";
 
-        public ConditionalSelectIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
+    private static class ConditionalSelectIndexNode extends ABoundNode {
+        private ILocalVar tempVar;
+
+        public ConditionalSelectIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children,ILocalVar tempVar) {
             super(syntaxNode, children);
+            this.tempVar = tempVar;
         }
 
         public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -33,12 +39,10 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
             Iterator<Object> elementsIterator = aggregateInfo.getIterator(container.evaluate(env));
             while (elementsIterator.hasNext()) {
                 Object element = elementsIterator.next();
-                env.pushThis(element);
+                tempVar.set(null, element, env);
                 if (BooleanUtils.toBoolean(condition.evaluate(env))) {
-                    env.popThis();
                     return element;
                 }
-                env.popThis();
             }
             return null;
         }
@@ -71,9 +75,11 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
         IOpenClass containerType = targetNode.getType();
         IAggregateInfo info = containerType.getAggregateInfo();
 
-        IBoundNode[] children = bindChildren(node,
-                new TypeBindingContext(bindingContext, info.getComponentType(containerType)));
+        String varName = BindHelper.getTemporaryVarName(bindingContext, ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+        ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, info.getComponentType(containerType));
+
+        IBoundNode[] children = bindChildren(node, new TypeBindingContext(bindingContext, var));
         IBoundNode conditionNode = BindHelper.checkConditionBoundNode(children[0], bindingContext);
-        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, conditionNode });
+        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, conditionNode }, var);
     }
 }

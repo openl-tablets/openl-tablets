@@ -119,7 +119,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param minor new minor version of project
      * @throws RepositoryException if failed
      */
-    void updateProject(AProject project, WorkspaceUser user, int major, int minor) throws RepositoryException;
+    void updateProject(AProject project, WorkspaceUser user) throws RepositoryException;
 
     
     void addListener(DesignTimeRepositoryListener listener);

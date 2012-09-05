@@ -25,8 +25,8 @@ public class TestDDP {
             ADeploymentProject ddp = uw.getDDProject(name);
             ddp.edit(wu);
 
-            ddp.addProjectDescriptor("prj1", new CommonVersionImpl(1, 10, 100));
-            ddp.addProjectDescriptor("prj2", new CommonVersionImpl(2, 20, 200));
+            ddp.addProjectDescriptor("prj1", new CommonVersionImpl(100));
+            ddp.addProjectDescriptor("prj2", new CommonVersionImpl(200));
 
             ddp.save(wu);
         } catch (Exception e) {

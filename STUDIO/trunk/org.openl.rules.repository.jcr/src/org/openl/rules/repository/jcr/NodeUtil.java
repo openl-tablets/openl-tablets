@@ -143,7 +143,7 @@ public class NodeUtil {
                 // real values)
             } else {
                 JcrVersion jvi = new JcrVersion(jcrVersion);
-                CommonVersionImpl cv = new CommonVersionImpl(jvi.getMajor(), jvi.getMinor(), jvi.getRevision());
+                CommonVersionImpl cv = new CommonVersionImpl(jvi.getRevision());
 
                 if (cv.compareTo(version) == 0) {
                     result = jcrVersion.getNode(JcrNT.FROZEN_NODE);

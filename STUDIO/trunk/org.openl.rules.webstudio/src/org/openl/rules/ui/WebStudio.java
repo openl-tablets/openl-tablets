@@ -32,6 +32,7 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.webstudio.web.admin.SystemSettingsBean;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -71,6 +72,7 @@ public class WebStudio {
     private ProjectModel model = new ProjectModel(this);
     private RulesProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
+    private boolean updateSystemProperties;
 
     private RulesTreeView treeView;
     private String tableView;
@@ -88,54 +90,56 @@ public class WebStudio {
     private boolean needRestart = false;
 
     public WebStudio(HttpSession session) {
-        boolean initialized = false;
-
         systemConfigManager = WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
             .getBean(ConfigurationManager.class);
 
-        try {
-            initialized = init(session);
-        } catch (Exception e) {
-        }
-
-        if (!initialized) {
-            workspacePath = systemConfigManager.getStringProperty("workspace.local.home");
-            projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-            projectResolver.setWorkspace(workspacePath);
-        }
-
-        userSettingsManager = new ConfigurationManager(false,
-                systemConfigManager.getStringProperty("user.settings.home") + File.separator
-                    + WebStudioUtils.getRulesUserSession(session).getUserName() + File.separator
-                    + USER_SETTINGS_FILENAME,
-                session.getServletContext().getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME), true);
-
-        initUserSettings();
-
+        initWorkspace(session);
+        initUserSettings(session);
+        updateSystemProperties = systemConfigManager.getBooleanProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES);
         initDependencyManager();
-    }
-
-    private void initUserSettings() {
-        treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
-        tableView = userSettingsManager.getStringProperty("table.view");
-        showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
     }
 
     public WebStudio() {
         this(FacesUtils.getSession());
     }
 
+    private void initWorkspace(HttpSession session) {
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+
+        if (userWorkspace == null) {
+            return;
+        }
+
+        workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
+        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        projectResolver.setWorkspace(workspacePath);
+    }
+
+    private void initUserSettings(HttpSession session) {
+        String userMode = systemConfigManager.getStringProperty("user.mode");
+        String settingsLocation = systemConfigManager.getStringProperty("user.settings.home")
+                + (!userMode.equals("single") ? (File.separator + WebStudioUtils.getRulesUserSession(session).getUserName()) : "")
+                + File.separator + USER_SETTINGS_FILENAME;
+        String defaultSettingsLocation = session.getServletContext().getRealPath(
+                "/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
+
+        userSettingsManager = new ConfigurationManager(false, settingsLocation, defaultSettingsLocation, true);
+
+        treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
+        tableView = userSettingsManager.getStringProperty("table.view");
+        showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
+    }
+
     private void initDependencyManager() {
-        this.dependencyManager = new RulesProjectDependencyManager();
+        dependencyManager = new RulesProjectDependencyManager();
         dependencyManager.setExternalParameters(systemConfigManager.getProperties());
-        
+
         dependencyManager.setExecutionMode(false);
-        
+
         IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader(projectResolver);
         IDependencyLoader loader2 = new RulesFileDependencyLoader();
-        
+
         dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));    
-        
     }
 
     public ConfigurationManager getSystemConfigManager() {
@@ -144,21 +148,6 @@ public class WebStudio {
 
     public ConfigurationManager getUserSettingsManager() {
         return userSettingsManager;
-    }
-
-    public boolean init(HttpSession session) {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-
-        if (userWorkspace == null) {
-            return false;
-        }
-
-        workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
-
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(workspacePath);
-
-        return true;
     }
 
     public RulesTreeView[] getTreeViews() {
@@ -271,7 +260,7 @@ public class WebStudio {
     }
 
     /**
-     * Returns path on local file system to openL workspace this instance of web
+     * Returns path on the file system to user workspace this instance of web
      * studio works with.
      * 
      * @return path to openL projects workspace, i.e. folder containing openL
@@ -395,6 +384,15 @@ public class WebStudio {
 
     public void setTableUri(String tableUri) {
         this.tableUri = tableUri;
+    }
+
+    public boolean isUpdateSystemProperties() {
+        return updateSystemProperties;
+    }
+
+    public void setUpdateSystemProperties(boolean updateSystemProperties) {
+        this.updateSystemProperties = updateSystemProperties;
+        systemConfigManager.setProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public boolean isShowFormulas() {

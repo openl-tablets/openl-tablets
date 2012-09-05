@@ -127,39 +127,11 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
         }
     }
 
-    public void testFixedDateProperties() throws ProjectException, WorkspaceException, PropertyException {
-        Date date1 = new Date(System.currentTimeMillis());
-        Date date2 = new Date(date1.getTime() + 1);
-        Date date3 = new Date(date2.getTime() + 1);
-        Date date4 = new Date(date3.getTime() + 1);
-        Date date5 = new Date(date4.getTime() + 1);
-        Date date6 = new Date(date5.getTime() + 1);
-
-        localProject.setEffectiveDate(date1);
-        localProject.setExpirationDate(date2);
-        folder1.setEffectiveDate(date3);
-        folder1.setExpirationDate(date4);
-        folder1File2.setEffectiveDate(date5);
-        folder1File2.setExpirationDate(date6);
-        localProject.save(TestHelper.getWorkspaceUser());
-
-        AProject project = getFreshWorkspace().getProject(PROJECT_NAME);
-        AProjectFolder folder1 = (AProjectFolder) project.getArtefact("folder1");
-        AProjectArtefact folder1File2 = folder1.getArtefact("file2");
-
-        assertEquals("effective date for project was not persisted corectly", date1, project.getEffectiveDate());
-        assertEquals("expiration date for project was not persisted corectly", date2, project.getExpirationDate());
-        assertEquals("effective date for folder was not persisted corectly", date3, folder1.getEffectiveDate());
-        assertEquals("expiration date for folder was not persisted corectly", date4, folder1.getExpirationDate());
-        assertEquals("effective date for file was not persisted corectly", date5, folder1File2.getEffectiveDate());
-        assertEquals("expiration date for file was not persisted corectly", date6, folder1File2.getExpirationDate());
-    }
-
     public void testProjectDependency() throws WorkspaceException, ProjectException {
         ProjectDependency[] dependencies = {
-                new ProjectDependencyImpl("project1", new RepositoryProjectVersionImpl(1, 0, 0, null)),
-                new ProjectDependencyImpl("project2", new RepositoryProjectVersionImpl(2, 1, 0, null),
-                        new RepositoryProjectVersionImpl(2, 2, 0, null)) };
+                new ProjectDependencyImpl("project1", new RepositoryProjectVersionImpl(0, null)),
+                new ProjectDependencyImpl("project2", new RepositoryProjectVersionImpl(0, null),
+                        new RepositoryProjectVersionImpl(0, null)) };
 
         localProject.setDependencies(Arrays.asList(dependencies));
         localProject.save(TestHelper.getWorkspaceUser());
@@ -182,7 +154,7 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
 
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {
         LocalWorkspaceManagerImpl workspaceManager = new LocalWorkspaceManagerImpl();
-        workspaceManager.setWorkspacesRoot(TestHelper.FOLDER_TEST);
+        workspaceManager.setWorkspaceHome(TestHelper.FOLDER_TEST);
         workspaceManager.setLocalWorkspaceFileFilter(new NotFileFilter(new NameFileFilter(".studioProps")));
         return workspaceManager.createWorkspace(TestHelper.getWorkspaceUser());
     }

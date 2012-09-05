@@ -22,11 +22,11 @@ public interface CommonVersion extends Comparable<CommonVersion> {
 
     }
 
+    int getRevision();
+
     int getMajor();
 
     int getMinor();
-
-    int getRevision();
 
     String getVersionName();
 }

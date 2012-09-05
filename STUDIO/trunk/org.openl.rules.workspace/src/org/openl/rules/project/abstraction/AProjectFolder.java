@@ -80,8 +80,8 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     @Override
-    public void update(AProjectArtefact newFolder, CommonUser user, int major, int minor) throws ProjectException {
-        super.update(newFolder, user, major, minor);
+    public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
+        super.update(newFolder, user);
         if (this.isFolder()) {
 
             AProjectFolder folder = (AProjectFolder) newFolder;
@@ -97,7 +97,7 @@ public class AProjectFolder extends AProjectArtefact {
 
                     if (newArtefact.isFolder() == artefact.isFolder()) {
                         // update existing
-                        artefact.update(newArtefact, user, major, minor);
+                        artefact.update(newArtefact, user);
                     } else {
                         // the same name but other type
                         artefact.delete();
@@ -110,20 +110,20 @@ public class AProjectFolder extends AProjectArtefact {
                 String name = artefact.getName();
                 if (!hasArtefact(name)) {
                     if (artefact.isFolder()) {
-                        addFolder(name).update(artefact, user, major, minor);
+                        addFolder(name).update(artefact, user);
                     } else {
-                        addResource(name, (AProjectResource) artefact).update(artefact, user, major, minor);
+                        addResource(name, (AProjectResource) artefact).update(artefact, user);
                     }
                 }
             }
         }
-        commit(user, major, minor);
+        commit(user);
     }
     
     @Override
-    public void smartUpdate(AProjectArtefact newFolder, CommonUser user, int major, int minor) throws ProjectException {
+    public void smartUpdate(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
         if (newFolder.isModified()) {
-            super.smartUpdate(newFolder, user, major, minor);
+            super.smartUpdate(newFolder, user);
             if (this.isFolder()) {
 
                 AProjectFolder folder = (AProjectFolder) newFolder;
@@ -139,7 +139,7 @@ public class AProjectFolder extends AProjectArtefact {
 
                         if (newArtefact.isFolder() == artefact.isFolder()) {
                             // update existing
-                            artefact.smartUpdate(newArtefact, user, major, minor);
+                            artefact.smartUpdate(newArtefact, user);
                         } else {
                             // the same name but other type
                             artefact.delete();
@@ -152,14 +152,14 @@ public class AProjectFolder extends AProjectArtefact {
                     String name = artefact.getName();
                     if (!hasArtefact(name)) {
                         if (artefact.isFolder()) {
-                            addFolder(name).update(artefact, user, major, minor);
+                            addFolder(name).update(artefact, user);
                         } else {
-                            addResource(name, (AProjectResource) artefact).update(artefact, user, major, minor);
+                            addResource(name, (AProjectResource) artefact).update(artefact, user);
                         }
                     }
                 }
             }
-            commit(user, major, minor);
+            commit(user);
         }
     }
 

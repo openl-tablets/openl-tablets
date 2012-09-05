@@ -72,9 +72,8 @@ public class JcrProductionDeployerTestCase extends TestCase {
     private AProject makeProject2() throws PropertyException, ProjectException {
         AProject project = new AProject(new MockFolder(PROJECT2_NAME));
         AProjectFolder folder1 = project.addFolder(FOLDER1);
-        folder1.setEffectiveDate(EFFECTIVE_DATE);
-        folder1.addResource(FILE1_1, new ByteArrayInputStream(new byte[15])).setExpirationDate(EXPIRATION_DATE);
-        folder1.addResource(FILE1_2, MockResource.NULL_STREAM).setLineOfBusiness(LOB);
+        folder1.addResource(FILE1_1, MockResource.NULL_STREAM);
+        folder1.addResource(FILE1_2, MockResource.NULL_STREAM);
         project.addFolder(FOLDER2);
         return project;
     }
@@ -118,7 +117,6 @@ public class JcrProductionDeployerTestCase extends TestCase {
 
     public void testDeploy() throws IOException, ProjectException, PropertyException {
         ADeploymentProject deploymentProject = new ADeploymentProject(new MockFolder("deployment project"), null);
-        deploymentProject.setEffectiveDate(EFFECTIVE_DATE);
         DeployID id = instance.deploy(deploymentProject, projects, getWorkspaceUser());
 
         productionRepositoryFactoryProxy.destroy();
@@ -129,7 +127,6 @@ public class JcrProductionDeployerTestCase extends TestCase {
         assertTrue(names.contains(id.getName()));
 
         FolderAPI deployment = pr.getDeploymentProject(id.getName());
-        assertEquals(deployment.getProperty(ArtefactProperties.PROP_EFFECTIVE_DATE).getDate(), EFFECTIVE_DATE);
         assertTrue(deployment.hasArtefact(PROJECT1_NAME));
         assertTrue(deployment.hasArtefact(PROJECT2_NAME));
 
@@ -138,21 +135,13 @@ public class JcrProductionDeployerTestCase extends TestCase {
         AProjectFolder folder1 = (AProjectFolder) project.getArtefact(FOLDER1);
 
         assertNotNull(folder1);
-        assertEquals(EFFECTIVE_DATE, folder1.getEffectiveDate());
-        assertNull(folder1.getExpirationDate());
-        assertNull(folder1.getLineOfBusiness());
 
         AProjectResource theFile1 = (AProjectResource)folder1.getArtefact(FILE1_1);
 
         assertNotNull(theFile1);
-        assertEquals(15, theFile1.getContent().available());
-        assertEquals(EXPIRATION_DATE, theFile1.getExpirationDate());
 
         AProjectResource theFile2 = (AProjectResource)folder1.getArtefact(FILE1_2);
         assertNotNull(theFile2);
-        assertEquals(LOB, theFile2.getLineOfBusiness());
-        assertNull(theFile2.getEffectiveDate());
-        assertNull(theFile2.getExpirationDate());
 
         AProject project3 = new AProject((FolderAPI)deployment.getArtefact(PROJECT3_NAME));
 
@@ -163,7 +152,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         theFile1 = (AProjectResource) folder1.getArtefact(FILE1_1);
 
         assertNotNull(theFile1);
-
+        
         final Map<String, Object> fileProps = theFile1.getProps();
 
         if (props != null) {

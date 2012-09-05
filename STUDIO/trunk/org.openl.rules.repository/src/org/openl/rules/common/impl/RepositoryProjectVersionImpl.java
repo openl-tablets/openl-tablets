@@ -1,23 +1,33 @@
 package org.openl.rules.common.impl;
 
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
-import org.openl.rules.repository.RVersion;
 
 
 public class RepositoryProjectVersionImpl implements ProjectVersion {
     private static final long serialVersionUID = -5156747482692477220L;
     public static final String DELIMETER = ".";
 
-    private int major;
-    private int minor;
+    private int major = -1;
+    private int minor = -1;
     private int revision;
     private transient String versionName;
     private VersionInfo versionInfo;
+    
+    private Map<String, Object> versionProperties;
     private String versionComment;
+    
+    public String getVersionComment() {
+        return versionComment;
+    }
+
+    public void setVersionComment(String versionComment) {
+        this.versionComment = versionComment;
+    }
 
     public RepositoryProjectVersionImpl(String version){
         StringTokenizer tokenizer = new StringTokenizer(version, DELIMETER);
@@ -39,13 +49,18 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.revision = revision;
         this.versionInfo = versionInfo;
     }
-
-    public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment) {
-        major = version.getMajor();
-        minor = version.getMinor();
+    
+    public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment,
+            Map<String, Object> versionProperties) {
         revision = version.getRevision();
         this.versionInfo = versionInfo;
         this.versionComment = versionComment;
+        this.versionProperties = versionProperties;
+    }
+    
+    public RepositoryProjectVersionImpl(int revision, VersionInfo versionInfo) {
+        this.revision = revision;
+        this.versionInfo = versionInfo;
     }
 
     public int compareTo(CommonVersion o) {
@@ -85,8 +100,13 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
-                    .toString();
+            if (major != -1 && minor != -1) {
+                versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
+                        .toString();
+            } else {
+                versionName = new StringBuilder().append(revision)
+                        .toString();
+            }
         }
 
         return versionName;
@@ -100,12 +120,12 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         result = 31 * result + revision;
         return result;
     }
+
+    public Map<String, Object> getVersionProperties() {
+        return versionProperties;
+    }
     
-    public String getVersionComment() {
-        if (versionComment != null) {
-            return versionComment;
-        } else {
-            return "";
-        }
+    public void setVersionProperties(Map<String, Object> versionProperties) {
+        this.versionProperties = versionProperties;
     }
 }

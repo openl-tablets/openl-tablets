@@ -10,10 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +39,8 @@ import static org.openl.rules.repository.jcr.NodeUtil.isSame;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 /**
  * Implementation of JCR Entity. It is linked with node in JCR implementation,
@@ -47,11 +51,13 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private final Log log = LogFactory.getLog(JcrEntityAPI.class);
+    /*
     private static final String[] ALLOWED_PROPS = {ArtefactProperties.PROP_EFFECTIVE_DATE, ArtefactProperties.PROP_EXPIRATION_DATE, 
         ArtefactProperties.PROP_LINE_OF_BUSINESS, ArtefactProperties.VERSION_COMMENT};
-
+    */
     private Map<String, org.openl.rules.common.Property> properties;
     private Map<String, Object> props;
+    private List<TablePropertyDefinition> bussinedDimensionProps;
 
     private JcrVersion version;
     private ArtefactPath path;
@@ -64,6 +70,8 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         this.path = path;
         this.transactionManager = transactionManager;
         version = new JcrVersion(node);
+        
+        bussinedDimensionProps = TablePropertyDefinitionUtils.getDimensionalTableProperties();
 
         properties = new HashMap<String, org.openl.rules.common.Property>();
         initProperties();
@@ -158,40 +166,60 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         properties.clear();
 
         Node n = node();
-        for (String s : ALLOWED_PROPS) {
-            if (n.hasProperty(s)) {
-                Property p = n.getProperty(s);
+        
+        for (TablePropertyDefinition prop : bussinedDimensionProps) {
+            String propName = prop.getName();
+            
+            if (n.hasProperty(propName)) {
+                Property p = n.getProperty(propName);
 
-                properties.put(s, new JcrProperty(node(), p));
+                properties.put(propName, new JcrProperty(node(), p));
             }
         }
     }
 
     private void loadProps() throws RepositoryException {
         Node n = node();
+        
+        /*Set dimension props*/
+        for (TablePropertyDefinition prop : bussinedDimensionProps) {
+            String propName = prop.getName();
+            if (n.hasProperty(propName)) {
+                props.put(propName, getPropValueByType(propName));
+            }
+        }
+        
+        /*Set attrs*/
         for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
             String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
             if (n.hasProperty(propName)) {
-                Value value = n.getProperty(propName).getValue();
-                Object propValue = null;
-                int valueType = value.getType();
-                switch (valueType) {
-                    case PropertyType.DATE:
-                        propValue = value.getDate().getTime();
-                        break;
-                    case PropertyType.LONG:
-                        propValue = new Date(value.getLong());
-                        break;
-                    case PropertyType.DOUBLE:
-                        propValue = value.getDouble();
-                        break;
-                    default:
-                        propValue = value.getString();
-                        break;
-                }
-                props.put(propName, propValue);
+                props.put(propName, getPropValueByType(propName));
             }
         }
+    }
+    
+    private Object getPropValueByType(String propName) throws RepositoryException {
+        Node n = node();
+
+        Value value = n.getProperty(propName).getValue();
+        Object propValue = null;
+        int valueType = value.getType();
+        switch (valueType) {
+            case PropertyType.DATE:
+                propValue = value.getDate().getTime();
+                break;
+            case PropertyType.LONG:
+                propValue = new Date(value.getLong());
+                break;
+            case PropertyType.DOUBLE:
+                propValue = value.getDouble();
+                break;
+            default:
+                propValue = value.getString();
+                break;
+        }
+        
+        return propValue;
     }
 
     public org.openl.rules.common.Property removeProperty(String name) throws PropertyException {
@@ -221,7 +249,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             } else if (propValue instanceof Double) {
                 n.setProperty(propName, (Double) propValue);
             } else {
-                n.setProperty(propName, (String) propValue);
+                n.setProperty(propName, propValue.toString());
             }
             n.save();
         } catch (RepositoryException e) {
@@ -327,14 +355,20 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
                         .getUserName());
                 String versionComment = "";
-                
+                Map<String, Object> versionProperties = new HashMap<String, Object>();
+
                 try {
                     JcrEntityAPI entity = this.getVersion(rv);
-                    versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
+                    versionProperties = getVersionProps(rv);
+                    
+                    if(entity.hasProperty(ArtefactProperties.VERSION_COMMENT)) {
+                        versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
+                    }
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 
-                vers.add(new RepositoryProjectVersionImpl(rv, rvii, versionComment));
+                vers.add(new RepositoryProjectVersionImpl(rv, rvii, versionComment, versionProperties));
             }
 
         } catch (RRepositoryException e) {
@@ -353,13 +387,44 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
-    public void commit(CommonUser user, int major, int minor, int revision) throws ProjectException {
+    private Map<String, Object> getVersionProps(CommonVersion version) throws PropertyException, RepositoryException {
+        Node frozenNode = NodeUtil.getNode4Version(node(), version);
+        Map<String, Object> versProps = new HashMap<String, Object>();
+        
+        for (TablePropertyDefinition prop : bussinedDimensionProps) {
+            String propName = prop.getName();
+            
+            if (frozenNode.hasProperty(propName)) {
+                Value value = frozenNode.getProperty(propName).getValue();
+                Object propValue = null;
+                int valueType = value.getType();
+                switch (valueType) {
+                    case PropertyType.DATE:
+                        propValue = value.getDate().getTime();
+                        break;
+                    case PropertyType.LONG:
+                        propValue = new Date(value.getLong());
+                        break;
+                    case PropertyType.DOUBLE:
+                        propValue = value.getDouble();
+                        break;
+                    default:
+                        propValue = value.getString();
+                        break;
+                }
+                versProps.put(propName, propValue);
+            }
+        }
+        return versProps;
+    }
+
+    public void commit(CommonUser user, int revision) throws ProjectException {
         try {
             Node n = node();
             saveParent(n);
 
             NodeUtil.smartCheckout(n, false);
-            version.set(major, minor, revision);
+            version.set(revision);
             version.updateVersion(n);
             n.setProperty(ArtefactProperties.PROP_MODIFIED_BY, user.getUserName());
 
@@ -390,6 +455,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         for(String propertyName : propertyNames){
             removeProperty(propertyName);
         }
+        
         properties.clear();
     }
 

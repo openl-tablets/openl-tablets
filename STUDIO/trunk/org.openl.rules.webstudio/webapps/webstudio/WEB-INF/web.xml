@@ -20,24 +20,17 @@
   </context-param>
 
   <context-param>
+    <description>User mode ('single', 'multi' or 'sso')</description>
+    <param-name>user.mode</param-name>
+    <param-value>multi</param-value>
+  </context-param>
+
+  <context-param>
     <description>
       Location of the XML file that defines the root application context, applied by ContextLoaderListener.
     </description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>
-      /WEB-INF/spring/*-beans.xml <!-- always present -->
-
-      <!-- Security -->
-
-      <!-- Standalone security -->
-      classpath:META-INF/standalone/spring/security-*-beans.xml
-      /WEB-INF/spring/security/security-beans.xml
-      /WEB-INF/spring/security/security-standalone-beans.xml
-
-      <!-- No actual security -->
-      <!--/WEB-INF/spring/security/security-beans.xml
-      /WEB-INF/spring/security/security-none-beans.xml-->
-    </param-value>
+    <param-value>/WEB-INF/spring/*-beans.xml</param-value>
   </context-param>
 
   <context-param>

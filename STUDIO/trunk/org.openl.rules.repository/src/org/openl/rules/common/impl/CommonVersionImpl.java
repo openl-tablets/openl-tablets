@@ -3,8 +3,8 @@ package org.openl.rules.common.impl;
 import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
-    private int major;
-    private int minor;
+    private int major = -1;
+    private int minor = -1;
     private int revision;
 
     private transient String versionName;
@@ -20,19 +20,28 @@ public class CommonVersionImpl implements CommonVersion {
         this.minor = minor;
         this.revision = revision;
     }
+    
+    public CommonVersionImpl(int revision) {
+        this.revision = revision;
+    }
 
     public CommonVersionImpl(String s) {
         String[] version = s.split("\\.");
+        
+        if (version.length == 1) {
+            revision = Integer.parseInt(version[0], 10);
+        } else {
+            if (version.length > 0) {
+                major = Integer.parseInt(version[0], 10);
+            }
+            if (version.length > 1) {
+                minor = Integer.parseInt(version[1], 10);
+            }
+            if (version.length > 2) {
+                revision = Integer.parseInt(version[2], 10);
+            }
+        }
 
-        if (version.length > 0) {
-            major = Integer.parseInt(version[0], 10);
-        }
-        if (version.length > 1) {
-            minor = Integer.parseInt(version[1], 10);
-        }
-        if (version.length > 2) {
-            revision = Integer.parseInt(version[2], 10);
-        }
     }
 
     public int compareTo(CommonVersion o) {
@@ -75,8 +84,12 @@ public class CommonVersionImpl implements CommonVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
-                    .toString();
+            if ( major != -1 && minor != -1) {
+                versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
+                        .toString();
+            } else {
+                versionName = new StringBuilder().append(revision).toString();
+            }
         }
 
         return versionName;

@@ -46,14 +46,12 @@ public class DependencyController {
         }
 
         try {
-            int major = Integer.parseInt(parts[0]);
-            int minor = (parts.length < 2) ? 0 : Integer.parseInt(parts[1]);
             int rev = (parts.length < 3) ? 0 : Integer.parseInt(parts[2]);
-            if ((major < 0) || (minor < 0) || (rev < 0)) {
+            if (rev < 0) {
                 return null;
             }
 
-            return new RepositoryProjectVersionImpl(major, minor, rev, null);
+            return new RepositoryProjectVersionImpl(rev, null);
         } catch (Exception e) {
             // ignore exception
             return null;

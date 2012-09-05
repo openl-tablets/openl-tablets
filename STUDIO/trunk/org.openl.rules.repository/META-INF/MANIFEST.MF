@@ -11,4 +11,5 @@ Export-Package: org.openl.rules.common,
  org.openl.rules.repository.api,
  org.openl.rules.repository.exceptions
 Require-Bundle: org.openl.rules.webstudio.lib,
- org.openl.commons;visibility:=reexport
+ org.openl.commons;visibility:=reexport,
+ org.openl.rules;bundle-version="5.9.4"

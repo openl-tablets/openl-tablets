@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j">
+
+    <h:form>
+    <h:dataTable id="userList" value="#{usersBean.users}" var="user" styleClass="table table-striped">
+        <h:column>
+            <f:facet name="header">
+                Username
+            </f:facet>
+            #{user.username}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">
+                First Name
+            </f:facet> 
+            #{user.firstName}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">
+                Last Name
+            </f:facet>
+            #{user.lastName}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">
+                Privileges
+            </f:facet>
+            <ui:repeat var="privilege" value="#{user.authorities}">
+            <h:panelGroup class="badge" style="margin-right: 2px"
+                rendered="#{privilege.name.startsWith('PRIVILEGE')}">#{privilege.displayName}</h:panelGroup>
+            <h:panelGroup class="badge #{privilege.name == 'GROUP_ADMIN' ? 'badge-error' : 'badge-info'}"
+                style="margin-right: 2px" rendered="#{privilege.name.startsWith('GROUP')}">#{privilege.displayName}</h:panelGroup>
+            </ui:repeat>
+        </h:column>
+
+        <h:column>
+            <a4j:commandLink execute="@this" render="@form"
+                action="#{usersBean.deleteUser(user.username)}"
+                onclick="if(!window.confirm('Are you sure you want to delete the user?')) {return false;}"
+                title="Delete">
+                <h:graphicImage url="/webresource/images/delete.gif" />
+            </a4j:commandLink>
+        </h:column>
+    </h:dataTable>
+    </h:form>
+
+    <br />
+    <br />
+
+    <a href="#" onclick="RichFaces.$('modalAddUser').show()">Add New User</a>
+
+    <ui:include src="/pages/modules/administration/users/addUser.xhtml" />
+
+</ui:composition>

@@ -1,15 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_CREATE_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_ERASE_PROJECTS;
-import static org.openl.rules.security.Privileges.PRIVILEGE_READ_PROJECTS;
+import static org.openl.rules.security.PredefinedPrivileges.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +11,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +40,7 @@ import org.richfaces.event.TreeSelectionChangeEvent;
  * @author Andrey Naumenko
  */
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
@@ -400,7 +393,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
         return selectedProject.isOpenedForEditing() && selectedProject.isModifiedDescriptors() && isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
     }
-    
+
     public boolean getCanSaveProject() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         return selectedProject.isModified() && isGranted(PRIVILEGE_EDIT_PROJECTS);
@@ -408,7 +401,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanClose() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isLockedByMe() || (!selectedProject.isLocalOnly() && selectedProject.isOpened());
+        
+        if (selectedProject != null) {
+            return selectedProject.isLockedByMe() || (!selectedProject.isLocalOnly() && selectedProject.isOpened());
+        } else {
+            return false;
+        }
     }
 
     public boolean getCanDelete() {
