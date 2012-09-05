@@ -303,7 +303,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         try {
             createProject(name);
             designTimeRepository.getProject(name).lock(user);
-            designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user, 0, 0);
+            designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user);
             AProject createdProject = getProject(name);
             designTimeRepository.getProject(name).unlock(user);
             createdProject.edit(user);

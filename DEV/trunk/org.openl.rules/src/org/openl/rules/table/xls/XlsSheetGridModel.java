@@ -76,7 +76,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
         sheet = sheetSource.getSheet();
-        extractMergedRegions();        
+        extractMergedRegions();
 
         initCellWriters();
 
@@ -118,7 +118,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
         setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
         mergedRegionsPool.add(reg);
-        return sheet.addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
+        return sheet
+                .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
     }
 
     private Object findFirstValueInRegion(IGridRegion reg) {
@@ -177,19 +178,19 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         PoiExcelHelper.copyCellValue(cellFrom, cellTo);
         PoiExcelHelper.copyCellStyle(cellFrom, cellTo, sheet);
         cellTo.removeCellComment();
-        //PoiExcelHelper.copyCellComment(cellFrom, cellTo);
+        // PoiExcelHelper.copyCellComment(cellFrom, cellTo);
 
         setCellMetaInfo(colTo, rowTo, meta);
     }
 
-    public IGridRegion findEmptyRect(int width, int height) {        
+    public IGridRegion findEmptyRect(int width, int height) {
         int lastRow = PoiExcelHelper.getLastRowNum(sheet);
         int top = lastRow + 2, left = 1;
 
         return new GridRegion(top, left, top + height - 1, left + width - 1);
     }
 
-    public ICell getCell(int column, int row) {        
+    public ICell getCell(int column, int row) {
         return new XlsCell(column, row, this);
     }
 
@@ -202,7 +203,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public int getColumnWidth(int col) {
         return PoiExcelHelper.getColumnWidth(col, sheet);
     }
-    
+
     public int getMaxColumnIndex(int rownum) {
         return PoiExcelHelper.getMaxColumnIndex(rownum, sheet);
     }
@@ -347,12 +348,57 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
         if (style instanceof XlsCellStyle) {
             styleToClone = ((XlsCellStyle) style).getXlsStyle();
-        } else {
+            newPoiStyle.cloneStyleFrom(styleToClone);
+        
+        }/* else if (style instanceof org.openl.rules.table.ui.CellStyle) {
             styleToClone = poiCell.getCellStyle();
+            newPoiStyle.cloneStyleFrom(styleToClone);
+            
+            setCellStyle(newPoiStyle, style);
+        }*/ else {
+            styleToClone = poiCell.getCellStyle();
+            newPoiStyle.cloneStyleFrom(styleToClone);
         }
 
-        newPoiStyle.cloneStyleFrom(styleToClone);
+        poiCell.setCellStyle(newPoiStyle);
+    }
+    
+    /*
+     * Set only BorderStyle and BorderRGB properties
+     * */
+    public void setCellBorderStyle(int col, int row, ICellStyle style) {
+        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
+        CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
 
+        newPoiStyle.cloneStyleFrom(poiCell.getCellStyle());
+        
+        if (style.getBorderStyle() != null) {
+            short[] borderStyle = style.getBorderStyle();
+            
+            newPoiStyle.setBorderTop(borderStyle[0]);
+            newPoiStyle.setBorderRight(borderStyle[1]);
+            newPoiStyle.setBorderBottom(borderStyle[2]);
+            newPoiStyle.setBorderLeft(borderStyle[3]);
+            
+        }
+        
+        if (style.getBorderRGB() != null) {
+            short[][] borderGBR = style.getBorderRGB();
+            
+            if (borderGBR[0] != null)
+                newPoiStyle.setTopBorderColor(borderGBR[0][0]);
+            
+            if (borderGBR[1] != null)
+            newPoiStyle.setRightBorderColor(borderGBR[1][0]);
+            
+            if (borderGBR[2] != null)
+            newPoiStyle.setBottomBorderColor(borderGBR[2][0]);
+            
+            if (borderGBR[3] != null)
+            newPoiStyle.setLeftBorderColor(borderGBR[3][0]);
+            
+        }
+        
         poiCell.setCellStyle(newPoiStyle);
     }
 
@@ -374,7 +420,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             if (newStyle.getFillPattern() == CellStyle.NO_FILL) {
                 newStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
             }
-            setCellFillColor(newStyle, color);    
+            setCellFillColor(newStyle, color);
         } else {
             newStyle.setFillPattern(CellStyle.NO_FILL);
         }
@@ -388,8 +434,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
             ((XSSFCellStyle) dest).setFillForegroundColor(color);
 
-        // Xls
-        } else { 
+            // Xls
+        } else {
             HSSFColor color = findIndexedColor(rgb);
             if (color != null) {
                 dest.setFillForegroundColor(color.getIndex());
@@ -419,7 +465,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
             ((XSSFFont) dest).setColor(color);
 
-        // Xls
+            // Xls
         } else {
             HSSFColor color = findIndexedColor(rgb);
             if (color != null) {

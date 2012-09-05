@@ -71,14 +71,14 @@ public final class HSSFCellStyle implements CellStyle {
     public HSSFCellStyle getParentStyle() {
         short parentIndex = _format.getParentIndex();
         // parentIndex equal 0xFFF indicates no inheritance from a cell style XF (See 2.4.353 XF)
-    	if(parentIndex == 0 || parentIndex == 0xFFF) {
-    		return null;
-    	}
-    	return new HSSFCellStyle(
-    			parentIndex,
-    			_workbook.getExFormatAt(parentIndex),
-    			_workbook
-    	);
+        if(parentIndex == 0 || parentIndex == 0xFFF) {
+            return null;
+            }
+        return new HSSFCellStyle(
+                parentIndex,
+                _workbook.getExFormatAt(parentIndex),
+                _workbook
+                );
     }
 
     /**

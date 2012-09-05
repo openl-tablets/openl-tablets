@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.PredefinedPrivileges.PRIVILEGE_DELETE_PROJECTS;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -96,8 +96,6 @@ public class RepositoryTreeController {
     private String uploadFrom;
     private String newProjectName;
     private String version;
-    private int major;
-    private int minor;
     private String saveComment;
 
     private String filterString;
@@ -180,7 +178,7 @@ public class RepositoryTreeController {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
 
-            project.save(major, minor);
+            project.save();
             
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -317,10 +315,10 @@ public class RepositoryTreeController {
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
-        
+
         /*Clear the load form*/
         this.clearForm();
-        
+
         return null;
     }
 
@@ -329,20 +327,21 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage("Project name must not be empty.");
             return null;
         }
-        
+
         if (userWorkspace.hasProject(projectName)) {
             String msg = "Cannot create project because project with such name already exists.";
             FacesUtils.addErrorMessage(msg, null);
             
             return msg;
         }
-        
+
         InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
         String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
         if (sampleRulesSource == null) {
             FacesUtils.addErrorMessage(errorMessage);
             return null;
         }
+
         String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
         ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
         String creationMessage = projectCreator.createRulesProject();
@@ -357,7 +356,7 @@ public class RepositoryTreeController {
                 creationMessage = e.getMessage();
             }
         }
-        
+
         /*Clear the load form*/
         this.clearForm();
         
@@ -614,22 +613,6 @@ public class RepositoryTreeController {
         return repositoryTreeState.getDeploymentRepository().getChildNodes();
     }
 
-    public Date getEffectiveDate() {
-        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
-        if (dataBean != null) {
-            return dataBean.getEffectiveDate();
-        }
-        return null;
-    }
-
-    public Date getExpirationDate() {
-        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
-        if (dataBean != null) {
-            return dataBean.getExpirationDate();
-        }
-        return null;
-    }
-
     public String getFileName() {
         return this.fileName;
     }
@@ -642,32 +625,8 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String getLineOfBusiness() {
-        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
-        if (dataBean != null) {
-            return dataBean.getLineOfBusiness();
-        }
-        return null;
-    }
-
     public String getVersionComment() {
         return "";
-    }
-
-    public int getMajor() {
-        ProjectVersion v = getProjectVersion();
-        if (v != null) {
-            return v.getMajor();
-        }
-        return major;
-    }
-
-    public int getMinor() {
-        ProjectVersion v = getProjectVersion();
-        if (v != null) {
-            return v.getMinor();
-        }
-        return minor;
     }
 
     public String getNewProjectName() {
@@ -823,6 +782,20 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String openProjectVersion(String version) {
+        try {
+            this.version = version;
+            repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
+            repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
+        } catch (ProjectException e) {
+            String msg = "Failed to open project version.";
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg, e.getMessage());
+        }
+        return null;
+    }
+
     public String refreshTree() {
         repositoryTreeState.invalidateTree();
         repositoryTreeState.invalidateSelection();
@@ -925,32 +898,6 @@ public class RepositoryTreeController {
         }
     }
 
-    public void setEffectiveDate(Date date) {
-        if (!SPECIAL_DATE.equals(date)) {
-            try {
-                repositoryTreeState.getSelectedNode().getData().setEffectiveDate(date);
-            } catch (PropertyException e) {
-                log.error("Failed to set effective date!", e);
-                FacesUtils.addErrorMessage("Can not set effective date.", e.getMessage());
-            }
-        } else {
-            FacesUtils.addErrorMessage("Specified effective date value is not a valid date.");
-        }
-    }
-
-    public void setExpirationDate(Date date) {
-        if (!SPECIAL_DATE.equals(date)) {
-            try {
-                repositoryTreeState.getSelectedNode().getData().setExpirationDate(date);
-            } catch (PropertyException e) {
-                log.error("Failed to set expiration date!", e);
-                FacesUtils.addErrorMessage("Can not set expiration date.", e.getMessage());
-            }
-        } else {
-            FacesUtils.addErrorMessage("Specified expiration date value is not a valid date.");
-        }
-    }
-
     public void uploadListener(FileUploadEvent event) {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
@@ -975,15 +922,6 @@ public class RepositoryTreeController {
     public void setFolderName(String folderName) {
         this.folderName = folderName;
     }
-
-    public void setLineOfBusiness(String lineOfBusiness) {
-        try {
-            repositoryTreeState.getSelectedNode().getData().setLineOfBusiness(lineOfBusiness); 
-        } catch (PropertyException e) {
-            log.error("Failed to set LOB!", e);
-            FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
-        }
-    }
     
     public void setVersionComment(String versionComment) {
         try {
@@ -992,14 +930,6 @@ public class RepositoryTreeController {
             log.error("Failed to set LOB!", e);
             FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
         }
-    }
-
-    public void setMajor(int major) {
-        this.major = major;
-    }
-
-    public void setMinor(int minor) {
-        this.minor = minor;
     }
 
     public void setNewProjectName(String newProjectName) {
@@ -1295,7 +1225,7 @@ public class RepositoryTreeController {
         return FacesUtils.createSelectItems(projectTemplates);
     }
     
-    public boolean getCanDelete(){
+    public boolean getCanDelete() {
         return isGranted(PRIVILEGE_DELETE_PROJECTS);
     }
 

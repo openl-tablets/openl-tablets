@@ -71,7 +71,7 @@ public class JcrRulesClient {
             waiting.join();
         }
 
-        fetchedDeployment.update(deploymentProject, null, 0, 0);
+        fetchedDeployment.update(deploymentProject, null);
     }
 
     /**

@@ -94,14 +94,9 @@ public class AProject extends AProjectFolder {
             throw new ProjectException("Failed to mark project as deleted.", e);
         }
     }
-
+    
     public void save(CommonUser user) throws ProjectException {
-        ProjectVersion currentVersion = getLastVersion();
-        save(user, currentVersion.getMajor(), currentVersion.getMinor());
-    }
-
-    public void save(CommonUser user, int major, int minor) throws ProjectException {
-        commit(user, major, minor);
+        commit(user);
         unlock(user);
         refresh();
     }
@@ -165,12 +160,12 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+    public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         AProject project = (AProject) artefact;
         UserTransaction transaction = beginTransaction();
         try {
             setDependencies(project.getDependencies());
-            super.update(artefact, user, major, minor);
+            super.update(artefact, user);
         } catch (Exception e) {
             rollbackTransaction(transaction);
             throw new ProjectException("Failed to save project: " + e.getMessage(), e);
@@ -179,13 +174,13 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    public void smartUpdate(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+    public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         if (artefact.isModified()) {
             AProject project = (AProject) artefact;
             UserTransaction transaction = beginTransaction();
             try {
                 setDependencies(project.getDependencies());
-                super.smartUpdate(artefact, user, major, minor);
+                super.smartUpdate(artefact, user);
             } catch (Exception e) {
                 rollbackTransaction(transaction);
                 throw new ProjectException("Failed to save project: " + e.getMessage(), e);

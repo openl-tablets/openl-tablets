@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:a4j="http://richfaces.org/a4j"
@@ -73,7 +72,7 @@
     
     <h:panelGroup rendered="#{!artefact.deleted}">
       <h:panelGrid columns="10" cellpadding="3" cellspacing="0">
-        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{not (rulesUserSession.localUser and artefact.opened)}">
+        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{not (systemConfig['user.mode'] == 'single' and artefact.opened)}">
           <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open" action="#{repositoryTreeController.openProject}">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
@@ -91,7 +90,7 @@
           </h:commandButton>
         </h:panelGrid>
 
-        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{rulesUserSession.localUser and artefact.opened}">
+        <h:panelGrid columns="4" cellpadding="3" cellspacing="0" rendered="#{systemConfig['user.mode'] == 'single' and artefact.opened}">
           <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
@@ -108,7 +107,7 @@
           </h:commandButton>
         </h:panelGrid>
         
-        <h:commandButton rendered="#{repositoryTreeState.canSaveProject}" value="Save" onclick="openSaveDialog();return false;">
+        <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject}" value="Save" onclick="openSaveDialog();return false;">
             <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
         </h:commandButton>
         
@@ -120,7 +119,7 @@
             <rich:tooltip showDelay="500">#{deleteMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();return false;">
+        <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();return false;">
             <rich:tooltip showDelay="500">Deploy selected deployments with the latest version of this project</rich:tooltip>
         </h:commandButton>
         
@@ -144,9 +143,9 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <rich:tabPanel switchType="client"
+  <rich:tabPanel id="nodeTabPanel" selectedTab="properties" switchType="client"
     rendered="#{node.type != 'repository' &amp;&amp; node.type != 'drepository' &amp;&amp; node.type != 'deployment'}">
-    <rich:tab header="Properties">
+    <rich:tab id="properties" header="Properties">
       <h:panelGroup rendered="#{node.type == 'file'}">
         <ui:include src="/pages/modules/repository/node/fileProps.xhtml" />
       </h:panelGroup>
@@ -157,13 +156,13 @@
         <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
-    <rich:tab header="Versions">
+    <rich:tab id="versions" header="Versions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
-    <rich:tab header="Elements" rendered="#{node.type != 'file'}">
+    <rich:tab id="dlements" header="Elements" rendered="#{node.type != 'file'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
-    <rich:tab header="Dependencies" rendered="#{node.type == 'project'}">
+    <rich:tab id="dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
       <ui:include src="/pages/modules/repository/node/dependency.xhtml" />
     </rich:tab>
   </rich:tabPanel>

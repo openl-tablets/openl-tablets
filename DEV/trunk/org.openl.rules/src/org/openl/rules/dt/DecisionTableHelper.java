@@ -308,7 +308,7 @@ public class DecisionTableHelper {
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
             boolean isThatVCondition, int vColumnCounter) {
         final List<String> intType = Arrays.asList("byte","short","int","Byte","Short","Int",
-                "ByteValue","ShortValue","IntValue","BigIntegerValue");
+                "ByteValue","ShortValue","IntValue","BigIntegerValue", "Integer", "IntegerValue");
         final List<String> doubleType = Arrays.asList("long","float","double","Long","Float","Double",
                 "LongValue","FloatValue","DoubleValue","BigDecimalValue");
         ILogicalTable decisionValues;

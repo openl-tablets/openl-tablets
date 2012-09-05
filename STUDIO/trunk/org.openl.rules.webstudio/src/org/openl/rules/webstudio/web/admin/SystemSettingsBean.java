@@ -32,14 +32,14 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @ManagedBean
 @RequestScoped
 public class SystemSettingsBean {
+    private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
+
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
 
-    private static final String WORKSPACES_ROOT = "workspace.root";
-    private static final String LOCAL_WORKSPACE = "workspace.local.home";
+    private static final String USER_WORKSPACE_HOME = "user.workspace.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String DATE_PATTERN = "data.format.date";
-
-    private static final String AUTO_LOGIN = "security.login.auto";
+    public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
@@ -80,24 +80,16 @@ public class SystemSettingsBean {
     
     @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
-    
+
     @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    public String getWorkspacesRoot() {
-        return configManager.getStringProperty(WORKSPACES_ROOT);
+    public String getUserWorkspaceHome() {
+        return configManager.getStringProperty(USER_WORKSPACE_HOME);
     }
 
-    public void setWorkspacesRoot(String workspacesRoot) {
-        configManager.setProperty(WORKSPACES_ROOT, workspacesRoot);
-    }
-
-    public String getLocalWorkspace() {
-        return configManager.getStringProperty(LOCAL_WORKSPACE);
-    }
-
-    public void setLocalWorkspace(String localWorkspace) {
-        configManager.setProperty(LOCAL_WORKSPACE, localWorkspace);
+    public void setUserWorkspaceHome(String userWorkspaceHome) {
+        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -108,12 +100,12 @@ public class SystemSettingsBean {
         configManager.setProperty(DATE_PATTERN, datePattern);
     }
 
-    public boolean isAutoLogin() {
-        return configManager.getBooleanProperty(AUTO_LOGIN);
+    public boolean isUpdateSystemProperties() {
+        return configManager.getBooleanProperty(UPDATE_SYSTEM_PROPERTIES);
     }
 
-    public void setAutoLogin(boolean autoLogin) {
-        configManager.setProperty(AUTO_LOGIN, autoLogin);
+    public void setUpdateSystemProperties(boolean updateSystemProperties) {
+        configManager.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public String getProjectHistoryHome() {
@@ -247,17 +239,17 @@ public class SystemSettingsBean {
             }
             
             String newNum = String.valueOf(maxNumber + 1);
-            String newConfignName = getConfigName(templateName + newNum);
-            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfignName, getProductionConfigManager(newConfignName));
+            String newConfigName = getConfigName(templateName + newNum);
+            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
             newConfig.save();
             
-            configNames = (String[]) ArrayUtils.add(configNames, newConfignName);
+            configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
             saveSystemConfig();
             
-            deploymentManager.addRepository(newConfignName);
+            deploymentManager.addRepository(newConfigName);
             FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -311,6 +303,10 @@ public class SystemSettingsBean {
     }
 
     private void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
+        if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
+            String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
+            throw new RepositoryValidationException(msg);
+        }
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
@@ -318,7 +314,7 @@ public class SystemSettingsBean {
                     String msg = String.format("Repository name '%s' already exists", prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
-                
+
                 if (prodConfig.getPath().equals(other.getPath())) {
                     String msg = String.format("Repository path '%s' already exists", prodConfig.getPath());
                     throw new RepositoryValidationException(msg);

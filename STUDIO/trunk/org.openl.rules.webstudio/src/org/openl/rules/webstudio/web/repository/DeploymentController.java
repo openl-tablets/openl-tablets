@@ -70,6 +70,23 @@ public class DeploymentController {
 
         return null;
     }
+    
+    public synchronized String addItem(String version) {
+        this.version = version;
+        ADeploymentProject project = getSelectedProject();
+
+        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(projectName, new CommonVersionImpl(version));
+        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
+
+        try {
+            project.setProjectDescriptors(newDescriptors);
+        } catch (ProjectException e) {
+            log.error("Failed to add project descriptor!", e);
+            FacesUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+        }
+
+        return null;
+    }
 
     private void checkConflicts(List<DeploymentDescriptorItem> items) throws ProjectException {
         if (items == null) {
@@ -207,7 +224,7 @@ public class DeploymentController {
 
         return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
-
+/* Deprecated
     public SelectItem[] getProjectVersions() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         if (projectName != null) {
@@ -218,7 +235,7 @@ public class DeploymentController {
                 Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
 
                 List<SelectItem> selectItems = new ArrayList<SelectItem>();
-                for (ProjectVersion version : versions) {
+                for (ProjectVersion version. : versions) {
                     selectItems.add(new SelectItem(version.getVersionName()));
                 }
                 return selectItems.toArray(new SelectItem[selectItems.size()]);
@@ -228,7 +245,26 @@ public class DeploymentController {
         }
         return new SelectItem[0];
     }
-
+*/
+    public List<ProjectVersion> getProjectVersions() {
+        UserWorkspace workspace = RepositoryUtils.getWorkspace();
+        
+        if (projectName != null) {
+            try {
+                AProject project = workspace.getProject(projectName);
+                // sort project versions in descending order (1.1 -> 0.0)
+                List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
+                Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
+                
+                return versions;
+            } catch (ProjectException e) {
+                log.error("Failed to get project versions!", e);
+            }
+        }
+        
+        return new ArrayList<ProjectVersion>();
+    }
+    
     private ADeploymentProject getSelectedProject() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof ADeploymentProject) {

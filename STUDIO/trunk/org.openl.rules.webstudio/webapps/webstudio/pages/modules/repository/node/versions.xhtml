@@ -2,14 +2,15 @@
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
 
   <style>
     .padding {
         padding: 6px 7px !important;
     }
   </style>
-
   <rich:dataTable value="#{node.versions}" var="version" styleClass="table table-striped"
     columnClasses="padding">
     <f:facet name="header">
@@ -26,10 +27,18 @@
         <rich:column rendered="#{node.type == 'project'}">
           <h:outputText value="Comment" />
         </rich:column>
+        <rich:column rendered="#{node.type == 'project'}">
+          <h:outputText value="Action" />
+        </rich:column>
       </rich:columnGroup>
     </f:facet>
-      <rich:column>
+      <rich:column style="text-align: center;">
         <h:outputText value="#{version.versionName}" />
+        <rich:tooltip showDelay="500" rendered="#{(node.type == 'project' || node.type == 'file') and (!empty version.versionProperties)}" >
+           <a4j:repeat value="#{repositoryProjectPropsBean.getVersionPropToolTip(version.versionProperties)}" var="prop">
+               <h:outputText value="#{prop.displayName} : #{prop.displayValue}"/><br/>
+           </a4j:repeat>
+        </rich:tooltip>
       </rich:column>
       <rich:column>
         <h:outputText value="#{version.versionInfo.createdBy}" />
@@ -41,6 +50,12 @@
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}">
         <h:outputText value="#{version.versionComment}" />
+      </rich:column>
+      <rich:column rendered="#{node.type == 'project'}" style="text-align: center;">
+	     <a4j:commandLink id="savePropsButton" title="Open Version ##{version.versionName}"
+	         action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree">
+	         <img src="webresource/images/view.png" />
+	     </a4j:commandLink>
       </rich:column>
   </rich:dataTable>
 

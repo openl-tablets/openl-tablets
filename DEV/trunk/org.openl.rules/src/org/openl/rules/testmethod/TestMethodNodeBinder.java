@@ -61,14 +61,14 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         TestSuiteMethod testSuite = new TestSuiteMethod(tableName, testedMethod, header, testMethodBoundNode);
         testMethodBoundNode.setTestSuite(testSuite);
         
-        ILogicalTable horiztableBody = DataTableBindHelper.getTableBody(tsn);
-        ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horiztableBody);
+//        ILogicalTable horiztableBody = DataTableBindHelper.getTableBody(tsn);
+//        ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horiztableBody);
+//        
+//        List<IdentifierNode[]> columnIdentifiers = null;
+//        
+//        columnIdentifiers = DataTableBindHelper.getColumnIdentifiers(null, null, descriptorRows);
         
-        List<IdentifierNode[]> columnIdentifiers = null;
-        
-        columnIdentifiers = DataTableBindHelper.getColumnIdentifiers(null, null, descriptorRows);
-        
-        return testSuite.getMethodBasedClass(columnIdentifiers);
+        return testSuite.getMethodBasedClass();
     }
 
 }

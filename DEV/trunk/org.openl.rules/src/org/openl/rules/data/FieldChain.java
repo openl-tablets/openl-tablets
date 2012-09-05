@@ -5,7 +5,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-class FieldChain extends AOpenField {
+public class FieldChain extends AOpenField {
 
     private IOpenField[] fields;
 

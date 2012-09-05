@@ -199,44 +199,43 @@ public abstract class WizardBase extends BaseWizardBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.rebuildModel();
     }
-    
+
     /**
      * Validation for technical name
-     * */
+     */
     public void validateTechnicalName(FacesContext context, UIComponent toValidate, Object value) {
-		FacesMessage message = new FacesMessage();   
-		ValidatorException validEx= null;  
-		
-		try {  
-			String name = ((String) value).toUpperCase();
-	        
-	        if(!this.checkNames(name)){
-	        	message.setDetail("Table with such name already exists");
-	        	validEx = new ValidatorException(message);  
-		        throw validEx;  
-	        }    
-		  }  
-		   catch (Exception e) {                      
-		      throw new ValidatorException(message);   
-		  }
+        FacesMessage message = new FacesMessage();
+        ValidatorException validEx = null;
+
+        try {
+            String name = ((String) value).toUpperCase();
+
+            if (!this.checkNames(name)) {
+                message.setDetail("Table with such name already exists");
+                validEx = new ValidatorException(message);
+                throw validEx;
+            }
+
+        } catch (Exception e) {
+            throw new ValidatorException(message);
+        }
     }
-    
+
     private boolean checkNames(String techName) {
-    	WebStudio studio = WebStudioUtils.getWebStudio();
+        WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
-        
-        for(ProjectTreeNode node : (Collection<ProjectTreeNode>) model.getAllTreeNodes().getAllNodes()){
-        	try{
-	        	if(node.getTableSyntaxNode().getMember().getName().equalsIgnoreCase(techName)){
-	        		return false;
-	        	}
-        	}catch(Exception e){
-        		
-        	}
-        	
+
+        for (ProjectTreeNode node : (Collection<ProjectTreeNode>) model.getAllTreeNodes().getAllNodes()) {
+            try {
+                if(node.getTableSyntaxNode().getMember().getName().equalsIgnoreCase(techName)) {
+                    return false;
+                }
+
+            } catch(Exception e){
+            }
         }
 
-		return true;
-	}
+        return true;
+    }
 
 }

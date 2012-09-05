@@ -7,6 +7,10 @@
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
+  <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
+  <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
+  <import resource="classpath:META-INF/standalone/spring/security-properties-beans.xml" />
+
   <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
     of "securityContextPersistenceFilter" in the list below -->
 
@@ -17,7 +21,7 @@
       <security:filter-chain pattern="/javascript/**" filters="none" />
       <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
       <security:filter-chain pattern="/**"
-        filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,localUserFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
+        filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
     </security:filter-chain-map>
   </bean>
 
@@ -34,17 +38,6 @@
   </bean>
   <bean id="logoutUrl" class="java.lang.String">
     <constructor-arg value="/security_logout" />
-  </bean>
-
-  <bean id="localUserFilter" class="org.openl.rules.security.LocalUserFilter">
-    <property name="userDetailsService" ref="userDetailsService" />
-    <property name="autoLogin" value="#{systemConfig['security.login.auto']}" />
-    <property name="ignoredUrls">
-      <list>
-        <ref bean="logoutUrl" />
-        <ref bean="loginUrl" />
-      </list>
-    </property>
   </bean>
 
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
@@ -65,12 +58,12 @@
   </bean>
 
   <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">
-    <property name="userDao" ref="openlUserDao"/>
+    <property name="userDao" ref="openlUserDao" />
   </bean>
 
   <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
-    <property name="authenticationManager" ref="authenticationManager"/>
-    <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint" />
   </bean>
 
   <bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
@@ -112,7 +105,7 @@
     <property name="accessDecisionManager" ref="accessDecisionManager" />
     <property name="securityMetadataSource">
       <security:filter-security-metadata-source lowercase-comparisons="true">
-        <security:intercept-url pattern="/faces/pages/modules/administration/*" access="ROLE_ADMIN" />
+        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="GROUP_ADMIN" />
         <security:intercept-url pattern="/**" access="PRIVILEGE_VIEW_PROJECTS" />
       </security:filter-security-metadata-source>
     </property>
@@ -171,4 +164,14 @@
     <property name="accessDecisionManager" ref="accessDecisionManager" />
     <property name="securityMetadataSource" ref="securityMetadataSource" />
   </bean>
+
+  <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
+    <property name="userDao" ref="openlUserDao" />
+    <property name="groupDao" ref="groupDao" />
+  </bean>
+
+  <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
+    <property name="groupDao" ref="groupDao" />
+  </bean>
+
 </beans>

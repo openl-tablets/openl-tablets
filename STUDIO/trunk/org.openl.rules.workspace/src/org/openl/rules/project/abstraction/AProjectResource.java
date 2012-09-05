@@ -36,20 +36,20 @@ public class AProjectResource extends AProjectArtefact {
     }
     
     @Override
-    public void update(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
-        super.update(artefact, user, major, minor);
+    public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
+        super.update(artefact, user);
         AProjectResource resource = (AProjectResource)artefact;
         setContent(resource.getContent());
-        commit(user, major, minor);
+        commit(user);
     }
     
     @Override
-    public void smartUpdate(AProjectArtefact artefact, CommonUser user, int major, int minor) throws ProjectException {
+    public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         if (artefact.isModified()) {
-            super.smartUpdate(artefact, user, major, minor);
+            super.smartUpdate(artefact, user);
             AProjectResource resource = (AProjectResource) artefact;
             setContent(resource.getContent());
-            commit(user, major, minor);
+            commit(user);
         }
     }
 }

@@ -45,8 +45,8 @@ import org.springframework.util.FileCopyUtils;
 
 //FIXME refactor to use AProjectArtefacts
 public class ProductionRepositoryConvertor {
-    public static final CommonVersion from = new CommonVersionImpl(5, 0, 7);
-    public static final CommonVersion to = new CommonVersionImpl(5, 7, 4);
+    public static final CommonVersion from = new CommonVersionImpl(7);
+    public static final CommonVersion to = new CommonVersionImpl(4);
     private final CommonUser system = new CommonUserImpl("system");
 
     private String repHome = "/temp/repo/";
@@ -170,7 +170,7 @@ public class ProductionRepositoryConvertor {
             copyFolder(project, jcrProject);
             CommonUser user = system;
             RVersion version = project.getActiveVersion();
-            jcrProject.commit(user, version.getMajor(), version.getMinor(), version.getRevision());
+            jcrProject.commit(user,version.getRevision());
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
