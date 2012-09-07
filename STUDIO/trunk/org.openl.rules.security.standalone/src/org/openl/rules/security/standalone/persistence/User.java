@@ -38,8 +38,8 @@ public class User extends PersistentObject {
      *
      * @return
      */
-    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user")
-    @Cascade(value = { CascadeType.ALL, CascadeType.DELETE_ORPHAN })
+    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user", orphanRemoval = true)
+    @Cascade(value = { CascadeType.ALL })
     public Set<AccessControlEntry> getAccessControlEntries() {
         return accessControlEntries;
     }
@@ -59,7 +59,7 @@ public class User extends PersistentObject {
      *
      * @return
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER)
     @JoinTable(name = "User2Group", joinColumns = { @JoinColumn(name = "UserID") }, inverseJoinColumns = { @JoinColumn(name = "GroupID") })
     @Cascade(value = { CascadeType.MERGE, CascadeType.SAVE_UPDATE })
     public Set<Group> getGroups() {
