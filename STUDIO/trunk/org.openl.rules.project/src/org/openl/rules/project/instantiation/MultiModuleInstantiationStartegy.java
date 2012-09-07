@@ -34,8 +34,6 @@ import org.openl.syntax.impl.IdentifierNode;
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
     private Collection<Module> modules;
 
-    private List<InitializingListener> listeners = new ArrayList<InitializingListener>();
-
     public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager) {
         this(modules, dependencyManager, null);
     }
@@ -61,18 +59,6 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         dependencyLoaders.add(loader);
         multiModuleDependencyManager.setDependencyLoaders(dependencyLoaders);
         return multiModuleDependencyManager;
-    }
-
-    protected List<InitializingListener> getInitializingListeners() {
-        return listeners;
-    }
-
-    public void addInitializingListener(InitializingListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeInitializingListener(InitializingListener listener) {
-        listeners.remove(listener);
     }
 
     @Override

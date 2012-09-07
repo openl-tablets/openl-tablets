@@ -442,5 +442,11 @@ public class WebStudio {
     public boolean isNeedRestart() {
         return needRestart;
     }
+    
+    public void destroy() {
+        if (model != null) {
+            model.destroy();
+        }
+    }
 
 }

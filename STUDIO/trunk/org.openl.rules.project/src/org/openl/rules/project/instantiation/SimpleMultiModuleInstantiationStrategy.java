@@ -1,7 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,8 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.runtime.AOpenLEngineFactory;
 
@@ -20,7 +16,7 @@ import org.openl.runtime.AOpenLEngineFactory;
  * virtual module that depends on each predefined module(means virtual module
  * will have dependency for each module).
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  * 
  */
 public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
@@ -32,16 +28,6 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         super(modules, dependencyManager);
     }
 
-    /**
-     * Construct multimodule using all modules recognized it <code>root</code>
-     * folder
-     * 
-     * @param root Directory containing modules.
-     */
-    public SimpleMultiModuleInstantiationStrategy(File root) {
-        this(listModules(root), null);
-    }
-
     public SimpleMultiModuleInstantiationStrategy(List<Module> modules) {
         this(modules, null);
     }
@@ -50,29 +36,6 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     public void reset() {
         super.reset();
         factory = null;
-    }
-
-    /**
-     * Load modules from root folder.
-     * 
-     * @param root folder for all modules.
-     * @return list of resolved modules.
-     */
-    private static List<Module> listModules(File root) {
-
-        List<Module> modules = new ArrayList<Module>();
-
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(root.getAbsolutePath());
-        List<ProjectDescriptor> projects = projectResolver.listOpenLProjects();
-
-        for (ProjectDescriptor project : projects) {
-            for (Module module : project.getModules()) {
-                modules.add(module);
-            }
-        }
-
-        return modules;
     }
 
     @Override
@@ -113,23 +76,16 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     }
 
     private SimpleEngineFactory getEngineFactory() {
-    	Class<?> serviceClass = null;
-    	try {
-			serviceClass = getServiceClass();
-		} catch (ClassNotFoundException e) {
-			log.debug("Failed to get service class.", e);
-			serviceClass = null;
-		}
-		if (factory == null
-				|| (serviceClass != null && !factory.getInterfaceClass()
-						.equals(serviceClass))) {
-            factory = new SimpleEngineFactory(createVirtualSourceCodeModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
+        Class<?> serviceClass = null;
+        try {
+            serviceClass = getServiceClass();
+        } catch (ClassNotFoundException e) {
+            log.debug("Failed to get service class.", e);
+            serviceClass = null;
+        }
+        if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {
+            factory = new SimpleEngineFactory(createVirtualSourceCodeModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);// FIXME
 
-            for (Module module : getModules()) {
-                for (InitializingListener listener : getInitializingListeners()) {
-                    listener.afterModuleLoad(module);
-                }
-            }
             factory.setDependencyManager(getDependencyManager());
             factory.setInterfaceClass(serviceClass);
         }

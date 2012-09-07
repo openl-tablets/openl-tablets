@@ -20,18 +20,6 @@ public class ProjectDescriptor {
 	private List<Module> modules;
 	private List<PathEntry> classpath;
 	private ClassLoader classLoader;
-	private Configuration configuration;
-
-	public Configuration getConfiguration() {
-		if (configuration == null) {
-			this.configuration = new Configuration();
-		}
-		return configuration;
-	}
-
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-	}
 
 	public File getProjectFolder() {
 		return projectFolder;
@@ -171,7 +159,11 @@ public class ProjectDescriptor {
 
 	@Override
 	protected void finalize() throws Throwable {
-		unregisterClassloader(classLoader);
-		super.finalize();
+        try {
+            unregisterClassloader(classLoader);
+        } catch (Throwable ignore) {
+        } finally {
+            super.finalize();
+        }
 	}
 }

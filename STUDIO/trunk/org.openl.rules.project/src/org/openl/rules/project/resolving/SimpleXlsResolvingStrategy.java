@@ -21,7 +21,7 @@ import org.openl.util.FileTypeHelper;
  * 
  * @author PUdalau
  */
-public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
+public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
 
     private final Log log = LogFactory.getLog(SimpleXlsResolvingStrategy.class);
 
@@ -30,25 +30,22 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
             return false;
         }
         for (File f : folder.listFiles()) {
-            if (!f.isHidden()
-                    && FileTypeHelper.isExcelFile(f.getName())) {
-                log.debug(String.format(
-                    "Project in %s folder was resolved as simple xls project", folder.getPath()));
-                return true;                
+            if (!f.isHidden() && FileTypeHelper.isExcelFile(f.getName())) {
+                log.debug(String.format("Project in %s folder was resolved as simple xls project", folder.getPath()));
+                return true;
             }
         }
-        log.debug(String.format("Simple xls strategy failed to resolve project folder:" +
-            "there is no excel files in given folder %s", folder.getPath()));
+        log.debug(String.format("Simple xls strategy failed to resolve project folder:"
+                + "there is no excel files in given folder %s", folder.getPath()));
         return false;
     }
 
-    public ProjectDescriptor resolveProject(File folder) {
+    protected ProjectDescriptor internalResolveProject(File folder) {
         ProjectDescriptor project = createDescriptor(folder);
         Map<String, Module> modules = new TreeMap<String, Module>();
         for (File f : folder.listFiles()) {
-            if (!f.isHidden()
-                    && FileTypeHelper.isExcelFile(f.getName())) {
-                
+            if (!f.isHidden() && FileTypeHelper.isExcelFile(f.getName())) {
+
                 String name = FilenameUtils.removeExtension(f.getName());
                 if (!modules.containsKey(name)) {
                     PathEntry rootPath = new PathEntry(f.getAbsolutePath());
@@ -59,8 +56,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                 }
             }
         }
-        project.setModules(
-                new ArrayList<Module>(modules.values()));
+        project.setModules(new ArrayList<Module>(modules.values()));
         return project;
     }
 
@@ -69,7 +65,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         module.setProject(project);
         module.setRulesRootPath(rootPath);
         module.setType(ModuleType.API);
-        //FIXME: classname just for webstudio
+        // FIXME: classname just for webstudio
         module.setClassname(name);
         module.setName(name);
         return module;
