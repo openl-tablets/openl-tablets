@@ -159,7 +159,11 @@ public class ProjectDescriptor {
 
 	@Override
 	protected void finalize() throws Throwable {
-		unregisterClassloader(classLoader);
-		super.finalize();
+        try {
+            unregisterClassloader(classLoader);
+        } catch (Throwable ignore) {
+        } finally {
+            super.finalize();
+        }
 	}
 }
