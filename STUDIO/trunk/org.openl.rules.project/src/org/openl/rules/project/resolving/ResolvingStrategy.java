@@ -1,6 +1,7 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
+import java.util.List;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -21,4 +22,21 @@ public interface ResolvingStrategy {
      * @return {@link ProjectDescriptor} that describes project
      */
     ProjectDescriptor resolveProject(File folder);
+
+    List<InitializingModuleListener> getInitializingModuleListeners();
+
+    void addInitializingModuleListener(InitializingModuleListener initializingModuleListener);
+
+    boolean removeInitializingModuleListener(InitializingModuleListener initializingModuleListener);
+
+    void removeAllInitializingModuleListeners();
+    
+    List<InitializingProjectListener> getInitializingProjectListeners();
+
+    void addInitializingProjectListener(InitializingProjectListener initializingProjectListener);
+
+    boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener);
+
+    void removeAllInitializingProjectListeners();
+    
 }

@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.conf;
+package org.openl.rules.project.resolving;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.rules.project.instantiation.InitializingListener;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
@@ -17,7 +16,7 @@ import org.springframework.beans.factory.FactoryBean;
  * @author Marat Kamalov
  * 
  */
-public class InitializingListenerFactoryBean implements FactoryBean<List<InitializingListener>> {
+public class InitializingListenerFactoryBean implements FactoryBean<List<InitializingModuleListener>> {
     private final Log log = LogFactory.getLog(InitializingListenerFactoryBean.class);
 
     private String initializingListenerClassNames;
@@ -36,16 +35,16 @@ public class InitializingListenerFactoryBean implements FactoryBean<List<Initial
     }
 
     @SuppressWarnings("unchecked")
-    public List<InitializingListener> getObject() throws Exception {
-        List<InitializingListener> initializingListeners = new ArrayList<InitializingListener>();
+    public List<InitializingModuleListener> getObject() throws Exception {
+        List<InitializingModuleListener> initializingListeners = new ArrayList<InitializingModuleListener>();
         if (initializingListenerClassNames != null) {
             String[] initializingListenerClassNamesArray = initializingListenerClassNames.split(",");
             for (String initializingListenerClassName : initializingListenerClassNamesArray) {
                 if (initializingListenerClassName != null && initializingListenerClassName.trim().length() > 0) {
                     try {
-                        Class<InitializingListener> clazz = (Class<InitializingListener>) Class
+                        Class<InitializingModuleListener> clazz = (Class<InitializingModuleListener>) Class
                                 .forName(initializingListenerClassName);
-                        InitializingListener listener = clazz.newInstance();
+                        InitializingModuleListener listener = clazz.newInstance();
                         initializingListeners.add(listener);
                     } catch (Exception e) {
                         if (log.isWarnEnabled()) {

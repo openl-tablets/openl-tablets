@@ -1,15 +1,15 @@
-package org.openl.rules.project.instantiation;
+package org.openl.rules.project.resolving;
 
 import org.openl.rules.project.model.Module;
 
 /**
- * Instances of this class should have default constructor.
+ * Implementations of this interface should have default constructor.
  * 
  * 
  * @author Marat Kamalov
  * 
  */
-public interface InitializingListener {
+public interface InitializingModuleListener {
 
     /**
      * Listener on module load method

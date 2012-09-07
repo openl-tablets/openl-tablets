@@ -7,7 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.ProjectDescriptor;
 
-public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
+public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrategy {
     
     private final Log log = LogFactory.getLog(ProjectDescriptorBasedResolvingStrategy.class);
 
@@ -26,7 +26,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         }
     }
 
-    public ProjectDescriptor resolveProject(File folder) {
+    protected ProjectDescriptor internalResolveProject(File folder) {
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         try {
