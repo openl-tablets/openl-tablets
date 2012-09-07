@@ -1,13 +1,13 @@
 package org.openl.rules.webstudio.service;
 
-import org.openl.rules.security.PredefinedPrivileges;
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
-import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,10 +39,14 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
                 new Md5PasswordEncoder().encodePassword(user.getPassword(), null));
         persistUser.setFirstName(user.getFirstName());
         persistUser.setSurname(user.getLastName());
+
         Set<Group> groups = new HashSet<Group>();
-        groups.add(groupDao.getGroupByName("lusers"));
+        for (GrantedAuthority auth : user.getAuthorities()) {
+            groups.add(groupDao.getGroupByName(auth.getAuthority()));
+        }
         persistUser.setGroups(groups);
-        persistUser.setPrivileges(PredefinedPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
+        persistUser.setPrivileges(DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
+
         userDao.save(persistUser);
     }
 
