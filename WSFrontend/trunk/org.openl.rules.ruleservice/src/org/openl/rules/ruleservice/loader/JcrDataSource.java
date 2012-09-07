@@ -33,9 +33,11 @@ public class JcrDataSource implements DataSource, DisposableBean {
     private static final String SEPARATOR = "#";
 
     private Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
-    
+
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
-    private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For backward compatibility
+    private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
+                                                                                                                   // backward
+                                                                                                                   // compatibility
     private boolean shouldDestroyProxy = false;
 
     /** {@inheritDoc} */
@@ -112,7 +114,8 @@ public class JcrDataSource implements DataSource, DisposableBean {
     private RProductionRepository getRProductionRepository() {
         RProductionRepository rProductionRepository = null;
         try {
-            rProductionRepository = getProductionRepositoryFactoryProxy().getRepositoryInstance(getRepositoryPropertiesFile());
+            rProductionRepository = getProductionRepositoryFactoryProxy().getRepositoryInstance(
+                    getRepositoryPropertiesFile());
             return rProductionRepository;
         } catch (RRepositoryException e) {
             if (log.isErrorEnabled()) {
@@ -136,7 +139,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
                     listeners.put(dataSourceListener, rDeploymentListener);
                     if (log.isInfoEnabled()) {
                         log.info(dataSourceListener.getClass().toString()
-                                + " class listener is registered in jcr data source");
+                                + " listener is registered in jcr data source");
                     }
                 } catch (RRepositoryException e) {
                     if (log.isWarnEnabled()) {
@@ -161,7 +164,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
                     listeners.remove(dataSourceListener);
                     if (log.isInfoEnabled()) {
                         log.info(dataSourceListener.getClass().toString()
-                                + " class listener is unregistered from jcr data source");
+                                + " listener is unregistered from jcr data source");
                     }
                 } catch (RRepositoryException e) {
                     if (log.isWarnEnabled()) {
@@ -203,7 +206,7 @@ public class JcrDataSource implements DataSource, DisposableBean {
             log.debug("JCR data source releasing");
         }
         productionRepositoryFactoryProxy.releaseRepository(repositoryPropertiesFile);
-        
+
         if (shouldDestroyProxy) {
             productionRepositoryFactoryProxy.destroy();
         }
@@ -217,7 +220,8 @@ public class JcrDataSource implements DataSource, DisposableBean {
         if (productionRepositoryFactoryProxy == null) {
             // Lazy initialization for backward compatibility
             productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
-            // We create a proxy (not spring container) - that's why we should destroy it
+            // We create a proxy (not spring container) - that's why we should
+            // destroy it
             shouldDestroyProxy = true;
         }
         return productionRepositoryFactoryProxy;
@@ -247,6 +251,20 @@ public class JcrDataSource implements DataSource, DisposableBean {
 
         public void projectsAdded() {
             dataSourceListener.onDeploymentAdded();
+        }
+
+        @Override
+        public int hashCode() {
+            return dataSourceListener.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof DataSourceListenerWrapper) {
+                DataSourceListenerWrapper dataSourceListenerWrapper = (DataSourceListenerWrapper) obj;
+                return this.dataSourceListener.equals(dataSourceListenerWrapper.dataSourceListener);
+            }
+            return false;
         }
     }
 }

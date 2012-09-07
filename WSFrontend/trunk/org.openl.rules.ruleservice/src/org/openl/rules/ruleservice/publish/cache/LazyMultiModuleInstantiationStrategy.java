@@ -6,7 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.instantiation.InitializingListener;
 import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.Module;
@@ -81,11 +80,7 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
 				|| (serviceClass != null && !factory.getInterfaceClass()
 						.equals(serviceClass))) {
             factory = new LazyMultiModuleEngineFactory(getModules());
-            for (Module module : getModules()) {
-                for (InitializingListener listener : getInitializingListeners()) {
-                    listener.afterModuleLoad(module);
-                }
-            }
+           
             factory.setDependencyManager(getDependencyManager());
             factory.setExternalParameters(getExternalParameters());
             factory.setInterfaceClass(serviceClass);

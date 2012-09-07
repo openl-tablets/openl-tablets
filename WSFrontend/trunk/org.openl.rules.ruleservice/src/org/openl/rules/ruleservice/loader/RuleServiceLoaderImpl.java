@@ -196,7 +196,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     /** {@inheritDoc} */
-    public Collection<Module> getModulesForService(ServiceDescription serviceDescription) {
+    public Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription) {
         if (serviceDescription == null) {
             throw new IllegalArgumentException("serviceDescription argument can't be null");
         }

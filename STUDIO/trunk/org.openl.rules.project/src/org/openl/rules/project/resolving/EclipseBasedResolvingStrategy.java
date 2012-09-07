@@ -21,15 +21,16 @@ import org.openl.util.tree.TreeIterator;
 import org.openl.util.tree.FileTreeIterator.FileTreeAdaptor;
 
 /**
- * Resolves projects that match default OpenL Eclipse-based convention: 
- * 1."openlbuilder" specified in ".project" file  
- * 2. Existing java class wrapper
+ * Resolves projects that match default OpenL Eclipse-based convention:
+ * 1."openlbuilder" specified in ".project" file 2. Existing java class wrapper
+ * 
+ * Do not use this strategy!!!
  * 
  * @author PUdalau
  */
 @Deprecated
 public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
-    
+
     private static final String PROJECT_FILE = ".project";
     private static final String TEXT_TO_SEARCH = "openlbuilder";
 
@@ -55,37 +56,31 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean isRulesProject(File folder) {
         try {
             if (!folder.exists() || !folder.isDirectory()) {
-                log.debug(String.format(
-                    "Eclipse based project strategy failed to resolve project folder: " +
-                    "folder %s doesn`t exists of is not a directory", 
-                    folder.getPath()));
+                log.debug(String.format("Eclipse based project strategy failed to resolve project folder: "
+                        + "folder %s doesn`t exists of is not a directory", folder.getPath()));
                 return false;
             }
             if (!FileTool.containsFile(folder, PROJECT_FILE, false)) {
-                log.debug(String.format(
-                    "Eclipse based project strategy failed to resolve project folder %s: " +
-                    "there is no file %s in the folder", folder.getPath(), PROJECT_FILE));
+                log.debug(String.format("Eclipse based project strategy failed to resolve project folder %s: "
+                        + "there is no file %s in the folder", folder.getPath(), PROJECT_FILE));
                 return false;
             }
             if (!FileTool.containsFileText(folder, PROJECT_FILE, TEXT_TO_SEARCH)) {
-                log.debug(String.format(
-                    "Eclipse based project strategy failed to resolve project folder %s:" +
-                    " %s file doen`t contains %s", folder.getPath(), PROJECT_FILE, TEXT_TO_SEARCH));
+                log.debug(String.format("Eclipse based project strategy failed to resolve project folder %s:"
+                        + " %s file doen`t contains %s", folder.getPath(), PROJECT_FILE, TEXT_TO_SEARCH));
                 return false;
             }
-            if(listPotentialOpenLWrappersClassNames(folder).length == 0){
-                log.debug(String.format(
-                    "Eclipse based project strategy failed to resolve project folder %s:" +
-                    " there is no potential Openl wrappers", folder.getPath()));
-                return false; //no modules.
+            if (listPotentialOpenLWrappersClassNames(folder).length == 0) {
+                log.debug(String.format("Eclipse based project strategy failed to resolve project folder %s:"
+                        + " there is no potential Openl wrappers", folder.getPath()));
+                return false; // no modules.
             }
-            log.debug(String.format(
-                "Project in %s folder was resolved as Eclipse based project", folder.getPath()));
+            log.debug(String.format("Project in %s folder was resolved as Eclipse based project", folder.getPath()));
             return true;
         } catch (IOException e) {
             return false;
         }
-    }    
+    }
 
     public String[] listPotentialOpenLWrappersClassNames(File project) throws IOException {
 
@@ -132,10 +127,11 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
         }
 
     }
-    
+
     // TODO: Refactor.
-    // listPotentialOpenLWrappersClassNames is called twice, first when calling isRulesProject, then if yes,
-    // call current method. Dont need to scan the file system twice. 
+    // listPotentialOpenLWrappersClassNames is called twice, first when calling
+    // isRulesProject, then if yes,
+    // call current method. Dont need to scan the file system twice.
     // authod DLiauchuk
     public ProjectDescriptor resolveProject(File folder) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
@@ -195,5 +191,45 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
             pathEntries.add(new PathEntry(files[i]));
         }
         return pathEntries;
+    }
+
+    @Override
+    public void addInitializingModuleListener(InitializingModuleListener initializingModuleListener) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<InitializingModuleListener> getInitializingModuleListeners() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeAllInitializingModuleListeners() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeInitializingModuleListener(InitializingModuleListener initializingModuleListener) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void addInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<InitializingProjectListener> getInitializingProjectListeners() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void removeAllInitializingProjectListeners() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -12,8 +12,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.instantiation.InitializingListener;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.resolving.InitializingModuleListener;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ModuleDescription.ModuleDescriptionBuilder;
 import org.openl.rules.ruleservice.core.ServiceDescription;
@@ -41,7 +41,7 @@ public class DomainSharingTest implements ApplicationContextAware {
         String printDatatype();
     }
 
-    public static class TestInitializingListener implements InitializingListener {
+    public static class TestInitializingListener implements InitializingModuleListener {
         @Override
         public void afterModuleLoad(Module module) {
             ITableProperties props2 = new TableProperties();
