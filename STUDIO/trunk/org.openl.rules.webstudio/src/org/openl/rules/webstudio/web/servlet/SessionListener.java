@@ -1,10 +1,15 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionActivationListener;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
-
-import javax.servlet.http.*;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
     private final Log log = LogFactory.getLog(SessionListener.class);
@@ -60,6 +65,11 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
 
             obj.sessionDestroyed();
             log.debug("session was destroyed");
+        }
+
+        WebStudio webStudio = WebStudioUtils.getWebStudio(session);
+        if (webStudio != null) {
+            webStudio.destroy();
         }
     }
 
