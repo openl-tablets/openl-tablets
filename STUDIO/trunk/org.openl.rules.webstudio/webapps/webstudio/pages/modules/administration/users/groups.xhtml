@@ -28,14 +28,14 @@
             <td>#{group.name}</td>
             <td>#{group.description}</td>
             <td>
-                <ui:repeat var="privilege" value="#{group.privileges}">
+                <ui:repeat var="authority" value="#{group.privileges}">
                 <h:panelGroup class="badge" style="margin-right: 2px"
-                    rendered="#{privilege.name.startsWith('PRIVILEGE')}">#{privilege.displayName}</h:panelGroup>
+                    rendered="#{authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
                 <h:panelGroup class="badge badge-info" style="margin-right: 2px"
-                    rendered="#{privilege.name.startsWith('GROUP')}">#{privilege.displayName}</h:panelGroup>
-                </ui:repeat>
+                    rendered="#{!authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
                 <h:panelGroup class="badge badge-error" style="margin-right: 2px"
-                    rendered="#{group.name == 'Administrators'}">Админ всё может</h:panelGroup>
+                    rendered="#{authority.name == 'PRIVILEGE_ALL'}">#{authority.displayName}</h:panelGroup>
+                </ui:repeat>
             </td>
             <td></td>
         </tr>
@@ -48,11 +48,13 @@
             <td>#{group.name}</td>
             <td>#{group.description}</td>
             <td>
-                <ui:repeat var="privilege" value="#{group.privileges}">
+                <ui:repeat var="authority" value="#{group.privileges}">
                 <h:panelGroup class="badge" style="margin-right: 2px"
-                    rendered="#{privilege.name.startsWith('PRIVILEGE')}">#{privilege.displayName}</h:panelGroup>
+                    rendered="#{authority.name.startsWith('PRIVILEGE') and authority.name != 'PRIVILEGE_ALL'}">#{authority.displayName}</h:panelGroup>
                 <h:panelGroup class="badge badge-info" style="margin-right: 2px"
-                    rendered="#{privilege.name.startsWith('GROUP')}">#{privilege.displayName}</h:panelGroup>
+                    rendered="#{!authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
+                <h:panelGroup class="badge badge-error" style="margin-right: 2px"
+                    rendered="#{authority.name == 'PRIVILEGE_ALL'}">#{authority.displayName}</h:panelGroup>
                 </ui:repeat>
             </td>
             <td>

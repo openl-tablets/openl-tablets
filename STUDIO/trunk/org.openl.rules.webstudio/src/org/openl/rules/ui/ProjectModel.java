@@ -1,7 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.PredefinedPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.io.File;
 import java.util.ArrayList;
