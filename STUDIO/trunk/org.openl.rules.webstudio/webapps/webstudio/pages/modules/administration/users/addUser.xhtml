@@ -52,6 +52,9 @@
                 </a4j:outputPanel>
 
                 <label class="required">Groups</label>
+                <h:selectManyCheckbox id="groups" value="#{usersBean.groups}" layout="pageDirection">
+                    <f:selectItems value="#{usersBean.groupItems}" />
+                </h:selectManyCheckbox>
             </h:panelGrid>
 
             <br />

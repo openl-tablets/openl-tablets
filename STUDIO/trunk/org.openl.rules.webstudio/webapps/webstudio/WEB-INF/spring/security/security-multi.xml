@@ -105,12 +105,12 @@
     <property name="accessDecisionManager" ref="accessDecisionManager" />
     <property name="securityMetadataSource">
       <security:filter-security-metadata-source lowercase-comparisons="true">
-        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="GROUP_ADMIN" />
+        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="PRIVILEGE_ALL" />
         <security:intercept-url pattern="/**" access="PRIVILEGE_VIEW_PROJECTS" />
       </security:filter-security-metadata-source>
     </property>
   </bean>
-  
+
   <bean id="webPrivilegeEvaluator" class="org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator">
     <constructor-arg ref="filterSecurityInterceptor" />
   </bean>
@@ -147,7 +147,7 @@
   </bean>
 
   <!-- ======================== Roles ========================== -->
-  <bean id="roleVoter" class="org.openl.rules.security.standalone.OpenLRoleVoter" />
+  <bean id="roleVoter" class="org.openl.rules.security.standalone.AccessVoter" />
   <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
     <property name="allowIfAllAbstainDecisions" value="false" />
     <property name="decisionVoters">

@@ -7,7 +7,7 @@ package org.openl.rules.security;
  * @author Aleh Bykhavets
  * @author NSamatov
  */
-public enum PredefinedPrivileges implements Privilege {
+public enum DefaultPrivileges implements Privilege {
 
     PRIVILEGE_VIEW_PROJECTS ("View Projects"),
     PRIVILEGE_READ_PROJECTS ("Read Projects"),
@@ -29,11 +29,13 @@ public enum PredefinedPrivileges implements Privilege {
 
     PRIVILEGE_RUN ("Run Tables"),
     PRIVILEGE_TRACE ("Trace Tables"),
-    PRIVILEGE_BENCHMARK ("Benchmark Tables");
+    PRIVILEGE_BENCHMARK ("Benchmark Tables"),
+
+    PRIVILEGE_ALL ("NO RESTRICTIONS");
 
     private final String displayName;
 
-    private PredefinedPrivileges(String displayName) {
+    private DefaultPrivileges(String displayName) {
         this.displayName = displayName;
     }
 
