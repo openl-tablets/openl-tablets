@@ -149,7 +149,8 @@
                         <h3>Production Repositories</h3>
                         <table>
                         <tr>
-                        <a4j:repeat value="#{systemSettingsBean.productionRepositoryConfigurations}" var="repository">
+                        <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
+                        <a4j:repeat value="#{productionRepos}" var="repository">
                             <td class="repositoryConfig">
                                 <table>
                                 <tr>
@@ -182,6 +183,7 @@
                                 <td class="repositoryConfigButton">
                                     <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}" title="Delete repository" styleClass="toolbarButton menuButton"
                                         render="repositoryProps"
+                                        rendered="#{productionRepos.size() > 1}"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
                                         <img src="webresource/images/admin/systemSettings/delete.png" alt="Delete" title="Delete repository"/>
