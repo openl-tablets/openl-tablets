@@ -120,7 +120,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     /** {@inheritDoc} */
     public OpenLService createService(ServiceDescription serviceDescription)
             throws RuleServiceInstantiationException {
-        Collection<Module> modules = ruleServiceLoader.getModulesForService(serviceDescription);
+        Collection<Module> modules = ruleServiceLoader.getModulesByServiceDescription(serviceDescription);
         OpenLService openLService = new OpenLService(serviceDescription.getName(),
             serviceDescription.getUrl(),
             serviceDescription.getServiceClassName(),

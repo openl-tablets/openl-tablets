@@ -1,7 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.PredefinedPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import org.openl.conf.OpenLConfiguration;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
@@ -73,6 +74,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.IBenchmarkableMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -1045,6 +1047,8 @@ public class ProjectModel {
         // Clear project messages (errors, warnings)
         clearOpenLMessages();
 
+        destroy(); // prevent memory leak
+
         compiledOpenClass = null;
         projectRoot = null;
 
@@ -1256,4 +1260,45 @@ public class ProjectModel {
         }
     }
     
+    public void destroy() {
+        removeListeners();
+
+        if (compiledOpenClass != null) {
+            releaseClassLoader(compiledOpenClass.getClassLoader());
+        }
+    }
+
+    /**
+     * Remove listeners added in {@link #initProjectHistory()}
+     */
+    private void removeListeners() {
+        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        if (workbookNodes != null) {
+            for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
+                XlsWorkbookSourceCodeModule sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
+
+                Iterator<XlsWorkbookListener> iterator = sourceCodeModule.getListeners().iterator();
+                while (iterator.hasNext()) {
+                    XlsWorkbookListener listener = iterator.next();
+                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Release classLoader that will not be used anymore TODO Must be moved to a
+     * separate class.
+     * 
+     * @param classLoader class loader
+     */
+    private void releaseClassLoader(ClassLoader classLoader) {
+        if (classLoader != null) {
+            JavaOpenClass.resetClassloader(classLoader);
+            String2DataConvertorFactory.unregisterClassLoader(classLoader);
+        }
+    }
 }

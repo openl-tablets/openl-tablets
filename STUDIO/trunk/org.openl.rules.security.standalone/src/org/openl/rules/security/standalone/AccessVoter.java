@@ -2,7 +2,7 @@ package org.openl.rules.security.standalone;
 
 import java.util.Collection;
 
-import org.openl.rules.security.PredefinedGroups;
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -33,7 +33,7 @@ import org.springframework.security.core.GrantedAuthority;
  *
  * @author Aleh Bykhavets
  */
-public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
+public class AccessVoter implements AccessDecisionVoter<Object> {
     /**
      * This implementation supports any type of class, because it does not query
      * the presented secure object.
@@ -42,18 +42,14 @@ public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
      *
      * @return always <code>true</code>
      */
+    @Override
     public boolean supports(Class<?> aClass) {
         return true;
     }
 
+    @Override
     public boolean supports(ConfigAttribute configAttribute) {
         return true;
-        /*
-         * String attr = configAttribute.getAttribute();
-         *
-         * if ((attr != null) && attr.startsWith(Roles.ROLE_PREFIX)) { return
-         * true; } else { return false; }
-         */
     }
 
     /**
@@ -65,6 +61,7 @@ public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
      * @return {@link #ACCESS_DENIED} or {@link #ACCESS_ABSTAIN} or
      *         {@link #ACCESS_GRANTED}
      */
+    @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
         int result = ACCESS_ABSTAIN;
 
@@ -72,18 +69,30 @@ public class OpenLRoleVoter implements AccessDecisionVoter<Object> {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
 
-                String attr = attribute.getAttribute();
+                String auth = attribute.getAttribute();
+
+                // No restrictions
+                if (auth.equals(DefaultPrivileges.PRIVILEGE_ALL.name())) {
+                    return ACCESS_GRANTED;
+                }
 
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
                     String authority = grantedAuthority.getAuthority();
-                    if (attr.equals(authority)) {
+
+                    if (auth.equals(authority)) {
                         return ACCESS_GRANTED;
                     }
 
-                    Group group = PredefinedGroups.findGroup(authority);
-                    if (group != null && group.hasPrivilege(attr)) {
-                        return ACCESS_GRANTED;
+                    if (grantedAuthority instanceof Group) {
+                        Group group = (Group) grantedAuthority;
+                        // No restrictions
+                        if (group.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())) {
+                            return ACCESS_GRANTED;
+                        }
+                        if (group.hasPrivilege(auth)) {
+                            return ACCESS_GRANTED;
+                        }
                     }
                 }
             }

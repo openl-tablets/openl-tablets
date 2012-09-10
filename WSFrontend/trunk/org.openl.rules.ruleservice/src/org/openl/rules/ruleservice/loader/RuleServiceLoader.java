@@ -52,5 +52,5 @@ public interface RuleServiceLoader {
      * @param serviceDescription
      * @return
      */
-    Collection<Module> getModulesForService(ServiceDescription serviceDescription);
+    Collection<Module> getModulesByServiceDescription(ServiceDescription serviceDescription);
 }

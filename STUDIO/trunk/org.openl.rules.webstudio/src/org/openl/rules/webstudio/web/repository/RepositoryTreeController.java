@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.PredefinedPrivileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
