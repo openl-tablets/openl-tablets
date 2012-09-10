@@ -9,8 +9,8 @@
     <style>
         .propsGroupHeader {
             color: #1199EE;
-            font-size: 16px
-            padding: 8px 0 3px 1px;
+            font-size: 12px;
+            padding-top: 15px !important;
         }
         .editableProp {
             cursor: pointer;
@@ -23,7 +23,6 @@
         }
         .propName {
             color: #555555;
-            padding: 3px 0 1px 1px;
             min-width: 70px;
         }
         .propData {
@@ -54,8 +53,10 @@
             display: none;
         }
     </style>
-    <h:panelGroup class="propsGroupHeader">
-        Business Dimension
+    <h:panelGroup>
+        <span class="propsGroupHeader label">
+            Business Dimension Properties
+        </span>
     </h:panelGroup>
     
     <h:panelGroup layout="block">
@@ -74,13 +75,23 @@
 
         <tr class="editableProp"
             onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
-            <td class="propName" onclick="editProperty(this.parentNode)">
-                #{prop.displayName}
+            <td class="propName #{prop.inheritedProperty ? ' inheritedProp' : ''} label" onclick="#{repositoryTreeState.canClose ? 'editProperty(this.parentNode)' : '' }">
+                <a4j:outputPanel>
+	                #{prop.displayName}
+	                <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
+	                    <h:outputText value="Inherited from #{prop.inheritedTableName}"/>
+	                </rich:tooltip>
+                </a4j:outputPanel>
             </td>
-            <td class="propData" onclick="#{repositoryTreeState.canClose ? 'editProperty(this.parentNode)' : '' }">
-                 <h:outputText class="propValue" value="#{prop.displayValue}"
-                    style="#{added ? 'display:none' : ''}" />
-                
+            <td class="propData #{prop.inheritedProperty ? ' inheritedProp' : ''}" onclick="#{repositoryTreeState.canClose ? 'editProperty(this.parentNode)' : '' }">
+                <a4j:outputPanel>
+	                <h:outputText class="propValue" value="#{prop.displayValue}"
+	                    style="#{added ? 'display:none' : ''}" />
+	                <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
+	                    <h:outputText value="Inherited from #{prop.inheritedTableName}"/>
+	                </rich:tooltip>
+                </a4j:outputPanel>
+
                 <h:panelGroup>
                 <span class="propEditor#{added ? '' : ' propHide'}">
                     <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
@@ -95,8 +106,6 @@
                         rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
 
                     <h:inputText id="array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
-
-                    <span class="propDescription">#{prop.description}</span>
                 </span>
                 </h:panelGroup>
             </td>
@@ -104,13 +113,13 @@
             <span>
                 <a4j:commandLink id="savePropsButton" title="Save"
 	                 action="#{repositoryProjectPropsBean.save(prop)}" 
-	                 render="#{propsFormName}repoPropsTable nodeView" style="display: none; margin-left: 2px"
+	                 render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel nodeView projectTree" style="display: none; margin-left: 2px"
 	                 rendered="#{repositoryTreeState.canClose}"><img
                      style="opacity: 0.5" src="webresource/images/ok.png" />
 	             </a4j:commandLink>
                  <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
-                     render="#{propsFormName}repoPropsTable nodeView" style="display: none; margin-left: 2px"
-                     rendered="#{repositoryTreeState.canClose}"><img
+                     render="#{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
+                     rendered="#{repositoryTreeState.canClose and !prop.inheritedProperty}"><img
                      style="opacity: 0.5" src="webresource/images/close.gif" />
                  </a4j:commandLink>
              </span>
@@ -123,7 +132,7 @@
 
     <div style="margin: 8px 0">
         <h:outputLink id="#{propsFormName}addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('##{panelFormName}addRepoPropsPanel').fadeIn()"
-            rendered="#{!empty repositoryProjectPropsBean.propsForSelect and repositoryTreeState.canClose}" style="margin-left: 4px">Add</h:outputLink>
+            rendered="#{!empty repositoryProjectPropsBean.propsForSelect and repositoryTreeState.canSave}" style="margin-left: 4px">Add</h:outputLink>
     </div>
     </h:panelGroup>
 

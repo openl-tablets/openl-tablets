@@ -143,9 +143,9 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <rich:tabPanel id="nodeTabPanel" selectedTab="properties" switchType="client"
+  <rich:tabPanel id="nodeTabPanel" switchType="ajax" activeItem="#{repositoryTreeState.selectedTab}"
     rendered="#{node.type != 'repository' &amp;&amp; node.type != 'drepository' &amp;&amp; node.type != 'deployment'}">
-    <rich:tab id="properties" header="Properties">
+    <rich:tab id="properties" name="Properties" header="Properties">
       <h:panelGroup rendered="#{node.type == 'file'}">
         <ui:include src="/pages/modules/repository/node/fileProps.xhtml" />
       </h:panelGroup>
@@ -156,13 +156,13 @@
         <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
-    <rich:tab id="versions" header="Versions">
+    <rich:tab header="Versions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
-    <rich:tab id="dlements" header="Elements" rendered="#{node.type != 'file'}">
+    <rich:tab header="Elements" rendered="#{node.type != 'file'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
-    <rich:tab id="dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
+    <rich:tab header="Dependencies" rendered="#{node.type == 'project'}">
       <ui:include src="/pages/modules/repository/node/dependency.xhtml" />
     </rich:tab>
   </rich:tabPanel>

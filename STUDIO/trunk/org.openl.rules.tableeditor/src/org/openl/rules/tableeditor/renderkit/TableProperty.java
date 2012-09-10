@@ -35,6 +35,7 @@ public class TableProperty {
     private boolean dimensional;
     private InheritanceLevel inheritanceLevel;
     private String inheritedTableUri;
+    private String inheritedTableName;
 
     public TableProperty(TablePropertyDefinition propDefinition) {
     	this.name = propDefinition.getName();
@@ -89,6 +90,14 @@ public class TableProperty {
         return result;
     }
 
+    public boolean isFolderLevelProperty() {
+        return InheritanceLevel.FOLDER.equals(inheritanceLevel);
+    }
+
+    public boolean isProjectLevelProperty() {
+        return InheritanceLevel.PROJECT.equals(inheritanceLevel);
+    }
+    
     public boolean isModuleLevelProperty() {
         return InheritanceLevel.MODULE.equals(inheritanceLevel);
     }
@@ -98,7 +107,7 @@ public class TableProperty {
     }
 
     public boolean isInheritedProperty() {
-        return isModuleLevelProperty() || isCategoryLevelProperty();
+        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty();
     }
 
     public String getDisplayName() {
@@ -389,6 +398,14 @@ public class TableProperty {
             .append(" : ")
             .append(getDisplayValue())
             .toString();
+    }
+
+    public String getInheritedTableName() {
+        return inheritedTableName;
+    }
+
+    public void setInheritedTableName(String inheritedTableName) {
+        this.inheritedTableName = inheritedTableName;
     }
 
 }
