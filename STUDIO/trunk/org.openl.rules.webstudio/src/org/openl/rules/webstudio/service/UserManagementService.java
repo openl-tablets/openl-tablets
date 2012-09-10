@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.service;
 
-import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -45,7 +44,6 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
             groups.add(groupDao.getGroupByName(auth.getAuthority()));
         }
         persistUser.setGroups(groups);
-        persistUser.setPrivileges(DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
 
         userDao.save(persistUser);
     }

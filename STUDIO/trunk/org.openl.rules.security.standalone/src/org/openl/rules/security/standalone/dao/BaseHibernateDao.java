@@ -2,6 +2,7 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.openl.rules.security.standalone.persistence.PersistentObject;
@@ -52,7 +53,8 @@ public abstract class BaseHibernateDao<T extends PersistentObject> implements Da
     @Override
     @Transactional
     public List<T> getAll() {
-        return getSession().createCriteria(persistentClass).list();
+        return getSession().createCriteria(persistentClass)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
     }
 
     @Override
