@@ -34,17 +34,6 @@ public class User extends PersistentObject {
     private Set<AccessControlEntry> accessControlEntries;
 
     /**
-     * User's access control entries.
-     *
-     * @return
-     */
-    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user", orphanRemoval = true)
-    @Cascade(value = { CascadeType.ALL })
-    public Set<AccessControlEntry> getAccessControlEntries() {
-        return accessControlEntries;
-    }
-
-    /**
      * First name.
      *
      * @return
@@ -114,6 +103,17 @@ public class User extends PersistentObject {
     @Column(name = "Surname", length = 50)
     public String getSurname() {
         return surname;
+    }
+
+    /**
+     * User's access control entries.
+     *
+     * @return
+     */
+    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user", orphanRemoval = true)
+    @Cascade(value = { CascadeType.ALL })
+    public Set<AccessControlEntry> getAccessControlEntries() {
+        return accessControlEntries;
     }
 
     public void setAccessControlEntries(Set<AccessControlEntry> accessControlEntries) {
