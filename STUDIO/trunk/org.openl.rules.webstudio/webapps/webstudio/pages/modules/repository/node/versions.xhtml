@@ -34,7 +34,7 @@
     </f:facet>
       <rich:column style="text-align: center;">
         <h:outputText value="#{version.versionName}" />
-        <rich:tooltip showDelay="500" rendered="#{(node.type == 'project' || node.type == 'file') and (!empty version.versionProperties)}" >
+        <rich:tooltip showDelay="500" rendered="#{(node.type == 'project' || node.type == 'file' || node.type == 'folder') and (!empty version.versionProperties)}" >
            <a4j:repeat value="#{repositoryProjectPropsBean.getVersionPropToolTip(version.versionProperties)}" var="prop">
                <h:outputText value="#{prop.displayName} : #{prop.displayValue}"/><br/>
            </a4j:repeat>
@@ -52,12 +52,10 @@
         <h:outputText value="#{version.versionComment}" />
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}" style="text-align: center;">
-
         <a4j:commandLink id="openPrjVersion" title="Open Version ##{version.versionName}"
-            action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree">
+            action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">
             <img src="webresource/images/view.png" />
         </a4j:commandLink>
-
       </rich:column>
   </rich:dataTable>
 

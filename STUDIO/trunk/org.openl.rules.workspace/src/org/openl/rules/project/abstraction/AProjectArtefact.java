@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -42,6 +43,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     public Map<String, Object> getProps() {
         return getAPI().getProps();
+    }
+
+    public Map<String, InheritedProperty> getInheritedProps() {
+        return getAPI().getInheritedProps();
     }
 
     public void setProps(Map<String, Object> props) throws PropertyException {

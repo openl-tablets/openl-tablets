@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jcr.AccessDeniedException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
@@ -21,8 +23,10 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ArtefactType;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -201,6 +205,11 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private Object getPropValueByType(String propName) throws RepositoryException {
         Node n = node();
 
+        return getPropValueByType(propName, n);
+    }
+    
+    private Object getPropValueByType(String propName, Node n) throws RepositoryException {
+        
         Value value = n.getProperty(propName).getValue();
         Object propValue = null;
         int valueType = value.getType();
@@ -471,4 +480,49 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     public UserTransaction createTransaction() throws RRepositoryException {
         return getTransactionManager().getTransaction();
     }
+
+    @Override
+    public Map<String, InheritedProperty> getInheritedProps() {
+        Map<String, InheritedProperty> inhProps = new HashMap<String, InheritedProperty>();
+        
+        try {
+            if (node().getDepth() > 3 && node().getParent() != null) {
+                inhProps = getParentProps( node().getParent());
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+        }
+
+        return inhProps;
+    }
+    
+    private Map<String, InheritedProperty> getParentProps(Node n) {
+        Map<String, InheritedProperty> inhProps = new HashMap<String, InheritedProperty>();
+
+        try {
+            if (n.getDepth() > 3 && n.getParent() != null) {
+                inhProps = getParentProps(n.getParent());
+            }
+
+            for (TablePropertyDefinition prop : bussinedDimensionProps) {
+                String propName = prop.getName();
+                if (n.hasProperty(propName)) {
+                    InheritedProperty inhProp;
+                    
+                    if (n instanceof JcrFolderAPI) {
+                        inhProp = new InheritedProperty(getPropValueByType(propName, n), ArtefactType.FOLDER, n.getName());
+                    } else {
+                        inhProp = new InheritedProperty(getPropValueByType(propName, n), ArtefactType.PROJECT, n.getName());
+                    }
+                    
+                    inhProps.put(propName, inhProp);
+                }
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+        }
+
+        return inhProps;
+    }
+    
 }
