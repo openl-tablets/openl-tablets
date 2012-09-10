@@ -658,6 +658,7 @@ public class RepositoryTreeController {
 
     private ProjectVersion getProjectVersion() {
         AProject project = repositoryTreeState.getSelectedProject();
+        
         if (project != null) {
             return project.getVersion();
         }
@@ -772,6 +773,8 @@ public class RepositoryTreeController {
 
     public String openProjectVersion() {
         try {
+            repositoryTreeState.setSelectedTab(RepositoryTreeState.DEFAULT_TAB);
+            
             repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();

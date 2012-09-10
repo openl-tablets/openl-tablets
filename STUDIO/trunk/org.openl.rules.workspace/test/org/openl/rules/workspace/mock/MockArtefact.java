@@ -3,6 +3,7 @@ package org.openl.rules.workspace.mock;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -115,5 +116,10 @@ public class MockArtefact implements ArtefactAPI {
 
     public UserTransaction createTransaction() throws RRepositoryException {
         return RTransactionManager.NO_TRANSACTION;
+    }
+    
+    @Override
+    public Map<String, InheritedProperty> getInheritedProps() {
+        return new HashMap<String, InheritedProperty>();
     }
 }

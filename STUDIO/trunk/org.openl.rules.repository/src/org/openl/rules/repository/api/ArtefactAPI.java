@@ -9,6 +9,7 @@ import javax.transaction.UserTransaction;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -82,4 +83,6 @@ public interface ArtefactAPI{
     void setProps(Map<String, Object> props) throws PropertyException;
     
     UserTransaction createTransaction() throws RRepositoryException;
+
+    Map<String, InheritedProperty> getInheritedProps();
 }
