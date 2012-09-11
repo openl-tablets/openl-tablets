@@ -1,7 +1,9 @@
 package org.openl.rules.table.properties.inherit;
 
 public enum InheritanceLevel {
-
+    PROJECT("Project"),
+    FOLDER("Folder"),
+    FILE("File"),
     MODULE("Module"),
     CATEGORY("Category"), 
     TABLE("Table");
