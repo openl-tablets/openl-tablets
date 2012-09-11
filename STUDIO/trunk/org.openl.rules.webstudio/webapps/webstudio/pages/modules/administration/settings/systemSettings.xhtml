@@ -126,7 +126,8 @@
                 <h:panelGroup id="repositoryProps" styleClass="fields" layout="block">
                     <section>
                         <h3>Design Repository</h3>
-                        <div class="repositoryConfig">
+                        <div>
+                        <table><tr><td class="repositoryConfig">
                             <h:panelGrid columns="2" columnClasses="titleColumn">
                                 <h:outputText value="Repository Name:" />
                                 <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
@@ -143,15 +144,15 @@
                                     value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                             </h:panelGrid>
+                        </td></tr></table>
                         </div>
                     </section>
                     <section>
                         <h3>Production Repositories</h3>
-                        <table>
-                        <tr>
+                        <div><table>
                         <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
                         <a4j:repeat value="#{productionRepos}" var="repository">
-                            <td class="repositoryConfig">
+                            <tr><td class="repositoryConfig">
                                 <table>
                                 <tr>
                                 <td>
@@ -173,14 +174,6 @@
                                 </h:panelGrid>
                                 </td>
                                 <td class="repositoryConfigButton">
-                                    <a4j:commandLink action="#{systemSettingsBean.saveProductionRepository(repository.configName)}" title="Save repository" styleClass="toolbarButton menuButton"
-                                        render="repositoryProps"
-                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                        <img src="webresource/images/admin/systemSettings/save.png" alt="Save" title="Save repository"/>
-                                    </a4j:commandLink>
-                                </td>
-                                <td class="repositoryConfigButton">
                                     <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}" title="Delete repository" styleClass="toolbarButton menuButton"
                                         render="repositoryProps"
                                         rendered="#{productionRepos.size() > 1}"
@@ -191,18 +184,19 @@
                                 </td>
                                 </tr>
                                 </table>
-                            </td>
+                            </td></tr>
                         </a4j:repeat>
+                        <tr>
                         <td class="addRepositoryConfig">
                             <a4j:commandLink action="#{systemSettingsBean.addProductionRepository}" title="Add" styleClass="toolbarButton menuButton"
                                 render="repositoryProps"
                                 onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                 onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                <img src="webresource/images/admin/systemSettings/add.png" alt="Add" title="Add new repository"/>
+                                <h:outputText value="Add new repository" title="Add new repository"/>
                             </a4j:commandLink>
                         </td>
                         </tr>
-                        </table>
+                        </table></div>
                     </section>
                 </h:panelGroup>
             </div>
