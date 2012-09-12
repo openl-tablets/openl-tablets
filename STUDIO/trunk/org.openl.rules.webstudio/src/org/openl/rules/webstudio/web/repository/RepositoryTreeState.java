@@ -43,7 +43,7 @@ import org.richfaces.event.TreeSelectionChangeEvent;
  * @author Andrey Naumenko
  */
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public static final String DEFAULT_TAB = "Properties";
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
@@ -265,6 +265,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void processSelection(TreeSelectionChangeEvent event) {
+        setDefaultSelectTab();
+        
         List<Object> selection = new ArrayList<Object>(event.getNewSelection());
         
         /*If there are no selected nodes*/
@@ -488,4 +490,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public void setSelectedTab(String selectedTab) {
         this.selectedTab = selectedTab;
     }
+    
+    public void setDefaultSelectTab(){
+        this.selectedTab = this.DEFAULT_TAB;
+    }
+    
+     public String getDefSelectTab() {
+         return this.DEFAULT_TAB;
+     }
 }
