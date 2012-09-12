@@ -87,6 +87,10 @@ public class WizardUtils {
                 
         ClassFinder finder = new ClassFinder();
         for (String packageName : ((XlsMetaInfo) projectInfo).getXlsModuleNode().getAllImports()) {
+            if ("org.openl.rules.enumeration".equals(packageName)) {
+                // This package is added automatically in XlsLoader.addInnerImports() for inner usage, not for user.
+                continue;
+            }
             ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
             for (Class<?> type : finder.getClasses(packageName, classLoader)) {
                 IOpenClass openType = JavaOpenClass.getOpenClass(type);
