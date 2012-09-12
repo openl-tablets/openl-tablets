@@ -52,7 +52,7 @@
         <h:outputText value="#{version.versionComment}" />
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}" style="text-align: center;">
-        <a4j:commandLink id="openPrjVersion" title="Open Version ##{version.versionName}"
+        <a4j:commandLink id="openPrjVersion" title="Open Version ##{version.versionName}" onclick="backToPropsTab();"
             action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">
             <img src="webresource/images/view.png" />
         </a4j:commandLink>
@@ -62,5 +62,12 @@
   <h:panelGroup rendered="#{empty node.versions}" styleClass="noEntries">
     <h:outputText value="No version history" />
   </h:panelGroup>
+  
+  <script>
+  function backToPropsTab(){
+      /*$j("#nodeTabPanel-value").value return undefined */
+      document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
+  }
+  </script>
 
 </ui:composition>
