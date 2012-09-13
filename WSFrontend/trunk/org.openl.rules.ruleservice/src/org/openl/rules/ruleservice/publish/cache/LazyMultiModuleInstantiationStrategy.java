@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish.cache;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -8,7 +9,9 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.BaseRulesFactory;
 
 /**
  * Prebinds multimodule openclass and creates LazyMethod and LazyField that will
@@ -80,7 +83,23 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
 				|| (serviceClass != null && !factory.getInterfaceClass()
 						.equals(serviceClass))) {
             factory = new LazyMultiModuleEngineFactory(getModules());
-           
+
+            //Information for interface generation, if generation required.
+            // Information for interface generation, if generation required.
+            Collection<String> allIncludes = new HashSet<String>();
+            Collection<String> allExcludes = new HashSet<String>();
+            for (Module m : getModules()){
+                MethodFilter methodFilter = m.getMethodFilter();
+                allIncludes.addAll(methodFilter.getIncludes());
+                allExcludes.addAll(methodFilter.getExcludes());
+            }
+            if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
+                includes = allIncludes.toArray(includes); 
+                excludes = allExcludes.toArray(excludes); 
+                factory.setRulesFactory(new BaseRulesFactory(includes, excludes));
+            }
             factory.setDependencyManager(getDependencyManager());
             factory.setExternalParameters(getExternalParameters());
             factory.setInterfaceClass(serviceClass);

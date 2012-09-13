@@ -8,9 +8,11 @@ import java.io.InputStream;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
@@ -93,19 +95,20 @@ public class ProjectDescriptorManager {
         }
     }
 
-    private List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor, String pathPattern) {
+    private List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor, Module module, String pathPattern) {
         List<Module> modules = new ArrayList<Module>();
 
         List<File> files = new ArrayList<File>();
         check(descriptor.getProjectFolder(), files, pathPattern.trim(), descriptor.getProjectFolder());
 
         for (File file : files) {
-            Module module = new Module();
-            module.setProject(descriptor);
-            module.setRulesRootPath(new PathEntry(file.getAbsolutePath()));
-            module.setName(FilenameUtils.getBaseName(file.getName()));
-            module.setType(ModuleType.API);
-            modules.add(module);
+            Module m = new Module();
+            m.setProject(descriptor);
+            m.setRulesRootPath(new PathEntry(file.getAbsolutePath()));
+            m.setName(FilenameUtils.getBaseName(file.getName()));
+            m.setType(ModuleType.API);
+            m.setMethodFilter(module.getMethodFilter());
+            modules.add(m);
         }
         return modules;
     }
@@ -115,7 +118,7 @@ public class ProjectDescriptorManager {
         List<Module> processedModules = new ArrayList<Module>(modulesWasRead.size());
         for (Module module : modulesWasRead) {
             if (isModuleWithPathPattern(module)) {
-                processedModules.addAll(getAllModulesMatchingPathPattern(descriptor, module.getRulesRootPath()
+                processedModules.addAll(getAllModulesMatchingPathPattern(descriptor, module, module.getRulesRootPath()
                         .getPath()));
             } else {
                 processedModules.add(module);
@@ -132,6 +135,16 @@ public class ProjectDescriptorManager {
 
         for (Module module : descriptor.getModules()) {
             module.setProject(descriptor);
+            if (module.getMethodFilter() == null){
+                module.setMethodFilter(new MethodFilter());
+            }
+            if (module.getMethodFilter().getExcludes() == null){
+                module.getMethodFilter().setExcludes(new HashSet<String>());
+            }
+            if (module.getMethodFilter().getIncludes() == null){
+                module.getMethodFilter().setIncludes(new HashSet<String>());
+            }
+
             if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
                 PathEntry absolutePath = new PathEntry(
                         new File(projectRoot, module.getRulesRootPath().getPath()).getAbsolutePath());
