@@ -45,8 +45,6 @@ public class RepositoryConfiguration {
     }
 
     public void setName(String name) {
-        // TODO name validation: only characters, numbers, underscore, hyphen
-        // and space
         oldName = getName();
         configManager.setProperty(PRODUCTION_REPOSITORY_NAME, StringUtils.trimToEmpty(name));
     }
@@ -86,7 +84,7 @@ public class RepositoryConfiguration {
     }
 
     public void copyContent(RepositoryConfiguration other) {
-        // do not copy id, only content
+        // do not copy configName, only content
         setName(other.getName());
         setType(other.getType());
         setPath(other.getPath());

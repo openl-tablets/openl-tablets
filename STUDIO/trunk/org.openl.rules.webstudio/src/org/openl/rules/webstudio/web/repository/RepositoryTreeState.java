@@ -1,10 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.PredefinedPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
@@ -40,9 +43,9 @@ import org.richfaces.event.TreeSelectionChangeEvent;
  * @author Andrey Naumenko
  */
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
-
+    public static final String DEFAULT_TAB = "Properties";
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
@@ -57,6 +60,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
+    
+    private String selectedTab = DEFAULT_TAB;
+
 
     public Boolean adviseNodeSelected(UITree uiTree) {
         /*TreeNode node = (TreeNode) uiTree.getTreeNode();
@@ -162,10 +168,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public UserWorkspaceProject getSelectedProject() {
-        AProjectArtefact artefact = getSelectedNode().getData();
+        Object artefact = getSelectedNode().getData();
         if (artefact instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact;
-        }
+        } else if (artefact instanceof AProjectArtefact) {
+            if (((AProjectArtefact)artefact).getProject() instanceof UserWorkspaceProject)
+                return (UserWorkspaceProject) ((AProjectArtefact)artefact).getProject();
+        } 
+        
         return null;
     }
 
@@ -255,6 +265,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void processSelection(TreeSelectionChangeEvent event) {
+        setDefaultSelectTab();
+        
         List<Object> selection = new ArrayList<Object>(event.getNewSelection());
         
         /*If there are no selected nodes*/
@@ -364,6 +376,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanSave() {
         UserWorkspaceProject selectedProject = getSelectedProject();
+
         return selectedProject.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
@@ -469,5 +482,20 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public boolean getCanDeploy() {
         return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
+    
+    public String getSelectedTab() {
+        return selectedTab;
+    }
 
+    public void setSelectedTab(String selectedTab) {
+        this.selectedTab = selectedTab;
+    }
+    
+    public void setDefaultSelectTab(){
+        this.selectedTab = this.DEFAULT_TAB;
+    }
+    
+     public String getDefSelectTab() {
+         return this.DEFAULT_TAB;
+     }
 }

@@ -94,7 +94,7 @@ public class DomainTree {
         
         predefinedTypes.put("IntRange", JavaOpenClass.getOpenClass(IntRange.class));
         predefinedTypes.put("DoubleRange", JavaOpenClass.getOpenClass(DoubleRange.class));
-        predefinedTypes.put("CharRange", JavaOpenClass.getOpenClass(CharRange.class));
+//        predefinedTypes.put("CharRange", JavaOpenClass.getOpenClass(CharRange.class)); // We don't recommend analytics to use them and we didn't document these data types usages
         
         predefinedTypes.put("BigDecimalValue", JavaOpenClass.getOpenClass(BigDecimalValue.class));
         predefinedTypes.put("BigIntegerValue", JavaOpenClass.getOpenClass(BigIntegerValue.class));
@@ -104,7 +104,7 @@ public class DomainTree {
         predefinedTypes.put("IntValue", JavaOpenClass.getOpenClass(IntValue.class));
         predefinedTypes.put("LongValue", JavaOpenClass.getOpenClass(LongValue.class));
         predefinedTypes.put("ShortValue", JavaOpenClass.getOpenClass(ShortValue.class));
-        predefinedTypes.put("StringValue", JavaOpenClass.getOpenClass(StringValue.class));
+//        predefinedTypes.put("StringValue", JavaOpenClass.getOpenClass(StringValue.class)); // We don't recommend analytics to use them and we didn't document these data types usages
     }
 
     /**

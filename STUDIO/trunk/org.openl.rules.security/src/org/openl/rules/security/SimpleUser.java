@@ -89,4 +89,5 @@ public class SimpleUser implements User {
     public String toString() {
         return getUsername();
     }
+
 }
