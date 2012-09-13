@@ -31,6 +31,19 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;
 
+    private IRulesFactory rulesFactory = new BaseRulesFactory();
+
+    public void setRulesFactory(IRulesFactory rulesFactory) {
+        if (rulesFactory == null) {
+            throw new IllegalArgumentException("rulesFactory argument can't be null");
+        }
+        this.rulesFactory = rulesFactory;
+    }
+
+    public IRulesFactory getRulesFactory() {
+        return rulesFactory;
+    }
+
     public SimpleEngineFactory(String sourceFile) {
         this(new File(sourceFile));
     }
@@ -59,8 +72,9 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
     }
 
     public void setInterfaceClass(Class<?> interfaceClass) {
-		this.interfaceClass = interfaceClass;
-	}
+        this.interfaceClass = interfaceClass;
+    }
+
     /**
      * Creates java interface for rules project.
      * 
@@ -74,10 +88,10 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
             try {
                 if (BeanByteCodeGenerator.isClassLoaderContainsClass(classLoader, className)) {
                     log.warn(String.format("Previously generated  interface '%s' will be used as service class.",
-                        className));
+                            className));
                     interfaceClass = classLoader.loadClass(className);
                 } else {
-                    interfaceClass = RulesFactory.generateInterface(className, openClass, classLoader);
+                    interfaceClass = rulesFactory.generateInterface(className, openClass, classLoader);
                 }
             } catch (Exception e) {
                 throw new OpenLRuntimeException("Failed to create interface : " + className, e);
@@ -110,10 +124,8 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
             Object openClassInstance = openClass.newInstance(getRuntimeEnv());
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance,
-                methodMap,
-                getRuntimeEnv(),
-                getCompiledOpenClass().getClassLoader());
+            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+                    .getClassLoader());
 
         } catch (Exception ex) {
             throw new OpenlNotCheckedException("Cannot instantiate engine instance", ex);

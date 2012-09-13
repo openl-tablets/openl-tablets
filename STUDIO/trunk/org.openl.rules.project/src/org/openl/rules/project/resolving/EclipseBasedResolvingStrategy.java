@@ -232,4 +232,14 @@ public class EclipseBasedResolvingStrategy implements ResolvingStrategy {
     public boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener) {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -31,6 +31,8 @@ public interface ResolvingStrategy {
 
     void removeAllInitializingModuleListeners();
     
+    void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners);
+
     List<InitializingProjectListener> getInitializingProjectListeners();
 
     void addInitializingProjectListener(InitializingProjectListener initializingProjectListener);
@@ -38,5 +40,7 @@ public interface ResolvingStrategy {
     boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener);
 
     void removeAllInitializingProjectListeners();
-    
+
+    void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners);
+
 }
