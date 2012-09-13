@@ -25,6 +25,16 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
     private List<InitializingProjectListener> initializingProjectListeners = new ArrayList<InitializingProjectListener>();
 
     /** {@inheritDoc} */
+    public void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners) {
+        this.initializingModuleListeners = initializingModuleListeners;
+    }
+    
+    /** {@inheritDoc} */
+    public void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners) {
+        this.initializingProjectListeners = initializingProjectListeners;
+    }
+    
+    /** {@inheritDoc} */
     @Override
     public List<InitializingModuleListener> getInitializingModuleListeners() {
         return Collections.unmodifiableList(initializingModuleListeners);

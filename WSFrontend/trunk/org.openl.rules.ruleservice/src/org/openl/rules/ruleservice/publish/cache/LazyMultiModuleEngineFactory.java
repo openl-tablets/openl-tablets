@@ -21,8 +21,9 @@ import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.XlsPreBinder;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.BaseRulesFactory;
+import org.openl.rules.runtime.IRulesFactory;
 import org.openl.rules.runtime.SimpleEngineFactory;
-import org.openl.rules.runtime.RulesFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.runtime.IEngineWrapper;
@@ -54,6 +55,19 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
     private Collection<Module> modules;
     private IDependencyManager dependencyManager;
     private Map<String, Object> externalParameters;
+    
+    private IRulesFactory rulesFactory = new BaseRulesFactory();
+
+    public void setRulesFactory(IRulesFactory rulesFactory) {
+        if (rulesFactory == null) {
+            throw new IllegalArgumentException("rulesFactory argument can't be null");
+        }
+        this.rulesFactory = rulesFactory;
+    }
+
+    public IRulesFactory getRulesFactory() {
+        return rulesFactory;
+    }
 
     public LazyMultiModuleEngineFactory(Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
@@ -103,7 +117,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
             String className = openClass.getName();
 
             try {
-                interfaceClass = RulesFactory.generateInterface(className, openClass, getCompiledOpenClass()
+                interfaceClass = rulesFactory.generateInterface(className, openClass, getCompiledOpenClass()
                         .getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface : %s", className);

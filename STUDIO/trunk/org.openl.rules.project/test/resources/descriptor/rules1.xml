@@ -16,26 +16,30 @@
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
-			<rules-root path="file://MyModule1.xls"/>
+			<rules-root path="file://MyModule1.xls" />
 
-		</module>	
-		
+		</module>
+
 		<module>
 			<name>MyModule2</name>
 			<type>api</type>
 			<!-- 
 				Rules root document. Usually excel file on file system. 
 			-->
-			<rules-root path="file://MyModule2.xls"/>
-			
-		</module>	
+			<rules-root path="file://MyModule2.xls" />
+			<methodFilter>
+				<includes>
+					<value> * </value>
+				</includes>
+			</methodFilter>
+		</module>
 
 	</modules>
-	
+
 	<!-- Project's classpath. -->
 	<classpath>
-		<entry path="path1"/>
-		<entry path="path2"/>
+		<entry path="path1" />
+		<entry path="path2" />
 	</classpath>
-	
+
 </project>
