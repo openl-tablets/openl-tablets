@@ -1,0 +1,128 @@
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html">
+    
+    <style>
+        .propsGroupHeaderTxt {
+            color: #1199EE;
+            font-size: 12px;
+            padding-top: 15px !important;
+        }
+        .propsGroupHeader {
+            height: 30px;
+        }
+        .editableProp {
+            cursor: pointer;
+        }
+        .inheritedProp {
+            background: rgba(255, 128, 0, 0.3);
+        }
+        .inheritedProp .propData a {
+            margin-left: 30px;
+        }
+        .propName {
+            min-width: 70px;
+        }
+        .propData {
+            padding: 3px 0 1px; 
+        }
+        .propValue {
+            max-width: 500px;
+        }
+        .propEditor {
+            margin-left: 2px;
+        }
+        .propEditor input[type="text"],
+        .propEditor input[type="password"],
+        .propEditor textarea {
+            padding: 1px;
+            width: 91%;
+        }
+        .editableProp .propValue {
+            border-bottom: 1px dashed #cccccc;
+        }
+        .propDescription {
+            display: none;
+        }
+        .propHide {
+            display: none;
+        }
+        #savePropsButton {
+            display: none;
+        }
+    </style>
+    
+    <ui:param name="propsFormName" value="#{prefix}PropsTableForm" />
+    <ui:param name="panelFormName" value="#{prefix}RepoPropsPanel" />
+    
+    <tr  class="propsGroupHeader">
+        <td style="vertical-align: bottom" colspan="2">
+	        <span class="propsGroupHeaderTxt label">
+	            Business Dimension Properties
+	        </span>
+        </td>
+    </tr>
+    
+    <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="prop">
+        
+        <h:panelGroup>
+        <ui:param name="added" value="#{empty prop.value}" />
+        <ui:param name="pref" value="#{prop.name}" />
+
+        <tr class="editableProp"
+            onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
+            <td class="propName #{prop.inheritedProperty ? ' inheritedProp' : ''} label" onclick="#{repositoryTreeState.canSave ? 'editProperty(this.parentNode)' : '' }">
+                <a4j:outputPanel>
+                    #{prop.displayName}
+                    <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
+                        <h:outputText value="Inherited from #{prop.inheritedTableName}"/>
+                    </rich:tooltip>
+                </a4j:outputPanel>
+            </td>
+            <td class="propData #{prop.inheritedProperty ? ' inheritedProp' : ''}" onclick="#{repositoryTreeState.canSave ? 'editProperty(this.parentNode)' : '' }" 
+            style="text-overflow: ellipsis;">
+                <h:outputText class="propValue" value="#{prop.displayValue}"
+                    style="#{added ? 'display:none' : ''} " />
+                <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
+                    <h:outputText value="Inherited from #{prop.inheritedTableName}"/>
+                </rich:tooltip>
+
+                <h:panelGroup>
+                <span class="propEditor#{added ? '' : ' propHide'}">
+                    <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
+                        rendered="#{prop.dateType}" inputStyle="width:100px" />
+
+                    <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
+                    
+                    <oh:multiselect id="multiselect" items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
+                            rendered="#{prop.enumArray}" />
+
+                    <h:inputText value="#{prop.value}" id="text" 
+                        rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
+
+                    <h:inputText id="array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
+                </span>
+                <span>
+	                <a4j:commandLink id="savePropsButton" title="Save"
+	                     action="#{repositoryProjectPropsBean.save(prop)}" 
+	                     render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel nodeView projectTree" style="display: none; margin-left: 2px"
+	                     rendered="#{repositoryTreeState.canSave}"><img
+	                     style="opacity: 0.5" src="webresource/images/ok.png" />
+	                 </a4j:commandLink>
+	                 <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
+	                     render="#{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
+	                     rendered="#{repositoryTreeState.canSave and !prop.inheritedProperty}"><img
+	                     style="opacity: 0.5" src="webresource/images/close.gif" />
+	                 </a4j:commandLink>
+                </span>
+                </h:panelGroup>
+            </td>
+        </tr>
+        </h:panelGroup>
+    </a4j:repeat>
+    
+</ui:composition>
