@@ -107,7 +107,7 @@
           </h:commandButton>
         </h:panelGrid>
         
-        <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject}" value="Save" onclick="openSaveDialog();return false;">
+        <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}" value="Save" onclick="openSaveDialog();return false;">
             <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
         </h:commandButton>
         

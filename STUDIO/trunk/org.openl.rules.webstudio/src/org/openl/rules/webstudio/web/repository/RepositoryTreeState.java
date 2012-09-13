@@ -491,11 +491,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         this.selectedTab = selectedTab;
     }
     
-    public void setDefaultSelectTab(){
+    public void setDefaultSelectTab() {
         this.selectedTab = this.DEFAULT_TAB;
     }
     
      public String getDefSelectTab() {
          return this.DEFAULT_TAB;
+     }
+     
+     public boolean isLocalOnly() {
+         return getSelectedProject().isLocalOnly();
      }
 }
