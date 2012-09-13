@@ -20,8 +20,7 @@ import org.openl.rules.ruleservice.databinding.WrapperBeanTypeInfo;
 
 /**
  * Custom mapping for {@link VariationsResultType} due to it is not usual bean
- * and should be initialized through non-default constructor and all results
- * should be registered using the special methods.
+ * all results should be registered using the special methods.
  * 
  * This class uses Java Generics and causes one problems that is described in
  * {@link OpenLTypeMapping}.

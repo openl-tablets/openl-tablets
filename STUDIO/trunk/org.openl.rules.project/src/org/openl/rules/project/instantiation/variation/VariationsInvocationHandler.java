@@ -60,14 +60,18 @@ class VariationsInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method member = methodsMap.get(method);
         if (VariationsEnhancerHelper.isEnhancedMethod(method)) {
-            log.debug(String.format("Invoking service class method with variations: %s -> %s",
-                method.toString(),
-                member.toString()));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Invoking service class method with variations: %s -> %s",
+                    method.toString(),
+                    member.toString()));
+            }
             return calculateWithVariations(method, args, member);
         } else {
-            log.debug(String.format("Invoking service class method without variations: %s -> %s",
-                method.toString(),
-                member.toString()));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Invoking service class method without variations: %s -> %s",
+                    method.toString(),
+                    member.toString()));
+            }
             return calculateWithoutVariations(args, member);
         }
     }
