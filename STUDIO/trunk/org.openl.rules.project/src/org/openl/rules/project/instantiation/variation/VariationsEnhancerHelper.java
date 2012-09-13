@@ -87,7 +87,9 @@ public abstract class VariationsEnhancerHelper {
     	
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
-        log.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
+        }
 
         return undecorateInterface(className, clazz, classLoader);
     }
@@ -98,7 +100,7 @@ public abstract class VariationsEnhancerHelper {
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
         InterfaceTransformer transformer = new InterfaceTransformer(original, className);
         transformer.accept(classVisitor);
-         classWriter.visitEnd();
+        classWriter.visitEnd();
 
         // Create class object.
         //
@@ -146,7 +148,9 @@ public abstract class VariationsEnhancerHelper {
         String className = clazz.getName() + ENHANCED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
-        log.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
+        }
 
         return RulesFactory.generateInterface(className, rulesArray, classLoader);
     }
