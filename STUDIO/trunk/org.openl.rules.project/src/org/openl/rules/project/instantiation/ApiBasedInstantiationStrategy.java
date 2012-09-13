@@ -6,7 +6,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.BaseRulesFactory;
 import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
@@ -95,6 +97,18 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             source.setParams(prepareExternalParameters());
 
             factory = new SimpleEngineFactory(source);
+            
+            //Information for interface generation, if generation required.
+            Module m = getModule();
+            MethodFilter methodFilter = m.getMethodFilter();
+            if (methodFilter != null && (!methodFilter.getExcludes().isEmpty() || !methodFilter.getIncludes().isEmpty())) {
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
+                includes = methodFilter.getIncludes().toArray(includes);
+                excludes = methodFilter.getExcludes().toArray(excludes);
+                factory.setRulesFactory(new BaseRulesFactory(includes, excludes));
+            }       
+            
             factory.setExecutionMode(isExecutionMode());
             factory.setDependencyManager(getDependencyManager());
             factory.setInterfaceClass(serviceClass);

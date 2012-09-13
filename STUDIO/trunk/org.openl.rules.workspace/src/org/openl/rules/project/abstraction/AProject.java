@@ -16,12 +16,11 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.common.ProjectDependency.ProjectDependencyHelper;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.PropertyImpl;
-import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
 
 public class AProject extends AProjectFolder {
     private final Log log = LogFactory.getLog(AProject.class);
