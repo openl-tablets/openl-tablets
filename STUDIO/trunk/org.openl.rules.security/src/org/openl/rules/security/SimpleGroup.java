@@ -1,14 +1,15 @@
 package org.openl.rules.security;
 
+import java.util.Collection;
+
 
 public class SimpleGroup implements Group {
 
     private static final long serialVersionUID = 1L;
 
     private String name;
-    private String displayName;
     private String description;
-    private Privilege[] privileges;
+    private Collection<Privilege> privileges;
 
     public SimpleGroup() {
     }
@@ -18,7 +19,7 @@ public class SimpleGroup implements Group {
      * 
      * @param privileges nested authorities (privileges and groups)
      */
-    public SimpleGroup(String name, Privilege... privileges) {
+    public SimpleGroup(String name, Collection<Privilege> privileges) {
         this.name = name;
         this.privileges = privileges;
     }
@@ -42,17 +43,17 @@ public class SimpleGroup implements Group {
     }
 
     @Override
-    public Privilege[] getPrivileges() {
+    public Collection<Privilege> getPrivileges() {
         return privileges;
     }
 
-    public void setPrivileges(Privilege[] privileges) {
+    public void setPrivileges(Collection<Privilege> privileges) {
         this.privileges = privileges;
     }
 
     @Override
     public String getDisplayName() {
-        return displayName;
+        return name;
     }
 
     @Override
@@ -62,6 +63,18 @@ public class SimpleGroup implements Group {
 
     @Override
     public boolean hasPrivilege(String privilege) {
+        for (Privilege auth : privileges) {
+            if (auth.getName().equals(privilege)) {
+                return true;
+            }
+
+            if (auth instanceof Group) {
+                if (((Group) auth).hasPrivilege(privilege)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

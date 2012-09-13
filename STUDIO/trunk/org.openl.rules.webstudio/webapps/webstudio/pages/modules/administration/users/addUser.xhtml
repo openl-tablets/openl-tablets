@@ -39,6 +39,10 @@
                     <h:message for="confirmPassword" styleClass="error" />
                 </a4j:outputPanel>
 
+                <h:outputText value="" />
+                <h:outputText value="" />
+                <h:outputText value="" />
+
                 <label>First Name</label>
                 <h:inputText id="firstName" value="#{usersBean.firstName}" />
                 <a4j:outputPanel ajaxRendered="true">
@@ -52,15 +56,18 @@
                 </a4j:outputPanel>
 
                 <label class="required">Groups</label>
+                <h:selectManyCheckbox id="groups" value="#{usersBean.groups}" layout="pageDirection">
+                    <f:selectItems value="#{usersBean.groupItems}" />
+                </h:selectManyCheckbox>
             </h:panelGrid>
 
             <br />
             <br />
 
             <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) RichFaces.$('modalAddUser').hide()" render=":userList"
-                styleClass="button-primary" />
-            <input type="button" value="Cancel" onclick="RichFaces.$('modalAddUser').hide()" />
+                oncomplete="if(!event.data) RichFaces.$('modalAddUser').hide()"
+                render=":userList" styleClass="button-primary" type="reset" />
+            <input type="reset" value="Cancel" onclick="RichFaces.$('modalAddUser').hide()" />
         </h:form>
 
     </rich:popupPanel>

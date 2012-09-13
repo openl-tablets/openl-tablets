@@ -1,10 +1,11 @@
 package org.openl.rules.security.standalone.service;
 
-import org.openl.rules.security.PredefinedGroups;
-import org.openl.rules.security.PredefinedPrivileges;
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.UserDao;
+import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 
 import org.springframework.dao.DataAccessException;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
@@ -27,18 +29,42 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
 
     protected Collection<Privilege> createPrivileges(User user) {
         Collection<Privilege> grantedList = new ArrayList<Privilege>();
-        String privileges = user.getPrivileges();
+
+        Set<Group> groups = user.getGroups();
+        for (Group persistGroup : groups) {
+            grantedList.add(
+                    new SimpleGroup(persistGroup.getName(), createPrivileges(persistGroup)));
+        }
+
+        grantedList.addAll(createPrivileges(user.getPrivileges()));
+
+        return grantedList;
+    }
+
+    protected Collection<Privilege> createPrivileges(String privileges) {
+        Collection<Privilege> grantedList = new ArrayList<Privilege>();
+
         if (privileges != null) {
             StringTokenizer st = new StringTokenizer(privileges, ",");
             while (st.hasMoreElements()) {
                 String privilege = st.nextToken();
-                if (privilege.startsWith("GROUP")) {
-                    grantedList.add(PredefinedGroups.valueOf(privilege));
-                } else {
-                    grantedList.add(PredefinedPrivileges.valueOf(privilege));
-                }
-            }
+                grantedList.add(DefaultPrivileges.valueOf(privilege));
+             }
         }
+
+        return grantedList;
+    }
+
+    protected Collection<Privilege> createPrivileges(Group group) {
+        Collection<Privilege> grantedList = new ArrayList<Privilege>();
+
+        Set<Group> groups = group.getIncludedGroups();
+        for (Group persistGroup : groups) {
+            grantedList.add(
+                    new SimpleGroup(persistGroup.getName(), createPrivileges(persistGroup)));
+        }
+
+        grantedList.addAll(createPrivileges(group.getPrivileges()));
 
         return grantedList;
     }

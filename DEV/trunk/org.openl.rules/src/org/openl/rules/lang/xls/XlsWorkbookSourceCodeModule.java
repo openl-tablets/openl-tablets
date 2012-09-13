@@ -25,7 +25,6 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ASourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
-import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
@@ -149,12 +148,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
                 sourceFile = ((FileSourceCodeModule) src).getFile();
             } else {
                 try {
-                    URI uri = null;
-                    if (src instanceof URLSourceCodeModule) {
-                        uri = ((URLSourceCodeModule) src).getUrl().toURI();
-                    } else {
-                        uri = new URI(getUri());
-                    }
+                    URI uri = new URI(getUri());
                     sourceFile = new File(uri);
                 } catch (URISyntaxException me) {
                     log.warn("Can not get source file");

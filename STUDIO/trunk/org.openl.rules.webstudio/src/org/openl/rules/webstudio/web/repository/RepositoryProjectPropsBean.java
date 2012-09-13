@@ -14,9 +14,12 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ArtefactType;
+import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -32,13 +35,16 @@ public class RepositoryProjectPropsBean {
     private List<TablePropertyDefinition> bussinedDimensionProps;
     private String propertyToAdd;
     private List<TableProperty> propsStore;
-    private RulesRepositoryArtefact storeDataBean;
+    private String storeProjName;
+    private String storeProjVersion;
 
     public RepositoryProjectPropsBean() {
         bussinedDimensionProps = TablePropertyDefinitionUtils.getDimensionalTableProperties();
 
-        if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null) {
-            storeDataBean = repositoryTreeState.getSelectedNode().getData();
+        if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null
+                && storeProjName == null) {
+            storeProjName = repositoryTreeState.getSelectedNode().getData().getName();
+            storeProjVersion = repositoryTreeState.getSelectedNode().getData().getVersion().getVersionName();
         }
     }
 
@@ -164,9 +170,13 @@ public class RepositoryProjectPropsBean {
         /*
          * propsStore = initSettedProps(); return propsStore;
          */
-        if (propsStore == null || propsStore.isEmpty() || storeDataBean == null
-                || !storeDataBean.equals(repositoryTreeState.getSelectedNode().getData())) {
-            storeDataBean = repositoryTreeState.getSelectedNode().getData();
+        if (propsStore == null || propsStore.isEmpty() || storeProjName == null
+                || !isTheSameBean(repositoryTreeState.getSelectedNode().getData())) {
+            
+            if (repositoryTreeState.getSelectedNode().getData() != null) {
+                storeProjName = repositoryTreeState.getSelectedNode().getData().getName();
+                storeProjVersion = repositoryTreeState.getSelectedNode().getData().getVersion().getVersionName();
+            }
 
             propsStore = initSettedProps();
         }
@@ -174,27 +184,33 @@ public class RepositoryProjectPropsBean {
         return propsStore;
     }
 
+    private boolean isTheSameBean(RulesRepositoryArtefact obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (obj instanceof AProjectArtefact) {
+            if (storeProjName != null && storeProjVersion != null) {
+                if ( ((AProjectArtefact) obj).getName().equals(storeProjName) && ((AProjectArtefact) obj).getVersion().getVersionName().equals(storeProjVersion) ) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        return false;
+    }
+
     public void setPropsStore(List<TableProperty> propsStore) {
         this.propsStore = propsStore;
     }
 
     public List<TableProperty> initSettedProps() {
-        List<TableProperty> propsStore = new ArrayList<TableProperty>();
+        Map<String, InheritedProperty> inheritedProp = getInheritedProps();
         Map<String, Object> settedPropsList = getProps();
-
-        for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
-            if (settedPropsList.containsKey(propDefinition.getName())) {
-                TableProperty prop = new TableProperty(propDefinition);
-                try {
-                    prop.setValue(settedPropsList.get(propDefinition.getName()));
-                } catch (Exception e) {
-                    
-                }
-                propsStore.add(prop);
-            }
-        }
-
-        return propsStore;
+        
+        return makeTableProps(inheritedProp, settedPropsList);
     }
 
     private TableProperty getEmptyPropByName(String propertyToAdd) {
@@ -230,36 +246,19 @@ public class RepositoryProjectPropsBean {
     }
 
     public static List<TableProperty> getProjectPropsToolTip(RulesRepositoryArtefact dataBean) {
-        List<TableProperty> propsStore = new ArrayList<TableProperty>();
-
-        List<TablePropertyDefinition> bussinedDimensionProps = TablePropertyDefinitionUtils
-                .getDimensionalTableProperties();
+        Map<String, InheritedProperty> inheritedProp = dataBean.getInheritedProps();
         Map<String, Object> settedPropsList = dataBean.getProps();
-
-        if (bussinedDimensionProps != null && settedPropsList != null) {
-            for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
-                if (settedPropsList.containsKey(propDefinition.getName())) {
-                    TableProperty prop = new TableProperty(propDefinition);
-                    try {
-                        prop.setValue(settedPropsList.get(propDefinition.getName()));
-                    } catch (Exception e) {
-                        
-                    }
-                    propsStore.add(prop);
-                }
-            }
-        }
-
-        return propsStore;
+       
+        return makeTableProps(inheritedProp, settedPropsList);
     }
 
     public static List<TableProperty> getVersionPropToolTip(java.util.Map objList) {
         Map<String, Object> props = (Map<String, Object>) objList;
         List<TablePropertyDefinition> bussinedDimensionProps = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
-        
+
         List<TableProperty> ptList = new ArrayList<TableProperty>();
-        
+
         for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
             if (props.containsKey(propDefinition.getName())) {
                 TableProperty tProp = new TableProperty(propDefinition);
@@ -276,7 +275,7 @@ public class RepositoryProjectPropsBean {
 
         return ptList;
     }
-    
+
     private static TablePropertyDefinition getPropDefByName(String name) {
         List<TablePropertyDefinition> bussinedDimensionProps = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
@@ -288,6 +287,72 @@ public class RepositoryProjectPropsBean {
         }
 
         return null;
+    }
+
+    private Map<String, InheritedProperty> getInheritedProps() {
+        AProjectArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
+
+        if (dataBean != null) {
+            Map<String, InheritedProperty> returnProps = dataBean.getInheritedProps();
+
+            if (returnProps != null) {
+                return returnProps;
+            } else {
+                return new HashMap<String, InheritedProperty>();
+            }
+        }
+
+        return new HashMap<String, InheritedProperty>();
+    }
+
+    private static List<TableProperty> makeTableProps(Map<String, InheritedProperty> inheritedProp, Map<String, Object> settedPropsList) {
+        List<TableProperty> propsStore = new ArrayList<TableProperty>();
+        List<TablePropertyDefinition> bussinedDimensionProps = TablePropertyDefinitionUtils
+                .getDimensionalTableProperties();
+
+        /*Add inherited Props*/
+        if (settedPropsList != null) {
+            for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
+                if (inheritedProp.containsKey(propDefinition.getName())) {
+                    if (!settedPropsList.containsKey(propDefinition.getName())) {
+                        TableProperty prop = new TableProperty(propDefinition);
+                        try {
+                            InheritedProperty inhProp = inheritedProp.get(propDefinition.getName());
+    
+                            prop.setValue(inhProp.getValue());
+    
+                            if (inhProp.getTypeOfNode().equals(ArtefactType.FOLDER)) {
+                                prop.setInheritanceLevel(InheritanceLevel.FOLDER);
+                            } else {
+                                prop.setInheritanceLevel(InheritanceLevel.PROJECT);
+                            }
+                            
+                            prop.setInheritedTableName(inhProp.getNameOfNode());
+                        } catch (Exception e) {
+                            
+                        }
+    
+                        propsStore.add(prop);
+                    }
+                }
+            }
+        }
+
+        if (bussinedDimensionProps != null && settedPropsList != null) {
+            for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
+                if (settedPropsList.containsKey(propDefinition.getName())) {
+                    TableProperty prop = new TableProperty(propDefinition);
+                    try {
+                        prop.setValue(settedPropsList.get(propDefinition.getName()));
+                    } catch (Exception e) {
+                        
+                    }
+                    propsStore.add(prop);
+                }
+            }
+        }
+
+        return propsStore;
     }
 
 }

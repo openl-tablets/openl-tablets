@@ -10,6 +10,8 @@ import org.openl.rules.repository.api.ArtefactProperties;
 public interface RulesRepositoryArtefact {
     Map<String, Object> getProps();
 
+    Map<String, InheritedProperty> getInheritedProps();
+
     String getVersionComment();
 
     void setProps(Map<String, Object> props) throws PropertyException;

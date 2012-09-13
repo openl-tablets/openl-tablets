@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.PredefinedPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

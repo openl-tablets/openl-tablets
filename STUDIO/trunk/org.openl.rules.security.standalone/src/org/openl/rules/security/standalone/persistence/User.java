@@ -34,17 +34,6 @@ public class User extends PersistentObject {
     private Set<AccessControlEntry> accessControlEntries;
 
     /**
-     * User's access control entries.
-     *
-     * @return
-     */
-    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user")
-    @Cascade(value = { CascadeType.ALL, CascadeType.DELETE_ORPHAN })
-    public Set<AccessControlEntry> getAccessControlEntries() {
-        return accessControlEntries;
-    }
-
-    /**
      * First name.
      *
      * @return
@@ -59,7 +48,7 @@ public class User extends PersistentObject {
      *
      * @return
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER)
     @JoinTable(name = "User2Group", joinColumns = { @JoinColumn(name = "UserID") }, inverseJoinColumns = { @JoinColumn(name = "GroupID") })
     @Cascade(value = { CascadeType.MERGE, CascadeType.SAVE_UPDATE })
     public Set<Group> getGroups() {
@@ -114,6 +103,17 @@ public class User extends PersistentObject {
     @Column(name = "Surname", length = 50)
     public String getSurname() {
         return surname;
+    }
+
+    /**
+     * User's access control entries.
+     *
+     * @return
+     */
+    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user", orphanRemoval = true)
+    @Cascade(value = { CascadeType.ALL })
+    public Set<AccessControlEntry> getAccessControlEntries() {
+        return accessControlEntries;
     }
 
     public void setAccessControlEntries(Set<AccessControlEntry> accessControlEntries) {

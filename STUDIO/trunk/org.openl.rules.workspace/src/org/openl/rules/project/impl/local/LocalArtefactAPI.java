@@ -3,14 +3,17 @@ package org.openl.rules.project.impl.local;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.transaction.UserTransaction;
 
 import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ArtefactType;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -171,6 +174,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
         private ProjectVersion version;
         private Map<String, Object> props;
+        private Map<String, InheritedProperty> inheritedProps;
         private Collection<Property> properties;
         private boolean modified;
         private long creationDate;
@@ -234,5 +238,32 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public UserTransaction createTransaction() throws RRepositoryException {
         return RTransactionManager.NO_TRANSACTION;
+    }
+
+    @Override
+    public Map<String, InheritedProperty> getInheritedProps() {
+        int segmentId = path.segmentCount();
+
+        if (segmentId > 1) {
+            LocalArtefactAPI parentArtefactAPI = new LocalArtefactAPI(source.getParentFile(), path.withoutSegment(segmentId - 1), workspace);
+            Map<String, InheritedProperty> inheritedProps = new HashMap<String, InheritedProperty>();
+
+            if (parentArtefactAPI.getProps() != null) {
+                Map<String, Object> parentProp = parentArtefactAPI.getProps();
+                
+                for (String key : parentProp.keySet()) {
+                    InheritedProperty inhProp = new InheritedProperty(parentProp.get(key), 
+                            (parentArtefactAPI.source.isDirectory() ? ArtefactType.FOLDER : ArtefactType.PROJECT ),
+                            parentArtefactAPI.getName() );
+                    inheritedProps.put(key, inhProp);
+                }
+            }
+
+            inheritedProps.putAll(parentArtefactAPI.getInheritedProps());
+
+            return inheritedProps;
+        }
+
+        return new HashMap<String, InheritedProperty>();
     }
 }
