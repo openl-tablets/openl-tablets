@@ -3,30 +3,80 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
+  <ui:remove>
+	  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+	    <h:outputText value="Name" />
+	    <h:outputText value="#{node.name}" style="font-weight: bold" />
+	
+	    <h:outputText value="Version" />
+	    <h:outputText value="#{artefact.version.versionName}" />
+	
+	    <h:outputText value="Status" />
+	    <h:outputText value="#{node.status}" />
+	
+	    <h:outputText value="Created At" />
+	    <h:outputText value="#{node.createdAt}">
+	    	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+	    </h:outputText>
+	
+	    <h:outputText value="Created By" />
+	    <h:outputText value="#{node.createdBy}" />
+	  </h:panelGrid>
+  </ui:remove>
 
-  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-    <h:outputText value="Name" />
-    <h:outputText value="#{node.name}" style="font-weight: bold" />
-
-    <h:outputText value="Version" />
-    <h:outputText value="#{artefact.version.versionName}" />
-
-    <h:outputText value="Status" />
-    <h:outputText value="#{node.status}" />
-
-    <h:outputText value="Created At" />
-    <h:outputText value="#{node.createdAt}">
-    	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
-    </h:outputText>
-
-    <h:outputText value="Created By" />
-    <h:outputText value="#{node.createdBy}" />
-  </h:panelGrid>
+<ui:param name="propsFormName" value="projectPropsTableForm" />
   
-  
-	  <ui:include src="/pages/modules/repository/node/dynamicProps.xhtml">
+<h:panelGroup id="#{propsFormName}repoPropsTable" layout="block"> 
+    <table class="formfields" style="max-width: 500px;">
+	    <tr>
+	        <td class="label">
+	            <h:outputText value="Name" />
+	        </td>
+	        <td>
+	            <h:outputText value="#{node.name}" style="font-weight: bold" />
+	        </td>
+	    </tr>
+	    <tr>
+	        <td class="label">
+	            <h:outputText value="Version" />
+	        </td>
+	        <td>
+	            <h:outputText value="#{artefact.version.versionName}" />
+	        </td>
+	    </tr>
+	    <tr>
+	        <td class="label">
+	            <h:outputText value="Status" />
+	        </td>
+	        <td>
+	            <h:outputText value="#{node.status}" />
+	        </td>
+	    </tr>
+	    <tr>
+	        <td class="label">
+	            <h:outputText value="Created At" />
+	        </td>
+	        <td>
+	            <h:outputText value="#{node.createdAt}">
+	                <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+	            </h:outputText>
+	        </td>
+	    </tr>
+	    <tr>
+	        <td class="label">
+	            <h:outputText value="Created By" />
+	        </td>
+	        <td>
+	            <h:outputText value="#{node.createdBy}" />
+	        </td>
+	    </tr>
+	  <ui:include src="/pages/modules/repository/node/bdimensionalProps.xhtml">
 	    <ui:param name="prefix" value="project"/>
 	  </ui:include>
-
-
+    </table>
+</h:panelGroup>
+<ui:include src="/pages/modules/repository/node/addPropsPanel.xhtml">
+  <ui:param name="prefix" value="project"/>
+</ui:include>
+    
 </ui:composition>

@@ -22,7 +22,6 @@
             margin-left: 30px;
         }
         .propName {
-            color: #555555;
             min-width: 70px;
         }
         .propData {
@@ -31,7 +30,7 @@
             overflow: hidden;
         }
         .propValue {
-            margin-left: 5px;
+            
         }
         .propEditor {
             margin-left: 2px;
@@ -86,10 +85,10 @@
                 </a4j:outputPanel>
             </td>
             <td class="propData #{prop.inheritedProperty ? ' inheritedProp' : ''}" onclick="#{repositoryTreeState.canSave ? 'editProperty(this.parentNode)' : '' }"
-            style="max-width: 500px; overflow: hidden;">
+            style="max-width: 500px; text-overflow: ellipsis;">
                 <a4j:outputPanel>
 	                <h:outputText class="propValue" value="#{prop.displayValue}"
-	                    style="max-width: 500px; overflow: hidden; #{added ? 'display:none' : ''}" />
+	                    style="max-width: 500px; text-overflow: ellipsis; #{added ? 'display:none' : ''}" />
 	                <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
 	                    <h:outputText value="Inherited from #{prop.inheritedTableName}"/>
 	                </rich:tooltip>
