@@ -23,6 +23,7 @@ import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
+import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 
 /**
@@ -143,6 +144,12 @@ public class GroupsBean {
                 }
             }
         }
+    }
+
+    public boolean isOnlyAdmin(Object objGroup) {
+        String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
+        return ((Group) objGroup).hasPrivilege(allPrivileges)
+                && groupManagementService.getGroupsByPrivilege(allPrivileges).size() == 1;
     }
 
     public void deleteGroup(String name) {

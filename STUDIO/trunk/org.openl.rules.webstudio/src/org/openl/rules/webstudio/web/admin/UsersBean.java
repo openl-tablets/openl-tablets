@@ -18,6 +18,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
@@ -111,6 +112,12 @@ public class UsersBean {
                 groups.add(authority.getName());
             }
         }
+    }
+
+    public boolean isOnlyAdmin(Object objUser) {
+        String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
+        return ((User) objUser).hasPrivilege(allPrivileges)
+                && userManagementService.getUsersByPrivilege(allPrivileges).size() == 1;
     }
 
     public void deleteUser(String username) {

@@ -6,6 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j">
 
     <h:form>
+
     <h:dataTable id="userList" value="#{usersBean.users}" var="user" styleClass="table table-striped">
         <h:column>
             <f:facet name="header">
@@ -47,7 +48,7 @@
                 <h:graphicImage url="/webresource/images/edit2.gif" />
             </a4j:commandLink>
             </ui:remove>
-            <a4j:commandLink execute="@this" render="@form"
+            <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isOnlyAdmin(user)}"
                 action="#{usersBean.deleteUser(user.username)}"
                 onclick="if(!window.confirm('Are you sure you want to delete the user?')) {return false;}"
                 title="Delete">
