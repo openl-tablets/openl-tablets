@@ -1,13 +1,16 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.BaseRulesFactory;
 import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.runtime.AOpenLEngineFactory;
 
@@ -86,11 +89,29 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {
             factory = new SimpleEngineFactory(createVirtualSourceCodeModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);// FIXME
 
+            // Information for interface generation, if generation required.
+            Collection<String> allIncludes = new HashSet<String>();
+            Collection<String> allExcludes = new HashSet<String>();
+            for (Module m : getModules()){
+                MethodFilter methodFilter = m.getMethodFilter();
+                if (methodFilter.getIncludes() != null){
+                    allIncludes.addAll(methodFilter.getIncludes());
+                }
+                if (methodFilter.getExcludes() != null){
+                    allExcludes.addAll(methodFilter.getExcludes());
+                }
+            }
+            if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
+                includes = allIncludes.toArray(includes); 
+                excludes = allExcludes.toArray(excludes); 
+                factory.setRulesFactory(new BaseRulesFactory(includes, excludes));
+            }
             factory.setDependencyManager(getDependencyManager());
             factory.setInterfaceClass(serviceClass);
         }
 
         return factory;
     }
-
 }

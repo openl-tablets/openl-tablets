@@ -102,7 +102,9 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) throws Exception{
 
-        log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        }
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = interfaceClass.getDeclaredMethods();
@@ -116,7 +118,9 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
             }
         }
 
-        log.debug(methodMap.toString());
+        if (log.isDebugEnabled()) {
+            log.debug(methodMap.toString());
+        }
 
         return methodMap;
     }

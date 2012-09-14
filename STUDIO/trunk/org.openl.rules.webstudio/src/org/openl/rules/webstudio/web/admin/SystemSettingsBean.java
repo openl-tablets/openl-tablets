@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -153,6 +154,14 @@ public class SystemSettingsBean {
     }
     
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
+        if (productionRepositoryConfigurations.isEmpty()) {
+            initProductionRepositoryConfigurations();
+        }
+        
+        return productionRepositoryConfigurations;
+    }
+
+    private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
         
         String[] repositoryConfigNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
@@ -161,8 +170,6 @@ public class SystemSettingsBean {
             RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig);
             productionRepositoryConfigurations.add(config);
         }
-        
-        return productionRepositoryConfigurations;
     }
 
     public boolean isCustomSpreadsheetType() {
@@ -187,8 +194,9 @@ public class SystemSettingsBean {
                 validate(prodConfig);
             }
     
-            for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
-                saveProductionRepository(prodConfig);
+            for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
+                RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
+                productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
             }
     
             saveSystemConfig();
@@ -249,6 +257,7 @@ public class SystemSettingsBean {
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
             saveSystemConfig();
             
+            productionRepositoryConfigurations.add(newConfig);
             deploymentManager.addRepository(newConfigName);
             FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {
@@ -268,10 +277,13 @@ public class SystemSettingsBean {
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
             
             String repositoryName = "";
-            for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+            Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
+            while (it.hasNext()) {
+                RepositoryConfiguration prodConfig = it.next();
                 if (prodConfig.getConfigName().equals(configName)) {
                     repositoryName = prodConfig.getName();
                     prodConfig.delete();
+                    it.remove();
                     break;
                 }
             }
@@ -287,17 +299,18 @@ public class SystemSettingsBean {
     }
     
     public void saveProductionRepository(String configName) {
-        for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
+        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
+            RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
             if (prodConfig.getConfigName().equals(configName)) {
                 try {
                     validate(prodConfig);
     
-                    saveProductionRepository(prodConfig);
+                    productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
                     FacesUtils.addInfoMessage("Repository '" + prodConfig.getName() + "' is saved successfully");
-                    break;
                 } catch (Exception e) {
                     FacesUtils.addErrorMessage(e.getMessage());
                 }
+                break;
             }
         }
     }
@@ -323,7 +336,7 @@ public class SystemSettingsBean {
         }
     }
 
-    private void saveProductionRepository(RepositoryConfiguration prodConfig) {
+    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig) {
         boolean changed = prodConfig.save();
         if (changed) {
             try {
@@ -340,6 +353,7 @@ public class SystemSettingsBean {
 
             deploymentManager.addRepository(prodConfig.getConfigName());
         }
+        return prodConfig;
     }
 
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {

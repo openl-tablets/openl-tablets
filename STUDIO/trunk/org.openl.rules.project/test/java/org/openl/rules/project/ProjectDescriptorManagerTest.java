@@ -1,12 +1,16 @@
 package org.openl.rules.project;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
@@ -48,6 +52,20 @@ public class ProjectDescriptorManagerTest {
 
         PathEntry classpathEntry2 = descriptor.getClasspath().get(1);
         assertEquals("path2", classpathEntry2.getPath());
+
+        assertNotNull(descriptor.getModules());
+        assertEquals(2, descriptor.getModules().size());
+        Module module = descriptor.getModules().get(0);
+        if (!"MyModule2".equals(module.getName())){
+            module = descriptor.getModules().get(1);
+        }
+        assertNotNull(module.getMethodFilter());
+        assertNotNull(module.getMethodFilter().getIncludes());
+        assertEquals(1, module.getMethodFilter().getIncludes().size());
+        assertNotNull(module.getMethodFilter().getExcludes());
+        Iterator<String> itr = module.getMethodFilter().getIncludes().iterator();
+        String value = itr.next();
+        assertEquals("*", value);
     }
 
     @Test(expected = ValidationException.class)
@@ -93,32 +111,38 @@ public class ProjectDescriptorManagerTest {
 
         descriptor.setModules(modules);
 
+        module1.getMethodFilter().addIncludePattern(" * ");
+
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
 
-        String expected = 
-                        "<project>" + "\n" + 
+        String expected = "<project>" + "\n" + 
                         "  <id>id1</id>" + "\n" + 
-                        "  <name>name1</name>" + "\n" + 
+                        "  <name>name1</name>" + "\n" +
                         "  <comment>comment1</comment>" + "\n" + 
                         "  <modules>" + "\n" + 
-                        "    <module>" + "\n" + 
+                        "    <module>" + "\n" +
                         "      <name>name1</name>" + "\n" + 
-                        "      <type>static</type>" + "\n" + 
+                        "      <type>static</type>" + "\n" +
                         "      <classname>MyWrapper1</classname>" + "\n" + 
                         "      <rules-root path=\"path1\"/>" + "\n" + 
+                        "      <methodFilter>"+ "\n" +
+                        "        <includes>"+ "\n" +
+                        "          <value>*</value>"+ "\n" +
+                        "        </includes>"+ "\n" +
+                        "        <excludes/>"+ "\n" +
+                        "      </methodFilter>"+ "\n" +
                         "    </module>" + "\n" + 
                         "  </modules>" + "\n" + 
-                        "  <classpath>" + "\n" + 
+                        "  <classpath>" + "\n" +
                         "    <entry path=\"path1\"/>" + "\n" + 
                         "    <entry path=\"path2\"/>" + "\n" + 
                         "  </classpath>" + "\n" + 
                         "</project>";
-
         assertEquals(expected, dest.toString());
     }
-    
+
     @Test(expected = ValidationException.class)
     public void testWriteDescriptor2() throws IOException, ValidationException {
 
@@ -136,7 +160,7 @@ public class ProjectDescriptorManagerTest {
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
     }
-    
+
     @Test(expected = ValidationException.class)
     public void testWriteDescriptor3() throws IOException, ValidationException {
 
@@ -167,17 +191,17 @@ public class ProjectDescriptorManagerTest {
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
     }
-    
+
     @Test
-    public void testModulePathPatterns() throws Exception{
+    public void testModulePathPatterns() throws Exception {
         ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
-        //test ?
+        // test ?
         assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules1.xml").getModules().size());
-        //test *
+        // test *
         assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules2.xml").getModules().size());
-        //test **
+        // test **
         assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules3.xml").getModules().size());
-        //test complex
+        // test complex
         assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules4.xml").getModules().size());
     }
 }

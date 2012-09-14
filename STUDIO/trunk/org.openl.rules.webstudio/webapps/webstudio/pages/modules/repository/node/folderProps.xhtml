@@ -3,14 +3,40 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
-
+<ui:remove>
   <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
     <h:outputText value="Folder Name" />
     <h:outputText value="#{node.name}" />
   </h:panelGrid>
-
-  <ui:include src="/pages/modules/repository/node/properties.xhtml">
+  <ui:remove>
+    <ui:include src="/pages/modules/repository/node/properties.xhtml">
+        <ui:param name="prefix" value="folder"/>
+    </ui:include>
+  </ui:remove>
+  <ui:include src="/pages/modules/repository/node/dynamicProps.xhtml">
     <ui:param name="prefix" value="folder"/>
-  </ui:include>
+ </ui:include>
+</ui:remove>
+
+<ui:param name="propsFormName" value="folderPropsTableForm" />
+<h:panelGroup id="#{propsFormName}repoPropsTable" layout="block"> 
+    <table class="formfields" style="max-width: 500px;">
+        <tr>
+            <td class="label">
+                <h:outputText value="Folder Name" />
+            </td>
+            <td>
+                <h:outputText value="#{node.name}" style="font-weight: bold" />
+            </td>
+        </tr>
+        <ui:include src="/pages/modules/repository/node/bdimensionalProps.xhtml">
+        <ui:param name="prefix" value="folder"/>
+      </ui:include>
+    </table>
+</h:panelGroup>
+<ui:include src="/pages/modules/repository/node/addPropsPanel.xhtml">
+  <ui:param name="prefix" value="folder"/>
+</ui:include>
+
 
 </ui:composition>
