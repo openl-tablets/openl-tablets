@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
@@ -96,6 +97,20 @@ public class UsersBean {
         }
         userManagementService.addUser(
                 new SimpleUser(firstName, lastName, username, password, resultGroups));
+    }
+
+    public void editUser(User user) {
+        username = user.getUsername();
+        password = user.getPassword();
+        firstName = user.getFirstName();
+        lastName = user.getLastName();
+        groups = new ArrayList<String>();
+        Collection<Privilege> authorities = (Collection<Privilege>) user.getAuthorities();
+        for (Privilege authority : authorities) {
+            if (authority instanceof Group) {
+                groups.add(authority.getName());
+            }
+        }
     }
 
     public void deleteUser(String username) {

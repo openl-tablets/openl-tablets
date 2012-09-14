@@ -36,7 +36,8 @@
                         <label class="required">Name</label>
                     </td>
                     <td>
-                        <h:inputText id="name" value="#{groupsBean.name}" style="margin-right: 7px" />
+                        <h:inputText id="name" value="#{groupsBean.name}" validator="#{groupsBean.validateGroupName}"
+                            style="margin-right: 7px" />
                         <a4j:outputPanel ajaxRendered="true">
                             <h:message for="name" styleClass="error" />
                         </a4j:outputPanel>

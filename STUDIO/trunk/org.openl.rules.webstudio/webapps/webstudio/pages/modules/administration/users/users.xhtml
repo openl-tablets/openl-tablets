@@ -41,6 +41,12 @@
         </h:column>
 
         <h:column>
+            <ui:remove>
+            <a4j:commandLink execute="@this" render="addUserForm"
+                action="#{usersBean.editUser(user)}" oncomplete="RichFaces.$('modalAddUser').show()" title="Edit">
+                <h:graphicImage url="/webresource/images/edit2.gif" />
+            </a4j:commandLink>
+            </ui:remove>
             <a4j:commandLink execute="@this" render="@form"
                 action="#{usersBean.deleteUser(user.username)}"
                 onclick="if(!window.confirm('Are you sure you want to delete the user?')) {return false;}"
@@ -54,7 +60,7 @@
     <br />
     <br />
 
-    <a href="#" onclick="RichFaces.$('modalAddUser').show()">Add New User</a>
+    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()">Add New User</a>
 
     <ui:include src="/pages/modules/administration/users/addUser.xhtml" />
 
