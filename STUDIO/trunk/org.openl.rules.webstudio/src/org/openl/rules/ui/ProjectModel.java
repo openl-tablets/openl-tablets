@@ -773,6 +773,11 @@ public class ProjectModel {
         return false;
     }
     
+    public boolean isCanStartEditing() {
+        RulesProject project = getProject();
+        return project != null && (project.isLocalOnly() || !project.isLocked()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
+    }
+    
     public boolean isCanCreateTable() {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }

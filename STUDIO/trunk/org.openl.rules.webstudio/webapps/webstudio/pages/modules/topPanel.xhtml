@@ -56,7 +56,7 @@
                             rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}" styleClass="imageButton"
                             style="background:url('webresource/images/repository/checkin.gif')" />
                         <h:commandLink action="#{mainBean.editProject}" title="Edit Project"
-                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.editable}"
+                            rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}"
                             styleClass="imageButton"
                             style="background:url('webresource/images/repository/checkout.gif')" />
                     </a4j:ajax>
