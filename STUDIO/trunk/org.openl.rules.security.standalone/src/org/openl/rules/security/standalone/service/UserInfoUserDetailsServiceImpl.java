@@ -31,9 +31,9 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
         Collection<Privilege> grantedList = new ArrayList<Privilege>();
 
         Set<Group> groups = user.getGroups();
-        for (Group persistGroup : groups) {
+        for (Group group : groups) {
             grantedList.add(
-                    new SimpleGroup(persistGroup.getName(), createPrivileges(persistGroup)));
+                    new SimpleGroup(group.getName(), group.getDescription(), createPrivileges(group)));
         }
 
         grantedList.addAll(createPrivileges(user.getPrivileges()));
@@ -61,7 +61,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
         Set<Group> groups = group.getIncludedGroups();
         for (Group persistGroup : groups) {
             grantedList.add(
-                    new SimpleGroup(persistGroup.getName(), createPrivileges(persistGroup)));
+                    new SimpleGroup(persistGroup.getName(), persistGroup.getDescription(), createPrivileges(persistGroup)));
         }
 
         grantedList.addAll(createPrivileges(group.getPrivileges()));

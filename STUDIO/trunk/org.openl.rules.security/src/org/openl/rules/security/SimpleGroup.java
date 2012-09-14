@@ -19,8 +19,9 @@ public class SimpleGroup implements Group {
      * 
      * @param privileges nested authorities (privileges and groups)
      */
-    public SimpleGroup(String name, Collection<Privilege> privileges) {
+    public SimpleGroup(String name, String description, Collection<Privilege> privileges) {
         this.name = name;
+        this.description = description;
         this.privileges = privileges;
     }
 

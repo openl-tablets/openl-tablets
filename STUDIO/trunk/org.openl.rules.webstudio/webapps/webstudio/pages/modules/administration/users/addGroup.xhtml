@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <style>
+        .selectedRow {
+            background: #eff7ff;
+        }
+        .selectedGroup {
+            background: #77df00;
+        }
+        .selectedGroup a {
+            color: #fff !important;
+        }
+    </style>
+
+    <rich:popupPanel id="modalAddGroup" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Add New Group" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+                onclick="hideAddGroup()" alt="Close" />
+        </f:facet>
+
+        <h:form id="addGroupForm">
+            <table cellspacing="5">
+                <tr>
+                    <td>
+                        <label class="required">Name</label>
+                    </td>
+                    <td>
+                        <h:inputText id="name" value="#{groupsBean.name}" validator="#{groupsBean.validateGroupName}"
+                            style="margin-right: 7px" />
+                        <a4j:outputPanel ajaxRendered="true">
+                            <h:message for="name" styleClass="error" />
+                        </a4j:outputPanel>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Description</label>
+                    </td>
+                    <td style="width: 100%; padding-right: 11px">
+                        <h:inputTextarea id="description" value="#{groupsBean.description}"
+                            style="width: 100%" />
+                    </td>
+                </tr>
+            </table>
+
+            <table id="privilegesTable" class="table" style="margin-top: 23px">
+                <tr>
+                    <th class="required">Privilege</th>
+                    <ui:repeat value="#{groupsBean.groups}" var="group">
+                    <th><a id="group#{group.name}" href="#"
+                        onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
+                        <input type="checkbox" name="group" value="#{group.name}" style="display: none" />
+                    </th>
+                    </ui:repeat>
+                </tr>
+                <ui:repeat value="#{groupsBean.defaultPrivileges}" var="privilege">
+                <tr>
+                    <td>
+                        <input type="checkbox" name="privilege" value="#{privilege.name}" />#{privilege.displayName}
+                    </td>
+                    <ui:repeat value="#{groupsBean.groups}" var="group">
+                    <td style="text-align: center">
+                        <h:graphicImage value="webresource/images/ok.png"
+                            rendered="#{group.hasPrivilege(privilege.name)}" />
+                     </td>
+                    </ui:repeat>
+                </tr>
+                </ui:repeat>
+            </table>
+
+            <br />
+            <br />
+
+            <a4j:commandButton value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm"
+                styleClass="button-primary" />
+            <input type="button" value="Cancel" onclick="hideAddGroup()" />
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        var groups = {};
+
+        <c:forEach items="#{groupsBean.groups}" var="group">
+        groups["#{group.name}"] = [<c:forEach items="#{groupsBean.getPrivileges(group.name)}" var="p">'#{p}',</c:forEach>];
+        </c:forEach>
+
+        $j("#privilegesTable :checkbox").change(function(e) {
+            checkPrivilege($j(e.target), this.checked);
+            checkGroups();
+        });
+
+        function checkPrivilege(jElem, checked) {
+            jElem.closest("tr").toggleClass("selectedRow", checked);
+        }
+
+        function checkGroup(jElem, checked) {
+            jElem.closest("th").toggleClass("selectedGroup", checked);
+            var groupCheckbox = jElem.next("input");
+            groupCheckbox.attr("checked", checked);
+        }
+
+        function checkGroups() {
+            for (groupName in groups) {
+                var groupPrivileges = groups[groupName];
+                var oneNotEmpty = false;
+                for (var i = 0; i &lt; groupPrivileges.length; i++) {
+                    var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
+                    if (!jElem.attr("checked")) {
+                        oneNotEmpty = true;
+                        break;
+                    }
+                }
+                checkGroup($j("#group" + groupName), !oneNotEmpty);
+            }
+        }
+
+        function setPrivileges(groupName) {
+            var groupPrivileges = groups[groupName];
+            var oneNotEmpty = false;
+
+            for (var i = 0; i &lt; groupPrivileges.length; i++) {
+                var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
+                if (!jElem.attr("checked")) {
+                    oneNotEmpty = true;
+                    break;
+                }
+            }
+
+            for (var i = 0; i &lt; groupPrivileges.length; i++) {
+                var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
+                jElem.attr("checked", oneNotEmpty);
+                checkPrivilege(jElem, oneNotEmpty);
+            }
+
+            checkGroups();
+        }
+
+        function hideAddGroup() {
+            RichFaces.$("modalAddGroup").hide();
+
+            // Reset form
+            $j("#addGroupForm")[0].reset();
+            $j("#privilegesTable :checkbox").each(function() {
+                checkPrivilege($j(this), false);
+            });
+
+            for (groupName in groups) {
+                checkGroup($j("#group" + groupName), false);
+            }
+        }
+    </script>
+
+</ui:composition>

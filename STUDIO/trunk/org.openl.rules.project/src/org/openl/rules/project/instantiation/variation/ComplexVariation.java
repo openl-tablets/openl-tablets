@@ -63,7 +63,7 @@ public class ComplexVariation extends Variation {
     @Override
     public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
         for (int i = variations.length - 1; i >= 0; i--) {
-            variations[i].applyModification(modifiedArguments, stack);
+            variations[i].revertModifications(modifiedArguments, stack);
         }
     }
 

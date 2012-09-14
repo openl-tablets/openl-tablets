@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
@@ -17,6 +18,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
@@ -96,6 +98,26 @@ public class UsersBean {
         }
         userManagementService.addUser(
                 new SimpleUser(firstName, lastName, username, password, resultGroups));
+    }
+
+    public void editUser(User user) {
+        username = user.getUsername();
+        password = user.getPassword();
+        firstName = user.getFirstName();
+        lastName = user.getLastName();
+        groups = new ArrayList<String>();
+        Collection<Privilege> authorities = (Collection<Privilege>) user.getAuthorities();
+        for (Privilege authority : authorities) {
+            if (authority instanceof Group) {
+                groups.add(authority.getName());
+            }
+        }
+    }
+
+    public boolean isOnlyAdmin(Object objUser) {
+        String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
+        return ((User) objUser).hasPrivilege(allPrivileges)
+                && userManagementService.getUsersByPrivilege(allPrivileges).size() == 1;
     }
 
     public void deleteUser(String username) {
