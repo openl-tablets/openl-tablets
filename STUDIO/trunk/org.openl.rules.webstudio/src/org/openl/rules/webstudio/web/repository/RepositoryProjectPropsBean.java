@@ -183,6 +183,10 @@ public class RepositoryProjectPropsBean {
 
         return propsStore;
     }
+    
+    private void refresh() {
+        propsStore = initSettedProps();
+    }
 
     private boolean isTheSameBean(RulesRepositoryArtefact obj) {
         if (obj == null) {
@@ -229,6 +233,7 @@ public class RepositoryProjectPropsBean {
                 propsStore.remove(tProp);
 
                 removeProperty(selectTProp.getName());
+                refresh();
                 return;
             }
         }
@@ -240,6 +245,7 @@ public class RepositoryProjectPropsBean {
                 tProp.setValue(selectTProp.getDisplayValue());
 
                 setProperty(selectTProp.getName(), selectTProp.getDisplayValue());
+                refresh();
                 return;
             }
         }

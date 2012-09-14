@@ -40,7 +40,6 @@
         .propEditor input[type="password"],
         .propEditor textarea {
             padding: 1px;
-            width: 91%;
         }
         .editableProp .propValue {
             border-bottom: 1px dashed #cccccc;
@@ -108,8 +107,8 @@
                 </span>
                 <span>
 	                <a4j:commandLink id="savePropsButton" title="Save"
-	                     action="#{repositoryProjectPropsBean.save(prop)}" 
-	                     render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel nodeView projectTree" style="display: none; margin-left: 2px"
+	                     action="#{repositoryProjectPropsBean.save(prop)}"
+	                     render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel #{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
 	                     rendered="#{repositoryTreeState.canSave}"><img
 	                     style="opacity: 0.5" src="webresource/images/ok.png" />
 	                 </a4j:commandLink>
