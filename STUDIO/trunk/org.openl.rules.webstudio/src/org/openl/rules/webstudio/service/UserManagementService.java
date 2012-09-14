@@ -31,6 +31,19 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         return resultUsers;
     }
 
+    public List<org.openl.rules.security.User> getUsersByPrivilege(String privilege) {
+        List<User> users = userDao.getAll();
+        List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
+        for (User user : users) {
+            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
+                    user.getLoginName(), user.getPasswordHash(), createPrivileges(user));
+            if (resultUser.hasPrivilege(privilege)) {
+                resultUsers.add(resultUser);
+            }
+        }
+        return resultUsers;
+    }
+
     public void addUser(org.openl.rules.security.User user) {
         User persistUser = new User();
         persistUser.setLoginName(user.getUsername());

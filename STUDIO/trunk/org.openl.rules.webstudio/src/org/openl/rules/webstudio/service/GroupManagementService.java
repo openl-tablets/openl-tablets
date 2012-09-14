@@ -31,6 +31,21 @@ public class GroupManagementService extends UserInfoUserDetailsServiceImpl {
         return resultGroups;
     }
 
+    public List<org.openl.rules.security.Group> getGroupsByPrivilege(String privilege) {
+        List<Group> groups = groupDao.getAll();
+        List<org.openl.rules.security.Group> resultGroups = new ArrayList<org.openl.rules.security.Group>();
+
+        for (Group group : groups) {
+            org.openl.rules.security.Group resultGroup = new SimpleGroup(
+                    group.getName(), group.getDescription(), createPrivileges(group));
+            if (resultGroup.hasPrivilege(privilege)) {
+                resultGroups.add(resultGroup);
+            }
+        }
+
+        return resultGroups;
+    }
+
     public org.openl.rules.security.Group getGroupByName(String name) {
         Group group = groupDao.getGroupByName(name);
         return new SimpleGroup(group.getName(), group.getDescription(), createPrivileges(group));
