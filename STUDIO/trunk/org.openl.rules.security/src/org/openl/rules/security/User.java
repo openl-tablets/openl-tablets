@@ -15,4 +15,6 @@ public interface User extends UserDetails {
 
     public String getLastName();
 
+    boolean hasPrivilege(String privilege);
+
 }
