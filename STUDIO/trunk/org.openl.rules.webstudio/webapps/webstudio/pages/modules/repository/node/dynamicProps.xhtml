@@ -22,14 +22,15 @@
             margin-left: 30px;
         }
         .propName {
-            color: #555555;
             min-width: 70px;
         }
         .propData {
             padding: 3px 0 1px;
+            max-width: 500px;
+            overflow: hidden;
         }
         .propValue {
-            margin-left: 5px;
+            
         }
         .propEditor {
             margin-left: 2px;
@@ -75,7 +76,7 @@
 
         <tr class="editableProp"
             onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
-            <td class="propName #{prop.inheritedProperty ? ' inheritedProp' : ''} label" onclick="#{repositoryTreeState.canClose ? 'editProperty(this.parentNode)' : '' }">
+            <td class="propName #{prop.inheritedProperty ? ' inheritedProp' : ''} label" onclick="#{repositoryTreeState.canSave ? 'editProperty(this.parentNode)' : '' }">
                 <a4j:outputPanel>
 	                #{prop.displayName}
 	                <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
@@ -83,10 +84,11 @@
 	                </rich:tooltip>
                 </a4j:outputPanel>
             </td>
-            <td class="propData #{prop.inheritedProperty ? ' inheritedProp' : ''}" onclick="#{repositoryTreeState.canClose ? 'editProperty(this.parentNode)' : '' }">
+            <td class="propData #{prop.inheritedProperty ? ' inheritedProp' : ''}" onclick="#{repositoryTreeState.canSave ? 'editProperty(this.parentNode)' : '' }"
+            style="max-width: 500px; text-overflow: ellipsis;">
                 <a4j:outputPanel>
 	                <h:outputText class="propValue" value="#{prop.displayValue}"
-	                    style="#{added ? 'display:none' : ''}" />
+	                    style="max-width: 500px; text-overflow: ellipsis; #{added ? 'display:none' : ''}" />
 	                <rich:tooltip showDelay="500" rendered="#{prop.inheritedProperty}">
 	                    <h:outputText value="Inherited from #{prop.inheritedTableName}"/>
 	                </rich:tooltip>
@@ -114,12 +116,12 @@
                 <a4j:commandLink id="savePropsButton" title="Save"
 	                 action="#{repositoryProjectPropsBean.save(prop)}" 
 	                 render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel nodeView projectTree" style="display: none; margin-left: 2px"
-	                 rendered="#{repositoryTreeState.canClose}"><img
+	                 rendered="#{repositoryTreeState.canSave}"><img
                      style="opacity: 0.5" src="webresource/images/ok.png" />
 	             </a4j:commandLink>
                  <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
                      render="#{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
-                     rendered="#{repositoryTreeState.canClose and !prop.inheritedProperty}"><img
+                     rendered="#{repositoryTreeState.canSave and !prop.inheritedProperty}"><img
                      style="opacity: 0.5" src="webresource/images/close.gif" />
                  </a4j:commandLink>
              </span>

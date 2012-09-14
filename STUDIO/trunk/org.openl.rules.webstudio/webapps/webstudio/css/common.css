@@ -229,7 +229,7 @@ fieldset {
     padding: 4px 7px;
 }
 
-.table-striped tr:nth-child(2n+1) td {
+.table-striped tbody tr:nth-child(2n+1) td {
     background: #fafafa;
 }
 
@@ -257,12 +257,12 @@ fieldset {
 .tab-panel-vertical {
     border: 1px solid #ddd;
     border-width: 1px 1px 1px 0;
-    min-height: 350px;
+    height: 350px;
     margin: 13px 24px 13px 3px;
 }
 
 .tab-panel-vertical ul {
-    min-height: 350px;
+    height: 350px;
     list-style: none;
     margin: 0; padding: 0;
     background: #f5f5f5;
@@ -275,7 +275,7 @@ fieldset {
     margin: 0;
     padding: 0;
     text-align: center;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 .tab-panel-vertical ul li:hover {

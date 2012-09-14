@@ -107,7 +107,7 @@
           </h:commandButton>
         </h:panelGrid>
         
-        <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject}" value="Save" onclick="openSaveDialog();return false;">
+        <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}" value="Save" onclick="openSaveDialog();return false;">
             <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
         </h:commandButton>
         
@@ -143,9 +143,9 @@
     </h:panelGroup>
   </h:panelGroup>
 
-  <rich:tabPanel id="nodeTabPanel" switchType="ajax" activeItem="#{repositoryTreeState.selectedTab}"
+  <rich:tabPanel id="nodeTabPanel" switchType="client" activeItem="#{repositoryTreeState.selectedTab}"
     rendered="#{node.type != 'repository' &amp;&amp; node.type != 'drepository' &amp;&amp; node.type != 'deployment'}">
-    <rich:tab id="properties" name="Properties" header="Properties">
+    <rich:tab id="properties" name="Properties" header="Properties" >
       <h:panelGroup rendered="#{node.type == 'file'}">
         <ui:include src="/pages/modules/repository/node/fileProps.xhtml" />
       </h:panelGroup>
@@ -156,13 +156,13 @@
         <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
-    <rich:tab header="Versions">
+    <rich:tab id="versions" name="Versions" header="Versions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
-    <rich:tab header="Elements" rendered="#{node.type != 'file'}">
+    <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
-    <rich:tab header="Dependencies" rendered="#{node.type == 'project'}">
+    <rich:tab id="dependencies" name="Dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
       <ui:include src="/pages/modules/repository/node/dependency.xhtml" />
     </rich:tab>
   </rich:tabPanel>

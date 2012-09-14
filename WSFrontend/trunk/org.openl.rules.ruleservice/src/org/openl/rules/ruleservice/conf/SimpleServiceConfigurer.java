@@ -14,7 +14,7 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 /**
  * Simple ServiceConfigurer bean is designed for using with data sources with
- * one deployment. Exspoces only one project from this deployment. All service
+ * one deployment. Exposes only one project from this deployment. All service
  * properties defined in this configurer.
  * 
  * @author Marat Kamalov
