@@ -36,6 +36,10 @@ public class GroupManagementService extends UserInfoUserDetailsServiceImpl {
         return new SimpleGroup(group.getName(), group.getDescription(), createPrivileges(group));
     }
 
+    public boolean isGroupExist(String name) {
+        return groupDao.getGroupByName(name) != null;
+    }
+
     public void addGroup(org.openl.rules.security.Group group) {
         Group persistGroup = new Group();
         persistGroup.setName(group.getName());

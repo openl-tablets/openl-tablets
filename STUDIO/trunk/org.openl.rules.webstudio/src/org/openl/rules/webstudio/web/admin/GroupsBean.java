@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -52,6 +56,16 @@ public class GroupsBean {
     @ManagedProperty(value="#{groupManagementService}")
     private GroupManagementService groupManagementService;
 
+    /**
+     * Validation for existed group
+     */
+    public void validateGroupName(FacesContext context, UIComponent toValidate, Object value) {
+        if (groupManagementService.isGroupExist((String) value)) {
+            throw new ValidatorException(
+                    new FacesMessage("Group with such name already exists"));
+        }
+    }
+
     public Privilege[] getDefaultPrivileges() {
         return DefaultPrivileges.values();
     }
@@ -75,27 +89,31 @@ public class GroupsBean {
     }
 
     public void addGroup() {
+        Collection<Privilege> authorities = new ArrayList<Privilege>();
+
         List<String> privileges = new ArrayList<String>(Arrays.asList(
                 FacesUtils.getRequest().getParameterValues("privilege")));
 
         Map<String, Group> groups = new java.util.HashMap<String, Group>();
         String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
-        for (String groupName : groupNames) {
-            groups.put(groupName, groupManagementService.getGroupByName(groupName));
-        }
+        if (groupNames != null) {
+            for (String groupName : groupNames) {
+                groups.put(groupName, groupManagementService.getGroupByName(groupName));
+            }
 
-        for (Group group : new ArrayList<Group>(groups.values())) {
-            if (!groups.isEmpty()) {
-                removeIncludedGroups(group, groups);
+            for (Group group : new ArrayList<Group>(groups.values())) {
+                if (!groups.isEmpty()) {
+                    removeIncludedGroups(group, groups);
+                }
+            }
+
+            removeIncludedPrivileges(privileges, groups);
+
+            for (Group group : groups.values()) {
+                authorities.add(group);
             }
         }
 
-        removeIncludedPrivileges(privileges, groups);
-
-        Collection<Privilege> authorities = new ArrayList<Privilege>();
-        for (Group group : groups.values()) {
-            authorities.add(group);
-        }
         for (String privilegeName : privileges) {
             authorities.add(DefaultPrivileges.valueOf(privilegeName));
         }
