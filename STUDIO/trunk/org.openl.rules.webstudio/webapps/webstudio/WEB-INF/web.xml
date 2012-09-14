@@ -22,7 +22,7 @@
   <context-param>
     <description>User mode ('single', 'multi' or 'sso')</description>
     <param-name>user.mode</param-name>
-    <param-value>multi</param-value>
+    <param-value>single</param-value>
   </context-param>
 
   <context-param>

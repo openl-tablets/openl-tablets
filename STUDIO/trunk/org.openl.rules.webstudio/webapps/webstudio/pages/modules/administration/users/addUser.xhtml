@@ -14,10 +14,10 @@
 
         <f:facet name="controls">
             <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
-            onclick="RichFaces.$('modalAddUser').hide()" alt="Close" />
+                onclick="hideAddUser()" alt="Close" />
         </f:facet>
 
-        <h:form>
+        <h:form id="addUserForm">
             <h:panelGrid columns="3" cellspacing="5">
                 <label class="required">Username</label>
                 <h:inputText id="username" value="#{usersBean.username}"
@@ -65,11 +65,19 @@
             <br />
 
             <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) RichFaces.$('modalAddUser').hide()"
-                render=":userList" styleClass="button-primary" type="reset" />
-            <input type="reset" value="Cancel" onclick="RichFaces.$('modalAddUser').hide()" />
+                oncomplete="if(!event.data) hideAddUser()" render=":userList" styleClass="button-primary" />
+            <input type="button" value="Cancel" onclick="hideAddUser()" />
         </h:form>
 
     </rich:popupPanel>
+
+    <script>
+        function hideAddUser() {
+            RichFaces.$("modalAddUser").hide();
+
+            // Reset form
+            $j("#addUserForm")[0].reset();
+        }
+    </script>
 
 </ui:composition>

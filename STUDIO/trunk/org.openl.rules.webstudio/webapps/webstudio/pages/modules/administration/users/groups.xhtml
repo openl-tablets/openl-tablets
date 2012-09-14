@@ -5,43 +5,13 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:a4j="http://richfaces.org/a4j">
 
-    <style>
-        .subheader {
-            color: #EE8811;
-            font: normal 110% Verdana;
-        }
-    </style>
-
-    <h:form>
+    <h:form id="groupsForm">
     <table class="table table-striped">
         <tr>
             <th>Name</th>
             <th>Description</th>
             <th>Privileges</th>
             <th></th>
-        </tr>
-        <tr>
-            <th colspan="4" class="subheader">Predefined groups</th>
-        </tr>
-        <ui:repeat value="#{groupsBean.predefinedGroups}" var="group">
-        <tr>
-            <td>#{group.name}</td>
-            <td>#{group.description}</td>
-            <td>
-                <ui:repeat var="authority" value="#{group.privileges}">
-                <h:panelGroup class="badge" style="margin-right: 2px"
-                    rendered="#{authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
-                <h:panelGroup class="badge badge-info" style="margin-right: 2px"
-                    rendered="#{!authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
-                <h:panelGroup class="badge badge-error" style="margin-right: 2px"
-                    rendered="#{authority.name == 'PRIVILEGE_ALL'}">#{authority.displayName}</h:panelGroup>
-                </ui:repeat>
-            </td>
-            <td></td>
-        </tr>
-        </ui:repeat>
-        <tr>
-            <th colspan="4" class="subheader">Custom groups</th>
         </tr>
         <ui:repeat value="#{groupsBean.groups}" var="group">
         <tr>
@@ -74,6 +44,8 @@
     <br />
     <br />
 
-    <a4j:commandLink value="Add New Group" />
+    <a href="#" onclick="RichFaces.$('modalAddGroup').show()">Add New Group</a>
+
+    <ui:include src="/pages/modules/administration/users/addGroup.xhtml" />
 
 </ui:composition>
