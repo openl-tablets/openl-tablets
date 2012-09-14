@@ -36,7 +36,7 @@
         <rich:treeNode type="collection">#{node.treeText}</rich:treeNode>
         <rich:treeNode type="unmodifiable">#{node.treeText}</rich:treeNode>
         <rich:treeNode type="spreadsheet" styleClass="spreadsheet">
-            <h:outputText escape="false" value="#{node.treeText}"/>
+            <h:outputText escape="false" value="#{parameterTreeBuilder.formattedResult(node.value)}"/>
         </rich:treeNode>
     </rich:tree>
 
