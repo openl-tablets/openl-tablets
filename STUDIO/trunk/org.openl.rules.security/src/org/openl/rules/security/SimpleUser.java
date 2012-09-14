@@ -86,6 +86,23 @@ public class SimpleUser implements User {
     }
 
     @Override
+    public boolean hasPrivilege(String privilege) {
+        for (Privilege auth : privileges) {
+            if (auth.getName().equals(privilege)) {
+                return true;
+            }
+
+            if (auth instanceof Group) {
+                if (((Group) auth).hasPrivilege(privilege)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public String toString() {
         return getUsername();
     }
