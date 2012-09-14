@@ -44,9 +44,15 @@ public class DependencyController {
         if ((parts.length == 0) || (parts.length > 3)) {
             return null;
         }
-
+        
+        int rev = 0;
         try {
-            int rev = (parts.length < 3) ? 0 : Integer.parseInt(parts[2]);
+            if (parts.length == 1) {
+                rev = Integer.parseInt(parts[0]);
+            } else {
+                rev = (parts.length < 3) ? 0 : Integer.parseInt(parts[2]);
+            }
+            
             if (rev < 0) {
                 return null;
             }
