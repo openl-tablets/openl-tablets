@@ -229,7 +229,7 @@ fieldset {
     padding: 4px 7px;
 }
 
-.table-striped tr:nth-child(2n+1) td {
+.table-striped tbody tr:nth-child(2n+1) td {
     background: #fafafa;
 }
 
@@ -275,7 +275,7 @@ fieldset {
     margin: 0;
     padding: 0;
     text-align: center;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 .tab-panel-vertical ul li:hover {
