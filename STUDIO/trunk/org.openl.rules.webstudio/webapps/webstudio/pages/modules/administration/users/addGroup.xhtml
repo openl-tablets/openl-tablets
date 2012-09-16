@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalAddGroup" autosized="true" width="700">
+    <rich:popupPanel id="modalAddGroup" autosized="true" width="630">
         <f:facet name="header">
             <h:outputText value="Add New Group" />
         </f:facet>
@@ -30,6 +30,7 @@
         </f:facet>
 
         <h:form id="addGroupForm">
+            <div style="max-height: 570px; overflow: auto;">
             <table cellspacing="5">
                 <tr>
                     <td>
@@ -84,6 +85,7 @@
                 </tr>
                 </ui:repeat>
             </table>
+            </div>
 
             <br />
             <br />
