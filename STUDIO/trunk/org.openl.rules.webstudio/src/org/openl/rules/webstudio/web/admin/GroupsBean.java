@@ -17,6 +17,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.security.DefaultPrivileges;
@@ -67,7 +68,9 @@ public class GroupsBean {
     }
 
     public Privilege[] getDefaultPrivileges() {
-        return DefaultPrivileges.values();
+        Privilege[] privileges = DefaultPrivileges.values();
+        return (Privilege[]) ArrayUtils.removeElement(
+                privileges, DefaultPrivileges.PRIVILEGE_ALL);
     }
 
     public List<String> getPrivileges(String groupName) {
@@ -95,31 +98,38 @@ public class GroupsBean {
                 FacesUtils.getRequest().getParameterValues("privilege")));
         privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
 
-        Map<String, Group> groups = new java.util.HashMap<String, Group>();
-        String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
-        if (groupNames != null) {
-            for (String groupName : groupNames) {
-                groups.put(groupName, groupManagementService.getGroupByName(groupName));
-            }
+        // Admin
+        if (privileges.size() == DefaultPrivileges.values().length - 1) {
+            authorities.add(DefaultPrivileges.PRIVILEGE_ALL);
 
-            for (Group group : new ArrayList<Group>(groups.values())) {
-                if (!groups.isEmpty()) {
-                    removeIncludedGroups(group, groups);
+        } else {
+            Map<String, Group> groups = new java.util.HashMap<String, Group>();
+            String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
+            if (groupNames != null) {
+                for (String groupName : groupNames) {
+                    groups.put(groupName, groupManagementService.getGroupByName(groupName));
+                }
+
+                for (Group group : new ArrayList<Group>(groups.values())) {
+                    if (!groups.isEmpty()) {
+                        removeIncludedGroups(group, groups);
+                    }
+                }
+
+                removeIncludedPrivileges(privileges, groups);
+
+                for (Group group : groups.values()) {
+                    authorities.add(group);
                 }
             }
 
-            removeIncludedPrivileges(privileges, groups);
-
-            for (Group group : groups.values()) {
-                authorities.add(group);
+            for (String privilegeName : privileges) {
+                authorities.add(DefaultPrivileges.valueOf(privilegeName));
             }
         }
 
-        for (String privilegeName : privileges) {
-            authorities.add(DefaultPrivileges.valueOf(privilegeName));
-        }
-
-        groupManagementService.addGroup(new SimpleGroup(name, description, authorities));
+        groupManagementService.addGroup(
+                new SimpleGroup(name, description, authorities));
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
