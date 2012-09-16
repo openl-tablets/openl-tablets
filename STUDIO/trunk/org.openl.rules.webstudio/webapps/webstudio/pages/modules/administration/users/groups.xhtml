@@ -28,7 +28,8 @@
                 </ui:repeat>
             </td>
             <td>
-                <a4j:commandLink execute="@this" render="@form" rendered="#{!groupsBean.isOnlyAdmin(group)}"
+                <a4j:commandLink execute="@this" render="@form :addGroupForm"
+                    rendered="#{!groupsBean.isOnlyAdmin(group)}"
                     action="#{groupsBean.deleteGroup(group.name)}"
                     onclick="if(!window.confirm('Are you sure you want to delete the group?')) {return false;}"
                     title="Delete">

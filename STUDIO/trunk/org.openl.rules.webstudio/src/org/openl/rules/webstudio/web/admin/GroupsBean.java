@@ -23,7 +23,6 @@ import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
-import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 
 /**
@@ -94,6 +93,7 @@ public class GroupsBean {
 
         List<String> privileges = new ArrayList<String>(Arrays.asList(
                 FacesUtils.getRequest().getParameterValues("privilege")));
+        privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
 
         Map<String, Group> groups = new java.util.HashMap<String, Group>();
         String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
