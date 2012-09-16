@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalAddGroup" autosized="true" width="630">
+    <rich:popupPanel id="modalAddGroup" autosized="true" width="600">
         <f:facet name="header">
             <h:outputText value="Add New Group" />
         </f:facet>
@@ -79,7 +79,7 @@
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <td style="text-align: center">
                         <h:graphicImage value="webresource/images/ok.png"
-                            rendered="#{group.hasPrivilege(privilege.name)}" />
+                            rendered="#{group.hasPrivilege(privilege.name) or group.hasPrivilege('PRIVILEGE_ALL')}" />
                      </td>
                     </ui:repeat>
                 </tr>
@@ -94,18 +94,21 @@
                 oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm @form"
                 styleClass="button-primary" />
             <input type="button" value="Cancel" onclick="hideAddGroup()" />
+
+            <script>
+                var groups = {};
+
+                <c:forEach items="#{groupsBean.groups}" var="group">
+                groups["#{group.name}"] = [<c:forEach items="#{groupsBean.getPrivileges(group.name)}" var="p">'#{p}',</c:forEach>];
+                </c:forEach>
+            </script>
+
         </h:form>
 
     </rich:popupPanel>
 
     <script>
-        var groups = {};
-
-        <c:forEach items="#{groupsBean.groups}" var="group">
-        groups["#{group.name}"] = [<c:forEach items="#{groupsBean.getPrivileges(group.name)}" var="p">'#{p}',</c:forEach>];
-        </c:forEach>
-
-        $j("#privilegesTable :checkbox").change(function(e) {
+        $j("#privilegesTable td :checkbox").change(function(e) {
             checkPrivilege($j(e.target), this.checked);
             checkGroups();
         });
@@ -139,19 +142,42 @@
             var groupPrivileges = groups[groupName];
             var oneNotEmpty = false;
 
-            for (var i = 0; i &lt; groupPrivileges.length; i++) {
-                var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
-                if (!jElem.attr("checked")) {
-                    oneNotEmpty = true;
-                    break;
+            var privilegeAdmin = groupPrivileges.length > 0 &amp;&amp; groupPrivileges[0] == "PRIVILEGE_ALL";
+
+            if (privilegeAdmin) {
+                $j("#privilegesTable td :checkbox").each(function() {
+                    if (!this.disabled) {
+                        if (!this.checked) {
+                            oneNotEmpty = true;
+                        }
+                    }
+                });
+
+            } else {
+                for (var i = 0; i &lt; groupPrivileges.length; i++) {
+                    var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
+                    if (!jElem.attr("checked")) {
+                        oneNotEmpty = true;
+                        break;
+                    }
                 }
             }
 
-            for (var i = 0; i &lt; groupPrivileges.length; i++) {
-                var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
-                if (!jElem.is(":disabled")) {
-                    jElem.attr("checked", oneNotEmpty);
-                    checkPrivilege(jElem, oneNotEmpty);
+            if (privilegeAdmin) {
+                $j("#privilegesTable td :checkbox").each(function() {
+                    if (!this.disabled) {
+                        this.checked = oneNotEmpty;
+                        checkPrivilege($j(this), oneNotEmpty);
+                    }
+                });
+
+            } else {
+                for (var i = 0; i &lt; groupPrivileges.length; i++) {
+                    var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
+                    if (!jElem.is(":disabled")) {
+                        jElem.attr("checked", oneNotEmpty);
+                        checkPrivilege(jElem, oneNotEmpty);
+                    }
                 }
             }
 
@@ -163,7 +189,7 @@
 
             // Reset form
             $j("#addGroupForm")[0].reset();
-            $j("#privilegesTable :checkbox").each(function() {
+            $j("#privilegesTable td :checkbox").each(function() {
                 if (!this.disabled) {
                     checkPrivilege($j(this), false);
                 }
