@@ -8,7 +8,7 @@ import org.openl.rules.webstudio.web.repository.DependencyController;
 public class DependencyControllerTestCase extends TestCase {
     public void testVersionFromString() {
         String[] examples = { "1", "1.", "0.4", "0.4.", "2.1.2", "2.1.4.", "21.22.123" };
-        int[][] expected = { { 1, 0, 0 }, { 1, 0, 0 }, { 0, 4, 0 }, { 0, 4, 0 }, { 2, 1, 2 }, { 2, 1, 4 },
+        int[][] expected = { { 0, 0, 1 }, { 0, 0, 1 }, { 0, 4, 0 }, { 0, 4, 0 }, { 2, 1, 2 }, { 2, 1, 4 },
                 { 21, 22, 123 } };
 
         for (int i = 0; i < examples.length; i++) {
