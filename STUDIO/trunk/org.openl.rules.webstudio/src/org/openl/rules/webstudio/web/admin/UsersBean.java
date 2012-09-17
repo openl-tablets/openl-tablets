@@ -17,6 +17,7 @@ import javax.validation.constraints.Size;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
@@ -51,6 +52,7 @@ public class UsersBean {
     @NotBlank(message="Can not be empty")
     private String confirmPassword;
 
+    @NotEmpty(message="Please select at least one group")
     private List<String> groups;
 
     @ManagedProperty(value="#{userManagementService}")
