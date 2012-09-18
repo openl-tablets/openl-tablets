@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
@@ -68,7 +69,10 @@ public class TreeFolder extends AbstractTreeNode {
                 Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
                 for (AProjectArtefact artefact : folder.getArtefacts()) {
                     if (!(filter.supports(artefact.getClass()) && !filter.select(artefact))) {
-                        filteredArtefacts.add(artefact);
+                        /*FIX ME*/
+                        if (!artefact.getName().equals(ArtefactProperties.DEPENDENCIES_FILE)) {
+                            filteredArtefacts.add(artefact);
+                        }
                     }
                 }
 
