@@ -773,8 +773,6 @@ public class RepositoryTreeController {
 
     public String openProjectVersion() {
         try {
-            repositoryTreeState.setDefaultSelectTab();
-            
             repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();

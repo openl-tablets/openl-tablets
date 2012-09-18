@@ -8,7 +8,7 @@
 
   <c:set var="availableProjects" value="#{deploymentController.projects}" />
 
-  <rich:popupPanel id="addDeployEntry" autosized="true">
+  <rich:popupPanel id="addDeployEntry" autosized="true" style="max-height:420px;">
     <f:facet name="header">
         <h:outputText value="Add project" />
     </f:facet>
@@ -16,15 +16,16 @@
             <h:graphicImage value="/images/modal/close.png" style="cursor:pointer" onclick="RichFaces.$('addDeployEntry').hide();" alt="Close" />
         </f:facet>
     <h:form id="addDeployEntryForm">
-        <h:panelGrid styleClass="formfields" columnClasses="label," rendered="#{not empty availableProjects}">
+        <h:panelGrid columns="2" styleClass="formfields" rendered="#{not empty availableProjects}">
             <h:outputLabel for="projectName" styleClass="required" value="Name" />
             <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
                 <f:selectItems value="#{deploymentController.projects}" />
                 <f:ajax event="change" render="projectVersion" execute="@this" />
             </h:selectOneMenu>
-
+        </h:panelGrid>
+        <h:panelGrid styleClass="formfields" columnClasses="label," rendered="#{not empty availableProjects}" >
             <rich:dataTable id="projectVersion" value="#{deploymentController.projectVersions}" var="version" styleClass="table table-striped"
-			    columnClasses="padding">
+			    columnClasses="padding" style="min-width : 300px; max-height:200px;  overflow:auto;">
 			    <f:facet name="header">
 			      <rich:columnGroup>
 			        <rich:column>
