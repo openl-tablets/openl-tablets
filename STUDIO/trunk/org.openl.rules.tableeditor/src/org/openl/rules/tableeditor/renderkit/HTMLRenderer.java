@@ -90,10 +90,18 @@ public class HTMLRenderer {
 
         String mode = editor.getMode();
 
-        if (Constants.MODE_EDIT.equals(mode)) {
-            result.append(renderEditor(editor, errorCell));
-        } else {
-            result.append(renderViewer(editor, actionLinks, errorCell));
+        String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId()
+           // Name of js variable can't contain ':' symbol
+          .replaceAll(":", "_");
+
+        result.append(renderEditorToolbar(editor.getId(), editorJsVar, mode))
+            .append(renderJS("js/colorPicker.js"))
+            .append(renderJS("js/popup.js"));
+        result.append("<div id='" + editor.getId() + Constants.TABLE_EDITOR_WRAPPER_PREFIX + "' class='te_editor_wrapper'></div>");
+
+        if (editor.getTable() != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
+            String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
+            result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
         }
 
         result.append("</div>");
@@ -118,10 +126,6 @@ public class HTMLRenderer {
                     result.append(tableRenderer.render(null, editor.isShowFormulas(), null, editor.getId()));
                 }
                 result.append("</div>");
-
-                String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId()
-                        // name of js variable can't contain ':' symbol
-                        .replaceAll(":", "_");
 
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
                 String afterSave = getEditorJSAction(editor.getOnAfterSave());
@@ -238,30 +242,17 @@ public class HTMLRenderer {
         return jsCode;
     }
 
-    public String renderEditor(TableEditor editor, String errorCell) {
-        StringBuilder result = new StringBuilder();
-
-        String editorJsVar = Constants.TABLE_EDITOR_PREFIX + editor.getId();
-
-        result.append(renderEditorToolbar(editor.getId(), editorJsVar))
-            .append(renderJS("js/colorPicker.js"))
-            .append(renderJS("js/popup.js"));
-        result.append("<div id='" + editor.getId() + Constants.TABLE_EDITOR_WRAPPER_PREFIX + "' class='te_editor_wrapper'></div>");
-
-        return result.toString();
-    }
-
     protected String getEditorJSAction(String action) {
         return StringUtils.isBlank(action) ? "''" : "function(data) {" + action + "}";
     }
 
-    protected String renderEditorToolbar(String editorId, String editorJsVar) {
+    protected String renderEditorToolbar(String editorId, String editorJsVar, String mode) {
         StringBuilder result = new StringBuilder();
 
         final String toolbarItemSeparator = "<img src=" + WebUtil.internalPath("img/toolbarSeparator.gif")
                 + " class=\"item_separator\"></img>";
 
-        result.append("<div class=\"te_toolbar\">")
+        result.append("<div style=\"" + (mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "") + "\" class=\"te_toolbar\">")
             .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save"))
             .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo"))
             .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo"))
@@ -353,15 +344,6 @@ public class HTMLRenderer {
             return result.toString();
         }
         return "";
-    }
-
-    protected String renderViewer(TableEditor editor, List<ActionLink> actionLinks, String errorCell) {
-        StringBuilder result = new StringBuilder();
-        if (editor.getTable() != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
-            String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
-            result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
-        }
-        return result.toString();
     }
 
     /**
