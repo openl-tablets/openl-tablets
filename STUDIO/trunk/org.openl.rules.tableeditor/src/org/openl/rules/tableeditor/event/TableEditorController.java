@@ -21,8 +21,6 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
@@ -45,18 +43,6 @@ public class TableEditorController extends BaseTableEditorController {
     private static final String ERROR_INSERT_COLUMN = "Can not insert column.";
     private static final String ERROR_OPENED_EXCEL = ERROR_SAVE_TABLE
         + " Please close module Excel file and try again.";
-
-    public String edit() {
-        String editorId = getEditorId();
-        String errorCell = getRequestParam(Constants.REQUEST_PARAM_ERROR_CELL);
-        TableEditorModel editorModel = getEditorModel(editorId);
-        TableEditor editor = editorModel.getTableEditor();
-        if (editor.isEditable()) {
-            editor.setMode("edit");
-            return new HTMLRenderer().renderEditor(editor, errorCell);
-        }
-        return StringUtils.EMPTY;
-    }
 
     public String insertRowBefore() {
         int row = getRow();
