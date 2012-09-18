@@ -1,13 +1,11 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import java.io.File;
 import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.config.ClassPathConfigLocator;
@@ -27,12 +25,9 @@ public class StartupListener implements ServletContextListener {
 
     private final Log log = LogFactory.getLog(StartupListener.class);
 
-    private static final String PROPERTY_TYPE_FILE = "0";
-    private static final String PROPERTY_TYPE_STRING = "1";
-
-    private static final String[][] SYSTEM_PROPERTIES = new String[][] {
-        { "webstudio.home", PROPERTY_TYPE_FILE },
-        { "user.mode",  PROPERTY_TYPE_STRING }
+    private static final String[] SYSTEM_PROPERTIES = new String[] {
+        "webstudio.home",
+        "user.mode"
     };
 
     private class WebConfigLocator extends ConfigLocator {
@@ -81,23 +76,13 @@ public class StartupListener implements ServletContextListener {
 
     private void initSystemProperties(ServletContext context) {
         for (int i = 0; i < SYSTEM_PROPERTIES.length; i++) {
-            String propertyName  = SYSTEM_PROPERTIES[i][0];
-            String propertyType = SYSTEM_PROPERTIES[i][1];
+            String propertyName  = SYSTEM_PROPERTIES[i];
             String propertyValue = System.getProperty(propertyName);
 
             if (propertyValue == null) {
                 // Set default value
                 propertyValue = context.getInitParameter(propertyName);
                 System.setProperty(propertyName, propertyValue);
-            }
-
-            if (propertyType.equals(PROPERTY_TYPE_FILE)) {
-                File propertyFile = new File(
-                        StringUtils.defaultString(propertyValue));
-                if (!propertyFile.exists()) {
-                    log.fatal("You did not set up correctly " + propertyName + " variable: " + propertyValue);
-                    return;
-                }
             }
 
             log.info(propertyName + ": " + propertyValue);
