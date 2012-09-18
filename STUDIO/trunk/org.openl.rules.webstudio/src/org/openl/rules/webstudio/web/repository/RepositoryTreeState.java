@@ -60,9 +60,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
-    
-    private String selectedTab = DEFAULT_TAB;
-
 
     public Boolean adviseNodeSelected(UITree uiTree) {
         /*TreeNode node = (TreeNode) uiTree.getTreeNode();
@@ -265,8 +262,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void processSelection(TreeSelectionChangeEvent event) {
-        setDefaultSelectTab();
-        
         List<Object> selection = new ArrayList<Object>(event.getNewSelection());
         
         /*If there are no selected nodes*/
@@ -482,24 +477,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public boolean getCanDeploy() {
         return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
-    
-    public String getSelectedTab() {
-        return selectedTab;
-    }
 
-    public void setSelectedTab(String selectedTab) {
-        this.selectedTab = selectedTab;
+    public String getDefSelectTab() {
+        return this.DEFAULT_TAB;
     }
-    
-    public void setDefaultSelectTab() {
-        this.selectedTab = this.DEFAULT_TAB;
-    }
-    
-     public String getDefSelectTab() {
-         return this.DEFAULT_TAB;
-     }
      
-     public boolean isLocalOnly() {
-         return getSelectedProject().isLocalOnly();
-     }
+    public boolean isLocalOnly() {
+        return getSelectedProject().isLocalOnly();
+    }
 }
