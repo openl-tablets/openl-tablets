@@ -127,16 +127,41 @@ public class HTMLRenderer {
                 String afterSave = getEditorJSAction(editor.getOnAfterSave());
                 String error = getEditorJSAction(editor.getOnError());
 
+                String relativeCellToEdit = getRelativeCellToEdit(cellToEdit, table, tableModel);
+                
                 String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + "}";
 
                 result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
-                        + WebUtil.internalPath("ajax/") + "\",\"" + cellToEdit + "\"," + actions + ","
+                        + WebUtil.internalPath("ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + ","
                         + (Constants.MODE_EDIT.equals(mode) ? 1 : 0) + "," + editor.isEditable() + ");"));
             }
         }
 
         result.append("</div>");
         return result.toString();
+    }
+
+    private String getRelativeCellToEdit(String absoluteCellToEdit, IGridTable table, TableModel tableModel) {
+        if (absoluteCellToEdit == null) {
+            return null;
+        }
+
+        for (int row = 0; row < tableModel.getCells().length; row++) {
+            for (int col = 0; col < tableModel.getCells()[row].length; col++) {
+
+                ICellModel cell = tableModel.getCells()[row][col];
+                if (cell == null || !cell.isReal()) {
+                    continue;
+                }
+
+                String cellUri = table.getCell(col, row).getUri();
+                if (cellUri.equals(absoluteCellToEdit)) {
+                    return String.format("%d:%d", row + 1, col + 1);
+                }
+            }
+        }
+
+        return absoluteCellToEdit;
     }
 
     protected String renderActionMenu(String menuId, boolean editable, List<ActionLink> actionLinks) {
