@@ -15,6 +15,7 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
+import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
 
 import com.google.common.collect.Iterators;
 
@@ -348,7 +349,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
     
     /*dimension props information*/
-    public List<TableProperty> getDimensionProps() {
+    public List<PropertyRow> getDimensionProps() {
         return RepositoryProjectPropsBean.getProjectPropsToolTip(this.getData());
     }
 

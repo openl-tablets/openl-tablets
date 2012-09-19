@@ -34,7 +34,8 @@
 	            <h:outputText value="#{item.name}"/>
 		        <h:outputText value="  [#{item.comments}]" rendered="#{not empty item.comments}"/>
 	            <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
-	                <a4j:repeat value="#{item.dimensionProps}" var="prop">
+	                <a4j:repeat value="#{item.dimensionProps}" var="row">
+	                    <ui:param name="prop" value="#{row.data}" />
 	                    <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
 	                </a4j:repeat>
 	            </rich:tooltip>
@@ -44,7 +45,8 @@
             <a4j:outputPanel>
 	            <h:outputText value="#{item.name}" />
 	            <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
-	                <a4j:repeat value="#{item.dimensionProps}" var="prop">
+	                <a4j:repeat value="#{item.dimensionProps}" var="row">
+	                    <ui:param name="prop" value="#{row.data}" />
 	                    <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
 	                </a4j:repeat>
 	            </rich:tooltip>
@@ -54,7 +56,8 @@
             <a4j:outputPanel>
 	            <h:outputText value="#{item.name}" />
 	            <rich:tooltip showDelay="500" rendered="#{not empty item.dimensionProps}">
-	                <a4j:repeat value="#{item.dimensionProps}" var="prop">
+	                <a4j:repeat value="#{item.dimensionProps}" var="row">
+	                    <ui:param name="prop" value="#{row.data}" />
 	                    <h:outputText value="#{prop.displayName} : #{prop.displayValue}" style="#{prop.inheritedProperty ? 'font-weight:bold' : '' }"/><br/>
 	                </a4j:repeat>
 	            </rich:tooltip>

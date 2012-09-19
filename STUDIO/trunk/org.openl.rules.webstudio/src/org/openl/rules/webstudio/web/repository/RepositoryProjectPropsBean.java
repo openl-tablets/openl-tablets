@@ -11,6 +11,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -24,28 +25,40 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
+import org.openl.rules.webstudio.web.tableeditor.PropertyRowType;
 
 @ManagedBean
 @ViewScoped
 public class RepositoryProjectPropsBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+    
+    private final static String DBP_GROUP_NAME = "Business Dimension Properties";
+    private final static String OTHER_PROP_GROUP_NAME = "Properties";
 
     private final Log log = LogFactory.getLog(RepositoryProjectPropsBean.class);
     private List<TablePropertyDefinition> bussinedDimensionProps;
     private String propertyToAdd;
-    private List<TableProperty> propsStore;
+    private List<PropertyRow> propsStore;
     private String storeProjName;
     private String storeProjVersion;
+    private Map<String, String> attribs;
+    private RepositoryAttributeUtils repoAttrsUtils;
 
     public RepositoryProjectPropsBean() {
         bussinedDimensionProps = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+
+        RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
+        attribs = rap.getProps();
 
         if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null
                 && storeProjName == null) {
             storeProjName = repositoryTreeState.getSelectedNode().getData().getName();
             storeProjVersion = repositoryTreeState.getSelectedNode().getData().getVersion().getVersionName();
         }
+        
+        repoAttrsUtils = new RepositoryAttributeUtils();
     }
 
     /**
@@ -126,21 +139,48 @@ public class RepositoryProjectPropsBean {
 
     public List<SelectItem> getPropsForSelect() {
         List<SelectItem> props = new ArrayList<SelectItem>();
-
+        
+        //Set bussines dimension 
         for (TablePropertyDefinition prop : getBussinedDimensionProps()) {
             boolean presents = false;
 
-            for (TableProperty tp : propsStore) {
-                if (tp.getName().equals(prop.getName())) {
-                    presents = true;
+            for (PropertyRow row : propsStore) {
+                if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                    TableProperty tp = (TableProperty) row.getData();
+                    
+                    if (tp.getName().equals(prop.getName())) {
+                        presents = true;
+                    }
                 }
             }
-
+            
             if (!presents) {
                 props.add(new SelectItem(prop.getName(), prop.getDisplayName()));
             }
         }
-
+        
+        //set attribs
+        RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
+        Map<String, String> attribs = rap.getProps();
+        
+        for (String key : attribs.keySet()) {
+            boolean presents = false;
+            
+            for (PropertyRow row : propsStore) {
+                if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                    TableProperty tp = (TableProperty) row.getData();
+                    
+                    if (tp.getName().equals(key)) {
+                        presents = true;
+                    }
+                }
+            }
+            
+            if (!presents) {
+                props.add(new SelectItem(key, attribs.get(key)));
+            }
+        }
+        
         return props;
     }
 
@@ -153,9 +193,22 @@ public class RepositoryProjectPropsBean {
     }
 
     public void addNew() {
-        TableProperty selectProp = getEmptyPropByName(propertyToAdd);
+        if (attribs.containsKey(propertyToAdd)) { 
+            if (propsStore.isEmpty()) {
+                //add other props group header
+                propsStore.add(new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
+            }
+
+        }
+        
+        PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
 
         if (selectProp != null) {
+            if (propsStore.isEmpty()) {
+                //add other props group header
+                propsStore.add(new PropertyRow(PropertyRowType.GROUP, DBP_GROUP_NAME));
+            }
+            
             propsStore.add(selectProp);
 
             //setProperty(selectProp.getName(),null);
@@ -166,7 +219,7 @@ public class RepositoryProjectPropsBean {
         this.repositoryTreeState = repositoryTreeState;
     }
 
-    public List<TableProperty> getPropsStore() {
+    public List<PropertyRow> getPropsStore() {
         /*
          * propsStore = initSettedProps(); return propsStore;
          */
@@ -206,56 +259,68 @@ public class RepositoryProjectPropsBean {
         return false;
     }
 
-    public void setPropsStore(List<TableProperty> propsStore) {
+    public void setPropsStore(List<PropertyRow> propsStore) {
         this.propsStore = propsStore;
     }
 
-    public List<TableProperty> initSettedProps() {
+    public List<PropertyRow> initSettedProps() {
         Map<String, InheritedProperty> inheritedProp = getInheritedProps();
         Map<String, Object> settedPropsList = getProps();
         
-        return makeTableProps(inheritedProp, settedPropsList);
+        return makeTableProps(inheritedProp, settedPropsList, false);
     }
 
-    private TableProperty getEmptyPropByName(String propertyToAdd) {
+    private PropertyRow getEmptyPropByName(String propertyToAdd) {
         for (TablePropertyDefinition tpd : bussinedDimensionProps) {
             if (tpd.getName().equals(propertyToAdd)) {
-                return new TableProperty(tpd);
+                TableProperty tp = new TableProperty(tpd);
+                
+                return new PropertyRow(PropertyRowType.PROPERTY,tp);
             }
+        }
+
+        if (!StringUtils.isBlank(propertyToAdd) && attribs.containsKey(propertyToAdd)) {
+            return repoAttrsUtils.getPropertyRowByAttrName(propertyToAdd);
         }
 
         return null;
     }
 
     public void remove(TableProperty selectTProp) {
-        for (TableProperty tProp : propsStore) {
-            if (tProp.getName().equals(selectTProp.getName())) {
-                propsStore.remove(tProp);
-
-                removeProperty(selectTProp.getName());
-                refresh();
-                return;
+        for (PropertyRow row : propsStore) {
+            if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                TableProperty tProp = (TableProperty) row.getData();
+                if (tProp.getName().equals(selectTProp.getName())) {
+                    propsStore.remove(row);
+    
+                    removeProperty(selectTProp.getName());
+                    refresh();
+                    return;
+                }
             }
         }
     }
 
     public void save(TableProperty selectTProp) {
-        for (TableProperty tProp : propsStore) {
-            if (tProp.getName().equals(selectTProp.getName())) {
-                tProp.setValue(selectTProp.getDisplayValue());
-
-                setProperty(selectTProp.getName(), selectTProp.getDisplayValue());
-                refresh();
-                return;
+        for (PropertyRow row : propsStore) {
+            if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                TableProperty tProp = (TableProperty) row.getData();
+                if (tProp.getName().equals(selectTProp.getName())) {
+                    tProp.setValue(selectTProp.getDisplayValue());
+    
+                    setProperty(selectTProp.getName(), selectTProp.getDisplayValue());
+                    refresh();
+                    return;
+                }
             }
         }
     }
 
-    public static List<TableProperty> getProjectPropsToolTip(RulesRepositoryArtefact dataBean) {
+    public static List<PropertyRow> getProjectPropsToolTip(RulesRepositoryArtefact dataBean) {
         Map<String, InheritedProperty> inheritedProp = dataBean.getInheritedProps();
         Map<String, Object> settedPropsList = dataBean.getProps();
        
-        return makeTableProps(inheritedProp, settedPropsList);
+        return makeTableProps(inheritedProp, settedPropsList, true);
     }
 
     public static List<TableProperty> getVersionPropToolTip(java.util.Map objList) {
@@ -310,23 +375,37 @@ public class RepositoryProjectPropsBean {
 
         return new HashMap<String, InheritedProperty>();
     }
-
-    private static List<TableProperty> makeTableProps(Map<String, InheritedProperty> inheritedProp, Map<String, Object> settedPropsList) {
-        List<TableProperty> propsStore = new ArrayList<TableProperty>();
-        List<TablePropertyDefinition> bussinedDimensionProps = TablePropertyDefinitionUtils
+    
+    private static PropertyRow addGroupHeaderRow(String headerText) {
+        return new PropertyRow(PropertyRowType.GROUP, headerText);
+    }
+    
+    private static List<PropertyRow> makeTableProps(Map<String, InheritedProperty> inheritedProp, Map<String, Object> settedPropsList, boolean onlyBDProps) {
+        List<PropertyRow> propsStore = new ArrayList<PropertyRow>();
+        List<TablePropertyDefinition> bussinesDimensionProps = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
 
+        RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
+        Map<String, String> customAttrs = rap.getProps();
+
         /*Add inherited Props*/
+        boolean firstBDRow = true;
+        
         if (settedPropsList != null) {
-            for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
+            for (TablePropertyDefinition propDefinition : bussinesDimensionProps) {
                 if (inheritedProp.containsKey(propDefinition.getName())) {
                     if (!settedPropsList.containsKey(propDefinition.getName())) {
+                        if (firstBDRow && !onlyBDProps) {
+                            propsStore.add(addGroupHeaderRow(DBP_GROUP_NAME));
+                            firstBDRow = false;
+                        }
+                        
                         TableProperty prop = new TableProperty(propDefinition);
                         try {
                             InheritedProperty inhProp = inheritedProp.get(propDefinition.getName());
-    
+
                             prop.setValue(inhProp.getValue());
-    
+
                             if (inhProp.getTypeOfNode().equals(ArtefactType.FOLDER)) {
                                 prop.setInheritanceLevel(InheritanceLevel.FOLDER);
                             } else {
@@ -337,23 +416,55 @@ public class RepositoryProjectPropsBean {
                         } catch (Exception e) {
                             
                         }
-    
-                        propsStore.add(prop);
+                        
+                        PropertyRow row = new PropertyRow(PropertyRowType.PROPERTY, prop);
+                        propsStore.add(row);
                     }
                 }
             }
         }
-
-        if (bussinedDimensionProps != null && settedPropsList != null) {
-            for (TablePropertyDefinition propDefinition : bussinedDimensionProps) {
+        
+        /*Add bd project bd properties*/
+        if (bussinesDimensionProps != null && settedPropsList != null) {
+            for (TablePropertyDefinition propDefinition : bussinesDimensionProps) {
                 if (settedPropsList.containsKey(propDefinition.getName())) {
+                    if (firstBDRow && !onlyBDProps) {
+                        propsStore.add(addGroupHeaderRow(DBP_GROUP_NAME));
+                        firstBDRow = false;
+                    }
+                    
                     TableProperty prop = new TableProperty(propDefinition);
                     try {
                         prop.setValue(settedPropsList.get(propDefinition.getName()));
                     } catch (Exception e) {
                         
                     }
-                    propsStore.add(prop);
+                    
+                    PropertyRow row = new PropertyRow(PropertyRowType.PROPERTY, prop);
+                    propsStore.add(row);
+                }
+            }
+        }
+
+        if (!onlyBDProps) {
+            RepositoryAttributeUtils repoAttrsUtils = new RepositoryAttributeUtils();
+            boolean firstRow = true;
+            
+            for (String key : customAttrs.keySet()) {
+                if (settedPropsList.containsKey(key)) {
+                    if (firstRow && !onlyBDProps) {
+                        propsStore.add(addGroupHeaderRow(OTHER_PROP_GROUP_NAME));
+                        firstRow = false;
+                    }
+                    
+                    try {
+                        PropertyRow row = repoAttrsUtils.getPropertyRowByAttrName(key);
+                        ((TableProperty)row.getData()).setValue(settedPropsList.get(key));
+                        
+                        propsStore.add(row);
+                    } catch (Exception e) {
+                        
+                    }
                 }
             }
         }
