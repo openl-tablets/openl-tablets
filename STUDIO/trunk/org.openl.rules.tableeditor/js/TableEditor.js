@@ -240,11 +240,6 @@ var TableEditor = Class.create({
         }
         if (beforeSavePassed == false) return;
 
-        if (!Validation.isAllValidated()) { // Validation failed
-            self.error("There are validation errors.");
-            return;
-        }
-
         this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, function(data) {
             if (self.actions && self.actions.afterSave) {
                 self.actions.afterSave({"newUri": data.uri});

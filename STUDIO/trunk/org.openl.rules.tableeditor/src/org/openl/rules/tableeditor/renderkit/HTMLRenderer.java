@@ -202,8 +202,8 @@ public class HTMLRenderer {
         Set<String> resources = getResourcesWritten();
         if (resources.add(cssPath)) {
             StringBuilder result = new StringBuilder();
-            result.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(WebUtil.internalPath(cssPath))
-                    .append("\"></link>");
+            result
+                .append("<link rel=\"stylesheet\" href=\"").append(WebUtil.internalPath(cssPath)).append("\"></link>");
             return result.toString();
         }
         return "";
@@ -330,8 +330,7 @@ public class HTMLRenderer {
         Set<String> resources = getResourcesWritten();
         if (resources.add(jsPath)) {
             StringBuilder result = new StringBuilder();
-            result.append("<script type=\"text/javascript\" src=\"").append(WebUtil.internalPath(jsPath)).append(
-                    "\"></script>");
+            result.append("<script src=\"").append(WebUtil.internalPath(jsPath)).append("\"></script>");
             return result.toString();
         }
         return "";
@@ -341,7 +340,7 @@ public class HTMLRenderer {
         Set<String> resources = getResourcesWritten();
         if (resources.add(jsBody)) {
             StringBuilder result = new StringBuilder();
-            result.append("<script type=\"text/javascript\">").append(jsBody).append("</script>");
+            result.append("<script>").append(jsBody).append("</script>");
             return result.toString();
         }
         return "";
