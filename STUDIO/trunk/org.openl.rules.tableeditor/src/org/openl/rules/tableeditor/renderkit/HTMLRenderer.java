@@ -55,10 +55,10 @@ public class HTMLRenderer {
         StringBuilder result = new StringBuilder();
         result.append("<div>")
             .append(renderCSS("css/common.css"))
-            .append(renderCSS("css/menu.css"))
             .append(renderCSS("css/tooltip.css"));
+
         if (editor.isEditable()) {
-            result.append(renderCSS("css/toolbar.css"))
+            result
                 .append(renderCSS("css/datepicker.css"))
                 .append(renderCSS("css/multiselect.css"))
                 .append(renderCSS("css/colorPicker.css"))
@@ -71,6 +71,7 @@ public class HTMLRenderer {
             .append(renderJS("js/ScriptLoader.js"))
             .append(renderJS("js/TableEditor.js"))
             .append(renderJS("js/popup/popupmenu.js"));
+
             if (editor.isEditable()) {
                 result.append(renderJS("js/BaseEditor.js"))
                     .append(renderJS("js/BaseTextEditor.js"))
