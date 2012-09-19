@@ -58,17 +58,20 @@
     <ui:param name="propsFormName" value="#{prefix}PropsTableForm" />
     <ui:param name="panelFormName" value="#{prefix}RepoPropsPanel" />
     
-    <tr  class="propsGroupHeader">
-        <td style="vertical-align: bottom" colspan="2">
-	        <span class="propsGroupHeaderTxt label">
-	             <h:outputText value="Business Dimension Properties" rendered="#{!repositoryTreeState.localOnly}" />
-	        </span>
-        </td>
-    </tr>
-    
-    <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="prop">
+    <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="row">
+        <ui:param name="prop" value="#{row.data}" />
         
-        <h:panelGroup>
+        <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
+            <tr class="propsGroupHeader">
+		        <td style="vertical-align: bottom" colspan="2">
+		            <span class="propsGroupHeaderTxt label">
+		                 <h:outputText value="#{prop}"/>
+		            </span>
+		        </td>
+		    </tr>
+		</h:panelGroup>
+        
+        <h:panelGroup rendered="#{row.type.name() == 'PROPERTY'}">
         <ui:param name="added" value="#{empty prop.value}" />
         <ui:param name="pref" value="#{prop.name}" />
 
