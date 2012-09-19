@@ -8,6 +8,7 @@
 
     <import resource="/security/security-multi.xml" />
     <import resource="/security/security-single.xml" />
+    <import resource="/security/security-sso-import.xml" />
 
     <bean id="openlAutoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
         <property name="interceptorNames">
