@@ -35,6 +35,14 @@
 
   <context-param>
     <description>
+      Config param for which ApplicationContextInitializer classes to use for initializing the web application context
+    </description>
+    <param-name>contextInitializerClasses</param-name>
+    <param-value>org.openl.rules.webstudio.web.servlet.UserModeProfileActivator</param-value>
+  </context-param>
+
+  <context-param>
+    <description>
       Comma separated list of URIs of (additional) faces config files.
     </description>
     <param-name>javax.faces.CONFIG_FILES</param-name>

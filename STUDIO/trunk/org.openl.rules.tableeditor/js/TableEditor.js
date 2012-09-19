@@ -79,8 +79,6 @@ var TableEditor = Class.create({
     },
 
     toEditMode: function(cellToEdit) {
-        var self = this;
-
         if (!cellToEdit) {
             cellToEdit = $(PopupMenu.lastTarget);
         }
@@ -90,24 +88,11 @@ var TableEditor = Class.create({
             cellPos = cellToEdit.id.split(this.cellIdPrefix)[1];
         }
 
-        new Ajax.Request(this.buildUrl(TableEditor.Operations.EDIT), {
-            parameters: {
-                editorId: self.editorId
-            },
-            onSuccess: function(data) {
-                $(self.editorId).innerHTML = data.responseText.stripScripts();
-                new ScriptLoader().evalScripts(data.responseText);
+        this.mode = this.Modes.EDIT;
+        this.initEditMode();
 
-                self.mode = self.Modes.EDIT;
-                self.initEditMode();
-
-                self.editCell = cellPos;
-                self.startEditing();
-            },
-            onFailure: function(response) {
-                self.handleError(response);
-            }
-        });
+        this.editCell = cellPos;
+        this.startEditing();
     },
 
     initEditMode: function() {
@@ -132,6 +117,8 @@ var TableEditor = Class.create({
             self.handleKeyPress(e);
         });
         // Handle Table Editor events END
+
+        self.toolbar.show();
 
         this.computeTableInfo();
     },
@@ -252,11 +239,6 @@ var TableEditor = Class.create({
             beforeSavePassed = this.actions.beforeSave();
         }
         if (beforeSavePassed == false) return;
-
-        if (!Validation.isAllValidated()) { // Validation failed
-            self.error("There are validation errors.");
-            return;
-        }
 
         this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, function(data) {
             if (self.actions && self.actions.afterSave) {
@@ -942,7 +924,6 @@ var TableEditor = Class.create({
 TableEditor.Editors = $H();
 
 TableEditor.Operations = {
-    EDIT : "edit",
     GET_CELL_EDITOR : "getCellEditor",
     GET_CELL_VALUE : "getCellValue",
     SET_CELL_VALUE : "setCellValue",

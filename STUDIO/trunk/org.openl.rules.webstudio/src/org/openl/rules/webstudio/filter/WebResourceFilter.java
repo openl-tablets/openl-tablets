@@ -49,13 +49,15 @@ public class WebResourceFilter implements Filter {
                 if (stream == null) {
                     stream = new FileInputStream(new File(filterConfig.getServletContext().getRealPath(path)));
                 }
-                OutputStream out = response.getOutputStream();
-                IOUtils.copy(stream, out);
-                stream.close();
+
                 // IE 9 fix
                 if (FilenameUtils.isExtension(path, "css")) {
                     response.setContentType("text/css");
                 }
+
+                OutputStream out = response.getOutputStream();
+                IOUtils.copy(stream, out);
+                stream.close();
             } else {
                 chain.doFilter(request, response);
             }
