@@ -6,37 +6,21 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalAddUser" width="400" autosized="true">
+    <rich:popupPanel id="modalEditUser" width="400" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Add New User" />
+            <h:outputText value="Edit User" />
         </f:facet>
 
         <f:facet name="controls">
             <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
-                onclick="hideAddUser()" alt="Close" />
+                onclick="hideEditUser()" alt="Close" />
         </f:facet>
 
-        <h:form id="addUserForm">
+        <h:form id="editUserForm">
             <h:panelGrid columns="3" cellspacing="5">
-                <label class="required">Username</label>
-                <h:inputText id="username" value="#{usersBean.username}"
-                    validator="#{usersBean.validateUsername}" />
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="username" styleClass="error" />
-                </a4j:outputPanel>
-
-                <label class="required">Password</label>
-                <h:inputSecret id="password" value="#{usersBean.password}" />
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="password" styleClass="error" />
-                </a4j:outputPanel>
-
-                <label class="required">Confirm</label>
-                <h:inputSecret id="confirmPassword" value="#{usersBean.confirmPassword}"
-                    validator="#{usersBean.validateConfirmPassword}" />
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="confirmPassword" styleClass="error" />
-                </a4j:outputPanel>
+                <label>Username</label>
+                <h:outputText id="username" style="font-weight: bold" />
+                <h:inputHidden id="usernameHidden" value="#{usersBean.username}" />
 
                 <h:outputText value="" />
                 <h:outputText value="" />
@@ -66,20 +50,35 @@
             <br />
             <br />
 
-            <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddUser()" render=":userList" styleClass="button-primary" />
-            <input type="button" value="Cancel" onclick="hideAddUser()" />
+            <a4j:commandButton value="Save" action="#{usersBean.editUser}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideEditUser()" render=":userList" styleClass="button-primary" />
+            <input type="button" value="Cancel" onclick="hideEditUser()" />
         </h:form>
 
     </rich:popupPanel>
 
     <script>
-        function hideAddUser() {
-            RichFaces.$("modalAddUser").hide();
+      //<![CDATA[
+        function editUser(username, firstName, lastName, groups) {
+            $j("#editUserForm\\:username").text(username);
+            $j("#editUserForm\\:usernameHidden").val(username);
+            $j("#editUserForm\\:firstName").val(firstName);
+            $j("#editUserForm\\:lastName").val(lastName);
+
+            for (var i = 0; i < groups.length; i++) {
+                $j("input[id^='editUserForm\\:groups'][value='" + groups[i] + "']").attr("checked", true);
+            }
+
+            RichFaces.$("modalEditUser").show();
+        }
+
+        function hideEditUser() {
+            RichFaces.$("modalEditUser").hide();
 
             // Reset form
-            $j("#addUserForm")[0].reset();
+            $j("#editUserForm")[0].reset();
         }
+      //]]>
     </script>
 
 </ui:composition>
