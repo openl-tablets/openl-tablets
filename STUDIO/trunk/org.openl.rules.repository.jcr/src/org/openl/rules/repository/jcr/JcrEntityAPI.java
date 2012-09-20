@@ -465,6 +465,31 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             removeProperty(propertyName);
         }
         
+        /*Delete all posible props*/
+        try {
+            for (TablePropertyDefinition prop : bussinedDimensionProps) {
+                String propName = prop.getName();
+                
+                if (node().hasProperty(propName)) {
+                    removeProperty(propName);
+                }
+            }
+        } catch(Exception e) {
+            
+        }
+        
+        try {
+            for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
+                String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
+                
+                if (node().hasProperty(propName)) {
+                    removeProperty(propName);
+                }
+            }
+        } catch(Exception e) {
+            
+        }
+        
         properties.clear();
     }
 

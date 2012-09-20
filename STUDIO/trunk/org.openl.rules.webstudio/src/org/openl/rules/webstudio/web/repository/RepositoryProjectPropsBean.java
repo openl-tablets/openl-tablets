@@ -160,24 +160,25 @@ public class RepositoryProjectPropsBean {
         }
         
         //set attribs
-        RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
-        Map<String, String> attribs = rap.getProps();
+        Map<String, String> attribs = repoAttrsUtils.getActiveAttribs();
         
-        for (String key : attribs.keySet()) {
-            boolean presents = false;
-            
-            for (PropertyRow row : propsStore) {
-                if (row.getType().equals(PropertyRowType.PROPERTY)) {
-                    TableProperty tp = (TableProperty) row.getData();
-                    
-                    if (tp.getName().equals(key)) {
-                        presents = true;
+        if (attribs != null) {
+            for (String key : attribs.keySet()) {
+                boolean presents = false;
+                
+                for (PropertyRow row : propsStore) {
+                    if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                        TableProperty tp = (TableProperty) row.getData();
+                        
+                        if (tp.getName().equals(key)) {
+                            presents = true;
+                        }
                     }
                 }
-            }
-            
-            if (!presents) {
-                props.add(new SelectItem(key, attribs.get(key)));
+                
+                if (!presents) {
+                    props.add(new SelectItem(key, attribs.get(key)));
+                }
             }
         }
         
@@ -198,7 +199,11 @@ public class RepositoryProjectPropsBean {
                 //add other props group header
                 propsStore.add(new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
             }
-
+            
+            PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
+            propsStore.add(selectProp);
+            
+            return;
         }
         
         PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
@@ -209,10 +214,33 @@ public class RepositoryProjectPropsBean {
                 propsStore.add(new PropertyRow(PropertyRowType.GROUP, DBP_GROUP_NAME));
             }
             
-            propsStore.add(selectProp);
+            int groupHeaderId = getOtherGroupFirstPosition();
+            
+            if (groupHeaderId == 0) {
+                propsStore.add(0, new PropertyRow(PropertyRowType.GROUP, DBP_GROUP_NAME));
+                groupHeaderId++;
+            }
+            
+            propsStore.add(groupHeaderId, selectProp);
 
             //setProperty(selectProp.getName(),null);
         }
+    }
+    
+    private int getOtherGroupFirstPosition() {
+        int i = 0;
+        
+        for (PropertyRow row : propsStore) {
+            if (row.getType().equals(PropertyRowType.GROUP)) {
+               if (row.getData().toString().equals(OTHER_PROP_GROUP_NAME)) {
+                  return i;
+               }
+            }
+            
+            i++;
+        }
+        
+        return propsStore.size();
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
@@ -302,15 +330,17 @@ public class RepositoryProjectPropsBean {
     }
 
     public void save(TableProperty selectTProp) {
-        for (PropertyRow row : propsStore) {
-            if (row.getType().equals(PropertyRowType.PROPERTY)) {
-                TableProperty tProp = (TableProperty) row.getData();
-                if (tProp.getName().equals(selectTProp.getName())) {
-                    tProp.setValue(selectTProp.getDisplayValue());
-    
-                    setProperty(selectTProp.getName(), selectTProp.getDisplayValue());
-                    refresh();
-                    return;
+        if (!StringUtils.isBlank(selectTProp.getDisplayValue())) {
+            for (PropertyRow row : propsStore) {
+                if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                    TableProperty tProp = (TableProperty) row.getData();
+                    if (tProp.getName().equals(selectTProp.getName())) {
+                        tProp.setValue(selectTProp.getDisplayValue());
+        
+                        setProperty(selectTProp.getName(), selectTProp.getDisplayValue());
+                        refresh();
+                        return;
+                    }
                 }
             }
         }
@@ -381,12 +411,12 @@ public class RepositoryProjectPropsBean {
     }
     
     private static List<PropertyRow> makeTableProps(Map<String, InheritedProperty> inheritedProp, Map<String, Object> settedPropsList, boolean onlyBDProps) {
+        RepositoryAttributeUtils repoAttrsUtils = new RepositoryAttributeUtils();
         List<PropertyRow> propsStore = new ArrayList<PropertyRow>();
         List<TablePropertyDefinition> bussinesDimensionProps = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
 
-        RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
-        Map<String, String> customAttrs = rap.getProps();
+        Map<String, String> customAttrs = repoAttrsUtils.getActiveAttribs();
 
         /*Add inherited Props*/
         boolean firstBDRow = true;
@@ -446,8 +476,7 @@ public class RepositoryProjectPropsBean {
             }
         }
 
-        if (!onlyBDProps) {
-            RepositoryAttributeUtils repoAttrsUtils = new RepositoryAttributeUtils();
+        if (!onlyBDProps &&  customAttrs != null) {
             boolean firstRow = true;
             
             for (String key : customAttrs.keySet()) {
