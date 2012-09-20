@@ -77,7 +77,7 @@
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
                     
-          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpen}" value="Open Version" type="button" onclick="openOpenVersionDialog();return false;">
+          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" type="button" onclick="openOpenVersionDialog();return false;">
               <rich:tooltip showDelay="500">#{openVersionMessage}</rich:tooltip>
           </h:commandButton>
 
@@ -156,7 +156,7 @@
         <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
-    <rich:tab id="versions" name="Versions" header="Versions">
+    <rich:tab id="revisions" name="Revisions" header="Revisions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
     <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file'}">
@@ -197,7 +197,7 @@
           <rich:tooltip showDelay="500">Deploy into operations or staging</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Version" onclick="openOpenVersionDialog();return false;">
+      <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" onclick="openOpenVersionDialog();return false;">
           <rich:tooltip showDelay="500">Open the specified project version</rich:tooltip>
       </h:commandButton>
 
@@ -226,7 +226,7 @@
       <rich:tab header="Properties">
         <ui:include src="node/deployment.xhtml" />
       </rich:tab>
-      <rich:tab header="Versions">
+      <rich:tab header="Revisions">
         <ui:include src="/pages/modules/repository/node/versions.xhtml" />
       </rich:tab>
       <rich:tab header="Projects to Deploy">

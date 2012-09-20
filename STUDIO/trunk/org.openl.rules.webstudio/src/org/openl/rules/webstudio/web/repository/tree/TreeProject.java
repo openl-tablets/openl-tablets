@@ -47,7 +47,7 @@ public class TreeProject extends TreeFolder {
             ProjectVersion activeVersion = userProject.getVersion();
 
             if (activeVersion != null && userProject.isOpenedOtherVersion()) {
-                return "Version " + activeVersion.getVersionName();
+                return "Revision " + activeVersion.getVersionName();
             } else {
                 return null;
             }
@@ -87,7 +87,7 @@ public class TreeProject extends TreeFolder {
 
         if (userProject.isOpened()) {
             if (userProject.isOpenedOtherVersion()) {
-                status.append("Opened Old Version");
+                status.append("Opened Old Revision");
             } else {
                 status.append("Opened");
             }
