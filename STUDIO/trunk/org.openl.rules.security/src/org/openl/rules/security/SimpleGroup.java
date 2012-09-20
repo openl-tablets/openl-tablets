@@ -79,4 +79,9 @@ public class SimpleGroup implements Group {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

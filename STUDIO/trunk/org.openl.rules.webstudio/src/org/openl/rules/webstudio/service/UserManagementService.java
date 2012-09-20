@@ -61,6 +61,21 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         userDao.save(persistUser);
     }
 
+    public void updateUser(org.openl.rules.security.User user) {
+        User persistUser = userDao.getUserByName(user.getUsername());
+
+        persistUser.setFirstName(user.getFirstName());
+        persistUser.setSurname(user.getLastName());
+
+        Set<Group> groups = new HashSet<Group>();
+        for (GrantedAuthority auth : user.getAuthorities()) {
+            groups.add(groupDao.getGroupByName(auth.getAuthority()));
+        }
+        //persistUser.setGroups(groups);
+
+        userDao.update(persistUser);
+    }
+
     public void deleteUser(String username) {
         userDao.delete(userDao.getUserByName(username));
     }
