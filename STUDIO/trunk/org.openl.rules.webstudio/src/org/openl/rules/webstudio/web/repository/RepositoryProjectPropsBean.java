@@ -51,6 +51,10 @@ public class RepositoryProjectPropsBean {
 
         RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
         attribs = rap.getProps();
+        
+        if (attribs == null) {
+            attribs = new HashMap<String, String>();  
+        }
 
         if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null
                 && storeProjName == null) {
@@ -194,16 +198,18 @@ public class RepositoryProjectPropsBean {
     }
 
     public void addNew() {
-        if (attribs.containsKey(propertyToAdd)) { 
-            if (propsStore.isEmpty()) {
-                //add other props group header
-                propsStore.add(new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
+        if (attribs != null) {
+            if (attribs.containsKey(propertyToAdd)) { 
+                if (propsStore.isEmpty()) {
+                    //add other props group header
+                    propsStore.add(new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
+                }
+                
+                PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
+                propsStore.add(selectProp);
+                
+                return;
             }
-            
-            PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
-            propsStore.add(selectProp);
-            
-            return;
         }
         
         PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
