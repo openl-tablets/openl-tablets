@@ -114,15 +114,18 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
+        /*
         try {
             setProps(artefact.getProps());
         } catch (PropertyException e1) {
             // TODO log
             e1.printStackTrace();
-        }
+        }*/
         try {
             getAPI().removeAllProperties();
-
+            
+            setProps(artefact.getProps());
+            
             // set all properties
             for (Property property : artefact.getProperties()) {
                 addProperty(property);
