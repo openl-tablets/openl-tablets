@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,7 +58,11 @@ public class RepositoryAttributeUtils {
     
     public Map<String, String> getActiveAttribs() {
         /*return sorted map*/
-        return new TreeMap<String, String>(attribs);
+        if (attribs != null) {
+            return new TreeMap<String, String>(attribs);
+        }
+        
+        return new HashMap<String, String>();
     }
     
 }
