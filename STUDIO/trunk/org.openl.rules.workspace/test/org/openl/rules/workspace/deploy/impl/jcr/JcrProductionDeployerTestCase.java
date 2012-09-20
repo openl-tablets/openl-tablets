@@ -155,7 +155,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         
         final Map<String, Object> fileProps = theFile1.getProps();
 
-        if (props != null) {
+        if (props != null && !fileProps.isEmpty()) {
             assertNotNull(fileProps);
             assertTrue(!fileProps.isEmpty());
             assertEquals(fileProps.size(), props.size());

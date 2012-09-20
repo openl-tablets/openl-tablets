@@ -2,8 +2,10 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.config.ConfigurationManager;
@@ -52,6 +54,15 @@ public class RepositoryAttributeUtils {
         } else {
             tpd.setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         }
+    }
+    
+    public Map<String, String> getActiveAttribs() {
+        /*return sorted map*/
+        if (attribs != null) {
+            return new TreeMap<String, String>(attribs);
+        }
+        
+        return new HashMap<String, String>();
     }
     
 }

@@ -7,7 +7,7 @@
 
   <rich:popupPanel id="modalOpenVersion" width="400" autosized="true">
     <f:facet name="header">
-      <h:outputText value="Open Version" />
+      <h:outputText value="Open Revision" />
     </f:facet>
 
     <f:facet name="controls">
@@ -19,7 +19,7 @@
           <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
             <h:outputText value="Project Name" />
             <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
-            <h:outputLabel for="projectVersion" styleClass="required" value="Project Version" />
+            <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision" />
             <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
                 <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
             </h:selectOneMenu>
@@ -27,7 +27,7 @@
     
           <h:panelGroup rendered="#{node.type == 'project' and artefact.opened and systemConfig['user.mode'] == 'single'}">
             <br />
-            <h:outputText value="NOTE: Project data in the workspace will be replaced by the data of specified version that will be opened from repository." />
+            <h:outputText value="NOTE: Project data in the workspace will be replaced by the data of specified revision that will be opened from repository." />
             <br />
           </h:panelGroup>
       </h:panelGroup>
