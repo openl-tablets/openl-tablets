@@ -198,47 +198,49 @@ public class RepositoryProjectPropsBean {
     }
 
     public void addNew() {
+        PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
+        
+        if (selectProp == null) {
+           return; 
+        }
+        
         if (attribs != null) {
             if (attribs.containsKey(propertyToAdd)) { 
-                if (propsStore.isEmpty()) {
+                int groupHeaderId = getGroupFirstPosition(OTHER_PROP_GROUP_NAME);
+                
+                /*Add group header if needed*/
+                if (propsStore.isEmpty() || groupHeaderId == propsStore.size()) {
                     //add other props group header
-                    propsStore.add(new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
+                    propsStore.add(groupHeaderId, new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
                 }
                 
-                PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
-                propsStore.add(selectProp);
-                
+                propsStore.add(propsStore.size(), selectProp);
                 return;
             }
         }
+
         
-        PropertyRow selectProp = getEmptyPropByName(propertyToAdd);
-
-        if (selectProp != null) {
-            if (propsStore.isEmpty()) {
-                //add other props group header
-                propsStore.add(new PropertyRow(PropertyRowType.GROUP, DBP_GROUP_NAME));
-            }
-            
-            int groupHeaderId = getOtherGroupFirstPosition();
-            
-            if (groupHeaderId == 0) {
-                propsStore.add(0, new PropertyRow(PropertyRowType.GROUP, DBP_GROUP_NAME));
-                groupHeaderId++;
-            }
-            
-            propsStore.add(groupHeaderId, selectProp);
-
-            //setProperty(selectProp.getName(),null);
+        int groupHeaderId = getGroupFirstPosition(DBP_GROUP_NAME);
+        
+        /*Add group header if needed*/
+        if (propsStore.isEmpty() || groupHeaderId == propsStore.size()) {
+            //add other props group header
+            propsStore.add(0, new PropertyRow(PropertyRowType.GROUP, DBP_GROUP_NAME));
         }
+        
+        propsStore.add(getGroupFirstPosition(OTHER_PROP_GROUP_NAME), selectProp);
+        return;
+
+        //setProperty(selectProp.getName(),null);
+        
     }
     
-    private int getOtherGroupFirstPosition() {
+    private int getGroupFirstPosition(String groupName) {
         int i = 0;
         
         for (PropertyRow row : propsStore) {
             if (row.getType().equals(PropertyRowType.GROUP)) {
-               if (row.getData().toString().equals(OTHER_PROP_GROUP_NAME)) {
+               if (row.getData().toString().equals(groupName)) {
                   return i;
                }
             }

@@ -129,6 +129,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         FolderAPI deployment = pr.getDeploymentProject(id.getName());
         assertTrue(deployment.hasArtefact(PROJECT1_NAME));
         assertTrue(deployment.hasArtefact(PROJECT2_NAME));
+        assertTrue(deployment.hasArtefact(PROJECT3_NAME));
 
         AProject project = new AProject((FolderAPI)deployment.getArtefact(PROJECT2_NAME));
 
@@ -155,7 +156,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         
         final Map<String, Object> fileProps = theFile1.getProps();
 
-        if (props != null && !fileProps.isEmpty()) {
+        if (props != null) {
             assertNotNull(fileProps);
             assertTrue(!fileProps.isEmpty());
             assertEquals(fileProps.size(), props.size());
