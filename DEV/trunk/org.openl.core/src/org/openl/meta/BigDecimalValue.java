@@ -6,6 +6,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
@@ -364,6 +365,12 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         this.value = value;
     }    
 
+    /**Cast constructor**/
+    public BigDecimalValue(String valueString, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("BigDecimalValue", autocast));
+        this.value = new java.math.BigDecimal(valueString);
+    }
+
     @Override
     public org.openl.meta.BigDecimalValue copy(String name) {
         return copy(this, name);        
@@ -444,49 +451,49 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (x == null) {
             return null;
         }
-        return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue(), x, false);
     }
 
     public static ShortValue cast(BigDecimalValue x, ShortValue y) {
         if (x == null) {
             return null;
         }
-        return new ShortValue(x.shortValue());
+        return new ShortValue(x.shortValue(), x, false);
     }
 
     public static IntValue cast(BigDecimalValue x, IntValue y) {
         if (x == null) {
             return null;
         }
-        return new IntValue(x.intValue());
+        return new IntValue(x.intValue(), x, false);
     }
 
     public static LongValue cast(BigDecimalValue x, LongValue y) {
         if (x == null) {
             return null;
         }
-        return new LongValue(x.longValue());
+        return new LongValue(x.longValue(), x, false);
     }
 
     public static FloatValue cast(BigDecimalValue x, FloatValue y) {
         if (x == null) {
             return null;
         }
-        return new FloatValue(x.floatValue());
+        return new FloatValue(x.floatValue(), x, false);
     }
 
     public static DoubleValue cast(BigDecimalValue x, DoubleValue y) {
         if (x == null) {
             return null;
         }
-        return new DoubleValue(x.doubleValue());
+        return new DoubleValue(x.doubleValue(), x, false);
     }
 
     public static BigIntegerValue cast(BigDecimalValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.longValue()));
+        return new BigIntegerValue(String.valueOf(x.longValue()), x, false);
     }
     
     public static BigDecimalValue round(BigDecimalValue value) {        

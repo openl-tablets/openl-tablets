@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
@@ -363,6 +364,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         this.value = value;
     }    
 
+    /**Cast constructor**/
+    public ByteValue(byte value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("ByteValue", autocast));
+        this.value = value;
+    }
+
     @Override
     public org.openl.meta.ByteValue copy(String name) {
         return copy(this, name);        
@@ -407,7 +414,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
 
-        return new ShortValue(x.getValue());
+        return new ShortValue(x.getValue(), x, true);
     }
     
     public static IntValue autocast(ByteValue x, IntValue y) {
@@ -415,7 +422,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
 
-        return new IntValue(x.getValue());
+        return new IntValue(x.getValue(), x, true);
     }
     
     public static LongValue autocast(ByteValue x, LongValue y) {
@@ -423,7 +430,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
 
-        return new LongValue(x.getValue());
+        return new LongValue(x.getValue(), x, true);
     }
     
     public static FloatValue autocast(ByteValue x, FloatValue y) {
@@ -431,7 +438,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
 
-        return new FloatValue(x.getValue());
+        return new FloatValue(x.getValue(), x, true);
     }
     
     public static DoubleValue autocast(ByteValue x, DoubleValue y) {
@@ -439,21 +446,21 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
 
-        return new DoubleValue(x.getValue());
+        return new DoubleValue(x.getValue(), x, true);
     }
     
     public static BigIntegerValue autocast(ByteValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.getValue()));
+        return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
     }
     
     public static BigDecimalValue autocast(ByteValue x, BigDecimalValue y) {
         if (x == null) {
             return null;
         }
-        return new BigDecimalValue(String.valueOf(x.getValue()));
+        return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
     
     // ******* Casts *************
