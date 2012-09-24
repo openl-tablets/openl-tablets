@@ -92,6 +92,18 @@ public class UsersBean {
         return userManagementService.getAllUsers();
     }
 
+    public String[] getGroups(Object objUser) {
+        List<String> groups = new ArrayList<String>();
+        @SuppressWarnings("unchecked")
+        Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
+        for (Privilege authority : authorities) {
+            if (authority instanceof Group) {
+                groups.add(authority.getName());
+            }
+        }
+        return groups.toArray(new String[groups.size()]);
+    }
+
     public void addUser() {
         List<Privilege> resultGroups = new ArrayList<Privilege>();
         for (String groupName : groups) {
@@ -102,18 +114,14 @@ public class UsersBean {
                 new SimpleUser(firstName, lastName, username, password, resultGroups));
     }
 
-    public void editUser(User user) {
-        username = user.getUsername();
-        password = user.getPassword();
-        firstName = user.getFirstName();
-        lastName = user.getLastName();
-        groups = new ArrayList<String>();
-        Collection<Privilege> authorities = (Collection<Privilege>) user.getAuthorities();
-        for (Privilege authority : authorities) {
-            if (authority instanceof Group) {
-                groups.add(authority.getName());
-            }
+    public void editUser() {
+        List<Privilege> resultGroups = new ArrayList<Privilege>();
+        for (String groupName : groups) {
+            resultGroups.add(
+                    groupManagementService.getGroupByName(groupName));
         }
+        userManagementService.updateUser(
+                new SimpleUser(firstName, lastName, username, null, resultGroups));
     }
 
     public boolean isOnlyAdmin(Object objUser) {
