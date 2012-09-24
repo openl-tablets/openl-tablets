@@ -4,8 +4,10 @@ import java.util.Iterator;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
-import org.openl.meta.number.NumberFormula;
+import org.openl.meta.number.CastOperand;
+import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.Formulas;
+import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberFunction;
 import org.openl.meta.number.NumberOperations;
 import org.openl.meta.number.NumberValue;
@@ -58,6 +60,15 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         this.explanation = new FunctionExplanationValue<T>(getFunction());
     }
     
+    /** Casting constructor */
+    @SuppressWarnings("unchecked")
+    public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {   
+        super(new NumberCast(previousValue, operand));
+        
+        /** initialize explanation for cast value */ 
+        this.explanation = new CastExplanationValue(getCast());
+    }
+
     public abstract T copy(String name);
 
     public IMetaInfo getMetaInfo() {

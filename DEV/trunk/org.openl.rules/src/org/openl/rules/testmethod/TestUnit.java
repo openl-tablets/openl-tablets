@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod;
 
 import org.openl.meta.DoubleValue;
+import org.openl.meta.IMetaHolder;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 
@@ -60,17 +61,11 @@ public class TestUnit {
         } 
 
         if (NumberUtils.isFloatPointNumber(runningResult) && test.isExpectedResultDefined()) {
-            Double result = NumberUtils.convertToDouble(runningResult);
+            DoubleValue result = NumberUtils.convertToDoubleValue(runningResult);
             Double expectedResult = NumberUtils.convertToDouble(getExpectedResult());
 
             int scale = NumberUtils.getScale(expectedResult);
-            Double roundedResult = NumberUtils.roundValue(result, scale);
-
-            if (DoubleValue.class.isAssignableFrom(runningResult.getClass())) {
-                actualResult = new DoubleValue(roundedResult, ((DoubleValue)runningResult).getMetaInfo());
-                return;
-            }
-            
+            DoubleValue roundedResult = DoubleValue.round(result, scale);
             actualResult = roundedResult;
             return;
         } 
