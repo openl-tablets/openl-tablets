@@ -329,6 +329,19 @@
         this.value = value;
     }    
 
+    /**Cast constructor**/
+#if (${primitiveType.isPrimitive()})
+    public ${type.SimpleName}($tool.getTypeName($primitiveType) value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("${type.SimpleName}", autocast));
+        this.value = value;
+    }
+#else
+    public ${type.SimpleName}(String valueString, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("${type.SimpleName}", autocast));
+        this.value = new $tool.getTypeName($primitiveType)(valueString);
+    }
+#end
+
     @Override
     public $tool.getTypeName($type) copy(String name) {
         return copy(this, name);        

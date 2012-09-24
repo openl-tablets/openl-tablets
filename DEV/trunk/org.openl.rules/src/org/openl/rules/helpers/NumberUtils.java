@@ -63,6 +63,21 @@ public class NumberUtils {
         return null;
     }
 
+    public static DoubleValue convertToDoubleValue(Object object) {
+        if (FloatValue.class.isAssignableFrom(object.getClass())) {
+            return FloatValue.autocast((FloatValue) object, (DoubleValue) null);
+        }
+        if (DoubleValue.class.isAssignableFrom(object.getClass())) {
+            return (DoubleValue) object;
+        }
+
+        if (BigDecimalValue.class.isAssignableFrom(object.getClass())) {
+            return BigDecimalValue.cast((BigDecimalValue) object, (DoubleValue) null);
+        }
+        
+        return new DoubleValue(convertToDouble(object));
+    }
+
     public static Double roundValue(Double value, int scale) {
 
         if (value != null) {

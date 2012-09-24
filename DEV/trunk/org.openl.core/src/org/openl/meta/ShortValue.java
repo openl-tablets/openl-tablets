@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
@@ -362,6 +363,12 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         this.value = value;
     }    
 
+    /**Cast constructor**/
+    public ShortValue(short value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("ShortValue", autocast));
+        this.value = value;
+    }
+
     @Override
     public org.openl.meta.ShortValue copy(String name) {
         return copy(this, name);        
@@ -406,7 +413,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
 
-        return new IntValue(x.getValue());
+        return new IntValue(x.getValue(), x, true);
     }
 
     public static LongValue autocast(ShortValue x, LongValue y) {
@@ -414,7 +421,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
 
-        return new LongValue(x.getValue());
+        return new LongValue(x.getValue(), x, true);
     }
 
     public static FloatValue autocast(ShortValue x, FloatValue y) {
@@ -422,7 +429,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
 
-        return new FloatValue(x.getValue());
+        return new FloatValue(x.getValue(), x, true);
     }
 
     public static DoubleValue autocast(ShortValue x, DoubleValue y) {
@@ -430,21 +437,21 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return null;
         }
 
-        return new DoubleValue(x.getValue());
+        return new DoubleValue(x.getValue(), x, true);
     }
 
     public static BigIntegerValue autocast(ShortValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.getValue()));
+        return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
     }
 
     public static BigDecimalValue autocast(ShortValue x, BigDecimalValue y) {
         if (x == null) {
             return null;
         }
-        return new BigDecimalValue(String.valueOf(x.getValue()));
+        return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
 
     // ******* Casts*************
@@ -489,7 +496,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (x == null) {
             return null;
         }
-        return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue(), x, false);
     }
 
     public ShortValue(String valueString) {

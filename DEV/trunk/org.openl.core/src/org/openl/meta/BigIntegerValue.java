@@ -6,6 +6,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
@@ -364,6 +365,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         this.value = value;
     }    
 
+    /**Cast constructor**/
+    public BigIntegerValue(String valueString, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("BigIntegerValue", autocast));
+        this.value = new java.math.BigInteger(valueString);
+    }
+
     @Override
     public org.openl.meta.BigIntegerValue copy(String name) {
         return copy(this, name);        
@@ -407,7 +414,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.getValue()));
+        return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
     }
 
     // ******* Casts 8*************
@@ -452,42 +459,42 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         if (x == null) {
             return null;
         }
-        return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue(), x, false);
     }
 
     public static ShortValue cast(BigIntegerValue x, ShortValue y) {
         if (x == null) {
             return null;
         }
-        return new ShortValue(x.shortValue());
+        return new ShortValue(x.shortValue(), x, false);
     }
 
     public static IntValue cast(BigIntegerValue x, IntValue y) {
         if (x == null) {
             return null;
         }
-        return new IntValue(x.intValue());
+        return new IntValue(x.intValue(), x, false);
     }
 
     public static LongValue cast(BigIntegerValue x, LongValue y) {
         if (x == null) {
             return null;
         }
-        return new LongValue(x.longValue());
+        return new LongValue(x.longValue(), x, false);
     }
 
     public static FloatValue cast(BigIntegerValue x, FloatValue y) {
         if (x == null) {
             return null;
         }
-        return new FloatValue(x.floatValue());
+        return new FloatValue(x.floatValue(), x, false);
     }
 
     public static DoubleValue cast(BigIntegerValue x, DoubleValue y) {
         if (x == null) {
             return null;
         }
-        return new DoubleValue(x.doubleValue());
+        return new DoubleValue(x.doubleValue(), x, false);
     }   
 
     public BigIntegerValue(String valueString) {

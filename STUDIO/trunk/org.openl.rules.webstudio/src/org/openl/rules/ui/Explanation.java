@@ -1,11 +1,14 @@
 package org.openl.rules.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
+import org.openl.meta.number.NumberCast;
 import org.openl.meta.number.NumberFormula;
 import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
@@ -26,6 +29,11 @@ public class Explanation {
             } else if (node.getClass() == ExplanationNumberValue.class && 
                     ((ExplanationNumberValue<?>)node).getValueType().equals(ValueType.FUNCTION)) {
                 return OpenIterator.fromArray(((ExplanationNumberValue<?>) node).getFunction().getParams());
+            } else if (node.getClass() == ExplanationNumberValue.class && 
+                    ((ExplanationNumberValue<?>)node).getValueType().equals(ValueType.CAST)) {
+                @SuppressWarnings("unchecked")
+                List<?> list = Arrays.asList(((ExplanationNumberValue<?>) node).getCast().getValue());
+                return list.iterator();
             } else {
                 return AOpenIterator.EMPTY;
             }
@@ -70,6 +78,8 @@ public class Explanation {
             if (formula.isMultiplicative() == isMultiplicative && level < MAX_LEVEL) {
                 return expandFormula(value, url, level + 1);
             }
+        } else if (value.getValueType().equals(ValueType.CAST)) {
+            return expandCast(value, isMultiplicative, url, level);
         }
 
         return expandValue(value);
@@ -96,7 +106,18 @@ public class Explanation {
         }
         return ret + ")";
     }
-    
+
+    protected String expandCast(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
+        String url = findUrl(value, parentUrl);
+
+        NumberCast cast = value.getCast();
+        CastOperand operand = cast.getOperand();
+
+        String argument = expandArgument(cast.getValue(), operand.isAutocast() ? isMultiplicative : false, url, level);
+
+        return operand.isAutocast() ? argument : "(" + operand.getType() + ")(" + argument + ")";
+    }
+
     public String expandValue(ExplanationNumberValue<?> explanationValue) {        
         String value = getFormattedValue(explanationValue);
 
@@ -157,6 +178,8 @@ public class Explanation {
             return expandFormula(value, null, 0);
         } else if (ValueType.FUNCTION.equals(value.getValueType())) {
             return expandFunction(value, null);
+        } else if (ValueType.CAST.equals(value.getValueType())) {
+            return expandCast(value, false, null, 0);
         }
         return expandValue(value);
     }
@@ -179,7 +202,14 @@ public class Explanation {
     }
     
     protected boolean isExpandable(ExplanationNumberValue<?> value) {
-        return value.getValueType().equals(ValueType.FORMULA) || value.getValueType().equals(ValueType.FUNCTION);
+        switch (value.getValueType()) {
+            case FORMULA:
+            case FUNCTION:
+            case CAST:
+                return true;
+            default:
+                return false;
+        }
     }
     
     public boolean isShowNamesInFormula() {
