@@ -33,10 +33,20 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 @RequestScoped
 public class GroupsBean {
 
+    private String oldName;
+
     @NotBlank(message="Can not be empty")
     @Size(max=25)
     private String name;
     private String description;
+
+    public String getOldName() {
+        return oldName;
+    }
+
+    public void setOldName(String oldName) {
+        this.oldName = oldName;
+    }
 
     public String getName() {
         return name;
@@ -129,6 +139,47 @@ public class GroupsBean {
         }
 
         groupManagementService.addGroup(
+                new SimpleGroup(name, description, authorities));
+    }
+
+    public void editGroup() {
+        Collection<Privilege> authorities = new ArrayList<Privilege>();
+
+        List<String> privileges = new ArrayList<String>(Arrays.asList(
+                FacesUtils.getRequest().getParameterValues("privilege")));
+        privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
+
+        // Admin
+        if (privileges.size() == DefaultPrivileges.values().length - 1) {
+            authorities.add(DefaultPrivileges.PRIVILEGE_ALL);
+
+        } else {
+            Map<String, Group> groups = new java.util.HashMap<String, Group>();
+            String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
+            if (groupNames != null) {
+                for (String groupName : groupNames) {
+                    groups.put(groupName, groupManagementService.getGroupByName(groupName));
+                }
+
+                for (Group group : new ArrayList<Group>(groups.values())) {
+                    if (!groups.isEmpty()) {
+                        removeIncludedGroups(group, groups);
+                    }
+                }
+
+                removeIncludedPrivileges(privileges, groups);
+
+                for (Group group : groups.values()) {
+                    authorities.add(group);
+                }
+            }
+
+            for (String privilegeName : privileges) {
+                authorities.add(DefaultPrivileges.valueOf(privilegeName));
+            }
+        }
+
+        groupManagementService.updateGroup(oldName,
                 new SimpleGroup(name, description, authorities));
     }
 

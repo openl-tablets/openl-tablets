@@ -80,6 +80,31 @@ public class GroupManagementService extends UserInfoUserDetailsServiceImpl {
         groupDao.save(persistGroup);
     }
 
+    public void updateGroup(String name, org.openl.rules.security.Group group) {
+        Group persistGroup = groupDao.getGroupByName(name);
+        persistGroup.setName(group.getName());
+        persistGroup.setDescription(group.getDescription());
+
+        Set<Group> includedGroups = new HashSet<Group>();
+        List<String> privileges = new ArrayList<String>();
+        for (Privilege privilege : group.getPrivileges()) {
+            String privilegeName = privilege.getName();
+            if (privilege instanceof org.openl.rules.security.Group) {
+                includedGroups.add(groupDao.getGroupByName(privilegeName));
+            } else {
+                privileges.add(privilegeName);
+            }
+        }
+        if (!includedGroups.isEmpty()) {
+            persistGroup.setIncludedGroups(includedGroups);
+        }
+        if (!privileges.isEmpty()) {
+            persistGroup.setPrivileges(StringUtils.join(privileges, ","));
+        }
+
+        groupDao.update(persistGroup);
+    }
+
     public void deleteGroup(String name) {
         groupDao.delete(groupDao.getGroupByName(name));
     }
