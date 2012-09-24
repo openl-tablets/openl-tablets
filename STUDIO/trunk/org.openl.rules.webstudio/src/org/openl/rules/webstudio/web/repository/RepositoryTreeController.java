@@ -180,7 +180,7 @@ public class RepositoryTreeController {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
 
             project.save();
-            
+
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (ProjectException e) {

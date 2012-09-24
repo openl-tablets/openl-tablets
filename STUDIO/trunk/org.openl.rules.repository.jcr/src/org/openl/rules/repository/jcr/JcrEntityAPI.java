@@ -68,7 +68,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     private RTransactionManager transactionManager;
 
     // ------ protected methods ------
-
     public JcrEntityAPI(Node node, RTransactionManager transactionManager, ArtefactPath path, boolean oldVersion) throws RepositoryException {
         super(node, path.segment(path.segmentCount() - 1), oldVersion);
         this.path = path;
@@ -271,9 +270,11 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             return;
         }
         // do not update JCR if property wasn't changed
+        /*folder props aren't save
         if (isSame(this.props, props)) {
             return;
         }
+        */
         Set<String> propNames = props.keySet();
         for (String propName : propNames) {
             Object propValue = props.get(propName);
@@ -461,9 +462,11 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     public void removeAllProperties() throws PropertyException {
         List<String> propertyNames = new ArrayList<String>(properties.keySet());
-        for(String propertyName : propertyNames){
+        for (String propertyName : propertyNames){
             removeProperty(propertyName);
         }
+        
+        
         
         /*Delete all posible props*/
         try {
@@ -548,6 +551,11 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
 
         return inhProps;
+    }
+
+    @Override
+    public void clearModifyStatus() {
+
     }
     
 }

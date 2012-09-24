@@ -21,6 +21,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public interface ArtefactAPI{
     boolean isModified();
     
+    
     void addProperty(String name, ValueType type, Object value) throws PropertyException;
 
     /**
@@ -85,4 +86,6 @@ public interface ArtefactAPI{
     UserTransaction createTransaction() throws RRepositoryException;
 
     Map<String, InheritedProperty> getInheritedProps();
+    
+    void clearModifyStatus();
 }

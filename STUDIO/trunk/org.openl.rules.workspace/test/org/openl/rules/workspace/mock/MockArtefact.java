@@ -122,4 +122,8 @@ public class MockArtefact implements ArtefactAPI {
     public Map<String, InheritedProperty> getInheritedProps() {
         return new HashMap<String, InheritedProperty>();
     }
+
+    @Override
+    public void clearModifyStatus() {
+    }
 }

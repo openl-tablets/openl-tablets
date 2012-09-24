@@ -134,6 +134,8 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
             // TODO log
             e.printStackTrace();
         }
+        
+        artefact.impl.clearModifyStatus();
         refresh();
     }
 
@@ -144,21 +146,24 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
      * @throws ProjectException
      */
     public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        if (artefact.isModified()) {
+        //if (artefact.isModified()) {
+        if (artefact.impl.isModified()) {
             try {
                 getAPI().removeAllProperties();
                 setProps(artefact.getProps());
-            
-                // set all properties
+                
+                /*
                 for (Property property : artefact.getProperties()) {
                     if(!artefact.getProps().containsKey(property.getName())){
                         addProperty(property);
                     }
-                }
+                }*/
             } catch (PropertyException e) {
                 // TODO log
                 e.printStackTrace();
             }
+            
+            artefact.impl.clearModifyStatus();
             refresh();
         }
     }
@@ -202,13 +207,20 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void setVersionComment(String versionComment) throws PropertyException {
-        addProperty(new PropertyImpl(ArtefactProperties.VERSION_COMMENT, versionComment));
+        //addProperty(new PropertyImpl(ArtefactProperties.VERSION_COMMENT, versionComment));
+        getProps().put(ArtefactProperties.VERSION_COMMENT, versionComment);
     }
     
     public String getVersionComment() {
+        /*
         try {
             return getProperty(ArtefactProperties.VERSION_COMMENT).getString();
         } catch (PropertyException e) {
+            return null;
+        }*/
+        if (getProps().containsKey(ArtefactProperties.VERSION_COMMENT)) {
+            return getProps().get(ArtefactProperties.VERSION_COMMENT).toString();
+        } else {
             return null;
         }
     }
