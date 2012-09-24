@@ -26,7 +26,7 @@ public class RulesProject extends UserWorkspaceProject {
         this.repository = repository;
         this.userWorkspace = userWorkspace;
     }
-    
+
     public FolderAPI getRepositoryAPI() {
         return repository;
     }
@@ -39,7 +39,7 @@ public class RulesProject extends UserWorkspaceProject {
         super.edit(user);
         open();
     }
-    
+
     @Override
     public void save(CommonUser user) throws ProjectException {
         smartUpdate(local, repository, user);

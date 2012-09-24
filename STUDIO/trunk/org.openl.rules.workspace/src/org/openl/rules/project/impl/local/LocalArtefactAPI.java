@@ -247,7 +247,9 @@ public class LocalArtefactAPI implements ArtefactAPI {
         if (segmentId > 1) {
             LocalArtefactAPI parentArtefactAPI = new LocalArtefactAPI(source.getParentFile(), path.withoutSegment(segmentId - 1), workspace);
             Map<String, InheritedProperty> inheritedProps = new HashMap<String, InheritedProperty>();
-
+            
+            inheritedProps.putAll(parentArtefactAPI.getInheritedProps());
+            
             if (parentArtefactAPI.getProps() != null) {
                 Map<String, Object> parentProp = parentArtefactAPI.getProps();
                 
@@ -259,11 +261,15 @@ public class LocalArtefactAPI implements ArtefactAPI {
                 }
             }
 
-            inheritedProps.putAll(parentArtefactAPI.getInheritedProps());
-
             return inheritedProps;
         }
 
         return new HashMap<String, InheritedProperty>();
+    }
+    
+    public void clearModifyStatus() { 
+        modified = false;
+        creationDate = source.lastModified();
+        save();
     }
 }
