@@ -28,6 +28,9 @@
                 </ui:repeat>
             </td>
             <td>
+                <a href="javascript:void(0)"
+                    onclick="editGroup('#{group.name}', '#{group.description}')"
+                    title="Edit"><img src="webresource/images/edit2.gif" /></a>
                 <a4j:commandLink execute="@this" render="@form :addGroupForm"
                     rendered="#{!groupsBean.isOnlyAdmin(group)}"
                     action="#{groupsBean.deleteGroup(group.name)}"
@@ -45,7 +48,7 @@
     <br />
     <br />
 
-    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddGroup').show()">Add New Group</a>
+    <a href="javascript:void(0)" onclick="addGroup()">Add New Group</a>
 
     <ui:include src="/pages/modules/administration/users/addGroup.xhtml" />
 
