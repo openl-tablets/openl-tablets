@@ -17,18 +17,6 @@
         .selectedGroup a {
             color: #fff !important;
         }
-
-        .editMode #addHeader,
-        .editMode #name,
-        .editMode #saveBtn {
-            display: none;
-        }
-
-        .editMode #editHeader,
-        .editMode #newName,
-        .editMode #editBtn {
-            display: inline;
-        }
     </style>
 
     <rich:popupPanel id="modalAddGroup" autosized="true" width="600">
@@ -204,7 +192,9 @@
         }
 
         function addGroup() {
-            $j("#addGroupForm").removeClass("editMode");
+            $j("#editHeader,#addGroupForm\\:newName,#addGroupForm\\:editBtn").hide();
+            $j("#addHeader,#addGroupForm\\:name,#addGroupForm\\:saveBtn").show();
+
             $j("#addGroupForm\\:newName").attr("disabled", true);
             $j("#addGroupForm\\:name").attr("disabled", false);
 
@@ -212,7 +202,9 @@
         }
 
         function editGroup(name, description) {
-            $j("#addGroupForm").addClass("editMode");
+            $j("#addHeader,#addGroupForm\\:name,#addGroupForm\\:saveBtn").hide();
+            $j("#editHeader,#addGroupForm\\:newName,#addGroupForm\\:editBtn").show();
+
             $j("#addGroupForm\\:name").attr("disabled", true);
             $j("#addGroupForm\\:newName").attr("disabled", false);
 
