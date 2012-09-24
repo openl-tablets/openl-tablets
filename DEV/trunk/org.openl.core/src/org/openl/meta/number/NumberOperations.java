@@ -40,7 +40,7 @@ public enum NumberOperations {
     POSITIVE("positive"),
     DEC("dec"),
     SMALL("small"),
-    BIG("big");;
+    BIG("big");
     
     private String description;
     

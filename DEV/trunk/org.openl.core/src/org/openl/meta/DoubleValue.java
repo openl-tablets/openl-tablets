@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
@@ -402,6 +403,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.value = value;
     }    
 
+    /**Cast constructor**/
+    public DoubleValue(double value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("DoubleValue", autocast));
+        this.value = value;
+    }
+
     @Override
     public org.openl.meta.DoubleValue copy(String name) {
         return copy(this, name);        
@@ -445,7 +452,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (x == null) {
             return null;
         }
-        return new BigDecimalValue(String.valueOf(x.getValue()));
+        return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
     
     // ******* Casts *************
@@ -490,35 +497,35 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (x == null) {
             return null;
         }
-        return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue(), x, false);
     }
 
     public static ShortValue cast(DoubleValue x, ShortValue y) {
         if (x == null) {
             return null;
         }
-        return new ShortValue(x.shortValue());
+        return new ShortValue(x.shortValue(), x, false);
     }
         
     public static IntValue cast(DoubleValue x, IntValue y) {
         if (x == null) {
             return null;
         }
-        return new IntValue(x.intValue());
+        return new IntValue(x.intValue(), x, false);
     }
 
     public static LongValue cast(DoubleValue x, LongValue y) {
         if (x == null) {
             return null;
         }
-        return new LongValue(x.longValue());
+        return new LongValue(x.longValue(), x, false);
     }
     
     public static FloatValue cast(DoubleValue x, FloatValue y) {
         if (x == null) {
             return null;
         }
-        return new FloatValue(x.floatValue());
+        return new FloatValue(x.floatValue(), x, false);
     }
         
     public static org.openl.meta.DoubleValue round(org.openl.meta.DoubleValue value) {

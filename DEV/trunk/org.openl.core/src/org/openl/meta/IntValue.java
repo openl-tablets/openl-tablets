@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.explanation.ExplanationNumberValue;
+import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
@@ -362,6 +363,12 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         this.value = value;
     }    
 
+    /**Cast constructor**/
+    public IntValue(int value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
+        super(beforeCastValue, new CastOperand("IntValue", autocast));
+        this.value = value;
+    }
+
     @Override
     public org.openl.meta.IntValue copy(String name) {
         return copy(this, name);        
@@ -406,7 +413,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return null;
         }
 
-        return new LongValue(x.getValue());
+        return new LongValue(x.getValue(), x, true);
     }
     
     public static FloatValue autocast(IntValue x, FloatValue y) {
@@ -414,7 +421,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return null;
         }
 
-        return new FloatValue(x.getValue());
+        return new FloatValue(x.getValue(), x, true);
     }
     
     public static DoubleValue autocast(IntValue x, DoubleValue y) {
@@ -422,21 +429,21 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return null;
         }
 
-        return new DoubleValue(x.getValue());
+        return new DoubleValue(x.getValue(), x, true);
     }
     
     public static BigIntegerValue autocast(IntValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
-        return new BigIntegerValue(String.valueOf(x.getValue()));
+        return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
     }
     
     public static BigDecimalValue autocast(IntValue x, BigDecimalValue y) {
         if (x == null) {
             return null;
         }
-        return new BigDecimalValue(String.valueOf(x.getValue()));
+        return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
     
     // ******* Casts*************
@@ -481,14 +488,14 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (x == null) {
             return null;
         }
-        return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue(), x, false);
     }
         
     public static ShortValue cast(IntValue x, ShortValue y) {
         if (x == null) {
             return null;
         }
-        return new ShortValue(x.shortValue());
+        return new ShortValue(x.shortValue(), x, false);
     }
 
     public IntValue(String valueString) {        

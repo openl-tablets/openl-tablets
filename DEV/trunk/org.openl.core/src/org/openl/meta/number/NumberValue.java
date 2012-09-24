@@ -19,6 +19,8 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
     
     private NumberFunction<T> function;
     
+    private NumberCast cast;
+
     private ValueType valueType;
     
     /** Single value constructor **/
@@ -38,6 +40,12 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
         this.function = function;
     }
     
+    /** Casting operation constructor **/ 
+    public NumberValue(NumberCast cast) {
+        this.valueType = ValueType.CAST;
+        this.cast = cast;
+    }
+
     /**
      * 
      * @return formula for current value if {@link #getValueType()} returns {@link ValueType#FORMULA}.
@@ -56,6 +64,10 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
         return function;
     }
     
+    public NumberCast getCast() {
+        return cast;
+    }
+
     /**
      * 
      * @return type of current value.
@@ -73,7 +85,8 @@ public abstract class NumberValue<T extends NumberValue<T>> extends Number imple
     public enum ValueType {
         SINGLE_VALUE("value"),
         FORMULA("formula"),
-        FUNCTION("function");
+        FUNCTION("function"),
+        CAST("cast");
         
         private String name;
         
