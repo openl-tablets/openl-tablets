@@ -1,7 +1,6 @@
 package org.openl.rules.project.abstraction;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import org.openl.rules.common.PropertiesContainer;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
-import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -181,7 +179,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void unlock(CommonUser user) throws ProjectException {
-        getAPI().unlock(user);
+        getAPI().unlock(getUserToUnlock(user));
     }
 
     public boolean isLocked() {
@@ -192,6 +190,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         if (isLocked()) {
             CommonUser lockedBy = getLockInfo().getLockedBy();
             if (lockedBy.getUserName().equals(user.getUserName())) {
+                return true;
+            }
+
+            if (isLockedByDefaultUser(lockedBy, user)) {
                 return true;
             }
         }
@@ -223,5 +225,34 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         } else {
             return null;
         }
+    }
+
+    /**
+     * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
+     * 
+     * @param currentUser - current user trying to unlock 
+     * @return if lockedUser is LOCAL and current user is DEFAULT then return locked user else return currentUser
+     */
+    protected CommonUser getUserToUnlock(CommonUser currentUser) {
+        if (isLocked()) {
+            CommonUser lockedBy = getLockInfo().getLockedBy();
+            // For backward compatibility. Earlier user name in single user mode analog was "LOCAL"
+            if (isLockedByDefaultUser(lockedBy, currentUser)) {
+                currentUser = lockedBy;
+            }
+        }
+        return currentUser;
+    }
+    
+    /**
+     * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
+     * Checks that lockedUser is LOCAL and current user is DEFAULT
+     * 
+     * @param lockedUser
+     * @param currentUser
+     * @return
+     */
+    private boolean isLockedByDefaultUser(CommonUser lockedUser, CommonUser currentUser) {
+        return "LOCAL".equals(lockedUser.getUserName()) && "DEFAULT".equals(currentUser.getUserName());
     }
 }
