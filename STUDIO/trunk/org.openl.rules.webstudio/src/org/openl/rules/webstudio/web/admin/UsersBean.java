@@ -2,7 +2,11 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -19,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
@@ -104,24 +109,52 @@ public class UsersBean {
         return groups.toArray(new String[groups.size()]);
     }
 
-    public void addUser() {
+    private List<Privilege> getSelectedGroups() {
         List<Privilege> resultGroups = new ArrayList<Privilege>();
-        for (String groupName : groups) {
-            resultGroups.add(
-                    groupManagementService.getGroupByName(groupName));
+        Map<String, Group> groups = new HashMap<String, Group>();
+
+        if (this.groups != null) {
+            for (String groupName : this.groups) {
+                groups.put(groupName, groupManagementService.getGroupByName(groupName));
+            }
+
+            for (Group group : new ArrayList<Group>(groups.values())) {
+                if (!groups.isEmpty()) {
+                    removeIncludedGroups(group, groups);
+                }
+            }
+
+            for (Group group : groups.values()) {
+                resultGroups.add(group);
+            }
         }
+
+        return resultGroups;
+    }
+
+    public void addUser() {
         userManagementService.addUser(
-                new SimpleUser(firstName, lastName, username, password, resultGroups));
+                new SimpleUser(firstName, lastName, username, password, getSelectedGroups()));
     }
 
     public void editUser() {
-        List<Privilege> resultGroups = new ArrayList<Privilege>();
-        for (String groupName : groups) {
-            resultGroups.add(
-                    groupManagementService.getGroupByName(groupName));
-        }
         userManagementService.updateUser(
-                new SimpleUser(firstName, lastName, username, null, resultGroups));
+                new SimpleUser(firstName, lastName, username, null, getSelectedGroups()));
+    }
+
+    private void removeIncludedGroups(Group group, Map<String, Group> groups) {
+        Set<String> groupNames = new HashSet<String>(groups.keySet());
+        for (String checkGroupName : groupNames) {
+            if (!group.getName().equals(checkGroupName) &&
+                    (group.hasPrivilege(checkGroupName) ||
+                            group.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name()))) {
+                Group includedGroup = groups.get(checkGroupName);
+                if (includedGroup != null) {
+                    removeIncludedGroups(includedGroup, groups);
+                    groups.remove(checkGroupName);
+                }
+            }
+        }
     }
 
     public boolean isOnlyAdmin(Object objUser) {
