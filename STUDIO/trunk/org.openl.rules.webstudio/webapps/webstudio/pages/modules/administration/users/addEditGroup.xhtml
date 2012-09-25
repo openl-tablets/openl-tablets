@@ -12,14 +12,14 @@
             background: #eff7ff;
         }
         .selectedGroup {
-            background: #77df00;
+            background: #77d100;
         }
         .selectedGroup a {
             color: #fff !important;
         }
     </style>
 
-    <rich:popupPanel id="modalAddGroup" autosized="true" width="600">
+    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="600">
         <f:facet name="header">
             <h:outputText id="addHeader" value="Add New Group" />
             <h:outputText id="editHeader" value="Edit Group" style="display: none;" />
@@ -30,7 +30,7 @@
                 onclick="hideAddGroup()" alt="Close" />
         </f:facet>
 
-        <h:form id="addGroupForm">
+        <h:form id="addEditGroupForm">
             <div style="max-height: 570px; overflow: auto;">
             <table cellspacing="5">
                 <tr>
@@ -40,8 +40,7 @@
                     <td>
                         <h:inputText id="name" value="#{groupsBean.name}" validator="#{groupsBean.validateGroupName}"
                             style="margin-right: 7px;" />
-                        <h:inputText id="newName" value="#{groupsBean.name}" style="margin-right: 7px; display:none"
-                            disabled="true" />
+                        <h:inputText id="newName" value="#{groupsBean.name}" style="margin-right: 7px; display:none" />
                         <h:inputHidden id="oldName" value="#{groupsBean.oldName}" />
                         <a4j:outputPanel ajaxRendered="true">
                             <h:message for="name" styleClass="error" />
@@ -95,10 +94,10 @@
             <br />
 
             <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm @form"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm @form"
                 styleClass="button-primary" />
-            <a4j:commandButton id="editBtn" value="Edit" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm @form"
+            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm :editUserForm @form"
                 styleClass="button-primary" style="display: none" />
             <input type="button" value="Cancel" onclick="hideAddGroup()" />
 
@@ -192,35 +191,35 @@
         }
 
         function addGroup() {
-            $j("#editHeader,#addGroupForm\\:newName,#addGroupForm\\:editBtn").hide();
-            $j("#addHeader,#addGroupForm\\:name,#addGroupForm\\:saveBtn").show();
+            $j("#editHeader,#addEditGroupForm\\:newName,#addEditGroupForm\\:editBtn").hide();
+            $j("#addHeader,#addEditGroupForm\\:name,#addEditGroupForm\\:saveBtn").show();
 
-            $j("#addGroupForm\\:newName").attr("disabled", true);
-            $j("#addGroupForm\\:name").attr("disabled", false);
+            $j("#addEditGroupForm\\:newName").attr("disabled", true);
+            $j("#addEditGroupForm\\:name").attr("disabled", false);
 
-            RichFaces.$("modalAddGroup").show();
+            RichFaces.$("modalAddEditGroup").show();
         }
 
         function editGroup(name, description) {
-            $j("#addHeader,#addGroupForm\\:name,#addGroupForm\\:saveBtn").hide();
-            $j("#editHeader,#addGroupForm\\:newName,#addGroupForm\\:editBtn").show();
+            $j("#addHeader,#addEditGroupForm\\:name,#addEditGroupForm\\:saveBtn").hide();
+            $j("#editHeader,#addEditGroupForm\\:newName,#addEditGroupForm\\:editBtn").show();
 
-            $j("#addGroupForm\\:name").attr("disabled", true);
-            $j("#addGroupForm\\:newName").attr("disabled", false);
+            $j("#addEditGroupForm\\:name").attr("disabled", true);
+            $j("#addEditGroupForm\\:newName").attr("disabled", false);
 
-            $j("#addGroupForm\\:oldName").val(name);
-            $j("#addGroupForm\\:newName").val(name);
-            $j("#addGroupForm\\:description").val(description);
+            $j("#addEditGroupForm\\:oldName").val(name);
+            $j("#addEditGroupForm\\:newName").val(name);
+            $j("#addEditGroupForm\\:description").val(description);
             setPrivileges(name);
 
-            RichFaces.$("modalAddGroup").show();
+            RichFaces.$("modalAddEditGroup").show();
         }
 
         function hideAddGroup() {
-            RichFaces.$("modalAddGroup").hide();
+            RichFaces.$("modalAddEditGroup").hide();
 
             // Reset form
-            $j("#addGroupForm")[0].reset();
+            $j("#addEditGroupForm")[0].reset();
             $j("#privilegesTable td :checkbox").each(function() {
                 if (!this.disabled) {
                     checkPrivilege($j(this), false);

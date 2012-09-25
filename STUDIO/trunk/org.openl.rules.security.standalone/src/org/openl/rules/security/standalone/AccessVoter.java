@@ -71,11 +71,6 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
 
                 String auth = attribute.getAttribute();
 
-                // No restrictions
-                if (auth.equals(DefaultPrivileges.PRIVILEGE_ALL.name())) {
-                    return ACCESS_GRANTED;
-                }
-
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
                     String authority = grantedAuthority.getAuthority();
