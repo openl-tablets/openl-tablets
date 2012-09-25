@@ -1,6 +1,5 @@
 package org.openl.rules.project.abstraction;
 
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -24,14 +23,7 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public boolean isLockedByMe() {
-        if (isLocked()) {
-            CommonUser lockedBy = getLockInfo().getLockedBy();
-            if (lockedBy.getUserName().equals(user.getUserName())) {
-                return true;
-            }
-        }
-
-        return false;
+        return isLockedByUser(user);
     }
 
     public boolean isLocalOnly() {

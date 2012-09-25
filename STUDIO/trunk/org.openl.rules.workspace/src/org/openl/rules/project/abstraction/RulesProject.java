@@ -89,7 +89,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void unlock(CommonUser user) throws ProjectException {
-        repository.unlock(user);
+        repository.unlock(getUserToUnlock(user));
     }
 
     public ProjectVersion getVersion() {

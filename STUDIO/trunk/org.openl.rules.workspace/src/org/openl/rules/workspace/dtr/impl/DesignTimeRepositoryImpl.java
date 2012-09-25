@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigSet;
 import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -25,8 +26,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEvent;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.MsgHelper;
 
 /**
@@ -263,11 +264,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             throw new RepositoryException("Cannot update project ''{0}'' while it is not locked!", null, name);
         }
 
-        //FIXME
-        WorkspaceUser lockedBy = (WorkspaceUser)dest.getLockInfo().getLockedBy();
-        if (!lockedBy.equals(user)) {
-            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, lockedBy
-                    .getUserName());
+        if (!dest.isLockedByUser(user)) {
+            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, dest
+                    .getLockInfo().getLockedBy().getUserName());
         }
 
         try {
