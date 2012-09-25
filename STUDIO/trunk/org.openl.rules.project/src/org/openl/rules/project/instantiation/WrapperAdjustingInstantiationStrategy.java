@@ -165,6 +165,10 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
             log.error(errorMessage, e);
             throw new RulesInstantiationException(errorMessage, e);
+        } catch (UnsupportedClassVersionError e) {
+            String errorMessage = String.format("Cannot load a class compiled using newer version of JDK than current JRE (%s)", System.getProperty("java.version"));
+            log.error(errorMessage, e);
+            throw new RulesInstantiationException(errorMessage, e);
         }
     }
     
