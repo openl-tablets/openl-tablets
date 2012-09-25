@@ -71,7 +71,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         for (GrantedAuthority auth : user.getAuthorities()) {
             groups.add(groupDao.getGroupByName(auth.getAuthority()));
         }
-        //persistUser.setGroups(groups);
+        persistUser.setGroups(groups);
 
         userDao.update(persistUser);
     }
