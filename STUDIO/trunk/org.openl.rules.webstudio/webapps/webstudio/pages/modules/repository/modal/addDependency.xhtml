@@ -23,12 +23,12 @@
           <f:ajax event="change" render="lowerVersion" execute="@this" />
         </h:selectOneMenu>
 
-        <h:outputLabel for="lowerVersion" styleClass="required" value="Lower version" />
+        <h:outputLabel for="lowerVersion" styleClass="required" value="Lower revision" />
         <h:selectOneMenu id="lowerVersion" value="#{dependencyController.lowerVersion}">
           <f:selectItems value="#{dependencyController.projectVersions}" />
         </h:selectOneMenu>
 
-        <h:outputLabel for="upperVersion" value="Upper version" />
+        <h:outputLabel for="upperVersion" value="Upper revision" />
         <h:inputText id="upperVersion" size="20" maxlength="20" value="#{dependencyController.upperVersion}" />
       </h:panelGrid>
 
