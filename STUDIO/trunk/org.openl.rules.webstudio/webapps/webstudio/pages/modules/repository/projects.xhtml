@@ -60,7 +60,7 @@
         <h:panelGroup rendered="#{!prj.data.deleted}">
           &#160;
           <h:commandLink immediate="true"
-              rendered="#{repositoryTreeState.canCreateDeployment}"
+              rendered="#{repositoryTreeState.canCreate}"
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
           </h:commandLink>
