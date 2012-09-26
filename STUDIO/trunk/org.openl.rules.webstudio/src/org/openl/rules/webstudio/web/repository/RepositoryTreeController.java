@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -1222,6 +1223,10 @@ public class RepositoryTreeController {
     
     public boolean getCanDelete() {
         return isGranted(PRIVILEGE_DELETE_PROJECTS);
+    }
+
+    public boolean getCanDeleteDeployment() {
+        return isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
     }
 
     private void resetStudioModel() {
