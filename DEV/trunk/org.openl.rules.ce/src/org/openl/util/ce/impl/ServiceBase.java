@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IServiceMT;
-import org.openl.util.ce.IServiceMTConfiguration;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 public abstract class ServiceBase implements IServiceMT {
 

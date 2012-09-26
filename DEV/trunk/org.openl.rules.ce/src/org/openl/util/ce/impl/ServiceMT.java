@@ -2,7 +2,8 @@ package org.openl.util.ce.impl;
 
 import org.openl.util.ce.IActivity;
 import org.openl.util.ce.IServiceMT;
-import org.openl.util.ce.IServiceMTConfiguration;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 
 public abstract class ServiceMT extends ServiceBase {
 

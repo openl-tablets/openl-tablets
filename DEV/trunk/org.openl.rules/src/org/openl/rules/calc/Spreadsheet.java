@@ -1,5 +1,6 @@
 package org.openl.rules.calc;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,14 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this(header, boundNode, false);
     }
     
+    Constructor<?> constructor;
+    public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException
+    {
+    	if (constructor == null)
+    		constructor = this.getType().getInstanceClass().getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+    	return constructor;
+    }
+    
     @Override
     public IOpenClass getType() {
         if (isCustomSpreadsheetType()) {
@@ -72,19 +81,20 @@ public class Spreadsheet extends ExecutableRulesMethod {
 		return customSpreadsheetType;
 	}
 
-    private IOpenClass getCustomSpreadsheetResultType() {
+    private synchronized IOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
             initCustomSpreadsheetResultType();
         }
         return spreadsheetCustomType;
     }
-
-    private void initCustomSpreadsheetResultType() {
+    
+    
+        private void initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         
         /** get fields coordinates */
-        Map<String, Point> fieldCoordinates = DefaultResultBuilder.getFieldsCoordinates(spreadsheetOpenClassFields);
+        Map<String, Point> fieldCoordinates = getFieldsCoordinates();
         
         Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator("org.openl.rules.calc.SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
@@ -208,6 +218,14 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
 	public void setInvoker(SpreadsheetInvoker invoker) {
 		this.invoker = invoker;
+	}
+
+	Map<String, Point> fieldsCoordinates = null;
+	
+	public synchronized Map<String, Point> getFieldsCoordinates() {
+		if (fieldsCoordinates == null)
+			fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+		return fieldsCoordinates;
 	}
 
 }

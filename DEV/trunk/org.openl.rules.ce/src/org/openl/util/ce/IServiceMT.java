@@ -2,8 +2,9 @@ package org.openl.util.ce;
 
 import java.util.concurrent.Callable;
 
+import org.openl.binding.impl.MultiCallMethodBoundNode;
 import org.openl.util.IConvertor;
-import org.openl.util.ce.impl.ScheduleExecutor;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 /**
  * 
@@ -184,6 +185,9 @@ public interface IServiceMT {
 
 
 	IScheduler getScheduler(long singleCellLength);
+	
+	
+	IServiceMTConfiguration getConfig();
 
 
 }

@@ -32,8 +32,8 @@ public class XlsBinderCE  extends XlsBinder{
 	
 	@Override
 	protected AXlsTableBinder findBinder(String tableSyntaxNodeType) {
-		if (tableSyntaxNodeType.equals(XlsNodeTypes.XLS_SPREADSHEET.toString()))
-			return spreadsheetBinderCE;
+//		if (tableSyntaxNodeType.equals(XlsNodeTypes.XLS_SPREADSHEET.toString()))
+//			return spreadsheetBinderCE;
 		return super.findBinder(tableSyntaxNodeType);
 	}
 	

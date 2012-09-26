@@ -36,7 +36,7 @@ public class LookupTableTest {
     
     @Test
     public void testNotMergerdLookupTable() {
-        DoubleValue result = test.getCarPrice("Belarus", "Minsk", "Porche", "911 Carrera 4S");
+        DoubleValue result = test.getCarPrice("Belarus,UK", "Minsk", "Porche", "911 Carrera 4S");
         assertEquals(93200, result.intValue());
     }
     

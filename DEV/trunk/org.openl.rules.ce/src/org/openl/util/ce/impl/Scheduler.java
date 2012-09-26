@@ -11,7 +11,7 @@ import org.openl.util.ce.IActivity;
 import org.openl.util.ce.IInvokableActivity;
 import org.openl.util.ce.IScheduledActivity;
 import org.openl.util.ce.IScheduler;
-import org.openl.util.ce.IServiceMTConfiguration;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 public class Scheduler implements IScheduler {
 
