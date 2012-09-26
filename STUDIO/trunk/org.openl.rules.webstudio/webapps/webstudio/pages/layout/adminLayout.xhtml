@@ -42,6 +42,8 @@
           //<![CDATA[
             var $j = $.noConflict();
 
+            var loadingPanel;
+
             // Handle JSF / Richfaces AJAX errors
             var onError = function onError(data) {
                 if (data.errorName
@@ -59,6 +61,9 @@
                     slidable: false,
                     spacing_open: 1
                 });
+
+                loadingPanel = $j("#loadingPanel");
+
                 $j("body").css({"visibility": "visible"});
             });
 
@@ -67,6 +72,18 @@
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else {
                     alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
+                }
+            }
+
+            function showLoader() {
+                if (loadingPanel.is(":hidden")) {
+                    loadingPanel.show();
+                }
+            }
+
+            function hideLoader() {
+                if (loadingPanel.is(":visible")) {
+                    loadingPanel.hide();
                 }
             }
             //]]>
@@ -104,5 +121,13 @@
                 <ui:include src="/pages/common/footer.xhtml" />
             </ui:insert>
         </div>
+
+        <div id="loadingPanel" style="display: none">
+            <img src="webresource/images/ajax-loader.gif" />
+        </div>
+
+        <div style="display: none">
+            <a4j:status onstart="showLoader()" onstop="hideLoader()" />
+         </div>
     </h:body>
 </html>
