@@ -485,4 +485,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     public boolean isLocalOnly() {
         return getSelectedProject().isLocalOnly();
     }
+    
+    public String clearSelectPrj() {
+        buildTree();
+        invalidateSelection();
+        
+        return "";
+    }
 }
