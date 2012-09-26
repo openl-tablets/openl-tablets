@@ -17,13 +17,14 @@
     <h:form id="newFolderForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="folderName" styleClass="required" value="Folder Name" />
-        <h:inputText id="folderName" size="40" maxlength="50" value="#{repositoryTreeController.folderName}" />
+        <h:inputText id="folderName" size="40" maxlength="50" value="#{repositoryTreeController.folderName}" 
+            onkeyup="enableAddButton(this.value.length > 0);" />
       </h:panelGrid>
 
       <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Add" action="#{repositoryTreeController.addFolder}" />
+        <h:commandButton value="Add" id="addButton" action="#{repositoryTreeController.addFolder}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalNewFolder')}.hide();" />
       </h:panelGrid>
     </h:form>
@@ -34,5 +35,11 @@
       RichFaces.$('modalNewFolder').show();
       focusElement("newFolderForm:folderName");
     }
+
+    function enableAddButton(enable) {
+        #{rich:element('addButton')}.disabled = !enable;
+    }
+
+    enableAddButton(false);
   </script>
 </ui:composition>
