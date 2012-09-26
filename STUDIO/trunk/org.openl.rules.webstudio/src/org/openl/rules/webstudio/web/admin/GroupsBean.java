@@ -104,8 +104,9 @@ public class GroupsBean {
     public void addGroup() {
         Collection<Privilege> authorities = new ArrayList<Privilege>();
 
+        String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
         List<String> privileges = new ArrayList<String>(Arrays.asList(
-                FacesUtils.getRequest().getParameterValues("privilege")));
+                privilegesParam == null ? new String[0] : privilegesParam));
         privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
 
         // Admin
@@ -145,8 +146,9 @@ public class GroupsBean {
     public void editGroup() {
         Collection<Privilege> authorities = new ArrayList<Privilege>();
 
+        String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
         List<String> privileges = new ArrayList<String>(Arrays.asList(
-                FacesUtils.getRequest().getParameterValues("privilege")));
+                privilegesParam == null ? new String[0] : privilegesParam));
         privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
 
         // Admin
