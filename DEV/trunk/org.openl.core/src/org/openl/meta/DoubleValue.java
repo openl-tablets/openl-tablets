@@ -563,8 +563,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             scale = 0;
             preRoundedValue = d.doubleValue();
         } else {
-            scale = (int) org.apache.commons.math.util.MathUtils.round(-Math.log10(p.doubleValue()), 0, java.math.BigDecimal.ROUND_UP);
-            preRoundedValue = Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue();
+            scale = (int) org.apache.commons.math.util.MathUtils.round(-Math.log10(p.doubleValue()), 0, java.math.BigDecimal.ROUND_HALF_UP);
+            preRoundedValue = d.doubleValue();
+//            preRoundedValue = 	Math.round(d.doubleValue() / p.doubleValue()) * p.doubleValue();
         }
         
         double roundedValue = org.apache.commons.math.util.MathUtils.round(preRoundedValue, scale);

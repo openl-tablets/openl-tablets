@@ -7,11 +7,11 @@ import org.junit.Test;
 import org.openl.util.ce.IActivity;
 import org.openl.util.ce.ICallableActivity;
 import org.openl.util.ce.IScheduledActivity;
+import org.openl.util.ce.conf.ServiceMTConfiguration;
 import org.openl.util.ce.impl.InvokeCallableFactory;
 import org.openl.util.ce.impl.ScheduleExecutor;
 import org.openl.util.ce.impl.ServiceMT;
 import org.openl.util.ce.impl.ServiceMT16;
-import org.openl.util.ce.impl.ServiceMTConfiguration;
 
 public class SchedulerTest {
 

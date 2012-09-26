@@ -1,8 +1,8 @@
 package org.openl.util.ce.impl;
 
 import org.openl.util.ce.IServiceMT;
-import org.openl.util.ce.IServiceMTConfiguration;
 import org.openl.util.ce.IServiceMTFactory;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 public class ServiceMTFactory implements IServiceMTFactory {
 

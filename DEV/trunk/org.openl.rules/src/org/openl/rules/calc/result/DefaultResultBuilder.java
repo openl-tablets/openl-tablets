@@ -25,12 +25,14 @@ public class DefaultResultBuilder implements IResultBuilder {
          
         String[] columnNames = getColumnNames(result);
         
-        Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result.getSpreadsheet().getSpreadsheetType().getFields());
+//        Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result.getSpreadsheet().getSpreadsheetType().getFields());
+        Map<String, Point> fieldsCoordinates = result.getSpreadsheet().getFieldsCoordinates();
         
 
         Constructor<?> constructor = null;
         try {
-            constructor = result.getSpreadsheet().getType().getInstanceClass().getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+//            constructor = result.getSpreadsheet().getType().getInstanceClass().getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+        	constructor = result.getSpreadsheet().getResultConstructor();
         } catch (Exception e1) {
             //TODO: add logger
         }

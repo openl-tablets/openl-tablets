@@ -27,6 +27,8 @@ public class BinaryOpNode extends MethodBoundNode {
 
     }
 
+	private boolean useBinaryMethod;
+
     /**
      * @param syntaxNode
      * @param child
@@ -34,13 +36,17 @@ public class BinaryOpNode extends MethodBoundNode {
      */
     public BinaryOpNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
         super(syntaxNode, child, method);
+        useBinaryMethod = method.getMethod().getSignature().getParameterTypes().length == 2;
     }
 
     @Override
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
         Object[] pars = evaluateChildren(env);
 
-        return evaluateBinaryMethod(env, pars, boundMethod);
+        if (useBinaryMethod)
+        	return boundMethod.invoke(null, pars, env);
+        
+        return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
 
     }
 

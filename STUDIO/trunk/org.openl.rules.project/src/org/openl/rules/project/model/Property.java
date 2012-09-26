@@ -3,6 +3,8 @@ package org.openl.rules.project.model;
 public final class Property {
 	private String name;
 	private String value;
+	
+	public Property(){}
 
 	public Property(String name, String value) {
 		if (name == null)

@@ -16,7 +16,7 @@ import org.openl.util.ce.IActivity;
 import org.openl.util.ce.ICallableActivity;
 import org.openl.util.ce.IMTConvertorFactory;
 import org.openl.util.ce.IScheduler;
-import org.openl.util.ce.IServiceMTConfiguration;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 public class ServiceMT16  extends ServiceMT {
 
@@ -207,8 +207,10 @@ public class ServiceMT16  extends ServiceMT {
 
 			int splitSize = calcSplitSize(len, factory.estimateDuration(0));
 			
+//			int splitSize = 4;
+			
 
-			int flen = len / splitSize + 1;
+//			int flen = len / splitSize + 1;
 			List<Future<?>> fres = new ArrayList<Future<?>>();
 
 			for (int i = 0; i < len; i += splitSize) {
@@ -218,7 +220,7 @@ public class ServiceMT16  extends ServiceMT {
 				fres.add(f);
 			}
 
-			flen = fres.size();
+			int flen = fres.size();
 			SortedMap<Integer, Throwable> errors = null;
 			for (int i = 0; i < flen; i++) {
 

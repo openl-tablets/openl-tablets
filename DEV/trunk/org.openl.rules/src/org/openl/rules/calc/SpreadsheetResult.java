@@ -23,7 +23,7 @@ public class SpreadsheetResult implements Serializable {
     private int width;
     private String[] columnNames;
     private String[] rowNames;
-    private Map<String, Point> fieldsCoordinates;
+    final private Map<String, Point> fieldsCoordinates;
     
     /**
      * logical representation of calculated spreadsheet table
@@ -45,7 +45,8 @@ public class SpreadsheetResult implements Serializable {
         this.height = rowNames.length;
         this.width = columnNames.length;
         this.results = results.clone();
-        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);        
+//        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);        
+        this.fieldsCoordinates = fieldsCoordinates;        
     }
     
     /**
@@ -138,9 +139,9 @@ public class SpreadsheetResult implements Serializable {
         fieldsCoordinates.put(field, coord);
     }
 
-    public void setFieldsCoordinates(Map<String, Point> fieldsCoordinates) {
-        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);
-    }
+//    public void setFieldsCoordinates(Map<String, Point> fieldsCoordinates) {
+//        this.fieldsCoordinates = new HashMap<String, Point>(fieldsCoordinates);
+//    }
     
     /**
      * 

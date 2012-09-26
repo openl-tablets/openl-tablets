@@ -202,4 +202,15 @@ public class BigDecimalvalueTest {
             assertTrue(true);
         }                
     }
+    
+    
+    @Test
+    public void testRounding() {
+    	
+        BigDecimalValue value1 = BigDecimalValue.multiply(new BigDecimalValue("0.7"), new BigDecimalValue("0.75"));
+        assertEquals("0.53", BigDecimalValue.round(value1, 2).toString());
+    	
+    }
+    
+    
 }

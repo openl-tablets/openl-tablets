@@ -7,7 +7,7 @@ import org.openl.util.IConvertor;
 import org.openl.util.ce.ArrayExecutionException;
 import org.openl.util.ce.IMTConvertorFactory;
 import org.openl.util.ce.IScheduler;
-import org.openl.util.ce.IServiceMTConfiguration;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 
 /**
  * 

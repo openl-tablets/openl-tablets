@@ -11,6 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.IConvertor;
 import org.openl.util.ce.IMTConvertorFactory;
+import org.openl.util.ce.conf.IServiceMTConfiguration;
 import org.openl.util.ce.impl.ServiceMT;
 import org.openl.vm.IRuntimeEnv;
 
@@ -92,6 +93,11 @@ public class MultiCallMethodBoundNodeMT extends MethodBoundNode {
 			//
 
 			final IMethodCaller mcaller = getMethodCaller();
+			IServiceMTConfiguration config = ServiceMT.getService().getConfig();
+			long singleMethodLengthConf = config.getComponentLengthNs(mcaller.getMethod().getName());
+			
+			final long singleMethodLength = singleMethodLengthConf == 0 ? config.getDefaultRunningComponentLength() : singleMethodLengthConf;
+			
 
 			IMTConvertorFactory<Object> factory = new IMTConvertorFactory<Object>() {
 
@@ -119,7 +125,7 @@ public class MultiCallMethodBoundNodeMT extends MethodBoundNode {
 
 				@Override
 				public long estimateDuration(Integer index) {
-					return 100000;
+					return singleMethodLength;
 				}
 
 			};
@@ -128,7 +134,7 @@ public class MultiCallMethodBoundNodeMT extends MethodBoundNode {
 				ServiceMT.getService().executeIndexed(factory , (Object[]) results);
 			else
 				ServiceMT.getService().executeIndexedPrimitive(null, results,
-						100000);
+						singleMethodLength);
 
 		}
 
