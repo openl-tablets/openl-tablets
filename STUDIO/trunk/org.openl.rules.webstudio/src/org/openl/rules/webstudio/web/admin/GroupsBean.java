@@ -26,6 +26,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
 
+// TODO Needs performance optimization
 /**
  * @author Andrei Astrouski
  */
@@ -92,6 +93,38 @@ public class GroupsBean {
                 result.addAll(getPrivileges(privilege.getName()));
             } else {
                 result.add(privilege.getName());
+            }
+        }
+        return result;
+    }
+
+    public List<String> getIncludedGroups(String groupName) {
+        List<String> result = new ArrayList<String>();
+        Group group = groupManagementService.getGroupByName(groupName);
+        Collection<Privilege> authorities = group.getPrivileges();
+        for (Privilege authority : authorities) {
+            if (authority instanceof Group) {
+                String incGroupName = authority.getName();
+                // Don't use Set
+                List<String> incGroups = getIncludedGroups(incGroupName);
+                for (String incGroup : incGroups) {
+                    if (!result.contains(incGroup)) {
+                        result.add(incGroup);
+                    }
+                }
+                result.add(incGroupName);
+            }
+        }
+        return result;
+    }
+
+    public List<String> getNonGroupPrivileges(String groupName) {
+        List<String> result = new ArrayList<String>();
+        Group group = groupManagementService.getGroupByName(groupName);
+        Collection<Privilege> authorities = group.getPrivileges();
+        for (Privilege authority : authorities) {
+            if (!(authority instanceof Group)) {
+                result.add(authority.getDisplayName());
             }
         }
         return result;
