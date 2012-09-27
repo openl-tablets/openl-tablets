@@ -221,12 +221,14 @@
         </div>
     </div>
 
-    <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
-        execute="@this" render="commonProps repositoryProps javaProps restartMessage"
-        onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
-    <h:outputText value=" " />
-    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
-        styleClass="button-primary" />
+    <div style="padding-left: 115px">
+        <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
+            execute="@this" render="commonProps repositoryProps javaProps restartMessage"
+            onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
+        <h:outputText value=" " />
+        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+            styleClass="button-primary" />
+    </div>
 
     </h:form>
 
