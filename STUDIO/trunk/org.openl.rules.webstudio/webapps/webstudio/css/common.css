@@ -434,7 +434,7 @@ form.standard table.buttonPanel {
     position: absolute;
     width: 210px;
     left: 43%;
-    z-index: 1;
+    z-index: 1000;
     background: #333;
     color: white;
     padding: 17px 11px;
