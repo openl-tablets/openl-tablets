@@ -62,7 +62,7 @@
                 <tr>
                     <th class="required">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
-                    <th><a id="group#{group.name}" href="#"
+                    <th><a id="group#{group.name}" href="javascript:void(0)"
                         onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
                         <input type="checkbox" name="group" value="#{group.name}" style="display: none" />
                     </th>
