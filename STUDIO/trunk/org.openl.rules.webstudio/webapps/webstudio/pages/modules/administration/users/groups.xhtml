@@ -18,13 +18,14 @@
             <td>#{group.name}</td>
             <td>#{group.description}</td>
             <td>
-                <ui:repeat var="authority" value="#{group.privileges}">
-                <h:panelGroup class="badge" style="margin-right: 2px"
-                    rendered="#{authority.name.startsWith('PRIVILEGE') and authority.name != 'PRIVILEGE_ALL'}">#{authority.displayName}</h:panelGroup>
-                <h:panelGroup class="badge badge-info" style="margin-right: 2px"
-                    rendered="#{!authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
-                <h:panelGroup class="badge badge-error" style="margin-right: 2px"
-                    rendered="#{authority.name == 'PRIVILEGE_ALL'}">#{authority.displayName}</h:panelGroup>
+                <ui:repeat var="groupName" value="#{groupsBean.getIncludedGroups(group.name)}">
+                    <h:panelGroup class="badge badge-info" style="margin-right: 2px">#{groupName}</h:panelGroup>
+                </ui:repeat>
+                <ui:repeat var="privilegeName" value="#{groupsBean.getNonGroupPrivileges(group.name)}">
+                    <h:panelGroup class="badge" style="margin-right: 2px"
+                        rendered="#{privilegeName != 'NO RESTRICTIONS'}">#{privilegeName}</h:panelGroup>
+                    <h:panelGroup class="badge badge-error" style="margin-right: 2px"
+                        rendered="#{privilegeName == 'NO RESTRICTIONS'}">#{privilegeName}</h:panelGroup>
                 </ui:repeat>
             </td>
             <td>
