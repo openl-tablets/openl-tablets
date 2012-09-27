@@ -443,6 +443,7 @@ form.standard table.buttonPanel {
     -moz-transition: all .4s ease-out;
     -webkit-transition: all .4s ease-out;
     transition: all .4s ease-out;
+    word-wrap: break-word;
 }
 
 .noEntries {
