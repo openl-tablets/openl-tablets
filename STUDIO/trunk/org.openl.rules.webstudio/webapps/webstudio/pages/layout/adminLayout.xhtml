@@ -49,18 +49,22 @@
                 if (typeof console != "undefined") console.error(data);
 
                 // @Deprecated
-                var errorMessage = data.errorMessage;
-                if (errorMessage) {
-                    if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
-                        location.reload();
-                    } else {
-                        message(errorMessage);
-                    }
-                    return;
+                if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
+                    location.reload();
+                } else {
+                    handleError(data.responseCode);
                 }
-
-                handleError(data.responseCode);
             });
+
+            function handleError(code) {
+                if (code == 399) { // Session Timeout
+                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else if (code == 404) { // File Not Found
+                    message("Sorry! Page Not Found!", 7000);
+                } else {
+                    message("Sorry! Something went wrong. Please, try to refresh WebStudio!", 7000);
+                }
+            }
 
             $j(function () {
                 $j('body').layout({
@@ -74,16 +78,6 @@
 
                 $j("body").css({"visibility": "visible"});
             });
-
-            function handleError(code) {
-                if (code == 399) { // Session Timeout
-                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                } else if (code == 404) { // File Not Found
-                    message("Sorry! Page Not Found!", 7000);
-                } else {
-                    message("Sorry! Something went wrong. Please, try to refresh WebStudio!", 7000);
-                }
-            }
 
             function showLoader() {
                 if (loadingPanel.is(":hidden")) {
