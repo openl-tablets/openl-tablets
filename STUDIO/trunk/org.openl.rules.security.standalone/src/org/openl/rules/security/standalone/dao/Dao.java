@@ -58,17 +58,17 @@ public interface Dao<T extends PersistentObject> {
     void save(T obj);
 
     /**
-     * Saves or updates (necessary operation is determined automatically, see
-     * hibernate documentation for more details).
-     *
-     * @param obj object to save/update
-     */
-    void saveOrUpdate(T obj);
-
-    /**
      * Updates object.
      *
      * @param obj object to update.
      */
     void update(T obj);
+
+    /**
+     * Merges object.
+     *
+     * @param obj object to merge.
+     */
+    void merge(T obj);
+
 }

@@ -255,10 +255,9 @@ fieldset {
 }
 
 .tab-panel-vertical {
-    border: 1px solid #ddd;
-    border-width: 1px 1px 1px 0;
-    height: 350px;
+    border-top: 1px solid #ddd;
     margin: 13px 24px 13px 3px;
+    min-height: 350px;
 }
 
 .tab-panel-vertical ul {
@@ -435,7 +434,7 @@ form.standard table.buttonPanel {
     position: absolute;
     width: 210px;
     left: 43%;
-    z-index: 1;
+    z-index: 1000;
     background: #333;
     color: white;
     padding: 17px 11px;
@@ -444,6 +443,7 @@ form.standard table.buttonPanel {
     -moz-transition: all .4s ease-out;
     -webkit-transition: all .4s ease-out;
     transition: all .4s ease-out;
+    word-wrap: break-word;
 }
 
 .noEntries {

@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="600">
+    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="650">
         <f:facet name="header">
             <h:outputText id="addHeader" value="Add New Group" />
             <h:outputText id="editHeader" value="Edit Group" style="display: none;" />
@@ -62,7 +62,7 @@
                 <tr>
                     <th class="required">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
-                    <th><a id="group#{group.name}" href="#"
+                    <th><a id="group#{group.name}" href="javascript:void(0)"
                         onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
                         <input type="checkbox" name="group" value="#{group.name}" style="display: none" />
                     </th>
@@ -94,7 +94,7 @@
             <br />
 
             <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm @form"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :groups @form"
                 styleClass="button-primary" />
             <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
                 oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm :editUserForm @form"
