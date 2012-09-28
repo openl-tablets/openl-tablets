@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.repository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -359,13 +358,7 @@ public class DeploymentController {
             repos.add(config);
         }
         
-        Collections.sort(repos, new Comparator<RepositoryConfiguration>() {
-            @Override
-            public int compare(RepositoryConfiguration o1, RepositoryConfiguration o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-            
-        });
+        Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
         return repos;
     }
 }

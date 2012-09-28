@@ -1,7 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.math.BigInteger;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
@@ -9,6 +13,8 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.config.ConfigurationManager;
 
 public class RepositoryConfiguration {
+    public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
+    
     private ConfigurationManager configManager;
 
     private static final String PRODUCTION_REPOSITORY_FACTORY = "production-repository.factory";
@@ -103,5 +109,41 @@ public class RepositoryConfiguration {
     public boolean isProductionRepositoryPathSystem() {
         String type = getType();
         return configManager.isSystemProperty(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+    }
+    
+    protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {
+        private static final Pattern pattern = Pattern.compile("([^\\d]*+)(\\d*+)");
+        
+        @Override
+        public int compare(RepositoryConfiguration o1, RepositoryConfiguration o2) {
+            Matcher m1 = pattern.matcher(o1.getName());
+            Matcher m2 = pattern.matcher(o2.getName());
+            while (true) {
+                boolean f1 = m1.find();
+                boolean f2 = m2.find();
+                if (!f1 && !f2)
+                    return 0;
+                if (f1 != f2) {
+                    return f1 ? 1 : -1;
+                }
+                
+                String s1 = m1.group(1);
+                String s2 = m2.group(1);
+                int compare = s1.compareToIgnoreCase(s2);
+                if (compare != 0) {
+                    return compare;
+                }
+                
+                String n1 = m1.group(2);
+                String n2 = m2.group(2);
+                if (!n1.equals(n2)) {
+                    if (n1.isEmpty())
+                        return -1;
+                    if (n2.isEmpty())
+                        return 1;
+                    return new BigInteger(n1).compareTo(new BigInteger(n2));
+                }
+            }
+        }
     }
 }
