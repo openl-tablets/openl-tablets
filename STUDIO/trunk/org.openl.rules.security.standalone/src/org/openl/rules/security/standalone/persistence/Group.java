@@ -58,9 +58,8 @@ public class Group extends PersistentObject {
      *
      * @return
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER)
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
     @JoinTable(name = "Group2Group", joinColumns = { @JoinColumn(name = "GroupID") }, inverseJoinColumns = { @JoinColumn(name = "IncludedGroupID") })
-    @Cascade(value = { CascadeType.MERGE, CascadeType.SAVE_UPDATE })
     public Set<Group> getIncludedGroups() {
         return includedGroups;
     }

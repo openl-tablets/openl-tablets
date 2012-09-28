@@ -40,7 +40,7 @@ public abstract class BaseHibernateDao<T extends PersistentObject> implements Da
     @Override
     @Transactional
     public void delete(T obj) {
-        getSession().delete(getSession().load(obj.getClass(), ((PersistentObject) obj).getId()));
+        getSession().delete(obj);
     }
 
     @Override
