@@ -38,7 +38,7 @@ public class Group extends PersistentObject {
      *
      * @return description
      */
-    @Column(length = 100, name = "Description")
+    @Column(length = 200, name = "Description")
     public String getDescription() {
         return description;
     }
@@ -79,7 +79,7 @@ public class Group extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "Privileges", length = 200)
+    @Column(name = "Privileges", length = 500)
     public String getPrivileges() {
         return privileges;
     }
