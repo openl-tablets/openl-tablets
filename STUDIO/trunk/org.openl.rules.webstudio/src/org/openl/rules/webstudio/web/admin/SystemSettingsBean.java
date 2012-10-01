@@ -14,6 +14,7 @@ import javax.faces.bean.RequestScoped;
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -316,6 +317,14 @@ public class SystemSettingsBean {
     }
 
     private void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
+        if (StringUtils.isEmpty(prodConfig.getName())) {
+            String msg = String.format("Repository name is empty", prodConfig.getName());
+            throw new RepositoryValidationException(msg);
+        }
+        if (StringUtils.isEmpty(prodConfig.getPath())) {
+            String msg = String.format("Repository path is empty", prodConfig.getName());
+            throw new RepositoryValidationException(msg);
+        }
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
             throw new RepositoryValidationException(msg);

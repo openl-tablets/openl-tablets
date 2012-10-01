@@ -71,14 +71,14 @@ public abstract class BaseHibernateDao<T extends PersistentObject> implements Da
 
     @Override
     @Transactional
-    public void saveOrUpdate(T obj) {
-        getSession().saveOrUpdate(obj);
+    public void update(T obj) {
+        getSession().update(obj);
     }
 
     @Override
     @Transactional
-    public void update(T obj) {
-        getSession().update(obj);
+    public void merge(T obj) {
+        getSession().merge(obj);
     }
 
 }

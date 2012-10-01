@@ -177,6 +177,7 @@
                                     <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}" title="Delete repository" styleClass="toolbarButton menuButton"
                                         render="repositoryProps"
                                         rendered="#{productionRepos.size() > 1}"
+                                        onclick="if(!window.confirm('Do you really want to delete repository?')) {return false;}"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
                                         <img src="webresource/images/admin/systemSettings/delete.png" alt="Delete" title="Delete repository"/>
@@ -221,12 +222,14 @@
         </div>
     </div>
 
-    <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
-        execute="@this" render="commonProps repositoryProps javaProps restartMessage"
-        onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
-    <h:outputText value=" " />
-    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
-        styleClass="button-primary" />
+    <div style="padding-left: 115px">
+        <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
+            execute="@this" render="commonProps repositoryProps javaProps restartMessage"
+            onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
+        <h:outputText value=" " />
+        <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+            styleClass="button-primary" />
+    </div>
 
     </h:form>
 
