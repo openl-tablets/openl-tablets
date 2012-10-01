@@ -17,6 +17,7 @@
         </f:facet>
 
         <h:form id="addUserForm">
+        <div style="max-height: 370px; overflow: auto;">
             <h:panelGrid columns="3" cellspacing="5">
                 <label class="required">Username</label>
                 <h:inputText id="username" value="#{usersBean.username}"
@@ -55,13 +56,14 @@
                 </a4j:outputPanel>
 
                 <label class="required">Groups</label>
-                <h:selectManyCheckbox id="groups" value="#{usersBean.groups}" layout="pageDirection">
+                <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="groups" styleClass="error" />
                 </a4j:outputPanel>
             </h:panelGrid>
+            </div>
 
             <br />
             <br />

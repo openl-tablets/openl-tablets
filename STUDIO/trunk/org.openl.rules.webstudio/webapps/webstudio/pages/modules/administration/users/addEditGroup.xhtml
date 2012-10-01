@@ -58,9 +58,10 @@
                 </tr>
             </table>
 
+            <h:panelGroup id="addGroupPrivilegeList">
             <table id="privilegesTable" class="table" style="margin-top: 23px">
                 <tr>
-                    <th class="required">Privilege</th>
+                    <th class="required" style="min-width: 161px">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <th><a id="group#{group.name}" href="javascript:void(0)"
                         onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
@@ -88,18 +89,6 @@
                 </tr>
                 </ui:repeat>
             </table>
-            </div>
-
-            <br />
-            <br />
-
-            <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :groups @form"
-                styleClass="button-primary" />
-            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm :editUserForm @form"
-                styleClass="button-primary" style="display: none" />
-            <input type="button" value="Cancel" onclick="hideAddGroup()" />
 
             <script>
                 var groups = {};
@@ -109,12 +98,26 @@
                 </c:forEach>
             </script>
 
+            </h:panelGroup>
+            </div>
+
+            <br />
+            <br />
+
+            <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :addUserGroups :editUserGroups @form"
+                styleClass="button-primary" />
+            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :addUserGroups :editUserGroups @form"
+                styleClass="button-primary" style="display: none" />
+            <input type="button" value="Cancel" onclick="hideAddGroup()" />
+
         </h:form>
 
     </rich:popupPanel>
 
     <script>
-        $j("#privilegesTable td :checkbox").change(function(e) {
+        $j("#privilegesTable td :checkbox").live("change", function(e) {
             checkPrivilege($j(e.target), this.checked);
             checkGroups();
         });
@@ -219,9 +222,11 @@
             RichFaces.$("modalAddEditGroup").hide();
 
             // Reset form
-            $j("#addEditGroupForm")[0].reset();
+            $j("#addEditGroupForm\\:oldName,#addEditGroupForm\\:newName,#addEditGroupForm\\:name,#addEditGroupForm\\:description").val("");
+
             $j("#privilegesTable td :checkbox").each(function() {
                 if (!this.disabled) {
+                    this.checked = false;
                     checkPrivilege($j(this), false);
                 }
             });
