@@ -899,11 +899,14 @@ public final class WorkbookEvaluator {
     public EvaluationWorkbook getEvaluationWorkbook() {
         return _workbook;
     }
-    public  static ValueEval getValueFromNonFormulaCell(int bookIndex,int sheetIndex, EvaluationCell cell, EvaluationTracker tracker) {
-        ValueEval cached = tracker.getCachePlainValue(bookIndex,sheetIndex, cell.getRowIndex(), cell.getColumnIndex());
-        if(cached != null){
-            return cached;
+
+    public static ValueEval getValueFromNonFormulaCell(int bookIndex, int sheetIndex, EvaluationCell cell, EvaluationTracker tracker) {
+        if (cell != null) {
+            ValueEval cached = tracker.getCachePlainValue(bookIndex, sheetIndex, cell.getRowIndex(), cell.getColumnIndex());
+            if (cached != null) {
+                return cached;
+            }
         }
-    return getValueFromNonFormulaCell(cell);
+        return getValueFromNonFormulaCell(cell);
     }
 }
