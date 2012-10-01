@@ -22,20 +22,20 @@
                 <label class="required">Username</label>
                 <h:inputText id="username" value="#{usersBean.username}"
                     validator="#{usersBean.validateUsername}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="nameError">
                     <h:message for="username" styleClass="error" />
                 </a4j:outputPanel>
 
                 <label class="required">Password</label>
                 <h:inputSecret id="password" value="#{usersBean.password}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="passwordError">
                     <h:message for="password" styleClass="error" />
                 </a4j:outputPanel>
 
                 <label class="required">Confirm</label>
                 <h:inputSecret id="confirmPassword" value="#{usersBean.confirmPassword}"
                     validator="#{usersBean.validateConfirmPassword}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="confirmError">
                     <h:message for="confirmPassword" styleClass="error" />
                 </a4j:outputPanel>
 
@@ -45,13 +45,13 @@
 
                 <label>First Name</label>
                 <h:inputText id="firstName" value="#{usersBean.firstName}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                     <h:message for="firstName" styleClass="error" />
                 </a4j:outputPanel>
 
                 <label>Last Name</label>
                 <h:inputText id="lastName" value="#{usersBean.lastName}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
@@ -59,8 +59,8 @@
                 <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="groups" styleClass="error" />
+                <a4j:outputPanel ajaxRendered="true" id="groupsError">
+                    <h:message for="addUserGroups" styleClass="error" />
                 </a4j:outputPanel>
             </h:panelGrid>
             </div>
@@ -78,6 +78,8 @@
     <script>
         function hideAddUser() {
             RichFaces.$("modalAddUser").hide();
+
+            $j("#addUserForm\\:nameError,#addUserForm\\:passwordError,#addUserForm\\:confirmError,#addUserForm\\:firstNameError,#addUserForm\\:lastNameError,#addUserForm\\:groupsError").text("");
 
             // Reset form
             $j("#addUserForm")[0].reset();

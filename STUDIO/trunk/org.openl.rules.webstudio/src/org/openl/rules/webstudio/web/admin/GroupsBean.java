@@ -34,20 +34,17 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 @RequestScoped
 public class GroupsBean {
 
-    private String oldName;
-
     @NotBlank(message="Can not be empty")
     @Size(max=25)
     private String name;
+
+    /* Used for editing*/
+    @NotBlank(message="Can not be empty")
+    @Size(max=25)
+    private String newName;
+    private String oldName;
+
     private String description;
-
-    public String getOldName() {
-        return oldName;
-    }
-
-    public void setOldName(String oldName) {
-        this.oldName = oldName;
-    }
 
     public String getName() {
         return name;
@@ -55,6 +52,22 @@ public class GroupsBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNewName() {
+        return newName;
+    }
+
+    public void setNewName(String newName) {
+        this.newName = newName;
+    }
+
+    public String getOldName() {
+        return oldName;
+    }
+
+    public void setOldName(String oldName) {
+        this.oldName = oldName;
     }
 
     public String getDescription() {
@@ -215,7 +228,7 @@ public class GroupsBean {
         }
 
         groupManagementService.updateGroup(oldName,
-                new SimpleGroup(name, description, authorities));
+                new SimpleGroup(newName, description, authorities));
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
