@@ -29,13 +29,13 @@
 
                 <label>First Name</label>
                 <h:inputText id="firstName" value="#{usersBean.firstName}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                     <h:message for="firstName" styleClass="error" />
                 </a4j:outputPanel>
 
                 <label>Last Name</label>
                 <h:inputText id="lastName" value="#{usersBean.lastName}" />
-                <a4j:outputPanel ajaxRendered="true">
+                <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
@@ -43,8 +43,8 @@
                 <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="groups" styleClass="error" />
+                <a4j:outputPanel ajaxRendered="true" id="groupsError">
+                    <h:message for="editUserGroups" styleClass="error" />
                 </a4j:outputPanel>
             </h:panelGrid>
             </div>
@@ -76,6 +76,8 @@
 
         function hideEditUser() {
             RichFaces.$("modalEditUser").hide();
+
+            $j("#editUserForm\\:firstNameError,#editUserForm\\:lastNameError,#editUserForm\\:groupsError").text("");
 
             // Reset form
             $j("#editUserForm")[0].reset();
