@@ -198,7 +198,7 @@
       </h:commandButton>
 
       <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" onclick="openOpenVersionDialog();return false;">
-          <rich:tooltip showDelay="500">Open the specified project version</rich:tooltip>
+          <rich:tooltip showDelay="500">Open the specified project revision</rich:tooltip>
       </h:commandButton>
 
       <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}">
