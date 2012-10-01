@@ -39,7 +39,7 @@
                 </a4j:outputPanel>
 
                 <label class="required">Groups</label>
-                <h:selectManyCheckbox id="groups" value="#{usersBean.groups}" layout="pageDirection">
+                <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>
                 <a4j:outputPanel ajaxRendered="true">
@@ -66,7 +66,7 @@
             $j("#editUserForm\\:lastName").val(lastName);
 
             for (var i = 0; i < groups.length; i++) {
-                $j("input[id^='editUserForm\\:groups'][value='" + groups[i] + "']").attr("checked", true);
+                $j("input[id^='editUserForm\\:editUserGroups'][value='" + groups[i] + "']").attr("checked", true);
             }
 
             RichFaces.$("modalEditUser").show();

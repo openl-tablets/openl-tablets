@@ -105,10 +105,10 @@
             <br />
 
             <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :groups @form"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :addUserGroups :editUserGroups @form"
                 styleClass="button-primary" />
             <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :addUserForm :editUserForm @form"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :addUserGroups :editUserGroups @form"
                 styleClass="button-primary" style="display: none" />
             <input type="button" value="Cancel" onclick="hideAddGroup()" />
 

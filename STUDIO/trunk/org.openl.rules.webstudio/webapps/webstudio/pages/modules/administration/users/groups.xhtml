@@ -33,7 +33,7 @@
                 <a href="javascript:void(0)"
                     onclick="editGroup('#{group.name}', '#{group.description}')"
                     title="Edit"><img src="webresource/images/edit2.gif" /></a>
-                <a4j:commandLink execute="@this" render="@form :userList :addGroupPrivilegeList"
+                <a4j:commandLink execute="@this" render=":userList :addGroupPrivilegeList :addUserGroups :editUserGroups @form"
                     rendered="#{!groupsBean.isOnlyAdmin(group)}"
                     action="#{groupsBean.deleteGroup(group.name)}"
                     onclick="if(!window.confirm('Are you sure you want to delete the group?')) {return false;}"
