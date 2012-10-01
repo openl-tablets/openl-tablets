@@ -61,7 +61,7 @@
             <h:panelGroup id="addGroupPrivilegeList">
             <table id="privilegesTable" class="table" style="margin-top: 23px">
                 <tr>
-                    <th class="required">Privilege</th>
+                    <th class="required" style="min-width: 161px">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <th><a id="group#{group.name}" href="javascript:void(0)"
                         onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
