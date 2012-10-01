@@ -114,7 +114,7 @@
     </rich:popupPanel>
 
     <script>
-        $j("#privilegesTable td :checkbox").change(function(e) {
+        $j("#privilegesTable td :checkbox").live("change", function(e) {
             checkPrivilege($j(e.target), this.checked);
             checkGroups();
         });
