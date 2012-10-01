@@ -38,7 +38,7 @@ public class Group extends PersistentObject {
      *
      * @return description
      */
-    @Column(length = 100, name = "Description")
+    @Column(length = 200, name = "Description")
     public String getDescription() {
         return description;
     }
@@ -58,9 +58,8 @@ public class Group extends PersistentObject {
      *
      * @return
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER)
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
     @JoinTable(name = "Group2Group", joinColumns = { @JoinColumn(name = "GroupID") }, inverseJoinColumns = { @JoinColumn(name = "IncludedGroupID") })
-    @Cascade(value = { CascadeType.MERGE, CascadeType.SAVE_UPDATE })
     public Set<Group> getIncludedGroups() {
         return includedGroups;
     }
@@ -80,7 +79,7 @@ public class Group extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "Privileges", length = 200)
+    @Column(name = "Privileges", length = 500)
     public String getPrivileges() {
         return privileges;
     }

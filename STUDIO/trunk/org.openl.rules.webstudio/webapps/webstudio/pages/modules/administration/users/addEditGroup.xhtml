@@ -219,9 +219,11 @@
             RichFaces.$("modalAddEditGroup").hide();
 
             // Reset form
-            $j("#addEditGroupForm")[0].reset();
+            $j("#addEditGroupForm\\:oldName,#addEditGroupForm\\:newName,#addEditGroupForm\\:name,#addEditGroupForm\\:description").val("");
+
             $j("#privilegesTable td :checkbox").each(function() {
                 if (!this.disabled) {
+                    this.checked = false;
                     checkPrivilege($j(this), false);
                 }
             });
