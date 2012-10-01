@@ -58,6 +58,7 @@
                 </tr>
             </table>
 
+            <h:panelGroup id="addGroupPrivilegeList">
             <table id="privilegesTable" class="table" style="margin-top: 23px">
                 <tr>
                     <th class="required">Privilege</th>
@@ -88,18 +89,6 @@
                 </tr>
                 </ui:repeat>
             </table>
-            </div>
-
-            <br />
-            <br />
-
-            <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :groups @form"
-                styleClass="button-primary" />
-            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm :editUserForm @form"
-                styleClass="button-primary" style="display: none" />
-            <input type="button" value="Cancel" onclick="hideAddGroup()" />
 
             <script>
                 var groups = {};
@@ -108,6 +97,20 @@
                 groups["#{group.name}"] = [<c:forEach items="#{groupsBean.getPrivileges(group.name)}" var="p">'#{p}',</c:forEach>];
                 </c:forEach>
             </script>
+
+            </h:panelGroup>
+            </div>
+
+            <br />
+            <br />
+
+            <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :groups @form"
+                styleClass="button-primary" />
+            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" render=":groupList :addUserForm :editUserForm @form"
+                styleClass="button-primary" style="display: none" />
+            <input type="button" value="Cancel" onclick="hideAddGroup()" />
 
         </h:form>
 
