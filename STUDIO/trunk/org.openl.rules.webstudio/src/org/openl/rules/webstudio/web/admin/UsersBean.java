@@ -20,7 +20,6 @@ import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -55,9 +54,6 @@ public class UsersBean {
     @Size(max=25)
     private String password;
 
-    @NotBlank(message="Can not be empty")
-    private String confirmPassword;
-
     @NotEmpty(message="Please select at least one group")
     private List<String> groups;
 
@@ -79,18 +75,6 @@ public class UsersBean {
         if (user != null) {
             throw new ValidatorException(
                     new FacesMessage("User with such name already exists"));
-        }
-    }
-
-    /**
-     * Validation for password confirmation
-     */
-    public void validateConfirmPassword(FacesContext context, UIComponent toValidate, Object value) {
-        String confirmPassword = (String) value;
-        if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(confirmPassword)
-                && !confirmPassword.equals(password)) {
-            throw new ValidatorException(
-                    new FacesMessage("Confirm password does not match the password"));
         }
     }
 
@@ -198,14 +182,6 @@ public class UsersBean {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
     }
 
     public List<String> getGroups() {
