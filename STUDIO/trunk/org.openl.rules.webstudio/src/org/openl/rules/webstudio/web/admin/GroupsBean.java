@@ -147,7 +147,7 @@ public class GroupsBean {
         return groupManagementService.getGroups();
     }
 
-    public void addGroup() {
+    private Collection<Privilege> getSelectedAuthorities() {
         Collection<Privilege> authorities = new ArrayList<Privilege>();
 
         String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
@@ -185,50 +185,17 @@ public class GroupsBean {
             }
         }
 
+        return authorities;
+    }
+
+    public void addGroup() {
         groupManagementService.addGroup(
-                new SimpleGroup(name, description, authorities));
+                new SimpleGroup(name, description, getSelectedAuthorities()));
     }
 
     public void editGroup() {
-        Collection<Privilege> authorities = new ArrayList<Privilege>();
-
-        String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
-        List<String> privileges = new ArrayList<String>(Arrays.asList(
-                privilegesParam == null ? new String[0] : privilegesParam));
-        privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
-
-        // Admin
-        if (privileges.size() == DefaultPrivileges.values().length - 1) {
-            authorities.add(DefaultPrivileges.PRIVILEGE_ALL);
-
-        } else {
-            Map<String, Group> groups = new java.util.HashMap<String, Group>();
-            String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
-            if (groupNames != null) {
-                for (String groupName : groupNames) {
-                    groups.put(groupName, groupManagementService.getGroupByName(groupName));
-                }
-
-                for (Group group : new ArrayList<Group>(groups.values())) {
-                    if (!groups.isEmpty()) {
-                        removeIncludedGroups(group, groups);
-                    }
-                }
-
-                removeIncludedPrivileges(privileges, groups);
-
-                for (Group group : groups.values()) {
-                    authorities.add(group);
-                }
-            }
-
-            for (String privilegeName : privileges) {
-                authorities.add(DefaultPrivileges.valueOf(privilegeName));
-            }
-        }
-
         groupManagementService.updateGroup(oldName,
-                new SimpleGroup(newName, description, authorities));
+                new SimpleGroup(newName, description, getSelectedAuthorities()));
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
