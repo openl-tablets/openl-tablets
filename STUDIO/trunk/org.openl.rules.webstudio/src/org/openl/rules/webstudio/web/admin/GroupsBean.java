@@ -33,14 +33,17 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 @ManagedBean
 @RequestScoped
 public class GroupsBean {
+    
+    public static final String VALIDATION_EMPTY = "Can not be empty";
+    public static final String VALIDATION_MAX = "Size must be between 1 and 25";
 
-    @NotBlank(message="Can not be empty")
-    @Size(max=25)
+    @NotBlank(message=VALIDATION_EMPTY)
+    @Size(max=25, message=VALIDATION_MAX)
     private String name;
 
     /* Used for editing*/
-    @NotBlank(message="Can not be empty")
-    @Size(max=25)
+    @NotBlank(message=VALIDATION_EMPTY)
+    @Size(max=25, message=VALIDATION_MAX)
     private String newName;
     private String oldName;
 
