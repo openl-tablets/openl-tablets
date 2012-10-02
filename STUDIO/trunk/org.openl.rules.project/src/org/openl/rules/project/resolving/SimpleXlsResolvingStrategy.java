@@ -44,7 +44,7 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
         ProjectDescriptor project = createDescriptor(folder);
         Map<String, Module> modules = new TreeMap<String, Module>();
         for (File f : folder.listFiles()) {
-            if (!f.isHidden() && FileTypeHelper.isExcelFile(f.getName())) {
+            if (!f.isHidden() && f.isFile() && FileTypeHelper.isExcelFile(f.getName())) {
 
                 String name = FilenameUtils.removeExtension(f.getName());
                 if (!modules.containsKey(name)) {
