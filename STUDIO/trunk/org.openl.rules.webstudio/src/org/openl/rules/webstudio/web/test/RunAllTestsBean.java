@@ -213,10 +213,14 @@ public class RunAllTestsBean {
 
     public String getFormattedSpreadsheetResult(Object objTestUnit) {
         SpreadsheetResult spreadsheetResult = getSpreadsheetResult(objTestUnit);
-
-        if (spreadsheetResult != null) {
-            Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit);
-            return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
+        
+        try {
+            if (spreadsheetResult != null) {
+                Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit);
+                return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
+            }
+        } catch (Exception e) {
+            
         }
         return StringUtils.EMPTY;
     }

@@ -24,6 +24,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -326,8 +327,11 @@ public class RuleRowHelper {
                 String message = String.format("Cannot parse cell value '%s'", source);
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                     openlAdapter.getBindingContext());
-
-                throw SyntaxNodeExceptionUtils.createError(message, e, null, cellSourceCodeModule);
+                if (e instanceof CompositeSyntaxNodeException ) {
+                    throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                } else {
+                    throw SyntaxNodeExceptionUtils.createError(message, e, null, cellSourceCodeModule);
+                }
             }
 
             if (result instanceof IMetaHolder) {
@@ -374,7 +378,12 @@ public class RuleRowHelper {
         if (!isFormula(valuesTable)) {
             String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
             if (stringValue != null) {
-                return stringValue.contains(ARRAY_ELEMENTS_SEPARATOR);
+                if (stringValue.contains(ARRAY_ELEMENTS_SEPARATOR)) {
+                    /**string like "0," isn't array*/
+                    if (stringValue.split(ARRAY_ELEMENTS_SEPARATOR).length > 1) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
