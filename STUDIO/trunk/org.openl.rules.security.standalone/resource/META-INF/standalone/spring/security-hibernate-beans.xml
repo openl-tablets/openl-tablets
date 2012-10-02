@@ -84,14 +84,19 @@
     <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"
         p:sessionFactory-ref="openlSessionFactory" />
 
-    <bean name="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"
+    <bean name="org.dbunit.operation.DatabaseOperation.INSERT"
       class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
+    <bean id="dbInitializationNeeded" class="org.openl.rules.security.common.spring.db.DbInitializationNeededChecker">
+        <property name="sessionFactory" ref="openlSessionFactory"/>
+        <property name="checkDbIsInitialized" value="${security.standalone.db.populateDatabase}"/>
+    </bean>
 
     <!-- Populate database with demo data  -->
     <bean id="databasePopulator" class="org.openl.rules.security.common.spring.db.DbUnitDatabasePopulator"
           depends-on="openlSessionFactory">
       <property name="dataSource" ref="openlDataSource"/>
-      <property name="enabled" value="${security.standalone.db.populateDatabase}"/>
+      <property name="enabled" ref="dbInitializationNeeded"/>
       <property name="ordered" value="false"/>
       <!-- for DBMS that support multiple schemata like Oracle -->
       <property name="dbSchema" value="${security.standalone.db.schema}"/>
@@ -113,12 +118,12 @@
       <property name="databaseOperation">
         <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
           <property name="testValue" value="${security.standalone.db.hibernate.dialect}"/>
-          <property name="defaultObject" ref="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"/>
+          <property name="defaultObject" ref="org.dbunit.operation.DatabaseOperation.INSERT"/>
           <property name="casesMap">
             <map>
               <entry key="org\.hibernate\.dialect\.SQLServerDialect">
                 <bean class="org.dbunit.ext.mssql.InsertIdentityOperation">
-                  <constructor-arg ref="org.dbunit.operation.DatabaseOperation.CLEAN_INSERT"/>
+                  <constructor-arg ref="org.dbunit.operation.DatabaseOperation.INSERT"/>
                 </bean>
               </entry>
             </map>
