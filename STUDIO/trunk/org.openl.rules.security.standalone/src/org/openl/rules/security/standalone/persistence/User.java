@@ -1,10 +1,5 @@
 package org.openl.rules.security.standalone.persistence;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -16,6 +11,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 /**
  * This class contains information about application user.
@@ -23,6 +24,7 @@ import javax.persistence.OneToMany;
  * @author Andrey Naumenko
  */
 @Entity
+@Table(name="OpenLUser") // "USER" is a reserved word in SQL92/SQL99 
 public class User extends PersistentObject {
     private static final long serialVersionUID = 1L;
     private String loginName;
