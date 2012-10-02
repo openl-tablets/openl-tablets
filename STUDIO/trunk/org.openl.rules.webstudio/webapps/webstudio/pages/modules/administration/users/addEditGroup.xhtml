@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="650">
+    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="670">
         <f:facet name="header">
             <h:outputText id="addHeader" value="Add New Group" />
             <h:outputText id="editHeader" value="Edit Group" style="display: none;" />
@@ -31,7 +31,7 @@
         </f:facet>
 
         <h:form id="addEditGroupForm">
-            <div style="max-height: 570px; overflow: auto;">
+            <div style="height: 530px; overflow: auto;">
             <table cellspacing="5">
                 <tr>
                     <td>
@@ -40,10 +40,11 @@
                     <td>
                         <h:inputText id="name" value="#{groupsBean.name}" validator="#{groupsBean.validateGroupName}"
                             style="margin-right: 7px;" />
-                        <h:inputText id="newName" value="#{groupsBean.name}" style="margin-right: 7px; display:none" />
+                        <h:inputText id="newName" value="#{groupsBean.newName}" style="margin-right: 7px; display:none" />
                         <h:inputHidden id="oldName" value="#{groupsBean.oldName}" />
-                        <a4j:outputPanel ajaxRendered="true">
+                        <a4j:outputPanel ajaxRendered="true" id="nameError">
                             <h:message for="name" styleClass="error" />
+                            <h:message for="newName" styleClass="error" />
                         </a4j:outputPanel>
                     </td>
                 </tr>
@@ -58,9 +59,10 @@
                 </tr>
             </table>
 
+            <h:panelGroup id="addGroupPrivilegeList" layout="block">
             <table id="privilegesTable" class="table" style="margin-top: 23px">
                 <tr>
-                    <th class="required">Privilege</th>
+                    <th class="required" style="min-width: 161px">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <th><a id="group#{group.name}" href="javascript:void(0)"
                         onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
@@ -88,18 +90,6 @@
                 </tr>
                 </ui:repeat>
             </table>
-            </div>
-
-            <br />
-            <br />
-
-            <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :groups @form"
-                styleClass="button-primary" />
-            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideAddGroup()" render=":groupsForm :addUserForm :editUserForm @form"
-                styleClass="button-primary" style="display: none" />
-            <input type="button" value="Cancel" onclick="hideAddGroup()" />
 
             <script>
                 var groups = {};
@@ -109,12 +99,26 @@
                 </c:forEach>
             </script>
 
+            </h:panelGroup>
+            </div>
+
+            <br />
+            <br />
+
+            <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" styleClass="button-primary"
+                render=":groupList :addUserGroups :editUserGroups nameError addGroupPrivilegeList" />
+            <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideAddGroup()" styleClass="button-primary" style="display: none"
+                render=":groupList :addUserGroups :editUserGroups nameError addGroupPrivilegeList" />
+            <input type="button" value="Cancel" onclick="hideAddGroup()" />
+
         </h:form>
 
     </rich:popupPanel>
 
     <script>
-        $j("#privilegesTable td :checkbox").change(function(e) {
+        $j("#privilegesTable td :checkbox").live("change", function(e) {
             checkPrivilege($j(e.target), this.checked);
             checkGroups();
         });
@@ -194,6 +198,9 @@
             $j("#editHeader,#addEditGroupForm\\:newName,#addEditGroupForm\\:editBtn").hide();
             $j("#addHeader,#addEditGroupForm\\:name,#addEditGroupForm\\:saveBtn").show();
 
+            $j("#addEditGroupForm\\:editBtn").hide();
+            $j("#addEditGroupForm\\:saveBtn").show();
+
             $j("#addEditGroupForm\\:newName").attr("disabled", true);
             $j("#addEditGroupForm\\:name").attr("disabled", false);
 
@@ -220,6 +227,8 @@
 
             // Reset form
             $j("#addEditGroupForm\\:oldName,#addEditGroupForm\\:newName,#addEditGroupForm\\:name,#addEditGroupForm\\:description").val("");
+
+            $j("#addEditGroupForm\\:nameError").text("");
 
             $j("#privilegesTable td :checkbox").each(function() {
                 if (!this.disabled) {

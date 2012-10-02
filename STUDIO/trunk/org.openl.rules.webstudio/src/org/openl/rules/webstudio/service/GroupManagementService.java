@@ -95,12 +95,9 @@ public class GroupManagementService extends UserInfoUserDetailsServiceImpl {
                 privileges.add(privilegeName);
             }
         }
-        if (!includedGroups.isEmpty()) {
-            persistGroup.setIncludedGroups(includedGroups);
-        }
-        if (!privileges.isEmpty()) {
-            persistGroup.setPrivileges(StringUtils.join(privileges, ","));
-        }
+
+        persistGroup.setIncludedGroups(!includedGroups.isEmpty() ? includedGroups : null);
+        persistGroup.setPrivileges(!privileges.isEmpty() ? StringUtils.join(privileges, ",") : null);
 
         groupDao.update(persistGroup);
     }

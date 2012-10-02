@@ -33,21 +33,21 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 @ManagedBean
 @RequestScoped
 public class GroupsBean {
+    
+    public static final String VALIDATION_EMPTY = "Can not be empty";
+    public static final String VALIDATION_MAX = "Size must be between 1 and 25";
 
+    @NotBlank(message=VALIDATION_EMPTY)
+    @Size(max=25, message=VALIDATION_MAX)
+    private String name;
+
+    /* Used for editing*/
+    @NotBlank(message=VALIDATION_EMPTY)
+    @Size(max=25, message=VALIDATION_MAX)
+    private String newName;
     private String oldName;
 
-    @NotBlank(message="Can not be empty")
-    @Size(max=25)
-    private String name;
     private String description;
-
-    public String getOldName() {
-        return oldName;
-    }
-
-    public void setOldName(String oldName) {
-        this.oldName = oldName;
-    }
 
     public String getName() {
         return name;
@@ -55,6 +55,22 @@ public class GroupsBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNewName() {
+        return newName;
+    }
+
+    public void setNewName(String newName) {
+        this.newName = newName;
+    }
+
+    public String getOldName() {
+        return oldName;
+    }
+
+    public void setOldName(String oldName) {
+        this.oldName = oldName;
     }
 
     public String getDescription() {
@@ -134,7 +150,7 @@ public class GroupsBean {
         return groupManagementService.getGroups();
     }
 
-    public void addGroup() {
+    private Collection<Privilege> getSelectedAuthorities() {
         Collection<Privilege> authorities = new ArrayList<Privilege>();
 
         String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
@@ -172,50 +188,17 @@ public class GroupsBean {
             }
         }
 
+        return authorities;
+    }
+
+    public void addGroup() {
         groupManagementService.addGroup(
-                new SimpleGroup(name, description, authorities));
+                new SimpleGroup(name, description, getSelectedAuthorities()));
     }
 
     public void editGroup() {
-        Collection<Privilege> authorities = new ArrayList<Privilege>();
-
-        String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
-        List<String> privileges = new ArrayList<String>(Arrays.asList(
-                privilegesParam == null ? new String[0] : privilegesParam));
-        privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
-
-        // Admin
-        if (privileges.size() == DefaultPrivileges.values().length - 1) {
-            authorities.add(DefaultPrivileges.PRIVILEGE_ALL);
-
-        } else {
-            Map<String, Group> groups = new java.util.HashMap<String, Group>();
-            String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
-            if (groupNames != null) {
-                for (String groupName : groupNames) {
-                    groups.put(groupName, groupManagementService.getGroupByName(groupName));
-                }
-
-                for (Group group : new ArrayList<Group>(groups.values())) {
-                    if (!groups.isEmpty()) {
-                        removeIncludedGroups(group, groups);
-                    }
-                }
-
-                removeIncludedPrivileges(privileges, groups);
-
-                for (Group group : groups.values()) {
-                    authorities.add(group);
-                }
-            }
-
-            for (String privilegeName : privileges) {
-                authorities.add(DefaultPrivileges.valueOf(privilegeName));
-            }
-        }
-
         groupManagementService.updateGroup(oldName,
-                new SimpleGroup(name, description, authorities));
+                new SimpleGroup(newName, description, getSelectedAuthorities()));
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {

@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -138,7 +139,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
      */
     public boolean isRunmethodTestable() {
         for (int i = 0; i < getNumberOfTests(); i++) {
-            if (getTest(i).isExpectedResultDefined() || getTest(i).isExpectedErrorDefined() ||containsFieldsForSprCellTests(getTest(i).getTestObject().getFieldValues().keySet())) {
+            if (getTest(i).isExpectedResultDefined() || getTest(i).isExpectedErrorDefined() ||containsFieldsForSprCellTests(getTest(i).getTestObject().getFieldValues().keySet())
+                    || (testedMethod instanceof Spreadsheet)) {
                 return true;
             }
         }
