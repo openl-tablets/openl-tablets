@@ -7,6 +7,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IAggregateInfo;
@@ -73,7 +74,10 @@ public class InputArgsBean {
             TestSuite testSuite = new TestSuite(testDescription);
             WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
         } catch (RuntimeException e) {
-            FacesUtils.addInfoMessage("Input parameters are illegal.");
+            if (e.getCause() instanceof IllegalArgumentException) {
+                throw new Message("Input parameters are wrong.");
+                //FacesUtils.addInfoMessage("Input parameters are illegal.");
+            }
         }
     }
 
