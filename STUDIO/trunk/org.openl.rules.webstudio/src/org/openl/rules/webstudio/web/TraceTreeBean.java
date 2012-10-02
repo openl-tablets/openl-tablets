@@ -40,7 +40,9 @@ public class TraceTreeBean {
                 return buildTreeNode(traceHelper, tree);
             }
         } else {
-            return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
+            if (traceHelper.getTreeRoot() != null) {
+                return buildTreeNode(traceHelper, traceHelper.getTreeRoot());
+            }
         }
         return null;
     }
@@ -64,7 +66,11 @@ public class TraceTreeBean {
             ITreeElement<?> tree = traceHelper.getTraceTree(tracer);
             return tree != null && hasDecisionTables(tree);
         } else {
-            return hasDecisionTables(traceHelper.getTreeRoot());
+            if (traceHelper.getTreeRoot() != null) {
+                return hasDecisionTables(traceHelper.getTreeRoot());
+            } else {
+                return false;
+            }
         }
     }
 
