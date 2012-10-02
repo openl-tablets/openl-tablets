@@ -34,7 +34,6 @@ public abstract class AProjectCreator {
         RulesProjectBuilder projectBuilder = null;
         try {
             projectBuilder = getProjectBuilder();
-
             projectBuilder.save();
             projectBuilder.getProject().edit();
         } catch (Exception e) {
