@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="650">
+    <rich:popupPanel id="modalAddEditGroup" autosized="true" width="670">
         <f:facet name="header">
             <h:outputText id="addHeader" value="Add New Group" />
             <h:outputText id="editHeader" value="Edit Group" style="display: none;" />
@@ -31,7 +31,7 @@
         </f:facet>
 
         <h:form id="addEditGroupForm">
-            <div style="max-height: 570px; overflow: auto;">
+            <div style="height: 530px; overflow: auto;">
             <table cellspacing="5">
                 <tr>
                     <td>
@@ -59,7 +59,7 @@
                 </tr>
             </table>
 
-            <h:panelGroup id="addGroupPrivilegeList">
+            <h:panelGroup id="addGroupPrivilegeList" layout="block">
             <table id="privilegesTable" class="table" style="margin-top: 23px">
                 <tr>
                     <th class="required" style="min-width: 161px">Privilege</th>
