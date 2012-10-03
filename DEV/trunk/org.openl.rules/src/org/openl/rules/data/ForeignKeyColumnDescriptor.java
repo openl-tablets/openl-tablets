@@ -2,6 +2,8 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -298,12 +300,20 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
-                String[] domainStrings = index.keySet().toArray(new String[0]);
 
+                final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
+                String[] domainStrings = index.keySet().toArray(new String[0]);
+                Arrays.sort(domainStrings, new Comparator<String>() {
+                    @Override
+                    public int compare(String ds1, String ds2) {
+                        return index.get(ds1).compareTo(index.get(ds2));
+                    }
+                });
+
+                IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
                 EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
                 DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
-                    JavaOpenClass.STRING,
+                    columnType != null ? columnType : JavaOpenClass.STRING,
                     domain,
                     null);
 
