@@ -436,7 +436,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isOpened()) {
             return false;
         }
 
