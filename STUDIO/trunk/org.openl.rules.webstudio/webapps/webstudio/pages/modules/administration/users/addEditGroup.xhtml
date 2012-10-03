@@ -163,17 +163,6 @@
                     }
                 });
 
-            } else {
-                for (var i = 0; i &lt; groupPrivileges.length; i++) {
-                    var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
-                    if (!jElem.attr("checked")) {
-                        oneNotEmpty = true;
-                        break;
-                    }
-                }
-            }
-
-            if (privilegeAdmin) {
                 $j("#privilegesTable td :checkbox").each(function() {
                     if (!this.disabled) {
                         this.checked = oneNotEmpty;
@@ -182,6 +171,14 @@
                 });
 
             } else {
+                for (var i = 0; i &lt; groupPrivileges.length; i++) {
+                    var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
+                    if (!jElem.attr("checked")) {
+                        oneNotEmpty = true;
+                        break;
+                    }
+                }
+
                 for (var i = 0; i &lt; groupPrivileges.length; i++) {
                     var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
                     if (!jElem.is(":disabled")) {
