@@ -33,7 +33,7 @@
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                         <h:commandButton id="sbtTemplates" value="Create"
                             action="#{repositoryTreeController.createNewRulesProject}" />
-                        <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+                        <input type="button" value="Cancel" onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
                     </h:panelGrid>
                     </h:form>
                 </rich:tab>
@@ -54,7 +54,7 @@
                         <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                             <h:commandButton id="sbtFiles" value="Create"
                                 action="#{repositoryTreeController.createProjectWithFiles}" />
-                            <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+                            <input type="button" value="Cancel" onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
                         </h:panelGrid>
                     </h:form>
                 </rich:tab>
@@ -63,6 +63,11 @@
   </rich:popupPanel>
 
   <script>
+    function clearProjName() {
+        document.getElementById('createProjectFormTempl:projectName').value='';
+        document.getElementById('createProjectFormFiles:projectName').value='';
+    }
+  
     function openNewProjectDialog() {
       RichFaces.$('modalNewProject').show();
       focusElement("newProjectForm:projectName");
