@@ -61,6 +61,7 @@ public interface ITable {
     Object getValue(int col, int row);
 
     Map<String, Integer> makeUniqueIndex(int idx) throws SyntaxNodeException;
+    Map<String, Integer> makeFormattedUniqueIndex(int colIdx) throws SyntaxNodeException;
 
     void populate(IDataBase db, IBindingContext bindingContext) throws Exception;
 
