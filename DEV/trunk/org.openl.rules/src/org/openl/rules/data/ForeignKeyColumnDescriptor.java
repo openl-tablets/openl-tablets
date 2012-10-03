@@ -301,7 +301,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
 
 
-                final Map<String, Integer> index = foreignTable.makeFormattedUniqueIndex(foreignKeyIndex);
+                final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
                 String[] domainStrings = index.keySet().toArray(new String[0]);
                 Arrays.sort(domainStrings, new Comparator<String>() {
                     @Override

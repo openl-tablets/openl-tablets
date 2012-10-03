@@ -57,6 +57,7 @@ public interface ITable {
     TableSyntaxNode getTableSyntaxNode();
 
     Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException;
+    Map<String, Integer> getFormattedUniqueIndex(int columnIndex) throws SyntaxNodeException;
 
     Object getValue(int col, int row);
 
