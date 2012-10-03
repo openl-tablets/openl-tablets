@@ -357,6 +357,8 @@ public class RepositoryTreeController {
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
             }
+        } else {
+            FacesUtils.addErrorMessage(creationMessage);
         }
 
         /*Clear the load form*/
