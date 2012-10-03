@@ -176,6 +176,35 @@ public class Table implements ITable {
         return index;
     }
 
+    public Map<String, Integer> makeFormattedUniqueIndex(int colIdx) throws SyntaxNodeException {
+
+        Map<String, Integer> index = new HashMap<String, Integer>();
+
+        int rows = logicalTable.getHeight();
+
+        for (int i = 1; i < rows; i++) {
+
+            IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
+            String key = gridTable.getCell(0, 0).getFormattedValue();
+
+            if (key == null) {
+                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
+                    new GridCellSourceCodeModule(gridTable));
+            }
+
+            key = key.trim();
+
+            if (index.containsKey(key)) {
+                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key,
+                    new GridCellSourceCodeModule(gridTable));
+            }
+
+            index.put(key, i - 1);
+        }
+
+        return index;
+    }
+
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
 
         int rows = logicalTable.getHeight();

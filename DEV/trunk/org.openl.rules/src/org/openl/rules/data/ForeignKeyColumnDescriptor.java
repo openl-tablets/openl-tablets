@@ -298,12 +298,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
+
+                Map<String, Integer> index = foreignTable.makeFormattedUniqueIndex(foreignKeyIndex);
                 String[] domainStrings = index.keySet().toArray(new String[0]);
 
+                IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
                 EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
                 DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
-                    JavaOpenClass.STRING,
+                    columnType != null ? columnType : JavaOpenClass.STRING,
                     domain,
                     null);
 
