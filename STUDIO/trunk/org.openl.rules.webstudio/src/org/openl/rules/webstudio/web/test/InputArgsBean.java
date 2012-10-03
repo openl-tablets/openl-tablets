@@ -3,9 +3,11 @@ package org.openl.rules.webstudio.web.test;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IAggregateInfo;
@@ -62,14 +64,21 @@ public class InputArgsBean {
     }
 
     public void makeTestSuite() {
-        IOpenMethod method = getTestedMethod();
-        Object[] arguments = new Object[method.getSignature().getNumberOfParameters()];
-        for (int i = 0; i < arguments.length; i++) {
-            arguments[i] = argumentTreeNodes[i].getValueForced();
+        try {
+            IOpenMethod method = getTestedMethod();
+            Object[] arguments = new Object[method.getSignature().getNumberOfParameters()];
+            for (int i = 0; i < arguments.length; i++) {
+                arguments[i] = argumentTreeNodes[i].getValueForced();
+            }
+            TestDescription testDescription = new TestDescription(method, arguments);
+            TestSuite testSuite = new TestSuite(testDescription);
+            WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IllegalArgumentException) {
+                throw new Message("Input parameters are wrong.");
+                //FacesUtils.addInfoMessage("Input parameters are illegal.");
+            }
         }
-        TestDescription testDescription = new TestDescription(method, arguments);
-        TestSuite testSuite = new TestSuite(testDescription);
-        WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
     }
 
     public void initObject() {
