@@ -139,6 +139,13 @@ public class Table implements ITable {
         return descriptor.getUniqueIndex(this, columnIndex);
     }
 
+    public Map<String, Integer> getFormattedUniqueIndex(int columnIndex) throws SyntaxNodeException {
+
+        ColumnDescriptor descriptor = dataModel.getDescriptor()[columnIndex];
+
+        return descriptor.getFormattedUniqueIndex(this, columnIndex);
+    }
+
     public Object getValue(int col, int row) {
 
         Object rowObject = Array.get(getDataArray(), row);
