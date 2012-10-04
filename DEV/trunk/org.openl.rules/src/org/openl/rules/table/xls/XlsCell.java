@@ -120,7 +120,7 @@ public class XlsCell implements ICell {
 
             // Don't write meta info for predefined String arrays to avoid
             // removing Enum Domain meta info.
-            if (gridModel.hasPredefinedStringArray(column, row)) {
+            if (gridModel.hasEnumDomainMetaInfo(column, row)) {
                 writeCellMetaInfo = false;
             }
 
