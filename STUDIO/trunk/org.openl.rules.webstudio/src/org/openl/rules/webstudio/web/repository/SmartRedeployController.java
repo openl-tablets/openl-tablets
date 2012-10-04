@@ -64,6 +64,20 @@ public class SmartRedeployController {
         }
         return items;
     }
+    
+    public synchronized boolean isProjectHasSelectedItems() {
+        if (items == null) {
+            return false;
+        }
+        
+        for (DeploymentProjectItem item : items) {
+            if (item.isSelected()) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project) {
         String projectName = project.getName();
