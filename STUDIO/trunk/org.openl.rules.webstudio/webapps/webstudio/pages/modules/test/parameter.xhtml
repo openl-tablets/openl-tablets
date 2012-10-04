@@ -4,27 +4,22 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich">
-
         <style>
             .spreadsheet .rf-trn-ico-lf {
                 display: none;
             }
         </style>
-
     <h:panelGroup rendered="#{not empty parameter and parameter.type.simple}">
         <h:outputText value="#{parameter.value}"
             rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />
-
         <h:outputText value="#{parameter.value}"
             rendered="#{parameterTreeBuilder.isDateParameter(parameter.value)}">
             <f:convertDateTime pattern="#{systemConfig['data.format.date']}" />
         </h:outputText>
     </h:panelGroup>
-    
     <h:panelGroup rendered="#{not empty parameter and parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
         <h:outputText value="#{parameterTreeBuilder.formattedResult(parameter.value)}" escape="false" />
     </h:panelGroup>
-
     <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="node" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
         rendered="#{not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client"
         nodeType="#{node.nodeType}">
@@ -39,5 +34,4 @@
             <h:outputText escape="false" value="#{parameterTreeBuilder.formattedResult(node.value)}"/>
         </rich:treeNode>
     </rich:tree>
-
 </ui:composition>
