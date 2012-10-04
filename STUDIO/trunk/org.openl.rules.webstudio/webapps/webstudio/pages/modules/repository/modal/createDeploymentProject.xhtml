@@ -25,7 +25,7 @@
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
         <h:commandButton value="Create" action="#{repositoryTreeController.createDeploymentProject}" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalNewDProject')}.hide();" />
+        <input type="button" value="Cancel" onclick="clearNewDProjectFormProjName(); #{rich:component('modalNewDProject')}.hide();" />
       </h:panelGrid>
     </h:form>
   </rich:popupPanel>
@@ -34,6 +34,10 @@
     function openNewDeploymentProjectDialog() {
       RichFaces.$('modalNewDProject').show();
       focusElement("newDProjectForm:projectName");
+    }
+    
+    function clearNewDProjectFormProjName() {
+        $j("#newDProjectForm\\:projectName").val("");
     }
   </script>
 
