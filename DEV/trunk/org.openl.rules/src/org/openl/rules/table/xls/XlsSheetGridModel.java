@@ -312,7 +312,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
             // Don't write meta info for predefined String arrays to avoid
             // removing Enum Domain meta info.
-            if (hasPredefinedStringArray(col, row)) {
+            if (hasEnumDomainMetaInfo(col, row)) {
                 writeCellMetaInfo = false;
             }
 
@@ -528,7 +528,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     /**
      * @deprecated
      */
-    public boolean hasPredefinedStringArray(int col, int row) {
+    public boolean hasEnumDomainMetaInfo(int col, int row) {
         boolean result = false;
 
         ICell cell = getCell(col, row);
@@ -537,8 +537,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
             if (dataType != null) {
                 IDomain<?> domain = dataType.getDomain();
-                Class<?> instanceClass = dataType.getInstanceClass();
-                if (instanceClass == String.class && domain instanceof EnumDomain<?>) {
+                if (domain instanceof EnumDomain<?>) {
                     result = true;
                 }
             }
