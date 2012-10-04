@@ -11,9 +11,20 @@
           http://www.springframework.org/schema/context/spring-context-3.1.xsd"
           profile="multiUser">
 
-  <context:property-placeholder location="/WEB-INF/conf/db.properties" />
   <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
   <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
+
+  <bean id="dbConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
+      <constructor-arg name="useSystemProperties" value="true" />
+      <constructor-arg name="defaultPropertiesLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/db.properties" />
+      <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
+  </bean>
+  <bean id="dbConfigManager" factory-bean="dbConfigManagerFactory" factory-method="getConfigurationManager" autowire-candidate="false">
+      <constructor-arg name="propertiesName" value="db.properties" />
+  </bean>
+  <bean id="dbConfig" class="java.util.HashMap">
+      <constructor-arg value="#{dbConfigManager.properties}" />
+  </bean>
 
   <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
     of "securityContextPersistenceFilter" in the list below -->
