@@ -25,14 +25,25 @@ public class CellEditorSelector {
         return editor == null ? defaultEditor(cell) : editor;
     }
 
-    @SuppressWarnings("unchecked")
     private ICellEditor selectEditor(CellMetaInfo meta) {
         ICellEditor result = null;
         IOpenClass dataType = meta == null ? null : meta.getDataType();
         if (dataType != null) {
-            IDomain domain = dataType.getDomain();
+            IDomain<?> domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
 
+            if (domain instanceof EnumDomain) {
+                Object[] allObjects = ((EnumDomain<?>) domain).getEnum().getAllObjects();
+                
+                if (allObjects instanceof String[]) {
+                    if (meta.isMultiValue()) {
+                        return factory.makeMultiSelectEditor((String[]) allObjects);
+                    } else {
+                        return factory.makeComboboxEditor((String[]) allObjects);
+                    }
+                }
+            }
+            
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
                 if (domain == null) {
@@ -65,16 +76,6 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
 
-            // String
-            } else if (instanceClass == String.class) {
-                if (domain instanceof EnumDomain) {
-                    EnumDomain enumDomain = (EnumDomain) domain;
-                    if (meta.isMultiValue()) {
-                        result = factory.makeMultiSelectEditor((String[]) enumDomain.getEnum().getAllObjects());
-                    } else {
-                        result = factory.makeComboboxEditor((String[]) enumDomain.getEnum().getAllObjects());
-                    }
-                }
             }
 
         }
