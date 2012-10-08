@@ -29,12 +29,45 @@
                 border-bottom: 1px solid #f3f3f3;
             }
             .simpleView_workspace {
-                top: 50px;
+                top: 38px;
             }
             .rf-tab-lbl {
                 font-size: 110% !important;
                 color: #333;
                 font-family: Verdana;
+            }
+            .rf-tab-cnt {
+                padding: 0 !important;
+            }
+
+            .rf-tab-hdr {
+                padding: 0 5px 9px !important;
+                border-right: 0 !important;
+            }
+
+            .rf-tab-hdr-act {
+                border-bottom-color: #bbb !important;
+            }
+
+            .tab-panel-vertical {
+                border-top: 0;
+                margin: 0;
+            }
+
+            .tab-panel-vertical ul {
+                position: fixed;
+                top: 72px;
+                bottom: 0;
+                left: 0;
+                height: 100%;
+            }
+
+            .tab-panel-vertical ul li {
+                width: 108px;
+            }
+
+            .messages {
+                top: 7px;
             }
         </style>
 
@@ -150,7 +183,7 @@
                         showSummary="false" tooltip="true" globalOnly="true" />
                 </h:panelGroup>
             </a4j:outputPanel>
-            <div id="content" class="ui-layout-center" style="padding-top: 15px; position: static">
+            <div id="content" class="ui-layout-center" style="padding-top: 11px; position: static">
                 <div>
                     <ui:insert name="content" />
                 </div>
