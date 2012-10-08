@@ -32,6 +32,16 @@
            are no available connections) for a connection to be returned before
            throwing an exception, or -1 to wait indefinitely. -->
       <property name="maxWait" value="-1"/>
+      
+      <!-- MySQL includes a timeout that will close connections that have been idle 
+           for long periods of time. If you use a connection that has been in the 
+           pool idle for too long, your application will likely experience the 
+           following error: "The last packet successfully received from the server 
+           was XXX seconds ago".
+           The connection pool includes a setting that will validate and throw out 
+           dead connections when calling javax.sql.DataSource.getConnection() -->
+      <property name="validationQuery" value="#{dbConfig['db.validationQuery']}" />
+      <property name="testOnBorrow" value="true" />
     </bean>
 
     <bean id="dataBase" class="org.openl.rules.security.common.spring.db.HsqlServerBean">
