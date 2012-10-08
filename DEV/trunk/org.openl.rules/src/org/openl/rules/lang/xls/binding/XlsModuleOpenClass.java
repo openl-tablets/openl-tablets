@@ -6,6 +6,8 @@
 
 package org.openl.rules.lang.xls.binding;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,12 +15,16 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
 import org.openl.types.impl.MethodKey;
@@ -30,6 +36,17 @@ import org.openl.types.impl.MethodKey;
 public class XlsModuleOpenClass extends ModuleOpenClass {
 
     private IDataBase dataBase = null;
+
+    /**
+     * Set of dependencies for current module.
+     * 
+     * NOTE!!!
+     * Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it
+     * throws errors when there are any ones in {@link CompiledOpenClass}.
+     * Check if there are errors: {@link CompiledOpenClass#hasErrors()} 
+     * 
+     */
+    private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
 
     /**
      * Whether DecisionTable should be used as a dispatcher for overloaded
@@ -49,13 +66,162 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 	 */
     public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase, 
             Set<CompiledOpenClass> usingModules, boolean useDescisionTableDispatcher) {
-          super(schema, name, openl, usingModules);
+          super(schema, name, openl);
           this.dataBase = dbase;
           this.metaInfo = metaInfo;
           this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+          if (usingModules != null) {
+              this.usingModules = new HashSet<CompiledOpenClass>(usingModules);
+              try {
+                  initDependencies();
+              } catch (OpenLCompilationException e) {
+                  throw new OpenlNotCheckedException("Can`t add datatype", e);
+              }
+          }
       }
+
+    /**
+     * Populate current module fields with data from dependent modules. 
+     */
+    private void initDependencies() throws OpenLCompilationException {    
+        for (CompiledOpenClass dependency : usingModules) {
+            if (!dependency.hasErrors()) {
+                // commented as there is no need to add each datatype to upper module.
+                // as now it`s will be impossible to validate from which module the datatype is.
+                //
+                //addTypes(dependency);
+                addMethods(dependency);
+            }            
+        }
+    }
       
 	
+    /**
+     * Add methods form dependent modules to current one.
+     * 
+     * @param dependency compiled dependency module
+     */
+    private void addMethods(CompiledOpenClass dependency) {
+        for (IOpenMethod depMethod : dependency.getOpenClass().getMethods()) {
+            // filter constructor and getOpenClass methods of dependency modules
+            //
+            if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
+                addMethod(depMethod);
+            }
+        }
+    }
+
+    /**
+     * Overriden to add the possibility for overriding fields from dependent modules.<br>
+     * At first tries to get the field from current module, if can`t search in dependencies.
+     */
+    @Override
+    public IOpenField getField(String fname, boolean strictMatch) {
+        // try to get field from own field map
+        //
+        IOpenField field = super.getField(fname, strictMatch);
+        if (field != null) {
+            return field;
+        } else {
+            // if can`t find, search in dependencies.
+            //
+            for (CompiledOpenClass dependency : usingModules) {
+                if (!dependency.hasErrors()) {
+                    field = dependency.getOpenClass().getField(fname, strictMatch);
+                    if (field != null) {
+                        return field;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+        
+    @Override
+    public Map<String, IOpenField> getFields() {
+        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+
+        // get fields from dependencies
+        //
+        for (CompiledOpenClass dependency : usingModules) {
+            if (!dependency.hasErrors()) {
+                fields.putAll(dependency.getOpenClass().getFields());
+            }            
+        }
+
+        // get own fields. if current module has duplicated fields they will
+        // override the same from dependencies.
+        //
+        fields.putAll(super.getFields());
+
+        return fields;
+    }
+    
+    /**
+     * Set compiled module dependencies for current module.
+     * 
+     * @param moduleDependencies
+     */
+    public void setDependencies(Set<CompiledOpenClass> moduleDependencies){
+        if (moduleDependencies != null) {
+            this.usingModules = new HashSet<CompiledOpenClass>(moduleDependencies);
+        }
+    }
+    
+    /**
+     * Gets compiled module dependencies for current module.
+     * @return compiled module dependencies for current module.
+     */
+    public Set<CompiledOpenClass> getDependencies() {
+        return new HashSet<CompiledOpenClass>(usingModules);
+    }
+    
+    /**
+     * Return the whole map of internal types. Where the key is namespace of the type, 
+     * the value is {@link IOpenClass}.
+     * 
+     * @return map of internal types 
+     */
+    @Override
+    public Map<String, IOpenClass> getTypes() {
+        Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(super.getTypes());
+        for (CompiledOpenClass dependency : usingModules) {
+            if (!dependency.hasErrors()) {
+                currentModuleDatatypes.putAll(dependency.getTypes());
+            }
+        }
+        
+        return currentModuleDatatypes;
+    }
+    
+    /**
+     * Finds type with given name in internal type list. If type with given name
+     * exists in list it will be returned; <code>null</code> - otherwise.
+     * 
+     * @param typeName
+     *            name of type to search
+     * @return {@link IOpenClass} instance or <code>null</code>
+     */
+    @Override
+    public IOpenClass findType(String namespace, String typeName) {
+        // it will contain types from current module.
+        IOpenClass type = super.findType(namespace, typeName);
+        
+        
+        if (type == null) {
+            // try to find type which is declared in dependency module
+            for (CompiledOpenClass dependency : usingModules) {
+                if (!dependency.hasErrors()) {
+                    type = dependency.getOpenClass().findType(namespace, typeName);
+                    if (type != null) {
+                        break;
+                    }
+                }
+            }
+        }
+        return type;
+    }
+    
     // TODO: should be placed to ModuleOpenClass
 	public IDataBase getDataBase() {
 		return dataBase;
