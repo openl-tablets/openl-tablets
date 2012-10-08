@@ -11,7 +11,7 @@
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.lib.poi.dev-pom</artifactId>
-	<version>5.9.4-RC3-SNAPSHOT</version>
+	<version>5.9.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenL - POI 3.8 - Dev POM</name>
 	<description>POI for OpenL</description>
