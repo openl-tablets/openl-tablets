@@ -11,34 +11,33 @@
 
     <style>
         .fields section div table tr { margin-bottom: 20px; }
-        .fields section div .titleColumn { width: 153px; padding: 5px 0; }
+        .fields section div .titleColumn { width: 140px; padding: 5px 0; }
 
-        .restartMessage { position: absolute; top: 7px; right: 33px; -moz-animation: restartMessage_anm 0.6s; -webkit-animation: restartMessage_anm 1.3s; }
-        @-moz-keyframes restartMessage_anm {
-            0% { right: 33px; }
-            50% { right: 47px; }
-            100% { right: 33px; }
-        }
-        @-webkit-keyframes restartMessage_anm {
-            0% { right: 33px; }
-            50% { right: 47px; }
-            100% { right: 33px; }
+        .restartMessage {
+            position: fixed;
+            top: 85px;
+            right: 33px;
         }
 
         .pathInput { width: 211px; }
 
-        .fields .repositoryConfig {
-            margin-left: 0px;
+        .repositoryConfig > div {
+            display: table;
+            border-bottom: 1px dashed #aaa;
+            margin-bottom: 12px;
+            padding: 0 0 12px;
         }
 
-        .repositoryConfig {
-            border-style: dotted;
-            border-color: gray;
-            border-width: thin;
+        .repositoryConfig > div:last-child {
+            border-bottom: 0;
         }
 
-        .repositoryConfig .repositoryConfigButton {
+        .repositoryConfigButton {
             vertical-align: top;
+        }
+
+        .addRepositoryConfig {
+            margin-top: 10px;
         }
     </style>
 
@@ -127,11 +126,11 @@
                     <section>
                         <h3>Design Repository</h3>
                         <div>
-                        <table><tr><td class="repositoryConfig">
+                        <table><tr><td>
                             <h:panelGrid columns="2" columnClasses="titleColumn">
-                                <h:outputText value="Repository Name:" />
+                                <h:outputText value="Name:" />
                                 <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
-                                <h:outputText value="Repository Type:" />
+                                <h:outputText value="Type:" />
                                 <h:selectOneMenu value="#{systemSettingsBean.designRepositoryType}">
                                     <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
                                     <f:selectItem itemValue="local" itemLabel="Local" />
@@ -139,7 +138,7 @@
                                     <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
                                 </h:selectOneMenu>
                                 <h:outputText id="designRepositoryPathTitle"
-                                    value="Repository #{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
+                                    value="#{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
                                 <h:inputText id="designRepositoryPath"
                                     value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
@@ -149,10 +148,10 @@
                     </section>
                     <section>
                         <h3>Production Repositories</h3>
-                        <div><table>
+                        <div class="repositoryConfig">
                         <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
                         <a4j:repeat value="#{productionRepos}" var="repository">
-                            <tr><td class="repositoryConfig">
+                            <div>
                                 <table>
                                 <tr>
                                 <td>
@@ -174,30 +173,31 @@
                                 </h:panelGrid>
                                 </td>
                                 <td class="repositoryConfigButton">
-                                    <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}" title="Delete repository" styleClass="toolbarButton menuButton"
-                                        render="repositoryProps"
-                                        rendered="#{productionRepos.size() > 1}"
+                                    <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
+                                        title="Delete Repository" styleClass="toolbarButton menuButton"
+                                        render="repositoryProps" rendered="#{productionRepos.size() > 1}"
                                         onclick="if(!window.confirm('Do you really want to delete repository?')) {return false;}"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                        <img src="webresource/images/admin/systemSettings/delete.png" alt="Delete" title="Delete repository"/>
+                                        <img src="webresource/images/admin/systemSettings/delete.png" alt="Delete Repository" />
                                     </a4j:commandLink>
                                 </td>
                                 </tr>
                                 </table>
-                            </td></tr>
+                            </div>
                         </a4j:repeat>
-                        <tr>
-                        <td class="addRepositoryConfig">
-                            <a4j:commandLink action="#{systemSettingsBean.addProductionRepository}" title="Add" styleClass="toolbarButton menuButton"
-                                render="repositoryProps"
-                                onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                <h:outputText value="Add new repository" title="Add new repository"/>
-                            </a4j:commandLink>
-                        </td>
-                        </tr>
-                        </table></div>
+                    </div>
+
+                    <div class="addRepositoryConfig">
+                        <a4j:commandLink action="#{systemSettingsBean.addProductionRepository}"
+                            title="Add Production Repository"
+                            styleClass="toolbarButton menuButton" render="repositoryProps"
+                            onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                            <h:outputText value="Add Production Repository" />
+                        </a4j:commandLink>
+                    </div>
+
                     </section>
                 </h:panelGroup>
             </div>
@@ -222,7 +222,7 @@
         </div>
     </div>
 
-    <div style="padding-left: 115px">
+    <div style="padding-left: 125px">
         <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
             execute="@this" render="commonProps repositoryProps javaProps restartMessage"
             onclick="if(!confirm('Are you sure you want to restore default values?'))return false;" />
