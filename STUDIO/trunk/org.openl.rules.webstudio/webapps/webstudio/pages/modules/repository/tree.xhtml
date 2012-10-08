@@ -23,7 +23,7 @@
 
     <ui:define name="workspace">
         <rich:tree id="projectTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{repositoryTreeState.processSelection}"
-          render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalSmartRedeploy modalExportVersionData"
+          render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData"
           value="#{repositoryTreeState.root}" var="item" nodeType="#{item.type}">
         
           <rich:treeNode type="repository" iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.iconLeaf}">
