@@ -217,11 +217,17 @@ public class SystemSettingsBean {
     }
 
     public void restoreDefaults() {
+        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
+            productionRepositoryConfigurations.get(i).delete();
+        }
+        productionRepositoryConfigurations.clear();
+
         boolean restored = configManager.restoreDefaults();
-        // TODO remove production repository properties
         if (restored) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
         }
+
+        initProductionRepositoryConfigurations();
     }
 
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
