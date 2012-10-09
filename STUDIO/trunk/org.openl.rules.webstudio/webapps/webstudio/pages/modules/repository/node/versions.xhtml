@@ -51,8 +51,8 @@
       <rich:column rendered="#{node.type == 'project'}">
         <h:outputText value="#{version.versionComment}" />
       </rich:column>
-      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpen}" style="text-align: center;">
-        <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="backToPropsTab();"
+      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion}" style="text-align: center;">
+        <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="return backToPropsTab();"
             action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">
             <img src="webresource/images/view.png" />
         </a4j:commandLink>
@@ -65,8 +65,13 @@
   
   <script>
   function backToPropsTab(){
-      /*$j("#nodeTabPanel-value").value return undefined */
-      document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
+      if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository.")) {
+          /*$j("#nodeTabPanel-value").value return undefined */
+          document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
+          return true;
+      } else {
+	      return false;
+	  }
   }
   </script>
 

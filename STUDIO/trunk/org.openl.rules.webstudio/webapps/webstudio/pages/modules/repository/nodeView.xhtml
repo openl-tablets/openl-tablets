@@ -77,7 +77,7 @@
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
                     
-          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" type="button" onclick="openOpenVersionDialog();return false;">
+          <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" type="button" onclick="openOpenVersionDialog();return false;">
               <rich:tooltip showDelay="500">#{openVersionMessage}</rich:tooltip>
           </h:commandButton>
 
@@ -94,10 +94,10 @@
           <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{openMessage}</rich:tooltip>
           </h:commandButton>
-
-          <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpen}" value="Open Version" onclick="openOpenVersionDialog();return false;">
-              <rich:tooltip showDelay="500">#{openVersionMessage}</rich:tooltip>
-          </h:commandButton>
+	      
+	      <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" onclick="openOpenVersionDialog();return false;">
+	          <rich:tooltip showDelay="500">#{openVersionMessage}</rich:tooltip>
+	      </h:commandButton>
 
           <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
