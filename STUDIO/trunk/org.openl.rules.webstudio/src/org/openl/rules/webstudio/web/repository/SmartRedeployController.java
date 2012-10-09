@@ -213,7 +213,7 @@ public class SmartRedeployController {
             }
         }
 
-        // redeploy takes more time
+        // redeploy takes more time 
         ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
         RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig);
         for (ADeploymentProject deploymentProject : successfulyUpdated) {

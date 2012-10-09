@@ -448,6 +448,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
         return isGranted(PRIVILEGE_READ_PROJECTS);
     }
+    
+    public boolean getCanOpenOtherVersion() {
+       return isGranted(PRIVILEGE_READ_PROJECTS);
+    }
 
     public boolean getCanCompare() {
         if (getSelectedProject().isLocalOnly()) {
