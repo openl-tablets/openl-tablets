@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
@@ -32,7 +32,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  * @author Andrei Astrouski
  */
 @ManagedBean
-@RequestScoped
+@SessionScoped
 public class SystemSettingsBean {
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
@@ -79,6 +79,7 @@ public class SystemSettingsBean {
     private ConfigurationManager configManager = WebStudioUtils.getWebStudio().getSystemConfigManager();
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
+    private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
     
     @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
@@ -194,6 +195,11 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
                 validate(prodConfig);
             }
+            
+            for (RepositoryConfiguration prodConfig : deletedConfigurations) {
+                prodConfig.delete();
+            }
+            deletedConfigurations.clear();
     
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
@@ -217,11 +223,22 @@ public class SystemSettingsBean {
     }
 
     public void restoreDefaults() {
+        for (RepositoryConfiguration prodConfig : deletedConfigurations) {
+            prodConfig.delete();
+        }
+        deletedConfigurations.clear();
+
+        for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
+            productionRepositoryConfigurations.get(i).delete();
+        }
+        productionRepositoryConfigurations.clear();
+
         boolean restored = configManager.restoreDefaults();
-        // TODO remove production repository properties
         if (restored) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
         }
+
+        initProductionRepositoryConfigurations();
     }
 
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
@@ -242,9 +259,9 @@ public class SystemSettingsBean {
             long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
             
             String templatePath = template.getPath();
-            String[] paths = new String[configNames.length];
-            for (int i = 0; i < configNames.length; i++) {
-                paths[i] = new RepositoryConfiguration(configNames[i], getProductionConfigManager(configNames[i])).getPath();
+            String[] paths = new String[productionRepositoryConfigurations.size()];
+            for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
+                paths[i] = productionRepositoryConfigurations.get(i).getPath();
             }
             
             String newNum = String.valueOf(maxNumber + 1);
@@ -252,15 +269,12 @@ public class SystemSettingsBean {
             RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
-            newConfig.save();
             
             configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
-            saveSystemConfig();
             
             productionRepositoryConfigurations.add(newConfig);
-            deploymentManager.addRepository(newConfigName);
-            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
+//            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -277,20 +291,17 @@ public class SystemSettingsBean {
             configNames = (String[]) ArrayUtils.removeElement(configNames, configName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
             
-            String repositoryName = "";
             Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
             while (it.hasNext()) {
                 RepositoryConfiguration prodConfig = it.next();
                 if (prodConfig.getConfigName().equals(configName)) {
-                    repositoryName = prodConfig.getName();
-                    prodConfig.delete();
+                    deletedConfigurations.add(prodConfig);
                     it.remove();
                     break;
                 }
             }
     
-            saveSystemConfig();
-            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
+//            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
