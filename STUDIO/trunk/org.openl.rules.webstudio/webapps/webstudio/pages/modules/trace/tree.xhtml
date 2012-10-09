@@ -23,14 +23,14 @@
                 font-weight: bold;
                 margin-right: 5px;
             }
-            
+
             .tree {
                 padding-top: 5px;
             }
         </style>
 
         <h:form>
-            <h:panelGroup styleClass="traceTreeParams" rendered="#{traceTreeBean.hasDecisionTables()}">
+            <h:panelGroup styleClass="traceTreeParams" rendered="#{traceTreeBean.hasDecisionTables()}" layout="block">
                 <h:outputText value="Detailed trace tree" styleClass="traceTreeFieldName"/>
                 <h:selectBooleanCheckbox id="toggleCheckbox" value="#{traceTreeBean.detailedTraceTree}">
                     <f:ajax event="change" render="traceTree" />
