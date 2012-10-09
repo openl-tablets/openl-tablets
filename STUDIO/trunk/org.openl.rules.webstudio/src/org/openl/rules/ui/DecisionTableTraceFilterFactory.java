@@ -22,16 +22,18 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {
-    private static final int SELECTED_ITEM_INCREMENT_SIZE = 3;
-    
+    private static final int SELECTED_ITEM_INCREMENT_SIZE = 1;
+
     private final ITableTracerObject selectedTraceObject;
     private final IColorFilter defaultColorFilter;
-    
+
     private List<IGridRegion> successfulChecks = new ArrayList<IGridRegion>();
     private List<IGridRegion> unsuccessfulChecks = new ArrayList<IGridRegion>();
     private List<IGridRegion> resultRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> allCheckedRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> selectedRegions;
+    private List<IGridRegion> successfulSelectedRegions = new ArrayList<IGridRegion>();
+    private List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<IGridRegion>();
     private List<IGridRegion> indexedRegions = new ArrayList<IGridRegion>();
 
     public DecisionTableTraceFilterFactory(ITableTracerObject selectedTraceObject, IColorFilter defaultColorFilter) {
@@ -91,6 +93,16 @@ public class DecisionTableTraceFilterFactory {
                 unsuccessfulChecks.removeAll(regions);
             }
         }
+
+        if (selectedRegions != null) {
+            for (IGridRegion region : selectedRegions) {
+                if (successfulChecks.contains(region) || resultRegions.contains(region)) {
+                    successfulSelectedRegions.add(region);
+                } else if (unsuccessfulChecks.contains(region)) {
+                    unsuccessfulSelectedRegions.add(region);
+                }
+            }
+        }
     }
 
     private List<IGridFilter> buildFilters() {
@@ -128,7 +140,7 @@ public class DecisionTableTraceFilterFactory {
                 .setBorderStyle(ICellStyle.BORDER_THICK)
                 .setBorderRGB(resultColor)
                 .build();
-        
+
         List<IGridFilter> filters = new ArrayList<IGridFilter>();
         filters.add(successfulFontFilter);
         filters.add(unsuccessfulFontFilter);
@@ -139,19 +151,25 @@ public class DecisionTableTraceFilterFactory {
         filters.add(resultBorderFilter.createUpperRowBorderFilter());
         filters.add(resultBorderFilter.createLefterColumnBorderFilter());
 
-        if (selectedRegions != null) {
+        filters.add(createColorFilter(toArray(allCheckedRegions), IColorFilter.WHITE, ColorGridFilter.BACKGROUND));
+        if (!successfulSelectedRegions.isEmpty()) {
+            filters.add(createColorFilter(toArray(successfulSelectedRegions), resultColor, ColorGridFilter.BACKGROUND));
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
-                .setSelector(new RegionGridSelector(toArray(selectedRegions), false))
+                .setSelector(new RegionGridSelector(toArray(successfulSelectedRegions), false))
                 .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
-                //.setFontColor(IColorFilter.WHITE)
+                .setFontColor(IColorFilter.WHITE)
                 .build();
             filters.add(selectedFontFilter);
         }
-
-        filters.add(createColorFilter(toArray(allCheckedRegions), IColorFilter.WHITE, ColorGridFilter.BACKGROUND));
-        //if (selectedRegions != null) {
-            //filters.add(createColorFilter(toArray(selectedRegions), resultColor, ColorGridFilter.BACKGROUND));
-        //}
+        if (!unsuccessfulSelectedRegions.isEmpty()) {
+            filters.add(createColorFilter(toArray(unsuccessfulSelectedRegions), IColorFilter.RED, ColorGridFilter.BACKGROUND));
+            FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
+                .setSelector(new RegionGridSelector(toArray(unsuccessfulSelectedRegions), false))
+                .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                .setFontColor(IColorFilter.WHITE)
+                .build();
+            filters.add(selectedFontFilter);
+        }
         filters.add(new ColorGridFilter(new RegionGridSelector(toArray(allCheckedRegions), true), defaultColorFilter));
 
         return filters;
