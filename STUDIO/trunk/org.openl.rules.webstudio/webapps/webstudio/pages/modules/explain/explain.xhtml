@@ -22,10 +22,8 @@
         <c:set var="checkedShowNames" value="#{empty showNames ? '' : 'checked'}" />
         <c:set var="checkedShowValues" value="#{empty showValues ? '' : 'checked'}" />
 
-        <p /><p />
-
         <h:form>
-            <table class="treeMenu">
+            <table class="treeMenu" style="border-color: #ddd">
                 <tr>
                     <td>
                         <a href="#{contextPath}/faces/pages/modules/explain/tree.xhtml?rootID=#{rootID}"

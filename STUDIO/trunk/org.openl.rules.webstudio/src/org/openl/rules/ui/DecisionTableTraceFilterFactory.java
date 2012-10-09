@@ -22,7 +22,7 @@ import org.openl.util.tree.ITreeElement;
 import org.openl.vm.trace.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {
-    private static final int SELECTED_ITEM_INCREMENT_SIZE = 4;
+    private static final int SELECTED_ITEM_INCREMENT_SIZE = 3;
     
     private final ITableTracerObject selectedTraceObject;
     private final IColorFilter defaultColorFilter;
@@ -39,7 +39,7 @@ public class DecisionTableTraceFilterFactory {
         this.defaultColorFilter = defaultColorFilter;
         this.selectedRegions = selectedTraceObject.getGridRegions();
     }
-    
+
     public IGridFilter[] createFilters() {
         ITableTracerObject rootTraceObject = getRoot();
 
@@ -98,7 +98,7 @@ public class DecisionTableTraceFilterFactory {
 
         FontGridFilter successfulFontFilter = new FontGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(successfulChecks), false))
-                .setFontColor(IColorFilter.GREEN)
+                .setFontColor(resultColor)
                 .setItalic(true)
                 .setBold(false)
                 .build();
@@ -121,7 +121,7 @@ public class DecisionTableTraceFilterFactory {
 
         CellStyleGridFilter notResultBorderFilter = new CellStyleGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(resultRegions), true))
-                .setBorderStyle(ICellStyle.BORDER_DASHED)
+                .setBorderStyle(ICellStyle.BORDER_DOTTED)
                 .build();
         CellStyleGridFilter resultBorderFilter = new CellStyleGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(resultRegions), false))
@@ -138,25 +138,29 @@ public class DecisionTableTraceFilterFactory {
         filters.add(resultBorderFilter);
         filters.add(resultBorderFilter.createUpperRowBorderFilter());
         filters.add(resultBorderFilter.createLefterColumnBorderFilter());
-        
+
         if (selectedRegions != null) {
             FontGridFilter selectedFontFilter = new FontGridFilter.Builder()
                 .setSelector(new RegionGridSelector(toArray(selectedRegions), false))
                 .setIncrementSize(SELECTED_ITEM_INCREMENT_SIZE)
+                //.setFontColor(IColorFilter.WHITE)
                 .build();
             filters.add(selectedFontFilter);
         }
-        
+
         filters.add(createColorFilter(toArray(allCheckedRegions), IColorFilter.WHITE, ColorGridFilter.BACKGROUND));
+        //if (selectedRegions != null) {
+            //filters.add(createColorFilter(toArray(selectedRegions), resultColor, ColorGridFilter.BACKGROUND));
+        //}
         filters.add(new ColorGridFilter(new RegionGridSelector(toArray(allCheckedRegions), true), defaultColorFilter));
-        
+
         return filters;
     }
-    
+
     private IGridRegion[] toArray(Collection<IGridRegion> regions) {
         return regions.toArray(new IGridRegion[regions.size()]);
     }
-    
+
     private ColorGridFilter createColorFilter(IGridRegion[] region, final short[] rewriteColor, int scope) {
         IColorFilter colorFilter = new IColorFilter() {
 
