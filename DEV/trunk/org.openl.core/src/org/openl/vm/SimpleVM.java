@@ -10,6 +10,7 @@ import org.openl.IOpenDebugger;
 import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.runtime.IRuntimeContext;
@@ -48,6 +49,17 @@ public class SimpleVM implements IOpenVM {
 			try {
 				env.pushLocalFrame(frame);
 				return node.evaluate(env);
+			} finally {
+				env.popLocalFrame();
+			}
+		}
+
+		@Override
+		public Object runExpression(IBoundNode expressionNode, Object[] params,
+				IRuntimeEnv env) {
+			try {
+				env.pushLocalFrame(params);
+				return expressionNode.evaluate(env);
 			} finally {
 				env.popLocalFrame();
 			}
