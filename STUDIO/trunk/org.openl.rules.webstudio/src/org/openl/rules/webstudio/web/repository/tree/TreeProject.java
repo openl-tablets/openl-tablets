@@ -124,7 +124,7 @@ public class TreeProject extends TreeFolder {
     }
 
     public Date getCreatedAt() {
-        ProjectVersion projectVersion = getProject().getVersion();
+        ProjectVersion projectVersion = getProject().getFirstVersion();
         if (projectVersion == null) {
             return null;
         }
@@ -134,8 +134,29 @@ public class TreeProject extends TreeFolder {
     }
 
     public String getCreatedBy() {
-        ProjectVersion projectVersion = (getProject()).getVersion();
+        ProjectVersion projectVersion = (getProject()).getFirstVersion();
         if (projectVersion == null) {
+            return null;
+        }
+
+        VersionInfo vi = projectVersion.getVersionInfo();
+        return (vi != null) ? vi.getCreatedBy() : null;
+    }
+    
+    public Date getEditedAt() {
+        ProjectVersion projectVersion = getProject().getVersion();
+        if (projectVersion == null || getProject().getVersions().size() <= 1) {
+            return null;
+        }
+
+        VersionInfo vi = projectVersion.getVersionInfo();
+        return (vi != null) ? vi.getCreatedAt() : null;
+    }
+
+    public String getEditedBy() {
+        ProjectVersion projectVersion = (getProject()).getVersion();
+        /* zero*/
+        if (projectVersion == null || getProject().getVersions().size() <= 1) {
             return null;
         }
 
