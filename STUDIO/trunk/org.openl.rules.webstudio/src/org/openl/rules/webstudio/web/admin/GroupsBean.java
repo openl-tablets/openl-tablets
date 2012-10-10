@@ -35,7 +35,7 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 public class GroupsBean {
     
     public static final String VALIDATION_EMPTY = "Can not be empty";
-    public static final String VALIDATION_MAX = "Size must be between 1 and 25";
+    public static final String VALIDATION_MAX = "Must be less than 25";
 
     @NotBlank(message=VALIDATION_EMPTY)
     @Size(max=25, message=VALIDATION_MAX)

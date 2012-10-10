@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultUtils;
+import org.openl.rules.calc.result.SpreadsheetResultHelper;
 
 /**
  * Extractor for the appropriate row in spreadsheet.
@@ -52,7 +52,7 @@ public abstract class RowExtractor<T extends CodeStep> {
         T rowInstance = makeRowInstance();
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
             String columnName = extractor.getColumn().getColumnName();
-            int columnIndex = SpreadsheetResultUtils.getColumnIndexByName(columnName, spreadsheetResult.getColumnNames());
+            int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(columnName, spreadsheetResult.getColumnNames());
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);            
             if (isSuitableValue(columnValue)) {
                 extractor.convertAndStoreData(columnValue, rowInstance);

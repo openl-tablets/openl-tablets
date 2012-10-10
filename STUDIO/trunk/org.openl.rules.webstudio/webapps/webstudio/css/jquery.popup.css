@@ -9,6 +9,10 @@
     position: absolute;
     top: 5px;
     right: 7px;
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: pointer;
-}       
+}
+
+.jquery-popup-close-icon:hover {
+    opacity: 0.5;
+}
