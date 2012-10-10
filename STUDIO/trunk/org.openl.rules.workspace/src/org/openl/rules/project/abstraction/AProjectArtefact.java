@@ -106,6 +106,15 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         ProjectVersion max = versions.get(versions.size() - 1);
         return max;
     }
+    
+    public ProjectVersion getFirstVersion() {
+        List<ProjectVersion> versions = getVersions();
+        if (versions.size() == 0) {
+            return new RepositoryProjectVersionImpl(0, null);
+        }
+        ProjectVersion min = versions.get(1);
+        return min;
+    }
 
     public List<ProjectVersion> getVersions() {
         return getAPI().getVersions();
