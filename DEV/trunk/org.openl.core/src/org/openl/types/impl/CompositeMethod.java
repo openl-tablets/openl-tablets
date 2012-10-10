@@ -41,7 +41,7 @@ public class CompositeMethod extends ExecutableMethod {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
-            invoker = new CompositeMethodInvoker(methodBodyBoundNode);
+            invoker = new CompositeMethodInvoker(methodBodyBoundNode, this);
         } 
         return invoker.invoke(target, params, env);
     }

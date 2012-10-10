@@ -11,7 +11,7 @@
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+      <h:graphicImage value="/images/close.gif" class="close"
           onclick="RichFaces.$('modalNewProject').hide();" alt="Close" />
     </f:facet>
 
@@ -33,7 +33,7 @@
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                         <h:commandButton id="sbtTemplates" value="Create"
                             action="#{repositoryTreeController.createNewRulesProject}" />
-                        <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+                        <input type="button" value="Cancel" onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
                     </h:panelGrid>
                     </h:form>
                 </rich:tab>
@@ -54,7 +54,7 @@
                         <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
                             <h:commandButton id="sbtFiles" value="Create"
                                 action="#{repositoryTreeController.createProjectWithFiles}" />
-                            <input type="button" value="Cancel" onclick="#{rich:component('modalNewProject')}.hide();" />
+                            <input type="button" value="Cancel" onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
                         </h:panelGrid>
                     </h:form>
                 </rich:tab>
@@ -63,6 +63,11 @@
   </rich:popupPanel>
 
   <script>
+    function clearProjName() {
+        $j("#createProjectFormTempl\\:projectName").val("");
+        $j("#createProjectFormFiles\\:projectName").val("");
+    }
+  
     function openNewProjectDialog() {
       RichFaces.$('modalNewProject').show();
       focusElement("newProjectForm:projectName");

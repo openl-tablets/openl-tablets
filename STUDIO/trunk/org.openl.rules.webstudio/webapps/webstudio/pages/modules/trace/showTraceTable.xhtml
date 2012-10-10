@@ -7,15 +7,19 @@
     template="/pages/layout/framePanel.xhtml">
 
     <ui:define name="content">
+        <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/tooltip.js"></script>
         <h:panelGroup rendered="#{not empty param.first}">
             <b>Select  a Trace Element on the left side and you will see it's trace here</b>
         </h:panelGroup>
 
         <h:panelGroup rendered="#{empty param.first}">
-            <div style="border-bottom: 1px solid #dddddd">
+            <ui:include src="/pages/common/tableViewMenu.xhtml" />
+
+            <div style="border-bottom: 1px solid #dddddd; padding-bottom: 5px">
             <table>
                 <tr style="vertical-align: top">
-                    <td style="padding-top: 5px"><b>Input parameters: </b></td>
+                    <td><b>Input parameters: </b></td>
                     <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
                     <td>
 	                    <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -23,9 +27,6 @@
 	                    </ui:include>
 	                </td>
                     </ui:repeat>
-                    <td>
-                        <ui:include src="/pages/common/tableViewMenu.xhtml" />
-                    </td>
                 </tr>
                 <tr style="vertical-align: top">
                     <td><b>Returned result: </b></td>

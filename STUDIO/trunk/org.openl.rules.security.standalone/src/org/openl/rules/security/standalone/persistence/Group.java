@@ -32,6 +32,8 @@ public class Group extends PersistentObject {
     private String privileges;
     private Set<Group> includedGroups;
     private Set<AccessControlEntry> accessControlEntries;
+    private Set<User> users;
+    private Set<Group> parentGroups;
 
     /**
      * Description of group.
@@ -65,6 +67,17 @@ public class Group extends PersistentObject {
     }
 
     /**
+     * Parent groups.
+     *
+     * @return
+     */
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
+    @JoinTable(name = "Group2Group", joinColumns = { @JoinColumn(name = "IncludedGroupID") }, inverseJoinColumns = { @JoinColumn(name = "GroupID") })
+    public Set<Group> getParentGroups() {
+        return parentGroups;
+    }
+
+    /**
      * Group name.
      *
      * @return
@@ -95,6 +108,22 @@ public class Group extends PersistentObject {
         return accessControlEntries;
     }
 
+    /**
+     * Users belonging to this group. Users count can be too big - we should use
+     * lazy loading here
+     * 
+     * @return belonging to this group
+     */
+    @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
+    @JoinTable(name = "User2Group", joinColumns = { @JoinColumn(name = "GroupID") }, inverseJoinColumns = { @JoinColumn(name = "UserID") })
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
     public void setAccessControlEntries(Set<AccessControlEntry> accessControlEntries) {
         this.accessControlEntries = accessControlEntries;
     }
@@ -105,6 +134,10 @@ public class Group extends PersistentObject {
 
     public void setIncludedGroups(Set<Group> includedGroups) {
         this.includedGroups = includedGroups;
+    }
+
+    public void setParentGroups(Set<Group> parentGroups) {
+        this.parentGroups = parentGroups;
     }
 
     public void setName(String name) {

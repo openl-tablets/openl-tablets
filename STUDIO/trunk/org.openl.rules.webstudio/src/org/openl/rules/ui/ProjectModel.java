@@ -1028,6 +1028,18 @@ public class ProjectModel {
         this.projectRoot = projectRoot;
     }
 
+    public void clearModuleInfo() {
+        this.moduleInfo = null;
+
+        // Clear project messages (errors, warnings)
+        clearOpenLMessages();
+
+        destroy(); // prevent memory leak
+
+        compiledOpenClass = null;
+        projectRoot = null;
+    }
+
     public void setModuleInfo(Module moduleInfo) throws Exception {
         setModuleInfo(moduleInfo, ReloadType.NO);
     }

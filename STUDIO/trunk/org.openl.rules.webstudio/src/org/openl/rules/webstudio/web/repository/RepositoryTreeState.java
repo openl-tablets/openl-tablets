@@ -5,23 +5,21 @@ import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
@@ -30,6 +28,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.filter.AllFilter;
@@ -55,7 +54,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
 
-    @ManagedProperty(value="#{rulesUserSession.userWorkspace}")
     private UserWorkspace userWorkspace;
 
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
@@ -298,9 +296,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         this.selectedNode = selectedNode;
     }
 
-    public void setUserWorkspace(UserWorkspace userWorkspace) {
-        this.userWorkspace = userWorkspace;
+    @PostConstruct
+    public void initUserWorkspace() {
+        this.userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (userWorkspace != null) {
+            userWorkspace.getDesignTimeRepository().removeListener(this);
+        }
     }
 
 
@@ -436,11 +442,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isOpened()) {
             return false;
         }
 
         return isGranted(PRIVILEGE_READ_PROJECTS);
+    }
+    
+    public boolean getCanOpenOtherVersion() {
+       return isGranted(PRIVILEGE_READ_PROJECTS);
     }
 
     public boolean getCanCompare() {
@@ -479,7 +489,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public String getDefSelectTab() {
-        return this.DEFAULT_TAB;
+        return DEFAULT_TAB;
     }
      
     public boolean isLocalOnly() {

@@ -20,16 +20,16 @@
         </h:panelGroup>
 
         <h:panelGroup rendered="#{not empty uri}">
+            <ui:include src="/pages/common/tableViewMenu.xhtml" />
+            <div style="border-bottom: 1px solid #dddddd; padding: 4px 0 5px">
             <table>
                 <tr>
                     <td>
                         <h:outputText value=" #{showExplainTableBean.header}" />
                     </td>
-                    <td>
-                        <ui:include src="/pages/common/tableViewMenu.xhtml" />
-                    </td>
                 </tr>
             </table>
+            </div>
 
             <br />
 

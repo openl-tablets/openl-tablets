@@ -254,6 +254,15 @@ fieldset {
     background: #f54;
 }
 
+.close {
+    cursor: pointer;
+    opacity: 0.3;
+}
+
+.close:hover {
+    opacity: 0.5;
+}
+
 .tab-panel-vertical {
     border-top: 1px solid #ddd;
     margin: 13px 24px 13px 3px;
@@ -298,7 +307,7 @@ fieldset {
 
 .tab-panel-vertical ul li a {
     display: block;
-    padding: 15px 5px;
+    padding: 20px 5px;
     outline: none;
     text-decoration: none;
     color: #222;
@@ -309,7 +318,7 @@ fieldset {
 }
 
 .tab-panel-vertical .data-container {
-    padding: 16px 25px 15px 125px;
+    padding: 15px 25px 15px 125px;
 }
 
 .fields section {
@@ -613,6 +622,11 @@ form.standard table.buttonPanel {
 .rf-pp-hdr-cnt {
     color: #222222 !important;
     font-size: 12px !important;
+}
+
+.rf-pp-hdr-cntrls {
+    top: 8px !important;
+    right: 8px !important;
 }
 
 .rf-pp-cntr {

@@ -64,6 +64,20 @@ public class SmartRedeployController {
         }
         return items;
     }
+    
+    public synchronized boolean isProjectHasSelectedItems() {
+        if (items == null) {
+            return false;
+        }
+        
+        for (DeploymentProjectItem item : items) {
+            if (item.isSelected()) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project) {
         String projectName = project.getName();
@@ -199,7 +213,7 @@ public class SmartRedeployController {
             }
         }
 
-        // redeploy takes more time
+        // redeploy takes more time 
         ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
         RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig);
         for (ADeploymentProject deploymentProject : successfulyUpdated) {

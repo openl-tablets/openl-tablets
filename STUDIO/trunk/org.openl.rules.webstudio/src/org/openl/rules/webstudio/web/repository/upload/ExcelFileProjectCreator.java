@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.richfaces.model.UploadedFile;
@@ -32,7 +33,11 @@ public class ExcelFileProjectCreator extends AProjectCreator {
 
         if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
             for (UploadedFile file : uploadedFiles) {
-                projectBuilder.addFile(FilenameUtils.getName(file.getName()), file.getInputStream());
+                try {
+                    projectBuilder.addFile(FilenameUtils.getName(file.getName()), file.getInputStream());
+                } catch (Exception e) {
+                    FacesUtils.addWarnMessage("Problem with file "+file.getName()+". "+e.getMessage());
+                }
             }
         } else {
             projectBuilder.addFile(rulesSourceName, rulesSource);

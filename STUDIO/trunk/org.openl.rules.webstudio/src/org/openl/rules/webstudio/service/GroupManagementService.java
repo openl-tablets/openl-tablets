@@ -8,6 +8,7 @@ import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -90,17 +91,24 @@ public class GroupManagementService extends UserInfoUserDetailsServiceImpl {
         for (Privilege privilege : group.getPrivileges()) {
             String privilegeName = privilege.getName();
             if (privilege instanceof org.openl.rules.security.Group) {
-                includedGroups.add(groupDao.getGroupByName(privilegeName));
+                Group includedGroup = groupDao.getGroupByName(privilegeName);
+                if (!persistGroup.equals(includedGroup)) {
+                    // Persisting group should not include itself
+                    includedGroups.add(includedGroup);
+                } else {
+                    // Save all privileges of itself persisting group 
+                    String includedPrivileges = includedGroup.getPrivileges();
+                    if (includedPrivileges != null) {
+                        privileges.addAll(Arrays.asList(includedPrivileges.split(",")));
+                    }
+                }
             } else {
                 privileges.add(privilegeName);
             }
         }
-        if (!includedGroups.isEmpty()) {
-            persistGroup.setIncludedGroups(includedGroups);
-        }
-        if (!privileges.isEmpty()) {
-            persistGroup.setPrivileges(StringUtils.join(privileges, ","));
-        }
+
+        persistGroup.setIncludedGroups(!includedGroups.isEmpty() ? includedGroups : null);
+        persistGroup.setPrivileges(!privileges.isEmpty() ? StringUtils.join(privileges, ",") : null);
 
         groupDao.update(persistGroup);
     }

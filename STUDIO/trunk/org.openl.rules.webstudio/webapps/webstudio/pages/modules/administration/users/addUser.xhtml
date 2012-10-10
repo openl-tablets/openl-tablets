@@ -12,7 +12,7 @@
         </f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/modal/close.png" style="cursor:pointer"
+            <h:graphicImage value="/images/close.gif" class="close"
                 onclick="hideAddUser()" alt="Close" />
         </f:facet>
 
@@ -30,13 +30,6 @@
                 <h:inputSecret id="password" value="#{usersBean.password}" />
                 <a4j:outputPanel ajaxRendered="true" id="passwordError">
                     <h:message for="password" styleClass="error" />
-                </a4j:outputPanel>
-
-                <label class="required">Confirm</label>
-                <h:inputSecret id="confirmPassword" value="#{usersBean.confirmPassword}"
-                    validator="#{usersBean.validateConfirmPassword}" />
-                <a4j:outputPanel ajaxRendered="true" id="confirmError">
-                    <h:message for="confirmPassword" styleClass="error" />
                 </a4j:outputPanel>
 
                 <h:outputText value="" />
@@ -79,7 +72,7 @@
         function hideAddUser() {
             RichFaces.$("modalAddUser").hide();
 
-            $j("#addUserForm\\:nameError,#addUserForm\\:passwordError,#addUserForm\\:confirmError,#addUserForm\\:firstNameError,#addUserForm\\:lastNameError,#addUserForm\\:groupsError").text("");
+            $j("#addUserForm\\:nameError,#addUserForm\\:passwordError,#addUserForm\\:firstNameError,#addUserForm\\:lastNameError,#addUserForm\\:groupsError").text("");
 
             // Reset form
             $j("#addUserForm")[0].reset();
