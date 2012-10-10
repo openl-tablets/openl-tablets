@@ -209,6 +209,9 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().close();
             repositoryTreeState.refreshSelectedNode();
+            if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
+                studio.getModel().clearModuleInfo();
+            }
             resetStudioModel();
         } catch (ProjectException e) {
             String msg = "Failed to close project.";
