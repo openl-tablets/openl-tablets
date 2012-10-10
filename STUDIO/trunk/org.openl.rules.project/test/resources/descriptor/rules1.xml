@@ -27,11 +27,11 @@
 				Rules root document. Usually excel file on file system. 
 			-->
 			<rules-root path="file://MyModule2.xls" />
-			<methodFilter>
+			<method-filter>
 				<includes>
 					<value> * </value>
 				</includes>
-			</methodFilter>
+			</method-filter>
 		</module>
 
 	</modules>

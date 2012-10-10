@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.base.INamedThing;
 import org.openl.binding.impl.component.ComponentOpenClass.GetOpenClass;
 import org.openl.binding.impl.component.ComponentOpenClass.ThisField;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -90,7 +89,7 @@ public class RulesFactory {
                     IOpenMethod method = (IOpenMethod) member;
                     RuleInfo ruleInfo = getRuleInfoForMethod(method);
                     boolean isMember = true;
-                    String methodSignature = method.getDisplayName(INamedThing.SHORT);
+                    String methodSignature = getRuleInfoSignature(ruleInfo);
                     if (includes !=null && includes.length > 0){
                         isMember = false;
                         for (String pattern : includes){
@@ -117,7 +116,26 @@ public class RulesFactory {
 
                     if (field.isReadable()) {
                         RuleInfo ruleInfo = getRuleInfoForField(field);
-                        rules.add(ruleInfo);
+                        boolean isMember = true;
+                        String methodSignature = getRuleInfoSignature(ruleInfo);
+                        if (includes !=null && includes.length > 0){
+                            isMember = false;
+                            for (String pattern : includes){
+                                if (Pattern.matches(pattern, methodSignature)){
+                                    isMember = true;
+                                }
+                            }
+                        }
+                        if (excludes != null && excludes.length > 0 && isMember){
+                            for (String pattern : excludes){
+                                if (Pattern.matches(pattern, methodSignature)){
+                                    isMember = false;
+                                }
+                            }                        
+                        }
+                        if (isMember) {
+                            rules.add(ruleInfo);
+                        } 
                     }
                 }
             }
@@ -126,6 +144,25 @@ public class RulesFactory {
         return generateInterface(className, rules.toArray(new RuleInfo[rules.size()]), classLoader);
     }
 
+    private static String getRuleInfoSignature(RuleInfo ruleInfo){
+        StringBuilder sb = new StringBuilder();
+        sb.append(ruleInfo.getReturnType().getCanonicalName());
+        sb.append(" ");
+        sb.append(ruleInfo.getName());
+        sb.append("(");
+        boolean first = true;
+        for (Class<?> paramType : ruleInfo.getParamTypes()){
+            if (first){
+                first = false;
+            }else{
+                sb.append(", ");
+            }
+            sb.append(paramType.getCanonicalName());
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+    
     /**
      * Generates interface class using methods and fields of given IOpenClass
      * instance.

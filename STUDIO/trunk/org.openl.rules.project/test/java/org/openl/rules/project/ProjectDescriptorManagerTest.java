@@ -127,12 +127,12 @@ public class ProjectDescriptorManagerTest {
                         "      <type>static</type>" + "\n" +
                         "      <classname>MyWrapper1</classname>" + "\n" + 
                         "      <rules-root path=\"path1\"/>" + "\n" + 
-                        "      <methodFilter>"+ "\n" +
+                        "      <method-filter>"+ "\n" +
                         "        <includes>"+ "\n" +
                         "          <value>*</value>"+ "\n" +
                         "        </includes>"+ "\n" +
                         "        <excludes/>"+ "\n" +
-                        "      </methodFilter>"+ "\n" +
+                        "      </method-filter>"+ "\n" +
                         "    </module>" + "\n" + 
                         "  </modules>" + "\n" + 
                         "  <classpath>" + "\n" +
