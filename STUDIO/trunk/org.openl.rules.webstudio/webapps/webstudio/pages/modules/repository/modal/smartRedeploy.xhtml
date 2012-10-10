@@ -7,7 +7,7 @@
 
   <rich:popupPanel id="modalSmartRedeploy" width="400" autosized="true">
     <f:facet name="header">
-      <h:outputText value="Auto Redeploy" />
+      <h:outputText value="Auto Deploy" />
     </f:facet>
 
     <f:facet name="controls">
@@ -67,7 +67,7 @@
       <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton id="smartRedeployBtn" value="Redeploy" onclick="return startSmartRedeploy();" action="#{smartRedeployController.redeploy}"
+        <h:commandButton id="smartRedeployBtn" value="Deploy" onclick="return startSmartRedeploy();" action="#{smartRedeployController.redeploy}"
         disabled="#{!smartRedeployController.projectHasSelectedItems ? 'disabled' : '' }" />
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSmartRedeploy();" />
       </h:panelGrid>
