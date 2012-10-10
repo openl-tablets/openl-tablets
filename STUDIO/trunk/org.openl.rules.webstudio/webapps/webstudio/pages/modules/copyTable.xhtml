@@ -17,7 +17,7 @@
     <h:form>
         <h:outputText value="Copy as " />
         <h:selectOneMenu value="#{tableCopierWizardManager.copyType}">
-            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable"
+            <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable :copyTableForm:copyButtonPanel "
                 immediate="true" />
             <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
             <c:if test="#{tableCopierWizardManager.table.versionable}">
@@ -43,6 +43,9 @@
                             <h:message for="technicalName" styleClass="error" />
                         </a4j:outputPanel>
                     </h:panelGrid>
+                    <a4j:outputPanel rendered="#{tableCopierWizardManager.copyType == 'CHANGE_VERSION' and wizard.tableTechnicalName == ''}">
+                        <h:outputText value="Technical name isn't found in this table. Please, fix errors or select other type of copy." styleClass="error" />
+                    </a4j:outputPanel>
                 </h:panelGroup>
 
                 <h:panelGroup id="copyPropertiesTable">
@@ -88,9 +91,10 @@
                         </a4j:repeat>
                     </table>
                 </h:panelGroup>
+                
+	            <a4j:commandButton value="Edit Properties" oncomplete="#{rich:component('newPropertyDlg')}.show();"
+	               style="margin-top: 8px" rendered="false" />
 
-                <a4j:commandButton value="Edit Properties" oncomplete="#{rich:component('newPropertyDlg')}.show();"
-                    style="margin-top: 8px" rendered="false" />
             </div>
         </section>
 
@@ -130,10 +134,12 @@
         </section>
 
         <br />
-
-        <a4j:commandButton id="copyTableBtn" value="Copy" action="#{wizard.finish}" data="#{wizard.newTableUri}"
-            oncomplete="if(event.data)goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)"
-            styleClass="button-primary" />
+        
+        <h:panelGroup id="copyButtonPanel">
+	        <a4j:commandButton id="copyTableBtn" value="Copy" action="#{wizard.finish}" data="#{wizard.newTableUri}"
+	            oncomplete="if(event.data)goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)"
+	            styleClass="button-primary" rendered="#{!(tableCopierWizardManager.copyType == 'CHANGE_VERSION' and wizard.tableTechnicalName == '')}" />
+        </h:panelGroup>
     </h:form>
 
     <ui:remove>
