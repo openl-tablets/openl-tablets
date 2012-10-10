@@ -57,7 +57,7 @@
         	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
         </h:outputText>
       </rich:column>
-      <rich:column style="text-align:center">
+      <rich:column>
         <h:panelGroup rendered="#{!prj.data.deleted}">
           &#160;
           <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}" onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" title="Copy">
@@ -68,7 +68,7 @@
             <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}" title="Delete"
               onclick="if(!window.confirm('Are you sure you want to delete the Deploy Configuration?')) {return false;}">
               <f:param name="deploymentProjectName" value="#{prj.name}" />
-              <h:graphicImage url="/webresource/images/delete.gif" styleClass="actionImage" alt="Delete" />
+              <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
             </h:commandLink>
           </h:panelGroup>
         </h:panelGroup>
