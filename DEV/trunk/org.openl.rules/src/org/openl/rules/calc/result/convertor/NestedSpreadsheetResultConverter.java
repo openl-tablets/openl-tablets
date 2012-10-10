@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultUtils;
+import org.openl.rules.calc.result.SpreadsheetResultHelper;
 
 /*
  * The example of flat spreadsheet result structure.
@@ -94,7 +94,7 @@ public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound 
     	List<ColumnToExtract> compoundColumns = conf.getCompoundColumnsToExtract(currentNestingLevel);
     	
     	for (ColumnToExtract column : compoundColumns) {
-    		int columnIndex = SpreadsheetResultUtils.getColumnIndexByName(column.getColumnName(), 
+    		int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(), 
     	            spreadsheetResult.getColumnNames());
     		Object valueInColumn = spreadsheetResult.getValue(row, columnIndex); 
     		if (containsNested(valueInColumn)) {
