@@ -1,76 +1,163 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets" >
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:ui="http://java.sun.com/jsf/facelets" >
 
-  <rich:popupPanel id="modalNewProject" autosized="true">
-    <f:facet name="header">
-      <h:outputText value="New Project" />
-    </f:facet>
+    <rich:popupPanel id="modalNewProject" autosized="true" width="500">
+        <f:facet name="header">
+            <h:outputText value="Create Project from..." />
+        </f:facet>
 
-    <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close"
-          onclick="RichFaces.$('modalNewProject').hide();" alt="Close" />
-    </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                onclick="RichFaces.$('modalNewProject').hide();" alt="Close" />
+        </f:facet>
 
-        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-            <rich:tabPanel switchType="client">
-                <rich:tab header="Template">
-                    <h:form id="createProjectFormTempl">
+        <rich:tabPanel switchType="client">
+
+            <rich:tab header="Template">
+                <h:form id="createProjectFormTempl" style="padding-top: 6px">
+                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                    <h:outputText styleClass="required" value="Project Template" style="width: 200px" />
+                    <h:selectOneMenu value="#{repositoryTreeController.newProjectTemplate}" style="width: 196px;">
+                        <f:selectItems value="#{repositoryTreeController.newProjectTemplates}" />
+                    </h:selectOneMenu>
+                    <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
+                    <h:inputText id="projectName" size="35" maxlength="50" value="#{repositoryTreeController.projectName}" />
+                </h:panelGrid>
+
+                <hr style="margin-bottom: 15px" />
+
+                <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                    <h:commandButton id="sbtTemplates" value="Create" styleClass="button-primary"
+                        action="#{repositoryTreeController.createNewRulesProject}" />
+                    <input type="button" value="Cancel"
+                        onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
+                </h:panelGrid>
+                </h:form>
+            </rich:tab>
+
+            <rich:tab header="Excel Files">
+                <h:form id="createProjectFormFiles" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputText styleClass="required" value="Project Template" />
-                        <h:selectOneMenu value="#{repositoryTreeController.newProjectTemplate}" style="width: 196px;">
-                            <f:selectItems value="#{repositoryTreeController.newProjectTemplates}" />
-                        </h:selectOneMenu>
+                        <h:outputLabel for="file" styleClass="required" value="File" />
+
+                        <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                            acceptedTypes="xls, xlsx, xlsm" />
+
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-                        <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
+                        <h:inputText id="projectName" size="35" maxlength="50" value="#{repositoryTreeController.projectName}" />
                     </h:panelGrid>
 
-                    <hr/>
+                    <hr style="margin-bottom: 15px" />
 
-                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-                        <h:commandButton id="sbtTemplates" value="Create"
-                            action="#{repositoryTreeController.createNewRulesProject}" />
+                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                        <h:commandButton id="sbtFiles" value="Create" styleClass="button-primary"
+                            action="#{repositoryTreeController.createProjectWithFiles}" />
                         <input type="button" value="Cancel" onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
                     </h:panelGrid>
-                    </h:form>
-                </rich:tab>
-                <rich:tab header="Files">
-                    <h:form id="createProjectFormFiles">
-                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                            <h:outputLabel for="file" styleClass="required" value="File" />
+                </h:form>
+            </rich:tab>
 
-                            <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                                acceptedTypes="xls, xlsx, xlsm" />
+            <rich:tab header="Zip Archive">
+                <h:form id="uploadProjectForm" style="padding-top: 6px">
+                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                    <h:outputLabel for="file" styleClass="required" value="File" />
 
-                            <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-                            <h:inputText id="projectName" size="40" maxlength="50" value="#{repositoryTreeController.projectName}" />
-                        </h:panelGrid>
+                    <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
+                        acceptedTypes="zip" maxFilesQuantity="1" >
+                        <a4j:ajax event="uploadcomplete" execute="@none" render="projectName" />
+                    </rich:fileUpload>
 
-                        <hr/>
+                    <h:outputLabel for="projectName" value="Project Name" />
+                    <h:inputText id="projectName" size="35" maxlength="50"
+                        value="#{repositoryTreeController.projectName}" disabled="true" />
+                </h:panelGrid>
 
-                        <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-                            <h:commandButton id="sbtFiles" value="Create"
-                                action="#{repositoryTreeController.createProjectWithFiles}" />
-                            <input type="button" value="Cancel" onclick="clearProjName(); #{rich:component('modalNewProject')}.hide();" />
-                        </h:panelGrid>
-                    </h:form>
-                </rich:tab>
-            </rich:tabPanel>
-         </h:panelGrid>
-  </rich:popupPanel>
+                <hr style="margin-bottom: 15px" />
 
-  <script>
-    function clearProjName() {
-        $j("#createProjectFormTempl\\:projectName").val("");
-        $j("#createProjectFormFiles\\:projectName").val("");
-    }
-  
-    function openNewProjectDialog() {
-      RichFaces.$('modalNewProject').show();
-      focusElement("newProjectForm:projectName");
-    }
-  </script>
+                <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                    <h:commandButton id="sbt" value="Create" action="#{repositoryTreeController.upload}"
+                        styleClass="button-primary" />
+                    <input type="button" value="Cancel" onclick="RichFaces.$('modalNewProject').hide();" />
+                </h:panelGrid>
+                </h:form>
+            </rich:tab>
+
+            <rich:tab header="Workspace">
+                <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
+                    <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
+                        <rich:dataTable value="#{localUpload.projects4Upload}"
+                            rendered="#{not empty localUpload.projects4Upload}"
+                            var="item" styleClass="table table-striped" id="uploadPrjFromLocalTable" style="width: 98%">
+                            <f:facet name="header">
+                                <rich:columnGroup>
+                                    <rich:column>
+                                        <h:selectBooleanCheckbox id="selectAll" title="Check/Uncheck All"
+                                        onclick="changeStatus(this);"/>
+                                    </rich:column>
+                                    <rich:column>
+                                        <h:outputText value="Name" />
+                                    </rich:column>
+                                </rich:columnGroup>
+                            </f:facet>
+
+                            <rich:column style="text-align: center; width: 20px;">
+                                <h:selectBooleanCheckbox value="#{item.selected}" onclick="changeAllProjectCheck(this)" />
+                            </rich:column>
+                            <rich:column>
+                                <h:outputText value="#{item.projectName}" />
+                            </rich:column>
+                        </rich:dataTable>
+                    </div>
+
+                    <h:outputText value="All projects are already in repository"
+                        rendered="#{empty localUpload.projects4Upload}" />
+
+                    <hr style="margin-bottom: 15px" />
+
+                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                        <h:commandButton action="#{localUpload.upload}" styleClass="button-primary"
+                            rendered="#{not empty localUpload.projects4Upload}"
+                            process="@form" value="Create" />
+                        <input type="button" value="Cancel" onclick="RichFaces.$('modalNewProject').hide();" />
+                    </h:panelGrid>
+                </h:form>
+            </rich:tab>
+
+        </rich:tabPanel>
+    </rich:popupPanel>
+
+    <script>
+        function clearProjName() {
+            $j("#createProjectFormTempl\\:projectName").val("");
+            $j("#createProjectFormFiles\\:projectName").val("");
+        }
+
+        function openNewProjectDialog() {
+            RichFaces.$('modalNewProject').show();
+            focusElement("newProjectForm:projectName");
+        }
+
+        function changeStatus(element) {
+            $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
+        }
+
+        function changeAllProjectCheck(element) {
+            if($j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']:checked").val() == "on") {
+                if( !element.checked ) {
+                    $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", element.checked);
+                }
+            }
+
+            checkedCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']:checked").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
+            allCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size()
+
+            if (checkedCount == allCount) {
+                $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
+            }
+        }
+    </script>
 </ui:composition>
