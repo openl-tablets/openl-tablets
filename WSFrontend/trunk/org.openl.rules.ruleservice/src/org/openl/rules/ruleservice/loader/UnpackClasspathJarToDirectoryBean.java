@@ -79,10 +79,10 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             return null;
         }
         String path = jarPath.substring("file:".length(), jarPath.lastIndexOf("!"));
-        
-        //Workaround for WebSphere 8.5
+
+        // Workaround for WebSphere 8.5
         path = path.replaceAll("%20", " ");
-        
+
         return path;
     }
 
@@ -100,13 +100,15 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 f.mkdir();
                 continue;
             }
+
             InputStream is = jar.getInputStream(file);
             InputStream bufferedInputStream = new BufferedInputStream(is);
 
             FileOutputStream fos = new FileOutputStream(f);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
-            while (bufferedInputStream.available() > 0) {
-                bos.write(bufferedInputStream.read());
+            int data;
+            while ((data = bufferedInputStream.read()) != -1) {
+                bos.write(data);
             }
             bos.close();
             bufferedInputStream.close();
