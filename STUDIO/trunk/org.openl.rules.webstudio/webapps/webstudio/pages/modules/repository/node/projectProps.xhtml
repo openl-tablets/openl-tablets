@@ -80,20 +80,20 @@
 	    </tr>
 	    <tr>
             <td class="label">
-                <h:outputText value="Modified At" rendered="#{node.editedAt != null}" />
+                <h:outputText value="Modified At" rendered="#{node.modifiedAt != null}" />
             </td>
             <td>
-                <h:outputText value="#{node.editedAt}" rendered="#{node.editedAt != null}">
+                <h:outputText value="#{node.modifiedAt}" rendered="#{node.modifiedAt != null}">
 		            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
 		        </h:outputText>
             </td>
         </tr>
         <tr>
             <td class="label">
-                <h:outputText value="Modified By" rendered="#{node.editedBy != null}"/>
+                <h:outputText value="Modified By" rendered="#{node.modifiedBy != null}"/>
             </td>
             <td>
-                <h:outputText value="#{node.editedBy}" rendered="#{node.editedBy != null}"/>
+                <h:outputText value="#{node.modifiedBy}" rendered="#{node.modifiedBy != null}"/>
             </td>
         </tr>
 	    
