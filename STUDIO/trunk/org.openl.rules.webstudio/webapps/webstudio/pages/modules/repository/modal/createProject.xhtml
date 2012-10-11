@@ -120,7 +120,7 @@
 
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <h:commandButton action="#{localUpload.upload}" styleClass="button-primary"
-                            rendered="#{not empty localUpload.projects4Upload}"
+                            rendered="#{not empty localUpload.projects4Upload}" onclick="uncheckSelectAllProject()"
                             process="@form" value="Create" />
                         <input type="button" value="Cancel" onclick="RichFaces.$('modalNewProject').hide();" />
                     </h:panelGrid>
@@ -158,6 +158,10 @@
             if (checkedCount == allCount) {
                 $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
             }
+        }
+        
+        function uncheckSelectAllProject() {
+            $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", false);
         }
     </script>
 </ui:composition>
