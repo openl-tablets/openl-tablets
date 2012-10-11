@@ -359,11 +359,12 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     public List<ProjectVersion> getVersions() {
         // FIXME
         LinkedList<ProjectVersion> vers = new LinkedList<ProjectVersion>();
-
         try {
-            for (RVersion rv : getVersionHistory()) {
+            List<RVersion> verHist = getVersionHistory();
+
+            for (RVersion rv : verHist) {
                 RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
-                        .getUserName());
+                        .getUserName(),verHist.get(verHist.size()-1).getCreated(), verHist.get(verHist.size()-1).getCreatedBy().getUserName());
                 String versionComment = "";
                 Map<String, Object> versionProperties = new HashMap<String, Object>();
 
