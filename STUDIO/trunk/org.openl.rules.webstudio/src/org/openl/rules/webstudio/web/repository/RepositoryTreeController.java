@@ -443,6 +443,9 @@ public class RepositoryTreeController {
                     repositoryTreeState.deleteNode(projectInTree);
                 }
             }
+            if (project.equals(studio.getModel().getProject())) {
+                studio.getModel().clearModuleInfo();
+            }
             resetStudioModel();
         } catch (ProjectException e) {
             log.error("Cannot delete rules project '" + projectName + "'.", e);

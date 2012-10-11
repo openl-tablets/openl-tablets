@@ -211,8 +211,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             ADeploymentProject userDProject = userDProjects.get(name);
 
-            userDProject = new ADeploymentProject(ddp.getAPI(), user);
-            userDProjects.put(name, userDProject);
+            if (userDProject == null) {
+                userDProject = new ADeploymentProject(ddp.getAPI(), user);
+                userDProjects.put(name, userDProject);
+            } else {
+                userDProject.refresh();
+            }
         }
 
         // remove deleted

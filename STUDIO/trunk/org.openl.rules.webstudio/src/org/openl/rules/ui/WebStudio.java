@@ -293,6 +293,7 @@ public class WebStudio {
         try {
             if (reloadType == ReloadType.FORCED){
                 invalidateProjects();
+                initDependencyManager();
             }
             model.reset(reloadType);
             for (StudioListener listener : listeners) {
