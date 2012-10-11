@@ -21,6 +21,14 @@
 	
 	    <h:outputText value="Created By" />
 	    <h:outputText value="#{node.createdBy}" />
+	    
+	    <h:outputText value="Last Editeded At" rendered="#{node.editedAt != null}" />
+        <h:outputText value="#{node.editedAt}" rendered="#{node.editedAt != null}">
+            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+        </h:outputText>
+    
+        <h:outputText value="Last Edited By" rendered="#{node.editedBy != null}"/>
+        <h:outputText value="#{node.editedBy}" rendered="#{node.editedBy != null}"/>
 	  </h:panelGrid>
   </ui:remove>
 
@@ -70,6 +78,25 @@
 	            <h:outputText value="#{node.createdBy}" />
 	        </td>
 	    </tr>
+	    <tr>
+            <td class="label">
+                <h:outputText value="Modified At" rendered="#{node.editedAt != null}" />
+            </td>
+            <td>
+                <h:outputText value="#{node.editedAt}" rendered="#{node.editedAt != null}">
+		            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+		        </h:outputText>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">
+                <h:outputText value="Modified By" rendered="#{node.editedBy != null}"/>
+            </td>
+            <td>
+                <h:outputText value="#{node.editedBy}" rendered="#{node.editedBy != null}"/>
+            </td>
+        </tr>
+	    
 	  <ui:include src="/pages/modules/repository/node/bdimensionalProps.xhtml" >
 	    <ui:param name="prefix" value="project"/>
 	  </ui:include>
