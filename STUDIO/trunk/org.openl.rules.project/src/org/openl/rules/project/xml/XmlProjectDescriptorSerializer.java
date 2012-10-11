@@ -36,11 +36,11 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(PATH_TAG, PathEntry.class);
         xstream.aliasType(PROPERTY_TAG, Property.class);
         xstream.addDefaultImplementation(HashSet.class, Collection.class);
-        xstream.aliasType(METHOD_FILTER_TAG, MethodFilter.class);
         xstream.alias("value", String.class);
 
         xstream.useAttributeFor(PathEntry.class, "path");
         xstream.aliasField("rules-root", Module.class, "rulesRootPath");
+        xstream.aliasField(METHOD_FILTER_TAG, Module.class, "methodFilter");
         xstream.registerConverter(new ModuleTypeConverter());
         xstream.registerConverter(new StringValueConverter());
     }

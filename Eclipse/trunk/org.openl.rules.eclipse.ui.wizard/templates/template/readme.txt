@@ -14,7 +14,7 @@ Project has the following structure:
 		|  |-- readme.txt												Current file
 		|  
 		|  |-- build													Build configurations
-		|  |  |-- GenerateJavaWrapper.build.xml							Ant build scipt (defines steps to generate wrapper class)
+		|  |  |-- GenerateJavaWrapper.build.xml							Ant build script (defines steps to generate wrapper class)
 		|  
 		|  |-- gen														Default folder which used as target folder for generated classes
 		|  |  
@@ -24,7 +24,7 @@ Project has the following structure:
 		|  |-- META-INF
 		|  |  |-- MANIFEST.MF											Eclipse manifest file (for Eclipse only)
 		|  
-		|  |-- rules													Default forlder which contains files with rules.
+		|  |-- rules													Default folder which contains files with rules.
 		|  |  |-- TemplateRules.xls										File with rules.
 		|  |  
 		|  
