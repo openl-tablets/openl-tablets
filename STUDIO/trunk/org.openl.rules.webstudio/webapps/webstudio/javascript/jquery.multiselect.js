@@ -67,6 +67,8 @@
             popup.find(":checkbox:not(:first)").click(function(e) {
                 values[this.value] = this.checked;
                 setValue();
+                
+                changeSelectAllStatus();
             });
 
             function setValue() {
@@ -77,6 +79,17 @@
                     }
                 }
                 newSelect.val(result.join(options.separator));
+            }
+            
+            function changeSelectAllStatus() {
+                allCount = popup.find(":checkbox:not(:first)").size();
+                checkedCount = popup.find(":checkbox[checked]:not(:first)").size();
+                
+                if (checkedCount == allCount) {
+                    popup.find(":checkbox:first").prop("checked",true);
+                } else {
+                    popup.find(":checkbox:first").prop("checked",false);
+                }
             }
 
         });
