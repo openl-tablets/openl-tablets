@@ -446,18 +446,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             return false;
         }
 
-        return isGranted(PRIVILEGE_READ_PROJECTS);
+        return isGranted(PRIVILEGE_VIEW_PROJECTS);
     }
-    
+
     public boolean getCanOpenOtherVersion() {
-       return isGranted(PRIVILEGE_READ_PROJECTS);
+       return isGranted(PRIVILEGE_VIEW_PROJECTS);
     }
 
     public boolean getCanCompare() {
         if (getSelectedProject().isLocalOnly()) {
             return false;
         }
-        return isGranted(PRIVILEGE_READ_PROJECTS);
+        return isGranted(PRIVILEGE_VIEW_PROJECTS);
     }
 
     public boolean getCanRedeploy() {
