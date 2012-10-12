@@ -91,6 +91,8 @@
                     popup.find(":checkbox:first").prop("checked",false);
                 }
             }
+            
+            changeSelectAllStatus();
 
         });
     };
