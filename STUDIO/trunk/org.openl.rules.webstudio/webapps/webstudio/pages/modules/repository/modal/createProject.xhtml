@@ -87,7 +87,7 @@
             </rich:tab>
 
             <rich:tab header="Workspace">
-                <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
+                <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px" onsubmit="uncheckSelectAllProject()">
                     <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
                         <rich:dataTable value="#{localUpload.projects4Upload}"
                             rendered="#{not empty localUpload.projects4Upload}"
@@ -120,7 +120,7 @@
 
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <h:commandButton action="#{localUpload.upload}" styleClass="button-primary"
-                            rendered="#{not empty localUpload.projects4Upload}" onclick="uncheckSelectAllProject()"
+                            rendered="#{not empty localUpload.projects4Upload}"
                             process="@form" value="Create" />
                         <input type="button" value="Cancel" onclick="RichFaces.$('modalNewProject').hide();" />
                     </h:panelGrid>
