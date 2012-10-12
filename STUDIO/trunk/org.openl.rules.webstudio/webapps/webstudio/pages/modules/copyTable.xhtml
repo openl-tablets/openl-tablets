@@ -43,7 +43,7 @@
                             <h:message for="technicalName" styleClass="error" />
                         </a4j:outputPanel>
                     </h:panelGrid>
-                    <a4j:outputPanel rendered="#{tableCopierWizardManager.copyType == 'CHANGE_VERSION' and wizard.tableTechnicalName == ''}">
+                    <a4j:outputPanel rendered="#{ (tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == ''}">
                         <h:outputText value="Technical name isn't found in this table. Please, fix errors or select other type of copy." styleClass="error" />
                     </a4j:outputPanel>
                 </h:panelGroup>
@@ -138,7 +138,7 @@
         <h:panelGroup id="copyButtonPanel">
 	        <a4j:commandButton id="copyTableBtn" value="Copy" action="#{wizard.finish}" data="#{wizard.newTableUri}"
 	            oncomplete="if(event.data)goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)"
-	            styleClass="button-primary" rendered="#{!(tableCopierWizardManager.copyType == 'CHANGE_VERSION' and wizard.tableTechnicalName == '')}" />
+	            styleClass="button-primary" rendered="#{!((tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == '')}" />
         </h:panelGroup>
     </h:form>
 
