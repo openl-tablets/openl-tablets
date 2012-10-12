@@ -1036,7 +1036,7 @@ public class RepositoryTreeController {
             resetStudioModel();
             FacesUtils.addInfoMessage(("File was successfully updated."));
         } else {
-            FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file.");
+            FacesUtils.addErrorMessage(errorMessage, "Error occured during uploading file. "+errorMessage);
         }
         
         /*Clear the load form*/
@@ -1139,6 +1139,10 @@ public class RepositoryTreeController {
     }
 
     private String uploadAndUpdateFile() {
+        if (getLastUploadedFile() == null) {
+            return "There are no uploaded files.";
+        }
+        
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode()
                     .getData();
