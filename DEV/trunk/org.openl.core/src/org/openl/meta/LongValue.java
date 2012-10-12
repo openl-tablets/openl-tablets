@@ -306,6 +306,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
     
     public static org.openl.meta.LongValue negative(org.openl.meta.LongValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.LongValue("-1"));
     }
     

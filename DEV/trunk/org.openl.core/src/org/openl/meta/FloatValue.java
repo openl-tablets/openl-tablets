@@ -306,6 +306,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     public static org.openl.meta.FloatValue negative(org.openl.meta.FloatValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.FloatValue("-1"));
     }
     

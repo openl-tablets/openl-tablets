@@ -308,6 +308,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
     
     public static org.openl.meta.BigDecimalValue negative(org.openl.meta.BigDecimalValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.BigDecimalValue("-1"));
     }
     

@@ -307,6 +307,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
     
     public static org.openl.meta.ByteValue negative(org.openl.meta.ByteValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.ByteValue("-1"));
     }
     
