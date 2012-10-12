@@ -346,6 +346,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static org.openl.meta.DoubleValue negative(org.openl.meta.DoubleValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.DoubleValue("-1"));
     }
     

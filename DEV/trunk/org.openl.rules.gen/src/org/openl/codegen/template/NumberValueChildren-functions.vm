@@ -281,6 +281,9 @@
     }
     
     public static $tool.getTypeName($type) ${negativeFunction.Name}($tool.getTypeName($type) value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new $tool.getTypeName($type)("-1"));
     }
     

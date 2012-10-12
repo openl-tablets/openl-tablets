@@ -306,6 +306,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
     
     public static org.openl.meta.IntValue negative(org.openl.meta.IntValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.IntValue("-1"));
     }
     

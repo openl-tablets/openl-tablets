@@ -306,6 +306,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
     
     public static org.openl.meta.ShortValue negative(org.openl.meta.ShortValue value) {
+        if (value == null) {
+            return null;
+        }
         return multiply(value, new org.openl.meta.ShortValue("-1"));
     }
     
