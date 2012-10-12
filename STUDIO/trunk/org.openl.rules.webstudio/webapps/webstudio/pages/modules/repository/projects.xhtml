@@ -49,10 +49,10 @@
         <h:outputText value="#{prj.status}" />
       </rich:column>
       <rich:column style="text-align:center">
-        <h:outputText value="#{prj.modifiedBy}" />
+        <h:outputText value="#{prj.modifiedBy != null ? prj.modifiedBy : prj.createdBy}" />
       </rich:column>
       <rich:column style="text-align:center">
-        <h:outputText value="#{prj.modifiedAt}">
+        <h:outputText value="#{prj.modifiedAt != null ? prj.modifiedAt : prj.createdAt}">
         	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
         </h:outputText>
       </rich:column>
