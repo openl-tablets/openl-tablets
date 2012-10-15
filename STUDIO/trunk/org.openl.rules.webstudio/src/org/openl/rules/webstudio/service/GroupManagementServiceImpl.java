@@ -5,7 +5,9 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,9 +121,27 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         groupDao.update(persistGroup);
     }
 
+    @Transactional
     @Override
     public void deleteGroup(String name) {
-        groupDao.delete(groupDao.getGroupByName(name));
+        Group group = groupDao.getGroupByName(name);
+        Set<Group> includedGroups = group.getIncludedGroups();
+
+        for (User user : group.getUsers()) {
+            Set<Group> groups = user.getGroups();
+            groups.remove(group);
+            groups.addAll(includedGroups);
+            userDao.merge(user);
+        }
+
+        for (Group parentGroup : group.getParentGroups()) {
+            Set<Group> groups = parentGroup.getIncludedGroups();
+            groups.remove(group);
+            groups.addAll(includedGroups);
+            groupDao.merge(parentGroup);
+        }
+
+        groupDao.delete(group);
     }
 
     public void setGroupDao(GroupDao groupDao) {
