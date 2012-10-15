@@ -16,10 +16,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     private static final long serialVersionUID = -3137978912171407672L;
     
-    // <<< INSERT Functions >>>
-	// generate zero for types that are wrappers over primitives
-	private static final org.openl.meta.ByteValue ZERO1 = new org.openl.meta.ByteValue((byte)0);
+    private static final ByteValue ZERO = new ByteValue((byte) 0);
+    private static final ByteValue ONE = new ByteValue((byte) 1);
+    private static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
 
+    // <<< INSERT Functions >>>
 	private byte value;
 
 
@@ -139,7 +140,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.ByteValue((byte) 0);
+            return ZERO;
         }
 		
 		return new org.openl.meta.ByteValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -214,7 +215,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.ByteValue(value1, value2, divide(new org.openl.meta.ByteValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.ByteValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -310,11 +311,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (value == null) {
             return null;
         }
-        return multiply(value, new org.openl.meta.ByteValue("-1"));
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.ByteValue inc(org.openl.meta.ByteValue value) {
-        return add(value, new org.openl.meta.ByteValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.ByteValue positive(org.openl.meta.ByteValue value) {
@@ -322,7 +323,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
     
     public static org.openl.meta.ByteValue dec(org.openl.meta.ByteValue value) {
-        return subtract(value, new org.openl.meta.ByteValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

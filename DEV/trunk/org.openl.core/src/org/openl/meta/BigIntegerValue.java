@@ -17,10 +17,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     private static final long serialVersionUID = -3936317402079096501L;
     
-    // <<< INSERT Functions >>>
-	// generate zero for big types
-	private static final org.openl.meta.BigIntegerValue ZERO1 = new org.openl.meta.BigIntegerValue("0");
+    private static final BigIntegerValue ZERO = new BigIntegerValue("0");
+    private static final BigIntegerValue ONE = new BigIntegerValue("1");
+    private static final BigIntegerValue MINUS_ONE = new BigIntegerValue("-1");
 
+    // <<< INSERT Functions >>>
 	private java.math.BigInteger value;
 
 
@@ -140,7 +141,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.BigIntegerValue("0");
+            return ZERO;
         }
 		
 		return new org.openl.meta.BigIntegerValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -215,7 +216,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.BigIntegerValue(value1, value2, divide(new org.openl.meta.BigIntegerValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.BigIntegerValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -311,11 +312,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         if (value == null) {
             return null;
         }
-        return multiply(value, new org.openl.meta.BigIntegerValue("-1"));
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.BigIntegerValue inc(org.openl.meta.BigIntegerValue value) {
-        return add(value, new org.openl.meta.BigIntegerValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.BigIntegerValue positive(org.openl.meta.BigIntegerValue value) {
@@ -323,7 +324,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
     
     public static org.openl.meta.BigIntegerValue dec(org.openl.meta.BigIntegerValue value) {
-        return subtract(value, new org.openl.meta.BigIntegerValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

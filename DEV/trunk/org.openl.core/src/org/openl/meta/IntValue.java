@@ -15,10 +15,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     
     private static final long serialVersionUID = -3821702883606493390L;    
     
-    // <<< INSERT Functions >>>
-	// generate zero for types that are wrappers over primitives
-	private static final org.openl.meta.IntValue ZERO1 = new org.openl.meta.IntValue((int)0);
+    private static final IntValue ZERO = new IntValue((int) 0);
+    private static final IntValue ONE = new IntValue((int) 1);
+    private static final IntValue MINUS_ONE = new IntValue((int) -1);
 
+    // <<< INSERT Functions >>>
 	private int value;
 
 
@@ -138,7 +139,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.IntValue((int) 0);
+            return ZERO;
         }
 		
 		return new org.openl.meta.IntValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -213,7 +214,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.IntValue(value1, value2, divide(new org.openl.meta.IntValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.IntValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -309,11 +310,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (value == null) {
             return null;
         }
-        return multiply(value, new org.openl.meta.IntValue("-1"));
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.IntValue inc(org.openl.meta.IntValue value) {
-        return add(value, new org.openl.meta.IntValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.IntValue positive(org.openl.meta.IntValue value) {
@@ -321,7 +322,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
     
     public static org.openl.meta.IntValue dec(org.openl.meta.IntValue value) {
-        return subtract(value, new org.openl.meta.IntValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts
