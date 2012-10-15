@@ -185,7 +185,7 @@
     <property name="groupDao" ref="groupDao" />
   </bean>
 
-  <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
+  <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
     <property name="groupDao" ref="groupDao" />
   </bean>
 
