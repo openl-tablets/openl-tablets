@@ -15,10 +15,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     private static final long serialVersionUID = -8235832583740963916L;
     
-    // <<< INSERT Functions >>>
-	// generate zero for types that are wrappers over primitives
-	private static final org.openl.meta.FloatValue ZERO1 = new org.openl.meta.FloatValue((float)0);
+    private static final FloatValue ZERO = new FloatValue((float) 0);
+    private static final FloatValue ONE = new FloatValue((float) 1);
+    private static final FloatValue MINUS_ONE = new FloatValue((float) -1);
 
+    // <<< INSERT Functions >>>
 	private float value;
 
 
@@ -138,7 +139,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.FloatValue((float) 0);
+            return ZERO;
         }
 		
 		return new org.openl.meta.FloatValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -213,7 +214,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.FloatValue(value1, value2, divide(new org.openl.meta.FloatValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.FloatValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -309,11 +310,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (value == null) {
             return null;
         }
-        return multiply(value, new org.openl.meta.FloatValue("-1"));
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.FloatValue inc(org.openl.meta.FloatValue value) {
-        return add(value, new org.openl.meta.FloatValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.FloatValue positive(org.openl.meta.FloatValue value) {
@@ -321,7 +322,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
     
     public static org.openl.meta.FloatValue dec(org.openl.meta.FloatValue value) {
-        return subtract(value, new org.openl.meta.FloatValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts
