@@ -206,7 +206,7 @@ public class ShowTableBean {
     }
 
     public String getMode() {
-        return FacesUtils.getRequestParameter("mode");
+        return getCanEdit() ? FacesUtils.getRequestParameter("mode") : null;
     }
 
     public String getParamsWithoutUri() {
