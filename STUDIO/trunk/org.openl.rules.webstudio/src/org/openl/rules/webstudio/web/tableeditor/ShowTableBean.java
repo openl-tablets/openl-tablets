@@ -415,7 +415,7 @@ public class ShowTableBean {
     }
 
     public boolean getCanEdit() {
-        return isGranted(PRIVILEGE_EDIT_TABLES);
+        return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
     }
 
     public boolean getCanRemove() {
