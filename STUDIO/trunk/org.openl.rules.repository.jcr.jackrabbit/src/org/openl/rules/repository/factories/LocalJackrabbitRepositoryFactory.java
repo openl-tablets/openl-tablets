@@ -13,6 +13,7 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
@@ -67,11 +68,15 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     }
     
     private static boolean isFileLocked(File file){
-        try{
-            new FileInputStream(file).read();
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+            fileInputStream.read();
             return false;
-        }catch (IOException e) {
+        } catch (IOException e) {
             return true;
+        } finally {
+            IOUtils.closeQuietly(fileInputStream);
         }
     }
     
