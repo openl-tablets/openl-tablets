@@ -10,13 +10,9 @@
         .propsGroupHeaderTxt {
             color: #1199EE;
             font-size: 12px;
-            padding-top: 15px !important;
         }
-        .propsGroupHeader {
-            height: 30px;
-        }
-        .editableProp {
-            cursor: pointer;
+        .propsGroupHeader td {
+            padding-bottom: 10px;
         }
         .inheritedProp {
             background: rgba(255, 128, 0, 0.3);
@@ -63,7 +59,7 @@
         
         <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
             <tr class="propsGroupHeader">
-		        <td style="vertical-align: bottom" colspan="2">
+		        <td>
 		            <span class="propsGroupHeaderTxt label">
 		                 <h:outputText value="#{prop}"/>
 		            </span>
