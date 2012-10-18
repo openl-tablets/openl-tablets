@@ -18,7 +18,7 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.modifiedAt = null;
-        this.modifiedBy = "";
+        this.modifiedBy = null;
     }
     
     public RepositoryVersionInfoImpl(Date createdAt, String createdBy, Date modifiedAt, String modifiedBy) {
