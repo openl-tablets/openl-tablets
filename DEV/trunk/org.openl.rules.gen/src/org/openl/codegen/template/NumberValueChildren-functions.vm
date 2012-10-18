@@ -1,11 +1,3 @@
-#if (${primitiveType.isPrimitive()}) 	
-	// generate zero for types that are wrappers over primitives
-	private static final $tool.getTypeName($type) ZERO1 = new $tool.getTypeName($type)(($tool.getTypeName($primitiveType))0);
-#else
-	// generate zero for big types
-	private static final $tool.getTypeName($type) ZERO1 = new $tool.getTypeName($type)("0");
-#end
-
 	private $tool.getTypeName($primitiveType) value;
 
 #foreach ($formula in $formulas)
@@ -81,11 +73,7 @@
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, ${remFormula.FullName}.toString());
 		if (value1 == null || value2 == null) {
-#if (${primitiveType.isPrimitive()})
-            return new ${tool.getTypeName($type)}(($tool.getTypeName($primitiveType)) 0);
-#else
-            return new $tool.getTypeName($type)("0");
-#end
+            return ZERO;
         }
 		
 		return new $tool.getTypeName($type)(value1, value2, Operators.${remFormula.Name}(value1.getValue(), value2.getValue()), 
@@ -171,7 +159,7 @@
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new $tool.getTypeName($type)(value1, value2, ${divideFormula.Name}(new $tool.getTypeName($type)("1"), value2).getValue(), ${divideFormula.FullName});
+				return new $tool.getTypeName($type)(value1, value2, ${divideFormula.Name}(ONE, value2).getValue(), ${divideFormula.FullName});
 			}
 		}
 		
@@ -284,11 +272,11 @@
         if (value == null) {
             return null;
         }
-        return multiply(value, new $tool.getTypeName($type)("-1"));
+        return multiply(value, MINUS_ONE);
     }
     
     public static $tool.getTypeName($type) ${incFunction.Name}($tool.getTypeName($type) value) {
-        return add(value, new $tool.getTypeName($type)("1"));
+        return add(value, ONE);
     }
     
     public static $tool.getTypeName($type) ${positiveFunction.Name}($tool.getTypeName($type) value) {
@@ -296,7 +284,7 @@
     }
     
     public static $tool.getTypeName($type) ${decFunction.Name}($tool.getTypeName($type) value) {
-        return subtract(value, new $tool.getTypeName($type)("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

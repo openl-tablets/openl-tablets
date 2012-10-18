@@ -15,10 +15,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;
     
-    // <<< INSERT Functions >>>
-	// generate zero for types that are wrappers over primitives
-	private static final org.openl.meta.ShortValue ZERO1 = new org.openl.meta.ShortValue((short)0);
+    private static final ShortValue ZERO = new ShortValue((short) 0);
+    private static final ShortValue ONE = new ShortValue((short) 1);
+    private static final ShortValue MINUS_ONE = new ShortValue((short) -1);
 
+    // <<< INSERT Functions >>>
 	private short value;
 
 
@@ -138,7 +139,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.ShortValue((short) 0);
+            return ZERO;
         }
 		
 		return new org.openl.meta.ShortValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -213,7 +214,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.ShortValue(value1, value2, divide(new org.openl.meta.ShortValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.ShortValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -309,11 +310,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (value == null) {
             return null;
         }
-        return multiply(value, new org.openl.meta.ShortValue("-1"));
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.ShortValue inc(org.openl.meta.ShortValue value) {
-        return add(value, new org.openl.meta.ShortValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.ShortValue positive(org.openl.meta.ShortValue value) {
@@ -321,7 +322,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
     
     public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
-        return subtract(value, new org.openl.meta.ShortValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

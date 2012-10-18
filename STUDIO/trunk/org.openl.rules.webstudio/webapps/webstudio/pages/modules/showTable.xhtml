@@ -452,7 +452,7 @@
                 <div id="problemsPanel">
                     <ui:include src="/pages/modules/messages.xhtml">
                         <ui:param name="messages" value="#{showTableBean.problems}" />
-                        <ui:param name="editable" value="#{showTableBean.editable}" />
+                        <ui:param name="editable" value="#{showTableBean.canEdit}" />
                     </ui:include>
                 </div>
             </h:panelGroup>
@@ -462,14 +462,14 @@
             </form>
 
             <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
-                linkBase="#showTable.xhtml" mode="#{showTableBean.mode}" editable="#{showTableBean.editable}"
+                linkBase="#showTable.xhtml" mode="#{showTableBean.mode}" editable="#{showTableBean.canEdit}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}" afterSaveAction="#{showTableBean.afterSaveAction}"
                 onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
                 onError="javascript:onError(data);" excludeScripts="prototype">
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
-                    rendered="#{showTableBean.editable}">Edit in Excel</h:outputLink>
+                    rendered="#{showTableBean.canEdit}">Edit in Excel</h:outputLink>
                 <h:outputLink value="javascript:search($j(PopupMenu.lastTarget).text())">Search</h:outputLink>
             </rules:tableEditor>
         </div>
