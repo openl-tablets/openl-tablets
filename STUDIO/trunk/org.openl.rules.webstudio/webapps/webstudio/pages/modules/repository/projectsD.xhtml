@@ -27,10 +27,10 @@
           <h:outputText value="Status" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created By" />
+          <h:outputText value="Modified By" />
         </rich:column>
         <rich:column>
-          <h:outputText value="Created At" />
+          <h:outputText value="Modified At" />
         </rich:column>
         <rich:column>
           <h:outputText value="Actions" />
@@ -50,10 +50,10 @@
         <h:outputText value="#{prj.status}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.createdBy}" />
+        <h:outputText value="#{prj.modifiedBy != null ? prj.modifiedBy : prj.createdBy}" />
       </rich:column>
       <rich:column>
-        <h:outputText value="#{prj.createdAt}">
+        <h:outputText value="#{prj.modifiedAt != null ? prj.modifiedAt : prj.createdAt}">
         	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
         </h:outputText>
       </rich:column>
