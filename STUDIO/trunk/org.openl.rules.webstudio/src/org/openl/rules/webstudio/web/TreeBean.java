@@ -53,10 +53,10 @@ public class TreeBean {
         return isGranted(PRIVILEGE_RUN);
     }
 
-    public boolean isProjectHasTests() {
+    public int getProjectTestsCount() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TestSuiteMethod[] allTestMethods = studio.getModel().getAllTestMethods();
-        return ArrayUtils.isNotEmpty(allTestMethods);
+        return ArrayUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0;
     }
 
     public TreeNode getTree() {

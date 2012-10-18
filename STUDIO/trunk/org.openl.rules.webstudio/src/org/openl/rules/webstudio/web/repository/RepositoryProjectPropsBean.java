@@ -34,7 +34,7 @@ public class RepositoryProjectPropsBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
     
-    private final static String DBP_GROUP_NAME = "Business Dimension Properties";
+    private final static String DBP_GROUP_NAME = "Business Dimension";
     private final static String OTHER_PROP_GROUP_NAME = "Custom Properties";
 
     private final Log log = LogFactory.getLog(RepositoryProjectPropsBean.class);
