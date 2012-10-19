@@ -9,6 +9,7 @@ package org.openl.binding.impl;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.openl.meta.StringValue;
@@ -39,7 +40,11 @@ public class Operators {
     }
 
     public static Date add(Date d, int days) {
-        return new Date(d.getTime() + SECONDS_IN_DAY * days);
+        // We should use calendar to take into account daylight saving
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        c.add(Calendar.DAY_OF_MONTH, days);
+        return c.getTime();
     }
 
     public static String add(double x, String y) {
@@ -1544,7 +1549,7 @@ public class Operators {
     }
 
     public static Date subtract(Date d, int days) {
-        return new Date(d.getTime() - SECONDS_IN_DAY * days);
+        return add(d, -days);
     }
 
 }
