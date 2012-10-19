@@ -12,7 +12,7 @@
             font-size: 12px;
         }
         .propsGroupHeader td {
-            padding-bottom: 10px;
+            padding: 20px 0 10px;
         }
         .inheritedProp {
             background: rgba(255, 128, 0, 0.3);
@@ -50,23 +50,21 @@
             display: none;
         }
     </style>
-    
+
     <ui:param name="propsFormName" value="#{prefix}PropsTableForm" />
     <ui:param name="panelFormName" value="#{prefix}RepoPropsPanel" />
-    
+
     <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="row">
         <ui:param name="prop" value="#{row.data}" />
-        
+
         <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
             <tr class="propsGroupHeader">
-		        <td>
-		            <span class="propsGroupHeaderTxt label">
-		                 <h:outputText value="#{prop}"/>
-		            </span>
-		        </td>
-		    </tr>
-		</h:panelGroup>
-        
+                <td>
+                    <span class="propsGroupHeaderTxt label">#{prop}</span>
+                </td>
+            </tr>
+        </h:panelGroup>
+
         <h:panelGroup rendered="#{row.type.name() == 'PROPERTY'}">
         <ui:param name="added" value="#{empty prop.value}" />
         <ui:param name="pref" value="#{prop.name}" />
