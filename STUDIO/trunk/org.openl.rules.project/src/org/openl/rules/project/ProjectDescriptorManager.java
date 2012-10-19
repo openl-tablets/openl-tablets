@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
@@ -54,6 +55,8 @@ public class ProjectDescriptorManager {
         FileInputStream inputStream = new FileInputStream(filename);
 
         ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
+        IOUtils.closeQuietly(inputStream);
+        
         postProcess(descriptor, filename);
         validator.validate(descriptor);
 
