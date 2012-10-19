@@ -117,8 +117,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
             ProjectVersion min = versions.get(1);
             return min;
         } catch (Exception e) {
-            /*if there is no revision 1*/
-            return null;
+            return versions.get(0);
         }
 
     }
