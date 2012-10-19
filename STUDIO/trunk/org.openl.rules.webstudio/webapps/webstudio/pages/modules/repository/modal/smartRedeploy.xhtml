@@ -70,25 +70,25 @@
     </h:form>
   </rich:popupPanel>
 
-  <script>
-    function openSmartRedeployDialog() {
-      RichFaces.$('modalSmartRedeploy').show();
-      window._smartRedeployInProgress = false;
-    }
+    <script>
+        function openSmartRedeployDialog() {
+            RichFaces.$('modalSmartRedeploy').show();
+            window._smartRedeployInProgress = false;
+        }
 
-    function isEmptySelection4SmartRedeploy() {
-      var table = document.getElementById('smartRedeployForm:smartRedeployTable');
-      
-      if (table) {
-	      for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
-	        if (table.childNodes[2].childNodes[i].firstChild.firstChild.checked) {
-	          return false;
-	        }
-	      }
-	  }
-    
-      return true;
-    }
+        function isEmptySelection4SmartRedeploy() {
+            var table = document.getElementById('smartRedeployForm:smartRedeployTable');
+
+            if (table) {
+                for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
+                    if (table.childNodes[2].childNodes[i].firstChild.firstChild.checked) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
 
     function updateDeployControls() {
       if (window._smartRedeployInProgress) return;
