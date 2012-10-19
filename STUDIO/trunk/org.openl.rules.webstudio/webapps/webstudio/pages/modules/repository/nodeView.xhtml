@@ -85,7 +85,7 @@
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
           </h:commandButton>
 
-          <h:commandButton rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{repositoryTreeController.editProject}">
+          <h:commandButton id="editId1" rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{repositoryTreeController.editProject}">
               <rich:tooltip showDelay="500">#{editMessage}</rich:tooltip>
           </h:commandButton>
         </h:panelGrid>
@@ -102,7 +102,7 @@
           <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
           </h:commandButton>
-          <h:commandButton rendered="#{repositoryTreeState.canEdit}" value="Edit" onclick="#{rich:component('modalEditProject')}.show();return false;">
+          <h:commandButton id="editId2" rendered="#{repositoryTreeState.canEdit}" value="Edit" onclick="#{rich:component('modalEditProject')}.show();return false;">
               <rich:tooltip showDelay="500">#{editMessage}</rich:tooltip>
           </h:commandButton>
         </h:panelGrid>

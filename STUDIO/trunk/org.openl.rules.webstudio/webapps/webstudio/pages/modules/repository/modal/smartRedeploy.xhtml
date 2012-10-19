@@ -78,11 +78,15 @@
 
     function isEmptySelection4SmartRedeploy() {
       var table = document.getElementById('smartRedeployForm:smartRedeployTable');
-      for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
-        if (table.childNodes[2].childNodes[i].firstChild.firstChild.checked) {
-          return false;
-        }
-      }
+      
+      if (table) {
+	      for (var i = 0; i &lt; table.childNodes[2].childNodes.length; i++) {
+	        if (table.childNodes[2].childNodes[i].firstChild.firstChild.checked) {
+	          return false;
+	        }
+	      }
+	  }
+    
       return true;
     }
 
