@@ -107,12 +107,12 @@
 	                     action="#{repositoryProjectPropsBean.save(prop)}"
 	                     render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel #{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
 	                     rendered="#{repositoryTreeState.canSave}"><img
-	                     style="opacity: 0.5" src="webresource/images/ok.png" />
+	                     style="opacity: 0.7" src="webresource/images/ok10.png" />
 	                 </a4j:commandLink>
 	                 <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
 	                     render="#{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
 	                     rendered="#{repositoryTreeState.canSave and !prop.inheritedProperty}"><img
-	                     style="opacity: 0.5" src="webresource/images/close.gif" />
+	                     style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
 	                 </a4j:commandLink>
                 </span>
                 </h:panelGroup>
