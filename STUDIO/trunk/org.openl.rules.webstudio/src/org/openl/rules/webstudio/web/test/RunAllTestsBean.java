@@ -27,6 +27,7 @@ import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -228,7 +229,12 @@ public class RunAllTestsBean {
     private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
         TestUnit testUnit = (TestUnit) objTestUnit;
-        BeanResultComparator comparator = (BeanResultComparator)testUnit.getTestUnitResultComparator().getComparator();
+        TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator().getComparator();
+        if (!(testUnitResultComparator instanceof BeanResultComparator)) {
+            return fieldsCoordinates;
+        }
+
+        BeanResultComparator comparator = (BeanResultComparator) testUnitResultComparator;
         List<ComparedResult> fieldsToTest = comparator.getComparisonResults();
 
         SpreadsheetOpenClass spreadsheetOpenClass = ((Spreadsheet)testUnit.getTest().getTestedMethod()).getSpreadsheetType();
