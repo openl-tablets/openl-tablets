@@ -110,11 +110,13 @@
                                 <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
 
                                 <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
-                                    <span style="vertical-align: top">
-                                        <h:graphicImage value="webresource/images/ok.png" rendered="#{compareResult == 0}" />
-                                        <h:graphicImage value="webresource/images/error.png" rendered="#{compareResult == 1}" />
-                                    </span>
-                                    <h:outputText value=" " />
+                                    <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
+                                        <span style="vertical-align: top">
+                                            <h:graphicImage value="webresource/images/ok.png" rendered="#{compareResult == 0}" />
+                                            <h:graphicImage value="webresource/images/error.png" rendered="#{compareResult == 1}" />
+                                        </span>
+                                        <h:outputText value=" " />
+                                    </h:panelGroup>
 
                                     <!-- Show tree for not explanable values, e.g. java beans -->
                                     <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueActual(testUnit) and empty runAllTestsBean.getSpreadsheetResult(testUnit)}">
