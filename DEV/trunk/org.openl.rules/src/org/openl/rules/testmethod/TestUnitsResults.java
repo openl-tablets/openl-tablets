@@ -139,6 +139,10 @@ public class TestUnitsResults implements INamedThing {
         return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(), SpreadsheetResult.class, false);
     }
     
+    public boolean isRunmethod() {
+        return testSuite.getTestSuiteMethod().isRunmethod();
+    }
+    
     @Deprecated
     public Object getUnitResult(int i) {
         return testUnits.get(i).getActualResult();
