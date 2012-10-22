@@ -12,9 +12,11 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.richfaces.model.UploadedFile;
 
 public class ZipFileProjectCreator extends AProjectCreator {
     private final Log log = LogFactory.getLog(ZipFileProjectCreator.class);
@@ -63,13 +65,15 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 if (item.isDirectory()) {
                     projectBuilder.addFolder(item.getName());
                 } else {
-                    InputStream zipInputStream;
-                    try {
-                        zipInputStream = zipFile.getInputStream(item);
-                    } catch (IOException e) {
-                        throw new ProjectException("Error extracting zip archive", e);
+                    if (checkFileSize(item)) {
+                        InputStream zipInputStream;
+                        try {
+                            zipInputStream = zipFile.getInputStream(item);
+                        } catch (IOException e) {
+                            throw new ProjectException("Error extracting zip archive", e);
+                        }
+                        projectBuilder.addFile(item.getName(), zipInputStream);
                     }
-                    projectBuilder.addFile(item.getName(), zipInputStream);
                 }
             } catch (Exception e) {
                 // TODO message on UI
@@ -77,5 +81,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
             }
         }
         return projectBuilder;
+    }
+    
+    private boolean checkFileSize(ZipEntry file) {
+        if(file.getSize() > 100*1024*1024) {
+            FacesUtils.addErrorMessage("Size of the file "+file.getName()+" is more then 100MB.");
+            return false;
+        }
+        
+        return true;
     }
 }

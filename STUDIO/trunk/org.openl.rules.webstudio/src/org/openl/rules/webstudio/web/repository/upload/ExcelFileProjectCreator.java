@@ -34,7 +34,9 @@ public class ExcelFileProjectCreator extends AProjectCreator {
         if (uploadedFiles != null && !uploadedFiles.isEmpty()) {
             for (UploadedFile file : uploadedFiles) {
                 try {
-                    projectBuilder.addFile(FilenameUtils.getName(file.getName()), file.getInputStream());
+                    if (checkFileSize(file)) {
+                        projectBuilder.addFile(FilenameUtils.getName(file.getName()), file.getInputStream());
+                    }
                 } catch (Exception e) {
                     FacesUtils.addWarnMessage("Problem with file "+file.getName()+". "+e.getMessage());
                 }
@@ -44,6 +46,15 @@ public class ExcelFileProjectCreator extends AProjectCreator {
         }
         
         return projectBuilder;
+    }
+    
+    private boolean checkFileSize(UploadedFile file) {
+        if(file.getSize() > 100*1024*1024) {
+            FacesUtils.addErrorMessage("Size of the file "+file.getName()+" is more then 100MB.");
+            return false;
+        }
+        
+        return true;
     }
 
 }

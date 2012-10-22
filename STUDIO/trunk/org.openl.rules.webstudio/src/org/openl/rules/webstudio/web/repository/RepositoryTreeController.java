@@ -1100,6 +1100,7 @@ public class RepositoryTreeController {
         if (errorMessage == null) {
             clearUploadedFiles();
         } else {
+            clearUploadedFiles();
             FacesUtils.addErrorMessage(errorMessage);
         }
 
