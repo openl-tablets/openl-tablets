@@ -384,6 +384,23 @@ public class ProjectModel {
         return list;
     }
 
+    // TODO Cache it
+    public int getErrorNodesNumber() {
+        int count = 0;
+        if (compiledOpenClass != null) {
+            TableSyntaxNode[] nodes = getTableSyntaxNodes();
+
+            for (int i = 0; i < nodes.length; i++) {
+                TableSyntaxNode tsn = nodes[i];
+
+                if (tsn.getErrors() != null) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
     public String getTreeNodeId(ITreeElement<?> treeNode) {
         return idTreeCache.getKey(treeNode);
     }
@@ -877,7 +894,7 @@ public class ProjectModel {
         }
     }
 
-    private TableSyntaxNode[] getTableSyntaxNodes() {
+    public TableSyntaxNode[] getTableSyntaxNodes() {
         if (isProjectCompiledSuccessfully()) {
             XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
             TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
