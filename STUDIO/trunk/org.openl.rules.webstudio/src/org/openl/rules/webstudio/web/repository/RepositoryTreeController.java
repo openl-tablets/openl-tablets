@@ -782,6 +782,10 @@ public class RepositoryTreeController {
 
     public String openProjectVersion() {
         try {
+            if (repositoryTreeState.getSelectedProject().isOpenedForEditing()) {
+                repositoryTreeState.getSelectedProject().close();
+            }
+            
             repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
