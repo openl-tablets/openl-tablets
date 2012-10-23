@@ -84,6 +84,24 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         return id;
     }
+    
+    /**
+     * Checks if deploymentConfiguration is already deployed to this production
+     * repository.
+     * 
+     * @param deploymentConfiguration deployment configuration for project
+     *            trying to deploy
+     * @return true if deploymentConfiguration with its id already exists in
+     *         production repository
+     * @throws RRepositoryException if cannot get info from repository for some
+     *             reason
+     */
+    @Override
+    public synchronized boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration) throws RRepositoryException {
+        RProductionRepository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+        DeployID id = generateDeployID(deploymentConfiguration);
+        return repository.hasDeploymentProject(id.getName());
+    }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws RRepositoryException,
             ProjectException {

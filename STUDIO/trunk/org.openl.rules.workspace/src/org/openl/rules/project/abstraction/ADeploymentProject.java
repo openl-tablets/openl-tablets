@@ -60,7 +60,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 return descriptor;
             }
         }
-        throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found"));
+        throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found", name));
     }
 
     
