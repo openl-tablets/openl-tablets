@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_DEPLOYMENT;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -156,6 +160,10 @@ public class SmartRedeployController {
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                 }
             } else if (cmp < 0) {
+                if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
+                    // Don't have permission to edit deployment configuration - skip it
+                    continue;
+                }
                 if (deploymentProject.isOpenedForEditing()) {
                     // prevent loosing of user's changes
                     item.setDisabled(true);
@@ -190,7 +198,7 @@ public class SmartRedeployController {
             result.add(item);
         }
 
-        if (!workspace.hasDDProject(projectName)) {
+        if (!workspace.hasDDProject(projectName) && isGranted(PRIVILEGE_CREATE_DEPLOYMENT)) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
