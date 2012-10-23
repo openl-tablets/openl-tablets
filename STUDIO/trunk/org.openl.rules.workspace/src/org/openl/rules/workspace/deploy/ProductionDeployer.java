@@ -25,6 +25,19 @@ public interface ProductionDeployer {
      * @throws DeploymentException if any deployment error occures
      */
     DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException;
+
+    /**
+     * Checks if deploymentConfiguration is already deployed to this production
+     * repository.
+     * 
+     * @param deploymentConfiguration deployment configuration for project
+     *            trying to deploy
+     * @return true if deploymentConfiguration with its id already exists in
+     *         production repository
+     * @throws RRepositoryException if cannot get info from repository for some
+     *             reason
+     */
+    public boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration) throws RRepositoryException;
     
     /**
      * Destroy deployer and release associated resources

@@ -13,7 +13,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
-import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeploymentException;
@@ -71,6 +70,15 @@ public class DeploymentManager implements InitializingBean {
         }
 
         return deployer.deploy(project, projects, user);
+    }
+    
+    public boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration, String repositoryConfigName) throws ProjectException {
+        ProductionDeployer deployer = deployers.get(repositoryConfigName);
+        if (deployer == null) {
+            throw new IllegalArgumentException("No such repository '" + repositoryConfigName + "'");
+        }
+        
+        return deployer.hasDeploymentProject(deploymentConfiguration);
     }
 
     public void setProductionDeployerFactory(ProductionDeployerFactory productionDeployerFactory) {
