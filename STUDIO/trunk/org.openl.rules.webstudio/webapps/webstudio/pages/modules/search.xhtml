@@ -26,12 +26,12 @@
                     <img src="webresource/images/viewTable.gif" />
                     <h:outputLink value="#showTable.xhtml">
                         <f:param name="uri" value="#{table.uri}" />
-                        <h:outputText value="Edit Table" />
+                        <h:outputText value="View Table" />
                     </h:outputLink>
                 </span>
 
                 <br />
-                <h:panelGroup rendered="#{studio.model.editable}">
+                <h:panelGroup rendered="#{studio.model.canEditTable}">
                     <img src="webresource/images/excel.png" />
                     <h:outputLink value="#{contextPath}/action/launch" target="hidden">
                         <f:param name="uri" value="#{table.uri}" />

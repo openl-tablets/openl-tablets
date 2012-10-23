@@ -126,7 +126,7 @@ public class TablePropertiesBean {
         boolean isDispatcherValidationNode = table.getTechnicalName().startsWith(
                 DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
 
-        return projectModel.isEditable() && !isDispatcherValidationNode;
+        return projectModel.isCanEditTable() && !isDispatcherValidationNode;
     }
 
     private String getProprtiesTableUri(InheritanceLevel inheritanceLevel) {
