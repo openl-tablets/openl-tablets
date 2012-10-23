@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -40,6 +43,11 @@ public class LaunchFileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!isGranted(PRIVILEGE_EDIT_TABLES)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         String excelScriptPath = getServletContext().getRealPath("scripts/LaunchExcel.vbs");
         String wordScriptPath = getServletContext().getRealPath("scripts/LaunchWord.vbs");
 

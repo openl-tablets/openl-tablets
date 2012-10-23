@@ -70,7 +70,7 @@
                     <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
                         title="Create new table" styleClass="button-primary">Create New</h:outputLink>
 
-                    <h:outputLink rendered="#{!empty rProject and studio.model.editable}"
+                    <h:outputLink rendered="#{!empty rProject and studio.model.canEditTable}"
                         value="#revert.xhtml" title="Revert Changes" styleClass="button">Revert</h:outputLink>
 
                     <span style="margin-left: 13px;" />
