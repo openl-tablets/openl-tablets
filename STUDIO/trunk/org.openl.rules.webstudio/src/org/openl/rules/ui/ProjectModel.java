@@ -782,6 +782,10 @@ public class ProjectModel {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }
 
+    public boolean isCanEditTable() {
+        return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
+    }
+
     public boolean isReady() {
         return compiledOpenClass != null;
     }
