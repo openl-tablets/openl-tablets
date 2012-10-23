@@ -44,12 +44,28 @@
                 margin: 0;
                 padding-left: 2px;
             }
+            #projects > ul > li {
+                padding: 5px 4px;
+                border-bottom: 1px solid #f7f7f7;
+            }
+            #projects > ul > li:last-child {
+                border-bottom: 0;
+            }
+            #projects > ul ul {
+                margin-top: 2px;
+            }
+            #projects > ul ul > li {
+                padding: 1px 0;
+            }
+            #projects li:hover {
+                background: #f7f7f7;
+            }
             #projects a {
                 color: #111111;
                 text-decoration: none;
             }
             #projects a:hover {
-                background: #EAF0F8;
+                background: #e9e9e9;
             }
             #projects .selected {
                 background: #EAF0F8;
@@ -65,9 +81,10 @@
             <h:panelGroup id="projects" rendered="#{not empty studio.allProjects}" layout="block">
                 <ul>
                     <a4j:repeat value="#{studio.allProjects}" var="project">
-                    <li style="margin-bottom: 5px">
-                        <a class="projectName" href="javascript:void(0)" style="cursor: default;">#{project.name}</a>
-                        <ul style="margin-left: 9px">
+                    <li>
+                        <a class="projectName" href="javascript:void(0)"
+                            onclick="$j(this).next().find('a:first').click()">#{project.name}</a>
+                        <ul>
                             <a4j:repeat value="#{project.modules}" var="module">
                             <li>
                                 <a4j:commandLink action="#{mainBean.selectModule}" onclick="selectModule(this)"
