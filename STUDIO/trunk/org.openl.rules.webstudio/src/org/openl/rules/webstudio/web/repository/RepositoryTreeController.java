@@ -381,6 +381,8 @@ public class RepositoryTreeController {
                         RepositoryUtils.getTreeNodeId(project.getName()));
                 repositoryTreeState.deleteNode(projectInTree);
             }
+
+            FacesUtils.addInfoMessage("Project was deleted successfully.");
         } catch (ProjectException e) {
             log.error("Cannot delete deployment project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete deployment project.", e.getMessage());
@@ -397,6 +399,8 @@ public class RepositoryTreeController {
             projectArtefact.getArtefact(childName).delete();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+
+            FacesUtils.addInfoMessage("Element was deleted successfully.");
         } catch (ProjectException e) {
             log.error("Error deleting element.", e);
             FacesUtils.addErrorMessage("Error deleting.", e.getMessage());
@@ -417,6 +421,8 @@ public class RepositoryTreeController {
                 repositoryTreeState.deleteSelectedNodeFromTree();
             }
             resetStudioModel();
+
+            FacesUtils.addInfoMessage("File was deleted successfully.");
         } catch (ProjectException e) {
             log.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());

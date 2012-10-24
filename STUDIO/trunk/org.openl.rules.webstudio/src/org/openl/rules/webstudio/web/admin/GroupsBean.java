@@ -167,6 +167,10 @@ public class GroupsBean {
             String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
             if (groupNames != null) {
                 for (String groupName : groupNames) {
+                    if (groupName.equals(oldName)) {
+                        // Persisting group should not include itself
+                        continue;
+                    }
                     groups.put(groupName, groupManagementService.getGroupByName(groupName));
                 }
 
