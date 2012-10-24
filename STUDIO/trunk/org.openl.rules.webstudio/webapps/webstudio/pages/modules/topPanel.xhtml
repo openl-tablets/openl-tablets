@@ -52,7 +52,7 @@
                         <h:commandLink action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
                             style="background:url('webresource/images/refresh.png')" />
 
-                        <h:commandLink action="#{mainBean.saveProject}" title="Save &amp; Close Project"
+                        <h:commandLink action="#{mainBean.saveProject}" title="Save Project"
                             rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}" styleClass="imageButton"
                             style="background:url('webresource/images/repository/checkin.gif')" />
                         <h:commandLink action="#{mainBean.editProject}" title="Edit Project"
