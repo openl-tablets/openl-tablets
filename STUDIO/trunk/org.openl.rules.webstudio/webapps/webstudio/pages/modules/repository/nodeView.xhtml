@@ -119,8 +119,9 @@
             <rich:tooltip showDelay="500">#{deleteMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();return false;">
+        <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy" onclick="openSmartRedeployDialog();">
             <rich:tooltip showDelay="500">Deploy selected deployments with the latest version of this project</rich:tooltip>
+            <f:ajax listener="#{smartRedeployController.openDialogListener}" render=":smartRedeployForm"/>
         </h:commandButton>
         
         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare" onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=930,height=800,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;">

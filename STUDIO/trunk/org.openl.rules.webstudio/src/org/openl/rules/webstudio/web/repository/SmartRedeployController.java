@@ -14,6 +14,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.event.AjaxBehaviorEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -387,5 +388,9 @@ public class SmartRedeployController {
         setRepositoryConfigName(null);
         items = null;
         currentProject = null;
+    }
+
+    public void openDialogListener(AjaxBehaviorEvent event) {
+        reset();
     }
 }
