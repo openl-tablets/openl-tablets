@@ -150,7 +150,7 @@ public abstract class WizardBase extends BaseWizardBean {
         WorkbookSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getWorkbookSyntaxNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
-            workbooks.put(module.getUri(), module);
+            workbooks.put(module.getDisplayName(), module);
         }
 
         if (workbooks.size() > 0) {
