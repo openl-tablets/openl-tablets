@@ -79,7 +79,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         // FIXME spaces are not supported according to the URI specification.
         // Correct way of url-to-uri conversion should be found in order to
         // process all illegal characters
-        return url.toExternalForm().replace(" ", "+");
+        return url.toExternalForm().replace(" ", "%20");
     }
 
     @Override    

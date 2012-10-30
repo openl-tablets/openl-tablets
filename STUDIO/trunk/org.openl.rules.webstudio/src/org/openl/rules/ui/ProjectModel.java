@@ -36,6 +36,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.search.IOpenLSearch;
@@ -1074,8 +1075,17 @@ public class ProjectModel {
         if (reloadType == ReloadType.FORCED) {
             RulesProjectResolver projectResolver = studio.getProjectResolver();
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder)
-                .getModuleByClassName(moduleInfo.getClassname());
+            ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            this.moduleInfo = projectDescriptor.getModuleByClassName(moduleInfo.getClassname());
+            // When moduleInfo cannot be found by class name, it is searched by module name
+            if (this.moduleInfo == null) {
+                for (Module module : projectDescriptor.getModules()) {
+                    if (moduleInfo.getName().equals(module.getName())) {
+                        this.moduleInfo = module;
+                        break;
+                    }
+                }
+            }
         } else {
             this.moduleInfo = moduleInfo;
         }
