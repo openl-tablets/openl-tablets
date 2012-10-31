@@ -42,7 +42,7 @@ public abstract class AProjectCreator {
                 FacesUtils.addErrorMessage("");
             }
             
-            projectBuilder.getProject().edit();
+            //projectBuilder.getProject().edit();
         } catch (Exception e) {
             if (projectBuilder != null) {
                 projectBuilder.cancel();
