@@ -353,9 +353,15 @@ public class RepositoryTreeController {
         if (creationMessage == null) {
             try {
                 AProject createdProject = userWorkspace.getProject(projectName);
+
                 repositoryTreeState.addRulesProjectToTree(createdProject);
+                selectProject(projectName, repositoryTreeState.getRulesRepository());
+
+                repositoryTreeState.getSelectedProject().close();
+                repositoryTreeState.refreshSelectedNode();
+
                 resetStudioModel();
-                
+
                 FacesUtils.addInfoMessage("Project was created successfully.");
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
@@ -366,7 +372,9 @@ public class RepositoryTreeController {
 
         /*Clear the load form*/
         this.clearForm();
-        
+
+        this.editProject();
+
         return creationMessage;
     }
 

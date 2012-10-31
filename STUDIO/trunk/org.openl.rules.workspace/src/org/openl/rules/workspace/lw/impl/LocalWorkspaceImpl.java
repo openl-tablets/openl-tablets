@@ -192,6 +192,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public void saveAll() {
+        /*
         for (AProject lp : localProjects.values()) {
             if (!isLocalOnly(lp)) {
                 try {
@@ -202,6 +203,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 }
             }
         }
+        */
     }
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {

@@ -14,7 +14,9 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.event.AjaxBehaviorEvent;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -148,7 +150,10 @@ public class SmartRedeployController {
 
             if (cmp == 0) {
                 try {
-                    if (deploymentManager.hasDeploymentProject(deploymentProject, repositoryConfigName)) {
+                    if (StringUtils.isEmpty(repositoryConfigName)) {
+                        item.setDisabled(true);
+                        item.setMessages("Repository is not selected");
+                    } else if (deploymentManager.hasDeploymentProject(deploymentProject, repositoryConfigName)) {
                         item.setDisabled(true);
                         item.setMessages("Up to date");
                     } else {
@@ -387,5 +392,9 @@ public class SmartRedeployController {
         setRepositoryConfigName(null);
         items = null;
         currentProject = null;
+    }
+
+    public void openDialogListener(AjaxBehaviorEvent event) {
+        reset();
     }
 }

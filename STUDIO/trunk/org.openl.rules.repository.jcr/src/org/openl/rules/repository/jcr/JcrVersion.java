@@ -26,7 +26,10 @@ public class JcrVersion implements RVersion {
     private CommonVersionImpl version;
 
     protected static void create(Node node) throws RepositoryException {
-        node.setProperty(ArtefactProperties.PROP_VERSION, 0);
+        //node.setProperty(ArtefactProperties.PROP_VERSION, 0);
+        long l = ((MAX_MM_INT & 0x7FFF) << 16) | (MAX_MM_INT & 0x7FFF);
+        node.setProperty(ArtefactProperties.PROP_VERSION, l);
+        
         node.setProperty(ArtefactProperties.PROP_REVISION, 0);
     }
 
@@ -95,14 +98,31 @@ public class JcrVersion implements RVersion {
 
     protected void initVersion(Node node) throws RepositoryException {
         long revision = 0;
+        int major = 0;
+        int minor = 0;
 
+        try {
+            if (node.hasProperty(ArtefactProperties.PROP_VERSION)) {
+                long l = node.getProperty(ArtefactProperties.PROP_VERSION).getLong();
+                int i = (int) l;
+                major = i >> 16;
+                minor = i & (0xFFFF);
+            } else {
+                major = MAX_MM_INT;
+                minor = MAX_MM_INT;
+            }
+        } catch (Exception e) {
+            major = MAX_MM_INT;
+            minor = MAX_MM_INT;
+        }
+        
         try {
             revision = node.getProperty(ArtefactProperties.PROP_REVISION).getLong();
         } catch (RepositoryException e) {
             // ignore
         }
 
-        version = new CommonVersionImpl((int) revision);
+        version = new CommonVersionImpl(major, minor, (int) revision);
 
         if (node.hasProperty(ArtefactProperties.PROP_MODIFIED_BY)) {
             modifiedBy = node.getProperty(ArtefactProperties.PROP_MODIFIED_BY).getString();
@@ -131,22 +151,22 @@ public class JcrVersion implements RVersion {
     }
 
     protected void updateVersion(Node node) throws RepositoryException {
+        if (node.hasProperty(ArtefactProperties.PROP_VERSION)) {
+            long l = ((MAX_MM_INT & 0x7FFF) << 16) | (MAX_MM_INT & 0x7FFF);
+            node.setProperty(ArtefactProperties.PROP_VERSION, l);
+        }
         /*
         long l = ((version.getMajor() & 0x7FFF) << 16) | (version.getMinor() & 0x7FFF);
         node.setProperty(ArtefactProperties.PROP_VERSION, l);
         */
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
-
-    @Override
+    
     public int getMajor() {
-        // TODO Auto-generated method stub
-        return -1;
+        return version.getMajor();
     }
 
-    @Override
     public int getMinor() {
-        // TODO Auto-generated method stub
-        return -1;
+        return version.getMinor();
     }
 }
