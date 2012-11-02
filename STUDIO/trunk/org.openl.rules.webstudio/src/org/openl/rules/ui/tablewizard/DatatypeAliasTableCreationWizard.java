@@ -149,8 +149,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
         values.add(new AliasValue());
     }
 
-    public void removeValue() {
-        AliasValue value = (AliasValue) valuesTable.getRowData();
+    public void removeValue(AliasValue value) {
         values.remove(value);
     }
 
