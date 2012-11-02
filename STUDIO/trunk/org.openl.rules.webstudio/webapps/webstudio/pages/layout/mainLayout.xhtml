@@ -87,7 +87,7 @@
                 if (errorMessage) {
                     // TODO Create mechanism to disable editing in UI when Excel file is opened.
                     if (errorMessage.indexOf(".xls") > -1) {
-                        message("Failed to save changes. Please close module Excel file and try again.");
+                        message("Failed to save changes. Please close module Excel file and try again.", 7000);
                     } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                         reloadCurrent();
                     } else {
