@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.faces.model.SelectItem;
-import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -24,23 +23,12 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public abstract class BusinessTableCreationWizard extends WizardBase {
 
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9\\- ]*)?", message="Invalid name")
-    private String businessName;
-
     private String categoryName;
 
     @NotBlank(message="Can not be empty")
     private String newCategoryName;
 
     private String categoryNameSelector = "existing";
-
-    public String getBusinessName() {
-        return businessName;
-    }
-
-    public void setBusinessName(String businessName) {
-        this.businessName = businessName;
-    }
 
     public String getCategoryName() {
         return categoryName;
@@ -133,9 +121,6 @@ public abstract class BusinessTableCreationWizard extends WizardBase {
         Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
         // Put business properties.
-        if (StringUtils.isNotBlank(this.businessName)) {
-            properties.put("name", this.businessName);
-        }
         String category = buildCategoryName();
         if (category != null) {
             properties.put("category", category);

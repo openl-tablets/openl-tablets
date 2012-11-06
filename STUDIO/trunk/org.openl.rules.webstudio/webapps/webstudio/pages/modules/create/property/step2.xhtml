@@ -9,13 +9,13 @@
     xmlns:oh="http://openl-tablets.sf.net/jsf/html"
     template="/pages/layout/wizardStep.xhtml">
 
-    <ui:define name="header">Select Properties</ui:define>
+    <ui:define name="header">Input name and properties</ui:define>
 
     <ui:define name="data">
         <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
         <h:form>
-            <h:outputLabel value="Table Name " for="techName" />
+            <h:outputLabel value="Name " for="techName" />
             <h:inputText id="techName" value="#{wizard.tableName}" 
             validator="#{wizard.validateTechnicalName}" immediate="true"/>
             <a4j:outputPanel ajaxRendered="true">

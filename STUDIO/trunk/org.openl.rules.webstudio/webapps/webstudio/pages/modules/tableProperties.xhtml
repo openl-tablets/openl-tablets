@@ -23,6 +23,9 @@
         .inheritedProp {
             background: rgba(190, 220, 255, 0.3);
         }
+        .deprecatedProp {
+            background: rgba(255, 250, 70, 0.5);
+        }
         .inheritedProp .propData a {
             margin-left: 30px;
         }
@@ -79,8 +82,9 @@
                 value="#{tablePropertiesBean.editable and (!prop.system or !studio.updateSystemProperties) and prop.canBeOverridenInTable and prop.name != 'version'}" />
             <ui:param name="added" value="#{empty prop.value}" />
 
-            <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}"
-                onmouseover="showRemoveBtn(this)" onmouseout="hideRemoveBtn(this)">
+            <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}#{!empty prop.deprecation ? ' deprecatedProp' : ''}"
+                onmouseover="showRemoveBtn(this,#{!empty prop.deprecation})" onmouseout="hideRemoveBtn(this,#{!empty prop.deprecation})"
+                title="#{prop.inheritedProperty ? 'Inherited property' : (!empty prop.deprecation ? 'This property was deprecated. Please remove it!' : '')}">
                 <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     #{prop.displayName}
                 </td>
@@ -115,7 +119,7 @@
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
                         <a4j:commandLink id="removePropBtn" action="#{tablePropertiesBean.remove(prop)}" title="Remove"
                             render="propsTable :addPropsPanel" oncomplete="$j('#savePropsButton').fadeIn();"
-                            style="display: none">
+                            style="#{empty prop.deprecation ? 'display: none' : ''}">
                             <img style="opacity: 0.5" src="webresource/images/close.gif" />
                         </a4j:commandLink>
                     </h:panelGroup>
@@ -174,11 +178,13 @@
             }
         }
 
-        function showRemoveBtn(row) {
-            $j(row).find("a[id*='removePropBtn']").show();
+        function showRemoveBtn(row, deprecated) {
+            if (!deprecated)
+                $j(row).find("a[id*='removePropBtn']").show();
         }
-        function hideRemoveBtn(row) {
-            $j(row).find("a[id*='removePropBtn']").hide();
+        function hideRemoveBtn(row, deprecated) {
+            if (!deprecated)
+                $j(row).find("a[id*='removePropBtn']").hide();
         }
     </script>
     </h:panelGroup>
