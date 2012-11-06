@@ -7,12 +7,12 @@
     xmlns:a4j="http://richfaces.org/a4j"
     template="/pages/layout/wizardStep.xhtml">
 
-    <ui:define name="header">Enter technical name and alias type</ui:define>
+    <ui:define name="header">Enter name and alias type</ui:define>
 
     <ui:define name="data">
         <h:form>
             <h:panelGrid columns="3">
-                <h:outputText value="Technical Name" styleClass="required" />
+                <h:outputText value="Name" styleClass="required" />
                 <h:inputText id="technicalName" value="#{wizard.technicalName}" 
                 validator="#{wizard.validateTechnicalName}" immediate="true" />
                 <a4j:outputPanel ajaxRendered="true">

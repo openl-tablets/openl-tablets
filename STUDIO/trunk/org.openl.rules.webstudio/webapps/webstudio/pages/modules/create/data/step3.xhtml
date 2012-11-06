@@ -56,7 +56,7 @@
                      
                     <rich:treeNode type="complex">
                         <h:outputText styleClass="nodeName" value="#{item.name} :"/>
-                        <h:outputText styleClass="nodeFieldName" value="Business Name =" rendered="#{item.leaf}" />
+                        <h:outputText styleClass="nodeFieldName" value="Display Name =" rendered="#{item.leaf}" />
                         <h:inputText value="#{item.businessName}" rendered="#{item.leaf}"/>
                         
                         <a4j:outputPanel rendered="#{item.leaf and wizard.hasForeignKeyTables(item.typeName)}">
@@ -85,7 +85,7 @@
                     
                     <rich:treeNode type="simple">
                         <h:outputText styleClass="nodeName" value="#{item.name} :" />
-                        <h:outputText styleClass="nodeFieldName" value="Business Name ="/>
+                        <h:outputText styleClass="nodeFieldName" value="Display Name ="/>
                         <h:inputText value="#{item.businessName}"/>
                         
                         <a4j:outputPanel rendered="#{item.leaf and wizard.hasForeignKeyTables(item.typeName)}">
