@@ -3,8 +3,8 @@ package org.openl.rules.common.impl;
 import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
-    private int major = -1;
-    private int minor = -1;
+    private int major = MAX_MM_INT;
+    private int minor = MAX_MM_INT;
     private int revision;
 
     private transient String versionName;
@@ -45,12 +45,24 @@ public class CommonVersionImpl implements CommonVersion {
     }
 
     public int compareTo(CommonVersion o) {
+        /*Version with the same Revisions always equal*/
+        if (revision == o.getRevision()) {
+            return 0;
+        }
+
+        /*Revision with num 0 always should be at last place*/
+        if (revision == 0) {
+            return -1;
+        }
+
         if (major != o.getMajor()) {
             return major < o.getMajor() ? -1 : 1;
         }
+
         if (minor != o.getMinor()) {
             return minor < o.getMinor() ? -1 : 1;
         }
+
         if (revision != o.getRevision()) {
             return revision < o.getRevision() ? -1 : 1;
         }
@@ -84,7 +96,7 @@ public class CommonVersionImpl implements CommonVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            if ( major != -1 && minor != -1) {
+            if ( major != MAX_MM_INT && minor != MAX_MM_INT) {
                 versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
                         .toString();
             } else {

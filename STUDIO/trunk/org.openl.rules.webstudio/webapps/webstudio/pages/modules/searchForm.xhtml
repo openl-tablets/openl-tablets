@@ -167,7 +167,7 @@
                                     rendered="#{prop.dateType}" inputStyle="width:100px" />
                                 <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
                                 <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
-                                    rendered="#{prop.enumArray}" />
+                                    endered="#{prop.enumArray}" />
                                 <oh:inputVersion value="#{prop.value}" rendered="#{prop.name == 'version'}" />
                                 <h:inputText value="#{prop.value}" 
                                     rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray || prop.name == 'version')}" />

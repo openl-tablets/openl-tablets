@@ -17,10 +17,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
     private static final long serialVersionUID = 1996508840075924034L;
     
-    // <<< INSERT Functions >>>
-	// generate zero for big types
-	private static final org.openl.meta.BigDecimalValue ZERO1 = new org.openl.meta.BigDecimalValue("0");
+    private static final BigDecimalValue ZERO = new BigDecimalValue("0");
+    private static final BigDecimalValue ONE = new BigDecimalValue("1");
+    private static final BigDecimalValue MINUS_ONE = new BigDecimalValue("-1");
 
+    // <<< INSERT Functions >>>
 	private java.math.BigDecimal value;
 
 
@@ -140,7 +141,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.BigDecimalValue("0");
+            return ZERO;
         }
 		
 		return new org.openl.meta.BigDecimalValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -215,7 +216,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.BigDecimalValue(value1, value2, divide(new org.openl.meta.BigDecimalValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.BigDecimalValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -308,11 +309,14 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
     
     public static org.openl.meta.BigDecimalValue negative(org.openl.meta.BigDecimalValue value) {
-        return multiply(value, new org.openl.meta.BigDecimalValue("-1"));
+        if (value == null) {
+            return null;
+        }
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.BigDecimalValue inc(org.openl.meta.BigDecimalValue value) {
-        return add(value, new org.openl.meta.BigDecimalValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.BigDecimalValue positive(org.openl.meta.BigDecimalValue value) {
@@ -320,7 +324,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
     
     public static org.openl.meta.BigDecimalValue dec(org.openl.meta.BigDecimalValue value) {
-        return subtract(value, new org.openl.meta.BigDecimalValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

@@ -16,11 +16,11 @@
     </f:facet>
 
     <h:form id="modaNewDependencyForm">
-      <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+      <h:panelGrid columns="2" styleClass="formfields " cellspacing="1" columnClasses="label,">
         <h:outputLabel for="projectName" styleClass="required" value="Project" />
         <h:selectOneMenu id="projectName" value="#{dependencyController.projectName}" style="width:250px;">
           <f:selectItems value="#{dependencyController.availableProjects}" />
-          <f:ajax event="change" render="lowerVersion" execute="@this" />
+          <f:ajax event="change" render="lowerVersion addDependencyButton" execute="@this" />
         </h:selectOneMenu>
 
         <h:outputLabel for="lowerVersion" styleClass="required" value="Lower revision" />
@@ -34,8 +34,8 @@
 
       <hr />
 
-      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Add" action="#{dependencyController.add}" />
+      <h:panelGrid id="addDependencyButton" columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton value="Add" action="#{dependencyController.add}" disabled="#{dependencyController.projectName == ''}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalNewDependency')}.hide();" />
       </h:panelGrid>
     </h:form>

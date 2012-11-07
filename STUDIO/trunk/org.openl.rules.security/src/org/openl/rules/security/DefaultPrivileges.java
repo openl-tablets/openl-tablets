@@ -10,7 +10,6 @@ package org.openl.rules.security;
 public enum DefaultPrivileges implements Privilege {
 
     PRIVILEGE_VIEW_PROJECTS ("View Projects"),
-    PRIVILEGE_READ_PROJECTS ("Read Projects"),
     PRIVILEGE_CREATE_PROJECTS ("Create Projects"),
     PRIVILEGE_EDIT_PROJECTS ("Edit Projects"),
     PRIVILEGE_ERASE_PROJECTS ("Erase Projects"),

@@ -107,8 +107,10 @@ public class SearchBean {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            TableProperty prop = new TableProperty(propDefinition);
-            properties.add(prop);
+            if (propDefinition.getDeprecation() == null) {
+                TableProperty prop = new TableProperty(propDefinition);
+                properties.add(prop);
+            }
         }
     }
 

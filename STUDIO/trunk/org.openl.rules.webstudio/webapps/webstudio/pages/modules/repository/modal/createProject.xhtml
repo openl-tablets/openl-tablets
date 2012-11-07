@@ -87,7 +87,7 @@
             </rich:tab>
 
             <rich:tab header="Workspace">
-                <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
+                <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px" onsubmit="uncheckSelectAllProject()">
                     <div style="max-height: 292px; overflow:auto" id="uploadPrjFromLocalDiv">
                         <rich:dataTable value="#{localUpload.projects4Upload}"
                             rendered="#{not empty localUpload.projects4Upload}"
@@ -158,6 +158,10 @@
             if (checkedCount == allCount) {
                 $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
             }
+        }
+        
+        function uncheckSelectAllProject() {
+            $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", false);
         }
     </script>
 </ui:composition>

@@ -27,7 +27,7 @@
         <rich:column rendered="#{node.type == 'project'}">
           <h:outputText value="Comment" />
         </rich:column>
-        <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpen}">
+        <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpen and !artefact.deleted}">
           <h:outputText value="Action" />
         </rich:column>
       </rich:columnGroup>
@@ -51,7 +51,7 @@
       <rich:column rendered="#{node.type == 'project'}">
         <h:outputText value="#{version.versionComment}" />
       </rich:column>
-      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion}" style="text-align: center;">
+      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted}" style="text-align: center;">
         <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="return backToPropsTab();"
             action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">
             <img src="webresource/images/view.png" />

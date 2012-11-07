@@ -46,11 +46,16 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public boolean hasProjectDescriptor(String name) throws ProjectException {
-        for (ProjectDescriptor descriptor : getProjectDescriptors()) {
-            if (descriptor.getProjectName().equals(name)) {
-                return true;
+        Collection<ProjectDescriptor> pgl = getProjectDescriptors();
+
+        if (pgl != null) {
+            for (ProjectDescriptor descriptor : pgl) {
+                if (descriptor.getProjectName().equals(name)) {
+                    return true;
+                }
             }
         }
+
         return false;
     }
 
@@ -60,7 +65,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 return descriptor;
             }
         }
-        throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found"));
+        throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found", name));
     }
 
     

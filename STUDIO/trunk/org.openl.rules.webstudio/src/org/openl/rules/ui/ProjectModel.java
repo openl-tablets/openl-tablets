@@ -36,6 +36,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.search.IOpenLSearch;
@@ -382,6 +383,23 @@ public class ProjectModel {
             }
         }
         return list;
+    }
+
+    // TODO Cache it
+    public int getErrorNodesNumber() {
+        int count = 0;
+        if (compiledOpenClass != null) {
+            TableSyntaxNode[] nodes = getTableSyntaxNodes();
+
+            for (int i = 0; i < nodes.length; i++) {
+                TableSyntaxNode tsn = nodes[i];
+
+                if (tsn.getErrors() != null) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public String getTreeNodeId(ITreeElement<?> treeNode) {
@@ -782,6 +800,10 @@ public class ProjectModel {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }
 
+    public boolean isCanEditTable() {
+        return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
+    }
+
     public boolean isReady() {
         return compiledOpenClass != null;
     }
@@ -877,7 +899,7 @@ public class ProjectModel {
         }
     }
 
-    private TableSyntaxNode[] getTableSyntaxNodes() {
+    public TableSyntaxNode[] getTableSyntaxNodes() {
         if (isProjectCompiledSuccessfully()) {
             XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
             TableSyntaxNode[] tableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
@@ -1053,8 +1075,17 @@ public class ProjectModel {
         if (reloadType == ReloadType.FORCED) {
             RulesProjectResolver projectResolver = studio.getProjectResolver();
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            this.moduleInfo = resolvingStrategy.resolveProject(projectFolder)
-                .getModuleByClassName(moduleInfo.getClassname());
+            ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            this.moduleInfo = projectDescriptor.getModuleByClassName(moduleInfo.getClassname());
+            // When moduleInfo cannot be found by class name, it is searched by module name
+            if (this.moduleInfo == null) {
+                for (Module module : projectDescriptor.getModules()) {
+                    if (moduleInfo.getName().equals(module.getName())) {
+                        this.moduleInfo = module;
+                        break;
+                    }
+                }
+            }
         } else {
             this.moduleInfo = moduleInfo;
         }

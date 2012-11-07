@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.poi.util.IOUtils;
+
 
 public class SourceGenerator {
 
@@ -40,7 +42,9 @@ public class SourceGenerator {
     private Properties loadVelocityProperties() throws IOException, FileNotFoundException {
 
         Properties properties = new Properties();
-        properties.load(new FileInputStream(new File(VELOCITY_PROPERTIES)));
+        FileInputStream is = new FileInputStream(new File(VELOCITY_PROPERTIES));
+        properties.load(is);
+        IOUtils.closeQuietly(is);
 
         return properties;
     }

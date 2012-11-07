@@ -54,11 +54,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     public static final DoubleValue ZERO = new DoubleValueZero();
     public static final DoubleValue ONE = new DoubleValueOne();
+    public static final DoubleValue MINUS_ONE = new DoubleValue(-1);
     
     // <<< INSERT Functions >>>
-	// generate zero for types that are wrappers over primitives
-	private static final org.openl.meta.DoubleValue ZERO1 = new org.openl.meta.DoubleValue((double)0);
-
 	private double value;
 
 
@@ -178,7 +176,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.DoubleValue((double) 0);
+            return ZERO;
         }
 		
 		return new org.openl.meta.DoubleValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -253,7 +251,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.DoubleValue(value1, value2, divide(new org.openl.meta.DoubleValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.DoubleValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -346,11 +344,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static org.openl.meta.DoubleValue negative(org.openl.meta.DoubleValue value) {
-        return multiply(value, new org.openl.meta.DoubleValue("-1"));
+        if (value == null) {
+            return null;
+        }
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.DoubleValue inc(org.openl.meta.DoubleValue value) {
-        return add(value, new org.openl.meta.DoubleValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.DoubleValue positive(org.openl.meta.DoubleValue value) {
@@ -358,7 +359,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
     
     public static org.openl.meta.DoubleValue dec(org.openl.meta.DoubleValue value) {
-        return subtract(value, new org.openl.meta.DoubleValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

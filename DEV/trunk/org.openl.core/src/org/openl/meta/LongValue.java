@@ -15,10 +15,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
    
     private static final long serialVersionUID = -437788531108803012L;
     
-    // <<< INSERT Functions >>>
-	// generate zero for types that are wrappers over primitives
-	private static final org.openl.meta.LongValue ZERO1 = new org.openl.meta.LongValue((long)0);
+    private static final LongValue ZERO = new LongValue((long) 0);
+    private static final LongValue ONE = new LongValue((long) 1);
+    private static final LongValue MINUS_ONE = new LongValue((long) -1);
 
+    // <<< INSERT Functions >>>
 	private long value;
 
 
@@ -138,7 +139,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 	    // Commented to support operations with nulls. See also MathUtils.mod()
 		// validate(value1, value2, Formulas.REM.toString());
 		if (value1 == null || value2 == null) {
-            return new org.openl.meta.LongValue((long) 0);
+            return ZERO;
         }
 		
 		return new org.openl.meta.LongValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
@@ -213,7 +214,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 		
 		if (value1 == null) {
 			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.LongValue(value1, value2, divide(new org.openl.meta.LongValue("1"), value2).getValue(), Formulas.DIVIDE);
+				return new org.openl.meta.LongValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
 			}
 		}
 		
@@ -306,11 +307,14 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
     
     public static org.openl.meta.LongValue negative(org.openl.meta.LongValue value) {
-        return multiply(value, new org.openl.meta.LongValue("-1"));
+        if (value == null) {
+            return null;
+        }
+        return multiply(value, MINUS_ONE);
     }
     
     public static org.openl.meta.LongValue inc(org.openl.meta.LongValue value) {
-        return add(value, new org.openl.meta.LongValue("1"));
+        return add(value, ONE);
     }
     
     public static org.openl.meta.LongValue positive(org.openl.meta.LongValue value) {
@@ -318,7 +322,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
     
     public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
-        return subtract(value, new org.openl.meta.LongValue("1"));
+        return subtract(value, ONE);
     }
     
     // Autocasts

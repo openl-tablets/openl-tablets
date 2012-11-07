@@ -5,6 +5,8 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import com.thoughtworks.xstream.converters.SingleValueConverter;
 
 public interface CommonVersion extends Comparable<CommonVersion> {
+    final static int MAX_MM_INT = 32767;
+
     public static class CommonVersionConverter implements SingleValueConverter {
 
         public boolean canConvert(Class cls) {

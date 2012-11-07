@@ -102,7 +102,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public ADeploymentProject getDDProject(String name) throws ProjectException {
         refreshDeploymentProjects();
-        ADeploymentProject deploymentProject = userDProjects.get(name);
+        ADeploymentProject deploymentProject;
+        synchronized (userDProjects) {
+            deploymentProject = userDProjects.get(name);
+        }
         if (deploymentProject == null) {
             throw new ProjectException("Cannot find deployment project ''{0}''", null, name);
         }
@@ -118,7 +121,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         refreshDeploymentProjects();
 
-        ArrayList<ADeploymentProject> result = new ArrayList<ADeploymentProject>(userDProjects.values());
+        ArrayList<ADeploymentProject> result;
+        synchronized (userDProjects) {
+            result = new ArrayList<ADeploymentProject>(userDProjects.values());
+        }
         Collections.sort(result, PROJECTS_COMPARATOR);
 
         return result;
@@ -136,7 +142,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public RulesProject getProject(String name) throws ProjectException {
         refreshRulesProjects();
-        RulesProject uwp = userRulesProjects.get(name);
+        RulesProject uwp;
+        synchronized (userRulesProjects) {
+            uwp = userRulesProjects.get(name);
+        }
 
         if (uwp == null) {
             throw new ProjectException("Cannot find project ''{0}''", null, name);
@@ -153,7 +162,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
             log.error("Failed to resfresh projects!", e);
         }
 
-        ArrayList<RulesProject> result = new ArrayList<RulesProject>(userRulesProjects.values());
+        ArrayList<RulesProject> result;
+        synchronized (userRulesProjects) {
+            result = new ArrayList<RulesProject>(userRulesProjects.values());
+        }
 
         Collections.sort(result, PROJECTS_COMPARATOR);
 
@@ -165,8 +177,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public boolean hasDDProject(String name) {
-        if (userDProjects.get(name) != null) {
-            return true;
+        synchronized (userDProjects) {
+            if (userDProjects.get(name) != null) {
+                return true;
+            }
         }
         if (designTimeRepository.hasDDProject(name)) {
             return true;
@@ -176,8 +190,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public boolean hasProject(String name) {
-        if (userRulesProjects.get(name) != null) {
-            return true;
+        synchronized (userRulesProjects) {
+            if (userRulesProjects.get(name) != null) {
+                return true;
+            }
         }
         if (localWorkspace.hasProject(name)) {
             return true;
@@ -192,7 +208,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void passivate() {
         localWorkspace.saveAll();
 
-        userRulesProjects.clear();
+        synchronized (userRulesProjects) {
+            userRulesProjects.clear();
+        }
+
+        synchronized (userDProjects) {
+            userDProjects.clear();
+        }
     }
 
     public void refresh() throws ProjectException {
@@ -203,30 +225,32 @@ public class UserWorkspaceImpl implements UserWorkspace {
     protected void refreshDeploymentProjects() throws ProjectException {
         List<ADeploymentProject> dtrProjects = designTimeRepository.getDDProjects();
 
-        // add new
-        HashMap<String, ADeploymentProject> dtrProjectsMap = new HashMap<String, ADeploymentProject>();
-        for (ADeploymentProject ddp : dtrProjects) {
-            String name = ddp.getName();
-            dtrProjectsMap.put(name, ddp);
-
-            ADeploymentProject userDProject = userDProjects.get(name);
-
-            if (userDProject == null) {
-                userDProject = new ADeploymentProject(ddp.getAPI(), user);
-                userDProjects.put(name, userDProject);
-            } else {
-                userDProject.refresh();
+        synchronized (userDProjects) {
+            // add new
+            HashMap<String, ADeploymentProject> dtrProjectsMap = new HashMap<String, ADeploymentProject>();
+            for (ADeploymentProject ddp : dtrProjects) {
+                String name = ddp.getName();
+                dtrProjectsMap.put(name, ddp);
+    
+                ADeploymentProject userDProject = userDProjects.get(name);
+    
+                if (userDProject == null) {
+                    userDProject = new ADeploymentProject(ddp.getAPI(), user);
+                    userDProjects.put(name, userDProject);
+                } else {
+                    userDProject.refresh();
+                }
             }
-        }
-
-        // remove deleted
-        Iterator<ADeploymentProject> i = userDProjects.values().iterator();
-        while (i.hasNext()) {
-            ADeploymentProject userDProject = i.next();
-            String name = userDProject.getName();
-
-            if (!dtrProjectsMap.containsKey(name)) {
-                i.remove();
+    
+            // remove deleted
+            Iterator<ADeploymentProject> i = userDProjects.values().iterator();
+            while (i.hasNext()) {
+                ADeploymentProject userDProject = i.next();
+                String name = userDProject.getName();
+    
+                if (!dtrProjectsMap.containsKey(name)) {
+                    i.remove();
+                }
             }
         }
     }
@@ -234,65 +258,73 @@ public class UserWorkspaceImpl implements UserWorkspace {
     protected void refreshRulesProjects() throws RepositoryException {
         localWorkspace.refresh();
 
-        // add new
-        for (AProject rp : designTimeRepository.getProjects()) {
-            String name = rp.getName();
+        synchronized (userRulesProjects) {
+            // add new
+            for (AProject rp : designTimeRepository.getProjects()) {
+                String name = rp.getName();
 
-            AProject lp = null;
-            if (localWorkspace.hasProject(name)) {
-                try {
-                    lp = localWorkspace.getProject(name);
-                } catch (ProjectException e) {
-                    // ignore
-                    log.error("refreshRulesProjects", e);
+                AProject lp = null;
+                if (localWorkspace.hasProject(name)) {
+                    try {
+                        lp = localWorkspace.getProject(name);
+                    } catch (ProjectException e) {
+                        // ignore
+                        log.error("refreshRulesProjects", e);
+                    }
                 }
-            }
-
-            RulesProject uwp = userRulesProjects.get(name);
-            if (uwp == null) {
-                // TODO:refactor
-                if (lp == null) {
-                    uwp = new RulesProject(null, rp.getAPI(), this);
-                } else {
-                    uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
-                }
-                userRulesProjects.put(name, uwp);
-            } else if (uwp.isLocalOnly() || (uwp.isRepositoryOnly() && lp!= null)) {
-                userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
-            } else {
-                uwp.refresh();
-            }
-        }
-
-        // LocalProjects that hasn't corresponding project in
-        // DesignTimeRepository
-        for (AProject lp : localWorkspace.getProjects()) {
-            String name = lp.getName();
-
-            if (!designTimeRepository.hasProject(name)) {
 
                 RulesProject uwp = userRulesProjects.get(name);
                 if (uwp == null) {
-                    uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), null, this);
+                    // TODO:refactor
+                    if (lp == null) {
+                        uwp = new RulesProject(null, rp.getAPI(), this);
+                    } else {
+                        uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
+                    }
                     userRulesProjects.put(name, uwp);
+                } else if (uwp.isLocalOnly() || (uwp.isRepositoryOnly() && lp != null)) {
+                    userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
                 } else {
-                    userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), null, this));
+                    uwp.refresh();
                 }
             }
-        }
 
-        Iterator<Map.Entry<String, RulesProject>> entryIterator = userRulesProjects.entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            Map.Entry<String, RulesProject> entry = entryIterator.next();
-            if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
-                entryIterator.remove();
+            // LocalProjects that hasn't corresponding project in
+            // DesignTimeRepository
+            for (AProject lp : localWorkspace.getProjects()) {
+                String name = lp.getName();
+
+                if (!designTimeRepository.hasProject(name)) {
+
+                    RulesProject uwp = userRulesProjects.get(name);
+                    if (uwp == null) {
+                        uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), null, this);
+                        userRulesProjects.put(name, uwp);
+                    } else {
+                        userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), null, this));
+                    }
+                }
+            }
+
+            Iterator<Map.Entry<String, RulesProject>> entryIterator = userRulesProjects.entrySet().iterator();
+            while (entryIterator.hasNext()) {
+                Map.Entry<String, RulesProject> entry = entryIterator.next();
+                if (!designTimeRepository.hasProject(entry.getKey()) && !localWorkspace.hasProject(entry.getKey())) {
+                    entryIterator.remove();
+                }
             }
         }
     }
 
     public void release() {
         localWorkspace.release();
-        userRulesProjects.clear();
+        synchronized (userRulesProjects) {
+            userRulesProjects.clear();
+        }
+
+        synchronized (userDProjects) {
+            userDProjects.clear();
+        }
 
         for (UserWorkspaceListener listener : listeners) {
             listener.workspaceReleased(this);

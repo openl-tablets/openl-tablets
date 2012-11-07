@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.binding.impl.BindHelper;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
@@ -25,9 +26,10 @@ public class PropertiesChecker {
     /**
      * We need to check loaded properties that all values are appropriate for
      * this table. If there is any problem an error should be thrown. Now we
-     * check 2 situations:<br>
-     * 1) properties can be defined on TABLE level.<br>
-     * 2) properties can be defined for current type of table.
+     * check 3 situations:<br>
+     * 1) properties can be defined on TABLE level;<br>
+     * 2) properties can be defined for current type of table;
+     * 3) deprecated properties;
      * 
      * @param propertyNamesToCheck properties names that are physically defined
      *            in table.
@@ -41,9 +43,10 @@ public class PropertiesChecker {
 
         checkPropertiesLevel(propertyNamesToCheck, tableSyntaxNode, level);
         checkPropertiesForTableType(propertyNamesToCheck, tableSyntaxNode);
+        checkForDeprecation(propertyNamesToCheck, tableSyntaxNode);
     }
 
-    public static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode, 
+    public static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
             InheritanceLevel level) {
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
@@ -83,7 +86,23 @@ public class PropertiesChecker {
             }
         }
     }
-    
+
+    /**
+     * Checks if properties were deprecated.
+     * 
+     * @param propertyNamesToCheck
+     * @param tableSyntaxNode
+     */
+    public static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+        for (String propertyNameToCheck : propertyNamesToCheck) {
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
+            if (propertyDefinition.getDeprecation() != null) {
+                String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
+                OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
+            }
+        }
+    }
+
     /**
      * Checks if property with given name is suitable for given level. Checks according to the property 
      * definitions in {@link DefaultPropertyDefinitions}. 

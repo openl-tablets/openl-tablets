@@ -4,17 +4,6 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-<ui:remove>
-  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-    <h:outputText value="File Name" />
-    <h:outputText value="#{node.name}" />
-  </h:panelGrid>
-
- <ui:include src="/pages/modules/repository/node/dynamicProps.xhtml">
-   <ui:param name="prefix" value="file"/>
- </ui:include>
-</ui:remove>
-
 <ui:param name="propsFormName" value="filePropsTableForm" />
 <h:panelGroup id="#{propsFormName}repoPropsTable" layout="block"> 
     <table class="formfields" style="max-width: 500px;">

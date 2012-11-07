@@ -24,7 +24,7 @@
       <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Create" action="#{repositoryTreeController.createDeploymentProject}" />
+        <h:commandButton value="Create" action="#{repositoryTreeController.createDeploymentProject}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="clearNewDProjectFormProjName(); #{rich:component('modalNewDProject')}.hide();" />
       </h:panelGrid>
     </h:form>

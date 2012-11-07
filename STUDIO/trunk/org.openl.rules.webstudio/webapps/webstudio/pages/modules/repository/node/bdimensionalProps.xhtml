@@ -10,13 +10,9 @@
         .propsGroupHeaderTxt {
             color: #1199EE;
             font-size: 12px;
-            padding-top: 15px !important;
         }
-        .propsGroupHeader {
-            height: 30px;
-        }
-        .editableProp {
-            cursor: pointer;
+        .propsGroupHeader td {
+            padding: 20px 0 10px;
         }
         .inheritedProp {
             background: rgba(255, 128, 0, 0.3);
@@ -54,23 +50,21 @@
             display: none;
         }
     </style>
-    
+
     <ui:param name="propsFormName" value="#{prefix}PropsTableForm" />
     <ui:param name="panelFormName" value="#{prefix}RepoPropsPanel" />
-    
+
     <a4j:repeat value="#{repositoryProjectPropsBean.propsStore}" var="row">
         <ui:param name="prop" value="#{row.data}" />
-        
+
         <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
             <tr class="propsGroupHeader">
-		        <td style="vertical-align: bottom" colspan="2">
-		            <span class="propsGroupHeaderTxt label">
-		                 <h:outputText value="#{prop}"/>
-		            </span>
-		        </td>
-		    </tr>
-		</h:panelGroup>
-        
+                <td>
+                    <span class="propsGroupHeaderTxt label">#{prop}</span>
+                </td>
+            </tr>
+        </h:panelGroup>
+
         <h:panelGroup rendered="#{row.type.name() == 'PROPERTY'}">
         <ui:param name="added" value="#{empty prop.value}" />
         <ui:param name="pref" value="#{prop.name}" />
@@ -113,12 +107,12 @@
 	                     action="#{repositoryProjectPropsBean.save(prop)}"
 	                     render="#{propsFormName}repoPropsTable #{panelFormName}addRepoPropsPanel #{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
 	                     rendered="#{repositoryTreeState.canSave}"><img
-	                     style="opacity: 0.5" src="webresource/images/ok.png" />
+	                     style="opacity: 0.7" src="webresource/images/ok10.png" />
 	                 </a4j:commandLink>
 	                 <a4j:commandLink id="removePropBtn" action="#{repositoryProjectPropsBean.remove(prop)}" title="Remove"
 	                     render="#{propsFormName}repoPropsTable nodeView projectTree" style="display: none; margin-left: 2px"
 	                     rendered="#{repositoryTreeState.canSave and !prop.inheritedProperty}"><img
-	                     style="opacity: 0.5" src="webresource/images/close.gif" />
+	                     style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
 	                 </a4j:commandLink>
                 </span>
                 </h:panelGroup>

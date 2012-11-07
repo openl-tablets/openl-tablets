@@ -70,29 +70,37 @@ public class TableEditorDispatcher implements PhaseListener {
     }
 
     private void handleResourceRequest(FacesContext context, HttpServletResponse response, String path) {
+        ClassLoader cl = getClass().getClassLoader();
+        InputStream is = cl.getResourceAsStream(path);
+        if (is == null) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            context.responseComplete();
+            return;
+        }
+        BufferedInputStream bis = new BufferedInputStream(is);
+
         try {
-            ClassLoader cl = getClass().getClassLoader();
-            InputStream is = cl.getResourceAsStream(path);
-            if (is == null) {
-                return;
-            }
             // IE 9 fix
             if (FilenameUtils.isExtension(path, "css")) {
                 response.setContentType("text/css");
             }
             OutputStream out = response.getOutputStream();
             byte buffer[] = new byte[2048];
-            BufferedInputStream bis = new BufferedInputStream(is);
             int read = 0;
             for (read = bis.read(buffer); read != -1; read = bis.read(buffer)) {
                 out.write(buffer, 0, read);
             }
-            bis.close();
             out.flush();
             out.close();
             context.responseComplete();
         } catch (IOException e) {
             log.error("Could not handle Resource request", e);
+        } finally {
+            try {
+                bis.close();
+            } catch (IOException e) {
+                log.error("Could not close input stream", e);
+            }
         }
     }
 

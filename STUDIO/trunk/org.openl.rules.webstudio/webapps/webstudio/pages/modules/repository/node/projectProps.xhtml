@@ -3,35 +3,6 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
-  <ui:remove>
-	  <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-	    <h:outputText value="Name" />
-	    <h:outputText value="#{node.name}" style="font-weight: bold" />
-	
-	    <h:outputText value="Revision" />
-	    <h:outputText value="#{artefact.version.versionName}" />
-	
-	    <h:outputText value="Status" />
-	    <h:outputText value="#{node.status}" />
-	
-	    <h:outputText value="Created At" />
-	    <h:outputText value="#{node.createdAt}">
-	    	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
-	    </h:outputText>
-	
-	    <h:outputText value="Created By" />
-	    <h:outputText value="#{node.createdBy}" />
-	    
-	    <h:outputText value="Last Editeded At" rendered="#{node.editedAt != null}" />
-        <h:outputText value="#{node.editedAt}" rendered="#{node.editedAt != null}">
-            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
-        </h:outputText>
-    
-        <h:outputText value="Last Edited By" rendered="#{node.editedBy != null}"/>
-        <h:outputText value="#{node.editedBy}" rendered="#{node.editedBy != null}"/>
-	  </h:panelGrid>
-  </ui:remove>
-
 <ui:param name="propsFormName" value="projectPropsTableForm" />
   
 <h:panelGroup id="#{propsFormName}repoPropsTable" layout="block"> 
@@ -71,32 +42,28 @@
 	        </td>
 	    </tr>
 	    <tr>
-	        <td class="label">
-	            <h:outputText value="Created By" />
-	        </td>
+	        <td class="label">Created By</td>
 	        <td>
 	            <h:outputText value="#{node.createdBy}" />
 	        </td>
 	    </tr>
+        <h:panelGroup rendered="#{node.modifiedAt != null}">
 	    <tr>
-            <td class="label">
-                <h:outputText value="Modified At" rendered="#{node.editedAt != null}" />
-            </td>
+            <td class="label">Modified At</td>
             <td>
-                <h:outputText value="#{node.editedAt}" rendered="#{node.editedAt != null}">
-		            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
-		        </h:outputText>
+                <h:outputText value="#{node.modifiedAt}">
+                    <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                </h:outputText>
             </td>
         </tr>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{node.modifiedBy != null}">
         <tr>
-            <td class="label">
-                <h:outputText value="Modified By" rendered="#{node.editedBy != null}"/>
-            </td>
-            <td>
-                <h:outputText value="#{node.editedBy}" rendered="#{node.editedBy != null}"/>
-            </td>
+            <td class="label">Modified By</td>
+            <td>#{node.modifiedBy}</td>
         </tr>
-	    
+        </h:panelGroup>
+
 	  <ui:include src="/pages/modules/repository/node/bdimensionalProps.xhtml" >
 	    <ui:param name="prefix" value="project"/>
 	  </ui:include>

@@ -12,8 +12,8 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private static final long serialVersionUID = -5156747482692477220L;
     public static final String DELIMETER = ".";
 
-    private int major = -1;
-    private int minor = -1;
+    private int major = MAX_MM_INT;
+    private int minor = MAX_MM_INT;
     private int revision;
     private transient String versionName;
     private VersionInfo versionInfo;
@@ -53,6 +53,9 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment,
             Map<String, Object> versionProperties) {
         revision = version.getRevision();
+        this.major = version.getMajor();
+        this.minor = version.getMinor();
+        
         this.versionInfo = versionInfo;
         this.versionComment = versionComment;
         this.versionProperties = versionProperties;
@@ -64,12 +67,23 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     }
 
     public int compareTo(CommonVersion o) {
+        if (revision == o.getRevision()) {
+            return 0;
+        }
+
+        /*Revision with #0 always should be at last place*/
+        if (revision == 0) {
+            return -1;
+        }
+
         if (major != o.getMajor()) {
             return major < o.getMajor() ? -1 : 1;
         }
+
         if (minor != o.getMinor()) {
             return minor < o.getMinor() ? -1 : 1;
         }
+
         if (revision != o.getRevision()) {
             return revision < o.getRevision() ? -1 : 1;
         }
@@ -100,7 +114,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            if (major != -1 && minor != -1) {
+            if (major != MAX_MM_INT && minor != MAX_MM_INT) {
                 versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
                         .toString();
             } else {

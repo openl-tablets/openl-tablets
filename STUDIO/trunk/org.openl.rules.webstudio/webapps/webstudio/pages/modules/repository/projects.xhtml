@@ -37,7 +37,7 @@
       </rich:columnGroup>
     </f:facet>
 
-      <rich:column style="text-align:center">
+      <rich:column>
         <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
           <f:param name="projectName" value="#{prj.name}" />
         </h:commandLink>
@@ -49,10 +49,10 @@
         <h:outputText value="#{prj.status}" />
       </rich:column>
       <rich:column style="text-align:center">
-        <h:outputText value="#{prj.createdBy}" />
+        <h:outputText value="#{prj.modifiedBy != null ? prj.modifiedBy : prj.createdBy}" />
       </rich:column>
       <rich:column style="text-align:center">
-        <h:outputText value="#{prj.createdAt}">
+        <h:outputText value="#{prj.modifiedAt != null ? prj.modifiedAt : prj.createdAt}">
         	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
         </h:outputText>
       </rich:column>

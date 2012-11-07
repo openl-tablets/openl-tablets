@@ -126,7 +126,7 @@ public class TablePropertiesBean {
         boolean isDispatcherValidationNode = table.getTechnicalName().startsWith(
                 DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
 
-        return projectModel.isEditable() && !isDispatcherValidationNode;
+        return projectModel.isCanEditTable() && !isDispatcherValidationNode;
     }
 
     private String getProprtiesTableUri(InheritanceLevel inheritanceLevel) {
@@ -165,7 +165,8 @@ public class TablePropertiesBean {
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             if (!currentProps.contains(propName)
-                    && !"version".equals(propName)) {
+                    && !"version".equals(propName)
+                    && propDefinition.getDeprecation() == null) {
                 propertiesToAdd.add(new SelectItem(propName, propDefinition.getDisplayName()));
             }
         }
