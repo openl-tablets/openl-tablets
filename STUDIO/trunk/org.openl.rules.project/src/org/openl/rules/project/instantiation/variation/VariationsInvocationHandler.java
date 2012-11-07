@@ -146,7 +146,7 @@ class VariationsInvocationHandler implements InvocationHandler {
             try {
                 modifiedArguments = variation.applyModification(arguments, stack);
                 Object result = member.invoke(serviceClassInstance, modifiedArguments);
-                variationsResults.registerResults(variation.getVariationID(), result);
+                variationsResults.registerResult(variation.getVariationID(), result);
             } catch (Exception e) {
                 log.warn("Failed to calculate \"" + variation.getVariationID() + "\"", e);
                 variationsResults.registerFailure(variation.getVariationID(), e.getMessage());
