@@ -2,7 +2,9 @@ package org.openl.rules.ruleservice.core;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Class designed for storing service info.
@@ -18,6 +20,7 @@ public final class ServiceDescription {
     private String serviceClassName;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
+    private Map<String, Object> configuration;
     private Collection<ModuleDescription> modules;
 
     /**
@@ -31,12 +34,17 @@ public final class ServiceDescription {
      * @param modules
      */
     ServiceDescription(String name, String url, String serviceClassName, boolean provideRuntimeContext,
-             boolean provideVariations, Collection<ModuleDescription> modules) {
+            boolean provideVariations, Collection<ModuleDescription> modules, Map<String, Object> configuration) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.provideVariations = provideVariations;
+        if (configuration == null) {
+            this.configuration = Collections.emptyMap();
+        } else {
+            this.configuration = Collections.unmodifiableMap(configuration);
+        }
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
@@ -45,12 +53,8 @@ public final class ServiceDescription {
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name,
-            builder.url,
-            builder.serviceClassName,
-            builder.provideRuntimeContext,
-            builder.provideVariations,
-            builder.modules);
+        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext,
+                builder.provideVariations, builder.modules, builder.configuration);
     }
 
     /**
@@ -81,7 +85,7 @@ public final class ServiceDescription {
     }
 
     /**
-     * Return provideRuntimeContext value. This value is define that service
+     * Returns provideRuntimeContext value. This value is define that service
      * methods first argument is IRulesRuntimeContext.
      * 
      * @return
@@ -101,12 +105,21 @@ public final class ServiceDescription {
     }
 
     /**
-     * Return modules for the service.
+     * Returns modules for the service.
      * 
      * @return a set of modules
      */
     public Collection<ModuleDescription> getModules() {
         return modules;
+    }
+
+    /**
+     * Retuns configuration
+     * 
+     * @return configuration
+     */
+    public Map<String, Object> getConfiguration() {
+        return configuration;
     }
 
     /** {@inheritDoc} */
@@ -151,6 +164,7 @@ public final class ServiceDescription {
         private String serviceClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
+        private Map<String, Object> configuration;
         private Collection<ModuleDescription> modules;
 
         /**
@@ -202,7 +216,7 @@ public final class ServiceDescription {
         public ServiceDescriptionBuilder addModules(Collection<ModuleDescription> modules) {
             if (this.modules == null) {
                 this.modules = new HashSet<ModuleDescription>(modules);
-            }else{
+            } else {
                 this.modules.addAll(modules);
             }
             return this;
@@ -248,11 +262,25 @@ public final class ServiceDescription {
 
         /**
          * Sets flag that is responsible for variations support.
+         * 
          * @param provideVariations
          * @return
          */
         public ServiceDescriptionBuilder setProvideVariations(boolean provideVariations) {
             this.provideVariations = provideVariations;
+            return this;
+        }
+
+        public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
+            if (this.configuration == null) {
+                this.configuration = new HashMap<String, Object>();
+            }
+            this.configuration.put(key, value);
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setConfiguration(Map<String, Object> configuration) {
+            this.configuration = configuration;
             return this;
         }
 
