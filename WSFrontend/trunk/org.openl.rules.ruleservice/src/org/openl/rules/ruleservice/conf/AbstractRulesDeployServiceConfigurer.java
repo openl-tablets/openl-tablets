@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.conf;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
@@ -81,12 +82,12 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                     String serviceName = String.format("%s_%s", deployment.getDeploymentName(), project.getName());
                     String serviceUrl = String.format("%s/%s", deployment.getDeploymentName(), project.getName());
                     serviceDescriptionBuilder.setName(serviceName).setUrl(serviceUrl);
-
+                    InputStream content = null;
                     try {
                         AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
                         if (artifact instanceof AProjectResource) {
                             AProjectResource resource = (AProjectResource) artifact;
-                            InputStream content = resource.getContent();
+                            content = resource.getContent();
                             RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             if (rulesDeploy.getServiceName() != null && !rulesDeploy.getServiceName().isEmpty()) {
                                 serviceDescriptionBuilder.setName(rulesDeploy.getServiceName());
@@ -109,7 +110,18 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                             }
                         }
                     } catch (ProjectException e) {
+                    } finally {
+                        if (content != null) {
+                            try {
+                                content.close();
+                            } catch (IOException e) {
+                                if (log.isErrorEnabled()) {
+                                    log.error(e.getMessage(), e);
+                                }
+                            }
+                        }
                     }
+
                     ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
                     if (!serviceDescriptions.contains(serviceDescription)
                             && !serviceURLs.contains(serviceDescription.getUrl())) {
