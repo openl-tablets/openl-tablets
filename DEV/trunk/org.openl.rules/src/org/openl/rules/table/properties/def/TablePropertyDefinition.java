@@ -14,7 +14,6 @@ public class TablePropertyDefinition {
 	private boolean	primaryKey;
 	private IOpenClass type;
 	private String group;
-	private boolean businessSearch;
 	private boolean system;
 	private String systemValueDescriptor;
 	private SystemValuePolicy systemValuePolicy;
@@ -28,6 +27,7 @@ public class TablePropertyDefinition {
 	private String description;
 	private MatchingExpression expression;
 	private Severity errorSeverity;
+    private String deprecation;
 
     public enum SystemValuePolicy {
 	    IF_BLANK_ONLY, ON_EACH_EDIT
@@ -71,14 +71,6 @@ public class TablePropertyDefinition {
 
 	public void setGroup(String group) {
 		this.group = group;
-	}
-
-	public boolean isBusinessSearch() {
-		return businessSearch;
-	}
-
-	public void setBusinessSearch(boolean businessSearch) {
-		this.businessSearch = businessSearch;
 	}
 
 	public String getSecurityFilter() {
@@ -184,4 +176,13 @@ public class TablePropertyDefinition {
 	public void setErrorSeverity(Severity errorSeverity) {
 		this.errorSeverity = errorSeverity;
 	}
+
+	public String getDeprecation() {
+        return deprecation;
+    }
+
+	public void setDeprecation(String deprecation) {
+        this.deprecation = deprecation;
+    }
+
 }

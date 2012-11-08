@@ -6,7 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     template="/pages/layout/wizardStep.xhtml">
 
-    <ui:define name="header">Input Business Name and Category</ui:define>
+    <ui:define name="header">Input Category</ui:define>
 
     <ui:define name="data">
         <style>
@@ -15,16 +15,6 @@
             }
         </style>
         <h:form id="businessFieldsForm">
-            <h:panelGrid columns="3">
-                <h:outputLabel value="Business Name" for="businessName" />
-                <h:inputText id="businessName" value="#{wizard.businessName}" />
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="businessName" styleClass="error" />
-                </a4j:outputPanel>
-            </h:panelGrid>
-
-            <br />
-
             <fieldset id="categoryNameModule">
               <legend class="required">Category</legend>
               <h:panelGrid columns="2">

@@ -6,6 +6,7 @@
 
 package org.openl.binding.impl;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -42,6 +43,11 @@ public class ArrayInitializationBinder extends ANodeBinder {
     public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
 
         IOpenClass componentType = type.getAggregateInfo().getComponentType(type);
+        if (componentType == null) {
+            String message = String.format("Cannot convert an array into '%s'", type.getDisplayName(INamedThing.SHORT));
+            BindHelper.processError(message, node, bindingContext, false);
+            return new ErrorBoundNode(node);
+        }
 
         IBoundNode[] nodes = bindTypeChildren(node, bindingContext, componentType);
         IOpenCast[] casts = new IOpenCast[nodes.length];
