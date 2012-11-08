@@ -29,8 +29,7 @@
             <br />
 
             <h:panelGroup id="valuesTable">
-	            <h:dataTable value="#{wizard.values}" var="value"
-	                binding="#{wizard.valuesTable}">
+	            <h:dataTable value="#{wizard.values}" var="value">
 	                <h:column>
 	                    <f:facet name="header">
 	                        <h:outputText value="Values" />
@@ -39,7 +38,7 @@
 	                </h:column>
 	
 	                <h:column>
-	                    <a4j:commandLink action="#{wizard.removeValue}"
+	                    <a4j:commandLink action="#{wizard.removeValue(value)}"
 	                        render="valuesTable" execute="@form"
 	                        title="Remove Value" style="margin-left: 5px;">
 	                        <h:graphicImage value="/images/delete.png" />

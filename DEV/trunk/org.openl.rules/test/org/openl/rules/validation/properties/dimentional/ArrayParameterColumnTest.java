@@ -108,7 +108,6 @@ public class ArrayParameterColumnTest {
 
     private TablePropertyDefinition getArrayProperty() {
         TablePropertyDefinition arrayProperty = new TablePropertyDefinition();
-        arrayProperty.setBusinessSearch(false);
         arrayProperty.setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
         arrayProperty.setDescription("Country");
         arrayProperty.setDimensional(true);

@@ -143,11 +143,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         for (ServiceDescription serviceDescription : newServices.values()) {
             if (isServiceExists(serviceDescription.getName())) {
                 try {
+                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
                     ruleService.redeploy(serviceDescription);
                 } catch (RuleServiceRedeployException e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
                     }
+                } finally {
+                    ServiceDescriptionHolder.getInstance().remove();
                 }
             }
         }
@@ -157,11 +160,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         for (ServiceDescription serviceDescription : newServices.values()) {
             if (!isServiceExists(serviceDescription.getName())) {
                 try {
+                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
                     ruleService.deploy(serviceDescription);
                 } catch (RuleServiceDeployException e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
                     }
+                } finally {
+                    ServiceDescriptionHolder.getInstance().remove();
                 }
             }
         }

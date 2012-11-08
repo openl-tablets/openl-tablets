@@ -53,7 +53,7 @@ public class BussinesSearchPropertyBean {
     public BussinesSearchPropertyBean() {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if(propDefinition.isBusinessSearch()) {
+            //if(propDefinition.isBusinessSearch()) {
                 Class<?> propertyType = propDefinition.getType() == null ? null : propDefinition.getType()
                         .getInstanceClass();
                 propForSearch.add(
@@ -61,7 +61,7 @@ public class BussinesSearchPropertyBean {
                             .displayName(propDefinition.getDisplayName()).group(propDefinition.getGroup())
                             .format(propDefinition.getFormat()).constraints(propDefinition.getConstraints())
                             .build());
-            }
+            //}
         }
         //busSearchResBean = new BussinessSearchResultBean(propForSearch);
     }
