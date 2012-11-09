@@ -54,7 +54,7 @@ public class AProject extends AProjectFolder {
     public void setDependencies(List<ProjectDependency> dependencies) throws ProjectException {
         if (CollectionUtils.isEmpty(dependencies)) {
             if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-                getArtefact(ArtefactProperties.DEPENDENCIES_FILE).delete();
+                deleteArtefact(ArtefactProperties.DEPENDENCIES_FILE);
             }
         } else {
             String dependenciesAsString = ProjectDependencyHelper.serialize(dependencies);

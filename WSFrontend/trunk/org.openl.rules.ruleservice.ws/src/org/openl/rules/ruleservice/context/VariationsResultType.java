@@ -66,8 +66,8 @@ public class VariationsResultType extends BeanType {
                     }
                 } else if (type != null && qName.getLocalPart().equals("variationResults")) {
                     Map<String, Object> variationResults = (Map<String, Object>) type.readObject(childReader, context);
-                    for (Entry<String, Object> failure : variationResults.entrySet()) {
-                        variationsResult.registerResults(failure.getKey(), failure.getValue());
+                    for (Entry<String, Object> result : variationResults.entrySet()) {
+                        variationsResult.registerResult(result.getKey(), result.getValue());
                     }
 
                 } else {

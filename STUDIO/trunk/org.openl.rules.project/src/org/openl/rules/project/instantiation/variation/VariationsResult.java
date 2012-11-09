@@ -35,7 +35,7 @@ public class VariationsResult<T> {
      * @param variationID ID of variation.
      * @param result Result of the caculation with the corresponding variation.
      */
-    public void registerResults(String variationID, T result) {
+    public void registerResult(String variationID, T result) {
         if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
             log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
         }
