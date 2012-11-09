@@ -342,20 +342,19 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     public void setCellStyle(int col, int row, ICellStyle style) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
-
+        CellStyle newPoiStyle;
         CellStyle styleToClone = null;
 
         if (style instanceof XlsCellStyle) {
-            styleToClone = ((XlsCellStyle) style).getXlsStyle();
-            newPoiStyle.cloneStyleFrom(styleToClone);
-        
+            newPoiStyle = ((XlsCellStyle) style).getXlsStyle();
+            newPoiStyle.cloneStyleFrom(newPoiStyle);
         }/* else if (style instanceof org.openl.rules.table.ui.CellStyle) {
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
             
             setCellStyle(newPoiStyle, style);
         }*/ else {
+            newPoiStyle = sheet.getWorkbook().createCellStyle();
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
         }
