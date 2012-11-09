@@ -25,7 +25,7 @@ public class VariationsPack {
         if (variations != null) {
             this.variations = variations;
         } else {
-            variations = new ArrayList<Variation>();
+            this.variations = new ArrayList<Variation>();
         }
     }
 
