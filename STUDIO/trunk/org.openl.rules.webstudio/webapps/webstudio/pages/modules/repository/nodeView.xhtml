@@ -7,6 +7,15 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core">
 
+    <style>
+        .hideHeader {
+            display:none;
+        }
+        .showHeader {
+            display:table-cell;
+        }
+    </style>
+
     <h:panelGroup layout="block" rendered="#{node.type == 'repository'}">
         <div>
             <div class="view_header">
@@ -165,6 +174,22 @@
     </rich:tab>
     <rich:tab id="dependencies" name="Dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
       <ui:include src="/pages/modules/repository/node/dependency.xhtml" />
+    </rich:tab>
+    
+    <ui:remove><!--
+         FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961 
+         "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
+         As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.   
+    --></ui:remove>
+    <rich:tab id="rulesConfiguration" name="RulesConfiguration" header="Rules Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
+      <h:panelGroup rendered="#{node.type == 'project'}">
+        <ui:include src="/pages/modules/repository/node/rulesConfiguration.xhtml" />
+      </h:panelGroup>
+    </rich:tab>
+    <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
+      <h:panelGroup rendered="#{node.type == 'project'}">
+        <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />
+      </h:panelGroup>
     </rich:tab>
   </rich:tabPanel>
 

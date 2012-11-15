@@ -28,6 +28,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     public XmlProjectDescriptorSerializer() {
         xstream = new XStream(new DomDriver());
         xstream.omitField(ProjectDescriptor.class, "log");
+        xstream.omitField(Module.class, "project");
 
         xstream.setMode(XStream.NO_REFERENCES);
 
