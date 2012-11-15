@@ -344,6 +344,14 @@ public class WebStudio {
         });
     }
 
+    public ProjectDescriptor getProjectByName(final String name) {
+        return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
+            public boolean evaluate(Object project) {
+                return ((ProjectDescriptor) project).getName().equals(name);
+            }
+        });
+    }
+
     /**
      * DOCUMENT ME!
      * 
