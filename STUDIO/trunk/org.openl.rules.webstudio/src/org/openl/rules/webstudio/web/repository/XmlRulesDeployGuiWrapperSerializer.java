@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 
@@ -27,17 +28,18 @@ public class XmlRulesDeployGuiWrapperSerializer {
     public String serialize(final RulesDeployGuiWrapper wrapper) {
         String rulesDeploy = serializer.serialize(wrapper.getRulesDeploy());
 
-        String configuration = null;
-        if (wrapper.getConfiguration() != null) {
+        String configuration = "";
+        if (!StringUtils.isBlank(wrapper.getConfiguration())) {
             configuration = wrapper.getConfiguration();
             boolean enclosingConfigTags = ENCLOSING_CONFIG_PATTERN.matcher(configuration).matches();
             if (!enclosingConfigTags) {
                 configuration = "<configuration>\n" + configuration + "\n</configuration>";
             }
+            configuration += "\n";
         }
 
         int pasteIndex = rulesDeploy.lastIndexOf("</" + XmlRulesDeploySerializer.RULES_DEPLOY_DESCRIPTOR_TAG + ">");
-        rulesDeploy = rulesDeploy.substring(0, pasteIndex) + configuration + "\n" + rulesDeploy.substring(pasteIndex);
+        rulesDeploy = rulesDeploy.substring(0, pasteIndex) + configuration + rulesDeploy.substring(pasteIndex);
         return rulesDeploy;
     }
 
