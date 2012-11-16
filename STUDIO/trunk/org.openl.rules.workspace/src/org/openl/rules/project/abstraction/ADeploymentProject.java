@@ -109,7 +109,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     public void save(CommonUser user) throws ProjectException {
         if (CollectionUtils.isEmpty(descriptors)) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                getArtefact(ArtefactProperties.DESCRIPTORS_FILE).delete();
+                deleteArtefact(ArtefactProperties.DESCRIPTORS_FILE);
             }
         } else {
             String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);

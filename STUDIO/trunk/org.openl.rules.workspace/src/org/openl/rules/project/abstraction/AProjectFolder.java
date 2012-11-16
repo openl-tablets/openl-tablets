@@ -34,6 +34,11 @@ public class AProjectFolder extends AProjectArtefact {
         return artefact;
     }
 
+    public void deleteArtefact(String name) throws ProjectException {
+        getArtefact(name).delete();
+        getArtefactsInternal().remove(name);
+    }
+
     public boolean hasArtefact(String name) {
         return getArtefactsInternal().containsKey(name);
     }
