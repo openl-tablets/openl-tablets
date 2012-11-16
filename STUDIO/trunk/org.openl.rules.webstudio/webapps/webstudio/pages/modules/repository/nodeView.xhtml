@@ -29,6 +29,19 @@
         </div>
     </h:panelGroup>
 
+    <h:panelGroup layout="block" rendered="#{node.type == 'prodrepository'}">
+        <div>
+            <div class="view_header">
+                <span>Projects</span>
+            </div>
+            <div>
+                <div>
+                    <ui:include src="/pages/modules/repository/projectsProduction.xhtml" />
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
+
 	<c:set var="deleteMessage" value="Mark project as deleted" />
 	<c:set var="addFolderMessage" value="Add a folder" />
 	<c:set var="uploadFileMessage" value="Upload a file" />
@@ -154,7 +167,7 @@
   </h:panelGroup>
 
   <rich:tabPanel id="nodeTabPanel" switchType="client"
-    rendered="#{node.type != 'repository' &amp;&amp; node.type != 'drepository' &amp;&amp; node.type != 'deployment'}">
+    rendered="#{node.type == 'file' || node.type == 'folder' || node.type == 'project' || node.type == 'prodproject' || node.type == 'prodfolder' || node.type == 'prodfile'}">
     <rich:tab id="properties" name="Properties" header="Properties" >
       <h:panelGroup rendered="#{node.type == 'file'}">
         <ui:include src="/pages/modules/repository/node/fileProps.xhtml" />
@@ -165,11 +178,20 @@
       <h:panelGroup rendered="#{node.type == 'project'}">
         <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
       </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'prodproject'}">
+        <ui:include src="/pages/modules/repository/node/productionProjectProps.xhtml" />
+      </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'prodfile'}">
+        <ui:include src="/pages/modules/repository/node/productionFileProps.xhtml" />
+      </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'prodfolder'}">
+        <ui:include src="/pages/modules/repository/node/productionFolderProps.xhtml" />
+      </h:panelGroup>
     </rich:tab>
-    <rich:tab id="revisions" name="Revisions" header="Revisions">
+    <rich:tab id="revisions" rendered="#{node.type != 'prodproject' and node.type != 'prodfile' and node.type != 'prodFolder'}" name="Revisions" header="Revisions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
-    <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file'}">
+    <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file' and node.type != 'prodfile'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
     <rich:tab id="dependencies" name="Dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
