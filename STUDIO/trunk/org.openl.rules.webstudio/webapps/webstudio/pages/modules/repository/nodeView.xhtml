@@ -29,7 +29,7 @@
         </div>
     </h:panelGroup>
 
-    <h:panelGroup layout="block" rendered="#{node.type == 'prodrepository'}">
+    <h:panelGroup layout="block" rendered="#{node.type == 'prodrepository' || node.type == 'proddeployment'}">
         <div>
             <div class="view_header">
                 <span>Projects</span>

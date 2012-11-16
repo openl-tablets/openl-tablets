@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
+import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
@@ -23,6 +24,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.util.filter.AllFilter;
 import org.openl.util.filter.IFilter;
@@ -70,12 +72,17 @@ public class ProductionRepositoriesTreeState {
 
             root.addChild(prName, productionRepository);
             
-            /*Get repo's projects*/
+            /*Get repo's deployment configs*/
             IFilter<AProjectArtefact> filter = this.filter;
-            List<AProject> repoList = getPRepositoryProjects(repoConfig);
+            List<ADeploymentProject> repoList = getPRepositoryProjects(repoConfig);
             Collections.sort(repoList, RepositoryUtils.ARTEFACT_COMPARATOR);
 
-            for (AProject project : repoList) {
+            for (ADeploymentProject project : repoList) {
+                TreeProductionDProject tpdp = new TreeProductionDProject(""+project.getName().hashCode(), project.getName(),filter);
+                tpdp.setData(project);
+                tpdp.setParent(productionRepository);
+                productionRepository.add(tpdp);
+                /*
                 Collection<AProjectArtefact> prjList = project.getArtefacts();
                 AProjectArtefact[] sortedArtefacts = new AProjectArtefact[prjList.size()];
                 sortedArtefacts = prjList.toArray(sortedArtefacts);
@@ -88,6 +95,7 @@ public class ProductionRepositoriesTreeState {
 
                     productionRepository.add(prj);
                 }
+                */
             }
 
         }
@@ -97,18 +105,18 @@ public class ProductionRepositoriesTreeState {
         }
     }
 
-    private List<AProject> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
+    private List<ADeploymentProject> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
             RProductionRepository productRepos = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            List<AProject> prjList = new ArrayList<AProject>();
+            List<ADeploymentProject> prjList = new ArrayList<ADeploymentProject>();
 
-            for(FolderAPI prj : productRepos.getDeploymentProjects()) {
-                prjList.add(new AProject(prj));
+            for(FolderAPI prj : productRepos.getLastDeploymentProjects()) {
+                prjList.add(new ADeploymentProject(prj, null));
             }
 
             return prjList;
         } catch (RRepositoryException e) {
-            return new ArrayList<AProject>();
+            return new ArrayList<ADeploymentProject>();
         }
 
     }

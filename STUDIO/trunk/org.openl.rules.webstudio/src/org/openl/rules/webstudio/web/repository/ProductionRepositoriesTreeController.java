@@ -39,20 +39,21 @@ public class ProductionRepositoriesTreeController {
     public String selectRulesProject() {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
-        if (repositorySelectNodeStateHolder.getSelectedNode().getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY)) {
+        if (repositorySelectNodeStateHolder.getSelectedNode().getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY) ||
+                repositorySelectNodeStateHolder.getSelectedNode().getType().equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
             for (TreeNode node : repositorySelectNodeStateHolder.getSelectedNode().getChildNodes()) {
                 if (node.getName().equals(projectName)) {
                     repositorySelectNodeStateHolder.setSelectedNode(node);
                 }
             }
-        }
+        } 
 
         return null;
     }
-    
+
     public void tabChange(ItemChangeEvent event) {
         String newTab = event.getNewItemName();
-        
+
         if (newTab.endsWith("Production")) {
             productionRepositoriesTreeState.initTree();
         }
