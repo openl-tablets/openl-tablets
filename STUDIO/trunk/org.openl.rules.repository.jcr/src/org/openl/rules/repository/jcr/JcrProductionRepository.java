@@ -29,7 +29,9 @@ import javax.jcr.query.QueryResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private final Log log = LogFactory.getLog(JcrProductionRepository.class);
@@ -385,6 +387,30 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     public List<RRepositoryListener> getRepositoryListeners() {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public Collection<FolderAPI> getLastDeploymentProjects() 
+        throws RRepositoryException {
+
+       Map<String, FolderAPI> latestDeployments = new HashMap<String, FolderAPI>();
+        for (FolderAPI folder : getDeploymentProjects()) {
+            String deploymentName = folder.getName();
+            
+            if(deploymentName.indexOf("#") > -1) {
+                deploymentName = deploymentName.substring(0,deploymentName.indexOf("#"));
+            }
+            
+            if (latestDeployments.containsKey(deploymentName)) {
+                if (Integer.compare( latestDeployments.get(deploymentName).getVersion().getRevision(), folder.getVersion().getRevision()) > 0) {
+                    latestDeployments.put(deploymentName, folder);
+                }
+            } else {
+                latestDeployments.put(deploymentName, folder);
+            }
+        }
+        
+        return latestDeployments.values();
     }
 }
