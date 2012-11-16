@@ -1,0 +1,59 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <ui:param name="openedForEditing" value="#{artefact.project.openedForEditing}" />
+  <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}" />
+
+  <h:panelGroup rendered="#{!hasRulesDeploy}">
+    <a4j:commandButton value="Create rules deploy configuration" action="#{repositoryProjectRulesDeployConfig.createRulesDeploy}"
+      rendered="#{openedForEditing}"/>
+    <h:outputText value="Rules deploy configuration is absent" rendered="#{!openedForEditing}"/>
+  </h:panelGroup>
+
+  <h:panelGroup rendered="#{hasRulesDeploy}">
+    <h:panelGrid columns="2" columnClasses="label,">
+      <ui:param name="rulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy}" />
+
+      <h:outputLabel for="#{prefix}provideRuntimeContext" value="Provide runtime context"/>
+      <h:selectBooleanCheckbox id="#{prefix}provideRuntimeContext" value="#{rulesDeploy.provideRuntimeContext}" disabled="#{!openedForEditing}"/>
+
+      <h:outputLabel for="#{prefix}provideVariations" value="Provide variations"/>
+      <h:selectBooleanCheckbox id="#{prefix}provideVariations" value="#{rulesDeploy.provideVariations}" disabled="#{!openedForEditing}"/>
+
+      <h:outputLabel for="#{prefix}serviceName" value="Service name"/>
+      <h:panelGroup>
+          <h:inputText id="#{prefix}serviceName" maxlength="100" size="40" value="#{rulesDeploy.serviceName}" rendered="#{openedForEditing}"/>
+          <h:outputText value="#{rulesDeploy.serviceName}" rendered="#{!openedForEditing}"/>
+      </h:panelGroup>
+
+      <h:outputLabel for="#{prefix}serviceClass" value="Service class"/>
+      <h:panelGroup>
+          <h:inputText id="#{prefix}serviceClass" maxlength="100" size="40" value="#{rulesDeploy.serviceClass}" rendered="#{openedForEditing}"/>
+          <h:outputText value="#{rulesDeploy.serviceClass}" rendered="#{!openedForEditing}"/>
+      </h:panelGroup>
+
+      <h:outputLabel for="#{prefix}url" value="URL"/>
+      <h:panelGroup>
+          <h:inputText id="#{prefix}url" maxlength="100" size="40" value="#{rulesDeploy.url}" rendered="#{openedForEditing}"/>
+          <h:outputText value="#{rulesDeploy.url}" rendered="#{!openedForEditing}"/>
+      </h:panelGroup>
+
+      <h:outputLabel for="#{prefix}configuration" value="Configuration (XML)"/>
+      <h:panelGroup>
+          <h:inputTextarea id="#{prefix}configuration" cols="30" rows="4" value="#{rulesDeploy.configuration}" rendered="#{openedForEditing}"/>
+          <h:outputText value="#{rulesDeploy.configuration}" rendered="#{!openedForEditing}"/>
+      </h:panelGroup>
+    </h:panelGrid>
+
+    <br />
+    <br />
+    <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" />
+    <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" 
+      onclick="if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
+  </h:panelGroup>
+
+</ui:composition>

@@ -17,7 +17,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -97,7 +96,6 @@ public class RepositoryTreeController {
     private String uploadFrom;
     private String newProjectName;
     private String version;
-    private String saveComment;
 
     private String filterString;
     private boolean hideDeleted;
@@ -404,7 +402,7 @@ public class RepositoryTreeController {
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
-            projectArtefact.getArtefact(childName).delete();
+            projectArtefact.deleteArtefact(childName);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
