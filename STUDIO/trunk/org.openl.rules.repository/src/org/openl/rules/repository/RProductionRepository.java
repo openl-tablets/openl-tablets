@@ -1,6 +1,7 @@
 package org.openl.rules.repository;
 
 import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import java.util.Collection;
@@ -58,6 +59,8 @@ public interface RProductionRepository extends RRepository {
     Collection<String> getDeploymentNames() throws RRepositoryException;
 
     Collection<String> getDeploymentProjectNames() throws RRepositoryException;
+    
+    Collection<FolderAPI> getLastDeploymentProjects() throws RRepositoryException;
     /**
      * Checks if a deployment with given name exists in the repository.
      *

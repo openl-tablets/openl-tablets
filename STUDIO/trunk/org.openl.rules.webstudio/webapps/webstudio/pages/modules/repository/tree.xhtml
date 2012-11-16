@@ -18,6 +18,7 @@
         </a4j:commandLink>
     </h:panelGroup>
 
+    <h:panelGroup layout="block" style="padding-bottom: 7px;">
     <rich:tree id="projectTree" toggleType="ajax" selectionType="ajax" selectionChangeListener="#{repositoryTreeState.processSelection}"
       render="nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency"
       value="#{repositoryTreeState.root}" var="item" nodeType="#{item.type}">
@@ -67,6 +68,6 @@
         <h:outputText value="  [#{item.comments}]" rendered="#{not empty item.comments}"/>
       </rich:treeNode>
     </rich:tree>
-
+    </h:panelGroup>
 
 </ui:composition>
