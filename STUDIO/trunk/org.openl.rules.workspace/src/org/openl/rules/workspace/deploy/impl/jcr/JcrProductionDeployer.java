@@ -107,7 +107,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
         AProject copiedProject = new AProject(rProject);
-        copiedProject.update(project, user);
+        
+        /*Update and set project revision*/
+        copiedProject.update(project, user, project.getVersion().getRevision());
     }
     
     private DeployID generateDeployID(ADeploymentProject ddProject) {

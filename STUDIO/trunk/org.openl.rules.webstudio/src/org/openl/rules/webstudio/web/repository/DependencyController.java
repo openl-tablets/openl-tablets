@@ -118,7 +118,7 @@ public class DependencyController {
         TreeNode selected = repositoryTreeState.getSelectedNode();
         Set<String> existing = new HashSet<String>();
 
-        if (selected instanceof TreeProject) {
+        if (selected instanceof TreeProject && !selected.getType().equals(UiConst.TYPE_PRODUCTION_PROJECT)) {
             for (DependencyBean dep : selected.getDependencies()) {
                 existing.add(dep.getProjectName());
             }

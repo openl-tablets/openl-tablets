@@ -151,6 +151,25 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         artefact.impl.clearModifyStatus();
         refresh();
     }
+    
+    public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
+        try {
+            getAPI().removeAllProperties();
+
+            setProps(artefact.getProps());
+
+            // set all properties
+            for (Property property : artefact.getProperties()) {
+                addProperty(property);
+            }
+        } catch (PropertyException e) {
+            // TODO log
+            e.printStackTrace();
+        }
+
+        artefact.impl.clearModifyStatus();
+        refresh();
+    }
 
     /**
      * As usual update but this update will use only artefacts which is modified.
@@ -183,6 +202,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     protected void commit(CommonUser user) throws ProjectException {
         getAPI().commit(user, getProject().getVersion().getRevision() + 1);
+    }
+    
+    protected void commit(CommonUser user, int revision) throws ProjectException {
+        getAPI().commit(user, revision);
     }
 
     public void refresh() {
