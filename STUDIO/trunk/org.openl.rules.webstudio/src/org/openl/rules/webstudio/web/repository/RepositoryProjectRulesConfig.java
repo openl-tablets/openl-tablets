@@ -12,6 +12,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -191,9 +192,10 @@ public class RepositoryProjectRulesConfig {
     }
 
     private ProjectDescriptor loadRulesConfiguration(UserWorkspaceProject project) {
+        InputStream content = null;
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_CONFIGURATION_FILE);
-            InputStream content = artefact.getContent();
+            content = artefact.getContent();
             ProjectDescriptor d = serializer.deserialize(content);
             postProcess(d);
             return d;
@@ -207,6 +209,8 @@ public class RepositoryProjectRulesConfig {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
+        } finally {
+            IOUtils.closeQuietly(content);
         }
 
         return null;

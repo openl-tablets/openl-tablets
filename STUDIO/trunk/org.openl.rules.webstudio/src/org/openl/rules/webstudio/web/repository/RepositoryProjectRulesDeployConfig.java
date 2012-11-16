@@ -7,6 +7,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -114,9 +115,10 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     private RulesDeployGuiWrapper loadRulesDeploy(UserWorkspaceProject project) {
+        InputStream content = null; 
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-            InputStream content = artefact.getContent();
+            content = artefact.getContent();
             return serializer.deserialize(content);
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
@@ -128,6 +130,8 @@ public class RepositoryProjectRulesDeployConfig {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
+        } finally {
+            IOUtils.closeQuietly(content);
         }
 
         return null;
