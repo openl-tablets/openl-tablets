@@ -25,6 +25,8 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
+import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -43,6 +45,7 @@ public class RepositoryProjectRulesConfig {
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
     private final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
+    private final ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
 
     private ProjectDescriptor descriptor;
     private UserWorkspaceProject lastProject;
@@ -154,9 +157,9 @@ public class RepositoryProjectRulesConfig {
     }
 
     public void saveConfiguration() {
-        // TODO use ProjectDescriptorValidator
         try {
             clean(descriptor);
+            validator.validate(descriptor);
 
             UserWorkspaceProject project = getProject();
             ByteArrayInputStream inputStream = new ByteArrayInputStream(serializer.serialize(descriptor).getBytes());
@@ -170,8 +173,11 @@ public class RepositoryProjectRulesConfig {
                 studio.reset(ReloadType.FORCED);
             }
         } catch (ProjectException e) {
-            FacesUtils.addErrorMessage("Cannot save " + RULES_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
+            FacesUtils.addErrorMessage("Cannot save " + RULES_CONFIGURATION_FILE + " file");
+        } catch (ValidationException e) {
+            log.error(e.getMessage(), e);
+            FacesUtils.addErrorMessage("Cannot save " + RULES_CONFIGURATION_FILE + " file. " + e.getMessage());
         }
         postProcess(descriptor);
     }
