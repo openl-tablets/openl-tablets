@@ -49,6 +49,9 @@ public class SmartRedeployController {
     @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
+    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+
     @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
@@ -263,6 +266,7 @@ public class SmartRedeployController {
         }
 
         reset();
+        productionRepositoriesTreeController.refreshTree();
 
         return UiConst.OUTCOME_SUCCESS;
     }
@@ -397,4 +401,15 @@ public class SmartRedeployController {
     public void openDialogListener(AjaxBehaviorEvent event) {
         reset();
     }
+
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
+    
 }
