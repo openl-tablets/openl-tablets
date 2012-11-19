@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
 import javax.faces.bean.ViewScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
@@ -11,7 +12,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.richfaces.event.ItemChangeEvent;
 
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class ProductionRepositoriesTreeController {
     @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
@@ -72,5 +73,11 @@ public class ProductionRepositoriesTreeController {
         productionRepositoriesTreeState.invalidateTree();
 
         return null;
+    }
+
+    public void deleteProdRepo(String configName) {
+        if (productionRepositoriesTreeState.getRoot() != null) {
+            productionRepositoriesTreeState.getRoot().removeChild(configName);
+        }
     }
 }
