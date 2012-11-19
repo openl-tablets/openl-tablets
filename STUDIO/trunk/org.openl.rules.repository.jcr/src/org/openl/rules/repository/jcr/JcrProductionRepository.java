@@ -401,9 +401,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             if(deploymentName.indexOf("#") > -1) {
                 deploymentName = deploymentName.substring(0,deploymentName.indexOf("#"));
             }
-            
+
             if (latestDeployments.containsKey(deploymentName)) {
-                if (Integer.compare( latestDeployments.get(deploymentName).getVersion().getRevision(), folder.getVersion().getRevision()) > 0) {
+                if (latestDeployments.get(deploymentName).getVersion().getRevision() - folder.getVersion().getRevision() > 0) {
                     latestDeployments.put(deploymentName, folder);
                 }
             } else {
