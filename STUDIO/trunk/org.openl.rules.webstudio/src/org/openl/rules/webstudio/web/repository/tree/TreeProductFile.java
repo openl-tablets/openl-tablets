@@ -12,4 +12,18 @@ public class TreeProductFile extends TreeFile {
     public String getType() {
         return UiConst.TYPE_PRODUCTION_FILE;
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getIconLeaf() {
+        // TODO: different types of files should have own icons
+        return UiConst.ICON_FILE;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getIcon() {
+        // file is always leaf node
+        return getIconLeaf();
+    }
 }

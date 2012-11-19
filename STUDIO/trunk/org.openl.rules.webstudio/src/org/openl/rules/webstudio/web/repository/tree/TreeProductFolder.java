@@ -31,4 +31,17 @@ public class TreeProductFolder extends TreeFolder {
         return UiConst.TYPE_PRODUCTION_FOLDER;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String getIcon() {
+        return UiConst.ICON_FOLDER;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getIconLeaf() {
+        // in both cases we use the same icons
+        return getIcon();
+    }
+
 }
