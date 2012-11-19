@@ -14,20 +14,20 @@
         <rich:column>
           <h:outputText value="Name" />
         </rich:column>
-        <rich:column rendered="#{el.type != 'prodfile' and el.type != 'prodfolder' and el.type != 'prodproject'}">
+        <rich:column rendered="#{artefact.project.openedForEditing}">
           <h:outputText value="Actions" />
         </rich:column>
       </rich:columnGroup>
     </f:facet>
 
       <rich:column style="text-align: center;">
-        <h:graphicImage url="/webresource/images/repository/folder.gif" alt="Folder" title="Folder" rendered="#{el.type=='folder'}" />
-        <h:graphicImage url="/webresource/images/repository/file.gif" alt="File" title="File" rendered="#{el.type=='file'}" />
+        <h:graphicImage url="/webresource/images/repository/folder.gif" alt="Folder" title="Folder" rendered="#{el.type=='folder' || el.type == 'prodfolder'}" />
+        <h:graphicImage url="/webresource/images/repository/file.gif" alt="File" title="File" rendered="#{el.type=='file' || el.type=='prodfile'}" />
       </rich:column>
       <rich:column>
         <h:outputText value="#{el.name}"/>
       </rich:column>
-      <rich:column style="text-align: center;" rendered="#{el.type != 'prodfile' and el.type != 'prodfolder' and el.type != 'prodproject' and artefact.project != null}" >
+      <rich:column style="text-align: center;" rendered="#{artefact.project.openedForEditing}" >
         <h:commandLink action="#{repositoryTreeController.deleteElement}"
           onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
           rendered="#{artefact.project.openedForEditing}" title="Delete">
