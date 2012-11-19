@@ -23,6 +23,7 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -34,6 +35,9 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @ManagedBean
 @SessionScoped
 public class SystemSettingsBean {
+    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+    
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
@@ -297,10 +301,12 @@ public class SystemSettingsBean {
                 if (prodConfig.getConfigName().equals(configName)) {
                     deletedConfigurations.add(prodConfig);
                     it.remove();
+                    /*Delete Production repo from tree*/
+                    productionRepositoriesTreeController.deleteProdRepo(prodConfig.getName());
                     break;
                 }
             }
-    
+
 //            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -446,4 +452,15 @@ public class SystemSettingsBean {
         }
         return maxNumber;
     }
+
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+    
+    
 }
