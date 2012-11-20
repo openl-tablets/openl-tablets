@@ -59,7 +59,6 @@ public class JcrProductionDeployer implements ProductionDeployer {
             if (rRepository.hasDeploymentProject(id.getName())) {
                 alreadyDeployed = true;
             } else {
-
                 FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
 
                 AProject deploymentPRJ = new AProject(deployment);
@@ -67,7 +66,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 for (AProject p : projects) {
                     deployProject(deploymentPRJ, p, user);
                 }
-                
+
                 copyProperties(deploymentPRJ, deploymentProject);
 
                 deploymentPRJ.save(user);
@@ -107,11 +106,11 @@ public class JcrProductionDeployer implements ProductionDeployer {
             ProjectException {
         FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
         AProject copiedProject = new AProject(rProject);
-        
+
         /*Update and set project revision*/
         copiedProject.update(project, user, project.getVersion().getRevision());
     }
-    
+
     private DeployID generateDeployID(ADeploymentProject ddProject) {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
@@ -119,7 +118,6 @@ public class JcrProductionDeployer implements ProductionDeployer {
             sb.append('#').append(projectVersion.getVersionName());
         }
         return new DeployID(sb.toString());
-
     }
 
     @Override

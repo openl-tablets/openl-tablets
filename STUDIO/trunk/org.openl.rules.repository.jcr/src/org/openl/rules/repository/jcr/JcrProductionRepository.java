@@ -395,18 +395,27 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throws RRepositoryException {
 
        Map<String, FolderAPI> latestDeployments = new HashMap<String, FolderAPI>();
+       Map<String, Integer> versionsList = new HashMap<String, Integer>();
         for (FolderAPI folder : getDeploymentProjects()) {
             String deploymentName = folder.getName();
-            
+            Integer versionNum = new Integer(0);
+
             if(deploymentName.indexOf("#") > -1) {
+                String versionStr =  deploymentName.substring(deploymentName.indexOf("#") + 1,deploymentName.length());
                 deploymentName = deploymentName.substring(0,deploymentName.indexOf("#"));
+
+                if(!StringUtils.isEmpty(versionStr)) {
+                    versionNum = new Integer(versionStr);
+                }
             }
 
-            if (latestDeployments.containsKey(deploymentName)) {
-                if (latestDeployments.get(deploymentName).getVersion().getRevision() - folder.getVersion().getRevision() > 0) {
+            if (versionsList.containsKey(deploymentName)) {
+                if (versionNum - versionsList.get(deploymentName) > 0) {
+                    versionsList.put(deploymentName, versionNum);
                     latestDeployments.put(deploymentName, folder);
                 }
             } else {
+                versionsList.put(deploymentName, versionNum);
                 latestDeployments.put(deploymentName, folder);
             }
         }
