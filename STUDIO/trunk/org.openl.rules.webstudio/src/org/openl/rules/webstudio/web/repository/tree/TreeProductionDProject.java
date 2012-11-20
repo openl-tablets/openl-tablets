@@ -40,24 +40,7 @@ public class TreeProductionDProject extends TreeProductFolder {
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
             elements = new LinkedHashMap<Object, TreeNode>();
-            /*
-            if (getData() instanceof AProjectFolder) {
-                AProjectFolder folder = (AProjectFolder) getData();
-                Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
-                for (AProjectArtefact artefact : folder.getArtefacts()) {
-                    filteredArtefacts.add(artefact);
-                }
 
-                AProjectArtefact[] sortedArtefacts = new AProjectArtefact[filteredArtefacts.size()];
-                sortedArtefacts = filteredArtefacts.toArray(sortedArtefacts);
-
-                Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
-
-                for (AProjectArtefact artefact : sortedArtefacts) {
-                    addChild(artefact);
-                }
-            }
-            */
             Collection<AProjectArtefact> prjList = ((ADeploymentProject)getData()).getArtefacts();
             AProjectArtefact[] sortedArtefacts = new AProjectArtefact[prjList.size()];
             sortedArtefacts = prjList.toArray(sortedArtefacts);
@@ -71,7 +54,7 @@ public class TreeProductionDProject extends TreeProductFolder {
         }
         return elements;
     }
-    
+
     @Override
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();

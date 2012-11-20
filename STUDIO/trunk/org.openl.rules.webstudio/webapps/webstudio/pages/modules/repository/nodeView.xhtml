@@ -188,7 +188,7 @@
         <ui:include src="/pages/modules/repository/node/productionFolderProps.xhtml" />
       </h:panelGroup>
     </rich:tab>
-    <rich:tab id="revisions" rendered="#{node.type != 'prodproject' and node.type != 'prodfile' and node.type != 'prodFolder'}" name="Revisions" header="Revisions">
+    <rich:tab id="revisions" rendered="#{node.type != 'prodproject' and node.type != 'prodfile' and node.type != 'prodfolder'}" name="Revisions" header="Revisions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
     <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file' and node.type != 'prodfile'}">
