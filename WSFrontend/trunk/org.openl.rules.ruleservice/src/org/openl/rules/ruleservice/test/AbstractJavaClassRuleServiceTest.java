@@ -33,7 +33,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
             initialized = true;
         }
     }
-    
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
@@ -126,6 +126,20 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * Returns published service by service name.
      * 
      * @param serviceName service name
+     * @return service
+     */
+    protected Object getService(String serviceName) {
+        OpenLService service = getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName);
+        if (service == null) {
+            return null;
+        }
+        return service.getServiceBean();
+    }
+
+    /**
+     * Returns published service by service name.
+     * 
+     * @param serviceName service name
      * @param serviceClass service type
      * @return service
      */
@@ -135,8 +149,21 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
         if (service == null) {
             return null;
         }
-        Object result = getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName)
-                .getServiceBean();
+        Object result = service.getServiceBean();
         return (T) result;
+    }
+
+    /**
+     * Returns published service type by service name.
+     * 
+     * @param serviceName service namee
+     * @return service type
+     */
+    protected Class<?> getServiceClassByServiceName(String serviceName) {
+        OpenLService service = getJavaClassRuleServicePublisher().getFrontend().findServiceByName(serviceName);
+        if (service == null) {
+            return null;
+        }
+        return service.getServiceClass();
     }
 }
