@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
@@ -22,6 +24,8 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
 
 public class ADeploymentProject extends UserWorkspaceProject {
+    private final Log log = LogFactory.getLog(ADeploymentProject.class);
+
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deployment configuration)*/
@@ -124,8 +128,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 }
                 resource.commit(user);
             } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
         
@@ -174,7 +179,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getMessage(), e);
+                    }
                 } finally {
                     IOUtils.closeQuietly(content);
                 }

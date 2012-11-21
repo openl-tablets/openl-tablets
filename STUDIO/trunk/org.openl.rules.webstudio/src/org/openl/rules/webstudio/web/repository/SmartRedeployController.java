@@ -49,6 +49,9 @@ public class SmartRedeployController {
     @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
+    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+
     @ManagedProperty(value="#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
@@ -83,13 +86,13 @@ public class SmartRedeployController {
         if (items == null) {
             return false;
         }
-        
+
         for (DeploymentProjectItem item : items) {
             if (item.isSelected()) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -263,6 +266,7 @@ public class SmartRedeployController {
         }
 
         reset();
+        productionRepositoriesTreeController.refreshTree();
 
         return UiConst.OUTCOME_SUCCESS;
     }
@@ -299,7 +303,7 @@ public class SmartRedeployController {
 
             // get latest version
             ADeploymentProject deploymentProject = workspace.getDDProject(deploymentName);
-            
+
             boolean sameVersion = deploymentProject.hasProjectDescriptor(project.getName())
                     && project.getVersion().compareTo(deploymentProject.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
 
@@ -311,7 +315,6 @@ public class SmartRedeployController {
                 return null;
             } else {
                 deploymentProject.edit();
-
                 // rewrite project->version
                 deploymentProject.addProjectDescriptor(project.getName(), project.getVersion());
 
@@ -397,4 +400,14 @@ public class SmartRedeployController {
     public void openDialogListener(AjaxBehaviorEvent event) {
         reset();
     }
+
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
 }
