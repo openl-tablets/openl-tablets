@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.provider.JSONProvider;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
