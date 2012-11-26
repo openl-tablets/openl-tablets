@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
@@ -219,11 +220,27 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         factory.setExecutionMode(true);
 
         CompiledOpenClass result = factory.getCompiledOpenClass();
+        
+        postProcess(result.getOpenClassWithErrors());
+        
         restoreOpenL();
         return result;
     }
 
-    private IOpenSourceCodeModule createMainModule() {
+    private void postProcess(IOpenClass openClass) {
+    	ModuleOpenClass topOpenClass = (ModuleOpenClass)openClass;
+    	for (CompiledOpenClass dep : topOpenClass.getDependencies()) {
+			for (IOpenMethod m : dep.getOpenClass().getMethods()) {
+				if (m instanceof LazyMethod) {
+					LazyMethod lm = (LazyMethod) m;
+					lm.setTopModule(topOpenClass);
+				}
+			}
+    		
+		}
+	}
+
+	private IOpenSourceCodeModule createMainModule() {
         List<IDependency> dependencies = new ArrayList<IDependency>();
 
         for (Module module : modules) {
