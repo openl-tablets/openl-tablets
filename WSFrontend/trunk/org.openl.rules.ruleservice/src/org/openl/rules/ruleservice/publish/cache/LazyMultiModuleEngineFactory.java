@@ -70,6 +70,18 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         return rulesFactory;
     }
 
+    /**
+     * Added to allow using openl that is different from default, such as org.openl.xls.ce
+     * @param modules
+     * @param openlName
+     * `
+     */
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, String openlName) {
+        super(openlName);
+        this.modules = modules;
+    }
+
+    
     public LazyMultiModuleEngineFactory(Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
         this.modules = modules;
