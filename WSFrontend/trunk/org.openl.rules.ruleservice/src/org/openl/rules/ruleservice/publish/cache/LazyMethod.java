@@ -6,6 +6,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -47,6 +48,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 getDependencyManager(),
                 getClassLoader());
             instantiationStrategy.setExternalParameters(getExternalParameters());
+            XlsModuleOpenClass.setTopOpenClass(topModule);
             CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);

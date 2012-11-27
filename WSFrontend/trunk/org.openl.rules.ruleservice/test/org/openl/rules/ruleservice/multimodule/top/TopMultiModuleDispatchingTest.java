@@ -106,17 +106,29 @@ public class TopMultiModuleDispatchingTest {
         cxt.setCurrentDate(new Date("01/01/2011"));
         //assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("h11h21", frontend.execute(SERVICE_NAME, "hello1", new Object[] { cxt }));
+        
+        assertEquals("d11h21", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2011" }));
+        assertEquals("d11h22", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2012" }));
 
         cxt.setCurrentDate(new Date("01/01/2012"));
         assertEquals("h21h22", frontend.execute(SERVICE_NAME, "hello1", new Object[] { cxt }));
+        
+        assertEquals("d21h21", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2011" }));
+        assertEquals("d21h22", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2012" }));
 
         // dispatching by java code
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         cxt.setCurrentDate(new Date("01/01/2011"));
         //assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("h11h21", frontend.execute(SERVICE_NAME, "hello1", new Object[] { cxt }));
+        
+        assertEquals("d11h21", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2011" }));
+        assertEquals("d11h22", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2012" }));
 
         cxt.setCurrentDate(new Date("01/01/2012"));
         assertEquals("h21h22", frontend.execute(SERVICE_NAME, "hello1", new Object[] { cxt }));
+
+        assertEquals("d21h21", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2011" }));
+        assertEquals("d21h22", frontend.execute(SERVICE_NAME, "disp1", new Object[] { cxt, "01/01/2012" }));
     }
 }
