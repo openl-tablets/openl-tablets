@@ -90,8 +90,8 @@ public class WebStudio {
     private boolean needRestart = false;
 
     public WebStudio(HttpSession session) {
-        systemConfigManager = WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-            .getBean(ConfigurationManager.class);
+        systemConfigManager = (ConfigurationManager) WebApplicationContextUtils.getWebApplicationContext(
+                session.getServletContext()).getBean("configManager");
 
         initWorkspace(session);
         initUserSettings(session);
