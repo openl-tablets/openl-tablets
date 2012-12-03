@@ -1,12 +1,11 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.FileOutputStream;
-import java.util.Properties;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.servlet.ServletContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
@@ -17,6 +16,8 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 @SessionScoped
 public class InstallWizard {
 
+    private final Log LOG = LogFactory.getLog(InstallWizard.class);
+
     private int step;
 
     private static final String PAGE_PREFIX = "step";
@@ -24,6 +25,8 @@ public class InstallWizard {
 
     @NotBlank
     private String workingDir;
+    private boolean newWorkingDir;
+
     private String userMode = "single";
     private String appMode = "production";
 
@@ -37,6 +40,15 @@ public class InstallWizard {
     private String dbUsername;
     private String dbPassword;
 
+    private ConfigurationManager appConfig;
+    private ConfigurationManager systemConfig;
+
+    public InstallWizard() {
+        appConfig = new ConfigurationManager(
+                false, System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+        workingDir = appConfig.getStringProperty("webstudio.home");
+    }
+
     public String start() {
         step = 1;
         return PAGE_PREFIX + step + PAGE_POSTFIX;
@@ -47,40 +59,44 @@ public class InstallWizard {
     }
 
     public String next() {
-        return PAGE_PREFIX + ++step + PAGE_POSTFIX;
+        // Get defaults from 'system.properties'
+        if (++step == 2 && newWorkingDir) {
+            systemConfig = new ConfigurationManager(true,
+                    workingDir + "/system-settings/system.properties",
+                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+
+            userMode = systemConfig.getStringProperty("user.mode");
+        }
+
+        return PAGE_PREFIX + step + PAGE_POSTFIX;
     }
 
     public String finish() {
         try {
-            ConfigurationManager cm = new ConfigurationManager(true,
-                    System.getProperty("webstudio.home") + "/system-settings/system.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
-            cm.setProperty("user.mode", userMode);
-            cm.save();
+            systemConfig.setProperty("user.mode", userMode);
+            systemConfig.save();
 
-            ServletContext context = FacesUtils.getServletContext();
+            appConfig.setProperty("webstudio.home", workingDir);
+            appConfig.setProperty("webstudio.configured", true);
+            appConfig.save();
+            System.setProperty("webstudio.home", workingDir);
+            System.setProperty("webstudio.configured", "true");
 
-            XmlWebApplicationContext c = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(context);
+            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
+                    .getWebApplicationContext(FacesUtils.getServletContext());
 
-            c.setConfigLocations(new String[] {
+            context.setConfigLocations(new String[] {
                     "/WEB-INF/spring/webstudio-beans.xml",
                     "/WEB-INF/spring/system-config-beans.xml",
                     "/WEB-INF/spring/repository-beans.xml",
                     "/WEB-INF/spring/security-beans.xml",
                     "/WEB-INF/spring/security/security-" + userMode + ".xml"
             });
-
-            c.refresh();
-
-            ConfigurationManager cm2 = new ConfigurationManager(false,
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
-            cm2.setProperty("webstudio.configured", true);
-            cm2.save();
-            System.setProperty("webstudio.configured", "true");
+            context.refresh();
 
             FacesUtils.redirectToRoot();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Failed while saving the configuration", e);
         } finally {
             step = 1;
         }
@@ -97,6 +113,7 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
+        newWorkingDir = !workingDir.equals(this.workingDir);
         this.workingDir = workingDir;
     }
 

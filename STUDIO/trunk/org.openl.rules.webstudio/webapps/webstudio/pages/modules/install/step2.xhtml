@@ -12,10 +12,14 @@
                 <h:form>
                     <div class="wizard-block" id="usermodeBlock">
                         <h3>Select user mode:
-                            <div class="field-description">This field is described for description of big quantites for taht single mode</div>
+                            <div class="field-description">
+                                <p>User mode defines how many users can run the application and where user projects will be located by default.</p>
+                                <p><strong>Single-user</strong> – Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}/user-workspace' directory.</p>
+                                <p><strong>Multi-user</strong> – Multiple users can run OpenL Tablets WebStudio using their unique user names.  The User’s projects will be located in the '#{installWizard.workingDir}/user-workspace/USERNAME' folder.</p>
+                            </div>
                         </h3>
                         <div>
-                            <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection" >
+                            <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection">
                                 <f:selectItem itemValue="single" itemLabel="Single-user" />
                                 <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                             </h:selectOneRadio>
@@ -23,7 +27,11 @@
                     </div>
                     <div class="wizard-block" id="appmodeBlock">
                         <h3>Select application mode:
-                            <div class="field-description">This field is described for description of big quantites for taht single mode</div>
+                            <div class="field-description">
+                                <p>Here you should choose which Database to use for managing users in the application.</p>
+                                <p><strong>Production</strong> – You will use an external MySQL database to manage OpenL Tablets WebStudio users.  The database is customizable allowing you to add/remove users and change their access rights.</p>
+                                <p><strong>Demo</strong> – You will use an internal User Database based on the HSQLDB database engine with predefined list of users. All changes in the database will be lost after the application restart.</p>
+                            </div>
                         </h3>
                         <div>
                             <h:selectOneRadio value="#{installWizard.appMode}" layout="pageDirection">
@@ -34,7 +42,10 @@
                     </div>
                     <div class="wizard-block" id="dbBlock">
                         <h3>Configure database:
-                            <div class="field-description">This field is described for description of big quantites for taht single mode</div>
+                            <div class="field-description">
+                                <p>Set up the MySQL Database to be used for managing users in OpenL Tablets WebStudio.<br />
+                                   Please contact your System Administrator for this information if necessary.</p>
+                            </div>
                         </h3>
                         <div>
                             <table>
@@ -71,6 +82,7 @@
                     <div class="wizard-buttons">
                         <h:commandButton value="Prev" action="#{installWizard.prev}" />
                         <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" />
+                        <span style="color:#f50">Click 'Finish' to complete the installation process</span>
                     </div>
                 </h:form>
             </div>

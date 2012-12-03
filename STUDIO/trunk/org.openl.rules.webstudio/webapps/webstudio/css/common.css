@@ -557,6 +557,7 @@ form.standard table.buttonPanel {
     margin: 40px 30px;
     display: inline-block;
     text-align: left;
+    width: 650px;
 }
 
 .wizard-page .wizard-block {
@@ -566,10 +567,12 @@ form.standard table.buttonPanel {
 .wizard-page .wizard-block > h3 {
     font-size: 14px;
     font-weight: normal;
+    color: #28b;
 }
 
 .wizard-page .field-description {
     margin-top: 3px;
+    color: #555;
 }
 
 .wizard-page .wizard-buttons {
