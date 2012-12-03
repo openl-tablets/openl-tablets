@@ -10,13 +10,15 @@
             <div class="wizard-page-container">
                 <h:form>
                     <div class="wizard-block">
-                        <h3>Welcome to OpenL Tablets WebStudio</h3>
-                        <div>
-                            OpenL Tablets WebStudio is a web application employed by business users and developers to view, edit, and manage business rules and rule projects created using OpenL Tablets technology.
+                        <h3>Welcome to OpenL Tablets WebStudio Installation Wizard</h3>
+                        <div class="field-description">
+                            <p>This is your first start of WebStudio. The Installation Wizard will guide you through the setup process. To change the settings specified during the installation, a new installation will be required.</p>
+                            <p>You can accept the default settings or change them as you wish.</p>
                         </div>
                     </div>
                     <div class="wizard-buttons">
-                        <h:commandButton value="Start Using" action="#{installWizard.start}" class="button-primary" />
+                        <h:commandButton value="Start" action="#{installWizard.start}" class="button-primary" />
+                        <span style="color: #f50">Click 'Start' to run OpenL Tablets WebStudio Installation Wizard</span>
                     </div>
                 </h:form>
             </div>
