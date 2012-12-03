@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    template="/pages/layout/simpleLayout.xhtml">
+
+    <ui:define name="content">
+
+        <div class="wizard-page">
+            <div class="wizard-page-container">
+                <h:form>
+                    <div class="wizard-block">
+                        <h3>Welcome to OpenL Tablets WebStudio</h3>
+                        <div>
+                            OpenL Tablets WebStudio is a web application employed by business users and developers to view, edit, and manage business rules and rule projects created using OpenL Tablets technology.
+                        </div>
+                    </div>
+                    <div class="wizard-buttons">
+                        <h:commandButton value="Start Using" action="#{installWizard.start}" class="button-primary" />
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

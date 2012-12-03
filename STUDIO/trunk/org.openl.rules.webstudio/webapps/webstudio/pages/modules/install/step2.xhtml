@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    template="/pages/layout/simpleLayout.xhtml">
+
+    <ui:define name="content">
+
+        <div class="wizard-page">
+            <div class="wizard-page-container">
+                <h:form>
+                    <div class="wizard-block" id="usermodeBlock">
+                        <h3>Select user mode:
+                            <div class="field-description">This field is described for description of big quantites for taht single mode</div>
+                        </h3>
+                        <div>
+                            <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection" >
+                                <f:selectItem itemValue="single" itemLabel="Single-user" />
+                                <f:selectItem itemValue="multi" itemLabel="Multi-user" />
+                            </h:selectOneRadio>
+                        </div>
+                    </div>
+                    <div class="wizard-block" id="appmodeBlock">
+                        <h3>Select application mode:
+                            <div class="field-description">This field is described for description of big quantites for taht single mode</div>
+                        </h3>
+                        <div>
+                            <h:selectOneRadio value="#{installWizard.appMode}" layout="pageDirection">
+                                <f:selectItem itemValue="production" itemLabel="Production" />
+                                <f:selectItem itemValue="demo" itemLabel="Demo" />
+                            </h:selectOneRadio>
+                        </div>
+                    </div>
+                    <div class="wizard-block" id="dbBlock">
+                        <h3>Configure database:
+                            <div class="field-description">This field is described for description of big quantites for taht single mode</div>
+                        </h3>
+                        <div>
+                            <table>
+                                <tr>
+                                    <td><label>Database Host</label></td>
+                                    <td><h:inputText id="dbHost" value="#{installWizard.dbHost}" />
+                                        <h:message for="dbHost" class="error" /></td>
+                                </tr>
+                                <tr>
+                                    <td><label>Database Port</label></td>
+                                    <td><h:inputText id="dbPort" value="#{installWizard.dbPort}" />
+                                        <h:message for="dbPort" class="error" /></td>
+                                </tr>
+                                <tr>
+                                    <td><label>Database Name</label></td>
+                                    <td><h:inputText id="dbName" value="#{installWizard.dbName}" />
+                                        <h:message for="dbName" class="error" /></td>
+                                </tr>
+                                <tr><td></td></tr>
+                                <tr><td></td></tr>
+                                <tr>
+                                    <td><label>Username</label></td>
+                                    <td><h:inputText id="dbUsername" value="#{installWizard.dbUsername}" />
+                                        <h:message for="dbUsername" class="error" /></td>
+                                </tr>
+                                <tr>
+                                    <td><label>Password</label></td>
+                                    <td><h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}" />
+                                        <h:message for="dbPassword" class="error" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wizard-buttons">
+                        <h:commandButton value="Prev" action="#{installWizard.prev}" />
+                        <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" />
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+        <script>
+          //<![CDATA[
+
+            (function() {
+
+                // TODO Move to UI JS model
+                function toggleBlock(selector, toggle) {
+                    $j(selector).toggle(toggle);
+                    $j(selector + " input").each(function() {
+                        if (this.type != "radio") {
+                            this.disabled = !toggle;
+                        }
+                    })
+                }
+
+                toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() != "single");
+                toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() != "single"
+                    && $j("#appmodeBlock input:checked").val() != "demo");
+
+                $j("#usermodeBlock input").change(function(e) {
+                    toggleBlock("#appmodeBlock", e.target.value != "single");
+                    toggleBlock("#dbBlock", e.target.value != "single"
+                        && $j("#appmodeBlock input:checked").val() != "demo");
+                });
+
+                $j("#appmodeBlock input").change(function(e) {
+                    toggleBlock("#dbBlock", e.target.value != "demo");
+                });
+
+            })();
+
+          //]]>
+        </script>
+
+    </ui:define>
+</ui:composition>

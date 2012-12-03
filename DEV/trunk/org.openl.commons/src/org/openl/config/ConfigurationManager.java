@@ -36,6 +36,11 @@ public class ConfigurationManager {
     private CompositeConfiguration compositeConfiguration;
 
     public ConfigurationManager(boolean useSystemProperties,
+            String propsLocation) {
+        this(useSystemProperties, propsLocation, null, false);
+    }
+
+    public ConfigurationManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation) {
         this(useSystemProperties, propsLocation, defaultPropsLocation, false);
     }
@@ -105,15 +110,21 @@ public class ConfigurationManager {
     }
 
     public Map<String, Object> getProperties() {
+        return getProperties(false);
+    }
+
+    public Map<String, Object> getProperties(boolean cross) {
         Map<String, Object> properties = new HashMap<String, Object>();
         for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
-            
-            Object value = compositeConfiguration.getProperty(key);
-            if (value instanceof Collection || value != null && value.getClass().isArray()) {
-                properties.put(key, getStringArrayProperty(key));
-            } else {
-                properties.put(key, getStringProperty(key));
+
+            if (!cross || (cross && configurationToSave.getProperty(key) != null)) {
+                Object value = compositeConfiguration.getProperty(key);
+                if (value instanceof Collection || value != null && value.getClass().isArray()) {
+                    properties.put(key, getStringArrayProperty(key));
+                } else {
+                    properties.put(key, getStringProperty(key));
+                }
             }
         }
         return properties;
