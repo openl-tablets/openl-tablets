@@ -10,6 +10,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 import static org.junit.Assert.*;
 
@@ -62,4 +63,34 @@ public class ConditionalArrayIndexTest extends BaseOpenlBuilderHelper {
         assertTrue(containsErrorWithMessage(tableWithError, BindHelper.CONDITION_TYPE_MESSAGE));
         assertTrue(containsErrorWithMessage(tableWithError2, BindHelper.CONDITION_TYPE_MESSAGE));
     }
+
+    @Test
+    public void testSpreadsheetExpression() throws Exception {
+    	
+//    	getJavaWrapper().getOpenClass();
+    	
+        IOpenField driverField = getField("testDrivers");
+        Object drivers = getFieldValue("testDrivers");
+        assertEquals(
+                invokeMethod("checkSpreadsheet1", new IOpenClass[] { driverField.getType(), JavaOpenClass.INT}, new Object[] { drivers, 20 }),
+                Array.get(drivers, 1));
+
+        assertEquals(
+                invokeMethod("checkSpreadsheet1", new IOpenClass[] { driverField.getType(), JavaOpenClass.INT}, new Object[] { drivers, 40 }),
+                Array.get(drivers, 0));
+    
+        assertEquals(
+                invokeMethod("checkSpreadsheet2", new IOpenClass[] { driverField.getType(), JavaOpenClass.INT}, new Object[] { drivers, 1 }),
+                Array.get(drivers, 1));
+
+        assertEquals(
+                invokeMethod("checkSpreadsheet2", new IOpenClass[] { driverField.getType(), JavaOpenClass.INT}, new Object[] { drivers, 2 }),
+                Array.get(drivers, 2));
+
+        assertEquals(
+                invokeMethod("checkSpreadsheet2", new IOpenClass[] { driverField.getType(), JavaOpenClass.INT}, new Object[] { drivers, 0 }),
+                Array.get(drivers, 0));
+    }
+
+
 }
