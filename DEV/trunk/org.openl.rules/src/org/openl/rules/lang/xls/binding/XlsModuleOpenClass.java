@@ -12,6 +12,7 @@ import java.util.Set;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -19,9 +20,12 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.MethodKey;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
@@ -41,7 +45,43 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
     public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl,
             IDataBase dbase, boolean useDescisionTableDispatcher) {
         this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher);
+        
     }
+    
+
+    
+    private static ThreadLocal<IOpenClass> topOpenClass = new ThreadLocal<IOpenClass>();
+    public static void setTopOpenClass(IOpenClass  top) {
+    	topOpenClass.set(top);
+    }
+    
+    
+    public IOpenClass getTopOpenClassOrThis() {
+    	
+    	IOpenClass top = topOpenClass.get();
+    	
+		return top == null ? this : top;
+	}
+
+    
+    public class TopField extends AOpenField {
+
+        protected TopField() {
+            super("top", getTopOpenClassOrThis());
+        }
+
+
+		public Object get(Object target, IRuntimeEnv env) {
+            return target;
+        }
+
+        public void set(Object target, Object value, IRuntimeEnv env) {
+            throw new RuntimeException("Can not assign to 'top'");
+        }
+
+    }
+   
+    
     
 	/**
 	 * Constructor for module with dependent modules
@@ -53,6 +93,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
           this.dataBase = dbase;
           this.metaInfo = metaInfo;
           this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+          addField(new TopField());
       }
       
 	

@@ -11,6 +11,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.logging.Log;
@@ -44,13 +45,15 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 @ManagedBean
 @SessionScoped
 public class RepositoryTreeState implements DesignTimeRepositoryListener{
+    @ManagedProperty(value="#{repositorySelectNodeStateHolder}")
+    private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
+
     public static final String DEFAULT_TAB = "Properties";
     private final Log log = LogFactory.getLog(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
     /** Root node for RichFaces's tree. It is not displayed. */
     private TreeRepository root;
-    private TreeNode selectedNode;
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
 
@@ -129,10 +132,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             log.debug("Finishing buildTree()");
         }
 
-        if (selectedNode == null || UiConst.TYPE_REPOSITORY.equals(selectedNode.getType())) {
-            selectedNode = rulesRepository;
-        } else if (UiConst.TYPE_DEPLOYMENT_REPOSITORY.equals(selectedNode.getType())) {
-            selectedNode = deploymentRepository;
+        if (getSelectedNode() == null || UiConst.TYPE_REPOSITORY.equals(getSelectedNode().getType())) {
+            setSelectedNode(rulesRepository);
+        } else if (UiConst.TYPE_DEPLOYMENT_REPOSITORY.equals(getSelectedNode().getType())) {
+            setSelectedNode(deploymentRepository);
         } else {
             updateSelectedNode();
         }
@@ -159,7 +162,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     public TreeNode getSelectedNode() {
         buildTree();
-        return selectedNode;
+        return this.repositorySelectNodeStateHolder.getSelectedNode();
     }
 
     public UserWorkspaceProject getSelectedProject() {
@@ -175,9 +178,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void invalidateSelection() {
-        selectedNode = rulesRepository;
+        setSelectedNode(rulesRepository);
     }
-    
+
     /**
      * Refreshes repositoryTreeState.selectedNode after rebuilding tree.
      */
@@ -189,7 +192,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         }
 
         if (currentNode != null) {
-            selectedNode = currentNode;
+            setSelectedNode(currentNode);
         }
     }
 
@@ -202,10 +205,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void deleteSelectedNodeFromTree(){
-        deleteNode(selectedNode);
+        deleteNode(getSelectedNode());
         moveSelectionToParentNode();
     }
-    
+
     public void addDeploymentProjectToTree(ADeploymentProject project) {
         String name = project.getName();
         String id = String.valueOf(name.hashCode());
@@ -252,8 +255,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      * Moves selection to the parent of the current selected node.
      */
     public void moveSelectionToParentNode() {
-        if (selectedNode.getParent() instanceof TreeNode) {
-            selectedNode = selectedNode.getParent();
+        if (getSelectedNode().getParent() instanceof TreeNode) {
+            setSelectedNode(getSelectedNode().getParent());
         } else {
             invalidateSelection();
         }
@@ -272,7 +275,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
         Object storedKey = tree.getRowKey();
         tree.setRowKey(currentSelectionKey);
-        selectedNode = (TreeNode) tree.getRowData();
+        setSelectedNode((TreeNode) tree.getRowData());
         tree.setRowKey(storedKey);
     }
 
@@ -280,7 +283,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
      * Refreshes repositoryTreeState.selectedNode.
      */
     public void refreshSelectedNode() {
-        refreshNode(selectedNode);
+        refreshNode(getSelectedNode());
     }
 
     public void setFilter(IFilter<AProjectArtefact> filter) {
@@ -293,7 +296,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
-        this.selectedNode = selectedNode;
+        repositorySelectNodeStateHolder.setSelectedNode(selectedNode);
     }
 
     @PostConstruct
@@ -308,7 +311,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             userWorkspace.getDesignTimeRepository().removeListener(this);
         }
     }
-
 
     public void onRulesProjectModified(DTRepositoryEvent event) {
         String projectName = event.getProjectName();
@@ -482,7 +484,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
 
     //for any project artefact
     public boolean getCanModify() {
-        AProjectArtefact selectedArtefact = selectedNode.getData();
+        AProjectArtefact selectedArtefact = getSelectedNode().getData();
         String projectName = selectedArtefact.getProject().getName();
         String projectId = String.valueOf(projectName.hashCode());
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
@@ -507,5 +509,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         invalidateSelection();
         
         return "";
+    }
+
+    public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {
+        return repositorySelectNodeStateHolder;
+    }
+
+    public void setRepositorySelectNodeStateHolder(RepositorySelectNodeStateHolder repositorySelectNodeStateHolder) {
+        this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
     }
 }

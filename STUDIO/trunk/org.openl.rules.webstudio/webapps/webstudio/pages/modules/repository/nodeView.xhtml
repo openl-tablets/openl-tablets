@@ -7,6 +7,15 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core">
 
+    <style>
+        .hideHeader {
+            display:none;
+        }
+        .showHeader {
+            display:table-cell;
+        }
+    </style>
+
     <h:panelGroup layout="block" rendered="#{node.type == 'repository'}">
         <div>
             <div class="view_header">
@@ -15,6 +24,19 @@
             <div>
                 <div>
                     <ui:include src="/pages/modules/repository/projects.xhtml" />
+                </div>
+            </div>
+        </div>
+    </h:panelGroup>
+
+    <h:panelGroup layout="block" rendered="#{node.type == 'prodrepository' || node.type == 'proddeployment'}">
+        <div>
+            <div class="view_header">
+                <span>Projects</span>
+            </div>
+            <div>
+                <div>
+                    <ui:include src="/pages/modules/repository/projectsProduction.xhtml" />
                 </div>
             </div>
         </div>
@@ -145,7 +167,7 @@
   </h:panelGroup>
 
   <rich:tabPanel id="nodeTabPanel" switchType="client"
-    rendered="#{node.type != 'repository' &amp;&amp; node.type != 'drepository' &amp;&amp; node.type != 'deployment'}">
+    rendered="#{node.type == 'file' || node.type == 'folder' || node.type == 'project' || node.type == 'prodproject' || node.type == 'prodfolder' || node.type == 'prodfile'}">
     <rich:tab id="properties" name="Properties" header="Properties" >
       <h:panelGroup rendered="#{node.type == 'file'}">
         <ui:include src="/pages/modules/repository/node/fileProps.xhtml" />
@@ -156,15 +178,40 @@
       <h:panelGroup rendered="#{node.type == 'project'}">
         <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
       </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'prodproject'}">
+        <ui:include src="/pages/modules/repository/node/productionProjectProps.xhtml" />
+      </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'prodfile'}">
+        <ui:include src="/pages/modules/repository/node/productionFileProps.xhtml" />
+      </h:panelGroup>
+      <h:panelGroup rendered="#{node.type == 'prodfolder'}">
+        <ui:include src="/pages/modules/repository/node/productionFolderProps.xhtml" />
+      </h:panelGroup>
     </rich:tab>
-    <rich:tab id="revisions" name="Revisions" header="Revisions">
+    <rich:tab id="revisions" rendered="#{node.type != 'prodproject' and node.type != 'prodfile' and node.type != 'prodfolder'}" name="Revisions" header="Revisions">
       <ui:include src="/pages/modules/repository/node/versions.xhtml" />
     </rich:tab>
-    <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file'}">
+    <rich:tab id="elements" name="Elements" header="Elements" rendered="#{node.type != 'file' and node.type != 'prodfile'}">
       <ui:include src="/pages/modules/repository/node/elements.xhtml" />
     </rich:tab>
     <rich:tab id="dependencies" name="Dependencies" header="Dependencies" rendered="#{node.type == 'project'}">
       <ui:include src="/pages/modules/repository/node/dependency.xhtml" />
+    </rich:tab>
+    
+    <ui:remove><!--
+         FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961 
+         "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
+         As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.   
+    --></ui:remove>
+    <rich:tab id="rulesConfiguration" name="RulesConfiguration" header="Rules Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
+      <h:panelGroup rendered="#{node.type == 'project'}">
+        <ui:include src="/pages/modules/repository/node/rulesConfiguration.xhtml" />
+      </h:panelGroup>
+    </rich:tab>
+    <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
+      <h:panelGroup rendered="#{node.type == 'project'}">
+        <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />
+      </h:panelGroup>
     </rich:tab>
   </rich:tabPanel>
 
