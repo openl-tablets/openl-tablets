@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.install;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,22 +30,23 @@ public class InstallWizard {
     private String appMode = "production";
 
     @NotBlank
-    private String dbHost;
-    @NotBlank
-    private String dbPort;
-    @NotBlank
-    private String dbName;
+    private String dbUrl;
     @NotBlank
     private String dbUsername;
     private String dbPassword;
 
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
+    private ConfigurationManager dbConfig;
+    private ConfigurationManager dbMySqlConfig;
 
     public InstallWizard() {
         appConfig = new ConfigurationManager(
                 false, System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getStringProperty("webstudio.home");
+
+        dbMySqlConfig = new ConfigurationManager(
+                false, System.getProperty("webapp.root") + "/WEB-INF/conf/db-mysql.properties");
     }
 
     public String start() {
@@ -60,12 +60,24 @@ public class InstallWizard {
 
     public String next() {
         // Get defaults from 'system.properties'
-        if (++step == 2 && newWorkingDir) {
+        if (++step == 2 && (newWorkingDir || systemConfig == null)) {
             systemConfig = new ConfigurationManager(true,
                     workingDir + "/system-settings/system.properties",
                     System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
 
+            dbConfig = new ConfigurationManager(true,
+                    workingDir + "/system-settings/db.properties",
+                    System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+
             userMode = systemConfig.getStringProperty("user.mode");
+
+            boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
+            appMode = innerDb ? "demo" : "production";
+
+            ConfigurationManager defaultDbConfig = !innerDb ? dbConfig : dbMySqlConfig;
+            dbUrl = defaultDbConfig.getStringProperty("db.url").split("//")[1];
+            dbUsername = defaultDbConfig.getStringProperty("db.user");
+            dbPassword = defaultDbConfig.getStringProperty("db.password");
         }
 
         return PAGE_PREFIX + step + PAGE_POSTFIX;
@@ -81,6 +93,18 @@ public class InstallWizard {
             appConfig.save();
             System.setProperty("webstudio.home", workingDir);
             System.setProperty("webstudio.configured", "true");
+
+            if (appMode.equals("production")) {
+                dbConfig.setProperty("db.url", dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
+                dbConfig.setProperty("db.user", dbUsername);
+                dbConfig.setProperty("db.password", dbPassword);
+                dbConfig.setProperty("db.driver", dbMySqlConfig.getStringProperty("db.driver"));
+                dbConfig.setProperty("db.hibernate.dialect", dbMySqlConfig.getStringProperty("db.hibernate.dialect"));
+                dbConfig.save();
+
+            } else {
+                dbConfig.restoreDefaults();
+            }
 
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
                     .getWebApplicationContext(FacesUtils.getServletContext());
@@ -133,28 +157,12 @@ public class InstallWizard {
         this.appMode = appMode;
     }
 
-    public String getDbHost() {
-        return dbHost;
+    public String getDbUrl() {
+        return dbUrl;
     }
 
-    public void setDbHost(String dbHost) {
-        this.dbHost = dbHost;
-    }
-
-    public String getDbPort() {
-        return dbPort;
-    }
-
-    public void setDbPort(String dbPort) {
-        this.dbPort = dbPort;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
+    public void setDbUrl(String dbUrl) {
+        this.dbUrl = dbUrl;
     }
 
     public String getDbUsername() {
