@@ -126,6 +126,48 @@ public class AProjectFolder extends AProjectArtefact {
     }
     
     @Override
+    public void update(AProjectArtefact newFolder, CommonUser user, int revision) throws ProjectException {
+        super.update(newFolder, user);
+        if (this.isFolder()) {
+
+            AProjectFolder folder = (AProjectFolder) newFolder;
+            // remove absent
+            for (AProjectArtefact artefact : getArtefacts()) {
+                String name = artefact.getName();
+
+                if (!folder.hasArtefact(name)) {
+                    // was deleted
+                    artefact.delete();
+                } else {
+                    AProjectArtefact newArtefact = folder.getArtefact(name);
+
+                    if (newArtefact.isFolder() == artefact.isFolder()) {
+                        // update existing
+                        artefact.update(newArtefact, user);
+                    } else {
+                        // the same name but other type
+                        artefact.delete();
+                    }
+                }
+            }
+
+            // add new
+            for (AProjectArtefact artefact : folder.getArtefacts()) {
+                String name = artefact.getName();
+                if (!hasArtefact(name)) {
+                    if (artefact.isFolder()) {
+                        addFolder(name).update(artefact, user);
+                    } else {
+                        addResource(name, (AProjectResource) artefact).update(artefact, user);
+                    }
+                }
+            }
+        }
+        
+        commit(user,revision);
+    }
+    
+    @Override
     public void smartUpdate(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
         if (newFolder.isModified()) {
             super.smartUpdate(newFolder, user);

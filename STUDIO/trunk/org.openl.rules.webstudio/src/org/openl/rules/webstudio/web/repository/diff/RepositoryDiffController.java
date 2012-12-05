@@ -206,7 +206,9 @@ public class RepositoryDiffController extends AbstractDiffController {
         try {
             in = ((AProjectResource) excelArtefact).getContent();
         } catch (ProjectException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         File tempFile = null;
@@ -217,7 +219,9 @@ public class RepositoryDiffController extends AbstractDiffController {
             out = new FileOutputStream(tempFile);
             IOUtils.copy(in, out);
         } catch (IOException e) {
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         } finally {
             IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(in);

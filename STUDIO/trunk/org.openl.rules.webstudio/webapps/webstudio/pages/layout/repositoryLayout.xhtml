@@ -9,7 +9,7 @@
     xmlns:rich="http://richfaces.org/rich">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-    <c:set var="node" value="#{repositoryTreeState.selectedNode}" />
+    <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="artefact" value="#{node.data}" />
 
     <h:head>
