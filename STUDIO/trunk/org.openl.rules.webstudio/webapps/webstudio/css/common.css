@@ -564,10 +564,19 @@ form.standard table.buttonPanel {
     margin-bottom: 30px;
 }
 
+.wizard-page .wizard-block > h2,
 .wizard-page .wizard-block > h3 {
-    font-size: 14px;
     font-weight: normal;
     color: #28b;
+}
+
+.wizard-page .wizard-block > h2 {
+    margin-bottom: 27px;
+    font-size: 16px;
+}
+
+.wizard-page .wizard-block > h3 {
+    font-size: 14px;
 }
 
 .wizard-page .field-description {
