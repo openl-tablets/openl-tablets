@@ -148,9 +148,10 @@ public class UsersBean {
     }
 
     public boolean isOnlyAdmin(Object objUser) {
+        String adminPrivilege = DefaultPrivileges.PRIVILEGE_ADMINISTRATE.name();
         String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
-        return ((User) objUser).hasPrivilege(allPrivileges)
-                && userManagementService.getUsersByPrivilege(allPrivileges).size() == 1;
+        return (((User) objUser).hasPrivilege(adminPrivilege) || ((User) objUser).hasPrivilege(allPrivileges))
+                && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
     }
 
     public void deleteUser(String username) {

@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.service;
 
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -37,7 +38,8 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
                     user.getLoginName(), user.getPasswordHash(), createPrivileges(user));
-            if (resultUser.hasPrivilege(privilege)) {
+            if (resultUser.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())
+                    || resultUser.hasPrivilege(privilege)) {
                 resultUsers.add(resultUser);
             }
         }
