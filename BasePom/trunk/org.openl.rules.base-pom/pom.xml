@@ -754,7 +754,7 @@
 			<dependency>
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>annotations-api</artifactId>
-				<version>7.0.8</version>
+				<version>7.0.33</version>
 				<scope>provided</scope>
 			</dependency>
 
