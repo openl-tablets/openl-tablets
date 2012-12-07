@@ -30,7 +30,7 @@ public class RevertProjectChangesBean {
 
     private final Log log = LogFactory.getLog(RevertProjectChangesBean.class);
 
-    public static final String DATE_MODIFIED_PATTERN = WebStudioUtils.getWebStudio().getSystemConfigManager()
+    public String dateModifiedPattern = WebStudioUtils.getWebStudio().getSystemConfigManager()
         .getStringProperty("data.format.date") + " 'at' hh:mm:ss a";
 
     public RevertProjectChangesBean() {
@@ -49,7 +49,7 @@ public class RevertProjectChangesBean {
             String sourceName = historyMap.get(modifiedOn).getName();
 
             ProjectHistoryItem historyItem = new ProjectHistoryItem();
-            String modifiedOnStr = new SimpleDateFormat(DATE_MODIFIED_PATTERN).format(
+            String modifiedOnStr = new SimpleDateFormat(dateModifiedPattern).format(
                     new Date(modifiedOn));
             historyItem.setVersion(modifiedOn);
             historyItem.setModifiedOn(modifiedOnStr);
