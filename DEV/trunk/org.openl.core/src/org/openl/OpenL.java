@@ -7,9 +7,9 @@
 package org.openl;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.cache.CacheUtils;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
@@ -46,7 +46,9 @@ public class OpenL {
 
     private static OpenLConfigurator config = new OpenLConfigurator();
 
-    private static Map<Object, OpenL> openLCache = new HashMap<Object, OpenL>();
+    // Soft references to values are used to prevent memory leak
+    @SuppressWarnings("unchecked")
+    private static Map<Object, OpenL> openLCache = new ReferenceMap();
 
     private IOpenParser parser;
 
@@ -59,6 +61,15 @@ public class OpenL {
     private String name;
     
     public OpenL() {
+    }
+
+    /**
+     * Change default OpenLConfigurator implementation to another.
+     * 
+     * @param config new OpenLConfigurator
+     */
+    public static void setConfig(OpenLConfigurator config) {
+        OpenL.config = config;
     }
 
     /**
