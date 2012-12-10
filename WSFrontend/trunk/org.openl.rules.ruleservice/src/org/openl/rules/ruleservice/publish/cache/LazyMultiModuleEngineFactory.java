@@ -12,7 +12,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
-import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -20,7 +19,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
-import org.openl.rules.lang.xls.prebind.XlsPreBinder;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.BaseRulesFactory;
 import org.openl.rules.runtime.IRulesFactory;
@@ -46,6 +44,9 @@ import org.openl.vm.IRuntimeEnv;
  * @author PUdalau
  */
 public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
+    static {
+        OpenL.setConfig(new LazyOpenLConfigurator());
+    }
 
     private final Log log = LogFactory.getLog(LazyMultiModuleEngineFactory.class);
 
@@ -100,12 +101,8 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         return compiledOpenClass;
     }
 
-    private IOpenBinder previousBinder;
-
     private void prepareOpenL() {
-        OpenL openL = getOpenL();
-        previousBinder = openL.getBinder();
-        openL.setBinder(new XlsPreBinder(getUserContext(), new IPrebindHandler() {
+        LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
             
             @Override
             public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
@@ -116,11 +113,11 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
             public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
                 return makeLazyField(field);
             }
-        }));
+        });
     }
 
     private void restoreOpenL() {
-        getOpenL().setBinder(previousBinder);
+        LazyBinderInvocationHandler.removePrebindHandler();
     }
 
     public Class<?> getInterfaceClass() {
