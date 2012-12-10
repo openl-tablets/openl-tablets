@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.File;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -43,7 +45,7 @@ public class InstallWizard {
     public InstallWizard() {
         appConfig = new ConfigurationManager(
                 false, System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
-        workingDir = appConfig.getStringProperty("webstudio.home");
+        workingDir = normalizePath(appConfig.getStringProperty("webstudio.home"));
 
         dbMySqlConfig = new ConfigurationManager(
                 false, System.getProperty("webapp.root") + "/WEB-INF/conf/db-mysql.properties");
@@ -59,28 +61,47 @@ public class InstallWizard {
     }
 
     public String next() {
-        // Get defaults from 'system.properties'
-        if (++step == 2 && (newWorkingDir || systemConfig == null)) {
-            systemConfig = new ConfigurationManager(true,
-                    workingDir + "/system-settings/system.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+        if (++step == 2) {
 
-            dbConfig = new ConfigurationManager(true,
-                    workingDir + "/system-settings/db.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+            workingDir = normalizePath(workingDir);
 
-            userMode = systemConfig.getStringProperty("user.mode");
+            // Get defaults from 'system.properties'
+            if (newWorkingDir || systemConfig == null) {
+                systemConfig = new ConfigurationManager(true,
+                        workingDir + "/system-settings/system.properties",
+                        System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
 
-            boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
-            appMode = innerDb ? "demo" : "production";
+                dbConfig = new ConfigurationManager(true,
+                        workingDir + "/system-settings/db.properties",
+                        System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
-            ConfigurationManager defaultDbConfig = !innerDb ? dbConfig : dbMySqlConfig;
-            dbUrl = defaultDbConfig.getStringProperty("db.url").split("//")[1];
-            dbUsername = defaultDbConfig.getStringProperty("db.user");
-            dbPassword = defaultDbConfig.getStringProperty("db.password");
+                userMode = systemConfig.getStringProperty("user.mode");
+
+                boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
+                appMode = innerDb ? "demo" : "production";
+
+                ConfigurationManager defaultDbConfig = !innerDb ? dbConfig : dbMySqlConfig;
+                dbUrl = defaultDbConfig.getStringProperty("db.url").split("//")[1];
+                dbUsername = defaultDbConfig.getStringProperty("db.user");
+                dbPassword = defaultDbConfig.getStringProperty("db.password");
+            }
         }
 
         return PAGE_PREFIX + step + PAGE_POSTFIX;
+    }
+
+    private String normalizePath(String path) {
+        if (path == null)
+            return null;
+
+        File pathFile = new File(path);
+        if (!pathFile.isAbsolute()) {
+            if (!path.startsWith("/") && !path.startsWith("\\")) {
+                pathFile = new File(File.separator + path);
+            }
+        }
+
+        return pathFile.getAbsolutePath();
     }
 
     public String finish() {
@@ -137,8 +158,9 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-        newWorkingDir = !workingDir.equals(this.workingDir);
-        this.workingDir = workingDir;
+        String normWorkingDir = normalizePath(workingDir);
+        newWorkingDir = !normWorkingDir.equals(this.workingDir);
+        this.workingDir = normWorkingDir;
     }
 
     public String getUserMode() {
