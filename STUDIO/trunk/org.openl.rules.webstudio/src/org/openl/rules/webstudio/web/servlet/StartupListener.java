@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -11,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openl.config.ClassPathConfigLocator;
 import org.openl.config.ConfigLocator;
 import org.openl.config.ConfigManager;
+import org.openl.config.ConfigurationManager;
 import org.openl.config.SysConfigManager;
 import org.openl.rules.repository.RulesRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -24,11 +26,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public class StartupListener implements ServletContextListener {
 
     private final Log log = LogFactory.getLog(StartupListener.class);
-
-    private static final String[] SYSTEM_PROPERTIES = new String[] {
-        "webstudio.home",
-        "user.mode"
-    };
 
     private class WebConfigLocator extends ConfigLocator {
         private ServletContext context;
@@ -75,17 +72,13 @@ public class StartupListener implements ServletContextListener {
     }
 
     private void initSystemProperties(ServletContext context) {
-        for (int i = 0; i < SYSTEM_PROPERTIES.length; i++) {
-            String propertyName  = SYSTEM_PROPERTIES[i];
-            String propertyValue = System.getProperty(propertyName);
+        ConfigurationManager cm = new ConfigurationManager(true,
+                System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+        Map<String, Object> properties = cm.getProperties(true);
 
-            if (propertyValue == null) {
-                // Set default value
-                propertyValue = context.getInitParameter(propertyName);
-                System.setProperty(propertyName, propertyValue);
-            }
-
-            log.info(propertyName + ": " + propertyValue);
+        for (String propertyName : properties.keySet()) {
+            Object propValue = properties.get(propertyName);
+            System.setProperty(propertyName, String.valueOf(propValue));
         }
     }
 

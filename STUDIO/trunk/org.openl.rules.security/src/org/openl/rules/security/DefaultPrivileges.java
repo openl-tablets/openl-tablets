@@ -30,6 +30,8 @@ public enum DefaultPrivileges implements Privilege {
     PRIVILEGE_TRACE ("Trace Tables"),
     PRIVILEGE_BENCHMARK ("Benchmark Tables"),
 
+    PRIVILEGE_ADMINISTRATE ("Administrate"),
+
     PRIVILEGE_ALL ("NO RESTRICTIONS");
 
     private final String displayName;

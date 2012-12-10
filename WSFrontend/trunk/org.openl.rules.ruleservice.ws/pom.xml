@@ -180,10 +180,10 @@
 			<artifactId>cxf-rt-databinding-aegis</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>

@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.service;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.GroupDao;
@@ -43,7 +44,8 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         for (Group group : groups) {
             org.openl.rules.security.Group resultGroup = new SimpleGroup(
                     group.getName(), group.getDescription(), createPrivileges(group));
-            if (resultGroup.hasPrivilege(privilege)) {
+            if (resultGroup.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())
+                    || resultGroup.hasPrivilege(privilege)) {
                 resultGroups.add(resultGroup);
             }
         }
