@@ -161,9 +161,9 @@
             var groupPrivileges = groups[groupName];
             var oneNotEmpty = false;
 
-            var privilegeAdmin = groupPrivileges.length > 0 &amp;&amp; groupPrivileges[0] == "PRIVILEGE_ALL";
+            var privilegeAll = groupPrivileges.length > 0 &amp;&amp; groupPrivileges[0] == "PRIVILEGE_ALL";
 
-            if (privilegeAdmin) {
+            if (privilegeAll) {
                 $j("#privilegesTable td :checkbox").each(function() {
                     if (!this.disabled) {
                         if (!this.checked) {
