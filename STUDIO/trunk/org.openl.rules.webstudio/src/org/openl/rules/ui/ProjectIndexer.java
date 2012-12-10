@@ -61,7 +61,7 @@ public class ProjectIndexer extends FileIndexer {
 					String preferrablePath = selectPreferrablePath(fileAlreadyExist, canonPath);					
 					fileMap.put(fileName, preferrablePath);
 			} catch (IOException e) {
-					e.printStackTrace();
+					Log.error(e.getMessage(), e);
 				}			
 		}
 	    
