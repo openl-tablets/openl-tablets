@@ -27,7 +27,7 @@ public class LazyOpenLConfigurator extends OpenLConfigurator {
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
         IOpenLBuilder builder = super.getBuilder(openlName, ucxt);
 
-        if (!OpenL.OPENL_JAVA_RULE_NAME.equals(openlName)) {
+        if (!openlName.startsWith(OpenL.OPENL_JAVA_RULE_NAME)) {
             return builder;
         }
 
