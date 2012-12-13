@@ -132,6 +132,10 @@
       <artifactId>org.openl.rules.diff</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.demo</artifactId>
+    </dependency>
+    <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
     </dependency>
