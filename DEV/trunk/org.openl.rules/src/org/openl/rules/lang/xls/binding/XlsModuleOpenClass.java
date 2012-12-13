@@ -12,7 +12,6 @@ import java.util.Set;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
