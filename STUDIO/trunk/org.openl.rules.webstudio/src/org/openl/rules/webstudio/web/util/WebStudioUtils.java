@@ -85,7 +85,7 @@ public abstract class WebStudioUtils {
     }
 
     public static UserWorkspace getUserWorkspace(HttpSession session) {
-    	final Log log = LogFactory.getLog(WebStudioUtils.class);
+        final Log log = LogFactory.getLog(WebStudioUtils.class);
         UserWorkspace userWorkspace = null;
         try {
             RulesUserSession rulesUserSession = getRulesUserSession(session, true);

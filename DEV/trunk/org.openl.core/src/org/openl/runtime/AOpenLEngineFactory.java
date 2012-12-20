@@ -79,4 +79,12 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
         return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
     }
 
+	public String getOpenlName() {
+		return openlName;
+	}
+
+	public String getUserHome() {
+		return userHome;
+	}
+
 }

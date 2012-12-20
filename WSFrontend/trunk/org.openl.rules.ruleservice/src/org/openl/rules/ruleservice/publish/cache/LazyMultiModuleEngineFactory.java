@@ -50,7 +50,6 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private final Log log = LogFactory.getLog(LazyMultiModuleEngineFactory.class);
 
-    private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;
@@ -83,10 +82,6 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
     }
 
     
-    public LazyMultiModuleEngineFactory(Collection<Module> modules) {
-        super(RULES_XLS_OPENL_NAME);
-        this.modules = modules;
-    }
 
     public void setDependencyManager(IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
@@ -224,7 +219,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
         // put prebinder to openl
         prepareOpenL();
         IOpenSourceCodeModule mainModule = createMainModule();
-        SimpleEngineFactory factory = new SimpleEngineFactory(mainModule, AOpenLEngineFactory.DEFAULT_USER_HOME);//FIXME
+        SimpleEngineFactory factory = new SimpleEngineFactory(mainModule, AOpenLEngineFactory.DEFAULT_USER_HOME, getOpenlName() );//FIXME
         factory.setDependencyManager(dependencyManager);
         factory.setExecutionMode(true);
 

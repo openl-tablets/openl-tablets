@@ -65,11 +65,11 @@ public class RepositoryConfiguration {
     }
 
     public String getPath() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(getType()));
+        return configManager.getPath(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(getType()));
     }
 
     public void setPath(String path) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(getType()),
+        configManager.setPath(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(getType()),
                 StringUtils.trimToEmpty(path));
     }
 
