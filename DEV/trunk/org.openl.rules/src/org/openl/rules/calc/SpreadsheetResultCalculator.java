@@ -209,7 +209,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
 
     public void setFieldValue(String name, Object value) {
-        throw new UnsupportedOperationException("Should not be called in SpreadsheetResult");
+        targetModule.setFieldValue(name, value);
     }
 
     @Override

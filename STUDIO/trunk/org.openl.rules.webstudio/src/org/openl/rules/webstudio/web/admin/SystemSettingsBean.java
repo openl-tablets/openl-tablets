@@ -92,11 +92,11 @@ public class SystemSettingsBean {
     private DeploymentManager deploymentManager;
 
     public String getUserWorkspaceHome() {
-        return configManager.getStringProperty(USER_WORKSPACE_HOME);
+        return configManager.getPath(USER_WORKSPACE_HOME);
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
-        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
+        configManager.setPath(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -116,11 +116,11 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
+        return configManager.getPath(PROJECT_HISTORY_HOME);
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
-        configManager.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
+        configManager.setPath(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public String getDesignRepositoryType() {
@@ -143,33 +143,30 @@ public class SystemSettingsBean {
 
     public String getDesignRepositoryPath() {
         String type = getDesignRepositoryType();
-        return configManager.getStringProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        return configManager.getPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
 
     public void setDesignRepositoryPath(String path) {
         String type = getDesignRepositoryType();
-        configManager.setProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
+        configManager.setPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
     }
 
     public boolean isDesignRepositoryPathSystem() {
         String type = getDesignRepositoryType();
-        return configManager.isSystemProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        return configManager.isSystemProperty(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
-    
+
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
         if (productionRepositoryConfigurations.isEmpty()) {
             initProductionRepositoryConfigurations();
         }
-        
+
         return productionRepositoryConfigurations;
     }
 
     private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
-        
+
         String[] repositoryConfigNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
@@ -248,7 +245,7 @@ public class SystemSettingsBean {
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
-    
+
     public void setDeploymentManager(DeploymentManager deploymentManager) {
         this.deploymentManager = deploymentManager;
     }
@@ -261,22 +258,22 @@ public class SystemSettingsBean {
             String templateName = template.getName();
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
-            
+
             String templatePath = template.getPath();
             String[] paths = new String[productionRepositoryConfigurations.size()];
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 paths[i] = productionRepositoryConfigurations.get(i).getPath();
             }
-            
+
             String newNum = String.valueOf(maxNumber + 1);
             String newConfigName = getConfigName(templateName + newNum);
             RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
-            
+
             configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
-            
+
             productionRepositoryConfigurations.add(newConfig);
 //            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {

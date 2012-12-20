@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.File;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -45,7 +43,7 @@ public class InstallWizard {
     public InstallWizard() {
         appConfig = new ConfigurationManager(
                 false, System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
-        workingDir = normalizePath(appConfig.getStringProperty("webstudio.home"));
+        workingDir = appConfig.getPath("webstudio.home");
 
         dbMySqlConfig = new ConfigurationManager(
                 false, System.getProperty("webapp.root") + "/WEB-INF/conf/db-mysql.properties");
@@ -63,7 +61,7 @@ public class InstallWizard {
     public String next() {
         if (++step == 2) {
 
-            workingDir = normalizePath(workingDir);
+            workingDir = ConfigurationManager.normalizePath(workingDir);
 
             // Get defaults from 'system.properties'
             if (newWorkingDir || systemConfig == null) {
@@ -90,26 +88,12 @@ public class InstallWizard {
         return PAGE_PREFIX + step + PAGE_POSTFIX;
     }
 
-    private String normalizePath(String path) {
-        if (path == null)
-            return null;
-
-        File pathFile = new File(path);
-        if (!pathFile.isAbsolute()) {
-            if (!path.startsWith("/") && !path.startsWith("\\")) {
-                pathFile = new File(File.separator + path);
-            }
-        }
-
-        return pathFile.getAbsolutePath();
-    }
-
     public String finish() {
         try {
             systemConfig.setProperty("user.mode", userMode);
             systemConfig.save();
 
-            appConfig.setProperty("webstudio.home", workingDir);
+            appConfig.setPath("webstudio.home", workingDir);
             appConfig.setProperty("webstudio.configured", true);
             appConfig.save();
             System.setProperty("webstudio.home", workingDir);
@@ -158,7 +142,7 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-        String normWorkingDir = normalizePath(workingDir);
+        String normWorkingDir = ConfigurationManager.normalizePath(workingDir);
         newWorkingDir = !normWorkingDir.equals(this.workingDir);
         this.workingDir = normWorkingDir;
     }
