@@ -9,6 +9,8 @@ import java.util.zip.ZipException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
@@ -113,13 +115,13 @@ public class ProjectUploader {
                 File projectFile = FileTool.toTempFile(uploadedFile.getInputStream(), fileName);
                 projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
             } else if (FileTypeHelper.isExcelFile(fileName)) {
-                projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
-                        uploadedFile.getInputStream(), fileName);
+                projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace,
+                        new ProjectFile(fileName, uploadedFile.getInputStream(), uploadedFile.getSize()));
             }
         }        
         return projectCreator;
     }
-    
+
     private AProjectCreator getProjectCreator(List<UploadedFile> uploadedFiles) throws IOException, FileNotFoundException {
         AProjectCreator projectCreator = null;
 
@@ -130,8 +132,13 @@ public class ProjectUploader {
                 File projectFile = FileTool.toTempFile(getLastElement().getInputStream(), file);
                 projectCreator = new ZipFileProjectCreator(projectFile, projectName, userWorkspace, zipFilter);
             } else {
-                projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace,
-                        uploadedFiles);
+                List<ProjectFile> projectFiles = new ArrayList<ProjectFile>();
+                for (UploadedFile uploadedFile : uploadedFiles) {
+                    projectFiles.add(new ProjectFile(
+                            uploadedFile.getName(), uploadedFile.getInputStream(), uploadedFile.getSize()));
+                }
+                projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace,
+                        projectFiles.toArray(new ProjectFile[uploadedFiles.size()]));
             }
 
         }

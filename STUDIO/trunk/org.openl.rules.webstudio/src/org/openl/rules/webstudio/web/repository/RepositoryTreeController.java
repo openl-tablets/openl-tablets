@@ -28,9 +28,10 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -44,7 +45,8 @@ import org.richfaces.model.UploadedFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -70,7 +72,10 @@ import javax.servlet.http.HttpServletResponse;
 @ManagedBean
 @ViewScoped
 public class RepositoryTreeController {
+
     private static final Date SPECIAL_DATE = new Date(0);
+    private static final String TEMPLATES_PATH = String.format("org%1$sopenl%1$srules%1$sdemo%1$s", File.separator);
+
     private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
     @ManagedProperty(value="#{repositoryTreeState}")
@@ -89,7 +94,6 @@ public class RepositoryTreeController {
 
     private String projectName;
     private String newProjectTemplate;
-    private String[] projectTemplates = { "SampleTemplate.xls" };
     private String folderName;
     private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
     private String fileName;
@@ -338,15 +342,15 @@ public class RepositoryTreeController {
             return msg;
         }
 
-        InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
-        String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
-        if (sampleRulesSource == null) {
+        ProjectFile[] templateFiles = getProjectTemplateFiles(TEMPLATES_PATH + newProjectTemplate);
+        if (templateFiles.length <= 0) {
+            String errorMessage = String.format("Can`t load template files: %s", newProjectTemplate);
             FacesUtils.addErrorMessage(errorMessage);
             return null;
         }
 
-        String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
-        ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
+        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(
+                projectName, userWorkspace, templateFiles);
         String creationMessage = projectCreator.createRulesProject();
         if (creationMessage == null) {
             try {
@@ -1231,8 +1235,7 @@ public class RepositoryTreeController {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    String msg = "Failed to close content stream.";
-                    log.error(msg, e);
+                    log.error("Failed to close content stream.", e);
                 }
             }
         }
@@ -1246,10 +1249,34 @@ public class RepositoryTreeController {
         this.newProjectTemplate = newProjectTemplate;
     }
 
-    public SelectItem[] getNewProjectTemplates() {
-        return FacesUtils.createSelectItems(projectTemplates);
+    public String[] getProjectTemplates(String category) {
+        URL templatesUrl = this.getClass().getClassLoader().getResource(TEMPLATES_PATH + category);
+        try {
+            return new File(templatesUrl.toURI()).list();
+        } catch (URISyntaxException e) {
+            log.error("Failed to get project templates", e);
+        }
+        return new String[0];
     }
-    
+
+    private ProjectFile[] getProjectTemplateFiles(String url) {
+        List<ProjectFile> templateFiles = new ArrayList<ProjectFile>();
+
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        URL templateUrl = classLoader.getResource(url);
+        try {
+             String fileNames[] = new File(templateUrl.toURI()).list();
+             for (String fileName : fileNames) {
+                 templateFiles.add(new ProjectFile(
+                         fileName, classLoader.getResourceAsStream(url + File.separator + fileName)));
+             }
+        } catch (URISyntaxException e) {
+            log.error("Failed to get project template: " + url, e);
+        }
+
+        return templateFiles.toArray(new ProjectFile[0]);
+    }
+
     public boolean getCanDelete() {
         return isGranted(PRIVILEGE_DELETE_PROJECTS);
     }
