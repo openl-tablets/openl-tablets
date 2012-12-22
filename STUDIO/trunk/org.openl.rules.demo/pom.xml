@@ -17,8 +17,6 @@
     <description>OpenL Tablets Demo Projects</description>
     <url>http://openl-tablets.sf.net/</url>
 
-    <version>5.9.5-SNAPSHOT</version>
-
     <build>
         <resources>
             <resource>
