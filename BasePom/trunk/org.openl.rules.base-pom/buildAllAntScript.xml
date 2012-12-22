@@ -49,7 +49,7 @@
 	</target>	
 	
 	<target name="dev-pom">
-		<maven dir="../org.openl.rules.dev-pom">
+		<maven dir="../../../DEV/trunk/org.openl.rules.dev-pom">
 			<arg line="clean" />
 			<arg line="install" />
 		</maven>		
@@ -63,21 +63,21 @@
 	</target>	
 	
 	<target name="studio-pom">
-		<maven dir="../org.openl.rules.studio-pom">
+		<maven dir="../../../STUDIO/trunk/org.openl.rules.studio-pom">
 			<arg line="clean" />
 			<arg line="install" />
 		</maven>		
 	</target>	
 	
 	<target name="ruleservice-pom">
-		<maven dir="../org.openl.rules.ruleservice-pom">
+		<maven dir="../../../WSFrontend/trunk/org.openl.rules.ruleservice-pom">
 			<arg line="clean" />
 			<arg line="install" />
 		</maven>		
 	</target>	
 
 	<target name="eclipse-pom">
-		<maven dir="../org.openl.rules.eclipse-pom">
+		<maven dir="../../../ECLIPSE/trunk/org.openl.rules.eclipse-pom">
 			<arg line="-e" />
 			<arg line="clean" />
 			<arg line="install" />
@@ -93,7 +93,7 @@
 	</target>	
 	
 	
-	<target name="singleWorkspace" depends="poi-pom, base-pom, dev-pom, studio-pom,ruleservice-pom,eclipse-pom">
+	<target name="singleWorkspace" depends="base-pom, dev-pom, studio-pom,ruleservice-pom,eclipse-pom">
 	</target>
 
 
