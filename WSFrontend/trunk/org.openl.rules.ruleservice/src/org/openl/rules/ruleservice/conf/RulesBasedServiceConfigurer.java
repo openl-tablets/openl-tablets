@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.conf;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -16,6 +15,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.ServiceDescription.ServiceDescriptionBuilder;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -119,33 +119,33 @@ public abstract class RulesBasedServiceConfigurer implements ServiceConfigurer {
                 new IOpenClass[] { JavaOpenClass.getOpenClass(Deployment.class),
                         JavaOpenClass.getOpenClass(AProject.class), JavaOpenClass.getOpenClass(Module.class) });
         checkModulesGetter(serviceName, modulesGetter);
-        Collection<ModuleDescription> modulesToLoad = gatherModules(modulesGetter);
 
-        return new ServiceDescription.ServiceDescriptionBuilder().setName(serviceName).setUrl(serviceUrl)
-                .setServiceClassName(serviceClassName).setProvideRuntimeContext(provideRuntimeContext)
-                .setModules(modulesToLoad).build();
+        ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
+                .setName(serviceName).setUrl(serviceUrl).setServiceClassName(serviceClassName)
+                .setProvideRuntimeContext(provideRuntimeContext);
+        gatherModules(modulesGetter, serviceDescriptionBuilder);
+        return serviceDescriptionBuilder.build();
     }
 
-    private Collection<ModuleDescription> gatherModules(IOpenMethod modulesGetter) {
-        Collection<ModuleDescription> modulesForService = new HashSet<ModuleDescription>();
+    private void gatherModules(IOpenMethod modulesGetter, ServiceDescriptionBuilder serviceDescriptionBuilder) {
         for (Deployment deployment : getDeployments()) {
             for (AProject project : deployment.getProjects()) {
                 for (Module module : loader.get().resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName())) {
                     Object isSuitable = modulesGetter.invoke(rulesInstance,
                             new Object[] { deployment, project, module }, runtimeEnv);
+                    ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
+                        .setDeploymentName(deployment.getDeploymentName())
+                        .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
+                        .setProjectName(project.getName()).build();
+                    serviceDescriptionBuilder.addModule(moduleDescription);
                     if (isSuitable != null && (Boolean) isSuitable) {
-                        ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
-                                .setDeploymentName(deployment.getDeploymentName())
-                                .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
-                                .setProjectName(project.getName()).build();
-                        modulesForService.add(moduleDescription);
+                        serviceDescriptionBuilder.addModuleInService(moduleDescription);
                     }
-
                 }
             }
         }
-        return modulesForService;
+        return;
     }
 
     private void checkModulesGetter(String serviceName, IOpenMethod modulesGetter) {

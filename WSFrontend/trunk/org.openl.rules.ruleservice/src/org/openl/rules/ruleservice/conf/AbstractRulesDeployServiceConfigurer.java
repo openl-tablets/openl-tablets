@@ -59,23 +59,38 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
         return createServiceDescriptions(deployments, loader);
     }
 
-    private Collection<ServiceDescription> createServiceDescriptions(Collection<Deployment> latestDeployments,
+    private Collection<ServiceDescription> createServiceDescriptions(Collection<Deployment> deployments,
             RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
         Set<String> serviceURLs = new HashSet<String>();
-        for (Deployment deployment : latestDeployments) {
+        for (Deployment deployment : deployments) {
+            Set<ModuleDescription> modulesInDeployment = new HashSet<ModuleDescription>();
             for (AProject project : deployment.getProjects()) {
                 Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName());
-                ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
-                        .setProvideRuntimeContext(provideRuntimeContext).setProvideVariations(supportVariations);
 
                 for (Module module : modulesOfProject) {
                     ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
                             .setDeploymentName(deployment.getDeploymentName())
                             .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
                             .setProjectName(project.getName()).build();
-                    serviceDescriptionBuilder.addModule(moduleDescription);
+                    modulesInDeployment.add(moduleDescription);
+                }
+            }
+
+            for (AProject project : deployment.getProjects()) {
+                Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
+                        deployment.getCommonVersion(), project.getName());
+                ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
+                        .setProvideRuntimeContext(provideRuntimeContext).setProvideVariations(supportVariations)
+                        .setModules(modulesInDeployment);
+
+                for (Module module : modulesOfProject) {
+                    ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
+                        .setDeploymentName(deployment.getDeploymentName())
+                        .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
+                        .setProjectName(project.getName()).build();
+                    serviceDescriptionBuilder.addModuleInService(moduleDescription);
                 }
 
                 if (!modulesOfProject.isEmpty()) {
