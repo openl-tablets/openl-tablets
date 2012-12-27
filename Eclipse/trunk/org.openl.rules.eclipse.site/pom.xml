@@ -149,6 +149,11 @@
       <artifactId>org.openl.rules.project</artifactId>
     </dependency>
 
+    <dependency>
+       <groupId>org.openl.rules</groupId>
+       <artifactId>org.openl.rules.demo</artifactId>
+    </dependency>
+
     <!-- WSFrontend -->
     <dependency>
       <groupId>org.openl.rules</groupId>
@@ -362,6 +367,12 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.project</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.demo</artifactId>
       <classifier>sources</classifier>
     </dependency>
 
