@@ -3,6 +3,7 @@
  */
 package org.openl.binding;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -25,7 +26,7 @@ public class TestDependencies extends TestCase {
 
     private static final String FILE_NAME = "org/openl/binding/TestBinding.xls";
 
-    public void testDependencies() {
+    public void testDependencies() throws URISyntaxException {
 
         XlsModuleOpenClass xmo = _createModule();
 
@@ -58,7 +59,7 @@ public class TestDependencies extends TestCase {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
         
-        Object res = Tools.run(url.getPath(), "hello1", new Object[] { new Integer(23) });
+        Object res = Tools.run(url.toURI().getPath(), "hello1", new Object[] { new Integer(23) });
         System.out.println(res);
 
         ITracerObject[] tt = t.getTracerObjects();
@@ -85,9 +86,9 @@ public class TestDependencies extends TestCase {
         }
     }
 
-    private XlsModuleOpenClass _createModule() {
+    private XlsModuleOpenClass _createModule() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        return Tools.createModule(url.getPath());
+        return Tools.createModule(url.toURI().getPath());
     }
 }

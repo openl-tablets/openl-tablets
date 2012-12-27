@@ -198,7 +198,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
 
         // obtain real path to repository configuration file
         URL url = this.getClass().getResource(repConf);
-        String fullPath = url.getFile();
+        String fullPath = url.toURI().getPath();
 
         repository = new TransientRepository(fullPath, TEST_FOLDER);
 
