@@ -63,6 +63,7 @@ public class RESTfulServicesExposingTest {
                 .setServiceClassName("org.openl.rules.tutorial4.Tutorial4Interface")
                 .setProvideRuntimeContext(false)
                 .setModules(moduleConfigurations)
+                .setModulesInService(moduleConfigurations)
                 .build();
         }
 

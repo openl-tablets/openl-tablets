@@ -42,6 +42,7 @@ public class CompileAllModulesConfigurer implements ServiceConfigurer {
             .setServiceClassName(TestServiceClass.class.getName())
             .setProvideRuntimeContext(true)
             .setModules(modules)
+            .setModulesInService(modules)
             .build());
     }
 }

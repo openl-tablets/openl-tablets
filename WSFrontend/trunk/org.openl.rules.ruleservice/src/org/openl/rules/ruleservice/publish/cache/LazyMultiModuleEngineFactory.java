@@ -20,6 +20,7 @@ import org.openl.message.OpenLMessages;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.DeploymentRelatedInfo;
 import org.openl.rules.runtime.BaseRulesFactory;
 import org.openl.rules.runtime.IRulesFactory;
 import org.openl.rules.runtime.SimpleEngineFactory;
@@ -172,6 +173,24 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     /*package*/ Module getModuleForMember(IOpenMember member){
         String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
+        Module module = getModuleForSourceUrl(sourceUrl, modules);
+        if (module != null) {
+            return module;
+        }
+
+        DeploymentRelatedInfo deploymentRelatedInfo = DeploymentRelatedInfo.getCurrent();
+
+        if (deploymentRelatedInfo != null) {
+            module = getModuleForSourceUrl(sourceUrl, deploymentRelatedInfo.getModulesInDeployment());
+            if (module != null) {
+                return module;
+            }
+        }
+
+        throw new RuntimeException("Module not found");
+    }
+    
+    private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
         for (Module module : modules) {
             String modulePath = module.getRulesRootPath().getPath();
             try {
@@ -186,7 +205,8 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
                 log.warn("Failed to build url of module '" + module.getName() + "' with path: " + modulePath, e);
             }
         }
-        throw new RuntimeException("Module not found");
+
+        return null;
     }
     
     private LazyMethod makeLazyMethod(IOpenMethod method) {
@@ -217,18 +237,20 @@ public class LazyMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private CompiledOpenClass initializeOpenClass() {
         // put prebinder to openl
-        prepareOpenL();
-        IOpenSourceCodeModule mainModule = createMainModule();
-        SimpleEngineFactory factory = new SimpleEngineFactory(mainModule, AOpenLEngineFactory.DEFAULT_USER_HOME, getOpenlName() );//FIXME
-        factory.setDependencyManager(dependencyManager);
-        factory.setExecutionMode(true);
-
-        CompiledOpenClass result = factory.getCompiledOpenClass();
-        
-        postProcess(result.getOpenClassWithErrors());
-        
-        restoreOpenL();
-        return result;
+        try {
+            prepareOpenL();
+            IOpenSourceCodeModule mainModule = createMainModule();
+            SimpleEngineFactory factory = new SimpleEngineFactory(mainModule, AOpenLEngineFactory.DEFAULT_USER_HOME, getOpenlName() );//FIXME
+            factory.setDependencyManager(dependencyManager);
+            factory.setExecutionMode(true);
+    
+            CompiledOpenClass result = factory.getCompiledOpenClass();
+            
+            postProcess(result.getOpenClassWithErrors());
+            return result;
+        } finally {
+            restoreOpenL();
+        }
     }
 
     private void postProcess(IOpenClass openClass) {
