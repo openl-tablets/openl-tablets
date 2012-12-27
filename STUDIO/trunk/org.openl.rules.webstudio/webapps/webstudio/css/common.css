@@ -233,6 +233,17 @@ fieldset {
     background: #fafafa;
 }
 
+.table-over tr:hover td {
+    background: #f7f7f7;
+    cursor: pointer;
+}
+
+.table .row-selected {
+    background: #59c !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
 .badge {
     background: #999;
     border-radius: 1px;

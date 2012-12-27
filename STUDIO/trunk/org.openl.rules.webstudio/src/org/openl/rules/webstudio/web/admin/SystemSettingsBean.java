@@ -427,7 +427,7 @@ public class SystemSettingsBean {
     }
     
     private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName, String prefix, String suffix) {
-        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName.toLowerCase() + "\\E\\d+\\Q" + suffix + "\\E");
+        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName + "\\E\\d+\\Q" + suffix + "\\E", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         
         int startPosition = (prefix + templateName).length();
         int suffixLength = suffix.length();
