@@ -1,5 +1,6 @@
 package com.exigen.srp.idat;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -14,10 +15,10 @@ import org.openl.source.impl.FileSourceCodeModule;
 
 public class WordTest extends TestCase {
 
-    public void testWordDocumentParser() {
+    public void testWordDocumentParser() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource("com/exigen/srp/idat/testAbc.doc");
-        WordDocSourceCodeModule wdSrc = new WordDocSourceCodeModule(new FileSourceCodeModule(url.getPath(), null));
+        WordDocSourceCodeModule wdSrc = new WordDocSourceCodeModule(new FileSourceCodeModule(url.toURI().getPath(), null));
 
         WordDocIndexParser wp = new WordDocIndexParser();
         

@@ -3,6 +3,7 @@
  */
 package org.openl.rules.table;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -23,12 +24,12 @@ import org.openl.types.IOpenClass;
  */
 public class TestMetaInfo extends TestCase {
 
-    public void testMeta() {
+    public void testMeta() throws URISyntaxException {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestMeta.xls");
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
 
-        FileSourceCodeModule src = new FileSourceCodeModule(url.getPath(), null);
+        FileSourceCodeModule src = new FileSourceCodeModule(url.toURI().getPath(), null);
         XlsModuleOpenClass module = (XlsModuleOpenClass) OpenLManager.compileModule(openl, src);
 
         TableSyntaxNode[] nodes = nodes(module);

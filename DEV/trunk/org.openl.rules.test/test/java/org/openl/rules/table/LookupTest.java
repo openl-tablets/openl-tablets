@@ -18,7 +18,7 @@ public class LookupTest extends TestCase {
 
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
 
-        FileSourceCodeModule source = new FileSourceCodeModule(url.getPath(), null);
+        FileSourceCodeModule source = new FileSourceCodeModule(url.toURI().getPath(), null);
         XlsWorkbookSourceCodeModule wbsrc = new XlsWorkbookSourceCodeModule(source);
         Workbook wb = wbsrc.getWorkbook();
 
