@@ -25,7 +25,7 @@ import com.thoughtworks.xstream.XStreamException;
 @ViewScoped
 public class RepositoryProjectRulesDeployConfig {
 
-    private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules_deploy.xml";
+    private static final String RULES_DEPLOY_CONFIGURATION_FILE = "rules-deploy.xml";
     private final Log log = LogFactory.getLog(RepositoryProjectRulesDeployConfig.class);
 
     @ManagedProperty(value = "#{repositoryTreeState}")
