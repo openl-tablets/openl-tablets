@@ -89,7 +89,7 @@ public class DecisionTableBuilder implements Builder<IWritableGrid>{
      */
     public IWritableGrid build(IWritableGrid sheet, int rulesNumber) {        
         setSheetWithTable(sheet);
-    	setRulesNumber(rulesNumber);
+        setRulesNumber(rulesNumber);
                 
         build();
         return getSheetWithTable();

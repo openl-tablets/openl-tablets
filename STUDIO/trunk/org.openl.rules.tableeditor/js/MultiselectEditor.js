@@ -27,7 +27,6 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         this.multiselectPanel.className = "multiselect_container_outer";
 
         // Creating buttons
-
         var buttonContainer = new Element("div");
         buttonContainer.className = "multiselect_buttons";
 

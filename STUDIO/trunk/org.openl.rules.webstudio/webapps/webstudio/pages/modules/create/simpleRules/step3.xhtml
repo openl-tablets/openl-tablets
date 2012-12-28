@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="/pages/modules/create/selectSheet.xhtml">
+        <ui:define name="controlButtons">
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('simpleRules/step2.xhtml')" />
+            <a4j:commandButton value="Save" action="#{wizard.finish}" data="#{wizard.newTableUri}"
+                oncomplete="if(event.data) goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
+            <a4j:commandButton value="Cancel" immediate="true"
+                onclick="#{rich:component('modalSelectSheet')}.hide();"/>
+        </ui:define>
+</ui:composition>
