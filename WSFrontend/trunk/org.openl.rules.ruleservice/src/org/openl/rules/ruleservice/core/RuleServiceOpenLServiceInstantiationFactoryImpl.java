@@ -1,14 +1,20 @@
 package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.rules.project.dependencies.CompositeRulesProjectDependencyManager;
+import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationsEnhancer;
 import org.openl.rules.project.model.Module;
@@ -33,11 +39,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private RuleServiceInstantiationStrategyFactory instantiationStrategyFactory = new RuleServiceInstantiationStrategyFactoryImpl();
 
-    private IDependencyManager dependencyManager;
+    private IDependencyManager externalDependencyManager;
     
     private Map<String, Object> externalParameters;
-
-    private void initService(OpenLService service) throws RulesInstantiationException, ClassNotFoundException {
+    private void initService(IDependencyManager dependencyManager, OpenLService service) throws RulesInstantiationException, ClassNotFoundException {
         if (service == null) {
             throw new IllegalArgumentException("service argument can't be null");
         }
@@ -120,21 +125,25 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     /** {@inheritDoc} */
     public OpenLService createService(ServiceDescription serviceDescription)
             throws RuleServiceInstantiationException {
-        Collection<Module> modules = ruleServiceLoader.getModulesByServiceDescription(serviceDescription);
+        DeploymentRelatedInfo info = getDeploymentRelatedInfo(serviceDescription);
+        DeploymentRelatedInfo.setCurrent(info);
+
         OpenLService openLService = new OpenLService(serviceDescription.getName(),
             serviceDescription.getUrl(),
             serviceDescription.getServiceClassName(),
             serviceDescription.isProvideRuntimeContext(),
             serviceDescription.isProvideVariations(),
-            modules);
+            getModulesInService(serviceDescription, info.getModulesInDeployment()));
         try {
-            initService(openLService);
+            initService(info.getDependencyManager(), openLService);
         } catch (Exception e) {
             if (log.isWarnEnabled()) {
                 log.warn("Failed to initialiaze service " + openLService.getName(), e);
             }
             throw new RuleServiceInstantiationException(String.format(
                     "Failed to initialiaze OpenL service \"%s\"", openLService.getName()), e);
+        } finally {
+            DeploymentRelatedInfo.removeCurrent();
         }
 
         if (log.isInfoEnabled()) {
@@ -155,7 +164,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         OpenLService openLService = new OpenLService(serviceName, url, serviceClassName, isProvideRuntimeContext,
                 isProvideVariations, modules);
         try {
-            initService(openLService);
+            initService(externalDependencyManager, openLService);
         } catch (Exception e) {
             if (log.isWarnEnabled()) {
                 log.warn("Failed to initialiaze service " + openLService.getName(), e);
@@ -182,11 +191,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     public IDependencyManager getDependencyManager() {
-        return dependencyManager;
+        return externalDependencyManager;
     }
 
     public void setDependencyManager(IDependencyManager dependencyManager) {
-        this.dependencyManager = dependencyManager;
+        this.externalDependencyManager = dependencyManager;
     }
 
     public RuleServiceInstantiationStrategyFactory getInstantiationStrategyFactory() {
@@ -207,6 +216,57 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     public void setExternalParameters(Map<String, Object> externalParameters) {
         this.externalParameters = externalParameters;
     }
-
     
+    public DeploymentRelatedInfo getDeploymentRelatedInfo(ServiceDescription serviceDescription) {
+        DeploymentDescription deployment = serviceDescription.getDeployment();
+
+        DeploymentRelatedInfoCache cache = DeploymentRelatedInfoCache.getInstance();
+        DeploymentRelatedInfo info = cache.getDeploymentRelatedInfo(deployment);
+        if (info == null) {
+            Collection<Module> modulesInDeployment = ruleServiceLoader.getModulesByServiceDescription(serviceDescription);
+            IDependencyManager dependencyManager = getDependencyManager(serviceDescription, modulesInDeployment);
+            info = new DeploymentRelatedInfo(deployment, dependencyManager, modulesInDeployment);
+            cache.putDeploymentRelatedInfo(deployment, info);
+        }
+        return info;
+    }
+
+    private IDependencyManager getDependencyManager(ServiceDescription serviceDescription, Collection<Module> modulesInDeployment) {
+        if (!isMultiModule(serviceDescription)) {
+            return externalDependencyManager;
+        }
+
+        CompositeRulesProjectDependencyManager multiModuleDependencyManager = new CompositeRulesProjectDependencyManager();
+        // multimodule is only available for execution(execution mode == true)
+        multiModuleDependencyManager.setExecutionMode(true);
+
+        if (externalDependencyManager != null) {
+            multiModuleDependencyManager.addDependencyManager(externalDependencyManager);
+        }
+
+        IDependencyLoader loader = new RulesModuleDependencyLoader(modulesInDeployment);
+        multiModuleDependencyManager.setDependencyLoaders(Arrays.asList(loader));
+
+        multiModuleDependencyManager.setExternalParameters(externalParameters);
+
+
+        return multiModuleDependencyManager;
+    }
+
+    private boolean isMultiModule(ServiceDescription serviceDescription) {
+        return serviceDescription.getModules().size() > 1;
+    }
+
+    private Collection<Module> getModulesInService(ServiceDescription serviceDescription, Collection<Module> modulesInDeployment) {
+        List<Module> modulesInService = new ArrayList<Module>();
+        for (ModuleDescription moduleDescription : serviceDescription.getModulesInService()) {
+            for (Module module : modulesInDeployment) {
+                if (module.getName().equals(moduleDescription.getModuleName())) {
+                    modulesInService.add(module);
+                }
+            }
+        }
+
+        return modulesInService;
+    }
 }

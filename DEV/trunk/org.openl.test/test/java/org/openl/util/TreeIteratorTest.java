@@ -189,7 +189,7 @@ public class TreeIteratorTest extends TestCase {
     public void testZip() throws Exception {
 
         URL url = this.getClass().getClassLoader().getResource("org/openl/util/util.zip");
-        ZipFile zip = new ZipFile(url.getPath());
+        ZipFile zip = new ZipFile(url.toURI().getPath());
 
         IOpenIterator it = OpenIterator.fromEnumeration(zip.entries());
 
