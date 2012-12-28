@@ -22,6 +22,8 @@
                     <f:selectItem itemValue="DATA" itemLabel="Data Table" />
                     <f:selectItem itemValue="TEST" itemLabel="Test Table" />
                     <f:selectItem itemValue="PROPERTY" itemLabel="Properties Table" />
+                    
+                    <f:selectItem itemValue="SIMPLERULES" itemLabel="Simple Rules Table" />
                 </h:selectOneRadio>
             </div>
 
@@ -47,6 +49,9 @@
                             break;
                         case "PROPERTY":
                             pageAlias = "property";
+                            break;
+                        case "SIMPLERULES":
+                            pageAlias = "simpleRules";
                             break;
                     }
                 }

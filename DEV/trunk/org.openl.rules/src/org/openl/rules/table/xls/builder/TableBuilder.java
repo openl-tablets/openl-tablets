@@ -266,6 +266,12 @@ public class TableBuilder {
      */
     private CellStyle getDateCellStyle(Cell cell) {
         CellStyle previousStyle = cell.getCellStyle();
+        
+        previousStyle.setBorderBottom(ICellStyle.BORDER_THIN);
+        previousStyle.setBorderTop(ICellStyle.BORDER_THIN);
+        previousStyle.setBorderLeft(ICellStyle.BORDER_THIN);
+        previousStyle.setBorderRight(ICellStyle.BORDER_THIN);
+        
         cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle().setDataFormat((short) BuiltinFormats
