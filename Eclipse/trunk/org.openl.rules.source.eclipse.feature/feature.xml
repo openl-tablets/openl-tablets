@@ -81,6 +81,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.demo"
+         download-size="0"
+         install-size="0"
+         version="5.9.5"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.tableeditor.source"
          download-size="0"
          install-size="0"

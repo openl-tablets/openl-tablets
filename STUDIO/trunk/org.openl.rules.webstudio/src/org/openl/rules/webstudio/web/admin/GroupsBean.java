@@ -230,9 +230,10 @@ public class GroupsBean {
     }
 
     public boolean isOnlyAdmin(Object objGroup) {
+        String adminPrivilege = DefaultPrivileges.PRIVILEGE_ADMINISTRATE.name();
         String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
-        return ((Group) objGroup).hasPrivilege(allPrivileges)
-                && groupManagementService.getGroupsByPrivilege(allPrivileges).size() == 1;
+        return (((Group) objGroup).hasPrivilege(adminPrivilege) || ((Group) objGroup).hasPrivilege(allPrivileges))
+                && groupManagementService.getGroupsByPrivilege(adminPrivilege).size() == 1;
     }
 
     public void deleteGroup(String name) {

@@ -16,6 +16,8 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
+import org.apache.poi.hssf.usermodel.HSSFOptimiser;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -32,6 +34,9 @@ public class TableBuilder {
 
     public static final String TABLE_PROPERTIES = "properties";
     public static final String TABLE_PROPERTIES_NAME = "name";
+    
+    /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
+    private static final int MAX_STYLES = 4030;
 
     public static final int HEADER_HEIGHT = 1;
     public static final int PROPERTIES_MIN_WIDTH = 3;
@@ -292,6 +297,9 @@ public class TableBuilder {
                 style2style.put(cellStyle, style);
             } else {
                 Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+                if (workbook.getNumCellStyles() == MAX_STYLES){
+                    HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) workbook);
+                }
                 style = workbook.createCellStyle();
                 try {
                     style.cloneStyleFrom(cellStyle);                    

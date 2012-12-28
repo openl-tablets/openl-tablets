@@ -128,7 +128,9 @@ public class WebServicesExposingTest implements ApplicationContextAware {
             moduleBuilder.setModuleName("Tutorial 4 - UServ Product Derby");
             moduleBuilder.setProjectName(deploymentName);
 
-            builder.addModule(moduleBuilder.build());
+            ModuleDescription module = moduleBuilder.build();
+            builder.addModule(module);
+            builder.addModuleInService(module);
 
             return builder.build();
         }
@@ -140,22 +142,34 @@ public class WebServicesExposingTest implements ApplicationContextAware {
             builder.setUrl(MULTIMODULE_SERVICE_URL).setName("multimodule").setProvideRuntimeContext(false)
                     .setServiceClassName(null);
 
+            ModuleDescription module;
+
             ModuleDescription.ModuleDescriptionBuilder moduleBuilder = new ModuleDescription.ModuleDescriptionBuilder()
                     .setDeploymentName(domainDeploymentName)
                     .setDeploymentVersion(getLastVersion(loader, domainDeploymentName))
                     .setProjectName(domainDeploymentName).setModuleName("Domain");
 
-            builder.addModule(moduleBuilder.build());
+            module = moduleBuilder.build();
+            builder.addModule(module);
+            builder.addModuleInService(module);
 
             moduleBuilder.setDeploymentName(multiModuleDeploymentName).setDeploymentVersion(
                     getLastVersion(loader, multiModuleDeploymentName));
 
             moduleBuilder.setProjectName("project1").setModuleName("Module1_1");
-            builder.addModule(moduleBuilder.build());
+            module = moduleBuilder.build();
+            builder.addModule(module);
+            builder.addModuleInService(module);
+            
             moduleBuilder.setProjectName("project2").setModuleName("Module2_1");
-            builder.addModule(moduleBuilder.build());
+            module = moduleBuilder.build();
+            builder.addModule(module);
+            builder.addModuleInService(module);
+            
             moduleBuilder.setProjectName("project3").setModuleName("Module3_1");
-            builder.addModule(moduleBuilder.build());
+            module = moduleBuilder.build();
+            builder.addModule(module);
+            builder.addModuleInService(module);
 
             return builder.build();
         }

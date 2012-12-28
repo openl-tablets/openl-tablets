@@ -8,6 +8,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
+import org.openl.rules.ruleservice.core.DeploymentRelatedInfoCache;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -96,10 +97,15 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     private void processServices() {
-        Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
-        undeployUnnecessary(newServices);
-        redeployExisitng(newServices);
-        deployNewServices(newServices);
+        try {
+            DeploymentRelatedInfoCache.setInstance(new DeploymentRelatedInfoCache());
+            Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
+            undeployUnnecessary(newServices);
+            redeployExisitng(newServices);
+            deployNewServices(newServices);
+        } finally {
+            DeploymentRelatedInfoCache.removeInstance();
+        }
     }
 
     @SuppressWarnings("unchecked")
