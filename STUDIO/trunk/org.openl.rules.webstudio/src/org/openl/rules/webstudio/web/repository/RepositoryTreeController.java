@@ -1250,10 +1250,10 @@ public class RepositoryTreeController {
     }
 
     public String[] getProjectTemplates(String category) {
-        URL templatesUrl = this.getClass().getClassLoader().getResource(TEMPLATES_PATH + category);
+        URL templatesUrl = this.getClass().getClassLoader().getResource(TEMPLATES_PATH + category + 1);
         try {
             return new File(templatesUrl.toURI()).list();
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             log.error("Failed to get project templates", e);
         }
         return new String[0];
