@@ -15,5 +15,5 @@ Require-Bundle: org.junit;visibility:=reexport,
  org.openl.rules.tableeditor;visibility:=reexport,
  org.openl.rules.diff,
  org.openl.rules.repository.jcr.jackrabbit;visibility:=reexport,
- org.openl.rules.demo,
+ org.openl.rules.demo;visibility:=reexport,
  org.openl.rules.project;visibility:=reexport
