@@ -74,7 +74,7 @@ import javax.servlet.http.HttpServletResponse;
 public class RepositoryTreeController {
 
     private static final Date SPECIAL_DATE = new Date(0);
-    private static final String TEMPLATES_PATH = String.format("org%1$sopenl%1$srules%1$sdemo%1$s", File.separator);
+    private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
 
     private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
@@ -1250,10 +1250,12 @@ public class RepositoryTreeController {
     }
 
     public String[] getProjectTemplates(String category) {
+        System.out.println(TEMPLATES_PATH + category);
         URL templatesUrl = this.getClass().getClassLoader().getResource(TEMPLATES_PATH + category);
+        System.out.println(templatesUrl);
         try {
             return new File(templatesUrl.toURI()).list();
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             log.error("Failed to get project templates", e);
         }
         return new String[0];
