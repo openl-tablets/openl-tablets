@@ -173,7 +173,7 @@ var tableModel = {
         list = this.header.inParam;
         this.header.inParam = [];
         var set = false;
-        var newParam = new Param('null', 'null', 'false', 'condition',"STRING");
+        var newParam = new Param('null', 'null', false, 'condition',"STRING");
 
         for (i = 0; i < list.length; i++) {
             if (i == id) {
@@ -196,8 +196,7 @@ var tableModel = {
 
         for(i = 0; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
-            var cell = new Cell("empty");
-            cell.valueType = newParam.valuesType;
+            var cell = new Cell("empty", newParam.valuesType, newParam.iterable);
 
             row.splice(id, 0, cell);
         }
@@ -260,7 +259,7 @@ var tableModel = {
     changeColumnValueType : function(columnId, valuesType) {
         for(i = 1; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
-            
+
             if(columnId > -1) {
                 row[columnId].valueType = valuesType;
             } else {
