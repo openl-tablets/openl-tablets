@@ -41,12 +41,13 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -1250,33 +1251,52 @@ public class RepositoryTreeController {
     }
 
     public String[] getProjectTemplates(String category) {
-        System.out.println(TEMPLATES_PATH + category);
-        URL templatesUrl = this.getClass().getClassLoader().getResource(TEMPLATES_PATH + category);
-        System.out.println(templatesUrl);
+        List<String> templateNames = new ArrayList<String>();
+        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+        Resource[] templates = null;
+
         try {
-            return new File(templatesUrl.toURI()).list();
+            // JAR file
+            templates = resourceResolver.getResources(TEMPLATES_PATH + category + "/*/");
+            if (templates.length == 0) {
+                // File System
+                templates = resourceResolver.getResources(TEMPLATES_PATH + category + "/*");
+            }
+
+            for (Resource resource : templates) {
+                if (resource.getURL().getProtocol().equals("jar")) {
+                    // JAR file
+                    String templateUrl = resource.getURL().getPath();
+                    String[] templateParsed = templateUrl.split("/");
+                    templateNames.add(templateParsed[templateParsed.length - 1]);
+                } else {
+                    // File System
+                    templateNames.add(resource.getFilename());
+                }
+            }
+
         } catch (Exception e) {
             log.error("Failed to get project templates", e);
         }
-        return new String[0];
+
+        return templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[0]);
     }
 
     private ProjectFile[] getProjectTemplateFiles(String url) {
         List<ProjectFile> templateFiles = new ArrayList<ProjectFile>();
+        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        URL templateUrl = classLoader.getResource(url);
         try {
-             String fileNames[] = new File(templateUrl.toURI()).list();
-             for (String fileName : fileNames) {
-                 templateFiles.add(new ProjectFile(
-                         fileName, classLoader.getResourceAsStream(url + File.separator + fileName)));
-             }
-        } catch (URISyntaxException e) {
+            Resource[] templates = resourceResolver.getResources(url + "/*");
+            for (Resource resource : templates) {
+                templateFiles.add(new ProjectFile(
+                        resource.getFilename(), resource.getInputStream()));
+            }
+        } catch (Exception e) {
             log.error("Failed to get project template: " + url, e);
         }
 
-        return templateFiles.toArray(new ProjectFile[0]);
+        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[0]);
     }
 
     public boolean getCanDelete() {
