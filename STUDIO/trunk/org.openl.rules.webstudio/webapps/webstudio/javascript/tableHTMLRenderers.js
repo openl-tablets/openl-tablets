@@ -28,7 +28,12 @@ verticalRenderer = {
         this.setDefaultStyle(obj);
         obj.style.backgroundColor="#FFFF99";
     },
-    
+
+    setPropValueStyle : function(obj) {
+        this.setDefaultStyle(obj);
+        obj.style.textAlign="left";
+    },
+
     setReturnStyle : function(obj) {
         this.setDefaultStyle(obj);
         obj.style.backgroundColor="#FFCC99";
@@ -160,7 +165,7 @@ verticalRenderer = {
             typeCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
 
             valueCell = row.insertCell(-1);
-            this.setDefaultStyle(valueCell);
+            this.setPropValueStyle(valueCell);
             valueCell.innerHTML = this.getCellHtml(properties[i].value, "PROPERTY_VALUE", valueCell);
             valueCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
             valueCell.props = properties[i];
