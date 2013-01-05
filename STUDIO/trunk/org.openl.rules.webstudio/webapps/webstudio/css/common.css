@@ -512,6 +512,17 @@ form.standard table.buttonPanel {
      background: rgba(220, 220, 220, 0.1);
 }
 
+.view-header-link {
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+}
+
+.view-header-link-inactive {
+    color: #777;
+    border-bottom: 1px dashed #ccc;
+}
+
 .view_toolbar {
     height: 34px;
 }

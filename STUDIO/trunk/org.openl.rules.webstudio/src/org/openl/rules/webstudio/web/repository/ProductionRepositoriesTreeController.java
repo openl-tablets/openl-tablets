@@ -52,15 +52,12 @@ public class ProductionRepositoriesTreeController {
         return null;
     }
 
-    public void tabChange(ItemChangeEvent event) {
-        String newTab = event.getNewItemName();
-
-        if (newTab.endsWith("Production")) {
+    public void tabChange(String repo) {
+        if (repo.equals("production")) {
             productionRepositoriesTreeState.initTree();
         }
-
     }
-    
+
     public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {
         return repositorySelectNodeStateHolder;
     }
