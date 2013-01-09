@@ -179,8 +179,8 @@ public abstract class WizardBase extends BaseWizardBean {
         boolean success = false;
         try {
             if (!wizardFinised) {
-                wizardFinised = true;
                 onFinish();
+                wizardFinised = true;
             }
             doSave();
             success = true;
