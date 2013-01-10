@@ -34,17 +34,25 @@
             <h3>Name and Properties</h3>
             <div>
                 <h:panelGroup id="technicalNamePanel">
-                    <h:panelGrid columns="3" style="background: #F1F1F1; padding: 3px 0; margin-bottom: 5px">
-                        <h:outputText value="Technical name" styleClass="required" />
-                        <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
-                            disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}" 
-                         	validator="#{wizard.validateTechnicalName}" immediate="true" />
-                        <a4j:outputPanel ajaxRendered="true">
-                            <h:message for="technicalName" styleClass="error" />
-                        </a4j:outputPanel>
-                    </h:panelGrid>
+                    <table style="background: #fafafa; padding: 3px 0; margin-bottom: 5px">
+                        <tr>
+                            <td style="min-width: 100px">
+                                <h:outputText value="Name" styleClass="required" />
+                            </td>
+                            <td>
+                                <h:inputText id="technicalName" value="#{wizard.tableTechnicalName}"
+                                    disabled="#{tableCopierWizardManager.copyType != 'CHANGE_NAMES'}" 
+                                    validator="#{wizard.validateTechnicalName}" immediate="true" />
+                            </td>
+                            <td>
+                                <a4j:outputPanel ajaxRendered="true">
+                                    <h:message for="technicalName" styleClass="error" />
+                                </a4j:outputPanel>
+                            </td>
+                        </tr>
+                    </table>
                     <a4j:outputPanel rendered="#{ (tableCopierWizardManager.copyType == 'CHANGE_VERSION' || tableCopierWizardManager.copyType == 'CHANGE_DIMENSION') and wizard.tableTechnicalName == ''}">
-                        <h:outputText value="Technical name isn't found in this table. Please, fix errors or select other type of copy." styleClass="error" />
+                        <h:outputText value="Name isn't found in this table. Please, fix errors or select other type of copy." styleClass="error" />
                     </a4j:outputPanel>
                 </h:panelGroup>
 
@@ -91,7 +99,7 @@
                         </a4j:repeat>
                     </table>
                 </h:panelGroup>
-                
+
 	            <a4j:commandButton value="Edit Properties" oncomplete="#{rich:component('newPropertyDlg')}.show();"
 	               style="margin-top: 8px" rendered="false" />
 
