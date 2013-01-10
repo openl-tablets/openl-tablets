@@ -149,10 +149,6 @@ public final class ServiceDescription {
         return deployment;
     }
 
-    public void setServiceClassName(String serviceClassName) {
-        this.serviceClassName = serviceClassName;
-    }
-
     /** {@inheritDoc} */
     public int hashCode() {
         final int prime = 31;
