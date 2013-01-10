@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ProjectException;
@@ -94,24 +95,16 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                 }
 
                 if (!modulesOfProject.isEmpty()) {
-                    String serviceName = String.format("%s_%s", deployment.getDeploymentName(), project.getName());
-                    String serviceUrl = String.format("%s/%s", deployment.getDeploymentName(), project.getName());
-                    serviceDescriptionBuilder.setName(serviceName).setUrl(serviceUrl);
                     InputStream content = null;
+                    RulesDeploy rulesDeploy = null;
                     try {
                         AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
                         if (artifact instanceof AProjectResource) {
                             AProjectResource resource = (AProjectResource) artifact;
                             content = resource.getContent();
-                            RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                            if (rulesDeploy.getServiceName() != null && !rulesDeploy.getServiceName().isEmpty()) {
-                                serviceDescriptionBuilder.setName(rulesDeploy.getServiceName());
-                            }
+                            rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             if (rulesDeploy.getServiceClass() != null && !rulesDeploy.getServiceClass().isEmpty()) {
                                 serviceDescriptionBuilder.setServiceClassName(rulesDeploy.getServiceClass());
-                            }
-                            if (rulesDeploy.getUrl() != null && !rulesDeploy.getUrl().isEmpty()) {
-                                serviceDescriptionBuilder.setUrl(rulesDeploy.getUrl());
                             }
                             if (rulesDeploy.isProvideRuntimeContext() != null) {
                                 serviceDescriptionBuilder.setProvideRuntimeContext(rulesDeploy
@@ -136,6 +129,9 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                             }
                         }
                     }
+                    boolean lastVersion = isLastVersion(deployments, deployment);
+                    serviceDescriptionBuilder.setName(getServiceName(deployment, project, rulesDeploy, lastVersion));
+                    serviceDescriptionBuilder.setUrl(getServiceUrl(deployment, project, rulesDeploy, lastVersion));
 
                     ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
                     if (!serviceDescriptions.contains(serviceDescription)
@@ -178,5 +174,46 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
 
     public void setSupportVariations(boolean supportVariations) {
         this.supportVariations = supportVariations;
+    }
+    
+    private String getServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy, boolean lastVersion) {
+        if (lastVersion) {
+            if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getServiceName())) {
+                return rulesDeploy.getServiceName();
+            } else {
+                return String.format("%s_%s", deployment.getDeploymentName(), project.getName());
+            }
+        }
+
+        // Old version of deployment
+        return String.format("%s_%s_%s", deployment.getDeploymentName(), project.getName(), deployment
+                .getCommonVersion().getVersionName());
+    }
+
+    private  String getServiceUrl(Deployment deployment, AProject project, RulesDeploy rulesDeploy, boolean lastVersion) {
+        if (lastVersion) {
+            if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getUrl())) {
+                return rulesDeploy.getUrl();
+            } else {
+                return String.format("%s/%s", deployment.getDeploymentName(), project.getName());
+            }
+        }
+
+        // Old version of deployment
+        return String.format("%s/%s/%s", deployment.getDeploymentName(), project.getName(), deployment
+                .getCommonVersion().getVersionName());
+    }
+
+    private boolean isLastVersion(Collection<Deployment> allDeployments, Deployment deployment) {
+        for (Deployment d : allDeployments) {
+            if (!d.getDeploymentName().equals(deployment.getDeploymentName())) {
+                continue;
+            }
+            if (d.getCommonVersion().compareTo(deployment.getCommonVersion()) > 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
