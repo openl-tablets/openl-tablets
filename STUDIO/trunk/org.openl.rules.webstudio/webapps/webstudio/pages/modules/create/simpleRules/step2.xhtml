@@ -97,6 +97,8 @@
               }
 
               function setJSONTableString() {
+                  tableModel.renderer = null;
+
                   var jsonStr = JSON.stringify(tableModel);
                   document.getElementById("srtTableForm:tableString").value = jsonStr;
               }
@@ -106,7 +108,7 @@
             </script>
             <br/>
             <hr/>
-            <h:inputHidden id="tableString" ame="tableString" value="#{wizard.jsonTable}"/>
+            <h:inputHidden id="tableString" name="tableString" value="#{wizard.jsonTable}"/>
 
             <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
                 oncomplete="go('simpleRules/step1.xhtml')" />
