@@ -191,6 +191,31 @@ public class TablePropertiesBean {
         removeProperty(prop);
         propsToRemove.add(prop.getName());
     }
+    
+    public boolean isChanged() throws Exception {
+        if (propertyRows == null) {
+            return false;
+        }
+        for (PropertyRow row : propertyRows) {
+            if (row.getType().equals(PropertyRowType.PROPERTY)) {
+                TableProperty property = (TableProperty) row.getData();
+                String name = property.getName();
+                Object newValue = property.getValue();
+                Object oldValue = props.getPropertyValue(name);
+                boolean enumArray = property.isEnumArray();
+                if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
+                        || (!enumArray && ObjectUtils.notEqual(oldValue, newValue))
+                        || (!props.getAllProperties().containsKey(name))) {
+                    return true;
+                }
+            }
+        }
+        for (String propToRemove : propsToRemove) {
+            if (props.getAllProperties().containsKey(propToRemove))
+                return true;
+        }
+        return false;
+    }
 
     public void save() throws Exception {
         WebStudio studio = WebStudioUtils.getWebStudio();
