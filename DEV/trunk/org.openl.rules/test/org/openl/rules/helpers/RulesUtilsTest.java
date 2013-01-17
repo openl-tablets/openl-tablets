@@ -1,8 +1,11 @@
+
 package org.openl.rules.helpers;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -167,6 +170,119 @@ public class RulesUtilsTest {
     private boolean callOr(boolean... values) {
         return RulesUtils.anyTrue(values);
     }
+    /* Tests for testing isEmpty methods*/
+    @Test
+    public void testObjectEmptyArray() {
+    	Object[] array = null;
+    	assertTrue(RulesUtils.isEmpty(array));
+    	
+    	array = new Object[2];
+    	assertFalse(RulesUtils.isEmpty(array));
+    }
+    
+    
+    @Test
+    public void testByteEmptyArray() {
+    	byte[] array = null;
+    	assertTrue(RulesUtils.isEmpty(array));
+    	
+    	array = new byte[5];
+    	assertFalse(RulesUtils.isEmpty(array));
+    }
+    
+    @Test
+    public void testCharEmptyArray() {
+    	char[] array = null;
+    	assertTrue(RulesUtils.isEmpty(array));
+    	
+    	array = new char[5];
+    	assertFalse(RulesUtils.isEmpty(array));
+    }
+    
+    @Test
+    public void testShortEmptyArray() {
+    	short[] array = null;
+    	assertTrue(RulesUtils.isEmpty(array));
+    	
+    	array = new short[5];
+    	assertFalse(RulesUtils.isEmpty(array));
+    }
+
+    @Test
+    public void testIntEmptyArray() {
+    	int[] array = null;
+    	assertTrue(RulesUtils.isEmpty(array));
+    	
+    	array = new int[5];
+    	assertFalse(RulesUtils.isEmpty(array));
+    }
+    
+	@Test
+	public void testLongEmptyArray() {
+		long[] array = null;
+		assertTrue(RulesUtils.isEmpty(array));
+
+		array = new long[5];
+		assertFalse(RulesUtils.isEmpty(array));
+	}
+    
+	  @Test
+	    public void testFloatEmptyArray() {
+	    	float[] array = null;
+	    	assertTrue(RulesUtils.isEmpty(array));
+	    	
+	    	array = new float[5];
+	    	assertFalse(RulesUtils.isEmpty(array));
+	    }
+	  
+	  @Test
+	    public void testDoubleEmptyArray() {
+	    	double[] array = null;
+	    	assertTrue(RulesUtils.isEmpty(array));
+	    	
+	    	array = new double[5];
+	    	assertFalse(RulesUtils.isEmpty(array));
+	    }
+	  
+	  @Test
+	    public void testDateEmptyArray() {
+	    	Date[] array = null;
+	    	assertTrue(RulesUtils.isEmpty(array));
+	    	
+	    	array = new Date[5];
+	    	assertFalse(RulesUtils.isEmpty(array));
+	    }
+	  
+	  @Test
+	    public void testBigDecimalEmptyArray() {
+	    	BigDecimal[] array = null;
+	    	assertTrue(RulesUtils.isEmpty(array));
+	    	
+	    	array = new BigDecimal[5];
+	    	assertFalse(RulesUtils.isEmpty(array));
+	    }
+	  
+	  @Test
+	    public void testBigIntegerEmptyArray() {
+	    	BigInteger[] array = null;
+	    	assertTrue(RulesUtils.isEmpty(array));
+	    	
+	    	array = new BigInteger[5];
+	    	assertFalse(RulesUtils.isEmpty(array));
+	    }
+	  
+	  @Test
+	    public void testEmptyString() {
+	    	String str = null;
+	    	assertTrue(RulesUtils.isEmpty(str));
+	    	
+	    	str = "";
+	    	assertTrue(RulesUtils.isEmpty(str));
+	    	
+	    	str = "str";
+	    	assertFalse(RulesUtils.isEmpty(str));
+	    }
+ 
     
 }
     
