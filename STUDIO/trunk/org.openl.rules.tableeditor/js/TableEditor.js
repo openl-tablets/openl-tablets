@@ -232,6 +232,7 @@ var TableEditor = Class.create({
      * Sends corresponding request to the server.
      */
     save: function() {
+    	this.setCellValue();
         var self = this;
 
         var beforeSavePassed = true;
