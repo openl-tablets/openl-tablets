@@ -112,9 +112,9 @@
                         <a4j:ajax event="uploadcomplete" execute="@none" render="projectName" />
                     </rich:fileUpload>
 
-                    <h:outputLabel for="projectName" value="Project Name" />
+                    <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                     <h:inputText id="projectName" size="35" maxlength="50"
-                        value="#{repositoryTreeController.projectName}" disabled="true" />
+                        value="#{repositoryTreeController.projectName}" disabled="#{repositoryTreeController.projectName == null}" />
                 </h:panelGrid>
 
                 <hr style="margin-bottom: 15px" />
