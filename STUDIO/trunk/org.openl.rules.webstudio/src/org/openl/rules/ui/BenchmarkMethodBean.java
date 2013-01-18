@@ -117,7 +117,7 @@ public class BenchmarkMethodBean {
     }
 
     public int getBenchmarkCount() {
-        return benchmarkResults.size() + 1;
+        return benchmarkResults.size();
     }
 
     public List<BenchmarkInfoView> getBenchmarks() {
@@ -130,13 +130,44 @@ public class BenchmarkMethodBean {
         for (BenchmarkInfoView bi : benchmarks) {
             benchmarkResults.add(bi);
         }
-        bencmarkSelected = new boolean[benchmarkResults.size()];
+        if ((bencmarkSelected == null) || (bencmarkSelected.length != benchmarkResults.size())) {
+            bencmarkSelected = new boolean[benchmarkResults.size()];
+        }
         return benchmarkResults;
     }
 
     public boolean getBencmarkSelected() {
         BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
         return bencmarkSelected[benchmarkResults.indexOf(bi)];
+    }
+    
+    public boolean isAnyBencmarkSelected() {
+        if (bencmarkSelected != null) {
+            for (boolean selected : bencmarkSelected) {
+                if (selected) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean getAllBencmarkSelected() {
+        if (bencmarkSelected.length != 0) {
+            for (boolean selected : bencmarkSelected) {
+                if (!selected) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void setAllBencmarkSelected(boolean allBencmarkSelected) {
+        for (int i = 0; i < bencmarkSelected.length; i++) {
+            bencmarkSelected[i] = allBencmarkSelected;
+        }
     }
 
     public List<BenchmarkInfo> getComparedBenchmarks() {
@@ -184,8 +215,11 @@ public class BenchmarkMethodBean {
     }
 
     public ParameterWithValueDeclaration[] getParameters() {
-        BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
-        return bi.getParameters();
+        if (htmlDataTableBM.isRowAvailable()) {
+            BenchmarkInfoView bi = (BenchmarkInfoView) htmlDataTableBM.getRowData();
+            return bi.getParameters();
+        }
+        return null;
     }
 
     public String getMsrun() {
