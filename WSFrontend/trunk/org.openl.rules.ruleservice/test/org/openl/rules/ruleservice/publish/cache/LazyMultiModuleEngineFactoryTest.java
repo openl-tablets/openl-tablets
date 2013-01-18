@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.OpenL;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
@@ -60,7 +61,7 @@ public class LazyMultiModuleEngineFactoryTest {
     @Test
     public void testModulesMatching() throws Exception {
         Collection<Module> modules = resolveAllModules("./test-resources/multi-module_overloaded");
-        LazyMultiModuleEngineFactory factory = new LazyMultiModuleEngineFactory(modules);
+        LazyMultiModuleEngineFactory factory = new LazyMultiModuleEngineFactory(modules, OpenL.OPENL_JAVA_RULE_NAME);
         factory.setDependencyManager(dependencyManager);
         checkModules(factory, modules);
     }

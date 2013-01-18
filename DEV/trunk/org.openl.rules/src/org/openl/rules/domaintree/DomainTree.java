@@ -216,6 +216,22 @@ public class DomainTree {
      *            otherwise name order is not specified.
      * @return all class names of the domain tree
      */
+    public Collection<IOpenClass> getAllOpenClasses(boolean sorted) {
+        Collection<IOpenClass> unsortedClasses = treeElements.values();
+        if (sorted) {
+            List<IOpenClass> sortedClasses = new ArrayList<IOpenClass>(unsortedClasses);
+            Collections.sort(sortedClasses, new Comparator<IOpenClass>() {
+                public int compare(IOpenClass s1, IOpenClass s2) {
+                    return s1.getDisplayName(IOpenClass.SHORT).compareTo(s2.getDisplayName(IOpenClass.SHORT));
+                }
+            });
+
+            return sortedClasses;
+        } else {
+            return unsortedClasses;
+        }
+    }
+    
     public Collection<String> getAllClasses(boolean sorted) {
         Collection<String> unsortedClasses = treeElements.keySet();
         if (sorted) {

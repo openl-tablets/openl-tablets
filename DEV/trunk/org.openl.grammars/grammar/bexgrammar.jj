@@ -1120,19 +1120,58 @@ LOOKAHEAD(2)
     
   })
 |
-  ( (x1="[!@" | x1="[select first having ") Expression()
+  ( (x1="[!@" | x1="[select first having " | x1="[select first where ") Expression()
   x2="]"
   {
     syntaxBuilder.uop("selectfirst.index", pos(x1, x2));
     
   })
 |
-  ( (x1="[@" | x1="[select all having ") Expression()
+  ( (x1="[@" | x1="[select all having " | x1="[select all where ") Expression()
   x2="]"
   {
     syntaxBuilder.uop("selectall.index", pos(x1, x2));
     
   })
+|
+  ( (x1="[^@" | x1="[order by " | x1="[order increasing by ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("orderby.index", pos(x1, x2));
+    
+  })
+|
+  ( (x1="[v@" | x1="[order decreasing by ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("orderdecreasingby.index", pos(x1, x2));
+    
+  })
+|
+  ( (x1="[~@" | x1="[s@" | x1="[split by ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("splitby.index", pos(x1, x2));
+    
+  })
+|
+  ( (x1="[*@" | x1="[transform to ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("transform.index", pos(x1, x2));
+    
+  })
+|
+  ( (x1="[*!@" | x1="[transform unique to ") Expression()
+  x2="]"
+  {
+    syntaxBuilder.uop("transformunique.index", pos(x1, x2));
+    
+  })
+  
+  
+  
+  
 }
 
 void AbsExpression() :

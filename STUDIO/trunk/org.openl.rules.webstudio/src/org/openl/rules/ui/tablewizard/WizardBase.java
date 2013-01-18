@@ -1,7 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
@@ -29,7 +29,6 @@ import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
-import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -180,8 +179,8 @@ public abstract class WizardBase extends BaseWizardBean {
         boolean success = false;
         try {
             if (!wizardFinised) {
-                wizardFinised = true;
                 onFinish();
+                wizardFinised = true;
             }
             doSave();
             success = true;
@@ -225,9 +224,9 @@ public abstract class WizardBase extends BaseWizardBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
 
-        for (ProjectTreeNode node : (Collection<ProjectTreeNode>) model.getAllTreeNodes().getAllNodes()) {
+        for (TableSyntaxNode node : model.getAllTableNodes().values()) {
             try {
-                if(node.getTableSyntaxNode().getMember().getName().equalsIgnoreCase(techName)) {
+                if (node.getMember().getName().equalsIgnoreCase(techName)) {
                     return false;
                 }
 

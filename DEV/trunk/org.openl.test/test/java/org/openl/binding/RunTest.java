@@ -219,7 +219,37 @@ public class RunTest extends TestCase {
         _runNoError("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)), OpenL.OPENL_JAVA_NAME);
         _runNoError("BigDecimal x = 5.0; x ** 7 ", new BigDecimal(Math.pow(5, 7)), OpenL.OPENL_JAVA_NAME);
 
+
+
+    
     }
+    
+    
+    public void testAggregate()
+    {
+    	
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[2]", "aaa", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[!@ startsWith(\"b\")]", "bb", OpenL.OPENL_J_NAME);
+      
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int x = 3; ary[@ length() == x][0]", "ddd", OpenL.OPENL_J_NAME);
+        
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[^@ substring(1,2)][0]", "aaa", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[^@ substring(1)][1]", "bb", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[^@ substring(0,1)][0]", "aab", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[v@ substring(0,1)][0]", "ddd", OpenL.OPENL_J_NAME);
+        
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)].length", 2, OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)][0].length", 3, OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)][1].length", 1, OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)][0][2]", "aaba", OpenL.OPENL_J_NAME);
+        
+        _runNoError("String[] ary = {\"daab\",\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)][0][1]", "ddd", OpenL.OPENL_J_NAME);
+        
+    	
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*@ substring(0,1)].length", 4, OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*!@ substring(0,1)].length", 2, OpenL.OPENL_J_NAME);
+    }
+    
     
     public void testStatic()
     {

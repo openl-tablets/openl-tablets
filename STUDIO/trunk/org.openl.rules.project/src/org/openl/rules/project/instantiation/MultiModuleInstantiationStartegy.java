@@ -2,11 +2,14 @@ package org.openl.rules.project.instantiation;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.DependencyManager;
@@ -32,6 +35,7 @@ import org.openl.syntax.impl.IdentifierNode;
  * 
  */
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
+    private final Log log = LogFactory.getLog(MultiModuleInstantiationStartegy.class);
     private Collection<Module> modules;
 
     public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager) {
@@ -42,22 +46,16 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
             IDependencyManager dependencyManager,
             ClassLoader classLoader) {
         // multimodule is only available for execution(execution mode == true)
-        super(true, createDependencyManager(modules, dependencyManager), classLoader);
+        super(true, dependencyManager != null ? dependencyManager : createDependencyManager(modules), classLoader);
         this.modules = modules;
     }
 
-    private static IDependencyManager createDependencyManager(Collection<Module> modules,
-            IDependencyManager dependencyManager) {
+    private static IDependencyManager createDependencyManager(Collection<Module> modules) {
         RulesProjectDependencyManager multiModuleDependencyManager = new RulesProjectDependencyManager();
         // multimodule is only available for execution(execution mode == true)
         multiModuleDependencyManager.setExecutionMode(true);
         IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
-        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>();
-        if (dependencyManager instanceof DependencyManager) {
-            dependencyLoaders.addAll(((DependencyManager) dependencyManager).getDependencyLoaders());
-        }
-        dependencyLoaders.add(loader);
-        multiModuleDependencyManager.setDependencyLoaders(dependencyLoaders);
+        multiModuleDependencyManager.setDependencyLoaders(Arrays.asList(loader));
         return multiModuleDependencyManager;
     }
 
@@ -82,7 +80,12 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
     @Override
     public void setExternalParameters(Map<String, Object> parameters) {
         super.setExternalParameters(parameters);
-        ((RulesProjectDependencyManager)getDependencyManager()).setExternalParameters(parameters);
+        IDependencyManager dm = getDependencyManager();
+        if (dm instanceof DependencyManager) {
+            ((DependencyManager) dm).setExternalParameters(parameters);
+        } else {
+            log.warn("Cannot set external parameters to dependency manager " + String.valueOf(dm));
+        }
     }
 
     /**

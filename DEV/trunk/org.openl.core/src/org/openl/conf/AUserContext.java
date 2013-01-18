@@ -29,22 +29,19 @@ public abstract class AUserContext implements IUserContext {
     // home) and java beans are shared between these rules,
     // in this case classloader of each rules instance helps to distinguish
     // usercontexts of modules.
-    // FIXME currently commented because some logic is based on similar
-    // UserContexts with different Classloaders(LazyMultimodule)
     @Override
     public boolean equals(Object obj) {
-        if (this == obj){
+        if (this == obj) {
             return true;
         }
-        
+
         if (obj == null || !(obj instanceof IUserContext)) {
             return false;
         }
         IUserContext c = (IUserContext) obj;
 
         return new EqualsBuilder()
-        // .append(name, k.name)
-//                .append(getUserClassLoader(), c.getUserClassLoader())
+                .append(getUserClassLoader(), c.getUserClassLoader())
                 .append(getUserHome(), c.getUserHome()).append(
                         getUserProperties(), c.getUserProperties()).isEquals();
     }
@@ -52,8 +49,8 @@ public abstract class AUserContext implements IUserContext {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-//        .append(getUserClassLoader())
-        .append(getUserHome())
+                .append(getUserClassLoader())
+                .append(getUserHome())
                 .append(getUserProperties()).toHashCode();
     }
 

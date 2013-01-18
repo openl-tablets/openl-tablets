@@ -76,7 +76,7 @@ public class DecisionTableLoader {
             OpenL openl,
             ModuleOpenClass module,
             IBindingContextDelegator bindingContext) throws Exception {
-        
+
         loadTableStructure(tableSyntaxNode, decisionTable, bindingContext);
 
         ICondition[] conditionsArray = conditions.toArray(new ICondition[conditions.size()]);
@@ -91,11 +91,11 @@ public class DecisionTableLoader {
             IBindingContext bindingContext) throws SyntaxNodeException {
 
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
-        
+
         if (tableBody == null) {
             throw new SyntaxNodeException(EMPTY_BODY, null, tableSyntaxNode);
         }
-        
+
         // preprocess simple decision tables (without conditions and return headers)
         // add virtual headers to the table body.
         //
@@ -129,11 +129,11 @@ public class DecisionTableLoader {
         }
 
         columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
-        
+
         // NOTE! this method call depends on upper stacks calls, don`t move it upper.
         //
         putTableForBusinessView(tableSyntaxNode);
-        
+
         for (int i = 0; i < toParse.getHeight(); i++) {
             loadRow(i, toParse, bindingContext);
         }
@@ -195,7 +195,6 @@ public class DecisionTableLoader {
     }
 
     private void loadRow(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
-
         String headerStr = table.getRow(row)
             .getSource()
             .getCell(IDecisionTableConstants.INFO_COLUMN_INDEX, 0)

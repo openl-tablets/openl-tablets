@@ -14,6 +14,7 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.OpenL;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
@@ -104,7 +105,7 @@ public class RulesPublisherTest {
     @Test
     public void testMultiModuleServiceClass() throws Exception {
         Collection<Module> modules = resolveAllModules(new File("./test-resources/multi-module"));
-        LazyMultiModuleInstantiationStrategy instantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, null);
+        LazyMultiModuleInstantiationStrategy instantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, null, OpenL.OPENL_JAVA_RULE_NAME);
         instantiationStrategy.setServiceClass(SimpleInterface.class);
         Object instance = instantiationStrategy.instantiate();
         assertNotNull(instance);

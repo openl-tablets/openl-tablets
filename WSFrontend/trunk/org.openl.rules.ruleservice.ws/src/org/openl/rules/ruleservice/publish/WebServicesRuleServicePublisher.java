@@ -52,14 +52,15 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
     }
 
     public void deploy(OpenLService service) throws RuleServiceDeployException {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+
         ServerFactoryBean svrFactory = getServerFactoryBean();
         String serviceAddress = getBaseAddress() + service.getUrl();
         svrFactory.setAddress(serviceAddress);
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
-
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getServiceClass().getClassLoader());
+        
         try {
             Server wsServer = svrFactory.create();
             runningServices.put(service, wsServer);

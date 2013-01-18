@@ -177,7 +177,7 @@ public class ComponentOpenClass extends ADynamicClass {
         }
 
         public void set(Object target, Object value, IRuntimeEnv env) {
-            throw new RuntimeException("Can not assign to this");
+            throw new RuntimeException("Can not assign to 'this'");
         }
 
     }

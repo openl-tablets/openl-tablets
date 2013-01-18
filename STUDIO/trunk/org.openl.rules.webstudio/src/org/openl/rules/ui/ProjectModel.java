@@ -7,8 +7,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.lang.StringUtils;
@@ -63,7 +65,6 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
-import org.openl.rules.ui.tree.TreeCache;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
@@ -107,16 +108,15 @@ public class ProjectModel {
 
     private ProjectTreeNode projectRoot = null;
 
-    private TreeCache<String, ITreeElement<?>> idTreeCache = new TreeCache<String, ITreeElement<?>>();
-
-    private TreeCache<String, ProjectTreeNode> uriTreeCache = new TreeCache<String, ProjectTreeNode>();
+    // TODO Fix performance
+    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<String, TableSyntaxNode>();
 
     private DependencyRulesGraph dependencyGraph;
 
     private SourceHistoryManager<File> historyManager;
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
-    
+
     // FIXME last test suite should have temporary location(such as Flash scope)
     // but now it placed to session bean due to WebStudio navigation specific
     // TODO move this object to the correct place
@@ -402,29 +402,12 @@ public class ProjectModel {
         return count;
     }
 
-    public String getTreeNodeId(ITreeElement<?> treeNode) {
-        return idTreeCache.getKey(treeNode);
+    public Map<String, TableSyntaxNode> getAllTableNodes() {
+        return uriTableCache;
     }
 
-    public String getTreeNodeId(String uri) {
-        ProjectTreeNode node = uriTreeCache.getNode(uri);
-        String nodeId = idTreeCache.getKey(node);
-        return nodeId;
-    }
-    
-    /*
-     * return all tree nodes
-     * */
-    public TreeCache<String, ProjectTreeNode> getAllTreeNodes(){
-    	return uriTreeCache;
-    }
-
-    public ProjectTreeNode getTreeNodeById(String id) {
-        return (ProjectTreeNode) idTreeCache.getNode(id);
-    }
-
-    public ProjectTreeNode getTreeNodeByUri(String uri) {
-        return uriTreeCache.getNode(uri);
+    public TableSyntaxNode getTableByUri(String uri) {
+        return uriTableCache.get(uri);
     }
 
     public ColorFilterHolder getFilterHolder() {
@@ -562,10 +545,7 @@ public class ProjectModel {
     public TableSyntaxNode getNode(String tableUri) {
         TableSyntaxNode tsn = null;
         if (tableUri != null) {
-            ProjectTreeNode pte = getTreeNodeByUri(tableUri);
-            if (pte != null) {
-                tsn = (TableSyntaxNode) pte.getObject();
-            }
+            tsn = getTableByUri(tableUri);
             if (tsn == null) {
                 tsn = findNode(tableUri);
             }
@@ -870,8 +850,7 @@ public class ProjectModel {
         }
 
         projectRoot = root;
-        uriTreeCache.clear();
-        idTreeCache.clear();
+        uriTableCache.clear();
         cacheTree(projectRoot);
 
         dependencyGraph = null;
@@ -909,23 +888,15 @@ public class ProjectModel {
         return new TableSyntaxNode[0];
     }
 
-    private void cacheTree(String key, ProjectTreeNode treeNode) {
-        int childNumber = 0;
+    private void cacheTree(ProjectTreeNode treeNode) {
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();
             if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
                 ProjectTreeNode ptr = (ProjectTreeNode) child;
-                uriTreeCache.put(ptr.getUri(), ptr);
+                uriTableCache.put(ptr.getUri(), ptr.getTableSyntaxNode());
             }
-            String childKey = (StringUtils.isNotBlank(key) ? key + ":" : "") + (childNumber + 1);
-            idTreeCache.put(childKey, child);
-            childNumber++;
-            cacheTree(childKey, child);
+            cacheTree(child);
         }
-    }
-
-    private void cacheTree(ProjectTreeNode treeNode) {
-        cacheTree(null, treeNode);
     }
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {

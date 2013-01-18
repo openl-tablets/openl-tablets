@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    template="/pages/layout/wizardStep.xhtml">
+
+    <ui:define name="header">
+
+    SimpleRules Table Editor</ui:define>
+
+    <ui:define name="data">
+        <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/tooltip.css"></link>
+        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/datepicker.css"/>
+        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/common.css"/>
+        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/multiselect.css"/>
+        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/colorPicker.css"/>
+        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/popup.css"/>
+
+        <script src="/webstudio/faces/tableEditor/js/popup/popupmenu.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/datepicker.packed.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/BaseEditor.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/BaseTextEditor.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/TextEditor.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/MultiselectEditor.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/ArrayEditor.js"></script>
+        <script src="/webstudio/faces/tableEditor/js/DateEditor.js"></script>
+        
+        <script src="#{contextPath}/javascript/tableDataModel.js"></script>
+        <script src="#{contextPath}/javascript/tableHTMLRenderers.js"></script>
+        <script src="#{contextPath}/javascript/tableEditors.js"></script>
+        <script src="#{contextPath}/javascript/tablePopupMenu.js"></script>
+
+        <style>
+            .editTable {border: 1px solid threedface;
+                        margin: 0px; width: 95%;
+                        height: 100%; font-family:
+                        Arial; padding: 1px;
+                        }
+
+            .editTableInParam {border: 1px solid threedface;
+                        margin: 0px; width: 10%;
+                        height: 100%; font-family:
+                        Arial; padding: 1px;
+                        }
+
+            table.srt {
+                border-width: 0px;
+                border-spacing: 0px;
+                border-style: none;
+                border-color: gray;
+                border-collapse: collapse;
+                background-color: white;
+            }
+
+        </style>
+
+        <h:form name="srtTableForm" id="srtTableForm">
+            <table id="srtTable" class="srt">
+            </table>
+            <script>
+            //<![CDATA[
+                var domTable = document.getElementById("srtTable");
+
+                tableModel.setReturnParam(new Param('RETURN', '#{wizard.returnValue.name}', #{wizard.returnValue.iterable}, 'RETURN', '#{wizard.returnValue.type}'));
+                tableModel.header.name= '#{wizard.tableName}';
+            //]]>
+            </script>
+            <script>
+              <ui:repeat value="#{wizard.typedParameters}" var="inParam">
+                tableModel.header.inParam.push(new Param('<h:outputText value="#{inParam.typeName}"/>','<h:outputText value="#{inParam.name}"/>',<h:outputText value="#{inParam.iterable}"/>, 'condition', '#{inParam.type}'));
+              </ui:repeat>
+
+              verticalRenderer.initDomTable(document.getElementById("srtTable"))
+              tableModel.initTable(verticalRenderer);
+
+              function selectDataTypeAction(spanElem, event, id) {
+                  var div = document.getElementById("dataTypeDiv");
+                  div.innerHTML = "";
+
+                  <ui:repeat value="#{wizard.typesList}" var="domParam">
+                      var addRowLink = document.createElement('a');
+                      addRowLink.setAttribute('href','javascript:void(0)');
+                      addRowLink.setAttribute('onclick','tableModel.setDataTypeTo(\''+spanElem.id+'\',\'#{domParam.name}\','+id+',\'#{domParam.type}\');');
+                      addRowLink.innerHTML = ("#{domParam.name}");
+                      div.appendChild(addRowLink);
+                      div.appendChild(document.createElement('br'));
+                  </ui:repeat>
+
+                  event.preventDefault();
+                  PopupMenu.sheduleShowMenu('dataTypeDiv', event, 150);
+                  return false;
+              }
+
+              function setJSONTableString() {
+                  tableModel.renderer = null;
+
+                  var jsonStr = JSON.stringify(tableModel);
+                  document.getElementById("srtTableForm:tableString").value = jsonStr;
+              }
+
+              #{wizard.restoreTable}
+
+            </script>
+            <br/>
+            <hr/>
+            <h:inputHidden id="tableString" name="tableString" value="#{wizard.jsonTable}"/>
+
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('simpleRules/step1.xhtml')" />
+            <a4j:commandButton value="Next" onclick="setJSONTableString();" action="#{tableCreatorWizardManager.next}"
+                data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) go('simpleRules/step3.xhtml')" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
+
+        </h:form>
+        <div id="srtPopupDiv" style="display: none">
+        </div>
+        <div id="dataTypeDiv" style="display: none">
+        </div>
+        <div id="propsDataType" style="display: none">
+            <h:selectOneMenu onchange="tableModel.setPropValue(this,'PROPERTY_TYPE')" id="newPropertySelect">
+                <f:selectItems value="#{wizard.propertyNamesList}" />
+            </h:selectOneMenu>
+        </div>
+    </ui:define>
+
+</ui:composition>

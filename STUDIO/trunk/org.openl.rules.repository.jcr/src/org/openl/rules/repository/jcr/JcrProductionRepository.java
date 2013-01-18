@@ -29,7 +29,9 @@ import javax.jcr.query.QueryResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private final Log log = LogFactory.getLog(JcrProductionRepository.class);
@@ -385,6 +387,39 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     public List<RRepositoryListener> getRepositoryListeners() {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public Collection<FolderAPI> getLastDeploymentProjects() 
+        throws RRepositoryException {
+
+       Map<String, FolderAPI> latestDeployments = new HashMap<String, FolderAPI>();
+       Map<String, Integer> versionsList = new HashMap<String, Integer>();
+        for (FolderAPI folder : getDeploymentProjects()) {
+            String deploymentName = folder.getName();
+            Integer versionNum = new Integer(0);
+
+            if(deploymentName.indexOf("#") > -1) {
+                String versionStr =  deploymentName.substring(deploymentName.indexOf("#") + 1,deploymentName.length());
+                deploymentName = deploymentName.substring(0,deploymentName.indexOf("#"));
+
+                if(!StringUtils.isEmpty(versionStr)) {
+                    versionNum = new Integer(versionStr);
+                }
+            }
+
+            if (versionsList.containsKey(deploymentName)) {
+                if (versionNum - versionsList.get(deploymentName) > 0) {
+                    versionsList.put(deploymentName, versionNum);
+                    latestDeployments.put(deploymentName, folder);
+                }
+            } else {
+                versionsList.put(deploymentName, versionNum);
+                latestDeployments.put(deploymentName, folder);
+            }
+        }
+        
+        return latestDeployments.values();
     }
 }

@@ -14,13 +14,13 @@
         <link href="#{contextPath}/css/common.css" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/simple.css" rel="stylesheet" />
         <script src="#{contextPath}/javascript/common.js"></script>
-        <h:outputScript name="jquery.js" />
+        <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/jquery.layout.js"></script>
 
         <script>
             var $j = $.noConflict();
             $j(document).ready(function () {
-                $j('body').layout();
+                $j("body").layout();
             });
         </script>
 

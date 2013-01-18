@@ -8,8 +8,7 @@
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-3.1.xsd
           http://www.springframework.org/schema/context 
-          http://www.springframework.org/schema/context/spring-context-3.1.xsd"
-          profile="multiUser">
+          http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
   <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
   <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
@@ -120,7 +119,7 @@
     <property name="accessDecisionManager" ref="accessDecisionManager" />
     <property name="securityMetadataSource">
       <security:filter-security-metadata-source lowercase-comparisons="true">
-        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="PRIVILEGE_ALL" />
+        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="PRIVILEGE_ADMINISTRATE" />
         <security:intercept-url pattern="/**" access="PRIVILEGE_VIEW_PROJECTS" />
       </security:filter-security-metadata-source>
     </property>

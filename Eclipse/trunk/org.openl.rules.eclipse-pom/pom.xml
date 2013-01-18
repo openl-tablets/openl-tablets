@@ -392,6 +392,12 @@
 				<version>${project.version}</version>
 			</dependency>
 
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.demo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
 			<!-- WSFrontend -->
 			<dependency>
 				<groupId>org.openl.rules</groupId>
@@ -548,6 +554,13 @@
 				<classifier>sources</classifier>
 				<version>${project.version}</version>
 			</dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.demo</artifactId>
+                <classifier>sources</classifier>
+                <version>${project.version}</version>
+            </dependency>
 
 			<!-- WSFrontend -->
 			<dependency>

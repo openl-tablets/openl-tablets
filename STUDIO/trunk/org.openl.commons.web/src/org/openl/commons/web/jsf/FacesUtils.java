@@ -13,6 +13,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
@@ -154,6 +155,10 @@ public abstract class FacesUtils {
         return getExternalContext().getRequestParameterMap();
     }
 
+    public static ServletContext getServletContext() {
+        return getRequest().getServletContext();
+    }
+
     public static Map<String, Object> getSessionMap() {
         return getExternalContext().getSessionMap();
     }
@@ -197,6 +202,10 @@ public abstract class FacesUtils {
     public static void redirect(String page) throws IOException {
         HttpServletResponse response = (HttpServletResponse) getResponse();
         response.sendRedirect(page);
+    }
+
+    public static void redirectToRoot() throws IOException {
+        redirect(FacesUtils.getContextPath());
     }
 
     public static void addMessage(String summary, Severity severity) {
