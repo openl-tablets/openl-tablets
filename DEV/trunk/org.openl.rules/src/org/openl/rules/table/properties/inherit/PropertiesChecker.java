@@ -96,9 +96,13 @@ public class PropertiesChecker {
     public static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
-            if (propertyDefinition.getDeprecation() != null) {
+            if (propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
-                OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
+
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                tableSyntaxNode.addError(error);
+                BindHelper.processError(error);
+                //OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
             }
         }
     }
