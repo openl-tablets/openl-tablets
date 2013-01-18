@@ -14,6 +14,12 @@ public class UiConst {
     public static final String TYPE_REPOSITORY = "repository";
     public static final String TYPE_DEPLOYMENT_REPOSITORY = "drepository";
 
+    public static final String TYPE_PRODUCTION_FILE = "prodfile";
+    public static final String TYPE_PRODUCTION_FOLDER = "prodfolder";
+    public static final String TYPE_PRODUCTION_PROJECT = "prodproject";
+    public static final String TYPE_PRODUCTION_REPOSITORY = "prodrepository";
+    public static final String TYPE_PRODUCTION_DEPLOYMENT_PROJECT = "proddeployment";
+
     // <rich:treeNode icon="..." iconLeaf="..."
     public static final String ICON_FILE = "/webresource/images/repository/file.gif";
     public static final String ICON_FOLDER = "/webresource/images/repository/folder.gif";

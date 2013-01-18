@@ -20,7 +20,8 @@ public class TableWizardManager extends TableWizard{
         DATA,
         TEST,
         TEST_DIRECT,
-        PROPERTY
+        PROPERTY,
+        SIMPLERULES
     }
 
     private TableType tableType = TableType.DATATYPE;
@@ -82,6 +83,10 @@ public class TableWizardManager extends TableWizard{
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
                 wizard.setStepsCount(3);
+                break;
+            case SIMPLERULES:
+                wizard = new SimpleRulesCreationWizard();
+                wizard.setStepsCount(2);
                 break;
             default:
                 return null;

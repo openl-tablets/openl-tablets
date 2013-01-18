@@ -54,7 +54,7 @@ public class AProject extends AProjectFolder {
     public void setDependencies(List<ProjectDependency> dependencies) throws ProjectException {
         if (CollectionUtils.isEmpty(dependencies)) {
             if (hasArtefact(ArtefactProperties.DEPENDENCIES_FILE)) {
-                getArtefact(ArtefactProperties.DEPENDENCIES_FILE).delete();
+                deleteArtefact(ArtefactProperties.DEPENDENCIES_FILE);
             }
         } else {
             String dependenciesAsString = ProjectDependencyHelper.serialize(dependencies);
@@ -171,6 +171,20 @@ public class AProject extends AProjectFolder {
         }
         finalizeTransaction(transaction);
     }
+    
+    @Override
+    public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
+        AProject project = (AProject) artefact;
+        UserTransaction transaction = beginTransaction();
+        try {
+            setDependencies(project.getDependencies());
+            super.update(artefact, user, revision);
+        } catch (Exception e) {
+            rollbackTransaction(transaction);
+            throw new ProjectException("Failed to save project: " + e.getMessage(), e);
+        }
+        finalizeTransaction(transaction);
+    }
 
     @Override
     public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
@@ -190,5 +204,9 @@ public class AProject extends AProjectFolder {
     
     public AProject getProjectVersion(CommonVersion version) throws ProjectException{
         return new AProject(getAPI().getVersion(version));
+    }
+    
+    public boolean getOpenedForEditing() {
+        return false;
     }
 }

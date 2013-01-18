@@ -36,6 +36,11 @@ public class ConfigurationManager {
     private CompositeConfiguration compositeConfiguration;
 
     public ConfigurationManager(boolean useSystemProperties,
+            String propsLocation) {
+        this(useSystemProperties, propsLocation, null, false);
+    }
+
+    public ConfigurationManager(boolean useSystemProperties,
             String propsLocation, String defaultPropsLocation) {
         this(useSystemProperties, propsLocation, defaultPropsLocation, false);
     }
@@ -105,15 +110,21 @@ public class ConfigurationManager {
     }
 
     public Map<String, Object> getProperties() {
+        return getProperties(false);
+    }
+
+    public Map<String, Object> getProperties(boolean cross) {
         Map<String, Object> properties = new HashMap<String, Object>();
         for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext();) {
             String key = (String) iterator.next();
-            
-            Object value = compositeConfiguration.getProperty(key);
-            if (value instanceof Collection || value != null && value.getClass().isArray()) {
-                properties.put(key, getStringArrayProperty(key));
-            } else {
-                properties.put(key, getStringProperty(key));
+
+            if (!cross || (cross && configurationToSave.getProperty(key) != null)) {
+                Object value = compositeConfiguration.getProperty(key);
+                if (value instanceof Collection || value != null && value.getClass().isArray()) {
+                    properties.put(key, getStringArrayProperty(key));
+                } else {
+                    properties.put(key, getStringProperty(key));
+                }
             }
         }
         return properties;
@@ -123,10 +134,8 @@ public class ConfigurationManager {
         if (key != null && value != null) {
             if (!(value instanceof Collection) && !value.getClass().isArray()) {
                 String defaultValue = compositeConfiguration.getString(key);
-                if (defaultValue != null) {
-                    if (!defaultValue.equals(value.toString())) {
-                        getConfigurationToSave().setProperty(key, value.toString());
-                    }
+                if (defaultValue != null && !defaultValue.equals(value.toString())) {
+                    getConfigurationToSave().setProperty(key, value.toString());
                 }
             } else {
                 String[] defaultValue = compositeConfiguration.getStringArray(key);
@@ -142,6 +151,32 @@ public class ConfigurationManager {
                 }
             }
         }
+    }
+
+    public String getPath(String key) {
+        return normalizePath(getStringProperty(key));
+    }
+
+    public void setPath(String key, String path) {
+        String defaultPath = normalizePath(compositeConfiguration.getString(key));
+        String newPath = normalizePath(path);
+        if (defaultPath != null && !defaultPath.equals(newPath)) {
+            getConfigurationToSave().setProperty(key, newPath);
+        }
+    }
+
+    public static String normalizePath(String path) {
+        if (path == null)
+            return null;
+
+        File pathFile = new File(path);
+        if (!pathFile.isAbsolute()) {
+            if (!path.startsWith("/") && !path.startsWith("\\")) {
+                pathFile = new File(File.separator + path);
+            }
+        }
+
+        return pathFile.getAbsolutePath();
     }
 
     public void removeProperty(String key) {

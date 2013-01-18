@@ -11,11 +11,18 @@
 		<property name="rootClassNames" value="${ruleservice.binding.rootClassNames}" />
 	</bean>
 
-	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean) -->
+	<bean id="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean"
+		scope="prototype" >
+		<property name="additionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
+	</bean>
+
+	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
 	<bean id="webServicesDataBinding"
-		class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean">
+		class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean"
+		scope="prototype">
 		<property name="writeXsiTypes" value="true" />
-		<property name="overrideTypes" ref="rootClassNamesBindingFactoryBean" />
+		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
 		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
 	</bean>
 

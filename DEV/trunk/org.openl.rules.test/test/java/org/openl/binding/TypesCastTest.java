@@ -1,5 +1,6 @@
 package org.openl.binding;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -20,9 +21,9 @@ public class TypesCastTest extends TestCase {
         boolean operatorTest4();
     }
     
-    public void testExplicitCastsForLiterals(){
+    public void testExplicitCastsForLiterals() throws URISyntaxException{
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.toURI().getPath(), ITest.class);
 
         ITest instance = (ITest) engineFactory.makeInstance();
         float[] result = instance.testExplicitCastsForLiterals();
@@ -30,10 +31,10 @@ public class TypesCastTest extends TestCase {
         assertEquals(4, result.length);
     }
 
-    public void testAutoCast() {
+    public void testAutoCast() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.toURI().getPath(), ITest.class);
 
         ITest instance = (ITest) engineFactory.makeInstance();
         DoubleValue result = instance.testAutoCast(10.1);
@@ -41,10 +42,10 @@ public class TypesCastTest extends TestCase {
         assertEquals(10.1, result.getValue());
     }
     
-    public void testOperator1() {
+    public void testOperator1() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.toURI().getPath(), ITest.class);
 
         ITest instance = (ITest) engineFactory.makeInstance();
         boolean result = instance.operatorTest1();
@@ -52,10 +53,10 @@ public class TypesCastTest extends TestCase {
         assertEquals(true, result);
     }
 
-    public void testOperator2() {
+    public void testOperator2() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.toURI().getPath(), ITest.class);
 
         ITest instance = (ITest) engineFactory.makeInstance();
         boolean result = instance.operatorTest2();
@@ -63,10 +64,10 @@ public class TypesCastTest extends TestCase {
         assertEquals(true, result);
     }
 
-    public void testOperator3() {
+    public void testOperator3() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.toURI().getPath(), ITest.class);
 
         ITest instance = (ITest) engineFactory.makeInstance();
         boolean result = instance.operatorTest3();
@@ -74,10 +75,10 @@ public class TypesCastTest extends TestCase {
         assertEquals(true, result);
     }
     
-    public void testOperator4() {
+    public void testOperator4() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.getPath(), ITest.class);
+        RuleEngineFactory<ITest> engineFactory = new RuleEngineFactory<ITest>(url.toURI().getPath(), ITest.class);
 
         ITest instance = (ITest) engineFactory.makeInstance();
         boolean result = instance.operatorTest4();

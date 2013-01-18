@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.conf;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,22 +41,41 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
             }
         }
         for (Deployment deployment : loader.getDeployments()) {
+            Set<ModuleDescription> modulesInDeployment = new HashSet<ModuleDescription>();
+            for (AProject project : deployment.getProjects()) {
+                Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
+                        deployment.getCommonVersion(), project.getName());
+
+                for (Module module : modulesOfProject) {
+                    ModuleDescription.ModuleDescriptionBuilder moduleDescriptionBuilder = new ModuleDescription.ModuleDescriptionBuilder();
+                    moduleDescriptionBuilder.setDeploymentName(deployment.getDeploymentName());
+                    moduleDescriptionBuilder.setDeploymentVersion(deployment.getCommonVersion());
+                    moduleDescriptionBuilder.setProjectName(project.getName());
+                    moduleDescriptionBuilder.setModuleName(module.getName());
+                    ModuleDescription moduleDescription = moduleDescriptionBuilder.build();
+                    modulesInDeployment.add(moduleDescription);
+                }
+            }
+
             for (AProject project : deployment.getProjects()) {
                 Collection<ModuleDescription> modulesForService = new ArrayList<ModuleDescription>();
                 for (Module module : loader.resolveModulesForProject(deployment.getDeploymentName(),
                         deployment.getCommonVersion(), project.getName())) {
+
                     if (module.getProject().getId().equals(projectName)) {
                         ModuleDescription.ModuleDescriptionBuilder moduleDescriptionBuilder = new ModuleDescription.ModuleDescriptionBuilder();
                         moduleDescriptionBuilder.setDeploymentName(deployment.getDeploymentName());
                         moduleDescriptionBuilder.setDeploymentVersion(deployment.getCommonVersion());
                         moduleDescriptionBuilder.setProjectName(project.getName());
                         moduleDescriptionBuilder.setModuleName(module.getName());
-                        modulesForService.add(moduleDescriptionBuilder.build());
+                        ModuleDescription moduleDescription = moduleDescriptionBuilder.build();
+                        modulesForService.add(moduleDescription);
                     }
                 }
                 if (!modulesForService.isEmpty()) {
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder();
-                    serviceDescriptionBuilder.addModules(modulesForService);
+                    serviceDescriptionBuilder.setModules(modulesInDeployment);
+                    serviceDescriptionBuilder.setModulesInService(modulesForService);
                     serviceDescriptionBuilder.setName(serviceName);
                     serviceDescriptionBuilder.setUrl(serviceUrl);
                     serviceDescriptionBuilder.setServiceClassName(serviceClassName);

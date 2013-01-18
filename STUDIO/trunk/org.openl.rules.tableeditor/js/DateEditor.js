@@ -11,9 +11,9 @@ var DateEditor = Class.create(BaseTextEditor, {
     editor_initialize: function() {
         this.createInput();
 
-        this.input.style.width =    "-moz-calc(100% - 25px)";
-        this.input.style.width = "-webkit-calc(100% - 25px)";
-        this.input.style.width =         "calc(100% - 25px)";
+        this.input.style.width =    "-moz-calc(100% - 28px)";
+        this.input.style.width = "-webkit-calc(100% - 28px)";
+        this.input.style.width =         "calc(100% - 28px)";
 
         var self = this;
 

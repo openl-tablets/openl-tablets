@@ -71,8 +71,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
 
             rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
         } catch (RRepositoryException e) {
-            e.printStackTrace();
-            log.error("Cannot init DTR! " + e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error("Cannot init DTR! " + e.getMessage(), e);
+            }
             rulesRepository = new NullRepository();
         }
         

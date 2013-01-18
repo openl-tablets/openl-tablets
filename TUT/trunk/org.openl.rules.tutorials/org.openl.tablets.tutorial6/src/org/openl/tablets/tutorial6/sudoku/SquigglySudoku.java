@@ -1,216 +1,243 @@
 package org.openl.tablets.tutorial6.sudoku;
 
+import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.CompiledOpenClass;
+import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DelegatedDynamicObject;
+import org.openl.types.impl.DynamicObject;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 
-import org.openl.ie.constrainer.IntExp;
-
 public class SquigglySudoku extends SudokuSolver {
-	public SquigglySudoku(String methodName, int H, int W, int[][] data) {
-		super(H, W, data, makeAreaResolver(methodName));
-		// TODO Auto-generated constructor stub
-	}
 
-	private static IAreaResolver makeAreaResolver(String methodName) {
-	    RuleEngineFactory<SudokuRulesInterface> factory = new RuleEngineFactory<SudokuRulesInterface>
-        (SudokuRulesInterface.__src, SudokuRulesInterface.class);
-	    
-	    // Create instance of OpenL rules.
-	    factory.makeInstance();
-	    
-	    IGridTable gt = GameInterface.findTable("sq1", factory.getCompiledOpenClass().getOpenClass().getMethods());
-		gt = new GridTable(gt.getRegion(), gt.getGrid());
+    public SquigglySudoku(String methodName, int H, int W, int[][] data, Object thizz) throws Exception {
+        super(H, W, data, makeAreaResolver(methodName, thizz));
+        // TODO Auto-generated constructor stub
+    }
 
-		List<List<XY>> matrix = SquigglySudoku.selectByColor(gt);
-		
-		return new SquigglyAreaResolver(matrix);
-	}
-	
-	static class SquigglyAreaResolver implements IAreaResolver {
-		List<List<XY>> list;
-		public SquigglyAreaResolver(List<List<XY>> matrix) {
-			this.list = matrix;
-		}
+    private static IAreaResolver makeAreaResolver(String methodName, Object thizz) throws Exception {
+        Field parentField = DelegatedDynamicObject.class.getDeclaredField("parent");
+        parentField.setAccessible(true);
+        DynamicObject dynamicObject = (DynamicObject) thizz;
+        while (dynamicObject != null) {
+            try {
+                List<IOpenMethod> methods = dynamicObject.getType().getMethods();
+                IGridTable gt = GameInterface.findTable("sq1", methods);
+                gt = new GridTable(gt.getRegion(), gt.getGrid());
+                List<List<XY>> matrix = SquigglySudoku.selectByColor(gt);
+                return new SquigglyAreaResolver(matrix);
+            } catch (MethodNotFoundException e) {
+                if (dynamicObject instanceof DelegatedDynamicObject){
+                    dynamicObject = (DynamicObject) parentField.get(dynamicObject);
+                }else{
+                    throw new IllegalStateException();
+                }
+            }
+        }
+        throw new IllegalStateException();
+    }
 
-		public IntExp find(int area, IntExp[][] matrix, int exp) {
-			XY point = list.get(area).get(exp);
-			
-			System.out.println("A"+area+ ":" + exp + ":" + matrix[point.y-1][point.x] );
-			
-			return matrix[point.y-1][point.x];
-		}
-	}
+    static class SquigglyAreaResolver implements IAreaResolver {
+        List<List<XY>> list;
 
-	static class XY {
+        public SquigglyAreaResolver(List<List<XY>> matrix) {
+            this.list = matrix;
+        }
 
-		public String toString() {
-			return "(" + x + "," + y + ")";
-		}
+        public IntExp find(int area, IntExp[][] matrix, int exp) {
+            XY point = list.get(area).get(exp);
 
-		public boolean equals(Object obj) {
-			return x == ((XY) obj).x && y == ((XY) obj).y;
-		}
+            System.out.println("A" + area + ":" + exp + ":" + matrix[point.y - 1][point.x]);
 
-		public int hashCode() {
-			return x * 37 + y;
-		}
+            return matrix[point.y - 1][point.x];
+        }
+    }
 
-		int x, y;
+    static class XY {
 
-		public XY(int x, int y) {
-			super();
-			this.x = x;
-			this.y = y;
-		}
+        public String toString() {
+            return "(" + x + "," + y + ")";
+        }
 
-		XY left() {
-			return new XY(x - 1, y);
-		}
+        public boolean equals(Object obj) {
+            return x == ((XY) obj).x && y == ((XY) obj).y;
+        }
 
-		XY right() {
-			return new XY(x + 1, y);
-		}
+        public int hashCode() {
+            return x * 37 + y;
+        }
 
-		XY top() {
-			return new XY(x, y - 1);
-		}
+        int x, y;
 
-		XY bottom() {
-			return new XY(x, y + 1);
-		}
+        public XY(int x, int y) {
+            super();
+            this.x = x;
+            this.y = y;
+        }
 
-	}
+        XY left() {
+            return new XY(x - 1, y);
+        }
 
-	static void select(XY point, Set<XY> taken, List<XY> selected, ISelector<XY> sel) {
-		System.out.println("Selecting: " + point);
+        XY right() {
+            return new XY(x + 1, y);
+        }
 
-		if (!sel.select(point))
-			return;
-		if (taken.contains(point))
-			return;
+        XY top() {
+            return new XY(x, y - 1);
+        }
 
-		System.out.println("Yes");
-		taken.add(point);
-		selected.add(point);
+        XY bottom() {
+            return new XY(x, y + 1);
+        }
 
-		select(point.left(), taken, selected, sel);
-		select(point.right(), taken, selected, sel);
-		select(point.top(), taken, selected, sel);
-		select(point.bottom(), taken, selected, sel);
-	}
+    }
 
-	static class RegionColorSelector extends ASelector<XY> {
+    static void select(XY point, Set<XY> taken, List<XY> selected, ISelector<XY> sel) {
+        System.out.println("Selecting: " + point);
 
-		IGridTable table;
-		short[] color;
-		int w, h;
+        if (!sel.select(point))
+            return;
+        if (taken.contains(point))
+            return;
 
-		boolean first = true;
+        System.out.println("Yes");
+        taken.add(point);
+        selected.add(point);
 
-		public RegionColorSelector(IGridTable table) {
-			super();
-			this.table = table;
-			this.w = table.getWidth();
-			this.h = table.getHeight();
-		}
+        select(point.left(), taken, selected, sel);
+        select(point.right(), taken, selected, sel);
+        select(point.top(), taken, selected, sel);
+        select(point.bottom(), taken, selected, sel);
+    }
 
-		static boolean sameColor(short[] c1, short[] c2) {
-			if (c1 == c2)
-				return true;
-			if (c1 == null || c2 == null)
-				return false;
-			for (int i = 0; i < c2.length; i++) {
-				if (c1[i] != c2[i])
-					return false;
-			}
-			return true;
-		}
+    static class RegionColorSelector extends ASelector<XY> {
 
-		static short[] getColor(IGridTable gt, XY point) {
-			ICellStyle cs = gt.getCell(point.x, point.y).getStyle();
-			return cs == null ? null : cs.getFillForegroundColor();
-		}
+        IGridTable table;
+        short[] color;
+        int w, h;
 
-		public boolean select(XY point) {
+        boolean first = true;
 
-			if (first) {
-				System.out.println("First:" + point);
-				first = false;
-				color = getColor(table, point);
-				return true;
-			}
+        public RegionColorSelector(IGridTable table) {
+            super();
+            this.table = table;
+            this.w = table.getWidth();
+            this.h = table.getHeight();
+        }
 
-			if (point.x < 0 || point.y < 1 || point.x >= w || point.y >= h)
-				return false;
-			return sameColor(color, getColor(table, point));
-		}
-	}
+        static boolean sameColor(short[] c1, short[] c2) {
+            if (c1 == c2)
+                return true;
+            if (c1 == null || c2 == null)
+                return false;
+            for (int i = 0; i < c2.length; i++) {
+                if (c1[i] != c2[i])
+                    return false;
+            }
+            return true;
+        }
 
-	static List<List<XY>> selectByColor(IGridTable table) {
-		List<List<XY>> res = new ArrayList<List<XY>>();
+        static short[] getColor(IGridTable gt, XY point) {
+            ICellStyle cs = gt.getCell(point.x, point.y).getStyle();
+            return cs == null ? null : cs.getFillForegroundColor();
+        }
 
-		Set<XY> taken = new HashSet<XY>();
+        public boolean select(XY point) {
 
-		while (true) {
-			XY nextPoint = findNextPoint(table, taken);
+            if (first) {
+                System.out.println("First:" + point);
+                first = false;
+                color = getColor(table, point);
+                return true;
+            }
 
-			if (nextPoint == null)
-				return res;
+            if (point.x < 0 || point.y < 1 || point.x >= w || point.y >= h)
+                return false;
+            return sameColor(color, getColor(table, point));
+        }
+    }
 
-			System.out.println("Next:" + nextPoint
-					+ table.getCell(nextPoint.x, nextPoint.y).getStringValue());
+    static List<List<XY>> selectByColor(IGridTable table) {
+        List<List<XY>> res = new ArrayList<List<XY>>();
 
-			List<XY> selected = new ArrayList<XY>();
+        Set<XY> taken = new HashSet<XY>();
 
-			RegionColorSelector sel = new RegionColorSelector(table);
-			select(nextPoint, taken, selected, sel);
-			res.add(selected);
-		}
+        while (true) {
+            XY nextPoint = findNextPoint(table, taken);
 
-	}
+            if (nextPoint == null)
+                return res;
 
-	static private XY findNextPoint(IGridTable table, Set<XY> taken) {
-		IGridRegion g = table.getRegion();
-		int w = IGridRegion.Tool.width(g);
-		int h = IGridRegion.Tool.height(g);
-		for (int x = 0; x < w; x++) {
-			for (int y = 1; y < h; y++) {
-				XY point = new XY(x, y);
-				if (!taken.contains(point))
-					return point;
+            System.out.println("Next:" + nextPoint + table.getCell(nextPoint.x, nextPoint.y).getStringValue());
 
-			}
-		}
+            List<XY> selected = new ArrayList<XY>();
 
-		return null;
-	}
+            RegionColorSelector sel = new RegionColorSelector(table);
+            select(nextPoint, taken, selected, sel);
+            res.add(selected);
+        }
 
-	public static void main(String[] args) {
-	    RuleEngineFactory<SudokuRulesInterface> factory = new RuleEngineFactory<SudokuRulesInterface>
-	        (SudokuRulesInterface.__src, SudokuRulesInterface.class);
-	    
-	    // Create instance of OpenL rules.
-	    factory.makeInstance();
-		IGridTable gt = GameInterface.findTable("sq1", factory.getCompiledOpenClass().getOpenClass().getMethods());
-		gt = new GridTable(gt.getRegion(), gt.getGrid());
+    }
 
-		List<List<XY>> res = SquigglySudoku.selectByColor(gt);
+    static private XY findNextPoint(IGridTable table, Set<XY> taken) {
+        IGridRegion g = table.getRegion();
+        int w = IGridRegion.Tool.width(g);
+        int h = IGridRegion.Tool.height(g);
+        for (int x = 0; x < w; x++) {
+            for (int y = 1; y < h; y++) {
+                XY point = new XY(x, y);
+                if (!taken.contains(point))
+                    return point;
 
-		for (Iterator<List<XY>> iterator = res.iterator(); iterator.hasNext();) {
-			List<XY> list = iterator.next();
-			System.out.println(list);
-		}
-	}
+            }
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ProjectDescriptorBasedResolvingStrategy resolvingStrategy = new ProjectDescriptorBasedResolvingStrategy();
+        ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(new File("."));
+        Module moduleInfo = projectDescriptor.getModules().get(0);
+        RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(moduleInfo);
+
+        /*
+         * RuleEngineFactory<SudokuRulesInterface> factory = new
+         * RuleEngineFactory<SudokuRulesInterface> (SudokuRulesInterface.__src,
+         * SudokuRulesInterface.class);
+         */
+
+        // Create instance of OpenL rules.
+        // factory.makeInstance();
+        CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
+        IGridTable gt = GameInterface.findTable("sq1", compiledOpenClass.getOpenClass().getMethods());
+        gt = new GridTable(gt.getRegion(), gt.getGrid());
+
+        List<List<XY>> res = SquigglySudoku.selectByColor(gt);
+
+        for (Iterator<List<XY>> iterator = res.iterator(); iterator.hasNext();) {
+            List<XY> list = iterator.next();
+            System.out.println(list);
+        }
+    }
 
 }

@@ -17,7 +17,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -29,9 +28,10 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
+import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.web.repository.upload.ExcelFileProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -41,11 +41,13 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -71,7 +73,10 @@ import javax.servlet.http.HttpServletResponse;
 @ManagedBean
 @ViewScoped
 public class RepositoryTreeController {
+
     private static final Date SPECIAL_DATE = new Date(0);
+    private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
+
     private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
     @ManagedProperty(value="#{repositoryTreeState}")
@@ -90,14 +95,12 @@ public class RepositoryTreeController {
 
     private String projectName;
     private String newProjectTemplate;
-    private String[] projectTemplates = { "SampleTemplate.xls" };
     private String folderName;
     private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
     private String version;
-    private String saveComment;
 
     private String filterString;
     private boolean hideDeleted;
@@ -340,15 +343,15 @@ public class RepositoryTreeController {
             return msg;
         }
 
-        InputStream sampleRulesSource = this.getClass().getClassLoader().getResourceAsStream(newProjectTemplate);        
-        String errorMessage = String.format("Can`t load template file: %s", newProjectTemplate);
-        if (sampleRulesSource == null) {
+        ProjectFile[] templateFiles = getProjectTemplateFiles(TEMPLATES_PATH + newProjectTemplate);
+        if (templateFiles.length <= 0) {
+            String errorMessage = String.format("Can`t load template files: %s", newProjectTemplate);
             FacesUtils.addErrorMessage(errorMessage);
             return null;
         }
 
-        String rulesSourceName = "rules." + FilenameUtils.getExtension(newProjectTemplate);
-        ExcelFileProjectCreator projectCreator = new ExcelFileProjectCreator(projectName, userWorkspace, sampleRulesSource, rulesSourceName);
+        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(
+                projectName, userWorkspace, templateFiles);
         String creationMessage = projectCreator.createRulesProject();
         if (creationMessage == null) {
             try {
@@ -404,7 +407,7 @@ public class RepositoryTreeController {
         String childName = FacesUtils.getRequestParameter("element");
 
         try {
-            projectArtefact.getArtefact(childName).delete();
+            projectArtefact.deleteArtefact(childName);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
@@ -1233,8 +1236,7 @@ public class RepositoryTreeController {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    String msg = "Failed to close content stream.";
-                    log.error(msg, e);
+                    log.error("Failed to close content stream.", e);
                 }
             }
         }
@@ -1248,10 +1250,55 @@ public class RepositoryTreeController {
         this.newProjectTemplate = newProjectTemplate;
     }
 
-    public SelectItem[] getNewProjectTemplates() {
-        return FacesUtils.createSelectItems(projectTemplates);
+    public String[] getProjectTemplates(String category) {
+        List<String> templateNames = new ArrayList<String>();
+        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+        Resource[] templates = null;
+
+        try {
+            // JAR file
+            templates = resourceResolver.getResources(TEMPLATES_PATH + category + "/*/");
+            if (templates.length == 0) {
+                // File System
+                templates = resourceResolver.getResources(TEMPLATES_PATH + category + "/*");
+            }
+
+            for (Resource resource : templates) {
+                if (resource.getURL().getProtocol().equals("jar")) {
+                    // JAR file
+                    String templateUrl = resource.getURL().getPath();
+                    String[] templateParsed = templateUrl.split("/");
+                    templateNames.add(templateParsed[templateParsed.length - 1]);
+                } else {
+                    // File System
+                    templateNames.add(resource.getFilename());
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to get project templates", e);
+        }
+
+        return templateNames.isEmpty() ? new String[0] : templateNames.toArray(new String[0]);
     }
-    
+
+    private ProjectFile[] getProjectTemplateFiles(String url) {
+        List<ProjectFile> templateFiles = new ArrayList<ProjectFile>();
+        ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
+
+        try {
+            Resource[] templates = resourceResolver.getResources(url + "/*");
+            for (Resource resource : templates) {
+                templateFiles.add(new ProjectFile(
+                        resource.getFilename(), resource.getInputStream()));
+            }
+        } catch (Exception e) {
+            log.error("Failed to get project template: " + url, e);
+        }
+
+        return templateFiles.isEmpty() ? new ProjectFile[0] : templateFiles.toArray(new ProjectFile[0]);
+    }
+
     public boolean getCanDelete() {
         return isGranted(PRIVILEGE_DELETE_PROJECTS);
     }

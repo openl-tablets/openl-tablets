@@ -8,6 +8,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
+import org.openl.rules.ruleservice.core.DeploymentRelatedInfoCache;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -96,10 +97,15 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     private void processServices() {
-        Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
-        undeployUnnecessary(newServices);
-        redeployExisitng(newServices);
-        deployNewServices(newServices);
+        try {
+            DeploymentRelatedInfoCache.setInstance(new DeploymentRelatedInfoCache());
+            Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
+            undeployUnnecessary(newServices);
+            redeployExisitng(newServices);
+            deployNewServices(newServices);
+        } finally {
+            DeploymentRelatedInfoCache.removeInstance();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -143,11 +149,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         for (ServiceDescription serviceDescription : newServices.values()) {
             if (isServiceExists(serviceDescription.getName())) {
                 try {
+                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
                     ruleService.redeploy(serviceDescription);
                 } catch (RuleServiceRedeployException e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
                     }
+                } finally {
+                    ServiceDescriptionHolder.getInstance().remove();
                 }
             }
         }
@@ -157,11 +166,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         for (ServiceDescription serviceDescription : newServices.values()) {
             if (!isServiceExists(serviceDescription.getName())) {
                 try {
+                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
                     ruleService.deploy(serviceDescription);
                 } catch (RuleServiceDeployException e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
                     }
+                } finally {
+                    ServiceDescriptionHolder.getInstance().remove();
                 }
             }
         }

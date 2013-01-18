@@ -23,7 +23,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * @author Nail Samatov
  */
 public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
-    private static final Log log = LogFactory.getLog(RESTServicesRuleServicePublisher.class);
+    private final Log log = LogFactory.getLog(RESTServicesRuleServicePublisher.class);
 
     private ObjectFactory<? extends JAXRSServerFactoryBean> serverFactory;
     private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();

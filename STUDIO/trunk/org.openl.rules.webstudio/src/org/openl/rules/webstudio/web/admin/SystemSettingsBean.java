@@ -23,7 +23,10 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -34,6 +37,9 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @ManagedBean
 @SessionScoped
 public class SystemSettingsBean {
+    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+    
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
@@ -88,11 +94,11 @@ public class SystemSettingsBean {
     private DeploymentManager deploymentManager;
 
     public String getUserWorkspaceHome() {
-        return configManager.getStringProperty(USER_WORKSPACE_HOME);
+        return configManager.getPath(USER_WORKSPACE_HOME);
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
-        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
+        configManager.setPath(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -112,11 +118,11 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
+        return configManager.getPath(PROJECT_HISTORY_HOME);
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
-        configManager.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
+        configManager.setPath(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public String getDesignRepositoryType() {
@@ -139,33 +145,30 @@ public class SystemSettingsBean {
 
     public String getDesignRepositoryPath() {
         String type = getDesignRepositoryType();
-        return configManager.getStringProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        return configManager.getPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
 
     public void setDesignRepositoryPath(String path) {
         String type = getDesignRepositoryType();
-        configManager.setProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
+        configManager.setPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
     }
 
     public boolean isDesignRepositoryPathSystem() {
         String type = getDesignRepositoryType();
-        return configManager.isSystemProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        return configManager.isSystemProperty(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
-    
+
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
         if (productionRepositoryConfigurations.isEmpty()) {
             initProductionRepositoryConfigurations();
         }
-        
+
         return productionRepositoryConfigurations;
     }
 
     private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
-        
+
         String[] repositoryConfigNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
@@ -219,6 +222,9 @@ public class SystemSettingsBean {
         boolean saved = configManager.save();
         if (saved) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
+            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
+                    .getWebApplicationContext(FacesUtils.getServletContext());
+            context.refresh();
         }
     }
 
@@ -236,6 +242,9 @@ public class SystemSettingsBean {
         boolean restored = configManager.restoreDefaults();
         if (restored) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
+            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
+                    .getWebApplicationContext(FacesUtils.getServletContext());
+            context.refresh();
         }
 
         initProductionRepositoryConfigurations();
@@ -244,7 +253,7 @@ public class SystemSettingsBean {
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
-    
+
     public void setDeploymentManager(DeploymentManager deploymentManager) {
         this.deploymentManager = deploymentManager;
     }
@@ -257,22 +266,22 @@ public class SystemSettingsBean {
             String templateName = template.getName();
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
-            
+
             String templatePath = template.getPath();
             String[] paths = new String[productionRepositoryConfigurations.size()];
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 paths[i] = productionRepositoryConfigurations.get(i).getPath();
             }
-            
+
             String newNum = String.valueOf(maxNumber + 1);
             String newConfigName = getConfigName(templateName + newNum);
             RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
-            
+
             configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
-            
+
             productionRepositoryConfigurations.add(newConfig);
 //            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {
@@ -297,10 +306,12 @@ public class SystemSettingsBean {
                 if (prodConfig.getConfigName().equals(configName)) {
                     deletedConfigurations.add(prodConfig);
                     it.remove();
+                    /*Delete Production repo from tree*/
+                    productionRepositoriesTreeController.deleteProdRepo(prodConfig.getName());
                     break;
                 }
             }
-    
+
 //            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -424,7 +435,7 @@ public class SystemSettingsBean {
     }
     
     private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName, String prefix, String suffix) {
-        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName.toLowerCase() + "\\E\\d+\\Q" + suffix + "\\E");
+        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName + "\\E\\d+\\Q" + suffix + "\\E", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         
         int startPosition = (prefix + templateName).length();
         int suffixLength = suffix.length();
@@ -446,4 +457,15 @@ public class SystemSettingsBean {
         }
         return maxNumber;
     }
+
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+    
+    
 }

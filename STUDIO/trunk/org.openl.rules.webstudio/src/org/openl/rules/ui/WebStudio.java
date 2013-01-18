@@ -90,8 +90,8 @@ public class WebStudio {
     private boolean needRestart = false;
 
     public WebStudio(HttpSession session) {
-        systemConfigManager = WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-            .getBean(ConfigurationManager.class);
+        systemConfigManager = (ConfigurationManager) WebApplicationContextUtils.getWebApplicationContext(
+                session.getServletContext()).getBean("configManager");
 
         initWorkspace(session);
         initUserSettings(session);
@@ -340,6 +340,14 @@ public class WebStudio {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
             public boolean evaluate(Object project) {
                 return ((ProjectDescriptor) project).getId().equals(id);
+            }
+        });
+    }
+
+    public ProjectDescriptor getProjectByName(final String name) {
+        return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
+            public boolean evaluate(Object project) {
+                return ((ProjectDescriptor) project).getName().equals(name);
             }
         });
     }

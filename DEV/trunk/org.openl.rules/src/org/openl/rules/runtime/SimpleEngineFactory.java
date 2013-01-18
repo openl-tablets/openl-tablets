@@ -64,6 +64,17 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
         super(RULES_XLS_OPENL_NAME, source, userHome);
     }
 
+   
+    /**
+     * Added to allow using other openl names, such as org.openl.xls.ce
+     * @param source
+     * @param userHome
+     * @param openlName
+     */
+    public SimpleEngineFactory(IOpenSourceCodeModule source, String userHome, String openlName) {
+        super(openlName, source, userHome);
+    }
+
     public void reset(boolean resetInterface) {
         compiledOpenClass = null;
         if (resetInterface) {

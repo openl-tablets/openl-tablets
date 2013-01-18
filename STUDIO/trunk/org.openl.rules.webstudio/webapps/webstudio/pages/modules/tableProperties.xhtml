@@ -118,7 +118,7 @@
                     </h:panelGroup>
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
                         <a4j:commandLink id="removePropBtn" action="#{tablePropertiesBean.remove(prop)}" title="Remove"
-                            render="propsTable :addPropsPanel" oncomplete="$j('#savePropsButton').fadeIn();"
+                            render="propsTable :addPropsPanel"
                             style="#{empty prop.deprecation ? 'display: none' : ''}">
                             <img style="opacity: 0.5" src="webresource/images/close.gif" />
                         </a4j:commandLink>
@@ -131,17 +131,15 @@
         </table>
 
         <h:panelGroup rendered="#{tablePropertiesBean.editable}" style="margin: 8px 0" layout="block">
-            <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px"
+            <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tablePropertiesBean.changed ? 'display:inline' : 'display:none'}"
                 action="#{tablePropertiesBean.save}" data="#{tablePropertiesBean.newTableUri}"
                 oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
             <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('#addPropsPanel').fadeIn()"
                 rendered="#{!empty tablePropertiesBean.propertiesToAdd}" style="margin-left: 4px">Add</h:outputLink>
         </h:panelGroup>
         </h:panelGroup>
-    </h:form>
 
     <h:panelGroup rendered="#{tablePropertiesBean.editable}">
-    <h:form prependId="false">
         <h:panelGroup id="addPropsPanel" layout="block"
             style="display: none; margin: 7px 3px; padding: 8px; border: 1px solid #eeeeee; background: #f5f5f5; text-align: center">
             <div style="display: inline-block; text-align: left;">
@@ -160,8 +158,8 @@
                 </div>
             </div>
         </h:panelGroup>
-    </h:form>
     </h:panelGroup>
+    </h:form>
 
     <script>
         function editProperty(elem) {

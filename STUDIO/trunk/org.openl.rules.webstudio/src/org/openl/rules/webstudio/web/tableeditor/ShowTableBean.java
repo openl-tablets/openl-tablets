@@ -399,11 +399,6 @@ public class ShowTableBean {
         studio.rebuildModel();
     }
 
-    public String getTreeNodeId() {
-        final ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.getTreeNodeId(getUri());
-    }
-
     public void setShowFormulas() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setShowFormulas(!studio.isShowFormulas());

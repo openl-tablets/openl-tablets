@@ -495,13 +495,16 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     
     public static org.openl.meta.FloatValue round(org.openl.meta.FloatValue value) {
         validate(value, NumberOperations.ROUND);
-        
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue((float) Math.round(value.getValue())), 
+        //ULP is used for fix imprecise operations of float values
+        float ulp = Math.ulp(value.getValue());
+        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue((float) Math.round(value.getValue() + ulp)), 
             NumberOperations.ROUND, new org.openl.meta.FloatValue[] { value });
     }
     
     public static FloatValue round(FloatValue value, int scale) {
-        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(), scale)),
+        //ULP is used for fix imprecise operations of float values
+        float ulp = Math.ulp(value.getValue());
+        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue() + ulp, scale)),
             NumberOperations.ROUND,
             new FloatValue[] {value, new FloatValue(scale)});
     }

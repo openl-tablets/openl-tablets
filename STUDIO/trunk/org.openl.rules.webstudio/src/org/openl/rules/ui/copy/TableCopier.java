@@ -88,8 +88,8 @@ public class TableCopier extends WizardBase {
         ITableProperties tableProperties = table.getProperties();        
         for (String possiblePropertyName : propertiesManager.getPossibleToAddProperties()) {
             TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(possiblePropertyName);
-            if (!propDefinition.isSystem()) {                
-                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ? 
+            if (!propDefinition.isSystem() && propDefinition.getDeprecation() == null) {
+                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ?
                         tableProperties.getPropertyValue(possiblePropertyName) : null;
 
                 if (tableProperties.getPropertiesDefinedInTable().containsKey(possiblePropertyName)) {

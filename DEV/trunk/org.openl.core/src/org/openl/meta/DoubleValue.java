@@ -532,14 +532,20 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static org.openl.meta.DoubleValue round(org.openl.meta.DoubleValue value) {
         validate(value, NumberOperations.ROUND);
         
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue((double) Math.round(value.getValue())), 
+        //ULP is used for fix imprecise operations of double values
+        double ulp = Math.ulp(value.getValue());
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue((double) Math.round(value.getValue() + ulp)), 
             NumberOperations.ROUND, new org.openl.meta.DoubleValue[] { value });
     }
     
     public static DoubleValue round(DoubleValue value, int scale) {
-        return new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue(), scale)),
-            NumberOperations.ROUND,
-            new DoubleValue[] {value, new DoubleValue(scale)});
+        //ULP is used for fix imprecise operations of double values
+        double ulp = Math.ulp(value.getValue());
+        DoubleValue returnValue = new DoubleValue(new DoubleValue(org.apache.commons.math.util.MathUtils.round(value.doubleValue() + ulp, scale)),
+                NumberOperations.ROUND,
+                new DoubleValue[] {value, new DoubleValue(scale)});
+        
+        return returnValue;
     }
     
     public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {

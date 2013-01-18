@@ -1,6 +1,6 @@
 body {
     color: #171717;
-    background: #fefefe;
+    background: #fff;
     font-family: Verdana, Helvetica, Arial;
     font-size: 70%;
 }
@@ -231,6 +231,17 @@ fieldset {
 
 .table-striped tbody tr:nth-child(2n+1) td {
     background: #fafafa;
+}
+
+.table-over tr:hover td {
+    background: #f7f7f7;
+    cursor: pointer;
+}
+
+.table .row-selected {
+    background: #59c !important;
+    color: #fff !important;
+    font-weight: bold !important;
 }
 
 .badge {
@@ -501,6 +512,17 @@ form.standard table.buttonPanel {
      background: rgba(220, 220, 220, 0.1);
 }
 
+.view-header-link {
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+}
+
+.view-header-link-inactive {
+    color: #777;
+    border-bottom: 1px dashed #ccc;
+}
+
 .view_toolbar {
     height: 34px;
 }
@@ -542,6 +564,52 @@ form.standard table.buttonPanel {
 
 .rules_tree_view_second_col {
     width: 20px;
+}
+
+.field-description {
+    font-size: 11px;
+    color: #888;
+}
+
+.wizard-page {
+    text-align: center;
+}
+
+.wizard-page .wizard-page-container {
+    margin: 40px 30px;
+    display: inline-block;
+    text-align: left;
+    width: 650px;
+}
+
+.wizard-page .wizard-block {
+    margin-bottom: 30px;
+}
+
+.wizard-page .wizard-block > h2,
+.wizard-page .wizard-block > h3 {
+    font-weight: normal;
+    color: #28b;
+}
+
+.wizard-page .wizard-block > h2 {
+    margin-bottom: 27px;
+    font-size: 16px;
+}
+
+.wizard-page .wizard-block > h3 {
+    font-size: 14px;
+}
+
+.wizard-page .field-description {
+    margin-top: 3px;
+    color: #555;
+}
+
+.wizard-page .wizard-buttons {
+    border-top: 1px solid #ddd;
+    margin-top: 50px;
+    padding-top: 15px;
 }
 
 /* RichFaces styles */

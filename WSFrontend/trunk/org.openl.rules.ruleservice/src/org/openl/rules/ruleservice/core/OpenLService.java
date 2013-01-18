@@ -63,6 +63,7 @@ public final class OpenLService {
      * @param provideRuntimeContext define is runtime context should be used
      * @param provideVariations define is variations should be supported
      * @param modules a list of modules for load
+     * @param configuration configuration
      */
     OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext,
             boolean provideVariations, Collection<Class<RuleServicePublisher>> publishers, Collection<Module> modules) {
@@ -115,6 +116,8 @@ public final class OpenLService {
      * @return service publishers
      */
     public Collection<Class<RuleServicePublisher>> getPublishers() {
+        if (publishers == null)
+            return Collections.emptyList();
         return publishers;
     }
 
@@ -124,6 +127,8 @@ public final class OpenLService {
      * @return a collection of modules
      */
     public Collection<Module> getModules() {
+        if (modules == null)
+            return Collections.emptyList();
         return modules;
     }
 
@@ -241,7 +246,7 @@ public final class OpenLService {
 
         public OpenLServiceBuilder addPublishers(Collection<Class<RuleServicePublisher>> publishers) {
             if (this.publishers == null) {
-                this.publishers = new ArrayList<Class<RuleServicePublisher>>(0);
+                this.publishers = new ArrayList<Class<RuleServicePublisher>>();
             }
             if (publishers != null) {
                 this.publishers.addAll(publishers);
@@ -251,7 +256,7 @@ public final class OpenLService {
 
         public OpenLServiceBuilder addPublisher(Class<RuleServicePublisher> publisher) {
             if (this.publishers == null) {
-                this.publishers = new ArrayList<Class<RuleServicePublisher>>(0);
+                this.publishers = new ArrayList<Class<RuleServicePublisher>>();
             }
             if (publisher != null) {
                 this.publishers.add(publisher);
@@ -329,7 +334,7 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder addModules(Collection<Module> modules) {
             if (this.modules == null) {
-                this.modules = new ArrayList<Module>(0);
+                this.modules = new ArrayList<Module>();
             }
             this.modules.addAll(modules);
             return this;
@@ -343,7 +348,7 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder addModule(Module module) {
             if (this.modules == null) {
-                this.modules = new ArrayList<Module>(0);
+                this.modules = new ArrayList<Module>();
             }
             if (module != null) {
                 this.modules.add(module);

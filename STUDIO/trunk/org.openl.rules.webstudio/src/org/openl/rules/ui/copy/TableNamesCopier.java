@@ -1,31 +1,14 @@
 package org.openl.rules.ui.copy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
-import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 
 public class TableNamesCopier extends TableCopier {
 
     public TableNamesCopier(IOpenLTable table) {
         super(table);
-        checkPropertiesExistance();
-    }
-
-    private void checkPropertiesExistance() {
-        TableProperty nameProperty = getProperty(TableBuilder.TABLE_PROPERTIES_NAME);
-        if (nameProperty == null) {
-            // Property "name" is absent in base table
-            nameProperty = new TablePropertyBuilder(TableBuilder.TABLE_PROPERTIES_NAME, 
-                    TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(TableBuilder.TABLE_PROPERTIES_NAME))
-                    .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(TableBuilder.TABLE_PROPERTIES_NAME))
-                    .build();
-            getPropertiesManager().addProperty(nameProperty);
-        }
     }
 
     /*private void validateTechnicalName(TableSyntaxNode node) throws CreateTableException {
@@ -40,9 +23,7 @@ public class TableNamesCopier extends TableCopier {
 
     @Override
     public List<TableProperty> getPropertiesToDisplay() {
-        List<TableProperty> properties = new ArrayList<TableProperty>();
-        properties.add(getProperty(TableBuilder.TABLE_PROPERTIES_NAME));
-        return properties;
+        return null;
     }
 
 }
