@@ -15,7 +15,9 @@ import java.util.TimeZone;
 
 import javax.faces.model.SelectItem;
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.BigDecimalValue;
@@ -44,6 +46,8 @@ import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
 
 public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
+    @NotBlank(message = "Can not be empty")
+    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
     private String tableName;
     private SelectItem[] domainTypes;
     private String jsonTable;

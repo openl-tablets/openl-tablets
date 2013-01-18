@@ -90,18 +90,30 @@
                 <h:column>
                     <f:facet name="header">
                         <h:selectBooleanCheckbox id="allBenchCheck"
-                            onclick="changeAllItemStatus(this, 'BMForm')" title="Check/Uncheck All" />
+                            value="#{benchmarkMethodBean.allBencmarkSelected}"
+                            title="Check/Uncheck All">
+                            <a4j:ajax event="change" execute="@this"
+                                render="@form" />
+                        </h:selectBooleanCheckbox>
                     </f:facet>
-                    <h:selectBooleanCheckbox id="BM" value="#{benchmarkMethodBean.bencmarkSelected}" onclick="changeItemStatus(this, 'BMForm', 'BMForm:BMTable:allBenchCheck')" />
+                    <h:selectBooleanCheckbox id="BM"
+                        value="#{benchmarkMethodBean.bencmarkSelected}">
+                        <a4j:ajax event="change" execute="@this"
+                            render="@form" />
+                    </h:selectBooleanCheckbox>
                 </h:column>
             </h:dataTable>
 
             <br />
 
-            <a4j:commandButton action="#{benchmarkMethodBean.compare}"
-                value="Compare" render="comparedBMTable"/>
-            <a4j:commandButton action="#{benchmarkMethodBean.delete}"
-                value="Delete" render="comparedBMTable BMTable"/>
+            <a4j:commandButton id="compare"
+                action="#{benchmarkMethodBean.compare}" value="Compare"
+                render="comparedBMTable"
+                disabled="#{!benchmarkMethodBean.anyBencmarkSelected}" />
+            <a4j:commandButton id="delete"
+                action="#{benchmarkMethodBean.delete}" value="Delete"
+                render="comparedBMTable BMTable compare delete"
+                disabled="#{!benchmarkMethodBean.anyBencmarkSelected}" />
             <br />
             <br />
         <h:dataTable id="comparedBMTable" value="#{benchmarkMethodBean.comparedBenchmarks}" var="item"
