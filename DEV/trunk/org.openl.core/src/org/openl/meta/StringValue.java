@@ -1,12 +1,14 @@
 package org.openl.meta;
 
 import java.net.URL;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
+import org.openl.util.ArrayTool;
 
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
     private final Log log = LogFactory.getLog(StringValue.class);
@@ -78,16 +80,17 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     public void setMetaInfo(IMetaInfo metaInfo) {
-        if(metaInfo instanceof ValueMetaInfo){
-            setMetaInfo((ValueMetaInfo)metaInfo);
-        }else{
+        if (metaInfo instanceof ValueMetaInfo) {
+            setMetaInfo((ValueMetaInfo) metaInfo);
+        } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
-                        metaInfo.getDisplayName(IMetaInfo.LONG), new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
+                    metaInfo.getDisplayName(IMetaInfo.LONG),
+                    new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 setMetaInfo(valueMetaInfo);
             } catch (Exception e) {
                 log.debug(String.format("Failed to set meta info for StringValue \"%s\"", value), e);
-                setMetaInfo((ValueMetaInfo)null);
+                setMetaInfo((ValueMetaInfo) null);
             }
         }
     }
@@ -107,6 +110,22 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     @Override
     public String toString() {
         return value;
+    }
+
+    public static StringValue[] sort(StringValue[] values) {
+        StringValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new StringValue[values.length];
+            StringValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
 
 }

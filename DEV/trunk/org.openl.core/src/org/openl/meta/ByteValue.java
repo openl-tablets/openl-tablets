@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -552,5 +554,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             primitiveArray[i] = values[i].getValue();
         }
         return primitiveArray;
+    }
+    
+    public static ByteValue[] sort (ByteValue[] values) {
+       if (values != null) {
+           Arrays.sort(values);
+       }
+        return values;
     }
 }

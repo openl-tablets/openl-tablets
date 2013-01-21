@@ -3,6 +3,7 @@ package org.openl.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -782,51 +783,114 @@ public class ArrayTool {
         if (ArrayUtils.isEmpty(values)) {
             return 0;
         }
-        
+
         int count = values.length;
-        
+
         for (Object value : values) {
             if (value == null) {
                 count--;
             }
         }
-        
+
         return count;
     }
 
     public static byte[] sort(byte[] values) {
-        Arrays.sort(values);
+        if (values != null) {
+            Arrays.sort(values);
+        }
         return values;
     }
 
     public static short[] sort(short[] values) {
-        Arrays.sort(values);
+        if (values != null) {
+            Arrays.sort(values);
+        }
         return values;
     }
 
     public static int[] sort(int[] values) {
-        Arrays.sort(values);
+        if (values != null) {
+            Arrays.sort(values);
+        }
         return values;
     }
 
     public static long[] sort(long[] values) {
-        Arrays.sort(values);
+        if (values != null) {
+            Arrays.sort(values);
+        }
         return values;
     }
 
     public static float[] sort(float[] values) {
-        Arrays.sort(values);
+        if (values != null) {
+            Arrays.sort(values);
+        }
         return values;
     }
 
     public static double[] sort(double[] values) {
-        Arrays.sort(values);
+        if (values != null) {
+            Arrays.sort(values);
+        }
         return values;
     }
 
     public static Object[] sort(Object[] values) {
-        Arrays.sort(values);
-        return values;
+        Object[] sortedArray = null;
+        if (isArrayNull(values)) {
+            sortedArray = new Object[values.length];
+            Object[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
+
+    public static String[] sort(String[] values) {
+        String[] sortedArray = null;
+
+        if (values != null) {
+            sortedArray = new String[values.length];
+            String[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
+
+    public static Date[] sort(Date[] values) {
+        Date[] sortedArray = null;
+
+        if (isArrayNull(values)) {
+            sortedArray = new Date[values.length];
+            Date[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+
+        return sortedArray;
+    }
+
+    private static boolean isArrayNull(Object[] values) {
+        if (values != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static Class<?> getLowerComponentType(Class<?> clazz) {
@@ -839,14 +903,14 @@ public class ArrayTool {
     @SuppressWarnings("unchecked")
     public static <T> T[] removeNulls(T[] array) {
         T[] result;
-        
+
         int valuableSize = getNotNullValuesCount(array);
-        
+
         if (array == null || valuableSize == array.length) {
             result = array;
         } else {
             result = (T[]) Array.newInstance(array.getClass().getComponentType(), valuableSize);
-            
+
             int i = 0;
             for (T value : array) {
                 if (value != null) {
