@@ -881,7 +881,6 @@ public class ArrayTool {
                 sortedArray[i] = notNullArray[i];
             }
         }
-
         return sortedArray;
     }
 
