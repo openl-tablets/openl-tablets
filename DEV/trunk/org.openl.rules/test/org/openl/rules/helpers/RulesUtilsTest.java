@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Before;
@@ -402,12 +403,11 @@ public class RulesUtilsTest {
     public void testDateSort() {
         Date[] nullDateArray = null;
         Date[] nullDateArrayValue = { null, new Date(), new Date() };
-        Date[] nullDateArrayValues = { null, null, null };
-
+        Date[] actuals = RulesUtils.sort(nullDateArrayValue);
+        Date[] expecteds = {new Date(), new Date(), null };
+        
         assertNull(RulesUtils.sort(nullDateArray));
-        assertNull(RulesUtils.sort(nullDateArray));
-        assertTrue(nullDateArrayValue == RulesUtils.sort(nullDateArrayValue));
-        assertTrue(nullDateArrayValues == RulesUtils.sort(nullDateArrayValues));
+        assertArrayEquals(expecteds, actuals);
     }
 
     @Test
