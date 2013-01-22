@@ -37,7 +37,6 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         super(module, executionMode, dependencyManager, classLoader);
     }
 
-    
     @Override
     public void reset() {
         super.reset();
@@ -88,7 +87,9 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         try {
             serviceClass = getServiceClass();
         } catch (ClassNotFoundException e) {
-            log.debug("Failed to get service class.", e);
+            if (log.isDebugEnabled()){
+                log.debug("Failed to get service class.", e);
+            }
             serviceClass = null;
         }
         if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {

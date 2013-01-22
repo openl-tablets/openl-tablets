@@ -21,20 +21,20 @@ public class ColumnMatch extends ExecutableRulesMethod {
     private MatchNode checkTree;
 
     private IMatchAlgorithmExecutor algorithmExecutor;
-    
+
     private Invokable invoker;
 
     // WEIGHT algorithm
     private MatchNode totalScore;
-    private int[] columnScores;    
+    private int[] columnScores;
 
     public ColumnMatch(IOpenMethodHeader header, ColumnMatchBoundNode node) {
         super(header, node);
         initProperties(getSyntaxNode().getTableProperties());
     }
-    
+
     public IOpenSourceCodeModule getAlgorithm() {
-        return ((ColumnMatchBoundNode)getBoundNode()).getAlgorithm();
+        return ((ColumnMatchBoundNode) getBoundNode()).getAlgorithm();
     }
 
     public MatchNode getCheckTree() {
@@ -71,12 +71,14 @@ public class ColumnMatch extends ExecutableRulesMethod {
         return totalScore;
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
+
         if (invoker == null) {
             // create new instance of invoker.
             invoker = new ColumnMatchInvoker(this);
-        } 
+        }
         return invoker.invoke(target, params, env);
+
     }
 
     public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {

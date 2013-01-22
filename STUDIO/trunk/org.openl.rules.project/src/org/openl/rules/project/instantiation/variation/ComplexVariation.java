@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.util.Stack;
 
 /**
  * Complex variation combines multiple variations that all will be applied to
@@ -11,6 +10,9 @@ import java.util.Stack;
 public class ComplexVariation extends Variation {
     private Variation[] variations;
 
+    public ComplexVariation() {
+    }
+    
     /**
      * Constructs complex variation with the specified ID.
      * 
@@ -52,18 +54,33 @@ public class ComplexVariation extends Variation {
     }
 
     @Override
-    public Object[] applyModification(Object[] originalArguments, Stack<Object> stack) {
+    public Object currentValue(Object[] originalArguments) {
+        Object[] values = new Object[variations.length];
+        for (int i = 0; i < variations.length; i++) {
+            values[i] = variations[i].applyModification(originalArguments);
+        }
+        return values;
+    }
+    
+    @Override
+    public Object[] applyModification(Object[] originalArguments) {
         Object[] arguments = originalArguments;
         for (int i = 0; i < variations.length; i++) {
-            arguments = variations[i].applyModification(arguments, stack);
+            arguments = variations[i].applyModification(arguments);
         }
         return arguments;
     }
 
     @Override
-    public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
+    public void revertModifications(Object[] modifiedArguments, Object previousValue) {
+        Object[] values;
+        if (previousValue instanceof Object[]){
+            values = (Object[]) previousValue;
+        }else{
+            throw new IllegalStateException();
+        }
         for (int i = variations.length - 1; i >= 0; i--) {
-            variations[i].revertModifications(modifiedArguments, stack);
+            variations[i].revertModifications(modifiedArguments, values[i]);
         }
     }
 

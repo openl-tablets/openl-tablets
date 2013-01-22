@@ -23,6 +23,7 @@ import org.openl.util.fast.FastStack;
 public class SimpleVM implements IOpenVM {
 	
 	static class SimpleRunner implements IOpenRunner {
+	    
 		SimpleRunner() {
 		}
 		
@@ -94,7 +95,7 @@ public class SimpleVM implements IOpenVM {
 		
 	}
 	
-	static class SimpleRuntimeEnv implements IRuntimeEnv {
+	public static class SimpleRuntimeEnv implements IRuntimeEnv {
 		
 		IOpenRunner runner;
 		
@@ -104,7 +105,7 @@ public class SimpleVM implements IOpenVM {
 		
 		private FastStack contextStack = new FastStack(5);
 		
-		SimpleRuntimeEnv() {
+		public SimpleRuntimeEnv() {
 			this(new SimpleRunner(), 0, new Object[] {});
 			
 		}

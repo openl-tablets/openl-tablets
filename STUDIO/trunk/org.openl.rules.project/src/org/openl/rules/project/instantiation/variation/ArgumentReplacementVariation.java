@@ -1,8 +1,5 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.util.Stack;
-
-import org.openl.exception.OpenlNotCheckedException;
 
 /**
  * Variation for replacement of value of some argument.
@@ -15,7 +12,12 @@ import org.openl.exception.OpenlNotCheckedException;
 public class ArgumentReplacementVariation extends Variation {
     private int updatedArgumentIndex;
     private Object valueToSet;
-
+    /**
+     * Constructs variation
+     */
+    public ArgumentReplacementVariation() {
+    }
+    
     /**
      * Constructs variation.
      * 
@@ -34,18 +36,23 @@ public class ArgumentReplacementVariation extends Variation {
     }
 
     @Override
-    public Object[] applyModification(Object[] originalArguments, Stack<Object> stack) {
+    public Object currentValue(Object[] originalArguments) {
+        return originalArguments[updatedArgumentIndex];
+    }
+
+    @Override
+    public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new OpenlNotCheckedException("Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
+            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
+                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
+                    + originalArguments.length);
         }
-        stack.push(originalArguments[updatedArgumentIndex]);
         originalArguments[updatedArgumentIndex] = valueToSet;
         return originalArguments;
     }
 
     @Override
-    public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
-        Object previousValue = stack.pop();
+    public void revertModifications(Object[] modifiedArguments, Object previousValue) {
         modifiedArguments[updatedArgumentIndex] = previousValue;
     }
 

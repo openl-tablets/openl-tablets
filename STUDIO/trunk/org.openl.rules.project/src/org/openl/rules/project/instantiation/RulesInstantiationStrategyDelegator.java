@@ -24,7 +24,7 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
      */
     private RulesInstantiationStrategy instantiationStrategy;
 
-    private OpenLBundleClassLoader classLoader;
+    protected OpenLBundleClassLoader classLoader;
 
     public RulesInstantiationStrategyDelegator(RulesInstantiationStrategy instantiationStrategy) {
         this.instantiationStrategy = instantiationStrategy;
@@ -43,7 +43,7 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
 
         return classLoader;
     }
-
+    
     protected OpenLBundleClassLoader initClassLoader() {
         ClassLoader originalClassLoader = getOriginalInstantiationStrategy().getClassLoader();
         SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(originalClassLoader);
@@ -83,7 +83,7 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
     public Collection<Module> getModules() {
         return instantiationStrategy.getModules();
     }
-    
+
     @Override
     public Map<String, Object> getExternalParameters() {
         return instantiationStrategy.getExternalParameters();

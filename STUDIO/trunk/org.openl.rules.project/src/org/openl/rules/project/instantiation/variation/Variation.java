@@ -1,6 +1,6 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.util.Stack;
+import java.util.UUID;
 
 /**
  * Common variations class. It should have unique ID and handle two phases:
@@ -10,10 +10,17 @@ import java.util.Stack;
  * To store previous values of changed fields there can be used stack passed as
  * argument(if it is needed.)
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
 public abstract class Variation {
     private String variationID;
+
+    /**
+     * No argument constructor. Required for WS data binding.
+     */
+    public Variation() {
+        this.variationID = UUID.randomUUID().toString();
+    }
 
     /**
      * Constructs variation with the ID.
@@ -31,6 +38,18 @@ public abstract class Variation {
         return variationID;
     }
 
+    public void setVariationID(String variationID) {
+        this.variationID = variationID;
+    }
+
+    /**
+     * Returns current value for this variation
+     * 
+     * @param originalArguments
+     * @return
+     */
+    public abstract Object currentValue(Object[] originalArguments);
+
     /**
      * Modifies original arguments before the calculation.
      * 
@@ -39,7 +58,7 @@ public abstract class Variation {
      *            fields.
      * @return Modified arguments.
      */
-    public abstract Object[] applyModification(Object[] originalArguments, Stack<Object> stack);
+    public abstract Object[] applyModification(Object[] originalArguments);
 
     /**
      * Reverts changes of arguments after the calculation.
@@ -47,6 +66,6 @@ public abstract class Variation {
      * @param modifiedArguments Modified arguments.
      * @param stack Stack where previous values of modified fields were stored.
      */
-    public abstract void revertModifications(Object[] modifiedArguments, Stack<Object> stack);
+    public abstract void revertModifications(Object[] modifiedArguments, Object previousValue);
 
 }
