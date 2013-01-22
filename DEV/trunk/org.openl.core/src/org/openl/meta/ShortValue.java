@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
@@ -549,6 +551,13 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             shortArray[i] = values[i].getValue();
         }
         return shortArray;
+    }
+    
+    public static ShortValue[] sort (ShortValue[] values) {
+        if (values != null) {
+            Arrays.sort(values);
+        }
+        return values;
     }
 
 }
