@@ -14,46 +14,45 @@ import org.openl.runtime.IRuntimeContext;
  * 
  */
 public interface IRuntimeEnv {
-	Object[] getLocalFrame();
-	
-	IOpenRunner getRunner();
-	
-	Object getThis();
-	
-	Object[] popLocalFrame();
-	
-	Object popThis();
-	
-	void pushLocalFrame(Object[] frame);
-	
-	void pushThis(Object thisObject);
-	
-	/**
-	 * Gets the runtime context.
-	 * 
-	 * @return <code>IContext</code> instance
-	 */
-	IRuntimeContext getContext();
-	
-	/**
-	 * Sets context to runtime environment. By default, runtime environment
-	 * doesn't provide any context.
-	 * 
-	 * @param context runtime context.
-	 */
-	void setContext(IRuntimeContext context);
+    Object[] getLocalFrame();
 
-	boolean isContextManagingSupported();
-	
-	IRuntimeContext popContext();
+    IOpenRunner getRunner();
+
+    Object getThis();
+
+    Object[] popLocalFrame();
+
+    Object popThis();
+
+    void pushLocalFrame(Object[] frame);
+
+    void pushThis(Object thisObject);
+
+    /**
+     * Gets the runtime context.
+     * 
+     * @return <code>IContext</code> instance
+     */
+    IRuntimeContext getContext();
+
+    /**
+     * Sets context to runtime environment. By default, runtime environment
+     * doesn't provide any context.
+     * 
+     * @param context runtime context.
+     */
+    void setContext(IRuntimeContext context);
+
+    boolean isContextManagingSupported();
+
+    IRuntimeContext popContext();
 
     void pushContext(IRuntimeContext context);
-    
-    
+
     /**
      * 
-     * @return cloned copy to be used in multi-threaded environment 
+     * @return cloned copy to be used in multi-threaded environment
      */
     IRuntimeEnv cloneEnvForMT();
-    
+
 }

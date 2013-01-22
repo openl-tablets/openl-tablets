@@ -11,7 +11,6 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
-
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
@@ -54,8 +53,8 @@ public class DecisionTable extends ExecutableRulesMethod {
 
     private int columns;
 
-    private DecisionTableOptimizedAlgorithm algorithm;    
-    
+    private DecisionTableOptimizedAlgorithm algorithm;
+
     /**
      * Object to invoke current method.
      */
@@ -83,10 +82,10 @@ public class DecisionTable extends ExecutableRulesMethod {
     }
 
     public String getDisplayName(int mode) {
-    	IMemberMetaInfo metaInfo = getHeader().getInfo();
-    	if (metaInfo != null) {
-    		return metaInfo.getDisplayName(mode);
-    	}
+        IMemberMetaInfo metaInfo = getHeader().getInfo();
+        if (metaInfo != null) {
+            return metaInfo.getDisplayName(mode);
+        }
         return toString();
     }
 
@@ -145,17 +144,12 @@ public class DecisionTable extends ExecutableRulesMethod {
         this.ruleRow = ruleRow;
     }
 
-    public void bindTable(ICondition[] conditionRows,
-            IAction[] actionRows,
-            RuleRow ruleRow,
-            OpenL openl,
-            ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator cxtd,
-            int columns) throws Exception {
+    public void bindTable(ICondition[] conditionRows, IAction[] actionRows, RuleRow ruleRow, OpenL openl,
+            ComponentOpenClass componentOpenClass, IBindingContextDelegator cxtd, int columns) throws Exception {
 
         this.conditionRows = conditionRows;
-        this.actionRows = actionRows;        
-        
+        this.actionRows = actionRows;
+
         if (!cxtd.isExecutionMode()) {
             this.ruleRow = ruleRow;
         }
@@ -163,8 +157,6 @@ public class DecisionTable extends ExecutableRulesMethod {
 
         prepare(getHeader(), openl, componentOpenClass, cxtd);
     }
-
-    
 
     public BindingDependencies getDependencies() {
 
@@ -174,11 +166,12 @@ public class DecisionTable extends ExecutableRulesMethod {
         return bindingDependencies;
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             invoker = new DecisionTableInvoker(this);
-        } 
-        return invoker.invoke(target, params, env);        
+
+        }
+        return invoker.invoke(target, params, env);
     }
 
     /**
@@ -187,7 +180,7 @@ public class DecisionTable extends ExecutableRulesMethod {
      */
     public boolean shouldFailOnMiss() {
         if (getMethodProperties() != null) {
-            return (Boolean)getMethodProperties().getPropertyValue("failOnMiss");
+            return (Boolean) getMethodProperties().getPropertyValue("failOnMiss");
         }
         return false;
     }
@@ -198,50 +191,41 @@ public class DecisionTable extends ExecutableRulesMethod {
         algorithm.buildIndex();
     }
 
-    private void prepare(IOpenMethodHeader header,
-            OpenL openl,
-            ComponentOpenClass module,
+    private void prepare(IOpenMethodHeader header, OpenL openl, ComponentOpenClass module,
             IBindingContextDelegator bindingContextDelegator) throws Exception {
 
         IMethodSignature signature = header.getSignature();
-        
+
         IConditionEvaluator[] evaluators = prepareConditions(openl, module, bindingContextDelegator, signature);
-        
+
         prepareActions(header, openl, module, bindingContextDelegator, signature);
 
         makeAlgorithm(evaluators);
     }
 
-    private void prepareActions(IOpenMethodHeader header,
-            OpenL openl,
-            ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator,
-            IMethodSignature signature) throws Exception {
-        
-        IBindingContextDelegator actionBindingContextDelegator = new 
-            ComponentBindingContext(bindingContextDelegator, (ComponentOpenClass)getRuleExecutionType(openl));
+    private void prepareActions(IOpenMethodHeader header, OpenL openl, ComponentOpenClass componentOpenClass,
+            IBindingContextDelegator bindingContextDelegator, IMethodSignature signature) throws Exception {
+
+        IBindingContextDelegator actionBindingContextDelegator = new ComponentBindingContext(bindingContextDelegator,
+                (ComponentOpenClass) getRuleExecutionType(openl));
 
         for (int i = 0; i < actionRows.length; i++) {
             IOpenClass methodType = actionRows[i].isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-            actionRows[i].prepareAction(methodType, signature, openl, componentOpenClass, actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
+            actionRows[i].prepareAction(methodType, signature, openl, componentOpenClass,
+                    actionBindingContextDelegator, ruleRow, getRuleExecutionType(openl));
         }
     }
 
-    private IConditionEvaluator[] prepareConditions(OpenL openl,
-            ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator,
-            IMethodSignature signature) throws Exception {
+    private IConditionEvaluator[] prepareConditions(OpenL openl, ComponentOpenClass componentOpenClass,
+            IBindingContextDelegator bindingContextDelegator, IMethodSignature signature) throws Exception {
         IConditionEvaluator[] evaluators = new IConditionEvaluator[conditionRows.length];
 
         List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
         for (int i = 0; i < conditionRows.length; i++) {
             try {
-                evaluators[i] = conditionRows[i].prepareCondition(signature,
-                    openl,
-                    componentOpenClass,
-                    bindingContextDelegator,
-                    ruleRow);
+                evaluators[i] = conditionRows[i].prepareCondition(signature, openl, componentOpenClass,
+                        bindingContextDelegator, ruleRow);
             } catch (SyntaxNodeException e) {
                 errors.add(e);
             } catch (CompositeSyntaxNodeException e) {
@@ -270,7 +254,7 @@ public class DecisionTable extends ExecutableRulesMethod {
                 if (method != null) {
                     method.updateDependency(dependencies);
                 }
-                
+
                 updateValueDependency((FunctionalRow) condition, dependencies);
             }
         }
@@ -281,7 +265,7 @@ public class DecisionTable extends ExecutableRulesMethod {
                 if (method != null) {
                     method.updateDependency(dependencies);
                 }
-    
+
                 updateValueDependency((FunctionalRow) action, dependencies);
             }
         }
@@ -304,17 +288,15 @@ public class DecisionTable extends ExecutableRulesMethod {
                 }
             }
         }
-        
-    }    
-    
+
+    }
+
     IOpenClass ruleExecutionType;
-    
-    private synchronized IOpenClass getRuleExecutionType(OpenL openl)
-    {
-        if (ruleExecutionType == null)
-        {
-            ruleExecutionType = new DecisionTableDataType(this, null, getName()+ "Type", openl);
-        }    
+
+    private synchronized IOpenClass getRuleExecutionType(OpenL openl) {
+        if (ruleExecutionType == null) {
+            ruleExecutionType = new DecisionTableDataType(this, null, getName() + "Type", openl);
+        }
         return ruleExecutionType;
     }
 

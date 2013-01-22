@@ -11,9 +11,10 @@ import org.openl.rules.project.model.Module;
  * Compiles {@link Module}s and gets {@link CompiledOpenClass} and instance of
  * for execution
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
 public interface RulesInstantiationStrategy {
+    
     /**
      * Compiles module.
      * 

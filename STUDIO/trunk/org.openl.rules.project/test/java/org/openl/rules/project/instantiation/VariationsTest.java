@@ -103,7 +103,7 @@ public class VariationsTest {
                                                              * calculation
                                                              * +young
                                                              */;
-        assertEquals(variationsCount, resultsPolicies.getAllProcessedVariationIDs().size());
+        assertEquals(variationsCount, resultsPolicies.getAllProcessedVariationIDs().length);
         assertTrue(resultsPolicies.getVariationFailures().isEmpty());
         assertEquals(resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"),
             new DoubleValue(1390));

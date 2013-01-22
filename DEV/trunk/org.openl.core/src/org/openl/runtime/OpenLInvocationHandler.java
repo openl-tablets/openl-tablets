@@ -31,11 +31,14 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
     private ThreadLocal<IRuntimeEnv> environment = new ThreadLocal<IRuntimeEnv>() {
         @Override
         protected IRuntimeEnv initialValue() {
-            IRuntimeEnv environment = new SimpleVM().getRuntimeEnv();
-            return environment;
+            return buildRuntimeEnv();
         }
     };
-
+    
+    public IRuntimeEnv buildRuntimeEnv(){
+        return new SimpleVM().getRuntimeEnv();
+    }
+    
     public AEngineFactory getFactory() {
         return engineFactory;
     }
@@ -59,7 +62,6 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
         if (method.getDeclaringClass() == IEngineWrapper.class) {
             Method wrapperMethod = OpenLInvocationHandler.class.getDeclaredMethod(method.getName(), new Class<?>[0]);
             return wrapperMethod.invoke(this, args);
@@ -71,10 +73,10 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
 
             if (member instanceof IOpenMethod) {
                 IOpenMethod openMethod = (IOpenMethod) member;
-                return openMethod.invoke(openlInstance, args, environment.get());
+                return openMethod.invoke(openlInstance, args, getRuntimeEnv());
             } else {
                 IOpenField openField = (IOpenField) member;
-                return openField.get(openlInstance, environment.get());
+                return openField.get(openlInstance, getRuntimeEnv());
             }
         } else {
 

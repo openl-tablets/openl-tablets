@@ -83,7 +83,9 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         try {
             serviceClass = getServiceClass();
         } catch (ClassNotFoundException e) {
-            log.debug("Failed to get service class.", e);
+            if (log.isDebugEnabled()){
+                log.debug("Failed to get service class.", e);
+            }
             serviceClass = null;
         }
         if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {

@@ -7,7 +7,6 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessages;
-import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
@@ -17,7 +16,7 @@ import org.openl.types.IOpenMember;
  * @deprecated use {@link SimpleEngineFactory}
  */
 @Deprecated
-public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
+public class ApiBasedRulesEngineFactory extends ASourceCodeRulesEngineFactory {
 
     public static final String RULE_OPENL_NAME = "org.openl.xls";
 
@@ -70,7 +69,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
     
-    @Override
+    /*@Override
     protected ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment() {        
         return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
             @Override
@@ -78,7 +77,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeEngineFactory {
               return getOpenL().getVm().getRuntimeEnv();
             }
           };
-    }
+    }*/
     
     @Override
     public Object makeInstance() {

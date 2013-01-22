@@ -12,7 +12,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.datatype.gen.BeanByteCodeGenerator;
-import org.openl.runtime.ASourceCodeEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
@@ -24,7 +23,7 @@ import org.openl.types.IOpenMember;
  * 
  * @author PUdalau
  */
-public class SimpleEngineFactory extends ASourceCodeEngineFactory {
+public class SimpleEngineFactory extends ASourceCodeRulesEngineFactory {
     private final Log log = LogFactory.getLog(SimpleEngineFactory.class);
     private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
@@ -116,7 +115,7 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
 
-    @Override
+    /*@Override
     protected ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment() {
         return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
             @Override
@@ -124,7 +123,7 @@ public class SimpleEngineFactory extends ASourceCodeEngineFactory {
                 return getOpenL().getVm().getRuntimeEnv();
             }
         };
-    }
+    }*/
 
     @Override
     public Object makeInstance() {
