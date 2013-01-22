@@ -581,9 +581,18 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     public static LongValue[] sort(LongValue[] values) {
+        LongValue[] sortedArray = null;
         if (values != null) {
-            Arrays.sort(values);
+            sortedArray = new LongValue[values.length];
+            LongValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
         }
-        return values;
+        return sortedArray;
     }
 }

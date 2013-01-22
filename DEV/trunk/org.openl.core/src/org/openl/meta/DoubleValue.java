@@ -696,10 +696,19 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static DoubleValue[] sort(DoubleValue[] values) {
+        DoubleValue[] sortedArray = null;
         if (values != null) {
-            Arrays.sort(values);
+            sortedArray = new DoubleValue[values.length];
+            DoubleValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
         }
-        return values;
+        return sortedArray;
     }
 
 }

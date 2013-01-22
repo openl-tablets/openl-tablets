@@ -554,10 +554,19 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
     
     public static ShortValue[] sort (ShortValue[] values) {
+        ShortValue[] sortedArray = null;
         if (values != null) {
-            Arrays.sort(values);
+            sortedArray = new ShortValue[values.length];
+            ShortValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
         }
-        return values;
+        return sortedArray;
     }
 
 }
