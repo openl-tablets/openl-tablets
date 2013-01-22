@@ -16,17 +16,17 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
-    private static final String FIELD_PREFIX = "get";    
-    
+    private static final String FIELD_PREFIX = "get";
+
     private ThreadLocal<org.openl.vm.IRuntimeEnv> __env;
 
     public abstract Object makeInstance();
-    
+
     public void setRuntimeEnvironment(IRuntimeEnv env) {
         __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>();
         __env.set(env);
     }
-    
+
     protected IRuntimeEnv getRuntimeEnv() {
         if (__env == null) {
             __env = initRuntimeEnvironment();
@@ -34,10 +34,8 @@ public abstract class AEngineFactory {
         return __env.get();
     }
 
-    protected Object makeEngineInstance(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv,
-            ClassLoader classLoader) {
+    protected Object makeEngineInstance(Object openClassInstance, Map<Method, IOpenMember> methodMap,
+            IRuntimeEnv runtimeEnv, ClassLoader classLoader) {
 
         Class<?>[] proxyInterfaces = getInstanceInterfaces();
         InvocationHandler handler = makeInvocationHandler(openClassInstance, methodMap, runtimeEnv);
@@ -46,26 +44,25 @@ public abstract class AEngineFactory {
     }
 
     protected abstract Class<?>[] getInstanceInterfaces();
-    
+
     protected abstract ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment();
-    
+
     protected abstract InvocationHandler makeInvocationHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv);
+            Map<Method, IOpenMember> methodMap, IRuntimeEnv runtimeEnv);
 
     /**
      * Creates methods map that contains interface's methods as key and
      * appropriate open class's members as value.
      * 
      * @param engineInterface interface that provides method for engine
-     * @param moduleOpenClass open class that used by engine to invoke appropriate
-     *            rules
+     * @param moduleOpenClass open class that used by engine to invoke
+     *            appropriate rules
      * @return methods map
      */
     protected Map<Method, IOpenMember> makeMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
 
         // Methods map.
-        // 
+        //
         Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
         // Get declared by engine interface methods.
         //
@@ -79,7 +76,7 @@ public abstract class AEngineFactory {
             // parameter types.
             //
             IOpenClass[] params = OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes());
-			IOpenMethod rulesMethod = moduleOpenClass.getMatchingMethod(interfaceMethodName, params);                
+            IOpenMethod rulesMethod = moduleOpenClass.getMatchingMethod(interfaceMethodName, params);
 
             if (rulesMethod != null) {
                 // If openClass has appropriate method then add new entry to
@@ -102,13 +99,14 @@ public abstract class AEngineFactory {
                         fieldName = StringUtils.capitalize(fieldName);
                         rulesField = moduleOpenClass.getField(fieldName, true);
                     }
-                    
+
                     if (rulesField != null) {
                         // Cast method return type to appropriate OpenClass
                         // type.
                         //
-                        IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass, interfaceMethod.getReturnType());
-                        
+                        IOpenClass methodReturnType = OpenClassHelper.getOpenClass(moduleOpenClass,
+                                interfaceMethod.getReturnType());
+
                         if (methodReturnType.getInstanceClass() == rulesField.getType().getInstanceClass()) {
                             // If openClass's field type is equal to method
                             // return
@@ -125,8 +123,7 @@ public abstract class AEngineFactory {
                             // exception.
                             //
                             String message = String.format("Return type of method \"%s\" should be %s",
-                                interfaceMethodName,
-                                rulesField.getType());
+                                    interfaceMethodName, rulesField.getType());
 
                             throw new RuntimeException(message);
                         }
@@ -137,7 +134,7 @@ public abstract class AEngineFactory {
                 // throw runtime exception.
                 //
                 String message = String.format("There is no implementation in rules for interface method \"%s\"",
-                    interfaceMethod);
+                        interfaceMethod);
 
                 throw new RuntimeException(message);
             }

@@ -26,21 +26,21 @@ import org.openl.rules.project.model.Module;
  * @author PUdalau
  */
 public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantiationStrategy {
-    
+
     private final Log log = LogFactory.getLog(RulesInstantiationStrategyFactory.class);
 
     private OpenLWrapper wrapper;
-    
-    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode, 
+
+    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode,
             IDependencyManager dependencyManager) {
         super(module, executionMode, dependencyManager);
     }
-    
-    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode, 
+
+    public WrapperAdjustingInstantiationStrategy(Module module, boolean executionMode,
             IDependencyManager dependencyManager, ClassLoader classLoader) {
-        super(module, executionMode, dependencyManager,classLoader);
+        super(module, executionMode, dependencyManager, classLoader);
     }
-    
+
     @SuppressWarnings("deprecation")
     @Override
     protected ClassLoader initClassLoader() {
@@ -54,7 +54,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
         OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
         return classLoader;
     }
-    
+
     @Override
     public void reset() {
         super.reset();
@@ -64,19 +64,22 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             }
             wrapper = null;
         } catch (Exception e) {
-            log.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
+            if (log.isErrorEnabled()) {
+                log.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
+            }
         }
     }
 
     protected boolean isWrapperClassLoaded() {
         return super.isServiceClassDefined();
     }
-    
+
     @Override
     public void forcedReset() {
         super.forcedReset();
-        super.setServiceClass(null);// it will cause reloading of service class with
-                              // new classloader later
+        super.setServiceClass(null);// it will cause reloading of service class
+                                    // with
+        // new classloader later
     }
 
     @Override
@@ -112,93 +115,108 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
         }
         return super.getServiceClass();
     }
-    
+
     @Override
     public void setServiceClass(Class<?> serviceClass) {
-        log.warn(String.format("Service class changing is not allowed for static wrapper. Defauld static wrapper class will be used insdead of '%s'",
-            serviceClass.getName()));
+        if (log.isWarnEnabled()) {
+            log.warn(String
+                    .format("Service class changing is not allowed for static wrapper. Defauld static wrapper class will be used insdead of '%s'",
+                            serviceClass.getName()));
+        }
     }
-    
+
     private Class<?> getWrapperClass() throws ClassNotFoundException {
         return Class.forName(getModule().getClassname(), false, getClassLoader());
     }
-    
+
     public Object wrapperNewInstance(Class<?> wrapperClass) throws Exception {
-        try {            
-            // NOTICE: Our bean datatype classes are loaded during compilation and they may be used in wrapper 
+        try {
+            // NOTICE: Our bean datatype classes are loaded during compilation
+            // and they may be used in wrapper
             // method signatures.
-            // However, wrapper fields and constructors do not have those classes references. 
-            // Due to Java lazy class loading it's safe to access fields and constructor before Openl compilation.
-            
-            Constructor<?> ctr = findConstructor(wrapperClass, new Class[] { boolean.class, boolean.class, Map.class, 
+            // However, wrapper fields and constructors do not have those
+            // classes references.
+            // Due to Java lazy class loading it's safe to access fields and
+            // constructor before Openl compilation.
+
+            Constructor<?> ctr = findConstructor(wrapperClass, new Class[] { boolean.class, boolean.class, Map.class,
                     IDependencyManager.class });
-            
+
             if (ctr != null) {
-                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(), prepareExternalParameters(), 
-                        getDependencyManager() });
+                return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode(),
+                        prepareExternalParameters(), getDependencyManager() });
             }
 
-            ctr = findConstructor(wrapperClass, new Class[] {boolean.class, boolean.class});
-            
+            ctr = findConstructor(wrapperClass, new Class[] { boolean.class, boolean.class });
+
             if (ctr != null) {
                 return ctr.newInstance(new Object[] { !isExecutionMode(), isExecutionMode() });
             }
 
-            ctr = wrapperClass.getConstructor(new Class[] {boolean.class});
-            
+            ctr = wrapperClass.getConstructor(new Class[] { boolean.class });
+
             return ctr.newInstance(new Object[] { Boolean.TRUE });
         } catch (NoSuchMethodException e) {
-            String errorMessage = 
-                String.format("Cannot find method in wrapper class %s. " +
-                		"You are using older version of OpenL Wrapper, please run Generate ... Wrapper", 
+            String errorMessage = String.format("Cannot find method in wrapper class %s. "
+                    + "You are using older version of OpenL Wrapper, please run Generate ... Wrapper",
                     wrapperClass.getName());
-            log.error(errorMessage, e);
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage, e);
+            }
             throw new OpenlNotCheckedException(errorMessage, e);
         }
     }
-    
+
     @Override
     public CompiledOpenClass compile() throws RulesInstantiationException {
         try {
             return compile(getServiceClass());
         } catch (ClassNotFoundException e) {
             String errorMessage = String.format("Cannot find service class for %s", getModule().getClassname());
-            log.error(errorMessage, e);
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage, e);
+            }
             throw new RulesInstantiationException(errorMessage, e);
         } catch (UnsupportedClassVersionError e) {
-            String errorMessage = String.format("Cannot load a class compiled using newer version of JDK than current JRE (%s)", System.getProperty("java.version"));
-            log.error(errorMessage, e);
+            String errorMessage = String.format(
+                    "Cannot load a class compiled using newer version of JDK than current JRE (%s)",
+                    System.getProperty("java.version"));
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage, e);
+            }
             throw new RulesInstantiationException(errorMessage, e);
         }
     }
-    
+
     @Override
     public OpenLWrapper instantiate(Class<?> wrapperClass) throws RulesInstantiationException {
 
         // Ensure that instantiation will be done in strategy classloader.
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
-        
+
         try {
             preInitWrapper(wrapperClass);
             if (wrapper == null) {
                 wrapper = (OpenLWrapper) wrapperNewInstance(wrapperClass);
-            } else{
+            } else {
             }
             return wrapper;
         } catch (Exception e) {
             String errorMessage = String.format("Failed to instantiate wrapper %s", wrapperClass.getName());
-            log.error(errorMessage, e);
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage, e);
+            }
             throw new RulesInstantiationException(errorMessage, e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
-    private void reset(Class<?> wrapperClass) throws NoSuchMethodException,
-                                             IllegalAccessException,
-                                             InvocationTargetException {
-        // When calling getMethod() all declared methods from the class are loading with its parameters classes and 
+    private void reset(Class<?> wrapperClass) throws NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException {
+        // When calling getMethod() all declared methods from the class are
+        // loading with its parameters classes and
         // return classes.
         Method m = wrapperClass.getMethod("reset", new Class[] {});
         m.invoke(null, new Object[] {}); // we reset to reload wrapper due
@@ -211,16 +229,18 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
      * @param wrapperClass
      * @param useExisting
      * @return {@link CompiledOpenClass}
-     * @throws RulesInstantiationException 
+     * @throws RulesInstantiationException
      * 
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
     private CompiledOpenClass compile(Class<?> wrapperClass) throws RulesInstantiationException {
         OpenLWrapper wrapper = instantiate(wrapperClass);
-        return wrapper.getCompiledOpenClass();
-    }    
-    
+        CompiledOpenClass compiledOpenClass = wrapper.getCompiledOpenClass();
+        
+        return compiledOpenClass;
+    }
+
     private Constructor<?> findConstructor(Class<?> clazz, Class<?>[] parameterTypes) {
         return ConstructorUtils.getMatchingAccessibleConstructor(clazz, parameterTypes);
     }
@@ -231,9 +251,11 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
         if (Modifier.isStatic(userHomeField.getModifiers())) {
             userHomeField.set(null, projectFolder);
         } else {
-            String errorMessage = String.format("Field %s is not static in %s", userHomeField.getName(), 
-                userHomeField.getDeclaringClass().getName());
-            log.error(errorMessage);
+            String errorMessage = String.format("Field %s is not static in %s", userHomeField.getName(), userHomeField
+                    .getDeclaringClass().getName());
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage);
+            }
             throw new OpenlNotCheckedException(errorMessage);
         }
         try {
@@ -244,7 +266,9 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             }
         } catch (Exception e) {
             String errorMessage = "Failed to set up __src";
-            log.error(errorMessage, e);
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage, e);
+            }
             throw new OpenlNotCheckedException(errorMessage, e);
         }
     }

@@ -1,11 +1,8 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.util.Stack;
-
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.Pointer;
-import org.openl.exception.OpenlNotCheckedException;
 
 /**
  * Variation implementation using to find fields to modify JXpath (See
@@ -13,13 +10,19 @@ import org.openl.exception.OpenlNotCheckedException;
  * object(path "."), only fields modifications supported. If you want to replace
  * entire argument you should use {@link ArgumentReplacementVariation}.
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
 public class JXPathVariation extends Variation {
     private int updatedArgumentIndex;
     private String path;
     private Object valueToSet;
     private CompiledExpression compiledExpression;
+
+    /**
+     * Constructs JXPath variation.
+     */
+    public JXPathVariation() {
+    }
 
     /**
      * Constructs JXPath variation.
@@ -38,26 +41,42 @@ public class JXPathVariation extends Variation {
         }
         this.path = path;
         this.valueToSet = valueToSet;
-        compiledExpression = JXPathContext.compile(path);
+        this.compiledExpression = JXPathContext.compile(path);
     }
 
     @Override
-    public Object[] applyModification(Object[] originalArguments, Stack<Object> stack) {
+    public Object currentValue(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
-            throw new OpenlNotCheckedException("Failed to apply variaion \"" + getVariationID() + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is " + originalArguments.length);
+            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
+                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
+                    + originalArguments.length);
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
-        Object previousValue = pointer.getValue();
-        stack.push(previousValue);
+        return pointer.getValue();
+    }
+
+    @Override
+    public Object[] applyModification(Object[] originalArguments) {
+        if (updatedArgumentIndex >= originalArguments.length) {
+            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
+                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
+                    + originalArguments.length);
+        }
+        JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
+        Pointer pointer = compiledExpression.createPath(context);
         pointer.setValue(valueToSet);
         return originalArguments;
     }
 
     @Override
-    public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
+    public void revertModifications(Object[] modifiedArguments, Object previousValue) {
+        if (updatedArgumentIndex >= modifiedArguments.length) {
+            throw new VariationRuntimeException("Failed to apply variaion \"" + getVariationID()
+                    + "\". Number of argument to modify is [" + updatedArgumentIndex + "] but arguments length is "
+                    + modifiedArguments.length);
+        }
         JXPathContext context = JXPathContext.newContext(modifiedArguments[updatedArgumentIndex]);
-        Object previousValue = stack.pop();
         compiledExpression.setValue(context, previousValue);
     }
 
@@ -69,7 +88,7 @@ public class JXPathVariation extends Variation {
     }
 
     /**
-     *  @return path to field to be modified.
+     * @return path to field to be modified.
      */
     public String getPath() {
         return path;
