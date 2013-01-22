@@ -36,6 +36,7 @@ import org.openl.syntax.impl.IdentifierNode;
  */
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
     private final Log log = LogFactory.getLog(MultiModuleInstantiationStartegy.class);
+    
     private Collection<Module> modules;
 
     public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager) {

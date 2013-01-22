@@ -29,7 +29,6 @@ import com.rits.cloning.Cloner;
  */
 public class InputArgumentsCloner extends Cloner {
     
-    
     public InputArgumentsCloner() {
         super();
         dontCloneClasses();

@@ -40,37 +40,32 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
-	
-    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl,
-            IDataBase dbase, boolean useDescisionTableDispatcher) {
+
+    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase,
+            boolean useDescisionTableDispatcher) {
         this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher);
-        
     }
-    
 
-    
     private static ThreadLocal<IOpenClass> topOpenClass = new ThreadLocal<IOpenClass>();
-    public static void setTopOpenClass(IOpenClass  top) {
-    	topOpenClass.set(top);
-    }
-    
-    
-    public IOpenClass getTopOpenClassOrThis() {
-    	
-    	IOpenClass top = topOpenClass.get();
-    	
-		return top == null ? this : top;
-	}
 
-    
+    public static void setTopOpenClass(IOpenClass top) {
+        topOpenClass.set(top);
+    }
+
+    public IOpenClass getTopOpenClassOrThis() {
+
+        IOpenClass top = topOpenClass.get();
+
+        return top == null ? this : top;
+    }
+
     public class TopField extends AOpenField {
 
         protected TopField() {
             super("top", getTopOpenClassOrThis());
         }
 
-
-		public Object get(Object target, IRuntimeEnv env) {
+        public Object get(Object target, IRuntimeEnv env) {
             return target;
         }
 
@@ -79,80 +74,80 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         }
 
     }
-   
-    
-    
-	/**
-	 * Constructor for module with dependent modules
-	 *
-	 */
-    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase, 
+
+    /**
+     * Constructor for module with dependent modules
+     * 
+     */
+    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase,
             Set<CompiledOpenClass> usingModules, boolean useDescisionTableDispatcher) {
-          super(schema, name, openl, usingModules);
-          this.dataBase = dbase;
-          this.metaInfo = metaInfo;
-          this.useDescisionTableDispatcher = useDescisionTableDispatcher;
-          addField(new TopField());
-      }
-      
-	
+        super(schema, name, openl, usingModules);
+        this.dataBase = dbase;
+        this.metaInfo = metaInfo;
+        this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+        addField(new TopField());
+    }
+
     // TODO: should be placed to ModuleOpenClass
-	public IDataBase getDataBase() {
-		return dataBase;
-	}
-	
-	public XlsMetaInfo getXlsMetaInfo() {
-		return (XlsMetaInfo) metaInfo;
-	}
-	
-	/**
-	 * Adds method to <code>XlsModuleOpenClass</code>.
-	 * 
-	 * @param method
-	 *            method object
-	 */
-	@Override
-	public void addMethod(IOpenMethod method) {
-	    if(method instanceof OpenMethodDispatcher){
-	        addDispatcherMethod((OpenMethodDispatcher)method);
+    public IDataBase getDataBase() {
+        return dataBase;
+    }
+
+    public XlsMetaInfo getXlsMetaInfo() {
+        return (XlsMetaInfo) metaInfo;
+    }
+
+    /**
+     * Adds method to <code>XlsModuleOpenClass</code>.
+     * 
+     * @param method method object
+     */
+    @Override
+    public void addMethod(IOpenMethod method) {
+        if (method instanceof OpenMethodDispatcher) {
+            addDispatcherMethod((OpenMethodDispatcher) method);
             return;
-	    }
-		
-		// Get method key.
-		//
-		MethodKey key = new MethodKey(method);
-		
-		Map<MethodKey, IOpenMethod> methods = methodMap();
-		
-		// Checks that method aleready exists in method map. If it already
-		// exists then "overload" it using decorator; otherwise - just add to
-		// method map.
-		//
-		if (methods.containsKey(key)) {
-			
-			// Gets the existed method from map.
-			// 
-			IOpenMethod existedMethod = methods.get(key);
-			
+        }
+
+        // Get method key.
+        //
+        MethodKey key = new MethodKey(method);
+
+        Map<MethodKey, IOpenMethod> methods = methodMap();
+
+        // Checks that method aleready exists in method map. If it already
+        // exists then "overload" it using decorator; otherwise - just add to
+        // method map.
+        //
+        if (methods.containsKey(key)) {
+
+            // Gets the existed method from map.
+            //
+            IOpenMethod existedMethod = methods.get(key);
+
             if (!existedMethod.getType().equals(method.getType())) {
                 throw new DuplicatedMethodException(
-                    String.format("Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
-                        method.getName(), method.getType().getDisplayName(0), existedMethod.getType().getDisplayName(0)), method);
+                        String.format(
+                                "Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
+                                method.getName(), method.getType().getDisplayName(0), existedMethod.getType()
+                                        .getDisplayName(0)), method);
             }
-			
-			// Checks the instance of existed method. If it's the
-			// OpenMethodDecorator then just add the method-candidate to
-			// decorator; otherwise - replace existed method with new instance
-			// of OpenMethodDecorator for existed method and add new one.
-			//
-			if (existedMethod instanceof OpenMethodDispatcher) {
-				OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-				decorator.addMethod(method);
-		} else {
+
+            // Checks the instance of existed method. If it's the
+            // OpenMethodDecorator then just add the method-candidate to
+            // decorator; otherwise - replace existed method with new instance
+            // of OpenMethodDecorator for existed method and add new one.
+            //
+            if (existedMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
+                decorator.addMethod(method);
+            } else {
                 boolean differentVersionsOfTheTable = false;
                 if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
-                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) existedMethod);
-                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) method);
+                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(
+                            (ExecutableRulesMethod) existedMethod);
+                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(
+                            (ExecutableRulesMethod) method);
                     differentVersionsOfTheTable = newMethodPropertiesKey.equals(existedMethodPropertiesKey);
                 }
                 if (differentVersionsOfTheTable) {
@@ -160,14 +155,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 } else {
                     createMethodDispatcher(method, key, existedMethod);
                 }
-			}
-		} else {
-			
-			// Just add original method.
-			//
-			methodMap().put(key, method);
-		}
-	}
+            }
+        } else {
+
+            // Just add original method.
+            //
+            methodMap().put(key, method);
+        }
+    }
 
     /**
      * Dispatcher method should be added by adding all candidates of the
@@ -178,8 +173,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * Previously there was problems because dispatcher from dependency was
      * either added to dispatcher of current module(dispatcher as a candidate in
      * another dispatcher) or added to current module and was modified during
-     * the current module processing.
-     * FIXME
+     * the current module processing. FIXME
      * 
      * @param dispatcher Dispatcher methods to add.
      */
@@ -197,8 +191,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
      */
-    public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod,
-            ExecutableRulesMethod newMethod,
+    public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod, ExecutableRulesMethod newMethod,
             MethodKey key) {
         if (new TableVersionComparator().compare(existedMethod, newMethod) < 0) {
             methodMap().put(key, existedMethod);
@@ -221,7 +214,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         OpenMethodDispatcher decorator;
         if (useDescisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
-        } else {            
+        } else {
             decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
         }
 
@@ -232,11 +225,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Replace existed method with decorator using the same key.
         //
         methodMap().put(key, decorator);
-    }    
+    }
 
     @Override
-	public void clearOddDataForExecutionMode() {
-	    super.clearOddDataForExecutionMode();
-	    dataBase = null;
+    public void clearOddDataForExecutionMode() {
+        super.clearOddDataForExecutionMode();
+        dataBase = null;
     }
 }

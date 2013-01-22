@@ -26,13 +26,13 @@ import org.openl.vm.IRuntimeEnv;
 public class RuleEngineFactory<T> extends EngineFactory<T> {
 
     public static final String RULE_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
-    
-    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
+
+    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
         @Override
         protected org.openl.vm.IRuntimeEnv initialValue() {
-          return new org.openl.vm.SimpleVM().getRuntimeEnv();
+            return new org.openl.vm.SimpleVM().getRuntimeEnv();
         }
-      };
+    };
 
     /**
      * 
@@ -45,7 +45,8 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     }
 
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(EngineFactoryDefinition factoryDef, Class<T> engineInterface, String openlName) {
         super(openlName, factoryDef, engineInterface);
@@ -60,9 +61,9 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
         super(RULE_OPENL_NAME, file, engineInterface);
     }
 
-    
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(File file, Class<T> engineInterface, String openlName) {
         super(openlName, file, engineInterface);
@@ -78,7 +79,8 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     }
 
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(String sourceFile, Class<T> engineInterface, String openlName) {
         super(openlName, sourceFile, engineInterface);
@@ -93,13 +95,15 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     public RuleEngineFactory(String userHome, String sourceFile, Class<T> engineInterface) {
         super(RULE_OPENL_NAME, userHome, sourceFile, engineInterface);
     }
-    
+
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(String userHome, String sourceFile, Class<T> engineInterface, String openlName) {
         super(openlName, userHome, sourceFile, engineInterface);
     }
+
     /**
      * 
      * @param url Url to rule file
@@ -110,18 +114,20 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     }
 
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(URL url, Class<T> engineInterface, String openlName) {
         super(openlName, url, engineInterface);
     }
-    
+
     public RuleEngineFactory(IOpenSourceCodeModule source, Class<T> engineInterface) {
         super(RULE_OPENL_NAME, source, engineInterface);
     }
 
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(IOpenSourceCodeModule source, Class<T> engineInterface, String openlName) {
         super(openlName, source, engineInterface);
@@ -132,12 +138,13 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     }
 
     /**
-     * Extended constructor to accommodated alternative OpenL implementations, such as org.openl.xls.ce
+     * Extended constructor to accommodated alternative OpenL implementations,
+     * such as org.openl.xls.ce
      */
     public RuleEngineFactory(String userHome, IOpenSourceCodeModule source, Class<T> engineInterface, String openlName) {
         super(openlName, userHome, source, engineInterface);
     }
-    
+
     @Override
     protected Class<?>[] getInstanceInterfaces() {
         List<Class<?>> interfaces = new ArrayList<Class<?>>();
@@ -146,15 +153,14 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
 
         return interfaces.toArray(new Class<?>[interfaces.size()]);
     }
-    
+
     @Override
-    protected IRuntimeEnv getRuntimeEnv() {        
+    protected IRuntimeEnv getRuntimeEnv() {
         return __env.get();
     }
 
     @Override
-    protected InvocationHandler makeInvocationHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
+    protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
         return new RulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
     }

@@ -13,6 +13,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -93,10 +94,11 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      */
     public static Class<?> getInterfaceForInstantiationStrategy(RulesInstantiationStrategy instantiationStrategy,
             Class<?> serviceClass) throws Exception {
-        Set<Method> changedReturnType = getMethodsWithAfterInterceptors(serviceClass);
-        if (changedReturnType.isEmpty()) {
+        boolean hasChangedReturnType = hasMethodsWithAfterInterceptors(serviceClass);
+        if (!hasChangedReturnType) {
             return serviceClass;
         } else {
+            Set<Method> changedReturnType = getMethodsWithAfterInterceptors(serviceClass);
             ClassWriter classWriter = new ClassWriter(0);
             ClassVisitor classVisitor = new ResultConvertorsSupportClassVisitor(classWriter, changedReturnType);
             String className = serviceClass.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
@@ -115,6 +117,22 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     }
 
     /**
+     * Look through all methods (skip methods for variations) of the specified class in order to find all
+     * methods annotated by {@link ServiceCallAfterInterceptor}.
+     * 
+     * @param serviceClass Class to be analyzed.
+     * @return returns true if class contains annotated method, otherwise returns false.
+     */
+    public static boolean hasMethodsWithAfterInterceptors(Class<?> serviceClass) {
+        for (Method method : serviceClass.getMethods()) {
+            if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null && !method.getReturnType().equals(VariationsResult.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Look through all methods of the specified class in order to find all
      * methods annotated by {@link ServiceCallAfterInterceptor}.
      * 
@@ -124,7 +142,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     public static Set<Method> getMethodsWithAfterInterceptors(Class<?> serviceClass) {
         Set<Method> changedReturnType = new HashSet<Method>();
         for (Method method : serviceClass.getMethods()) {
-            if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null) {
+            if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null && !method.getReturnType().equals(VariationsResult.class)) {
                 changedReturnType.add(method);
             }
         }

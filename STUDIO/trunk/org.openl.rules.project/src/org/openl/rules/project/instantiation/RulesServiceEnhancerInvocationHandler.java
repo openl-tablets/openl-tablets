@@ -31,9 +31,9 @@ class RulesServiceEnhancerInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         Method member = methodsMap.get(method);
-
-        log.debug(String.format("Invoking service class method: %s -> %s", method.toString(), member.toString()));
-
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Invoking service class method: %s -> %s", method.toString(), member.toString()));
+        }
         IRulesRuntimeContext context = (IRulesRuntimeContext) args[0];
         Object[] methodArgs = ArrayUtils.remove(args, 0);
 
@@ -47,22 +47,24 @@ class RulesServiceEnhancerInvocationHandler implements InvocationHandler {
         Class<? extends Object> serviceClass = serviceInstance.getClass();
 
         if (IEngineWrapper.class.isAssignableFrom(serviceClass)) {
-
-            log.debug(String.format("Applying runtime context: %s thru IEngineWrapper instance", context.toString()));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Applying runtime context: %s thru IEngineWrapper instance", context.toString()));
+            }
 
             IEngineWrapper wrapper = (IEngineWrapper) serviceInstance;
             wrapper.getRuntimeEnv().setContext(context);
         } else if (IRulesRuntimeContextConsumer.class.isAssignableFrom(serviceClass)) {
-
-            log.debug(String.format("Applying runtime context: %s thru IRulesRuntimeContextConsumer instance",
-                context.toString()));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Applying runtime context: %s thru IRulesRuntimeContextConsumer instance",
+                        context.toString()));
+            }
 
             IRulesRuntimeContextConsumer wrapper = (IRulesRuntimeContextConsumer) serviceInstance;
             wrapper.setRuntimeContext(context);
         } else {
-
-            log.error("Cannot define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
-
+            if (log.isErrorEnabled()) {
+                log.error("Cannot define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
+            }
             // throw new
             // RuntimeException("Cannot define rules runtime context for service instance.");
         }

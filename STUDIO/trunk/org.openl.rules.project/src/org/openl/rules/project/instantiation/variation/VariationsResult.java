@@ -1,12 +1,8 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Container of result from calculation with variations. Stores results for each
@@ -17,12 +13,11 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @param <T> return type of method calculated with variations.
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
 public class VariationsResult<T> {
-    private final Log log = LogFactory.getLog(VariationsResult.class);
-    private LinkedHashMap<String, T> variationResults;
-    private LinkedHashMap<String, String> variationFailures;
+    private Map<String, T> variationResults;
+    private Map<String, String> variationFailures;
 
     public VariationsResult() {
         variationResults = new LinkedHashMap<String, T>();
@@ -36,16 +31,10 @@ public class VariationsResult<T> {
      * @param result Result of the caculation with the corresponding variation.
      */
     public void registerResult(String variationID, T result) {
-        if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
-            log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
-        }
         variationResults.put(variationID, result);
     }
 
     public void registerFailure(String variationID, String errorMessage) {
-        if (variationResults.containsKey(variationID) || variationFailures.containsKey(variationID)) {
-            log.warn("Variation result with id \"" + variationID + "\" has been already registered, make sure that all your input variations has unique ID.");
-        }
         variationFailures.put(variationID, errorMessage);
     }
 
@@ -72,23 +61,24 @@ public class VariationsResult<T> {
      * @return All stored results for calculated variations.
      */
     public Map<String, T> getVariationResults() {
-        return variationResults;
+        return Collections.unmodifiableMap(variationResults);
     }
 
     /**
      * @return All failed calculations of variations.
      */
-    public LinkedHashMap<String, String> getVariationFailures() {
-        return variationFailures;
+    public Map<String, String> getVariationFailures() {
+        return Collections.unmodifiableMap(variationFailures);
     }
 
     /**
      * @return IDs of successfully calculated variations.
      */
-    public List<String> getCalculatedVariationIDs() {
-        List<String> ids = new ArrayList<String>(variationResults.size());
+    public String[] getCalculatedVariationIDs() {
+        String[] ids = new String[variationResults.size()];
+        int i = 0;
         for (String variationID : variationResults.keySet()) {
-            ids.add(variationID);
+            ids[i++] = variationID;
         }
         return ids;
     }
@@ -96,10 +86,11 @@ public class VariationsResult<T> {
     /**
      * @return IDs of variations that have been failed and thrown an exception.
      */
-    public List<String> getFailedVariationIDs() {
-        List<String> ids = new ArrayList<String>(variationFailures.size());
+    public String[] getFailedVariationIDs() {
+        String[] ids = new String[variationFailures.size()];
+        int i = 0;
         for (String variationID : variationFailures.keySet()) {
-            ids.add(variationID);
+            ids[i++] = variationID;
         }
         return ids;
     }
@@ -108,9 +99,16 @@ public class VariationsResult<T> {
      * @return IDs of all processed variations: successfully calculated and
      *         failed ones.
      */
-    public List<String> getAllProcessedVariationIDs() {
-        List<String> ids = new ArrayList<String>(getCalculatedVariationIDs());
-        ids.addAll(getFailedVariationIDs());
+    public String[] getAllProcessedVariationIDs() {
+        String[] failedIDs = getFailedVariationIDs();
+        String[] calculatedIDs = getCalculatedVariationIDs();
+        String[] ids = new String[failedIDs.length + calculatedIDs.length];
+        for (int i = 0; i < calculatedIDs.length; i++) {
+            ids[i] = calculatedIDs[i];
+        }
+        for (int i = 0; i < failedIDs.length; i++) {
+            ids[calculatedIDs.length + i] = failedIDs[i];
+        }
         return ids;
     }
 }
