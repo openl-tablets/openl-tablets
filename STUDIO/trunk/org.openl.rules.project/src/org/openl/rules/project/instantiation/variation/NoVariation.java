@@ -1,17 +1,15 @@
-package org.openl.rules.project.instantiation.variation;
-
-import java.util.Stack;
+    package org.openl.rules.project.instantiation.variation;
 
 /**
  * Empty variation that represents original calculation without any changes of
  * arguments.
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
 public class NoVariation extends Variation {
     /**
      * ID for original calculation. Can be used for retrieving result of
-     * calculation withou variations.
+     * calculation without variations.
      */
     public static final String ORIGIANAL_CALCULATION = "Original calcuation";
 
@@ -20,12 +18,16 @@ public class NoVariation extends Variation {
     }
 
     @Override
-    public Object[] applyModification(Object[] originalArguments, Stack<Object> stack) {
+    public Object[] applyModification(Object[] originalArguments) {
         return originalArguments;
     }
 
     @Override
-    public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
+    public void revertModifications(Object[] modifiedArguments, Object previousValue) {
     }
 
+    @Override
+    public Object currentValue(Object[] originalArguments) {
+        return null;
+    }
 }

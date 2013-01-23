@@ -175,6 +175,8 @@ public interface ITableProperties {
 	void setCustom1(java.lang.String[] custom1);
 	java.lang.String[] getCustom2();
 	void setCustom2(java.lang.String[] custom2);
+	java.lang.Boolean getCacheable();
+	void setCacheable(java.lang.Boolean cacheable);
 // <<< END INSERT >>>
 	
 	

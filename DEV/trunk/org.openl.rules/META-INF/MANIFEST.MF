@@ -91,6 +91,7 @@ Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.rules.validation,
  org.openl.rules.validation.properties.dimentional,
  org.openl.rules.validator,
+ org.openl.rules.vm,
  org.openl.rules.word,
  org.openl.tablets,
  org.openl.xls

@@ -72,7 +72,6 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
             
             engineFactory.setExecutionMode(isExecutionMode());
             engineFactory.setDependencyManager(getDependencyManager());
-            
         }
         
         return engineFactory;
