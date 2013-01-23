@@ -72,9 +72,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found", name));
     }
 
-    
-    
-    
     public void openVersion(CommonVersion version) throws ProjectException {
         modifiedDescriptors = false;
         FolderAPI openedProjectVersion = getAPI().getVersion(version);

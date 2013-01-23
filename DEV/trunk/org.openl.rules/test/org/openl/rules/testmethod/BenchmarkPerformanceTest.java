@@ -16,83 +16,74 @@ import org.openl.util.benchmark.Benchmark;
 import org.openl.util.benchmark.BenchmarkInfo;
 import org.openl.util.benchmark.BenchmarkUnit;
 
-public class BenchmarkPerformanceTest extends TestCase{
+public class BenchmarkPerformanceTest extends TestCase {
 
     private static final String FILE_NAME = "test/rules/testmethod/Tutorial_5.xls";
 
     public interface ITest {
         TestUnitsResults largeTableTestTestAll();
+
         TestUnitsResults largeTableIndTestTestAll();
     }
- 
+
     ITest instance;
     IEngineWrapper iw;
     IOpenClass type;
-    
+
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         File xlsFile = new File(FILE_NAME);
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile, ITest.class);
-        
+
         instance = testHelper.getInstance();
-        
-        iw = (IEngineWrapper)instance;
-        DynamicObject dobj  = (DynamicObject) iw.getInstance();
-        
+
+        iw = (IEngineWrapper) instance;
+        DynamicObject dobj = (DynamicObject) iw.getInstance();
+
         type = dobj.getType();
-	}
+    }
 
-
-	@Test
+    @Test
     public void testBenchmark1() throws Exception {
-     measureRatio("largeTableTestTestAll", "largeTableIndTestTestAll", 50);
+        measureRatio("largeTableTestTestAll", "largeTableIndTestTestAll", 50);
 
-     measureRatio("ampmTo24TestTestAll", "ampmTo24Ind1TestTestAll", 3);
-     measureRatio("ampmTo24TestTestAll", "ampmTo24Ind2TestTestAll", 3);
-   
-     measureRatio("regionTestTestAll", "regionIndTestTestAll", 3);
+        measureRatio("ampmTo24TestTestAll", "ampmTo24Ind1TestTestAll", 3);
+        measureRatio("ampmTo24TestTestAll", "ampmTo24Ind2TestTestAll", 3);
 
-     measureRatio("driverPremiumTestTestAll", "driverPremiumIndTestTestAll", 6);
-	
-	}	
+        measureRatio("regionTestTestAll", "regionIndTestTestAll", 3);
 
-	void measureRatio(String test1, String test2, int ratioAtLeast)
-			throws Exception
-	    {
-		
+        measureRatio("driverPremiumTestTestAll", "driverPremiumIndTestTestAll", 6);
+
+    }
+
+    void measureRatio(String test1, String test2, int ratioAtLeast) throws Exception {
+
         BenchmarkInfo biSlow = benchmark(type, test1, instance, iw);
         System.out.println(biSlow);
         BenchmarkInfo biFast = benchmark(type, test2, instance, iw);
         System.out.println(biFast);
 
-        double ratio = biSlow.avg()/biFast.avg();
+        double ratio = biSlow.avg() / biFast.avg();
         System.out.println("Ratio " + test1 + " / " + test2 + " = " + ratio);
-        
+
         Assert.assertTrue("Indexed should be much faster than non-indexed", ratio > ratioAtLeast);
-        
+
     }
-    
-    
-    
-    
-	BenchmarkInfo benchmark(IOpenClass type, String name, Object instance, IEngineWrapper iw) throws Exception{
-        
-        
+
+    BenchmarkInfo benchmark(IOpenClass type, String name, Object instance, IEngineWrapper iw) throws Exception {
+
         IOpenMethod m = type.getMethod(name, IOpenClass.EMPTY);
-        
-        IBenchmarkableMethod bm = (IBenchmarkableMethod)m;
-        
-        
-        IBenchmarkableMethod.BMBenchmarkUnit bu = new  IBenchmarkableMethod.BMBenchmarkUnit(bm, instance, null , iw.getRuntimeEnv());
-        
-        
-        BenchmarkUnit[] buu = {bu};
+
+        IBenchmarkableMethod bm = (IBenchmarkableMethod) m;
+
+        IBenchmarkableMethod.BMBenchmarkUnit bu = new IBenchmarkableMethod.BMBenchmarkUnit(bm, instance, null,
+                iw.getRuntimeEnv());
+
+        BenchmarkUnit[] buu = { bu };
         BenchmarkInfo bi = new Benchmark(buu).measureUnit(bu, 3000);
-        
-        
+
         return bi;
-        
+
     }
-    
 
 }

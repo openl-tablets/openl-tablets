@@ -1,7 +1,6 @@
 package org.openl.rules.project.instantiation.variation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,33 +11,60 @@ import java.util.List;
  * 
  * See {@link VariationsEnhancer}
  * 
- * @author PUdalau
+ * @author Marat Kamalov
  */
-public class VariationsPack {
-    private List<Variation> variations;
+public final class VariationsPack {
+    private List<Variation> variations = new ArrayList<Variation>();
 
     public VariationsPack() {
-        variations = new ArrayList<Variation>();
-    }
-
-    public VariationsPack(List<Variation> variations) {
-        if (variations != null) {
-            this.variations = variations;
-        } else {
-            this.variations = new ArrayList<Variation>();
-        }
     }
 
     public VariationsPack(Variation... variations) {
-        this.variations = new ArrayList<Variation>(Arrays.asList(variations));
+        for (int i = 0; i < variations.length - 1; i++) {
+            for (int j = i + 1; j < variations.length; j++) {
+                if (variations[i].getVariationID().equals(variations[j].getVariationID())) {
+                    throw new IllegalArgumentException("variations contains two variations with the same variationID");
+                }
+            }
+        }
+        for (Variation variation : variations) {
+            this.variations.add(variation);
+        }
     }
 
-    public void addVariation(Variation variation) {
+    public void addVariation(Variation variation) throws VariationException {
+        if (variation == null || variation.getVariationID() == null || variation.getVariationID().isEmpty()) {
+            throw new IllegalArgumentException("variation argument is invalid");
+        }
+        for (Variation v : variations) {
+            if (variation.getVariationID().equals(v.getVariationID())) {
+                throw new VariationException("Variation pack has already contains variation with this variationID="
+                        + variation.getVariationID());
+            }
+        }
         variations.add(variation);
     }
 
-    public boolean removeVariation(Variation variation) {
-        return variations.remove(variation);
+    /**
+     * Removes variation by variationID
+     * 
+     * @param variationID
+     * @return
+     */
+    public boolean removeVariation(String variationID) {
+        if (variationID == null || variationID.isEmpty()) {
+            throw new IllegalArgumentException("variationID can't be empty");
+        }
+        int i;
+        for (i = 0; i < variations.size(); i++) {
+            if (variationID.equals(variations.get(i).getVariationID())) {
+                break;
+            }
+        }
+        if (i <= variations.size()) {
+            variations.remove(i);
+        }
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -51,10 +77,11 @@ public class VariationsPack {
     /**
      * @return IDs of all variation defined in this pack.
      */
-    public List<String> getVariationIDs() {
-        List<String> ids = new ArrayList<String>(variations.size());
+    public String[] getVariationIDs() {
+        String[] ids = new String[variations.size()];
+        int i = 0;
         for (Variation variation : variations) {
-            ids.add(variation.getVariationID());
+            ids[i++] = variation.getVariationID();
         }
         return ids;
     }

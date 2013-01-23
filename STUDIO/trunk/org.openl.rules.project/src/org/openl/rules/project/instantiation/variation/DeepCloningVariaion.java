@@ -1,26 +1,27 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.util.Stack;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.table.InputArgumentsCloner;
 
 /**
  * Variation that clones all arguments before the modification by another
  * variation(that is delegated.)
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
 public class DeepCloningVariaion extends Variation {
-    private final Log log = LogFactory.getLog(DeepCloningVariaion.class);
-
     /**
      * Suffix for generated variation ID if it have not been specified.
      */
     public static final String DEEP_CLONING_SUFFIX = "[Deep Cloning]";
+    
     private Variation variation;
-
+    
+    /**
+     * Empty constructor required for WS data binding
+     */
+    public DeepCloningVariaion() {
+    }
+    
     /**
      * Constructs deep-cloning variation with the generated ID(ID of delegated
      * variation + {@link DeepCloningVariaion.DEEP_CLONING_SUFFIX}).
@@ -43,32 +44,46 @@ public class DeepCloningVariaion extends Variation {
     }
 
     @Override
-    public Object[] applyModification(Object[] originalArguments, Stack<Object> stack) {
+    public Object[] applyModification(Object[] originalArguments) {
         Object[] clonedParams = null;
         InputArgumentsCloner cloner = new InputArgumentsCloner();
         if (originalArguments != null) {
-
             try {
                 clonedParams = cloner.deepClone(originalArguments);
             } catch (Exception ex) {
-                log.error("Faield to clone arguments in variation \"" + getVariationID() + "\". Original arguments will be used.");
-                clonedParams = originalArguments;
+                throw new VariationRuntimeException("Original arguments deep cloning was failure.", ex);
             }
         } else {
             clonedParams = new Object[0];
         }
-        return variation.applyModification(clonedParams, stack);
+        return variation.applyModification(clonedParams);
     }
 
     @Override
-    public void revertModifications(Object[] modifiedArguments, Stack<Object> stack) {
+    public Object currentValue(Object[] originalArguments) {
+        Object[] clonedParams = null;
+        InputArgumentsCloner cloner = new InputArgumentsCloner();
+        if (originalArguments != null) {
+            try {
+                clonedParams = cloner.deepClone(originalArguments);
+            } catch (Exception ex) {
+                throw new VariationRuntimeException("Original arguments deep cloning was failure.", ex);
+            }
+        } else {
+            clonedParams = new Object[0];
+        }
+        return variation.currentValue(clonedParams);
+    }
+    
+    @Override
+    public void revertModifications(Object[] modifiedArguments, Object previousValue) {
     }
 
-	/**
-	 * @return Wrapped variation.
-	 */
+    /**
+     * @return Wrapped variation.
+     */
     public Variation getDelegatedVariation() {
-		return variation;
-	}
+        return variation;
+    }
 
 }

@@ -15,12 +15,12 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * Table Basic Algorithm component. It's runnable method inside OpenL Tablets
  * infrastructure.
- *
+ * 
  * Allows users to represent any algorithm in tables using simple TBasic syntax.
- *
+ * 
  */
 @Executable
-public class Algorithm extends AlgorithmFunction {    
+public class Algorithm extends AlgorithmFunction {
 
     /***************************************************************************
      * Compile artifacts
@@ -29,12 +29,12 @@ public class Algorithm extends AlgorithmFunction {
     private IOpenClass thisClass;
     private List<RuntimeOperation> algorithmSteps;
     private Map<String, RuntimeOperation> labels;
-    
+
     /**
      * Invoker for current method.
      */
     private Invokable invoker;
-    
+
     public static Algorithm createAlgorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         return new Algorithm(header, node);
     }
@@ -43,16 +43,16 @@ public class Algorithm extends AlgorithmFunction {
         super(header, node);
         initProperties(getSyntaxNode().getTableProperties());
     }
-    
+
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
             invoker = new AlgorithmInvoker(this);
-        } 
+        }
         return invoker.invoke(target, params, env);
     }
 
@@ -69,7 +69,7 @@ public class Algorithm extends AlgorithmFunction {
     public void setThisClass(IOpenClass thisClass) {
         this.thisClass = thisClass;
     }
-    
+
     protected List<RuntimeOperation> getAlgorithmSteps() {
         return algorithmSteps;
     }
@@ -81,11 +81,11 @@ public class Algorithm extends AlgorithmFunction {
     protected IOpenClass getThisClass() {
         return thisClass;
     }
-    
+
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);
 
-        return bindingDependencies;        
+        return bindingDependencies;
     }
 }

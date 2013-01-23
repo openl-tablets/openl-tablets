@@ -262,7 +262,7 @@ public class DecisionTableLookupConvertor {
                 } else if (DecisionTableHelper.isValidRetHeader(headerStr)) {
                     loadReturnColumn(htable);                   
                 } else {
-                    String message = String.format("Lookup Table allow here only %s or %s columns: %s", 
+                    String message = String.format("Lookup Table allows only %s or %s columns after vertical conditions: %s", 
                         DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey(), DecisionTableColumnHeaders.RETURN.getHeaderKey(), headerStr);
                     throw new OpenLCompilationException(message);
                 }                

@@ -75,7 +75,6 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     protected InvocationHandler makeInvocationHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-
         return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
     }
 

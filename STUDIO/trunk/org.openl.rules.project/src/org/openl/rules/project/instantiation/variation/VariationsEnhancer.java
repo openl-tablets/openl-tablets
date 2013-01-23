@@ -134,17 +134,21 @@ public class VariationsEnhancer extends RulesInstantiationStrategyDelegator {
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (VariationsEnhancerHelper.isEnhancedClass(serviceClass)) {
-            reset();
+            //FIX IT
+            if (classLoader != null){
+                classLoader.addClassLoader(initClassLoader());
+            }
             this.serviceClass = serviceClass;
             try {
-                getOriginalInstantiationStrategy().setServiceClass(VariationsEnhancerHelper.undecorateMethods(serviceClass,
-                    getOriginalInstantiationStrategy().getClassLoader()));
+                Class<?> clazz = VariationsEnhancerHelper.undecorateMethods(serviceClass,
+                        getOriginalInstantiationStrategy().getClassLoader());
+                getOriginalInstantiationStrategy().setServiceClass(clazz);
             } catch (Exception e) {
                 throw new OpenlNotCheckedException("Failed to set service class to enhancer. Failed to get undecorated class.",
                     e);
             }
         } else {
-            throw new OpenlNotCheckedException("Failed to set service class to variations enhancer. Service class shoud have at least one method with VariationsPack as the last parameter and with returnt type VariationsResult.");
+            throw new OpenlNotCheckedException("Failed to set service class to variations enhancer. Service class should have at least one method with VariationsPack as the last parameter and with return type VariationsResult.");
         }
     }
 

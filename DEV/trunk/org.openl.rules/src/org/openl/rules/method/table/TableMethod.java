@@ -5,6 +5,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
@@ -17,9 +18,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 @Executable
 public class TableMethod extends ExecutableRulesMethod {
-    
-    private CompositeMethod method;    
-    
+
+    private CompositeMethod method;
+
     /**
      * Invoker for current method.
      */
@@ -33,8 +34,7 @@ public class TableMethod extends ExecutableRulesMethod {
      *            be invoked by OpenL engine at runtime
      * @param methodTableBoundNode table bound node (table itself)
      */
-    public TableMethod(IOpenMethodHeader header,
-            IBoundMethodNode methodBodyBoundNode,
+    public TableMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode,
             MethodTableBoundNode methodTableBoundNode) {
         super(header, methodTableBoundNode);
         method = new CompositeMethod(header, methodBodyBoundNode);
@@ -43,14 +43,14 @@ public class TableMethod extends ExecutableRulesMethod {
     }
 
     public MethodTableBoundNode getMethodTableBoundNode() {
-        return (MethodTableBoundNode)getBoundNode();
+        return (MethodTableBoundNode) getBoundNode();
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
             invoker = new MethodTableInvoker(this);
-        } 
+        }
         return invoker.invoke(target, params, env);
     }
 
@@ -66,7 +66,7 @@ public class TableMethod extends ExecutableRulesMethod {
         return getSyntaxNode().getUri();
     }
 
-    public CompositeMethod getCompositeMethod() {        
+    public CompositeMethod getCompositeMethod() {
         return method;
     }
 

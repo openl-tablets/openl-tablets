@@ -5,6 +5,13 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/pages/layout/framePanel.xhtml">
+    
+    <style>
+            .tr-middle-align {
+                vertical-align: middle;
+            }
+
+        </style>
 
     <ui:define name="content">
         <script src="webresource/js/prototype/prototype-1.6.1.js"></script>
@@ -18,8 +25,8 @@
 
             <div style="border-bottom: 1px solid #dddddd; padding-bottom: 5px">
             <table>
-                <tr style="vertical-align: top">
-                    <td><b>Input parameters: </b></td>
+                <tr class="tr-middle-align">
+                    <td  style="padding-right: 5px;"><b>Input parameters: </b></td>
                     <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
                     <td>
 	                    <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -28,8 +35,11 @@
 	                </td>
                     </ui:repeat>
                 </tr>
-                <tr style="vertical-align: top">
-                    <td><b>Returned result: </b></td>
+                </table>
+                
+                <table >
+                <tr class="tr-middle-align">
+                    <td  style="padding-right: 5px;"><b>Returned result: </b></td>
 	                <ui:repeat value="#{showTraceTableBean.returnResult}" var="parameter">
     	            	<td>
         	            	<ui:include src="/pages/modules/test/parameter.xhtml">

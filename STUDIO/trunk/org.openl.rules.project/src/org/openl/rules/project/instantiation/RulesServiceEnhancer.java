@@ -32,7 +32,6 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     
     private final Log log = LogFactory.getLog(RulesServiceEnhancer.class);
 
-
     /**
      * Internal generated class at runtime which used as service class.
      */
@@ -47,7 +46,7 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     public RulesServiceEnhancer(RulesInstantiationStrategy instantiationStrategy) {
         super(instantiationStrategy);
     }
-
+    
     /**
      * Gets enhanced service class.
      * 
@@ -132,8 +131,10 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
                 //
             }
         }
-
-        log.debug(methodMap.toString());
+        
+        if (log.isDebugEnabled()){
+            log.debug(methodMap.toString());
+        }
         
         return methodMap;
     }
@@ -147,10 +148,16 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (RulesServiceEnhancerHelper.isEnhancedClass(serviceClass)) {
+            //FIX IT
+            if (classLoader != null){
+                classLoader.addClassLoader(initClassLoader());
+            }
+
             this.serviceClass = serviceClass;
             try {
-                getOriginalInstantiationStrategy().setServiceClass(RulesServiceEnhancerHelper.undecorateMethods(serviceClass,
-                    getOriginalInstantiationStrategy().getClassLoader()));
+                Class<?> clazz = RulesServiceEnhancerHelper.undecorateMethods(serviceClass,
+                        getOriginalInstantiationStrategy().getClassLoader());
+                getOriginalInstantiationStrategy().setServiceClass(clazz);
             } catch (Exception e) {
                 throw new OpenlNotCheckedException("Failed to set service class to enhancer. Failed to get undecorated class.",
                     e);
