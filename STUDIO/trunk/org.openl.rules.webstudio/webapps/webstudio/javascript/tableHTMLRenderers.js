@@ -86,7 +86,12 @@ verticalRenderer = {
         var element = span.previousSibling;
         span.style.display = "none";
         element.style.display = "";
-        element.innerHTML = editElem.value;
+        
+        if(editElem.value == "") {
+            element.innerHTML = "undefined";
+        } else {
+            element.innerHTML = editElem.value;
+        }
     },
 
     createEmptyCol : function(id, dataRows) {
