@@ -447,15 +447,13 @@ public interface IWritableGrid extends IGrid {
 
         private static AUndoableCellAction shiftCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
             IGrid grid = table.getGrid();
-            /*All cell have to be shifted. That's needed for style setting. 
-             * 
-             * That path of code will be deleted after testing
-             * 
+            
             if (!grid.isPartOfTheMergedRegion(colFrom, rowFrom) || grid.isTopLeftCellInMergedRegion(colFrom, rowFrom)) {
                 // non top left cell of merged region have to be skipped
                 return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
-            }*/
-            return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
+            }
+            
+            return new SetBorderStyleAction(colTo, rowTo, grid.getCell(colFrom, rowFrom).getStyle(), false);
             //return null;
         }
 
