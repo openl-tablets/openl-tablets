@@ -158,7 +158,7 @@ public class DeploymentController {
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
-                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'", 
+                String message = String.format("Configuration '%s' successfully deployed with id '%s' to repository '%s'", 
                         project.getName(), id.getName(), repo.getName());
                 FacesUtils.addInfoMessage(message);
 
