@@ -15,6 +15,7 @@ import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariat
 import org.openl.rules.project.instantiation.variation.ComplexVariation;
 import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
 import org.openl.rules.project.instantiation.variation.JXPathVariation;
+import org.openl.rules.project.instantiation.variation.NoVariation;
 import org.springframework.beans.factory.FactoryBean;
 
 public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<AegisDatabinding> {
@@ -77,6 +78,7 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
             overrideTypes.addAll(getOverrideTypes());
         }
         if (supportVariations) {
+            overrideTypes.add(NoVariation.class.getName());
             overrideTypes.add(JXPathVariation.class.getName());
             overrideTypes.add(DeepCloningVariaion.class.getName());
             overrideTypes.add(ComplexVariation.class.getName());

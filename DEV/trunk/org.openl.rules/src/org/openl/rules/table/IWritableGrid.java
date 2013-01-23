@@ -76,24 +76,14 @@ public interface IWritableGrid extends IGrid {
                     if (isRegionMustBeResized(existingMergedRegion, firstRowOrColumn, numberOfRowsOrColumns, isColumns,
                             regionOfTable)) {
                         ICellStyle oldCellStyle = grid.getCell(existingMergedRegion.getLeft(),existingMergedRegion.getBottom()).getStyle();
-                        
+
                         if (!isColumns && isInsert) {
                             for (int j = 1; j <= numberOfRowsOrColumns; j++) {
                                 grid.getCell(existingMergedRegion.getLeft(),existingMergedRegion.getBottom() + 1).getStyle();
                                 resizeActions.add(new SetBorderStyleAction(existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + j,
                                         oldCellStyle));
-                                /*makeNewPropStyle(grid, existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + 1, 
-                                                existingMergedRegion.getLeft(), existingMergedRegion.getRight() - existingMergedRegion.getLeft(), null)*/
                             }
-                        }/*
-                        else if (isColumns) {
-                            for (int j = 1; j <= numberOfRowsOrColumns; j++) {
-                                grid.getCell(existingMergedRegion.getLeft(),existingMergedRegion.getBottom()).getStyle();
-                                resizeActions.add(new SetBorderStyleAction(existingMergedRegion.getLeft() + j, existingMergedRegion.getBottom(),
-                                        oldCellStyle));
-                                
-                            }
-                        }*/
+                        }
 
                         resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion,
                                 numberOfRowsOrColumns, isInsert, isColumns));
@@ -323,24 +313,25 @@ public interface IWritableGrid extends IGrid {
             IGridRegion headerRegion = grid.getCell(leftCell, topCell).getAbsoluteRegion();
 
             ArrayList<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
-            
+
             actions.add(new SetBorderStyleAction(leftCell, headerRegion.getBottom() + 1,
                     makeNewPropStyle(grid, leftCell, headerRegion.getBottom() + 1, leftCell, regionWidth, null) ));
             actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1, leftCell, headerRegion
                     .getBottom() + 1, tableRegion.getRight())));
             actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME));
-            
+
             // clear cells for properties
             for (int prpCell = leftCell + 1; prpCell < leftCell + 3; prpCell++) {
                 actions.add(new UndoableClearAction(prpCell, headerRegion.getBottom() + 1));
+                //actions.add(new SetBorderStyleAction(prpCell, headerRegion.getBottom() + 1,
+                //        makeNewPropStyle(grid, prpCell, headerRegion.getBottom() + 1, prpCell, regionWidth, null) ));
             }
-            
+
             if (regionWidth >= 3) {
                 // set cell style
                 //leftCell + 2 - this is index of last property column
                 for (int j = leftCell + 2; j < leftCell + regionWidth; j++) {
                     actions.add(new SetBorderStyleAction(j, headerRegion.getBottom() + 1, makeNewPropStyle(grid, j, headerRegion.getBottom() + 1, leftCell, regionWidth, null)));
-                    //actions.add(new UndoableClearAction(j, headerRegion.getBottom() + 1));
                 }
             } else if (regionWidth < 3) {
                 // expand table by including neighboring cell in merged
@@ -349,6 +340,20 @@ public interface IWritableGrid extends IGrid {
 
                 actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, headerRegion.getBottom(),
                         leftCell + 2)));
+                
+                //add style for expanded header's and properties's  cells
+                for(int row = topCell; row < tableRegion.getBottom(); row++) {
+                    for(int j = leftCell + regionWidth; j < leftCell + 3; j++) {
+                        actions.add(new SetBorderStyleAction(j, row, grid.getCell(leftCell + regionWidth - 1, row).getStyle()));
+                    }
+                }
+                
+              //add style for expanded others cells
+                for(int row = topCell + 1; row < tableRegion.getBottom(); row++) {
+                    for(int j = leftCell + regionWidth; j < leftCell + 3; j++) {
+                        actions.add(new SetBorderStyleAction(j, row + 1, grid.getCell(leftCell + regionWidth - 1, row).getStyle()));
+                    }
+                }
 
                 // merge right cells in each row
                 IGridRegion cellToExpandRegion;
@@ -358,22 +363,25 @@ public interface IWritableGrid extends IGrid {
 
                     actions.add(new MergeCellsAction(new GridRegion(row + 1, cellToExpandRegion.getLeft(),
                             cellToExpandRegion.getBottom() + 1, leftCell + 2)));
+
+                    actions.add(new SetBorderStyleAction(leftCell + 2, topCell, grid.getCell(leftCell + regionWidth - 1, topCell).getStyle()));
                 }
 
                 actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, ActionType.EXPAND, propSize - regionWidth));
             }
+
             return new UndoableCompositeAction(actions);
         }
-        
+
         private static CellStyle makeNewPropStyle(IWritableGrid grid, int col, int row, int regionLeftCell, int regionWidth, ActionType actionType) {
             ICell cell = grid.getCell(col, row);
             CellStyle newCellStyle = new CellStyle(cell.getStyle());
-            
+
             short[] borderStyle =  cell.getStyle().getBorderStyle();
-            
+
             /*Create new cell style*/
             //int TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3;
-            
+
             if (col == regionLeftCell) {
                 //Only left border will be set
                 if (borderStyle.length == 4) {
@@ -391,9 +399,9 @@ public interface IWritableGrid extends IGrid {
             } else {
                 borderStyle = new short[]{CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
             }
-            
+
             newCellStyle.setBorderStyle(borderStyle);
-            
+
             return newCellStyle;
         }
 
@@ -430,8 +438,8 @@ public interface IWritableGrid extends IGrid {
                 for (int j = startRow; j < startRow + nRows; j++) {
                     if (!grid.isPartOfTheMergedRegion(i, j)
                             || (grid.isTopLeftCellInMergedRegion(i, j))){
-                    clearActions.add(new UndoableClearAction(i, j));
-                }
+                        clearActions.add(new UndoableClearAction(i, j));
+                    }
                 }
             }
             return clearActions;
@@ -439,11 +447,16 @@ public interface IWritableGrid extends IGrid {
 
         private static AUndoableCellAction shiftCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {
             IGrid grid = table.getGrid();
+            /*All cell have to be shifted. That's needed for style setting. 
+             * 
+             * That path of code will be deleted after testing
+             * 
             if (!grid.isPartOfTheMergedRegion(colFrom, rowFrom) || grid.isTopLeftCellInMergedRegion(colFrom, rowFrom)) {
                 // non top left cell of merged region have to be skipped
                 return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
-            }
-            return null;
+            }*/
+            return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo);
+            //return null;
         }
 
         private static AUndoableCellAction copyCell(int colFrom, int rowFrom, int colTo, int rowTo, IGridTable table) {

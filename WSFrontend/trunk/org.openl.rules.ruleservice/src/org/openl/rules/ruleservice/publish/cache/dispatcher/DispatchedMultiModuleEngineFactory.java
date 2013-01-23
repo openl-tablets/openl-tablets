@@ -25,7 +25,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyField;
 import org.openl.rules.ruleservice.publish.cache.LazyMethod;
-import org.openl.runtime.AOpenLEngineFactory;
+import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -41,10 +41,10 @@ import org.openl.vm.IRuntimeEnv;
  * Multimodule with dispatching. Dispatching is defined by
  * {@link DispatchedData} and {@link DispatchedMethod} annotations.
  * 
- * @author PUdalau
- * TODO: is it necessary to have EngineFactory for this purpose? It can be done in Instantiation Strategy
+ * @author PUdalau TODO: is it necessary to have EngineFactory for this purpose?
+ *         It can be done in Instantiation Strategy
  */
-public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
+public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
 
     private final Log log = LogFactory.getLog(DispatchedMultiModuleEngineFactory.class);
 
@@ -88,7 +88,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         return new Class[] { getInterfaceClass(), IEngineWrapper.class };
     }
 
-    @Override
+    /*@Override
     protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
         return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
             @Override
@@ -96,7 +96,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 return getOpenL().getVm().getRuntimeEnv();
             }
         };
-    }
+    }*/
 
     @Override
     public Object makeInstance() {
@@ -107,19 +107,18 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
             Object openClassInstance = openClass.newInstance(getRuntimeEnv());
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance,
-                methodMap,
-                getRuntimeEnv(),
-                getCompiledOpenClass().getClassLoader());
+            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+                    .getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
-            log.error(errorMessage, ex);
+            if (log.isErrorEnabled()) {
+                log.error(errorMessage, ex);
+            }
             throw new OpenlNotCheckedException(errorMessage, ex);
         }
     }
 
-    private void makeLazyMethod(final Method interfaceMethod,
-            final ModuleDispatcherForMethods dispatcher,
+    private void makeLazyMethod(final Method interfaceMethod, final ModuleDispatcherForMethods dispatcher,
             ModuleOpenClass moduleOpenClass) {
         IOpenClass[] paramTypes = new IOpenClass[interfaceMethod.getParameterTypes().length];
         for (int i = 0; i < paramTypes.length; i++) {
@@ -127,16 +126,16 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         }
         MethodSignature signature = new MethodSignature(paramTypes);
         OpenMethodHeader header = new OpenMethodHeader(interfaceMethod.getName(),
-            JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()),
-            signature,
-            null);
+                JavaOpenClass.getOpenClass(interfaceMethod.getReturnType()), signature, null);
         AMethod method = new AMethod(header) {
             @Override
             public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
                 try {
                     return interfaceMethod.invoke(target, params);
                 } catch (Exception e) {
-                    log.error(e);
+                    if (log.isErrorEnabled()){
+                        log.error(e);
+                    }
                     return null;
                 }
             }
@@ -145,18 +144,12 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        moduleOpenClass.addMethod(new LazyMethod(method.getName(),
-            argTypes,
-            dependencyManager,
-            true,
-            Thread.currentThread().getContextClassLoader(),
-            method, externalParameters) {
+        moduleOpenClass.addMethod(new LazyMethod(method.getName(), argTypes, dependencyManager, true, Thread
+                .currentThread().getContextClassLoader(), method, externalParameters) {
             @Override
             public Module getModule(IRuntimeEnv env) {
-                return dispatcher.getResponsibleModule(modules,
-                    interfaceMethod.getName(),
-                    interfaceMethod.getParameterTypes(),
-                    (IRulesRuntimeContext) env.getContext());
+                return dispatcher.getResponsibleModule(modules, interfaceMethod.getName(),
+                        interfaceMethod.getParameterTypes(), (IRulesRuntimeContext) env.getContext());
             }
         });
     }
@@ -166,8 +159,8 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         if (numberOfParameters != 0) {
             return false;
         }
-        return method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("get") && method.getName()
-            .length() > 3;
+        return method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("get")
+                && method.getName().length() > 3;
     }
 
     private boolean isSetter(Method method) {
@@ -175,12 +168,11 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
         if (numberOfParameters != 1) {
             return false;
         }
-        return !method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("set") && method.getName()
-            .length() > 3;
+        return !method.getReturnType().equals(Void.TYPE) && method.getName().startsWith("set")
+                && method.getName().length() > 3;
     }
 
-    private void makeLazyField(final Method interfaceMethod,
-            final ModuleDispatcherForData dispatcher,
+    private void makeLazyField(final Method interfaceMethod, final ModuleDispatcherForData dispatcher,
             ModuleOpenClass moduleOpenClass) {
         IOpenClass fieldType = null;
         if (isGetter(interfaceMethod)) {
@@ -189,8 +181,9 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
             Class<?>[] parameterTypes = interfaceMethod.getParameterTypes();
             fieldType = JavaOpenClass.getOpenClass(parameterTypes[parameterTypes.length]);
         } else {
-            throw new OpenlNotCheckedException(String.format("Method '%s' associated with data should be getter or setter",
-                MethodUtil.printMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes())));
+            throw new OpenlNotCheckedException(String.format(
+                    "Method '%s' associated with data should be getter or setter",
+                    MethodUtil.printMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes())));
         }
         String fieldName = getFieldName(interfaceMethod);
         if (moduleOpenClass.getField(fieldName, false) != null) {
@@ -205,12 +198,11 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                 }
             };
             moduleOpenClass.addField(new LazyField(field.getName(), dependencyManager, true, Thread.currentThread()
-                .getContextClassLoader(), field, externalParameters) {
+                    .getContextClassLoader(), field, externalParameters) {
                 @Override
                 public Module getModule(IRuntimeEnv env) {
-                    return dispatcher.getResponsibleModule(modules,
-                        field.getName(),
-                        (IRulesRuntimeContext) env.getContext());
+                    return dispatcher.getResponsibleModule(modules, field.getName(),
+                            (IRulesRuntimeContext) env.getContext());
                 }
             });
         }
@@ -222,7 +214,8 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
 
     private CompiledOpenClass initializeOpenClass() {
         // FIXME name
-        XlsModuleOpenClass moduleOpenClass = new XlsModuleOpenClass(null, "lazy dispatched", null, getOpenL(), new DataBase(), OpenLSystemProperties.isDTDispatchingMode(externalParameters));
+        XlsModuleOpenClass moduleOpenClass = new XlsModuleOpenClass(null, "lazy dispatched", null, getOpenL(),
+                new DataBase(), OpenLSystemProperties.isDTDispatchingMode(externalParameters));
         List<Method> unannotatedMethos = new ArrayList<Method>();
         for (Method method : interfaceClass.getMethods()) {
             try {
@@ -248,17 +241,15 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
                     unannotatedMethos.add(method);
                 }
             } catch (Exception e) {
-                throw new OpenlNotCheckedException("Failed to process method" + MethodUtil.printMethod(method.getName(),
-                    method.getParameterTypes()));
+                throw new OpenlNotCheckedException("Failed to process method"
+                        + MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
             }
         }
         if (!unannotatedMethos.isEmpty()) {
             checkUnannotatedMethods(unannotatedMethos, moduleOpenClass);
         }
-        return new CompiledOpenClass(moduleOpenClass,
-            new ArrayList<OpenLMessage>(),
-            new SyntaxNodeException[0],
-            new SyntaxNodeException[0]);
+        return new CompiledOpenClass(moduleOpenClass, new ArrayList<OpenLMessage>(), new SyntaxNodeException[0],
+                new SyntaxNodeException[0]);
     }
 
     public void checkUnannotatedMethods(List<Method> unannotatedMethos, ModuleOpenClass moduleOpenClass) {
@@ -266,18 +257,19 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLEngineFactory {
             if (isGetter(method) || isSetter(method) && moduleOpenClass.getField(getFieldName(method), false) != null) {
                 continue;
             }
-            throw new OpenlNotCheckedException(String.format("Method '%s' should be associated with some data or rule. Use annotations %s and %s",
-                MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
-                DispatchedData.class.getSimpleName(),
-                DispatchedMethod.class.getSimpleName()));
+            throw new OpenlNotCheckedException(String.format(
+                    "Method '%s' should be associated with some data or rule. Use annotations %s and %s",
+                    MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
+                    DispatchedData.class.getSimpleName(), DispatchedMethod.class.getSimpleName()));
         }
     }
-    
+
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
-    
+
     public void setExternalParameters(Map<String, Object> parameters) {
         this.externalParameters = parameters;
     }
+
 }

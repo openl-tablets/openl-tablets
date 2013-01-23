@@ -258,6 +258,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCustom2(java.lang.String[] custom2) {
 		setFieldValue("custom2", custom2);
 	}	
+	public java.lang.Boolean getCacheable() {
+		return (java.lang.Boolean) getPropertyValue("cacheable"); 
+	}
+	public void setCacheable(java.lang.Boolean cacheable) {
+		setFieldValue("cacheable", cacheable);
+	}	
 // <<< END INSERT >>>
 
     /**

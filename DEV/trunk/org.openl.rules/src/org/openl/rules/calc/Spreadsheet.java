@@ -24,25 +24,29 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
-public class Spreadsheet extends ExecutableRulesMethod {    
+public class Spreadsheet extends ExecutableRulesMethod {
 
     protected IResultBuilder resultBuilder;
 
     private SpreadsheetCell[][] cells;
     private String[] rowNames;
     private String[] columnNames;
-    
-    /** Type of the Spreadsheet with all its fields
-     * Is some type of internal. Is used on calculating the results of the cells.
+
+    /**
+     * Type of the Spreadsheet with all its fields Is some type of internal. Is
+     * used on calculating the results of the cells.
      */
     private SpreadsheetOpenClass spreadsheetType;
-    
+
     /**
      * Invoker for current method.
      */
     private Invokable invoker;
-    
-    /** Custom return type of the spreadsheet method. Is a public type of the spreadsheet*/
+
+    /**
+     * Custom return type of the spreadsheet method. Is a public type of the
+     * spreadsheet
+     */
     private IOpenClass spreadsheetCustomType;
 
     /**
@@ -55,19 +59,20 @@ public class Spreadsheet extends ExecutableRulesMethod {
         initProperties(getSyntaxNode().getTableProperties());
         this.customSpreadsheetType = customSpreadsheetType;
     }
-    
+
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         this(header, boundNode, false);
     }
-    
+
     Constructor<?> constructor;
-    public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException
-    {
-    	if (constructor == null)
-    		constructor = this.getType().getInstanceClass().getConstructor(Object[][].class, String[].class, String[].class, Map.class);
-    	return constructor;
+
+    public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
+        if (constructor == null)
+            constructor = this.getType().getInstanceClass()
+                    .getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+        return constructor;
     }
-    
+
     @Override
     public IOpenClass getType() {
         if (isCustomSpreadsheetType()) {
@@ -77,9 +82,9 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
     }
 
-	public boolean isCustomSpreadsheetType() {
-		return customSpreadsheetType;
-	}
+    public boolean isCustomSpreadsheetType() {
+        return customSpreadsheetType;
+    }
 
     private synchronized IOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
@@ -87,17 +92,17 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
         return spreadsheetCustomType;
     }
-    
-    
-        private void initCustomSpreadsheetResultType() {
+
+    private void initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
-        
+
         /** get fields coordinates */
         Map<String, Point> fieldCoordinates = getFieldsCoordinates();
-        
+
         Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
-        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator("org.openl.rules.calc.SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
+        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(
+                "org.openl.rules.calc.SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
         Class<?> customSPR = gen.generateAndLoadBeanClass();
         spreadsheetCustomType = JavaOpenClass.getOpenClass(customSPR);
     }
@@ -110,7 +115,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);
 
-        return bindingDependencies;        
+        return bindingDependencies;
     }
 
     public IResultBuilder getResultBuilder() {
@@ -152,7 +157,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public int getWidth() {
         return cells[0].length;
     }
-    
+
     public String[] getRowNames() {
         return rowNames;
     }
@@ -161,29 +166,26 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return columnNames;
     }
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return getInvoker().invoke(target, params, env);
+    protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
+       return getInvoker().invoke(target, params, env);
     }
-    
 
-    protected Invokable createInvoker()
-    {
-    	return new SpreadsheetInvoker(this);
+    protected Invokable createInvoker() {
+        return new SpreadsheetInvoker(this);
     }
-    
-    synchronized protected Invokable getInvoker()
-    {
+
+    synchronized protected Invokable getInvoker() {
         if (invoker == null) {
-        	invoker = createInvoker();
-        } 
+            invoker = createInvoker();
+        }
         return invoker;
-    	
+
     }
-    
+
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
-        
+
         List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
-        
+
         int row = definition.getRow();
         int col = definition.getColumn();
 
@@ -203,29 +205,27 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
         return list;
     }
-    
-    @Deprecated 
-    public int height()
-    {
+
+    @Deprecated
+    public int height() {
         return getHeight();
     }
-    
+
     @Deprecated
-    public int width()
-    {
+    public int width() {
         return getWidth();
     }
 
-	public void setInvoker(SpreadsheetInvoker invoker) {
-		this.invoker = invoker;
-	}
+    public void setInvoker(SpreadsheetInvoker invoker) {
+        this.invoker = invoker;
+    }
 
-	Map<String, Point> fieldsCoordinates = null;
-	
-	public synchronized Map<String, Point> getFieldsCoordinates() {
-		if (fieldsCoordinates == null)
-			fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
-		return fieldsCoordinates;
-	}
+    Map<String, Point> fieldsCoordinates = null;
+
+    public synchronized Map<String, Point> getFieldsCoordinates() {
+        if (fieldsCoordinates == null)
+            fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+        return fieldsCoordinates;
+    }
 
 }
