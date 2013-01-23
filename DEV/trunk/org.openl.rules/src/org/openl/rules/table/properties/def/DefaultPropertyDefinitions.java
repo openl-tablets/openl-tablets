@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[30];
+		definitions = new TablePropertyDefinition[31];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -414,6 +414,16 @@ public class DefaultPropertyDefinitions
 		definitions[29].setPrimaryKey(false);
 		definitions[29].setSystem(false);
 		definitions[29].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
+		definitions[30] = new TablePropertyDefinition();
+		definitions[30].setDescription("Is method use cache by input arguments, if cache is enabled.");
+		definitions[30].setDimensional(false);
+		definitions[30].setDisplayName("Cacheable");
+		definitions[30].setGroup("Dev");
+		definitions[30].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[30].setName("cacheable");
+		definitions[30].setPrimaryKey(false);
+		definitions[30].setSystem(false);
+		definitions[30].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

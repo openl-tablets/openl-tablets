@@ -21,9 +21,6 @@ import org.openl.rules.runtime.BaseRulesFactory;
  */
 public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
 	
-	
-	
-	
     private final Log log = LogFactory.getLog(LazyMultiModuleInstantiationStrategy.class);
 
     private LazyMultiModuleEngineFactory factory;

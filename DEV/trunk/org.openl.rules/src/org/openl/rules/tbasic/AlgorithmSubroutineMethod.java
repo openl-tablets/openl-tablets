@@ -70,7 +70,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
      * @see org.openl.types.IMethodCaller#invoke(java.lang.Object,
      *      java.lang.Object[], org.openl.vm.IRuntimeEnv)
      */
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         assert env instanceof TBasicContextHolderEnv;
 
         TBasicContextHolderEnv environment = (TBasicContextHolderEnv) env;

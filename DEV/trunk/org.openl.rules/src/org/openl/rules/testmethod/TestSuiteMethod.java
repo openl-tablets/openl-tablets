@@ -23,15 +23,16 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     private IOpenMethod testedMethod;
     private IOpenClass methodBasedClass;
     private TestDescription[] tests;
-    
-    public TestSuiteMethod(String tableName, IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
+
+    public TestSuiteMethod(String tableName, IOpenMethod testedMethod, IOpenMethodHeader header,
+            TestMethodBoundNode boundNode) {
         super(header, boundNode);
-    
+
         this.tableName = tableName;
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
     }
-    
+
     protected TestDescription[] initTests() {
         DynamicObject[] testObjects = getTestObejcts();
         TestDescription[] tests = new TestDescription[testObjects.length];
@@ -40,10 +41,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         }
         return tests;
     }
-    
+
     @Override
     public TestMethodBoundNode getBoundNode() {
-        return (TestMethodBoundNode)super.getBoundNode();
+        return (TestMethodBoundNode) super.getBoundNode();
     }
 
     public String[] unitName() {
@@ -56,17 +57,17 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
-        
+
         updateDependency(bindingDependencies);
-        
+
         return bindingDependencies;
-    }    
+    }
 
     private void updateDependency(BindingDependencies bindingDependencies) {
         IOpenMethod testedMethod = getTestedMethod();
         if (testedMethod instanceof ExecutableRulesMethod || testedMethod instanceof OpenMethodDispatcher) {
             bindingDependencies.addMethodDependency(testedMethod, getBoundNode());
-        }        
+        }
     }
 
     public int getNumberOfTests() {
@@ -76,10 +77,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
-    
+
     public DynamicObject[] getTestObejcts() {
         Object testArray = getBoundNode().getField().getData();
-        return (DynamicObject[])testArray;
+        return (DynamicObject[]) testArray;
     }
 
     public TestDescription[] getTests() {
@@ -115,7 +116,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return testedMethod;
     }
 
-    public TestUnitsResults invoke(Object target, Object[] params, IRuntimeEnv env) {
+    @Override
+    protected boolean isMethodCacheable() {
+        return false;
+    }
+
+    protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         return invokeBenchmark(target, params, env, 1);
     }
 
@@ -127,19 +133,21 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         TableSyntaxNode tsn = (TableSyntaxNode) getSyntaxNode();
         return XlsNodeTypes.XLS_RUN_METHOD.toString().equals(tsn.getType());
     }
-    
+
     /**
      * Indicates if test method has any row rules for testing target table.
-     * Finds it by field that contains {@link TestMethodHelper#EXPECTED_RESULT_NAME} or 
+     * Finds it by field that contains
+     * {@link TestMethodHelper#EXPECTED_RESULT_NAME} or
      * {@link TestMethodHelper#EXPECTED_ERROR}
      * 
      * @return true if method expects some return result or some error.
      * 
-     * TODO: rename it. it is difficult to understand what is it doing 
+     *         TODO: rename it. it is difficult to understand what is it doing
      */
     public boolean isRunmethodTestable() {
         for (int i = 0; i < getNumberOfTests(); i++) {
-            if (getTest(i).isExpectedResultDefined() || getTest(i).isExpectedErrorDefined() ||containsFieldsForSprCellTests(getTest(i).getTestObject().getFieldValues().keySet())
+            if (getTest(i).isExpectedResultDefined() || getTest(i).isExpectedErrorDefined()
+                    || containsFieldsForSprCellTests(getTest(i).getTestObject().getFieldValues().keySet())
                     || (testedMethod instanceof Spreadsheet)) {
                 return true;
             }
@@ -148,7 +156,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         return false;
     }
 
-    
     private boolean containsFieldsForSprCellTests(Set<String> fieldNames) {
         for (String fieldName : fieldNames) {
             if (fieldName.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {

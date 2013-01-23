@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenlNotCheckedException;
@@ -549,6 +551,22 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             intArray[i] = values[i].getValue();
         }
         return intArray;
+    }
+    
+    public static IntValue[] sort (IntValue[] values ) {
+        IntValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new IntValue[values.length];
+            IntValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
 
 }
