@@ -16,7 +16,9 @@ public class SetBorderStyleAction extends AUndoableCellAction {
     int tableColNum;
     int propSize;
     int leftBorderColumn;
-    
+
+    boolean clearCell = true;
+
     ICellStyle newCellStyle;
 
     public SetBorderStyleAction(int col, int row, ICellStyle newCellStyle) {
@@ -26,11 +28,23 @@ public class SetBorderStyleAction extends AUndoableCellAction {
         this.newCellStyle = newCellStyle;
     }
 
+    public SetBorderStyleAction(int col, int row, ICellStyle newCellStyle, boolean clearCell) {
+        super(col, row);
+        this.col = col;
+        this.row = row;
+        this.newCellStyle = newCellStyle;
+        this.clearCell = clearCell;
+    }
+
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-       
+
         savePrevCell(grid);
-        grid.clearCell(getCol(), getRow());
+
+        if(clearCell) {
+            grid.clearCell(getCol(), getRow());
+        }
+
         grid.setCellBorderStyle(col, row, newCellStyle);
     }
 
