@@ -99,7 +99,6 @@ public class DeploymentManager implements InitializingBean {
         }
         afterPropertiesSet();
     }
-
     @Override
     public void afterPropertiesSet() {
         if (initialProductionRepositoryConfigNames != null) {

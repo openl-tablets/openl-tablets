@@ -65,7 +65,7 @@
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and (not prj.data.locked or prj.data.lockedByMe)}">
             &#160;
-            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentProject}" title="Delete"
+            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Delete"
               onclick="if(!window.confirm('Are you sure you want to delete the Deploy Configuration?')) {return false;}">
               <f:param name="deploymentProjectName" value="#{prj.name}" />
               <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
