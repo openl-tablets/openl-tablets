@@ -124,7 +124,7 @@
         <div id="dataTypeDiv" style="display: none">
         </div>
         <div id="propsDataType" style="display: none">
-            <h:selectOneMenu onchange="tableModel.setPropValue(this,'PROPERTY_TYPE')" id="newPropertySelect">
+            <h:selectOneMenu onblur="tableModel.setPropValue(this,'PROPERTY_TYPE')" onchange="tableModel.setPropValue(this,'PROPERTY_TYPE')" id="newPropertySelect">
                 <f:selectItems value="#{wizard.propertyNamesList}" />
             </h:selectOneMenu>
         </div>

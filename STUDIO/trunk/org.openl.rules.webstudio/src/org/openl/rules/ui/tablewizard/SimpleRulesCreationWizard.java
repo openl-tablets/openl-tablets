@@ -121,6 +121,7 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
         List<String> propertyNames = new ArrayList<String>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf("Module".toUpperCase()));
+        propertyNames.add("");
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             propertyNames.add(propName);
