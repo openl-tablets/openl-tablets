@@ -140,7 +140,11 @@ var tableModel = {
         if(cellType == "PROPERTY_VALUE") {
             prop.name = editElem.value;
         } else {
-            prop.type = editElem.value;
+            if(editElem.value == "") {
+                prop.type = "undefined";
+            } else {
+                prop.type = editElem.value;
+            }
         }
     },
 
@@ -230,6 +234,8 @@ var tableModel = {
         editElem.innerHTML = document.getElementById("propsDataType").innerHTML;
         editElem.firstChild.id = element.id;
         editElem.firstChild.value = element.innerHTML;
+        
+        editElem.firstChild.focus();
 
         /*delete selected items*/
         for(i = 0; i < this.properties.length; i++) {
