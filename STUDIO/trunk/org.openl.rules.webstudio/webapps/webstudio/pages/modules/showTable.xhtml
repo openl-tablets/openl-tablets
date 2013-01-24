@@ -92,7 +92,7 @@
                             <tr>
                                 <td>
                                     <h:outputLink value="#showTable.xhtml" title="Edit Table" styleClass="toolbarButton"
-                                        rendered="#{showTableBean.canEdit}">
+                                        rendered="#{showTableBean.canEdit}"  >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <f:param name="mode" value="edit" />
                                         <img src="webresource/images/editTable.gif" />
@@ -102,7 +102,9 @@
                                 <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
                                         rendered="#{showTableBean.canEdit}"
-                                        title="Open Table In Excel - #{showTableBean.uri}" target="hidden" >
+                                        title="Open Table In Excel - #{showTableBean.uri}" 
+                                        onclick="return canLeavePage()"
+                                        target="hidden" >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <img src="webresource/images/excel.png" />
                                         <span>Open</span>
@@ -175,7 +177,7 @@
                             <div style="padding: 6px 5px">
                                 <a4j:commandButton id="runButton" action="#{showTableBean.makeTestSuite}" value="Run"
                                     rendered="#{showTableBean.canRun}"
-                                    title="Run" onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
+                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="goTo('#{runLink}')"
                                     style="display:none" />
                                 <a4j:commandButton id="traceButton" action="#{showTableBean.makeTestSuite}"
                                     rendered="#{showTableBean.canTrace}"
@@ -197,7 +199,7 @@
                                 <td>
                                     <a4j:commandLink id="runLink" action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
                                         rendered="#{showTableBean.canRun}"
-                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
+                                        onclick=" return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
@@ -290,14 +292,14 @@
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{showTableBean.canRun}">
                                     <a class="toolbarButton" title="Run" href="javascript:void(0)"
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
+                                        onclick="canLeavePage(); showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
                                         <img src="webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a>
                                 </c:if>
                                 <c:if test="#{showTableBean.canTrace}">
                                     <a class="toolbarButton" title="Trace" href="javascript:void(0)"
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
+                                        onclick="canLeavePage(); showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
                                         <img src="webresource/images/trace.gif" />
                                         <span>Trace</span>
                                     </a>
@@ -307,7 +309,7 @@
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
-                                            oncomplete="goTo('#{runLink}')" />
+                                            oncomplete="goTo('#{runLink}')"/> 
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win')" />
@@ -353,8 +355,8 @@
                 <td>
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton" title="Create new Test"
-                            oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')">
+                            styleClass="toolbarButton" title="Create new Test" onclick="return canLeavePage();"
+                            oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
                             <span>Create Test</span>
@@ -408,7 +410,8 @@
                     <div>
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#showTable.xhtml">
+                            <h:outputLink value="#showTable.xhtml"
+                            			 onclick="canLeavePage();">
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -466,7 +469,7 @@
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}" afterSaveAction="#{showTableBean.afterSaveAction}"
                 onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
-                onError="javascript:onError(data);" excludeScripts="prototype">
+                onError="javascript:onError(data);" excludeScripts="prototype"  >
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{showTableBean.canEdit}">Edit in Excel</h:outputLink>
@@ -515,6 +518,7 @@
         }
 
         function isAnyTestSelected() {
+            
             var numChecked = $j("#testTable :checked").length;
             if (numChecked > 0) {
                 return true;
@@ -526,18 +530,22 @@
 
         function canLeavePage() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
-            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId
+            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId te_toolbar
             
             if (t.hasChanges) {
-                var isOk = confirm('Table is not saved. Do you want to rollback all changes?');
+                var isOk = confirm('Table is not saved. Do you want to save all changes?');
                 if (isOk) {
-                    t.rollback();
-                } else {
-                    return false;
-                }
+                    //t.rollback();
+                    t.saveChanges();
+                }  else {
+                   // return true;
+                   t.undoredo();
+                    //t.save();
+                } 
             }
             return true;
         }
+        
       //]]>
     </script>
 
