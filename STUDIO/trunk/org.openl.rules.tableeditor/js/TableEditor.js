@@ -247,6 +247,19 @@ var TableEditor = Class.create({
             }
         });
     },
+    
+    saveChanges: function() {
+        this.setCellValue();
+        var selt = this;
+        
+        var beforeSavePassed = true;
+        if (this.actions && this.actions.beforeSave) {
+            beforeSavePassed = this.actions.beforeSave();
+        }
+        if (beforeSavePassed == false) return;
+
+        this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, hideLoader());
+     },
 
     /**
      * Rolls back all changes. Sends corresponding request to the server.
@@ -1018,13 +1031,17 @@ function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
         [save_item, undo_item].each(function(item) {
             processItem(getItemId(editorId, item), hasItems);
         });
-        if (hasItems) {
+       /* if (hasItems) {
             window.onbeforeunload = function() {
+               // alert('not saved');
+           
                 return "Your changes have not been saved.";
             };
         } else { // remove handler if Save/Undo items are disabled
-            window.onbeforeunload = function() {};
-        }
+           
+          //  window.onbeforeunload = function() {};
+           
+        }*/
     };
 
     tableEditor.redoStateUpdated = function(hasItems) {
