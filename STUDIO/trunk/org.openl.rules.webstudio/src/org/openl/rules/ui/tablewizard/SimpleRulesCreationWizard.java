@@ -58,6 +58,7 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
     private String jsonTable;
     private JSONObject table;
     private String restoreTable;
+    private final String TABLE_TYPE = "xsl.dt";
 
     private String restoreTableFunction = "tableModel.restoreTableFromJSONString";
 
@@ -122,14 +123,20 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
         return size;
     }
 
-    public List<String> getPropertyNamesList() {
-        List<String> propertyNames = new ArrayList<String>();
-        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-                .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf("Module".toUpperCase()));
-        propertyNames.add("");
+    public List<SelectItem> getPropertyList() {
+        List<SelectItem> propertyNames = new ArrayList<SelectItem>();
+        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(TABLE_TYPE);
+                //.getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf("Module".toUpperCase()));
+
+        SelectItem selectItem = new SelectItem("");
+        selectItem.setLabel("");
+        propertyNames.add(selectItem);
+
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
-            propertyNames.add(propName);
+            selectItem = new SelectItem(propName);
+            selectItem.setLabel(propDefinition.getDisplayName());
+            propertyNames.add(selectItem);
         }
 
         return propertyNames;
@@ -155,7 +162,7 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
 
         return dth;
     }
-    
+
     public List<DomainTypeHolder> getTypedParameters() {
         List<DomainTypeHolder> typedParameters = new ArrayList<DomainTypeHolder>();
 
