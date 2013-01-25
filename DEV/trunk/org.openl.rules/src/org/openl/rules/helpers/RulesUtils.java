@@ -7,10 +7,8 @@ package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -923,14 +921,49 @@ public class RulesUtils {
     public static void error(Throwable t) throws Throwable {
         throw new OpenLUserRuntimeException(t);
     }
-
+    
+    
+    /**
+     * method dateToString(Date date) should be used
+     * @param date
+     * @return formated date value
+     */
+    @Deprecated
     public static String format(Date date) {
-        return format(date, null);
+        return dateToString(date);
+    }
+    
+    /**
+     * method dateToString (Date date, String format) should be used
+     * @param date
+     * @param format
+     * @return String formated date value
+     */
+    @Deprecated
+    public static String format(Date date, String format) {
+        return dateToString(date, format);
     }
 
-    public static String format(Date date, String format) {
-        DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(format);
-        return df.format(date);
+    /**
+     * converts a date to the String according dateFormat
+     * 
+     * @param date
+     * @param dateFormat
+     * @return String formated date value
+     */
+    public static String dateToString(Date date, String dateFormat) {
+        return DateTool.dateToString(date, dateFormat);
+    }
+
+    /**
+     * converts a date to the String according dateFormat
+     * 
+     * @see DateTool.dateToString();
+     * @param date
+     * @return String formated date value
+     */
+    public static String dateToString(Date date) {
+        return DateTool.dateToString(date);
     }
 
     public static String format(double d) {
