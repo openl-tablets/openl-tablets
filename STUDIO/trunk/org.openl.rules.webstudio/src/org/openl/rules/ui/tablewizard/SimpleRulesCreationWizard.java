@@ -13,7 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
@@ -121,6 +126,7 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
         List<String> propertyNames = new ArrayList<String>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf("Module".toUpperCase()));
+        propertyNames.add("");
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             propertyNames.add(propName);
@@ -471,6 +477,63 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
         restoreTable = null;
 
         super.reset();
+    }
+
+    /**
+     * Validation for properties name
+     */
+    public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
+        FacesMessage message = new FacesMessage();
+        ValidatorException validEx = null;
+        int paramId = this.getParamId(toValidate.getClientId());
+
+        try {
+            String name = ((String) value).toUpperCase();
+            
+            int i = 0;
+            for (TypeNamePair param : parameters) {
+                if (paramId != i && param.getName() != null && param.getName().toUpperCase().equals(name)){
+                    message.setDetail("Property with such name already exists");
+                    validEx = new ValidatorException(message);
+                    throw validEx;
+                }
+                
+                i++;
+            }
+
+        } catch (Exception e) {
+            throw new ValidatorException(message);
+        }
+    }
+
+    public void pNameListener(ValueChangeEvent valueChangeEvent) {
+        int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
+
+        this.parameters.get(paramId).setName(valueChangeEvent.getNewValue().toString()); 
+    }
+
+    public void pTypeListener(ValueChangeEvent valueChangeEvent) {
+        int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
+
+        this.parameters.get(paramId).setType(valueChangeEvent.getNewValue().toString()); 
+    }
+
+    public void pIterableListener(ValueChangeEvent valueChangeEvent) {
+        int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
+
+        this.parameters.get(paramId).setIterable(Boolean.getBoolean(valueChangeEvent.getNewValue().toString())); 
+    }
+
+    private int getParamId(String componentId) {
+        if(componentId != null) {
+            String[] elements = componentId.split(":");
+            
+            if (elements.length > 3) {
+                return Integer.parseInt(elements[2]);
+            }
+        }
+        
+        return 0;
     }
 
 }

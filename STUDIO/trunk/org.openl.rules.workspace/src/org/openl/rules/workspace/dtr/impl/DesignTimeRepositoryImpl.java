@@ -112,7 +112,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         try {
             getRepo().createDeploymentProject(name);
         } catch (RRepositoryException e) {
-            throw new RepositoryException("Failed to create deployment project ''{0}''!", e, name);
+            throw new RepositoryException("Failed to create deployment configuration ''{0}''!", e, name);
         }
     }
 

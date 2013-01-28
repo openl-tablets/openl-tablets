@@ -1,5 +1,7 @@
 package org.openl.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -145,5 +147,24 @@ public class DateTool {
         } else {
             return "PM";
         }
+    }
+    /** 
+     * Converts a date to the String value according the dateFormat
+     * @param date a date which should be converted
+     * @param dateFormat 
+     * @return String date format
+     */
+    public static String dateToString(Date date, String dateFormat) {
+        DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
+        return  df.format(date);
+    }
+    
+    /** 
+     * Converts a date to the String value according the default locale. 
+     * @param date
+     * @return String date format
+     */
+    public static String dateToString (Date date) {
+        return dateToString(date, null);
     }
 }

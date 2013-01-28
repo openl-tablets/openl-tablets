@@ -77,7 +77,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         }
 
         if (alreadyDeployed) {
-            throw new DeploymentException("Project is already deployed to production repository, id: " + id.getName(),
+            throw new DeploymentException("Configuration is already deployed to production repository, id: " + id.getName(),
                     null);
         }
 

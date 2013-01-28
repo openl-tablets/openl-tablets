@@ -110,7 +110,7 @@ public class LocalUploadController {
                     try {
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
                         FacesUtils.addInfoMessage("Project " + bean.getProjectName()
-                                        + " was created succesfully");
+                                        + " was created successfully");
                     } catch (Exception e) {
                         String msg = "Failed to create the project '" + bean.getProjectName() + "'!";
                         log.error(msg, e);
