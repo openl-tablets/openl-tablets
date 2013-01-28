@@ -1,27 +1,5 @@
 package org.openl.rules.repository.jcr;
 
-import junit.framework.TestCase;
-
-import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
-import org.apache.jackrabbit.core.TransientRepository;
-import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ValueType;
-import org.openl.rules.common.impl.CommonUserImpl;
-import org.openl.rules.jacrkrabbit.transactions.JackrabbitTransactionManager;
-import org.openl.rules.repository.FolderHelper;
-import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.RTransactionManager;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-import javax.jcr.nodetype.NodeTypeManager;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +12,27 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+import javax.jcr.nodetype.NodeTypeManager;
+
+import junit.framework.TestCase;
+
+import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
+import org.apache.jackrabbit.core.TransientRepository;
+import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.common.impl.CommonUserImpl;
+import org.openl.rules.jacrkrabbit.transactions.JackrabbitTransactionManager;
+import org.openl.rules.repository.FolderHelper;
+import org.openl.rules.repository.RDeploymentListener;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class JcrProductionRepositoryTestCase extends TestCase {
     private static final String TEST_FOLDER = "target/test_work";

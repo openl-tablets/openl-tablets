@@ -177,6 +177,8 @@ public interface ITableProperties {
 	void setCustom2(java.lang.String[] custom2);
 	java.lang.Boolean getCacheable();
 	void setCacheable(java.lang.Boolean cacheable);
+	org.openl.rules.enumeration.Recalculation getRecalculation();
+	void setRecalculation(org.openl.rules.enumeration.Recalculation recalculation);
 // <<< END INSERT >>>
 	
 	
