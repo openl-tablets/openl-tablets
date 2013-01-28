@@ -21,14 +21,14 @@
         <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/colorPicker.css"/>
         <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/popup.css"/>
 
-        <script src="/webstudio/faces/tableEditor/js/popup/popupmenu.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/datepicker.packed.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/BaseEditor.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/BaseTextEditor.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/TextEditor.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/MultiselectEditor.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/ArrayEditor.js"></script>
-        <script src="/webstudio/faces/tableEditor/js/DateEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/popup/popupmenu.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/datepicker.packed.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/BaseEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/BaseTextEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/TextEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/MultiselectEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/ArrayEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/DateEditor.js"></script>
         
         <script src="#{contextPath}/javascript/tableDataModel.js"></script>
         <script src="#{contextPath}/javascript/tableHTMLRenderers.js"></script>
@@ -125,7 +125,7 @@
         </div>
         <div id="propsDataType" style="display: none">
             <h:selectOneMenu onblur="tableModel.setPropValue(this,'PROPERTY_TYPE')" onchange="tableModel.setPropValue(this,'PROPERTY_TYPE')" id="newPropertySelect">
-                <f:selectItems value="#{wizard.propertyNamesList}" />
+                <f:selectItems value="#{wizard.propertyList}" />
             </h:selectOneMenu>
         </div>
     </ui:define>

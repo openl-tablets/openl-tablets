@@ -2,6 +2,7 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
+import org.openl.rules.enumeration.Recalculation;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -41,12 +42,29 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
 
     @Override
     public final Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (env instanceof SimpleRulesRuntimeEnv && isMethodCacheable()) {
+        if (env instanceof SimpleRulesRuntimeEnv) {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
             Object result = null;
-            if (simpleRulesRuntimeEnv.isMethodArgumentsCacheEnable()) {
+            boolean isSimilarStep = false;
+            boolean oldIsIgnoreRecalculation = simpleRulesRuntimeEnv.isIgnoreRecalculation();
+            if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
+                if (!Recalculation.ALWAYS.equals(getRecalculationType())) {
+                    simpleRulesRuntimeEnv.registerForwardOriginalCalculationStep(this);
+                    if (!simpleRulesRuntimeEnv.isOriginalCalculation()) {
+                        isSimilarStep = simpleRulesRuntimeEnv.registerForwardStep(this);
+                        if (isSimilarStep && Recalculation.NEVER.equals(getRecalculationType())) {
+                            return simpleRulesRuntimeEnv.getResultFromOriginalCalculation(this);
+                        }
+                    }
+                } else {
+                    if (Recalculation.ALWAYS.equals(getRecalculationType())){
+                        simpleRulesRuntimeEnv.setIgnoreRecalculation(true);
+                    }
+                }
+            }
+            if (simpleRulesRuntimeEnv.isMethodArgumentsCacheEnable() && isMethodCacheable()) {
                 try {
-                    return simpleRulesRuntimeEnv.findInCache(this, params);
+                    result = simpleRulesRuntimeEnv.findInCache(this, params);
                 } catch (ResultNotFoundException e) {
                     result = innerInvoke(target, params, env);
                     simpleRulesRuntimeEnv.putToCache(this, params, result);
@@ -54,10 +72,32 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
             } else {
                 result = innerInvoke(target, params, env);
             }
+            simpleRulesRuntimeEnv.setIgnoreRecalculation(oldIsIgnoreRecalculation);
+            if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
+                if (!Recalculation.ALWAYS.equals(getRecalculationType())) {
+                    simpleRulesRuntimeEnv.registerBackwardOriginalCalculationStep(this, result);
+                    if (isSimilarStep && !simpleRulesRuntimeEnv.isOriginalCalculation()) {
+                        simpleRulesRuntimeEnv.registerBackwardStep(this);
+                    }
+                }
+            }
             return result;
         } else {
             return innerInvoke(target, params, env);
         }
+    }
+
+    Recalculation recalculationType = null;
+
+    private Recalculation getRecalculationType() {
+        if (recalculationType == null) {
+            if (getMethodProperties() == null) {
+                recalculationType = Recalculation.ALWAYS;
+            } else {
+                recalculationType = (Recalculation) getMethodProperties().getRecalculation();
+            }
+        }
+        return recalculationType;
     }
 
     protected abstract Object innerInvoke(Object target, Object[] params, IRuntimeEnv env);
