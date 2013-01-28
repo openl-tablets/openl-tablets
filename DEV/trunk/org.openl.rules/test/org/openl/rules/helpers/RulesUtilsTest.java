@@ -11,7 +11,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.BigDecimalValue;
@@ -437,5 +439,31 @@ public class RulesUtilsTest {
         ObjectValue[] actuals = RulesUtils.sort(strValueArray);
 
         assertArrayEquals(expecteds, actuals);
+    }
+    
+    @Test   
+    public void testDateFormat() {
+        int year = 2013;
+        int month = 1;
+        int date = 25;
+        int hour = 15;
+        int min = 3;
+        Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(year, month, date, hour, min);
+        
+        System.out.println("Default locale is: " + Locale.getDefault());
+        System.out.println("Locale date format: " + RulesUtils.dateToString(c.getTime()));
+        
+        assertEquals("2/25/13", RulesUtils.format(c.getTime()) );
+        assertEquals("2/25/13", RulesUtils.dateToString(c.getTime()));
+        
+        assertEquals("25/13", RulesUtils.format(c.getTime(), "dd/YY"));
+        assertEquals("25/13", RulesUtils.dateToString(c.getTime(), "dd/YY") );
+        
+        assertEquals("25/13 15:03", RulesUtils.format(c.getTime(), "dd/YY HH:mm"));
+        assertEquals("25/13 15:03", RulesUtils.dateToString(c.getTime(), "dd/YY HH:mm"));
+        
     }
 }

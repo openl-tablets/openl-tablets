@@ -38,22 +38,25 @@ public class TablePropertyValues extends HttpServlet {
         TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propName);
         ServletOutputStream outputStream = response.getOutputStream();
 
-        if(propDefinition.getType() != null && propDefinition.getType().isArray()){
-            String[] values = EnumUtils.getNames(propDefinition.getType().getInstanceClass().getComponentType());
-            String[] displayValues = EnumUtils.getValues(propDefinition.getType().getInstanceClass().getComponentType());
-            
-            
-            String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
-            String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+        try {
+            if(propDefinition.getType() != null && propDefinition.getType().isArray()){
+                String[] values = EnumUtils.getNames(propDefinition.getType().getInstanceClass().getComponentType());
+                String[] displayValues = EnumUtils.getValues(propDefinition.getType().getInstanceClass().getComponentType());
 
-            String params = String.format(
-                    "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
-                    choisesString, displayValuesString);
+                String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
+                String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
 
-            outputStream.println(params);
-        } else if( Date.class.equals(propDefinition.getType().getInstanceClass()) ){
-            outputStream.println("{\"type\" : \"DATE\"}");
-        } else {
+                String params = String.format(
+                        "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
+                        choisesString, displayValuesString);
+
+                outputStream.println(params);
+            } else if( Date.class.equals(propDefinition.getType().getInstanceClass()) ){
+                outputStream.println("{\"type\" : \"DATE\"}");
+            } else {
+                outputStream.println("{\"type\" : \"TEXT\"}");
+            }
+        } catch (Exception e) {
             outputStream.println("{\"type\" : \"TEXT\"}");
         }
 

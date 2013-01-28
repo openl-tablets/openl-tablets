@@ -24,7 +24,7 @@ public class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
 			// https://jira.exigenservices.com/browse/EPBDS-3104, after fix should be DT
 			assertEquals(XlsNodeTypes.XLS_DT, XlsNodeTypes.getEnumByValue(tsn.getType()));
 			
-			// test that it invokes successfully, means that it was compiled succesfully
+			// test that it invokes successfully, means that it was compiled successfully
 			//
 			// temporary commented till https://jira.exigenservices.com/browse/EPBDS-3104 will be fixed
 			// should pass after fix
