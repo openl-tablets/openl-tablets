@@ -55,6 +55,7 @@
 }
 
 .te_toolbar {
+    position: fixed;
     background-color: #CCDEFF;
     width: 700px;
     margin-bottom: 5px;
