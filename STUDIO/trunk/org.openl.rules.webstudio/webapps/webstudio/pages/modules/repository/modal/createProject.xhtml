@@ -62,9 +62,11 @@
                         <td class="label" style="width: 65px">
                             <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                         </td>
-                        <td>
-                            <h:inputText id="projectName" size="35" maxlength="50" value="#{repositoryTreeController.projectName}" />
-                        </td>
+                            <td><h:inputText id="projectName"
+                                    size="35" maxlength="50"
+                                    value="#{repositoryTreeController.projectName}"
+                                    onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtTemplates')});" />
+                            </td>
                         </tr>
                     </table>
 
@@ -89,7 +91,10 @@
                             acceptedTypes="xls, xlsx, xlsm" />
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-                        <h:inputText id="projectName" size="35" maxlength="50" value="#{repositoryTreeController.projectName}" />
+                        <h:inputText id="projectName" size="35"
+                            maxlength="50"
+                            value="#{repositoryTreeController.projectName}"
+                            onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtFiles')});" />
                     </h:panelGrid>
 
                     <hr style="margin-bottom: 15px" />
@@ -109,18 +114,23 @@
 
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         acceptedTypes="zip" maxFilesQuantity="1" >
-                        <a4j:ajax event="uploadcomplete" execute="@none" render="projectName" />
-                    </rich:fileUpload>
+                            <a4j:ajax event="uploadcomplete"
+                                execute="@none" render="projectName"
+                                oncomplete="enableCreateButton(true, #{rich:element('sbtZips')})" />
+                        </rich:fileUpload>
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-                    <h:inputText id="projectName" size="35" maxlength="50"
-                        value="#{repositoryTreeController.projectName}" disabled="#{repositoryTreeController.projectName == null}" />
-                </h:panelGrid>
+                        <h:inputText id="projectName" size="35"
+                            maxlength="50"
+                            value="#{repositoryTreeController.projectName}"
+                            disabled="#{repositoryTreeController.projectName == null}"
+                            onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtZips')});" />
+                    </h:panelGrid>
 
                 <hr style="margin-bottom: 15px" />
 
                 <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
-                    <h:commandButton id="sbt" value="Create" action="#{repositoryTreeController.upload}"
+                    <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
                         styleClass="button-primary" />
                     <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                 </h:panelGrid>
@@ -160,7 +170,7 @@
                     <hr style="margin-bottom: 15px" />
 
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
-                        <h:commandButton action="#{localUpload.upload}" styleClass="button-primary"
+                        <h:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary"
                             rendered="#{not empty localUpload.projects4Upload}"
                             process="@form" value="Create" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
@@ -175,6 +185,15 @@
 
         // TODO Move code to namespace
 
+        function enableCreateButton(enable, button) {
+            button.disabled = !enable;
+        }
+        
+        enableCreateButton(false, #{rich:element('sbtTemplates')});
+        enableCreateButton(false, #{rich:element('sbtFiles')});
+        enableCreateButton(false, #{rich:element('sbtZips')});
+        enableCreateButton(false, #{rich:element('sbtWorkspace')})
+        
         function openNewProjectDialog() {
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
@@ -191,6 +210,11 @@
 
         function changeStatus(element) {
             $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
+            if (!element.checked) {
+                enableCreateButton(false, #{rich:element('sbtWorkspace')});
+                } else {
+                    enableCreateButton(true, #{rich:element('sbtWorkspace')});
+                }
         }
 
         function changeAllProjectCheck(element) {
@@ -206,6 +230,12 @@
             if (checkedCount == allCount) {
                 $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
             }
+            
+            if (checkedCount == 0) {
+                enableCreateButton(false, #{rich:element('sbtWorkspace')});
+                } else {
+                    enableCreateButton(true, #{rich:element('sbtWorkspace')});
+                }
         }
 
         function uncheckSelectAllProject() {

@@ -62,6 +62,14 @@ public class TypeNamePair {
             return true;
         }
 
+        if (this.name == null && tnp.getName() == null && this.type.equals(tnp.type) && this.isIterable() == tnp.isIterable()) {
+            return true;
+        }
+        
+        if (this.name.equals(tnp.getName()) && this.type == null & tnp.type == null && this.isIterable() == tnp.isIterable()) {
+            return true;
+        }
+
         if (this.name.equals(tnp.getName()) && this.type.equals(tnp.type) && this.isIterable() == tnp.isIterable()) {
             return true;
         }

@@ -595,10 +595,19 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public static FloatValue[] sort(FloatValue[] values) {
+        FloatValue[] sortedArray = null;
         if (values != null) {
-            Arrays.sort(values);
+            sortedArray = new FloatValue[values.length];
+            FloatValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
         }
-        return values;
+        return sortedArray;
     }
 
 }
