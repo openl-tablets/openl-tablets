@@ -1,5 +1,8 @@
 package org.openl.rules.vm;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -23,7 +26,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         super(env);
         this.methodArgumentsCacheEnable = env.isMethodArgumentsCacheEnable();
         this.cacheMode = env.getCacheMode();
-        this.storage = env.storage;
+        this.storage = cloner.deepClone(env.storage);
     }
 
     @Override
@@ -36,6 +39,8 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     static final class InvocationData {
         private Object[] params;
+        private int paramsHashCode;
+        private boolean paramsHashCodeCalculated = false;
         private Object result;
 
         public InvocationData(Object[] params, Object result) {
@@ -47,6 +52,16 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
             return params;
         }
 
+        public int getParamsHashCode() {
+            if (!paramsHashCodeCalculated) {
+                HashCodeBuilder builder = new HashCodeBuilder();
+                builder.append(getParams());
+                paramsHashCodeCalculated = true;
+                paramsHashCode = builder.toHashCode();
+            }
+            return paramsHashCode;
+        }
+
         public Object getResult() {
             return result;
         }
@@ -56,31 +71,29 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         private static final int MAX_DATA_LENGTH = 1000;
 
         InvocationData[] invocationDatas = new InvocationData[MAX_DATA_LENGTH];
-        int[] hashCodes = new int[MAX_DATA_LENGTH];
         int size = 0;
 
         public Object get(Object[] params) throws ResultNotFoundException {
             HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
             hashCodeBuilder.append(params);
             int hashCode = hashCodeBuilder.toHashCode();
+
             for (int i = 0; i < size; i++) {
-                if (hashCodes[i] == hashCode) {
+                InvocationData invocationData = invocationDatas[i];
+                if (hashCode == invocationData.getParamsHashCode()) {
                     EqualsBuilder equalsBuilder = new EqualsBuilder();
-                    equalsBuilder.append(invocationDatas[i].getParams(), params);
+                    equalsBuilder.append(invocationData.getParams(), params);
                     if (equalsBuilder.isEquals()) {
-                        return invocationDatas[i].getResult();
+                        return invocationData.getResult();
                     }
                 }
             }
             throw new ResultNotFoundException();
         }
 
-        public void add(InvocationData invocatonData) {
-            if (size < invocationDatas.length) {
-                invocationDatas[size] = invocatonData;
-                HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-                hashCodeBuilder.append(invocatonData.params);
-                hashCodes[size] = hashCodeBuilder.toHashCode();
+        public void add(InvocationData invocationData) {
+            if (size < MAX_DATA_LENGTH) {
+                invocationDatas[size] = invocationData;
                 size++;
             }
         }
@@ -127,11 +140,157 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
             data = new Data();
             storage.put(member, data);
         }
-        Object[] clonedParams = new Object[params.length];
-        for (int i = 0; i < params.length; i++) {
-            clonedParams[i] = cloner.deepClone(params[i]);
+        try {
+            data.get(params);
+        } catch (ResultNotFoundException e) {
+            Object[] clonedParams = new Object[params.length];
+            for (int i = 0; i < params.length; i++) {
+                if (params[i] != null) {
+                    clonedParams[i] = cloner.deepClone(params[i]);
+                }
+            }
+            data.add(new InvocationData(clonedParams, result));
         }
-        data.add(new InvocationData(clonedParams, result));
+    }
+
+    private volatile boolean ignoreRecalculation = true;
+    private volatile boolean originalCalculation = true;
+
+    public boolean isIgnoreRecalculation() {
+        return ignoreRecalculation;
+    }
+
+    public void setIgnoreRecalculation(boolean ignoreRecalculation) {
+        this.ignoreRecalculation = ignoreRecalculation;
+    }
+
+    public boolean isOriginalCalculation() {
+        return originalCalculation;
+    }
+
+    public void setOriginalCalculation(boolean originalCalculation) {
+        this.originalCalculation = originalCalculation;
+    }
+
+    List<CalculationStep> originalCalculationSteps = new LinkedList<CalculationStep>();
+    Iterator<CalculationStep> step;
+
+    public void resetOriginalCalculationSteps() {
+        this.originalCalculationSteps.clear();
+        initCurrentStep();
+    }
+
+    private static abstract class CalculationStep {
+        private Object member;
+
+        public CalculationStep(Object member) {
+            if (member == null) {
+                throw new IllegalArgumentException("Member can't be null");
+            }
+            this.member = member;
+        }
+
+        public Object getMember() {
+            return member;
+        }
+    }
+
+    private static class ForwardCalculationStep extends CalculationStep {
+        public ForwardCalculationStep(Object member) {
+            super(member);
+        }
+    }
+
+    private static class BackwardCalculationStep extends CalculationStep {
+        private Object result;
+
+        public BackwardCalculationStep(Object member, Object result) {
+            super(member);
+            this.result = result;
+        }
+
+        public Object getResult() {
+            return result;
+        }
+    }
+
+    public void registerForwardOriginalCalculationStep(Object member) {
+        if (!isIgnoreRecalculation() && isOriginalCalculation()) {
+            this.originalCalculationSteps.add(new ForwardCalculationStep(member));
+        }
+    }
+
+    public void initCurrentStep() {
+        this.step = originalCalculationSteps.iterator();
+    }
+
+    public void registerBackwardOriginalCalculationStep(Object member, Object result) {
+        if (!isIgnoreRecalculation() && isOriginalCalculation()) {
+            this.originalCalculationSteps.add(new BackwardCalculationStep(member, result));
+        }
+    }
+
+    public boolean registerForwardStep(Object member) {
+        if (!isIgnoreRecalculation() && !isOriginalCalculation()) {
+            if (step.hasNext()) {
+                CalculationStep calculationStep = step.next();
+                return calculationStep.member == member && calculationStep instanceof ForwardCalculationStep;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public Object getResultFromOriginalCalculation(Object member) {
+        if (!isIgnoreRecalculation() && !isOriginalCalculation()) {
+            boolean flag = true;
+            int level = 0;
+            while (flag) {
+                flag = step.hasNext();
+                if (flag) {
+                    CalculationStep calculationStep = step.next();
+                    if (calculationStep.getMember() == member) {
+                        if (calculationStep instanceof ForwardCalculationStep) {
+                            level++;
+                        } else {
+                            if (level == 0) {
+                                BackwardCalculationStep backwardCalculationStep = (BackwardCalculationStep) calculationStep;
+                                return backwardCalculationStep.getResult();
+                            } else {
+                                level--;
+                            }
+                        }
+                    }
+                }
+            }
+            throw new IllegalStateException("Can't find result. Something wrong!!!");
+        }
+        throw new IllegalStateException("Can't use this method.");
+    }
+
+    public void registerBackwardStep(Object member) {
+        if (!isIgnoreRecalculation() && !isOriginalCalculation()) {
+            boolean flag = true;
+            int level = 0;
+            while (flag) {
+                flag = step.hasNext();
+                if (flag) {
+                    CalculationStep calculationStep = step.next();
+                    if (calculationStep.getMember() == member) {
+                        if (calculationStep instanceof ForwardCalculationStep) {
+                            level++;
+                        } else {
+                            if (level == 0) {
+                                return;
+                            } else {
+                                level--;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
