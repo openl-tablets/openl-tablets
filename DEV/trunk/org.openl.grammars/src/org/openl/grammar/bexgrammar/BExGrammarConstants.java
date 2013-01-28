@@ -424,6 +424,7 @@ public interface BExGrammarConstants {
     "\"is in\"",
     "\"is more or equal\"",
     "\"is no less than\"",
+    "\"!@\"",
     "\"[!@\"",
     "\"[select first having \"",
     "\"[select first where \"",
