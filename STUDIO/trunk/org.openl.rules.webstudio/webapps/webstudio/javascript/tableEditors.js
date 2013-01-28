@@ -10,12 +10,10 @@ function PropsEditor () {
             dataType: "json",
             success:function(data, textStatus, XMLHttpRequest){
                 hideLoader();
-
                 initComplexSelect(data, element);
             },
             error:function(XMLHttpRequest, textStatus, errorThrown){
                 hideLoader();
-                initSimpleSelect(element);
             }
         });
     };
