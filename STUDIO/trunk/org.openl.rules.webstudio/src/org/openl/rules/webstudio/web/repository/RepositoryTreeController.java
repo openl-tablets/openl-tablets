@@ -345,6 +345,7 @@ public class RepositoryTreeController {
 
         ProjectFile[] templateFiles = getProjectTemplateFiles(TEMPLATES_PATH + newProjectTemplate);
         if (templateFiles.length <= 0) {
+            this.clearForm();
             String errorMessage = String.format("Can`t load template files: %s", newProjectTemplate);
             FacesUtils.addErrorMessage(errorMessage);
             return null;
