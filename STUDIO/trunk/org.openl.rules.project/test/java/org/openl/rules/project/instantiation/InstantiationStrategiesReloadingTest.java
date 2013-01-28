@@ -158,7 +158,7 @@ public class InstantiationStrategiesReloadingTest {
         FileUtils.copyFile(new File(SERVICE_CLASS_ORIGINAL), new File(SERVICE_CLASS_ENGINE));
         FileUtils.copyFile(new File(WRAPPER_ORIGINAL), new File(WRAPPER_WRAPPER));
         FileUtils.copyFile(new File(WRAPPER$1_ORIGINAL), new File(WRAPPER$1_WRAPPER));
-        System.out.println("All files have been succesfully restored.");
+        System.out.println("All files have been successfully restored.");
     }
 
     public void makeChanges() throws IOException {
@@ -172,7 +172,7 @@ public class InstantiationStrategiesReloadingTest {
         FileUtils.copyFile(new File(SERVICE_CLASS_MODIFIED), new File(SERVICE_CLASS_ENGINE));
         FileUtils.copyFile(new File(WRAPPER_MODIFIED), new File(WRAPPER_WRAPPER));
         FileUtils.copyFile(new File(WRAPPER$1_MODIFIED), new File(WRAPPER$1_WRAPPER));
-        System.out.println("All files have been succesfully changed.");
+        System.out.println("All files have been successfully changed.");
     }
 
     @Test
