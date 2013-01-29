@@ -69,7 +69,12 @@ public class VariationsResultType extends BeanType {
                     for (Entry<String, Object> result : variationResults.entrySet()) {
                         variationsResult.registerResult(result.getKey(), result.getValue());
                     }
-
+                } else if (type != null && qName.getLocalPart().equals("variationResultsData")) {
+                    byte[] variationResultsData = (byte[]) type.readObject(childReader, context);
+                    variationsResult.setVariationResultsData(variationResultsData);
+                } else if (type != null && qName.getLocalPart().equals("variationFailuresData")) {
+                    byte[] variationFailuresData = (byte[]) type.readObject(childReader, context);
+                    variationsResult.setVariationFailuresData(variationFailuresData);
                 } else {
                     childReader.readToEnd();
                 }
