@@ -186,13 +186,20 @@ public class TableProperty {
 
     public List<SelectItem> getEnumArrayItems() {
         List<SelectItem> items = new ArrayList<SelectItem>();
+        String[] values = null;
+        String[] displayValues = null;
 
-        if (isEnumType() || isEnumArray()) {
+        if (isEnumType() && isEnumArray()) {
             Class<?> instanceClass = type.getComponentType();
 
-            String[] values = EnumUtils.getNames(instanceClass);
-            String[] displayValues = EnumUtils.getValues(instanceClass);
+            values = EnumUtils.getNames(instanceClass);
+            displayValues = EnumUtils.getValues(instanceClass);
+        }else if (isEnumType()) {
+            values = EnumUtils.getNames(type);
+            displayValues = EnumUtils.getValues(type); 
+        }
 
+        if(values != null) {
             for (int i = 0; i < values.length; i++) {
                 items.add(new SelectItem(values[i], displayValues[i]));
             }
