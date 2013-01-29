@@ -248,6 +248,15 @@ public class RunTest extends TestCase {
     	
         _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*@ substring(0,1)].length", 4, OpenL.OPENL_J_NAME);
         _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*!@ substring(0,1)].length", 2, OpenL.OPENL_J_NAME);
+        
+        
+        //test named element
+        
+   //     _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int x = 3; ary[(String s) @ length() == x][0]", "ddd", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.startsWith(\"b\")]", "bb", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[( s ) !@ s.startsWith(\"aa\")]", "aaa", OpenL.OPENL_J_NAME);
+        
+        
     }
     
     

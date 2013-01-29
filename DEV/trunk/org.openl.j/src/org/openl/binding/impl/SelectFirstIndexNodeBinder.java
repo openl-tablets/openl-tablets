@@ -20,7 +20,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau
  */
-public class SelectFirstIndexNodeBinder extends ANodeBinder {
+public class SelectFirstIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     private static final String TEMPORARY_VAR_NAME = "selectFirstIndex";
 
@@ -57,13 +57,8 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
         }
     }
 
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        BindHelper.processError("This node always binds  with target", node, bindingContext);
 
-        return new ErrorBoundNode(node);
-    }
-
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
+    public IBoundNode bindTargetZZZ(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
             throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
@@ -82,4 +77,23 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
         IBoundNode conditionNode = BindHelper.checkConditionBoundNode(children[0], bindingContext);
         return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, conditionNode }, var);
     }
+
+
+	@Override
+	public String getDefaultTempVarName(IBindingContext bindingContext) {
+		return  BindHelper.getTemporaryVarName(bindingContext, ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+	}
+
+
+	@Override
+	protected IBoundNode createBoundNode(ISyntaxNode node,
+			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
+        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, expressionNode }, localVar);
+	}
+
+
+	@Override
+	protected void validateExpressionNodeType(IBoundNode expressionNode, IBindingContext bindingContext) {
+		BindHelper.checkConditionBoundNode(expressionNode, bindingContext);
+	}
 }
