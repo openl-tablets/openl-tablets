@@ -26,8 +26,8 @@ import com.thoughtworks.xstream.converters.reflection.Sun14ReflectionProvider;
  * @author PUdalau, Marat Kamalov
  */
 public class VariationsResult<T> {
-    byte[] variationResultsData;
-    byte[] variationFailuresData;
+    private byte[] variationResultsData;
+    private byte[] variationFailuresData;
 
     private Map<String, T> variationResults;
     private Map<String, String> variationFailures;
@@ -108,8 +108,24 @@ public class VariationsResult<T> {
         return ids;
     }
 
+    public byte[] getVariationResultsData() {
+        return variationResultsData;
+    }
+
+    public void setVariationResultsData(byte[] variationResultsData) {
+        this.variationResultsData = variationResultsData;
+    }
+
+    public byte[] getVariationFailuresData() {
+        return variationFailuresData;
+    }
+
+    public void setVariationFailuresData(byte[] variationFailuresData) {
+        this.variationFailuresData = variationFailuresData;
+    }
+
     @SuppressWarnings("unchecked")
-    public void unpack() {
+    public void unpack() throws IOException {
         if (variationFailuresData != null) {
             XStream xStream = new XStream(new Sun14ReflectionProvider());
             GZIPInputStream gzipInputStream = null;
@@ -118,14 +134,11 @@ public class VariationsResult<T> {
                 IOUtils.copy(gzipInputStream, writer, "UTF-8");
                 String xmlVariationFailures = writer.toString();
                 variationFailures = (Map<String, String>) xStream.fromXML(xmlVariationFailures);
-            } catch (IOException e) {
-                e.printStackTrace();
             } finally {
                 if (gzipInputStream != null) {
                     try {
                         gzipInputStream.close();
-                    } catch (IOException e) {
-
+                    } catch (IOException ignored) {
                     }
                 }
             }
@@ -137,15 +150,12 @@ public class VariationsResult<T> {
                 StringWriter writer = new StringWriter();
                 IOUtils.copy(gzipInputStream, writer, "UTF-8");
                 String xmlVariationResults = writer.toString();
-                variationResults = (Map) xStream.fromXML(xmlVariationResults);
-            } catch (IOException e) {
-                e.printStackTrace();
+                variationResults = (Map<String, T>) xStream.fromXML(xmlVariationResults);
             } finally {
                 if (gzipInputStream != null) {
                     try {
                         gzipInputStream.close();
-                    } catch (IOException e) {
-
+                    } catch (IOException ignored) {
                     }
                 }
             }
@@ -165,7 +175,8 @@ public class VariationsResult<T> {
             variationFailuresData = byteArrayOutputStream.toByteArray();
             variationFailures.clear();
         } catch (IOException e) {
-            e.printStackTrace();
+            // Should never happen for ByteArrayOutputStream. If happen - something is broken.
+            throw new IllegalStateException(e);
         } finally {
             if (gzipOutputStream != null) {
                 try {
@@ -183,7 +194,8 @@ public class VariationsResult<T> {
             variationResultsData = byteArrayOutputStream.toByteArray();
             variationResults.clear();
         } catch (IOException e) {
-            e.printStackTrace();
+            // Should never happen for ByteArrayOutputStream. If happen - something is broken.
+            throw new IllegalStateException(e);
         } finally {
             if (gzipOutputStream != null) {
                 try {
