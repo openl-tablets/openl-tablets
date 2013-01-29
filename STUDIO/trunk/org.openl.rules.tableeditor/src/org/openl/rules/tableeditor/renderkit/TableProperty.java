@@ -189,14 +189,11 @@ public class TableProperty {
         String[] values = null;
         String[] displayValues = null;
 
-        if (isEnumType() && isEnumArray()) {
-            Class<?> instanceClass = type.getComponentType();
+        if (isEnumType() || isEnumArray()) {
+            Class<?> instanceClass = type.getComponentType() != null ? type.getComponentType() : type;
 
             values = EnumUtils.getNames(instanceClass);
             displayValues = EnumUtils.getValues(instanceClass);
-        }else if (isEnumType()) {
-            values = EnumUtils.getNames(type);
-            displayValues = EnumUtils.getValues(type); 
         }
 
         if(values != null) {
