@@ -2,7 +2,7 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
-import org.openl.rules.enumeration.Recalculation;
+import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -46,19 +46,19 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
             Object result = null;
             boolean isSimilarStep = false;
-            boolean oldIsIgnoreRecalculation = simpleRulesRuntimeEnv.isIgnoreRecalculation();
+            boolean oldIsIgnoreRecalculate = simpleRulesRuntimeEnv.isIgnoreRecalculation();
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
-                if (!Recalculation.ALWAYS.equals(getRecalculationType())) {
+                if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     simpleRulesRuntimeEnv.registerForwardOriginalCalculationStep(this);
                     if (!simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         isSimilarStep = simpleRulesRuntimeEnv.registerForwardStep(this);
-                        if (isSimilarStep && Recalculation.NEVER.equals(getRecalculationType())) {
+                        if (isSimilarStep && RecalculateEnum.NEVER.equals(getRecalculateType())) {
                             return simpleRulesRuntimeEnv.getResultFromOriginalCalculation(this);
                         }
                     }
                 } else {
-                    if (Recalculation.ALWAYS.equals(getRecalculationType())){
-                        simpleRulesRuntimeEnv.setIgnoreRecalculation(true);
+                    if (RecalculateEnum.ALWAYS.equals(getRecalculateType())){
+                        simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
                     }
                 }
             }
@@ -72,9 +72,9 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
             } else {
                 result = innerInvoke(target, params, env);
             }
-            simpleRulesRuntimeEnv.setIgnoreRecalculation(oldIsIgnoreRecalculation);
+            simpleRulesRuntimeEnv.setIgnoreRecalculate(oldIsIgnoreRecalculate);
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
-                if (!Recalculation.ALWAYS.equals(getRecalculationType())) {
+                if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     simpleRulesRuntimeEnv.registerBackwardOriginalCalculationStep(this, result);
                     if (isSimilarStep && !simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         simpleRulesRuntimeEnv.registerBackwardStep(this);
@@ -87,17 +87,17 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
         }
     }
 
-    Recalculation recalculationType = null;
+    RecalculateEnum recalculateType = null;
 
-    private Recalculation getRecalculationType() {
-        if (recalculationType == null) {
+    private RecalculateEnum getRecalculateType() {
+        if (recalculateType == null) {
             if (getMethodProperties() == null) {
-                recalculationType = Recalculation.ALWAYS;
+                recalculateType = RecalculateEnum.ALWAYS;
             } else {
-                recalculationType = (Recalculation) getMethodProperties().getRecalculation();
+                recalculateType = (RecalculateEnum) getMethodProperties().getRecalculate();
             }
         }
-        return recalculationType;
+        return recalculateType;
     }
 
     protected abstract Object innerInvoke(Object target, Object[] params, IRuntimeEnv env);

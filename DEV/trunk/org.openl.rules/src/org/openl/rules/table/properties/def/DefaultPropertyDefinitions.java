@@ -425,15 +425,16 @@ public class DefaultPropertyDefinitions
 		definitions[30].setSystem(false);
 		definitions[30].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[31] = new TablePropertyDefinition();
+		definitions[31].setConstraints(new org.openl.rules.table.constraints.Constraints("data: recalculate"));
 		definitions[31].setDescription("Recalculation types for partial calculation feature");
 		definitions[31].setDimensional(false);
-		definitions[31].setDisplayName("Recalculation");
+		definitions[31].setDisplayName("Recalculate");
 		definitions[31].setGroup("Dev");
 		definitions[31].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
-		definitions[31].setName("recalculation");
+		definitions[31].setName("recalculate");
 		definitions[31].setPrimaryKey(false);
 		definitions[31].setSystem(false);
-		definitions[31].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.Recalculation.class));
+		definitions[31].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 
