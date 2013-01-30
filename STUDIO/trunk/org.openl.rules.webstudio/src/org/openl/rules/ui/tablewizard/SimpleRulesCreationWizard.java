@@ -3,7 +3,6 @@ package org.openl.rules.ui.tablewizard;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +57,7 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
     private String jsonTable;
     private JSONObject table;
     private String restoreTable;
-    private final String TABLE_TYPE = "xsl.dt";
+    private final String TABLE_TYPE = "xls.dt";
 
     private String restoreTableFunction = "tableModel.restoreTableFromJSONString";
 
@@ -125,18 +124,20 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
 
     public List<SelectItem> getPropertyList() {
         List<SelectItem> propertyNames = new ArrayList<SelectItem>();
-        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(TABLE_TYPE);
-                //.getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf("Module".toUpperCase()));
+        TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
+                .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
 
         SelectItem selectItem = new SelectItem("");
         selectItem.setLabel("");
         propertyNames.add(selectItem);
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            String propName = propDefinition.getName();
-            selectItem = new SelectItem(propName);
-            selectItem.setLabel(propDefinition.getDisplayName());
-            propertyNames.add(selectItem);
+            if(propDefinition.getDeprecation() == null) {
+                String propName = propDefinition.getName();
+                selectItem = new SelectItem(propName);
+                selectItem.setLabel(propDefinition.getDisplayName());
+                propertyNames.add(selectItem);
+            }
         }
 
         return propertyNames;
@@ -246,11 +247,7 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
                         if (dataCell.getString("valueType").equals("DATE")) {
                             String dateString = dataCell.getString("value");
                             String dateFormat = "yyyy-MM-dd'T'HH:mm:ss";
-                            /*
-                            if (dateString.contains("Z")) {
-                                dateString = dateString.replace("Z", "+0000");
-                            }
-                            */
+
                             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
                             formatter.setLenient(false);
                             formatter.setTimeZone(TimeZone.getDefault());
@@ -259,7 +256,6 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
                             } catch (Exception e) {
                                 row.add(dateString);
                             }
-                            //row.add(dataCell);
                         } else {
                             row.add(((JSONObject)rowElements.get(j)).getString("value"));
                         }
@@ -496,15 +492,15 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
 
         try {
             String name = ((String) value).toUpperCase();
-            
+
             int i = 0;
             for (TypeNamePair param : parameters) {
                 if (paramId != i && param.getName() != null && param.getName().toUpperCase().equals(name)){
-                    message.setDetail("Property with such name already exists");
+                    message.setDetail("Parameter with such name already exists");
                     validEx = new ValidatorException(message);
                     throw validEx;
                 }
-                
+
                 i++;
             }
 
