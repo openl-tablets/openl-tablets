@@ -275,11 +275,11 @@ public class HTMLRenderer {
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
-                    "setAlignment('left')", "Align left"))
+                    "setAlignment('left', this)", "Align left"))
             .append(renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
-                    "setAlignment('center')", "Align center"))
+                    "setAlignment('center', this)", "Align center"))
             .append(renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
-                    "setAlignment('right')", "Align right"))
+                    "setAlignment('right', this)", "Align right"))
 
             .append(toolbarItemSeparator)
 
@@ -303,11 +303,6 @@ public class HTMLRenderer {
                     "indent('-1')", "Decrease indent"))
             .append(renderEditorToolbarItem(editorId + "_increase_indent", editorJsVar, "img/indent_right.gif",
                     "indent('1')", "Increase indent"))
-
-            .append(toolbarItemSeparator)
-
-            .append(renderEditorToolbarItem(editorId + "_help", null, "img/help.gif", "window.open('"
-                                + WebUtil.internalPath("docs/help.html") + "');", "Help"))
 
             .append("</div>");
 
