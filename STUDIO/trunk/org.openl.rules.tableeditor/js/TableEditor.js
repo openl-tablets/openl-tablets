@@ -754,8 +754,15 @@ var TableEditor = Class.create({
         
         var cell = this.currentElement;
         var self = this;
-        var undecorateElement = $(this.editorId + '_align_' + cell.style.textAlign);
-       
+        var cellStyle = cell.style.textAlign;
+        var undecorateElement;
+        
+        if (cellStyle) {
+            undecorateElement = $(this.editorId + '_align_' + cellStyle);
+        } else {
+            undecorateElement = $(this.editorId + '_align_' + "left");
+        }
+
         var params = {
             editorId: this.editorId,
             row : this.selectionPos[0],
