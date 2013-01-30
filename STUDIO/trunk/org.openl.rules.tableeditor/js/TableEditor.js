@@ -295,6 +295,7 @@ var TableEditor = Class.create({
         if (this.isCell(elt)) {
             this.selectElement(elt);
             this.isFormated(elt);
+
         } else if (this.isToolbar(elt)) {
             // Do Nothing
         } else {
@@ -1163,6 +1164,7 @@ function getItemId(editorId, itemId) {
 function enableToolbarItem(img) {
     if (!isToolbarItemDisabled(img = $(img))) return;
     img.removeClassName(disabledClass);
+    img.removeClassName(pressedClass);
 
     if (img._mouseover) img.onmouseover = img._mouseover;
     if (img._mouseout) img.onmouseout = img._mouseout;
@@ -1173,17 +1175,20 @@ function enableToolbarItem(img) {
 // @Deprecated
 function disableToolbarItem(img) {
     if (isToolbarItemDisabled(img = $(img))) return;
-    img.addClassName(disabledClass);
-    img.removeClassName(pressedClass);
+    if (img) {
+        img.addClassName(disabledClass);
+        img.removeClassName(pressedClass);
 
-    img._mouseover = img.onmouseover;
-    img._mouseout = img.onmouseout;
-    img._onclick = img.onclick;
-    img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;
+        img._mouseover = img.onmouseover;
+        img._mouseout = img.onmouseout;
+        img._onclick = img.onclick;
+        img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;  
+    }
 }
 
 // @Deprecated
 function isToolbarItemDisabled(img) {
+    if (img)
     return img.hasClassName(disabledClass)
         && img._onclick;
 }
