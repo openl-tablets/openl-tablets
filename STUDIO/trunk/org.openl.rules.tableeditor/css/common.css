@@ -55,9 +55,8 @@
 }
 
 .te_toolbar {
-    position: fixed;
     background-color: #CCDEFF;
-    width: 700px;
+    width: 647px;
     margin-bottom: 5px;
     padding: 2px 0px;
     font-size: 0px;
@@ -80,6 +79,14 @@
 .te_toolbar_item_disabled {
     border-color: rgb(130, 140, 170);
     opacity: 0.15;
+}
+
+.te_toolbar_item_pressed {
+	border-color: orange;
+    cursor: pointer;
+    background: #ffd86b;
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
+    opacity: 0.8;
 }
 
 .te_toolbar_item_over {
