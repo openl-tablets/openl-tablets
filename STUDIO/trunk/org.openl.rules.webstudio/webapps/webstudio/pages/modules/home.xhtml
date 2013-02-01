@@ -1,10 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets">
+<style >
+    .usefull-links {
+        margin: 10px;
+        padding: 5px;
+        width: 300px; 
+    }
 
+    .usefull-links a {
+        text-decoration:none;
+    }
+    
+    .usefull-links a:hover {
+	    text-decoration: none;
+	    background: #f8f8f8;
+	    border-bottom: 1px dotted;
+    
+    }
+
+    .usefull-links ul {
+        list-style-type: none;
+        padding-left: 8px;
+        margin-top: 7px;
+        margin-bottom:3px;
+    }
+
+    .usefull-links li {
+       pdding-top: 5px;
+       padding-bottom:5px;
+       font-style: italic; 
+    }
+
+    .openl-highlight {
+        color:orange;
+    }
+    
+    .openl-highlight:hover {
+        color:1199ee;
+    }
+    
+</style>
     #{mainBean.clearModule()}
 
     <div class="content">
+        <div style="margin-left: 15px;">
+            <h3>Total projects: <strong></strong>#{studio.allProjects.size()}</h3>
+        </div>
+        
+        <div class="usefull-links">
+            <strong>OpenL Documentation:</strong>
+            <ul>
+                <li><a href="#" >Installation Guide</a></li>
+                <li><a href="#" >Reference Guide </a></li>
+                <li><a href="#" >Developer Guide</a></li>
+                <li><a href="#" >WebStudio User Guide</a></li>
+                <li><a href="#" >Web Services Usage and Customization</a></li>
+            </ul>
+        </div>
+        
+        <div class="usefull-links">
+             <strong>OpenL in the Internet:</strong>
+            <ul>
+                <li><a href="http://openl-tablets.sourceforge.net/" >Official web site</a></li>
+                <li><a href="http://openl-tablets.sourceforge.net/feeds/news" ><span class="openl-highlight">OpenL</span> news</a></li>
+                <li><a href="https://twitter.com/openltablets" ><span class="openl-highlight">OpenL</span> on Twitter</a></li>
+                <li><a href="https://sourceforge.net/projects/openl-tablets/forums" ><span class="openl-highlight">OpenL</span> forum</a></li>
+                <li><a href="https://sourceforge.net/projects/openl-tablets/" ><span class="openl-highlight">OpenL</span> on Sourceforge site</a></li>
+            </ul>
+        </div> <!-- End of usefull-links div -->
+        
+        <div>
+            If You find any mistake or bug, please 
+            <a href="mailto:openltablets@exigenservices.com?subject=OpenL Bug">contact us </a>
+        </div>
     </div>
 
 </ui:composition>
