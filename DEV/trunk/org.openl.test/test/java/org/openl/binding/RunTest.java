@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -45,14 +46,23 @@ public class RunTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    static void _runNoError(String expression, Object expected, String openlName, SourceType parseType,
-            AssertionExpression assertion) {
+    static <T extends Object> void _runNoError(String expression, T expected, String openlName, SourceType parseType,
+            AssertionExpression<T> assertion) {
         OpenL openl = OpenL.getInstance(openlName);
-        Object res = OpenLManager.run(openl, new StringSourceCodeModule(expression, null), parseType);
+        T res = (T)OpenLManager.run(openl, new StringSourceCodeModule(expression, null), parseType);
         assertion.makeAssertion(expected, res);
     }
 
-    void _runWithError(String expr, Object expected, String openl, SourceType parseType) {
+
+    public static void _runWithError(String expr, Class<? extends Throwable> expected, String openl, SourceType parseType) {
+    	_runWithError(expr, expected, null, openl, parseType);
+    }
+    
+    public static void _runWithError(String expr, Class<? extends Throwable> expected, String message, String openl) {
+    	_runWithError(expr, expected, message, openl, SourceType.METHOD_BODY);
+    }
+    
+    public static void _runWithError(String expr, Class<? extends Throwable> expected, String message, String openl, SourceType parseType) {
         Throwable ex = null;
         try {
             _runNoError(expr, expected, openl, parseType, nopAssertion);
@@ -61,6 +71,8 @@ public class RunTest extends TestCase {
         }
         Assert.assertNotNull(ex);
         Assert.assertEquals(expected, ex.getClass());
+        if (message != null)
+        	Assert.assertEquals(message,  ex.getMessage());
 
     }
 
@@ -95,8 +107,7 @@ public class RunTest extends TestCase {
         _runNoError("String x = \"abc\";String y = \"abc\"; x <= y", true, OpenL.OPENL_J_NAME);
 
         // TODO fix String < Integer - must be compile time error
-        // _runNoError("String x = \"abc\";Integer y = 10; x <= y", true,
-        // OpenL.OPENL_J_NAME);
+//         _runNoError("String x = \"abc\";Integer y = 10; x <= y", true, OpenL.OPENL_J_NAME);
     }
 
     public void testDoubleRange() {
@@ -228,7 +239,9 @@ public class RunTest extends TestCase {
     public void testAggregate()
     {
     	
-        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[2]", "aaa", OpenL.OPENL_J_NAME);
+
+    	
+    	_runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[2]", "aaa", OpenL.OPENL_J_NAME);
         _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[!@ startsWith(\"b\")]", "bb", OpenL.OPENL_J_NAME);
       
         _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int x = 3; ary[@ length() == x][0]", "ddd", OpenL.OPENL_J_NAME);
@@ -257,6 +270,44 @@ public class RunTest extends TestCase {
         _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[( s ) !@ s.startsWith(\"aa\")]", "aaa", OpenL.OPENL_J_NAME);
         
         
+        _runNoError("String[] ary = {\"bbcc\", \"dddee\",\"aaabbe\" ,\"aaabb\",}; ary[!@startsWith (ary[( s ) !@ s.toUpperCase().endsWith(\"BB\")])]", "aaabbe", OpenL.OPENL_J_NAME);
+        
+        _runNoError("String[] ary = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; ary[(s1)!@ s1.startsWith (ary[( s2 ) !@ s2.toUpperCase().startsWith(\"DD\") && s2 != s1])]", "dddeedd", OpenL.OPENL_J_NAME);
+        
+        _runNoError("String[] ary1 = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; String[] ary2 = {\"ZZZ\", \"XXXX\",\"YYYYYY\", \"ddd\" ,\"aaabbdd\",}; ary1[(s)!@ s.startsWith(\"aa\")] + ary2[(s)!@ s.startsWith(\"ZZ\")]", "aaabbddZZZ", OpenL.OPENL_J_NAME);
+
+        _runWithError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.getDay() < 5]",   CompositeSyntaxNodeException.class, null, OpenL.OPENL_J_NAME);
+        _runWithError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(Date d) !@ d.getDay() < 5]",     CompositeSyntaxNodeException.class, null, OpenL.OPENL_J_NAME);
+
+        
+        //test lists
+        
+        _runNoError("List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list.get(0)", "bbccdd", OpenL.OPENL_J_NAME);
+
+        _runWithError("List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]", OpenLRuntimeException.class, null, OpenL.OPENL_J_NAME);
+        _runNoError("List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]", "dddee",  OpenL.OPENL_J_NAME);
+        _runNoError("List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String str) select first where str.contains(\"ee\")]", "dddee",  OpenL.OPENL_J_NAME);
+
+        _runNoError("List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); int x = 3; list[(String s) @ length() == x][0]", "ddd", OpenL.OPENL_J_NAME);
+        _runNoError("List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); int x = 3; list[(String s) select all having length() == x][0]", "ddd", OpenL.OPENL_J_NAME);
+    
+
+        _runNoError("List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) ^@ toLowerCase()][0]", "aab", OpenL.OPENL_J_NAME);
+//        _runNoError("List list = new ArrayList(); list.add(\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[v@ substring(0,1)][0]", "ddd", OpenL.OPENL_J_NAME);
+        
+        _runNoError("List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) ~@ substring(0,1)][1][0]", "ddd", OpenL.OPENL_J_NAME);
+
+        
+        
+        _runNoError("List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *@ substring(0,1)].length", 4, OpenL.OPENL_J_NAME);
+        _runNoError("List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *!@ substring(0,1).toLowerCase()].length", 2, OpenL.OPENL_J_NAME);
+        
+    }
+    
+    
+    public void testAggregate1()
+    {
+    
     }
     
     

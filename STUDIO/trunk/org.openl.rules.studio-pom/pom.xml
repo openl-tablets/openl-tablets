@@ -30,6 +30,7 @@
     <module>../org.openl.rules.workspace</module>
     <module>../org.openl.commons.web</module>
     <module>../org.openl.rules.webstudio</module>
+    <module>../org.openl.rules.variation</module>
     <module>../org.openl.rules.project</module>
     <module>../org.openl.rules.demo</module>
     <module>../org.openl.rules.security</module>
@@ -268,6 +269,12 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.webstudio</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.variation</artifactId>
         <version>${project.version}</version>
       </dependency>
 

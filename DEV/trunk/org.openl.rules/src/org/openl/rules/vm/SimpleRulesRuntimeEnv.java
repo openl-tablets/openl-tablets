@@ -153,15 +153,15 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         }
     }
 
-    private volatile boolean ignoreRecalculation = true;
+    private volatile boolean ignoreRecalculate = true;
     private volatile boolean originalCalculation = true;
 
     public boolean isIgnoreRecalculation() {
-        return ignoreRecalculation;
+        return ignoreRecalculate;
     }
 
-    public void setIgnoreRecalculation(boolean ignoreRecalculation) {
-        this.ignoreRecalculation = ignoreRecalculation;
+    public void setIgnoreRecalculate(boolean ignoreRecalculate) {
+        this.ignoreRecalculate = ignoreRecalculate;
     }
 
     public boolean isOriginalCalculation() {

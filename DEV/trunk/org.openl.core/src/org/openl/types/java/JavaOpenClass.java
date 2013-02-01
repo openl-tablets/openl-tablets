@@ -63,7 +63,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenClass extends AOpenClass {  
 
-    public static final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
 
     /**
      *  Stores a strong references to common java classes that's why they will not be garbage collected
@@ -415,10 +416,10 @@ public class JavaOpenClass extends AOpenClass {
         return null;
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator<IOpenClass> superClasses() {
-        Class[] tmp = instanceClass.getInterfaces();
-        IOpenIterator<Class> ic = OpenIterator.fromArray(tmp);
+        Class<?>[] tmp = instanceClass.getInterfaces();
+        IOpenIterator<Class<?>> ic = OpenIterator.fromArray(tmp);
 
         IOpenIterator<IOpenClass> interfaces = ic.collect(new Class2JavaOpenClassCollector());
 
@@ -432,9 +433,8 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
     
-    @SuppressWarnings("unchecked")
-    private static class Class2JavaOpenClassCollector implements IConvertor<Class, IOpenClass> {
-        public IOpenClass convert(Class c) {
+    private static class Class2JavaOpenClassCollector<T> implements IConvertor<Class<T>, IOpenClass> {
+        public IOpenClass convert(Class<T> c) {
             return getOpenClass(c);
         }
     }
@@ -504,7 +504,6 @@ public class JavaOpenClass extends AOpenClass {
     }
     
     static private class JavaPrimitiveClass extends JavaOpenClass {
-        @SuppressWarnings("unused")
         private Class<?> wrapperClass;
 
         private Object nullObject;

@@ -39,7 +39,7 @@ public class MapOpenClass extends JavaOpenClass {
             return ((Map<Object, Object>) target).get(getName());
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         public void set(Object target, Object value, IRuntimeEnv env) {
             ((Map) target).put(getName(), value);
 
