@@ -112,19 +112,20 @@ class VariationsInvocationHandler implements InvocationHandler {
                 runtimeEnv = (IRuntimeEnv) serviceClassInstance.getClass().getMethod("getRuntimeEnvironment")
                         .invoke(serviceClassInstance);
             }
-            
+
             if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                ((SimpleRulesRuntimeEnv) runtimeEnv)
-                        .changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_WRITE);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setMethodArgumentsCacheEnable(true);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).resetOriginalCalculationSteps();
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setOriginalCalculation(true);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setIgnoreRecalculation(false);
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_WRITE);
+                simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(true);
+                simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
+                simpleRulesRuntimeEnv.setOriginalCalculation(true);
+                simpleRulesRuntimeEnv.setIgnoreRecalculate(false);
             }
             calculateSingleVariation(member, variationsResults, arguments, new NoVariation());
             if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                ((SimpleRulesRuntimeEnv) runtimeEnv).changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setOriginalCalculation(false);
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
+                simpleRulesRuntimeEnv.setOriginalCalculation(false);
             }
             if (variationsPack != null) {
                 for (Variation variation : variationsPack.getVariations()) {
@@ -135,11 +136,12 @@ class VariationsInvocationHandler implements InvocationHandler {
                 }
             }
             if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setIgnoreRecalculation(true);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setOriginalCalculation(true);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).resetOriginalCalculationSteps();
-                ((SimpleRulesRuntimeEnv) runtimeEnv).setMethodArgumentsCacheEnable(false);
-                ((SimpleRulesRuntimeEnv) runtimeEnv).resetMethodArgumentsCache();
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
+                simpleRulesRuntimeEnv.setOriginalCalculation(true);
+                simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
+                simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(false);
+                simpleRulesRuntimeEnv.resetMethodArgumentsCache();
             }
             return variationsResults;
         } else {

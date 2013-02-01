@@ -30,11 +30,13 @@
         getParamsQuery: function() {
             return this.utils.getParamsQuery(location.search);
         },
-/*
-        getParams: function(decoded) {
-        },
 
         getParam: function(name, decoded) {
+            return this.utils.getParam(location.search, name, decoded);
+        },
+
+/*
+        getParams: function(decoded) {
         },
 
         getDomain: function() {
@@ -54,6 +56,18 @@
                     hash = this.decode(hash);
                 }
                 return hash;
+            },
+
+            getParam: function(location, name, decoded) {
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+                var params = regex.exec(location);
+                var value = (params && params[1].replace(/\+/g, " ")) || "";
+
+                if (value && decoded === true) {
+                    value = this.decode(value);
+                }
+
+                return value;
             },
 
             getParamsQuery: function(location) {
