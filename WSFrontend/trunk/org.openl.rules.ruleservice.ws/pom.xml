@@ -105,12 +105,6 @@
 					<include>**/*.xml</include>
 				</includes>
 			</resource>
-			<resource>
-				<directory>binding-conf/aegis</directory>
-			</resource>
-			<resource>
-				<directory>binding-conf/jaxb</directory>
-			</resource>
 		</resources>
 
 		<testResources>
@@ -149,6 +143,11 @@
 			<artifactId>org.openl.rules.ruleservice</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+		</dependency>
+
 		<!-- Other -->
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -180,10 +179,10 @@
 			<artifactId>cxf-rt-databinding-aegis</artifactId>
 		</dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
+	        <dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+	        </dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
