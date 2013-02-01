@@ -34,7 +34,7 @@ public final class OpenLUtils {
      * @param openClass {@link IOpenClass} instance
      * @return {@link IOpenMethod} instance
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static IOpenMethod getMethod(String methodName, IOpenClass[] paramTypes, IOpenClass openClass) {
 
         IOpenMethod method = null;
@@ -45,7 +45,7 @@ public final class OpenLUtils {
             AStringConvertor<INamedThing> sc = INamedThing.NAME_CONVERTOR;
             ISelector<IOpenMethod> nameSel = new ASelector.StringValueSelector(methodName, sc);
 
-            List<IOpenMethod> list = AOpenIterator.select(openClass.methods(), nameSel).asList();
+            List<IOpenMethod> list = AOpenIterator.select(openClass.getMethods().iterator(), nameSel).asList();
             if (list.size() > 1) {
                 throw new AmbiguousMethodException(methodName, IOpenClass.EMPTY, list);
             } else if (list.size() == 1) {

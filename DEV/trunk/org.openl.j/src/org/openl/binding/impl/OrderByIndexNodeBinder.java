@@ -21,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau
  */
-public class OrderByIndexNodeBinder extends ANodeBinder {
+public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
 	private static final String TEMPORARY_VAR_NAME = "OrderByIndex";
 
@@ -45,7 +45,7 @@ public class OrderByIndexNodeBinder extends ANodeBinder {
 				throws OpenLRuntimeException {
 			IBoundNode containerNode = getContainer();
 			IBoundNode orderBy = getChildren()[1];
-			IAggregateInfo aggregateInfo = getType().getAggregateInfo();
+			IAggregateInfo aggregateInfo = containerNode.getType().getAggregateInfo();
 			Object container = containerNode.evaluate(env);
 
 			Iterator<Object> elementsIterator = aggregateInfo
@@ -103,47 +103,51 @@ public class OrderByIndexNodeBinder extends ANodeBinder {
 		}
 
 		public IOpenClass getType() {
-			return getContainer().getType();
+			if (getContainer().getType().isArray())
+				return getContainer().getType();
+			
+			IOpenClass varType = tempVar.getType();
+			return varType.getAggregateInfo().getIndexedAggregateType(varType, 1);
 		}
 	}
 
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-			throws Exception {
-		BindHelper.processError("This node always binds  with target", node,
-				bindingContext);
+//	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
+//			throws Exception {
+//		BindHelper.processError("This node always binds  with target", node,
+//				bindingContext);
+//
+//		return new ErrorBoundNode(node);
+//	}
 
-		return new ErrorBoundNode(node);
-	}
-
-	public IBoundNode bindTarget(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode)
-			throws Exception {
-
-		if (node.getNumberOfChildren() != 1) {
-			BindHelper.processError("Index node must have  exactly 1 subnode",
-					node, bindingContext);
-
-			return new ErrorBoundNode(node);
-		}
-
-		boolean isDecreasing = node.getType().contains("decreasing");
-		
-		IOpenClass containerType = targetNode.getType();
-		IAggregateInfo info = containerType.getAggregateInfo();
-
-		String varName = BindHelper.getTemporaryVarName(bindingContext,
-				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
-		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
-				varName, info.getComponentType(containerType));
-
-		IBoundNode[] children = bindChildren(node, new TypeBindingContext(
-				bindingContext, var));
-		IBoundNode orderExpressionNode = checkOrderExpressionBoundNode(
-				children[0], bindingContext);
-
-		return new OrderByIndexNode(node, new IBoundNode[] { targetNode,
-				orderExpressionNode }, var, isDecreasing);
-	}
+//	public IBoundNode bindTargetZZZ(ISyntaxNode node,
+//			IBindingContext bindingContext, IBoundNode targetNode)
+//			throws Exception {
+//
+//		if (node.getNumberOfChildren() != 1) {
+//			BindHelper.processError("Index node must have  exactly 1 subnode",
+//					node, bindingContext);
+//
+//			return new ErrorBoundNode(node);
+//		}
+//
+//		boolean isDecreasing = node.getType().contains("decreasing");
+//		
+//		IOpenClass containerType = targetNode.getType();
+//		IAggregateInfo info = containerType.getAggregateInfo();
+//
+//		String varName = BindHelper.getTemporaryVarName(bindingContext,
+//				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+//		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
+//				varName, info.getComponentType(containerType));
+//
+//		IBoundNode[] children = bindChildren(node, new TypeBindingContext(
+//				bindingContext, var));
+//		IBoundNode orderExpressionNode = checkOrderExpressionBoundNode(
+//				children[0], bindingContext);
+//
+//		return new OrderByIndexNode(node, new IBoundNode[] { targetNode,
+//				orderExpressionNode }, var, isDecreasing);
+//	}
 
 	static public IBoundNode checkOrderExpressionBoundNode(
 			IBoundNode orderExpressionNode, IBindingContext bindingContext) {
@@ -158,5 +162,26 @@ public class OrderByIndexNodeBinder extends ANodeBinder {
 			return orderExpressionNode;
 		}
 
+	}
+
+	@Override
+	public String getDefaultTempVarName(IBindingContext bindingContext) {
+		return BindHelper.getTemporaryVarName(bindingContext,
+				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+	}
+
+	@Override
+	protected IBoundNode createBoundNode(ISyntaxNode node,
+			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
+		boolean isDecreasing = node.getType().contains("decreasing");
+		return new OrderByIndexNode(node, new IBoundNode[] {
+				targetNode, expressionNode }, localVar, isDecreasing);
+	}
+
+	@Override
+	protected IBoundNode validateExpressionNode(IBoundNode expressionNode,
+			IBindingContext bindingContext) {
+		return checkOrderExpressionBoundNode(expressionNode,
+				bindingContext);
 	}
 }
