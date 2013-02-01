@@ -18,7 +18,6 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
-import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.ruleservice.context.ArgumentReplacementVariationType;
 import org.openl.rules.ruleservice.context.BigDecimalValueType;
 import org.openl.rules.ruleservice.context.BigIntegerValueType;
@@ -35,6 +34,7 @@ import org.openl.rules.ruleservice.context.LongValueType;
 import org.openl.rules.ruleservice.context.RuntimeContextBeanType;
 import org.openl.rules.ruleservice.context.ShortValueType;
 import org.openl.rules.ruleservice.context.VariationsResultType;
+import org.openl.rules.variation.VariationsResult;
 
 /**
  * OpenL implementation of {@link TypeMapping} with custom mappings for specific

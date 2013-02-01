@@ -10,8 +10,8 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.project.instantiation.variation.JXPathVariation;
-import org.openl.rules.project.instantiation.variation.VariationsFactory;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.VariationsFactory;
 
 /**
  * Custom mapping for {@link JXPathVariation} due to it is not usual bean and
