@@ -16,9 +16,8 @@ import org.openl.rules.project.instantiation.variation.ComplexVariation;
 import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
 import org.openl.rules.project.instantiation.variation.JXPathVariation;
 import org.openl.rules.project.instantiation.variation.NoVariation;
-import org.springframework.beans.factory.FactoryBean;
 
-public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<AegisDatabinding> {
+public class AegisDatabindingFactoryBean {
 
     private Boolean writeXsiTypes;
     private Set<String> overrideTypes;
@@ -31,8 +30,7 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
     private Map<String, String> namespaceMap;
     private boolean supportVariations = false;
 
-    @Override
-    public AegisDatabinding getObject() throws Exception {
+    public AegisDatabinding createAegisDatabinding() {
         AegisDatabinding aegisDatabinding = new AegisDatabinding();
         aegisDatabinding.setOverrideTypes(getOverrideTypesWithDefaultOpenLTypes());
 
@@ -74,7 +72,7 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
 
     protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
         Set<String> overrideTypes = new HashSet<String>();
-        if(getOverrideTypes() != null){
+        if (getOverrideTypes() != null) {
             overrideTypes.addAll(getOverrideTypes());
         }
         if (supportVariations) {
@@ -91,16 +89,6 @@ public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<Aegi
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
         OpenLTypeMapping openLTypeMapping = new OpenLTypeMapping(typeMapping, supportVariations);
         aegisDatabinding.getAegisContext().setTypeMapping(openLTypeMapping);
-    }
-
-    @Override
-    public Class<AegisDatabinding> getObjectType() {
-        return AegisDatabinding.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
     public Boolean getWriteXsiTypes() {

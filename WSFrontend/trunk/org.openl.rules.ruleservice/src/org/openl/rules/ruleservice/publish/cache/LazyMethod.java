@@ -53,7 +53,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy field.", e);
+            throw new OpenlNotCheckedException("Failed to load lazy method.", e);
         }
     }
 
