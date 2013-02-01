@@ -1,4 +1,4 @@
-package org.openl.rules.project.instantiation.variation;
+package org.openl.rules.variation;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;

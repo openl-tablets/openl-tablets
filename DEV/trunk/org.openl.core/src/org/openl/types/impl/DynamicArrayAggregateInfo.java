@@ -7,15 +7,8 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
-import java.math.BigInteger;
 import java.util.Iterator;
 
-import org.apache.commons.lang.ClassUtils;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -23,7 +16,6 @@ import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
 import org.openl.util.IntegerValuesUtils;
-import org.openl.util.NumberUtils;
 import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
 

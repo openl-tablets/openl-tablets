@@ -86,7 +86,8 @@ public class OpenLSourceManager extends OpenLHolder {
      *            break source processing when an error has occurred
      * @return processed code descriptor
      */
-    public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
+    @SuppressWarnings("unchecked")
+	public ProcessedCode processSource(IOpenSourceCodeModule source, SourceType sourceType,
         IBindingContextDelegator bindingContextDelegator, boolean ignoreErrors, IDependencyManager dependencyManager) {
 
         IParsedCode parsedCode = parseManager.parseSource(source, sourceType);
@@ -160,7 +161,8 @@ public class OpenLSourceManager extends OpenLHolder {
         }
     }
 
-    private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
+    @SuppressWarnings("unchecked")
+	private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
 
         List<IDependency> dependencies = new ArrayList<IDependency>();
         Map<String, Object> params = source.getParams();

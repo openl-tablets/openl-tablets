@@ -6,6 +6,7 @@ Bundle-Version: 5.9.5
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
  org.openl.rules;visibility:=reexport,
+ org.openl.rules.variation;visibility:=reexport,
  org.openl.conf.ant
 Export-Package: org.openl.rules.project,
  org.openl.rules.project.dependencies,

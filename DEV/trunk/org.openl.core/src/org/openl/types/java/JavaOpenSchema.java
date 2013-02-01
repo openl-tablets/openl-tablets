@@ -193,7 +193,10 @@ public class JavaOpenSchema extends AOpenSchema {
 
     @SuppressWarnings("unchecked")
     protected Iterator<String> getJarOrZipIterator(String jarname) throws Exception {
+    	
         ZipFile zip = new ZipFile(jarname);
+    	try
+    	{
 
         IConvertor<ZipEntry, String> zipToStringCollector = new IConvertor<ZipEntry, String>() {
             public String convert(ZipEntry zipentry) {
@@ -205,6 +208,11 @@ public class JavaOpenSchema extends AOpenSchema {
 
         return entries.collect(zipToStringCollector).select(CLASSFILENAME_SELECTOR).collect(
                 new FileNameToClassCollector(0, File.separatorChar));
+    	}
+    	finally
+    	{
+    		zip.close();
+    	}
 
     }
 

@@ -1,4 +1,4 @@
-package org.openl.rules.project.instantiation.variation;
+package org.openl.rules.variation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import com.thoughtworks.xstream.converters.reflection.Sun14ReflectionProvider;
 /**
  * Container of result from calculation with variations. Stores results for each
  * particular variation + original result(means without variations) that can be
- * retrieved by special ID, see {@link NoVariation.ORIGIANAL_CALCULATION}.
+ * retrieved by special ID, see {@link NoVariation#ORIGINAL_CALCULATION}.
  * 
  * Also stores exceptions for variation that was failed.
  * 
