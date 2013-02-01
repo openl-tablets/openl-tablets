@@ -1,13 +1,13 @@
 package org.openl.rules.enumeration;
 
-public enum Recalculation {
+public enum RecalculateEnum {
     ALWAYS("Always"),
     NEVER("Never"),
     ANALYZE("Analyze");
 
     private final String displayName;
 
-    private Recalculation(String displayName) {
+    private RecalculateEnum(String displayName) {
         this.displayName = displayName;
     }
 

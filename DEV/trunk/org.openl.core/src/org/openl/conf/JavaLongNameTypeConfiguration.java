@@ -1,7 +1,6 @@
 package org.openl.conf;
 
 import org.openl.types.ITypeLibrary;
-import org.openl.types.java.JavaImportTypeLibrary;
 import org.openl.types.java.JavaLongNameTypeLibrary;
 
 public class JavaLongNameTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {

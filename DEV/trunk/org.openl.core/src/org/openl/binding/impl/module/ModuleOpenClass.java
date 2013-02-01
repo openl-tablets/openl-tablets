@@ -98,12 +98,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @param dependency compiled dependency module
      * @throws OpenLCompilationException if such datatype already presents.
      */
-    private void addTypes(CompiledOpenClass dependency) throws OpenLCompilationException {
-        Map<String, IOpenClass> dependentModuleTypes = dependency.getOpenClass().getTypes(); 
-        for (String typeNamespace : dependentModuleTypes.keySet()) {
-            add(typeNamespace, dependentModuleTypes.get(typeNamespace));
-        }
-    }
+//    private void addTypes(CompiledOpenClass dependency) throws OpenLCompilationException {
+//        Map<String, IOpenClass> dependentModuleTypes = dependency.getOpenClass().getTypes(); 
+//        for (String typeNamespace : dependentModuleTypes.keySet()) {
+//            add(typeNamespace, dependentModuleTypes.get(typeNamespace));
+//        }
+//    }
     
     /**
      * Add methods form dependent modules to current one.
