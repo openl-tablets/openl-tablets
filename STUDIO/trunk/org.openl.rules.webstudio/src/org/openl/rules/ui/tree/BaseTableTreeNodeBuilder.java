@@ -1,6 +1,7 @@
 package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.ui.IProjectTypes;
 
 /**
  * Base class for building tree using tables meta information.
@@ -16,8 +17,16 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
 
-        ProjectTreeNode projectTreeNode = new ProjectTreeNode(displayNames, getType(nodeObject), getUrl(nodeObject),
-                getProblems(nodeObject), i, tableSyntaxNode);
+        ProjectTreeNode projectTreeNode = null;
+
+        String type = getType(nodeObject);
+        if (type.equals(IProjectTypes.PT_FOLDER)) {
+            projectTreeNode = new ProjectTreeNode(displayNames, type, null,
+                    getProblems(nodeObject), i, null);
+        } else {
+            projectTreeNode = new ProjectTreeNode(displayNames, type, getUrl(nodeObject),
+                    getProblems(nodeObject), i, tableSyntaxNode);
+        }
 
         projectTreeNode.setObject(nodeObject);
 
