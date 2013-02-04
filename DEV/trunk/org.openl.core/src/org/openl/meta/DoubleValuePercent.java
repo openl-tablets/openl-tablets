@@ -1,5 +1,6 @@
 package org.openl.meta;
 
+@SuppressWarnings("deprecation")
 public class DoubleValuePercent extends DoubleValue {
     /**
      *
@@ -8,12 +9,11 @@ public class DoubleValuePercent extends DoubleValue {
 
     static public final String PERCENT_FORMAT = "#.####%";
 
-    @SuppressWarnings("deprecation")
     public DoubleValuePercent() {
         setFormat(PERCENT_FORMAT);
     }
 
-    public DoubleValuePercent(double d) {
+	public DoubleValuePercent(double d) {
         super(d);
         setFormat(PERCENT_FORMAT);
     }

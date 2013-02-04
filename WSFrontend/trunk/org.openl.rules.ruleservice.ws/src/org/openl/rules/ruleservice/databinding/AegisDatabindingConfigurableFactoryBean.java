@@ -11,11 +11,11 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariation;
-import org.openl.rules.project.instantiation.variation.ComplexVariation;
-import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
-import org.openl.rules.project.instantiation.variation.JXPathVariation;
-import org.openl.rules.project.instantiation.variation.NoVariation;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.ComplexVariation;
+import org.openl.rules.variation.DeepCloningVariaion;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
 import org.springframework.beans.factory.FactoryBean;
 
 public class AegisDatabindingConfigurableFactoryBean implements FactoryBean<AegisDatabinding> {

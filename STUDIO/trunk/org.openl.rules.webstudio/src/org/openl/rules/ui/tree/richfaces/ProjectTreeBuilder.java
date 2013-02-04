@@ -19,15 +19,20 @@ public class ProjectTreeBuilder extends TreeBuilder {
     }
 
     @Override
+    @Deprecated
     protected int getState(ITreeElement<?> element) {
         ProjectTreeNode pte = (ProjectTreeNode) element;
-        if (pte.hasProblems()) {
-            return 1; // has errors
-        } else if (pte.getTableSyntaxNode() != null
+        if (pte.getTableSyntaxNode() != null
                 && projectModel.isTestable(pte.getTableSyntaxNode())) {
             return 2; // has tests
         }
         return super.getState(element);
+    }
+
+    @Override
+    protected int getNumErrors(ITreeElement<?> element) {
+        ProjectTreeNode pte = (ProjectTreeNode) element;
+        return pte.getNumErrors();
     }
 
     @Override

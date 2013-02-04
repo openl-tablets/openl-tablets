@@ -12,7 +12,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.util.IntegerValuesUtils;
-import org.openl.util.NumberUtils;
 
 public class ArrayFieldIndex implements IOpenIndex {
     private IOpenClass elementType;
@@ -56,14 +55,14 @@ public class ArrayFieldIndex implements IOpenIndex {
         return null;
     }
 
-    private Object castStringToInteger(String index) {
-        try {
-            return Integer.valueOf(index);
-        } catch (NumberFormatException e) {
-            // we can`t cast, means there is no Integer value inside.
-        }
-        return index;
-    }
+//    private Object castStringToInteger(String index) {
+//        try {
+//            return Integer.valueOf(index);
+//        } catch (NumberFormatException e) {
+//            // we can`t cast, means there is no Integer value inside.
+//        }
+//        return index;
+//    }
 
     public boolean isWritable() {
         return false;

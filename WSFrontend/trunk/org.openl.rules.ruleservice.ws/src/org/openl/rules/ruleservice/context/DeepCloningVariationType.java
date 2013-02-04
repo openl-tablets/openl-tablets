@@ -10,8 +10,8 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
-import org.openl.rules.project.instantiation.variation.Variation;
+import org.openl.rules.variation.DeepCloningVariaion;
+import org.openl.rules.variation.Variation;
 
 /**
  * Custom mapping for {@link DeepCloningVariaion} due to it is not usual bean
