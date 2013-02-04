@@ -1,4 +1,4 @@
-package org.openl.rules.project.instantiation.variation;
+package org.openl.rules.variation;
 
 /**
  * Simple bean that defines single variation. Used in case when variation are

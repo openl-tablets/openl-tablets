@@ -264,6 +264,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCacheable(java.lang.Boolean cacheable) {
 		setFieldValue("cacheable", cacheable);
 	}	
+	public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
+		return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate"); 
+	}
+	public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
+		setFieldValue("recalculate", recalculate);
+	}	
 // <<< END INSERT >>>
 
     /**

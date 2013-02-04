@@ -1108,9 +1108,48 @@ void ArrayDimsAndInits() :
 }
 
 
-void IndexOperator() :
+void IndexTypeExpression() :
 {Token x1,x2;}
 {
+ LOOKAHEAD(3)
+  (x1 = "(" Type() VariableDeclaratorId() x2 = ")" 
+  
+    {
+      	syntaxBuilder.nop("index.parameter.declaration", pos(x1, x2), 2);
+  	}
+  )
+|
+ LOOKAHEAD(3)
+  (x1 = "(" VariableDeclaratorId() x2 = ")" 
+  
+    {
+      	syntaxBuilder.nop("index.parameter.declaration", pos(x1, x2), 1);
+  	}
+  )
+
+  
+  }
+
+void IndexOperator() :
+{Token x1,x2, x3; String prefix;}
+{
+   LOOKAHEAD(6)
+  (x1="[" IndexTypeExpression()  (
+      (x3="@ " | x3="select all having" | x3="select all where " ) {prefix="selectall";}  | 
+      (x3="!@" | x3="select first having" | x3="select first where") {prefix="selectfirst";}  |
+      (x3="^@" | x3="order by" | x3="order increasing by") {prefix="orderby";}  |
+      (x3="v@" | x3="order decreasing by") {prefix="orderdecreasingby";}  |
+      (x3="~@" | x3="s@" | x3="split by") {prefix="splitby";}  |
+      (x3="*@" | x3="transform to") {prefix="transform";}  |
+      (x3="*!@" | x3="transform unique to") {prefix="transformunique";}  
+      )  
+      Expression()
+  x2="]"
+  {
+    syntaxBuilder.nop(prefix +".index", pos(x1, x2), 2);
+    
+  })
+|
 LOOKAHEAD(2)
   ( x1="["
     Expression()

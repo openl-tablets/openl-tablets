@@ -21,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau
  */
-public class SplitByIndexNodeBinder extends ANodeBinder {
+public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
 	private static final String TEMPORARY_VAR_NAME = "SplitByIndex";
 
@@ -77,8 +77,11 @@ public class SplitByIndexNodeBinder extends ANodeBinder {
 			
 			int size = list2d.size();
 			
-			Object result = aggregateInfo.makeIndexedAggregate(
-					containerNode.getType(),
+			IOpenClass componentType = tempVar.getType();
+			IOpenClass arrayType = componentType.getAggregateInfo().getIndexedAggregateType(componentType, 1);
+			
+			Object result = componentType.getAggregateInfo().makeIndexedAggregate(
+					arrayType,
 					new int[] { size });
 			
 			
@@ -87,7 +90,6 @@ public class SplitByIndexNodeBinder extends ANodeBinder {
 				ArrayList<Object> list = list2d.get(i);
 				int listSize = list.size();
 				
-				IOpenClass componentType = aggregateInfo.getComponentType(containerType); 
 				Object ary = aggregateInfo.makeIndexedAggregate(componentType, new int[]{listSize});
 				
 				for (int j = 0; j < listSize; j++) {
@@ -111,45 +113,67 @@ public class SplitByIndexNodeBinder extends ANodeBinder {
 		public IOpenClass getType() {
 			
 			IOpenClass containerType = getContainer().getType();
-			IAggregateInfo info =  containerType.getAggregateInfo();
-			return info.getIndexedAggregateType(containerType, 1);
+			if (containerType.isArray())
+			{	
+				IAggregateInfo info =  containerType.getAggregateInfo();
+				return info.getIndexedAggregateType(containerType, 1);
+			}
+			
+			
+			IOpenClass componentType = tempVar.getType();
+			IAggregateInfo info =  componentType.getAggregateInfo();
+			return info.getIndexedAggregateType(componentType, 2);
+			
 		}
 	}
 
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-			throws Exception {
-		BindHelper.processError("This node always binds  with target", node,
-				bindingContext);
 
-		return new ErrorBoundNode(node);
-	}
-
-	public IBoundNode bindTarget(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode)
-			throws Exception {
-
-		if (node.getNumberOfChildren() != 1) {
-			BindHelper.processError("Index node must have  exactly 1 subnode",
-					node, bindingContext);
-
-			return new ErrorBoundNode(node);
-		}
-
-		
-		IOpenClass containerType = targetNode.getType();
-		IAggregateInfo info = containerType.getAggregateInfo();
-
-		String varName = BindHelper.getTemporaryVarName(bindingContext,
+//	public IBoundNode bindTargetZZZ(ISyntaxNode node,
+//			IBindingContext bindingContext, IBoundNode targetNode)
+//			throws Exception {
+//
+//		if (node.getNumberOfChildren() != 1) {
+//			BindHelper.processError("Index node must have  exactly 1 subnode",
+//					node, bindingContext);
+//
+//			return new ErrorBoundNode(node);
+//		}
+//
+//		
+//		IOpenClass containerType = targetNode.getType();
+//		IAggregateInfo info = containerType.getAggregateInfo();
+//
+//		String varName = BindHelper.getTemporaryVarName(bindingContext,
+//				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+//		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
+//				varName, info.getComponentType(containerType));
+//
+//		IBoundNode[] children = bindChildren(node, new TypeBindingContext(
+//				bindingContext, var));
+//		IBoundNode orderExpressionNode = children[0];
+//
+//		return new SplitByIndexNode(node, new IBoundNode[] { targetNode,
+//				orderExpressionNode }, var);
+//	}
+//
+	@Override
+	public String getDefaultTempVarName(IBindingContext bindingContext) {
+		return BindHelper.getTemporaryVarName(bindingContext,
 				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
-		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
-				varName, info.getComponentType(containerType));
-
-		IBoundNode[] children = bindChildren(node, new TypeBindingContext(
-				bindingContext, var));
-		IBoundNode orderExpressionNode = children[0];
-
-		return new SplitByIndexNode(node, new IBoundNode[] { targetNode,
-				orderExpressionNode }, var);
 	}
+
+	@Override
+	protected IBoundNode createBoundNode(ISyntaxNode node,
+			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
+		return new SplitByIndexNode(node, new IBoundNode[] {
+				targetNode, expressionNode }, localVar);
+	}
+
+	@Override
+	protected IBoundNode validateExpressionNode(IBoundNode expressionNode,
+			IBindingContext bindingContext) {
+		return expressionNode;
+	}
+
 
 }

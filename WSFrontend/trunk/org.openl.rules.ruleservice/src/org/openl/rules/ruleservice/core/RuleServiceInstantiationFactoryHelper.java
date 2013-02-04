@@ -13,8 +13,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.util.generation.InterfaceTransformer;
 
 public abstract class RuleServiceInstantiationFactoryHelper {

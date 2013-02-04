@@ -403,10 +403,21 @@ public class RulesUtilsTest {
 
     @Test
     public void testDateSort() {
+        
+        int year = 2013;
+        int month = 1;
+        int date = 25;
+        int hour = 15;
+        int min = 3;
+        Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(year, month, date, hour, min);
+
         Date[] nullDateArray = null;
-        Date[] nullDateArrayValue = { null, new Date(), new Date() };
+        Date[] nullDateArrayValue = { null, c.getTime(), c.getTime() };
         Date[] actuals = RulesUtils.sort(nullDateArrayValue);
-        Date[] expecteds = {new Date(), new Date(), null };
+        Date[] expecteds = {c.getTime(), c.getTime(), null };
         
         assertNull(RulesUtils.sort(nullDateArray));
         assertArrayEquals(expecteds, actuals);
@@ -441,6 +452,7 @@ public class RulesUtilsTest {
         assertArrayEquals(expecteds, actuals);
     }
     
+    @SuppressWarnings("deprecation")
     @Test   
     public void testDateFormat() {
         int year = 2013;
