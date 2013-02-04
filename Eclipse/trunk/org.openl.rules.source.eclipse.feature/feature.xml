@@ -74,6 +74,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.variation"
+         download-size="0"
+         install-size="0"
+         version="5.9.5"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.project"
          download-size="0"
          install-size="0"

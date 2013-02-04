@@ -40,8 +40,8 @@ public class AlgorithmBuilder {
     // type
     // (if possible...)
     public static String[] algorithmOperations = new String[] { "SET", "VAR", "IF", "ELSE", "WHILE",
-    /* "FOR EACH", */
-    "SUB", "FUNCTION", "END IF", "END WHILE", "END FOR EACH", "END SUB", "END FUNCTION", "GOTO", "BREAK", "CONTINUE",
+    /* "FOR EACH", "END FOR EACH",*/
+    "SUB", "FUNCTION", "END IF", "END WHILE", "END SUB", "END FUNCTION", "GOTO", "BREAK", "CONTINUE",
             "RETURN" };
     private final IBindingContext bindingContext;
 
