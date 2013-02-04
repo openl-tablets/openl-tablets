@@ -79,7 +79,7 @@ public class ProblemsBean {
 
     private TreeNode createMessagesRoot(String rootName, int messagesNumber) {
         TreeNode messagesRoot = new TreeNode(
-                rootName + " [" + messagesNumber + "]", rootName, null, 0, rootName.toLowerCase(), true);
+                rootName + " [" + messagesNumber + "]", rootName, null, 0, 0, rootName.toLowerCase(), true);
         return messagesRoot;
     }
 
@@ -89,7 +89,7 @@ public class ProblemsBean {
         for (OpenLMessage message : messages) {
             String url = getNodeUrl(message, model);
             TreeNode messageNode = new TreeNode(true,
-                    message.getSummary(), message.getDetails(), url, 0, nodeName.toLowerCase(), true);
+                    message.getSummary(), message.getDetails(), url, 0, 0, nodeName.toLowerCase(), true);
             parent.addChild(nodeCount++, messageNode);
         }
     }

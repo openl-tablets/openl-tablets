@@ -14,7 +14,7 @@ public class JavaEnumDomain extends FixedSizeDomain<Object> {
         this.enumClass = enumClass;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator iterator() {
         return OpenIterator.fromArray(enumClass.getInstanceClass().getEnumConstants());
     }

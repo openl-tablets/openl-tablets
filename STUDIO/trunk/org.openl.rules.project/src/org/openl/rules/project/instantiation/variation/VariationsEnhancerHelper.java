@@ -16,6 +16,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.RulesFactory;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 import org.openl.util.generation.InterfaceTransformer;
 
 /**
@@ -219,8 +221,8 @@ public abstract class VariationsEnhancerHelper {
      */
     private static class UndecoratingClassWriter extends ClassAdapter {
 
-        private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/project/instantiation/variation/VariationsPack;";
-        private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/project/instantiation/variation/VariationsResult;";
+        private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/variation/VariationsPack;";
+        private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/variation/VariationsResult;";
         private String className;
 
         public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
@@ -244,7 +246,7 @@ public abstract class VariationsEnhancerHelper {
         }
         
         private boolean isEnhancedMethod(String signature){
-            return signature.contains(VARIATIONS_PACK_TYPE)&& signature.endsWith(VARIATIONS_RESULT_TYPE);
+            return signature.contains(VARIATIONS_PACK_TYPE) && signature.endsWith(VARIATIONS_RESULT_TYPE);
         }
 
     }

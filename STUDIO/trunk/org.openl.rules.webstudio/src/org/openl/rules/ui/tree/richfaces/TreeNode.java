@@ -7,7 +7,10 @@ public class TreeNode extends TreeNodeImpl {
     private String name;
     private String title;
     private String url;
+    @Deprecated
     private int state;
+    @Deprecated
+    private int numErrors;
     private String type;
     private boolean active;
 
@@ -19,16 +22,17 @@ public class TreeNode extends TreeNodeImpl {
         super(isLeaf);
     }
 
-    public TreeNode(String name, String title, String url, int state, String type, boolean active) {
-        this(false, name, title, url, state, type, active);
+    public TreeNode(String name, String title, String url, int state, int numErrors, String type, boolean active) {
+        this(false, name, title, url, state, numErrors, type, active);
     }
 
-    public TreeNode(boolean isLeaf, String name, String title, String url, int state, String type, boolean active) {
+    public TreeNode(boolean isLeaf, String name, String title, String url, int state, int numErrors, String type, boolean active) {
         this(isLeaf);
         this.name = name;
         this.title = title;
         this.url = url;
         this.state = state;
+        this.numErrors = numErrors;
         this.type = type;
         this.active = active;
     }
@@ -63,6 +67,14 @@ public class TreeNode extends TreeNodeImpl {
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public int getNumErrors() {
+        return numErrors;
+    }
+
+    public void setNumErrors(int numErrors) {
+        this.numErrors = numErrors;
     }
 
     public String getType() {

@@ -8,11 +8,11 @@ import org.openl.types.IOpenClass;
 public class AliasToTypeCast implements IOpenCast {
 
     private IOpenClass fromClass;
-    private IOpenClass toClass;
+//    private IOpenClass toClass;
 
     public AliasToTypeCast(IOpenClass from, IOpenClass to) {
         this.fromClass = from;
-        this.toClass = to;
+//        this.toClass = to;
     }
 
     public Object convert(Object from) {
@@ -37,7 +37,8 @@ public class AliasToTypeCast implements IOpenCast {
         }
     }
 
-    private Object convertSingle(Object from) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private Object convertSingle(Object from) {
         IDomain domain = fromClass.getDomain();
 
         // Try to get given object from type domain. If object belongs to domain
