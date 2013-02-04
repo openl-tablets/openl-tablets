@@ -388,6 +388,12 @@
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.variation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.project</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -544,6 +550,13 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.tomcat.lib</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.variation</artifactId>
 				<classifier>sources</classifier>
 				<version>${project.version}</version>
 			</dependency>
