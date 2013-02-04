@@ -23,22 +23,29 @@
     </ui:define>
 
     <ui:define name="workspace">
+        <style>
+            .badge-right {
+                position: absolute;
+                right: 3px;
+            }
+        </style>
+
         <rich:tree id="rulesTree" styleClass="tree" value="#{treeBean.tree}" var="node" nodeType="#{node.type}"
             toggleType="client" nodeClass="#{node.active ? '' : 'treeNodeInactive'}">
             <rich:treeNode type="folder"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/tree/folder-error.png' : 'webresource/images/tree/folder.png'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/tree/folder-error.png' : 'webresource/images/tree/folder.png'}">
-                <h:outputText value="#{node.name}" />
+                iconCollapsed="webresource/images/tree/folder.png" iconExpanded="webresource/images/tree/folder.png">
+                <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="workbook"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/excel-workbook-error.png' : 'webresource/images/excel.png'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/excel-workbook-error.png' : 'webresource/images/excel.png'}">
-                <h:outputText value="#{node.name}" />
+                iconCollapsed="webresource/images/excel.png" iconExpanded="webresource/images/excel.png">
+                <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="worksheet"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/worksheet-error.png' : 'webresource/images/worksheet.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/worksheet-error.png' : 'webresource/images/worksheet.gif'}">
-                <h:outputText value="#{node.name}" />
+                iconCollapsed="webresource/images/worksheet.gif" iconExpanded="webresource/images/worksheet.gif">
+                <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="problem" onclick="changeNode(event, '#{node.url}')">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
@@ -46,92 +53,97 @@
                 </h:outputLink>
             </rich:treeNode>
             <rich:treeNode type="table.xls.dt" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/dt3-error.png' : (node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png')}">
+                iconCollapsed="#{node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png'}"
+                iconExpanded="#{node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png'}"
+                iconLeaf="#{node.state == 2 ? 'webresource/images/dt3-check.png' : 'webresource/images/dt3.png'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.spreadsheet" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/spreadsheet-error.gif' : 'webresource/images/spreadsheet.gif'}">
+                iconCollapsed="webresource/images/spreadsheet.gif" iconExpanded="webresource/images/spreadsheet.gif"
+                iconLeaf="webresource/images/spreadsheet.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.tbasic" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/tbasic-error.gif' : (node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif')}">
+                iconCollapsed="#{node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif'}"
+                iconExpanded="#{node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif'}"
+                iconLeaf="#{node.state == 2 ? 'webresource/images/tbasic-check.gif' : 'webresource/images/tbasic.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.columnmatch" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/cmatch-error.gif' : (node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif')}">
+                iconCollapsed="#{node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif'}"
+                iconExpanded="#{node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif'}"
+                iconLeaf="#{node.state == 2 ? 'webresource/images/cmatch-check.gif' : 'webresource/images/cmatch.gif'}">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.data" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}">
+                iconCollapsed="webresource/images/data.gif" iconExpanded="webresource/images/data.gif"
+                iconLeaf="webresource/images/data.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.datatype" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/dataobject-error.png' : 'webresource/images/dataobject.gif'}">
+                iconCollapsed="webresource/images/dataobject.gif" iconExpanded="webresource/images/dataobject.gif"
+                iconLeaf="webresource/images/dataobject.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.environment" onclick="changeNode(event, '#{node.url}')"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/config_obj-error.png' : 'webresource/images/config_obj.gif'}">
+                iconLeaf="webresource/images/config_obj.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.method" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/method-error.png' : 'webresource/images/method.gif'}">
+                iconCollapsed="webresource/images/method.gif" iconExpanded="webresource/images/method.gif"
+                iconLeaf="webresource/images/method.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.test.method" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/test_ok-error.gif' : 'webresource/images/test_ok.gif'}">
+                iconCollapsed="webresource/images/test_ok.gif" iconExpanded="webresource/images/test_ok.gif"
+                iconLeaf="webresource/images/test_ok.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.run.method" onclick="changeNode(event, '#{node.url}')"
-                iconCollapsed="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/run.gif'}"
-                iconExpanded="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/run.gif'}"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/test-error.png' : 'webresource/images/run.gif'}">
+                iconCollapsed="webresource/images/run.gif" iconExpanded="webresource/images/run.gif"
+                iconLeaf="webresource/images/run.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.properties" onclick="changeNode(event, '#{node.url}')"
-                iconLeaf="#{node.state == 1 ? 'webresource/images/data-error.png' : 'webresource/images/data.gif'}">
+                iconLeaf="webresource/images/data.gif">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
+                <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
             <rich:treeNode type="table.xls.other" onclick="changeNode(event, '#{node.url}')">
                 <h:outputLink value="#{node.url}" title="#{node.title}">
-                    <h:outputText value="#{node.name}" />
+                    <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 </h:outputLink>
             </rich:treeNode>
         </rich:tree>

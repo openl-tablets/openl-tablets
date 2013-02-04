@@ -1,6 +1,6 @@
-package org.openl.rules.project.instantiation.variation;
+package org.openl.rules.variation;
 
-import org.openl.rules.table.InputArgumentsCloner;
+import com.rits.cloning.Cloner;
 
 /**
  * Variation that clones all arguments before the modification by another
@@ -13,6 +13,8 @@ public class DeepCloningVariaion extends Variation {
      * Suffix for generated variation ID if it have not been specified.
      */
     public static final String DEEP_CLONING_SUFFIX = "[Deep Cloning]";
+    
+    private static final Cloner cloner = ArgumentsClonerFactory.getCloner();
     
     private Variation variation;
     
@@ -46,7 +48,6 @@ public class DeepCloningVariaion extends Variation {
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         Object[] clonedParams = null;
-        InputArgumentsCloner cloner = new InputArgumentsCloner();
         if (originalArguments != null) {
             try {
                 clonedParams = cloner.deepClone(originalArguments);
@@ -62,7 +63,6 @@ public class DeepCloningVariaion extends Variation {
     @Override
     public Object currentValue(Object[] originalArguments) {
         Object[] clonedParams = null;
-        InputArgumentsCloner cloner = new InputArgumentsCloner();
         if (originalArguments != null) {
             try {
                 clonedParams = cloner.deepClone(originalArguments);

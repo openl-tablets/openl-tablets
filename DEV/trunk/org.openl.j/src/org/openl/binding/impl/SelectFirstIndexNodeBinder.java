@@ -20,14 +20,14 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau
  */
-public class SelectFirstIndexNodeBinder extends ANodeBinder {
+public class SelectFirstIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     private static final String TEMPORARY_VAR_NAME = "selectFirstIndex";
 
     private static class ConditionalSelectIndexNode extends ABoundNode {
         private ILocalVar tempVar;
 
-        public ConditionalSelectIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children,ILocalVar tempVar) {
+        public ConditionalSelectIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children, ILocalVar tempVar) {
             super(syntaxNode, children);
             this.tempVar = tempVar;
         }
@@ -35,7 +35,7 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
         public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
             IBoundNode container = getContainer();
             IBoundNode condition = getChildren()[1];
-            IAggregateInfo aggregateInfo = getType().getAggregateInfo();
+            IAggregateInfo aggregateInfo = getContainer(). getType().getAggregateInfo();
             Iterator<Object> elementsIterator = aggregateInfo.getIterator(container.evaluate(env));
             while (elementsIterator.hasNext()) {
                 Object element = elementsIterator.next();
@@ -57,29 +57,43 @@ public class SelectFirstIndexNodeBinder extends ANodeBinder {
         }
     }
 
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        BindHelper.processError("This node always binds  with target", node, bindingContext);
 
-        return new ErrorBoundNode(node);
-    }
+//    public IBoundNode bindTargetZZZ(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
+//            throws Exception {
+//
+//        if (node.getNumberOfChildren() != 1) {
+//            BindHelper.processError("Index node must have  exactly 1 subnode", node, bindingContext);
+//
+//            return new ErrorBoundNode(node);
+//        }
+//
+//        IOpenClass containerType = targetNode.getType();
+//        IAggregateInfo info = containerType.getAggregateInfo();
+//
+//        String varName = BindHelper.getTemporaryVarName(bindingContext, ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+//        ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, info.getComponentType(containerType));
+//
+//        IBoundNode[] children = bindChildren(node, new TypeBindingContext(bindingContext, var));
+//        IBoundNode conditionNode = BindHelper.checkConditionBoundNode(children[0], bindingContext);
+//        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, conditionNode }, var);
+//    }
 
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
-            throws Exception {
 
-        if (node.getNumberOfChildren() != 1) {
-            BindHelper.processError("Index node must have  exactly 1 subnode", node, bindingContext);
+	@Override
+	public String getDefaultTempVarName(IBindingContext bindingContext) {
+		return  BindHelper.getTemporaryVarName(bindingContext, ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
+	}
 
-            return new ErrorBoundNode(node);
-        }
 
-        IOpenClass containerType = targetNode.getType();
-        IAggregateInfo info = containerType.getAggregateInfo();
+	@Override
+	protected IBoundNode createBoundNode(ISyntaxNode node,
+			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
+        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, expressionNode }, localVar);
+	}
 
-        String varName = BindHelper.getTemporaryVarName(bindingContext, ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
-        ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, info.getComponentType(containerType));
 
-        IBoundNode[] children = bindChildren(node, new TypeBindingContext(bindingContext, var));
-        IBoundNode conditionNode = BindHelper.checkConditionBoundNode(children[0], bindingContext);
-        return new ConditionalSelectIndexNode(node, new IBoundNode[] { targetNode, conditionNode }, var);
-    }
+	@Override
+	protected IBoundNode validateExpressionNode(IBoundNode expressionNode, IBindingContext bindingContext) {
+		return BindHelper.checkConditionBoundNode(expressionNode, bindingContext);
+	}
 }

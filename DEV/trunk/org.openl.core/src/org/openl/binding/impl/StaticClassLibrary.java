@@ -58,7 +58,7 @@ public class StaticClassLibrary implements IOpenLibrary {
             }
         };
 
-        return AOpenIterator.select(openClass.methods(), sel);
+        return AOpenIterator.select(openClass.getMethods().iterator(), sel);
     }
 
     public void setOpenClass(IOpenClass c) {

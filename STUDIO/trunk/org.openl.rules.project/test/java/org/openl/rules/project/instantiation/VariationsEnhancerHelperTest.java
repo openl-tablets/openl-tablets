@@ -9,8 +9,8 @@ import javax.xml.bind.annotation.XmlType;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.project.instantiation.variation.VariationsEnhancerHelper;
-import org.openl.rules.project.instantiation.variation.VariationsPack;
-import org.openl.rules.project.instantiation.variation.VariationsResult;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 
 public class VariationsEnhancerHelperTest {
 

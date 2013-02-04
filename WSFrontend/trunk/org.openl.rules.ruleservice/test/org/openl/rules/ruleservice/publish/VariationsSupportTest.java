@@ -8,10 +8,6 @@ import java.lang.reflect.Method;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.project.instantiation.variation.JXPathVariation;
-import org.openl.rules.project.instantiation.variation.NoVariation;
-import org.openl.rules.project.instantiation.variation.VariationsPack;
-import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -19,6 +15,10 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFact
 import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.ruleservice.simple.RulesFrontendImpl;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 
 public class VariationsSupportTest {
     public static final String STANDART = "Standard Driver";
@@ -72,7 +72,7 @@ public class VariationsSupportTest {
         VariationsResult<String> resultsDrivers = (VariationsResult<String>) frontend.execute("tutorial4", "driverAgeType", new Object[] { driver , variations});
         assertEquals(resultsDrivers.getResultForVariation("young"), YOUNG);
         assertEquals(resultsDrivers.getResultForVariation("senior"), SENOIR);
-        assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGIANAL_CALCULATION), STANDART);
+        assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), STANDART);
         assertTrue(resultsDrivers.getVariationFailures().isEmpty());
     }
 }
