@@ -80,16 +80,16 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
             if (errors != null) {
                 return errors.length;
             }
+        }
 
-            Iterator<ITreeNode<Object>> iterator = getChildren();
+        Iterator<ITreeNode<Object>> iterator = getChildren();
 
-            while (iterator.hasNext()) {
-                ITreeNode<Object> treeNode = iterator.next();
+        while (iterator.hasNext()) {
+            ITreeNode<Object> treeNode = iterator.next();
 
-                if (treeNode instanceof ProjectTreeNode) {
-                    ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
-                    result += projectTreeNode.getNumErrors();
-                }
+            if (treeNode instanceof ProjectTreeNode) {
+                ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
+                result += projectTreeNode.getNumErrors();
             }
         }
 
