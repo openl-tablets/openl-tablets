@@ -73,19 +73,23 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
     public int getNumErrors() {
         int result = 0;
 
-        SyntaxNodeException errors[] = getTableSyntaxNode().getErrors();
-        if (errors != null) {
-            return errors.length;
-        }
+        TableSyntaxNode table = getTableSyntaxNode();
+        if (table != null) {
+            SyntaxNodeException errors[] = table.getErrors();
 
-        Iterator<ITreeNode<Object>> iterator = getChildren();
+            if (errors != null) {
+                return errors.length;
+            }
 
-        while (iterator.hasNext()) {
-            ITreeNode<Object> treeNode = iterator.next();
+            Iterator<ITreeNode<Object>> iterator = getChildren();
 
-            if (treeNode instanceof ProjectTreeNode) {
-                ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
-                result += projectTreeNode.getNumErrors();
+            while (iterator.hasNext()) {
+                ITreeNode<Object> treeNode = iterator.next();
+
+                if (treeNode instanceof ProjectTreeNode) {
+                    ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
+                    result += projectTreeNode.getNumErrors();
+                }
             }
         }
 
