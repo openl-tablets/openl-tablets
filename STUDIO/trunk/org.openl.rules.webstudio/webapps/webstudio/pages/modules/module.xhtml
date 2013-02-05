@@ -8,25 +8,28 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
      xmlns:a4j="http://richfaces.org/a4j">
 
-<style>
-      .module-imports {
-    list-style-type: none;
-    padding-left: 8px;
-    margin-top: 3px;
-    margin-bottom:3px;
+    <style>
+        .module-imports {
+            margin-top: 15px;
+        }
 
-    }
+        .module-imports ul {
+            list-style-type: none;
+            padding-left: 8px;
+            margin-top: 3px;
+            margin-bottom:3px;
+        }
 
-    .module-imports li {
-       pdding-top: 5px;
-       padding-bottom:5px; 
-    }
+       .module-imports ul li {
+           pdding-top: 5px;
+           padding-bottom:5px;
+       }
 
-</style>
+    </style>
 
-	<c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
+    <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
-    
+
     <div class="content" style="margin: 11px 14px">
         <h:panelGrid columns="2" cellspacing="6" columnClasses="">
             <h:outputText value="Project Name: " style="color: #555" />
@@ -47,29 +50,28 @@
 
       </h:panelGrid>
 
-	  <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}">
+	  <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}" layout="block" styleClass="module-imports">
 	      <div style="font-weight: bold; margin-left: 7px;">Included modules:</div>
 	      <div>
-	          <ul class="module-imports">
+	          <ul>
 	           <a4j:repeat value="#{modulePageBean.includes}" var="keys">
 	                  <li>#{keys}</li>
 	           </a4j:repeat>
 	           </ul>
 	          </div>
 	   </h:panelGroup>
-	   
-	    
-	   <h:panelGroup rendered="#{modulePageBean.imports.size() > 0}">
+
+	   <h:panelGroup rendered="#{modulePageBean.imports.size() > 0}" layout="block" styleClass="module-imports">
 	       <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">Imported libraries and packages:</div>
-	      <div>
-	          <ul class="module-imports">
+ 	      <div>
+	          <ul>
 	              <a4j:repeat value="#{modulePageBean.imports}" var="keys" >
 	                  <li>#{keys}</li>
 	              </a4j:repeat>
 	          </ul>
 	      </div>
 	  </h:panelGroup>
-    
+
     </div>
 
 </ui:composition>
