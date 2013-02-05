@@ -101,7 +101,7 @@
 
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <h:commandButton id="sbtFiles" value="Create" styleClass="button-primary"
-                            action="#{repositoryTreeController.createProjectWithFiles}" />
+                            action="#{repositoryTreeController.createProjectWithFiles}" disabled="true" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </h:panelGrid>
                 </h:form>
@@ -131,7 +131,7 @@
 
                 <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                     <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
-                        styleClass="button-primary" />
+                        styleClass="button-primary" disabled="true" />
                     <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                 </h:panelGrid>
                 </h:form>
@@ -172,7 +172,7 @@
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <h:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary"
                             rendered="#{not empty localUpload.projects4Upload}"
-                            process="@form" value="Create" />
+                            process="@form" value="Create" disabled="true" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </h:panelGrid>
                 </h:form>
@@ -188,12 +188,7 @@
         function enableCreateButton(enable, button) {
             button.disabled = !enable;
         }
-        
-        enableCreateButton(false, #{rich:element('sbtTemplates')});
-        enableCreateButton(false, #{rich:element('sbtFiles')});
-        enableCreateButton(false, #{rich:element('sbtZips')});
-        enableCreateButton(false, #{rich:element('sbtWorkspace')})
-        
+
         function openNewProjectDialog() {
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
@@ -204,17 +199,14 @@
             initTemplates();
 
             $j("#createProjectFormFiles\\:projectName").val("");
+            $j("#uploadProjectForm\\:projectName").val("");
 
             RichFaces.$("modalNewProject").hide();
         }
 
         function changeStatus(element) {
             $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
-            if (!element.checked) {
-                enableCreateButton(false, #{rich:element('sbtWorkspace')});
-                } else {
-                    enableCreateButton(true, #{rich:element('sbtWorkspace')});
-                }
+            enableCreateButton(element.checked, #{rich:element('sbtWorkspace')});
         }
 
         function changeAllProjectCheck(element) {
@@ -230,12 +222,8 @@
             if (checkedCount == allCount) {
                 $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
             }
-            
-            if (checkedCount == 0) {
-                enableCreateButton(false, #{rich:element('sbtWorkspace')});
-                } else {
-                    enableCreateButton(true, #{rich:element('sbtWorkspace')});
-                }
+
+            enableCreateButton(checkedCount != 0, #{rich:element('sbtWorkspace')});
         }
 
         function uncheckSelectAllProject() {
