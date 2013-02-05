@@ -19,10 +19,14 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -548,7 +552,7 @@ public class JavaOpenClass extends AOpenClass {
         @SuppressWarnings("unused")
         private Class<?> proxyClass;
 
-        private InvocationHandler handler;
+        private InvocationHandler beanInterfaceHandler;
 
         static {
             try {
@@ -573,26 +577,62 @@ public class JavaOpenClass extends AOpenClass {
             BeanOpenField.collectFields(fields, instanceClass, getters, setters);
         }
 
-        private synchronized InvocationHandler getInvocationHandler() {
-            if (handler == null) {
-                handler = new InterfaceInvocationHandler();
+        private synchronized InvocationHandler getInvocationHandler(Class<?> instClass) {
+        	
+        	if (List.class.isAssignableFrom(instClass))
+        	{
+        		return new JavaInstanceBasedInvocationhandler(new ArrayList<Object>());
+        	}	
+        	
+        	if (Set.class.isAssignableFrom(instClass))
+        	{
+        		return new JavaInstanceBasedInvocationhandler(new HashSet<Object>());
+        	}	
+        	
+        	if (SortedMap.class.isAssignableFrom(instClass))
+        	{
+        		return new JavaInstanceBasedInvocationhandler(new TreeMap<Object, Object>());
+        	}
+        	
+        	if (Map.class.isAssignableFrom(instClass))
+        	{
+        		return new JavaInstanceBasedInvocationhandler(new HashMap<Object, Object>());
+        	}	
+        	
+            if (beanInterfaceHandler == null) {
+                beanInterfaceHandler = new BeanInterfaceInvocationHandler();
             }
 
-            return handler;
+            return beanInterfaceHandler;
         }
 
         @Override
         public Object newInstance(IRuntimeEnv env) {
             try {
                 return Proxy.newProxyInstance(instanceClass.getClassLoader(), new Class[] { instanceClass },
-                        getInvocationHandler());
+                        getInvocationHandler(instanceClass));
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
 
         }
+
+        private class JavaInstanceBasedInvocationhandler implements InvocationHandler {
+        	
+        	Object instance;
+
+			public JavaInstanceBasedInvocationhandler(Object instance) {
+				this.instance = instance;
+			}
+
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args)
+					throws Throwable {
+				return method.invoke(instance, args);
+			}
+        }	
         
-        private class InterfaceInvocationHandler implements InvocationHandler {
+        private class BeanInterfaceInvocationHandler implements InvocationHandler {
 
             private IdentityHashMap<Object, HashMap<BeanOpenField, Object>> map = 
                     new IdentityHashMap<Object, HashMap<BeanOpenField, Object>>();
