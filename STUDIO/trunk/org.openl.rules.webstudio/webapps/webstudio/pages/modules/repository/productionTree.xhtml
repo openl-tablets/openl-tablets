@@ -9,10 +9,6 @@
     template="/pages/layout/view.xhtml">
 
     <ui:define name="toolbar">
-        <a4j:commandLink title="Refresh" action="#{productionRepositoriesTreeController.refreshTree}"
-            render="prodTree" process="@this" style="margin-right: 5px;">
-            <h:graphicImage url="/webresource/images/refresh.png" alt="Refresh" />
-        </a4j:commandLink>
         <ui:remove>
             <h:button id="filterButton1" value="Filter" onclick="showRepFilterDialog();return false;">
                 <rich:tooltip showDelay="500">Filter repository tree</rich:tooltip>
