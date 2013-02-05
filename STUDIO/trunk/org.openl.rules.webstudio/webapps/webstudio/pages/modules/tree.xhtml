@@ -11,7 +11,7 @@
         <h:form id="rulesTreeViewForm">
             <h:panelGrid rendered="#{studio.currentProject != null}" id="rulesTreeView" columns="2" layout="block"
             columnClasses="rules_tree_view_first_col,rules_tree_view_second_col" style="width: 100%">
-                 <h:selectOneMenu value="#{treeBean.currentView}" style="width: 100%">
+                 <h:selectOneMenu id="viewMode" value="#{treeBean.currentView}" style="width: 100%">
                      <f:selectItems value="#{treeBean.views}" />
                      <f:ajax event="change" render=":rulesTree" />
                  </h:selectOneMenu>
