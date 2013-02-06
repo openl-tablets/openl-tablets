@@ -101,7 +101,7 @@
 
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <h:commandButton id="sbtFiles" value="Create" styleClass="button-primary"
-                            action="#{repositoryTreeController.createProjectWithFiles}" disabled="true" />
+                            action="#{repositoryTreeController.createProjectWithFiles}" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </h:panelGrid>
                 </h:form>
@@ -131,7 +131,7 @@
 
                 <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                     <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
-                        styleClass="button-primary" disabled="true" />
+                        styleClass="button-primary" />
                     <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                 </h:panelGrid>
                 </h:form>
@@ -172,7 +172,7 @@
                     <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <h:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary"
                             rendered="#{not empty localUpload.projects4Upload}"
-                            process="@form" value="Create" disabled="true" />
+                            process="@form" value="Create" />
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </h:panelGrid>
                 </h:form>
@@ -185,8 +185,14 @@
 
         // TODO Move code to namespace
 
+        enableCreateButton(false, #{rich:element("sbtFiles")});
+        enableCreateButton(false, #{rich:element("sbtZips")});
+        enableCreateButton(false, #{rich:element("sbtWorkspace")})
+
         function enableCreateButton(enable, button) {
-            button.disabled = !enable;
+            if (button) {
+                button.disabled = !enable;
+            }
         }
 
         function openNewProjectDialog() {
