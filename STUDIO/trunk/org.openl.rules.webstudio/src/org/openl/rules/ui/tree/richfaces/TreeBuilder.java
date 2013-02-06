@@ -60,6 +60,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         String title = getDisplayName(source, INamedThing.REGULAR);
         String url = getUrl(source);
         int state = getState(source);
+        int numErrors = getNumErrors(source);
         String type = getType(source);
         boolean active = isActive(source);
 
@@ -67,6 +68,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         dest.setTitle(title);
         dest.setUrl(url);
         dest.setState(state);
+        dest.setNumErrors(numErrors);
         dest.setType(type);
         dest.setActive(active);
     }
@@ -99,6 +101,10 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
     }
 
     protected int getState(ITreeElement<?> element) {
+        return 0;
+    }
+
+    protected int getNumErrors(ITreeElement<?> element) {
         return 0;
     }
 

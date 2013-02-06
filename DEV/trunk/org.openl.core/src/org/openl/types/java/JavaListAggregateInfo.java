@@ -6,10 +6,10 @@
 
 package org.openl.types.java;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.iterators.EmptyIterator;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
@@ -81,7 +81,10 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         // temporary return an empty iterator
         // While the possibility to get an iterator from list won`t be added
         // TODO: add the possibility to get an iterator from list
-        return EmptyIterator.INSTANCE;        
+
+    	
+    	
+    	return ((Collection<Object>)aggregate).iterator();        
     }
 
     public boolean isAggregate(IOpenClass type) {

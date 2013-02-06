@@ -24,7 +24,7 @@ public class TypeToAliasCast implements IOpenCast {
     /**
      * Original type of object before type conversion.
      */
-    private IOpenClass fromClass;
+//	private IOpenClass fromClass;
 
     /**
      * Result type of object after conversion.
@@ -32,7 +32,7 @@ public class TypeToAliasCast implements IOpenCast {
     private IOpenClass toClass;
 
     public TypeToAliasCast(IOpenClass from, IOpenClass to) {
-        this.fromClass = from;
+//        this.fromClass = from;
         this.toClass = to;
     }
 
@@ -58,7 +58,8 @@ public class TypeToAliasCast implements IOpenCast {
         }
     }
 
-    protected Object convertSingle(Object from) {
+    @SuppressWarnings("rawtypes")
+	protected Object convertSingle(Object from) {
         IDomain domain = toClass.getDomain();
 
         // Try to get given object from type domain. If object belongs to domain
@@ -67,7 +68,8 @@ public class TypeToAliasCast implements IOpenCast {
         // NOTE: EnumDomain implementation of IDomain (used by alias types)
         // throws runtime exception if object doesn't belong to domain.
         //
-        boolean isInDomain = domain.selectObject(from);
+        @SuppressWarnings("unchecked")
+		boolean isInDomain = domain.selectObject(from);
 
         // If object doesn't belong to domain throw runtime exception with
         // appropriate message.

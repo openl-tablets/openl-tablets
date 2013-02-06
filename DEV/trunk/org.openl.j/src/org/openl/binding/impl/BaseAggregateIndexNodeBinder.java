@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -73,7 +74,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 	}
 
 	private ILocalVar prepareDefinedLocalVar(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode) {
+			IBindingContext bindingContext, IBoundNode targetNode) throws SyntaxNodeException {
 
 		IOpenClass containerType = targetNode.getType();
 		IAggregateInfo info = containerType.getAggregateInfo();
@@ -85,6 +86,14 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 		
 		String varName = pnode.getName();
 		IOpenClass varType = pnode.getType() == null ? componentType : pnode.getType();
+		
+		if (varType != componentType)
+		{
+			IOpenCast cast = bindingContext.getCast(componentType, varType);
+			if (cast == null)
+	            BindHelper.processError("Can not cast " + componentType + " to " + varType, node.getChild(0), bindingContext, false);
+
+		}	
 
 		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
 				varName, varType);
@@ -117,11 +126,11 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 		IBoundNode boundExpressionNode = bindChildNode(expressionNode,  new TypeBindingContext(
 				bindingContext, localVar));
 
-		validateExpressionNodeType(boundExpressionNode, bindingContext);
+		boundExpressionNode = validateExpressionNode(boundExpressionNode, bindingContext);
 		
 		return new IBoundNode[]{boundExpressionNode};
 	}
 
-	protected abstract void validateExpressionNodeType(IBoundNode expressionNode, IBindingContext bindingContext);
+	protected abstract IBoundNode validateExpressionNode(IBoundNode expressionNode, IBindingContext bindingContext);
 
 }

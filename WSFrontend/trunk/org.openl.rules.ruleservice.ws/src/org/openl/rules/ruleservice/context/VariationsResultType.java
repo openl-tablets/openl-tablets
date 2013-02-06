@@ -14,9 +14,9 @@ import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
-import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.ruleservice.databinding.OpenLTypeMapping;
 import org.openl.rules.ruleservice.databinding.WrapperBeanTypeInfo;
+import org.openl.rules.variation.VariationsResult;
 
 /**
  * Custom mapping for {@link VariationsResultType} due to it is not usual bean

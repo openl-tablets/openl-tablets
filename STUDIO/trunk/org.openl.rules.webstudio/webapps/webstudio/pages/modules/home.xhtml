@@ -2,9 +2,70 @@
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <style >
+        .usefull-links {
+            margin: 10px;
+            padding: 5px;
+            width: 300px;
+        }
+
+        .usefull-links a {
+            text-decoration:none;
+        }
+
+        .usefull-links a:hover {
+            text-decoration: none;
+            background: #f8f8f8;
+            border-bottom: 1px dotted;
+        }
+
+        .usefull-links ul {
+            list-style-type: none;
+            padding-left: 8px;
+            margin-top: 7px;
+            margin-bottom:3px;
+        }
+
+        .usefull-links li {
+            pdding-top: 5px;
+            padding-bottom: 5px;
+            font-style: italic;
+        }
+    </style>
+
     #{mainBean.clearModule()}
 
     <div class="content">
+        <div style="margin: 0 0 30px 15px;">
+            <h3>Total projects: #{studio.allProjects.size()}</h3>
+        </div>
+
+        <div class="usefull-links">
+            <strong>OpenL Tablets Documentation:</strong>
+            <ul>
+                <li><a href="http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - Installation Guide/index.html" target="_blank">Installation Guide</a></li>
+                <li><a href="http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - Reference Guide/index.html" target="_blank">Reference Guide </a></li>
+                <li><a href="http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - Developer Guide/index.html" target="_blank">Developer Guide</a></li>
+                <li><a href="http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html" target="_blank">WebStudio User Guide</a></li>
+                <li><a href="http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - Web Services Usage and Customization Guide/index.html" target="_blank">Web Services Usage and Customization Guide</a></li>
+            </ul>
+        </div>
+
+        <div class="usefull-links">
+            <strong>OpenL Tablets in the Internet:</strong>
+            <ul>
+                <li><a href="http://openl-tablets.sourceforge.net/" target="_blank">Official Website</a></li>
+                <li><a href="http://openl-tablets.sourceforge.net/feeds/news" target="_blank">OpenL Tablets News</a></li>
+                <li><a href="https://twitter.com/openltablets" target="_blank">OpenL Tablets on Twitter</a></li>
+                <li><a href="https://sourceforge.net/projects/openl-tablets/forums" target="_blank">OpenL Tablets Forum</a></li>
+                <li><a href="https://sourceforge.net/projects/openl-tablets/" target="_blank">OpenL Tablets on Sourceforge</a></li>
+            </ul>
+        </div> <!-- End of usefull-links div -->
+
+        <div>
+            If you find any mistake or bug, please
+            <a href="mailto:openltablets@exigenservices.com?subject=OpenL Tablets Feedback">contact us</a>
+        </div>
     </div>
 
 </ui:composition>

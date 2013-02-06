@@ -257,6 +257,12 @@ fieldset {
     vertical-align: 12%;
 }
 
+.badge-small {
+    font-size: 8px;
+    padding: 0 3px 1px;
+    padding-top: 1px\9; /* IE 9*/
+}
+
 .badge-info {
     background: #59c;
 }
@@ -630,6 +636,17 @@ form.standard table.buttonPanel {
 .rf-trn-sel {
     font-weight: bold;
     background: none !important;
+}
+
+.rf-trn-cnt {
+    width: 100%;
+}
+
+.rf-trn-lbl {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: -webkit-calc(100% - 35px);
+    width: calc(100% - 35px);
 }
 
 .rf-tab-hdr {
