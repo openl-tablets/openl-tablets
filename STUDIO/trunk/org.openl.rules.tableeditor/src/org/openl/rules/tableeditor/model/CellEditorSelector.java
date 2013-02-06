@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.commons.lang.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.util.EnumUtils;
@@ -76,6 +77,8 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
 
+            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class, true)) {
+                return factory.makeNumberRangeEditor("-", ICellEditor.CE_NUMERIC);
             }
 
         }
