@@ -21,6 +21,7 @@ public interface ICellEditor {
     String CE_FORMULA = "formula";
     String CE_BOOLEAN = "boolean";
     String CE_ARRAY = "array";
+    String CE_RANGE = "range";
 
     /**
      *
