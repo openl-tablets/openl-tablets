@@ -53,5 +53,9 @@ public class CellEditorFactory implements ICellEditorFactory {
     public ICellEditor makeArrayEditor(String separator, String entryEditor) {
         return new ArrayCellEditor(separator, entryEditor);
     }
+    
+    public ICellEditor makeNumberRangeEditor(String separator, String entryEditor) {
+        return new NumberRangeEditor(separator, entryEditor);
+    }
 
 }

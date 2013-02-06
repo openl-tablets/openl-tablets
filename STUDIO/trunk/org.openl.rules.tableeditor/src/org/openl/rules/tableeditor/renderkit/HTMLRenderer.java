@@ -84,7 +84,8 @@ public class HTMLRenderer {
                     .append(renderJS("js/BooleanEditor.js"))
                     .append(renderJS("js/DateEditor.js"))
                     .append(renderJS("js/MultiselectEditor.js"))
-                    .append(renderJS("js/ArrayEditor.js"));
+                    .append(renderJS("js/ArrayEditor.js"))
+                    .append(renderJS("js/NumberRangeEditor.js"));
             }
 
         result.append("<div id='").append(editor.getId()).append("' class='te_'>");
