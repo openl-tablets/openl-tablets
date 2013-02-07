@@ -190,7 +190,8 @@ public class ShowTableBean {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
-                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
+                if (syntaxNode instanceof TableSyntaxNode
+                        && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
                     warnings.add(warning);
                 }
             }

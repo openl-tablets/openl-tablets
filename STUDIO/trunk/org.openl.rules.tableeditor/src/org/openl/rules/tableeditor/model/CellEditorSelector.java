@@ -5,6 +5,10 @@ import java.util.Date;
 import org.apache.commons.lang.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.util.EnumUtils;
@@ -76,6 +80,17 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
 
+            // Range
+            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class, true)) {
+                if (ClassUtils.isAssignable(instanceClass, IntRange.class, true)) {
+                    result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER);
+                } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class, true)) {
+                    result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE);
+                } else if (ClassUtils.isAssignable(instanceClass, CharRange.class, true)) {
+                    result = factory.makeNumberRangeEditor(ICellEditor.CE_CHAR);
+                } else {
+                    result = factory.makeNumberRangeEditor(ICellEditor.CE_CTRINTEGER);
+                }
             }
 
         }
