@@ -1,7 +1,14 @@
+/**
+ * Range editor.
+ * 
+ * @requires Prototype v1.6.1+ library
+ * 
+ * @author Anastasia Abramova
+ */
 var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     rangePanel: null,
-    separatorDefault: null,
+    separatorDefault: "-",
     separatorNew: " .. ",
     destroyed: null,
     entryEditor: null,
@@ -60,6 +67,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         for (var i = 0; i < self.btns.length; i++) {
             self.btns[i].setAttribute("style", "width: 20px; height: 20px;");
             self.btns[i].onclick = function() {
+                self.newFormat = true;
                 self.changeSign(this.id);
             }
           }
@@ -80,7 +88,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         
         if (param) {
             this.entryEditor = param.entryEditor;
-            this.separatorDefault = param.separator;
         };
         
         this.input.onclick = function(event) {
@@ -134,7 +141,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 if (value.charAt(0) == "[") {
                     this.checkboxes[0].setAttribute("checked", "checked");
                 }
-                if (value.charAt(value.length) == "]") {
+                if (value.charAt(value.length - 1) == "]") {
                     this.checkboxes[1].setAttribute("checked", "checked");
                 }
                 separator = this.separatorNew;
@@ -142,19 +149,14 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             } else {
                 separator = this.separatorDefault;
                 values = this.splitValue(value, separator);
-                if (values[0]) {
-                    this.checkboxes[0].setAttribute("checked", "checked");
-                    if (values[1]) {
-                        this.checkboxes[1].setAttribute("checked", "checked");
-                    }
+                if (values.length == 1) {
+                    values[1] = values[0];
                 }
+                this.checkboxes[0].setAttribute("checked", "checked");
+                this.checkboxes[1].setAttribute("checked", "checked");
             }
-            if (values.length > 0) {
-                this.values[0].value = values[0];
-                if (values.length > 1) {
-                    this.values[1].value = values[1];
-                }
-            }
+            this.values[0].value = values[0];
+            this.values[1].value = values[1];
         }
         
         this.changeRange();
@@ -287,12 +289,15 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         values[0] = this.values[0].value;
         values[1] = this.values[1].value;
         
-        if ((values[0])&&(values[1])) {
-            result = values.join(separator);
+        if ((values[0]) && (values[1])) {
+            if (!this.newFormat && (values[0] == values[1])) {
+                result = values[0];
+            } else {
+                result = values.join(separator);
+            }
         } else {
             result = values.join("");
         }
-        
         if (separator == this.separatorNew) {
             var prefix = "";
             var suffix = "";

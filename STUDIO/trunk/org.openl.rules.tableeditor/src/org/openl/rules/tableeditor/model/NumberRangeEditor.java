@@ -4,16 +4,9 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
 
 public class NumberRangeEditor implements ICellEditor {
 
-    public static final String DEFAULT_SEPARATOR = "-";
-
     private NumberRangeParams params = new NumberRangeParams();
 
-    public NumberRangeEditor() {
-        this.params.setSeparator(DEFAULT_SEPARATOR);
-    }
-
-    public NumberRangeEditor(String separator, String entryEditor) {
-        this.params.setSeparator(separator);
+    public NumberRangeEditor(String entryEditor) {
         this.params.setEntryEditor(entryEditor);
     }
 
@@ -26,16 +19,7 @@ public class NumberRangeEditor implements ICellEditor {
 
     public class NumberRangeParams {
 
-        private String separator;
         private String entryEditor;
-
-        public String getSeparator() {
-            return separator;
-        }
-
-        public void setSeparator(String separator) {
-            this.separator = separator;
-        }
 
         public String getEntryEditor() {
             return entryEditor;
