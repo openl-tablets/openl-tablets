@@ -7,7 +7,7 @@
 
   <rich:popupPanel id="modalRepFilter" width="300" autosized="true">
     <f:facet name="header">
-      <h:outputText value="Repository filter"/>
+      <h:outputText value="Advanced Filter"/>
     </f:facet>
 
     <f:facet name="controls">
@@ -15,15 +15,26 @@
     </f:facet>
 
     <h:form id="filterForm">
-      <h:inputText id="filter" value="#{repositoryTreeController.filterString}" />
-      <br />
-      <h:outputText value="Hide deleted projects : " />
-      <h:selectBooleanCheckbox id="hideDeleted" value="#{repositoryTreeController.hideDeleted}" />
+      <table>
+        <tr>
+          <td>Filter files by extensions (comma-separated)</td>
+          <td>
+            <h:inputText id="filter" value="#{repositoryTreeController.filterString}" />
+          </td>
+        </tr>
+        <tr>
+          <td>Hide deleted projects</td>
+          <td>
+            <h:selectBooleanCheckbox id="hideDeleted" value="#{repositoryTreeController.hideDeleted}"
+                style="margin:0" />
+          </td>
+        </tr>
+      </table>
 
       <hr />
 
       <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
-        <h:commandButton value="Apply" action="#{repositoryTreeController.filter}"/>
+        <h:commandButton value="Apply" action="#{repositoryTreeController.filter}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalRepFilter')}.hide();" />
       </h:panelGrid>
     </h:form>

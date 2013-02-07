@@ -14,7 +14,7 @@
     <ui:define name="data">
         <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
-        <h:form>
+        <h:form id="propertiesForm">
             <h:outputLabel value="Name " for="techName" />
             <h:inputText id="techName" value="#{wizard.tableName}" 
             validator="#{wizard.validateTechnicalName}" immediate="true"/>
@@ -28,21 +28,21 @@
             <br />
             <h:panelGroup id="propertiesTable">
                 <table cellpadding="2">
-                    <a4j:repeat value="#{propertiesManager.properties}" var="prop">
+                    <a4j:repeat id="property" value="#{propertiesManager.properties}" var="prop">
                         <tr>
                             <td>
                                 <h:outputText value="#{prop.displayName}" />
                             </td>
                             <td style="width: 156px">
-                                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
+                                <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
                                     rendered="#{prop.dateType}" />
 
-                                <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+                                <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 
                                 <oh:multiselect items="#{prop.enumArrayItems}"
                                     selected="#{prop.enumArrayValue}" rendered="#{prop.enumArray}" />
 
-                                <h:inputText value="#{prop.value}"
+                                <h:inputText id="inputText" value="#{prop.value}"
                                     rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}" />
                             </td>
                             <td>
