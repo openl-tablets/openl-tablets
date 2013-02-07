@@ -27,13 +27,20 @@
                 cursor: pointer;
                 opacity: 0.5;
             }
+            #filterButton {
+                background: url('webresource/images/filter.png');
+                border: 0;
+                background-color: transparent !important;
+                margin: 0;
+                -moz-margin-start: 4px;
+                padding: 5px 11px;
+            }
         </style>
         <span id="nameFilter">
             <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
             <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
         </span>
         <a id="filterButton" title="Advanced Filter" class="imageButton"
-            style="background:url('webresource/images/filter.png'); border: 0; background-color: transparent !important; margin: 0 0 0 4px; padding: 5px 11px"
             onclick="showRepFilterDialog();return false;" />
     </ui:define>
 
