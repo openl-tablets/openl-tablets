@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 
 public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
 
@@ -49,7 +50,6 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
     }
 
     public boolean hasProblems() {
-
         if (problems != null) {
             return true;
         }
@@ -57,13 +57,10 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         Iterator<ITreeNode<Object>> iterator = getChildren();
 
         while (iterator.hasNext()) {
-
             ITreeNode<Object> treeNode = iterator.next();
 
             if (treeNode instanceof ProjectTreeNode) {
-
                 ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
-
                 if (projectTreeNode.hasProblems()) {
                     return true;
                 }
@@ -71,6 +68,32 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         }
 
         return false;
+    }
+
+    public int getNumErrors() {
+        int result = 0;
+
+        TableSyntaxNode table = getTableSyntaxNode();
+        if (table != null) {
+            SyntaxNodeException errors[] = table.getErrors();
+
+            if (errors != null) {
+                return errors.length;
+            }
+        }
+
+        Iterator<ITreeNode<Object>> iterator = getChildren();
+
+        while (iterator.hasNext()) {
+            ITreeNode<Object> treeNode = iterator.next();
+
+            if (treeNode instanceof ProjectTreeNode) {
+                ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
+                result += projectTreeNode.getNumErrors();
+            }
+        }
+
+        return result;
     }
 
     public void setProblems(Object problems) {
