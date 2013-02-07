@@ -78,11 +78,11 @@ public class TestTableBuilder extends TableBuilder {
         if (executableMethod != null) {
             String tableName = executableMethod.getName();
             if (technicalName != null && !StringUtils.EMPTY.equals(technicalName)) {
-                result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + technicalName;
+                result = IXlsTableNames.TEST_TABLE + " " + tableName + " " + technicalName;
             } else {
-                result = IXlsTableNames.TEST_METHOD_TABLE + " " + tableName + " " + getDefaultTechnicalName(executableMethod);
+                result = IXlsTableNames.TEST_TABLE + " " + tableName + " " + getDefaultTechnicalName(executableMethod);
             }
-            
+
         }
         return result;
     }
