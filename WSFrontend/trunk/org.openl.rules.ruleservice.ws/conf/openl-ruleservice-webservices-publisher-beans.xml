@@ -17,15 +17,27 @@
 		<property name="additionalRootClassNames" ref="rootClassNamesBindingFactoryBean"/>
 	</bean>
 
+	<bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationSupportVariationsFactoryBean"
+		scope="prototype" >
+		<property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
+	</bean>
+
 	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
-	<bean id="webServicesDataBinding"
-		class="org.openl.rules.ruleservice.databinding.AegisDatabindingConfigurableFactoryBean"
+	<bean id="aegisDatabindingFactoryBean"
+		class="org.openl.rules.ruleservice.databinding.AegisDatabindingFactoryBean"
 		scope="prototype">
 		<property name="writeXsiTypes" value="true" />
 		<property name="overrideTypes" ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean"/>
-		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
+		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
 	</bean>
-
+	
+	<bean id="webServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="aegisDatabindingFactoryBean"/>
+		<property name="targetMethod" value="createAegisDatabinding"/>
+		<property name="singleton" value="false"/>
+	</bean>
+	
 	<!-- <bean id="dataBinding" class="org.apache.cxf.jaxb.JAXBDataBinding" 
 		scope="prototype"> <property name="contextProperties"> <map> <entry> <key> 
 		<util:constant static-field="com.sun.xml.bind.api.JAXBRIContext.ANNOTATION_READER" 

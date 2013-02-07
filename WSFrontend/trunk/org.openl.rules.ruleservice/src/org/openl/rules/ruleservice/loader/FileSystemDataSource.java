@@ -100,6 +100,17 @@ public class FileSystemDataSource implements DataSource {
             synchronized (flag) {
                 if (loadDeploymentsFromFolder == null) {
                     loadDeploymentsFromFolder = new File(getLoadDeploymentsFromDirectory());
+                    if (!loadDeploymentsFromFolder.exists()) {
+                        if (!loadDeploymentsFromFolder.mkdirs()) {
+                            if (log.isWarnEnabled()) {
+                                log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory() +"\" creation was fail!");
+                            }
+                        }else{
+                            if (log.isInfoEnabled()){
+                                log.info("File system data source \"" + getLoadDeploymentsFromDirectory() +"\" was successfully created!");
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -107,11 +118,8 @@ public class FileSystemDataSource implements DataSource {
     }
 
     private void validateFileSystemDataSourceFolder(File fileSystemDataSourceFolder) {
-        if (!fileSystemDataSourceFolder.exists()) {
-            throw new DataSourceException("Folder doesn't exist. Path: " + getLoadDeploymentsFromDirectory());
-        }
-        if (!fileSystemDataSourceFolder.isDirectory()) {
-            throw new DataSourceException("Folder doesn't exist. Path: " + getLoadDeploymentsFromDirectory());
+        if (!fileSystemDataSourceFolder.exists() || !fileSystemDataSourceFolder.isDirectory()) {
+            throw new DataSourceException("File system data source folder \"" + getLoadDeploymentsFromDirectory() +"\"  doesn't exist");
         }
     }
 
@@ -128,10 +136,9 @@ public class FileSystemDataSource implements DataSource {
         File folder = getLoadDeploymentsFromFolder();
         validateFileSystemDataSourceFolder(folder);
         if (folder.getName().equals(deploymentName)) {
-            LocalFolderAPI localFolderAPI = new LocalFolderAPI(folder, new ArtefactPathImpl(
-                    folder.getName()), new LocalWorkspaceImpl(null,
-                    folder.getParentFile(), getLocalWorkspaceFolderFilter(),
-                    getLocalWorkspaceFileFilter()));
+            LocalFolderAPI localFolderAPI = new LocalFolderAPI(folder, new ArtefactPathImpl(folder.getName()),
+                    new LocalWorkspaceImpl(null, folder.getParentFile(), getLocalWorkspaceFolderFilter(),
+                            getLocalWorkspaceFileFilter()));
             Deployment deployment = new Deployment(localFolderAPI);
             return deployment;
         } else {
@@ -144,10 +151,9 @@ public class FileSystemDataSource implements DataSource {
         File folder = getLoadDeploymentsFromFolder();
         validateFileSystemDataSourceFolder(folder);
         Collection<Deployment> deployments = new ArrayList<Deployment>(1);
-        LocalFolderAPI localFolderAPI = new LocalFolderAPI(folder, new ArtefactPathImpl(
-                folder.getName()), new LocalWorkspaceImpl(null,
-                folder.getParentFile(), getLocalWorkspaceFolderFilter(),
-                getLocalWorkspaceFileFilter()));
+        LocalFolderAPI localFolderAPI = new LocalFolderAPI(folder, new ArtefactPathImpl(folder.getName()),
+                new LocalWorkspaceImpl(null, folder.getParentFile(), getLocalWorkspaceFolderFilter(),
+                        getLocalWorkspaceFileFilter()));
         Deployment deployment = new Deployment(localFolderAPI);
         deployments.add(deployment);
         validateDeployment(deployment);
@@ -155,8 +161,9 @@ public class FileSystemDataSource implements DataSource {
     }
 
     private void validateDeployment(Deployment deployment) {
-        if (deployment.getProjects().isEmpty() && log.isWarnEnabled()) {
-            log.warn("Data source with path '" + getLoadDeploymentsFromDirectory() + "' does not contain projects. Make sure you have specified correct folder.");
+        if (log.isWarnEnabled() && deployment.getProjects().isEmpty()) {
+            log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory()
+                    + "\" does not contain projects. Make sure you have specified correct folder!");
         }
     }
 
