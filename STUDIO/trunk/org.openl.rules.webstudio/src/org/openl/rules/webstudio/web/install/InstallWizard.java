@@ -1,7 +1,12 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +39,8 @@ public class InstallWizard {
     @NotBlank
     private String dbUsername;
     private String dbPassword;
+    private String dbDriver;
+    private String dbPrefix;
 
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
@@ -80,8 +87,10 @@ public class InstallWizard {
 
                 ConfigurationManager defaultDbConfig = !innerDb ? dbConfig : dbMySqlConfig;
                 dbUrl = defaultDbConfig.getStringProperty("db.url").split("//")[1];
+                dbPrefix =  defaultDbConfig.getStringProperty("db.url").split("//")[0]+ "//";
                 dbUsername = defaultDbConfig.getStringProperty("db.user");
                 dbPassword = defaultDbConfig.getStringProperty("db.password");
+                dbDriver = defaultDbConfig.getStringProperty("db.driver");
             }
         }
 
@@ -89,41 +98,48 @@ public class InstallWizard {
     }
 
     public String finish() {
+
         try {
-            systemConfig.setProperty("user.mode", userMode);
-            systemConfig.save();
+                systemConfig.setProperty("user.mode", userMode);
+                systemConfig.save();
 
-            appConfig.setPath("webstudio.home", workingDir);
-            appConfig.setProperty("webstudio.configured", true);
-            appConfig.save();
-            System.setProperty("webstudio.home", workingDir);
-            System.setProperty("webstudio.configured", "true");
+                appConfig.setPath("webstudio.home", workingDir);
+                appConfig.setProperty("webstudio.configured", true);
+                appConfig.save();
+                System.setProperty("webstudio.home", workingDir);
+                System.setProperty("webstudio.configured", "true");
+                
+                if (testDBConnection() == true ) {
+                if (appMode.equals("production") ) {
+                  
 
-            if (appMode.equals("production")) {
-                dbConfig.setProperty("db.url", dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
-                dbConfig.setProperty("db.user", dbUsername);
-                dbConfig.setProperty("db.password", dbPassword);
-                dbConfig.setProperty("db.driver", dbMySqlConfig.getStringProperty("db.driver"));
-                dbConfig.setProperty("db.hibernate.dialect", dbMySqlConfig.getStringProperty("db.hibernate.dialect"));
-                dbConfig.save();
+                    dbConfig.setProperty("db.url",
+                        dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
+                    dbConfig.setProperty("db.user", dbUsername);
+                    dbConfig.setProperty("db.password", dbPassword);
+                    dbConfig.setProperty("db.driver", dbMySqlConfig.getStringProperty("db.driver"));
+                    dbConfig.setProperty("db.hibernate.dialect",
+                        dbMySqlConfig.getStringProperty("db.hibernate.dialect"));
+                    dbConfig.save();
+                   
+                } else {
+                    dbConfig.restoreDefaults();
+                }
 
-            } else {
-                dbConfig.restoreDefaults();
-            }
+                XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.
+                        getWebApplicationContext(FacesUtils.getServletContext());
 
-            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-                    .getWebApplicationContext(FacesUtils.getServletContext());
+                context.setConfigLocations(new String[] { "/WEB-INF/spring/webstudio-beans.xml",
+                        "/WEB-INF/spring/system-config-beans.xml",
+                        "/WEB-INF/spring/repository-beans.xml",
+                        "/WEB-INF/spring/security-beans.xml",
+                        "/WEB-INF/spring/security/security-" + userMode + ".xml" });
+                
+                context.refresh();
+                FacesUtils.redirectToRoot();
+                
+                } 
 
-            context.setConfigLocations(new String[] {
-                    "/WEB-INF/spring/webstudio-beans.xml",
-                    "/WEB-INF/spring/system-config-beans.xml",
-                    "/WEB-INF/spring/repository-beans.xml",
-                    "/WEB-INF/spring/security-beans.xml",
-                    "/WEB-INF/spring/security/security-" + userMode + ".xml"
-            });
-            context.refresh();
-
-            FacesUtils.redirectToRoot();
         } catch (Exception e) {
             LOG.error("Failed while saving the configuration", e);
         } finally {
@@ -132,7 +148,74 @@ public class InstallWizard {
 
         return null;
     }
+/**
+ * Methods tests connection to DB. By default MYSQL uses in production mode;
+ * 1045, 1049 - MySQL errors;
+ * 1045 - wrong login or password
+ * 1049 - invalid DB url 
+ * 
+ * @return boolean true or false
+ */
+    public boolean testDBConnection (){
+        Connection conn = null;
+        int errorCode=0;
+        
+        try {
+            Class.forName(dbDriver);
+            conn = DriverManager.getConnection((dbPrefix + dbUrl), dbUsername, dbPassword);
 
+        } catch (SQLException sqle) {
+            errorCode = sqle.getErrorCode();
+
+            if (errorCode == 1049) {
+                FacesUtils.addErrorMessage("Database error: \n Incorrect database name or database does not exist.");
+                LOG.error(sqle.getMessage(), sqle);
+                return false;
+            } else if (errorCode == 1045) {
+                FacesUtils.addErrorMessage("Database error: \n Incorrect login or password.");
+                LOG.error(sqle.getMessage(), sqle);
+                return false;
+            } else {
+                
+                FacesUtils.addErrorMessage("Data base connection error " + sqle.getMessage());
+                LOG.error("Database connection error", sqle);
+                return false;
+            }
+
+        }  catch (ClassNotFoundException cnfe) {
+            FacesUtils.addErrorMessage("Incorrectd database driver");
+            LOG.error(cnfe.getMessage(), cnfe);
+            return false;
+        } catch (Exception e) {
+            FacesUtils.addErrorMessage("Unexpected error, see instalation log");
+            LOG.error("Unexpected error, see instalation log", e);
+            return false;
+        }
+        finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public void dbUrlListener(ValueChangeEvent event) {
+        this.dbUrl = (String)event.getNewValue();
+    }
+    
+    public void dbUsernameListener (ValueChangeEvent event) {
+        setDbUsername((String)event.getNewValue());
+    }
+    
+    public void dbPasswordListener (ValueChangeEvent event) {
+        setDbPassword((String)event.getNewValue());
+    }
+    
     public int getStep() {
         return step;
     }
@@ -186,5 +269,14 @@ public class InstallWizard {
     public void setDbPassword(String dbPassword) {
         this.dbPassword = dbPassword;
     }
+
+    public String getDbDriver() {
+        return dbDriver;
+    }
+
+    public void setDbDriver(String dbDriver) {
+        this.dbDriver = dbDriver;
+    }
+
 
 }
