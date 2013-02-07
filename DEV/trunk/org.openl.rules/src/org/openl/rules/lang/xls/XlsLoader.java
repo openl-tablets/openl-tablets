@@ -77,7 +77,9 @@ public class XlsLoader {
             { IXlsTableNames.METHOD_TABLE2, XlsNodeTypes.XLS_METHOD.toString() },
             { IXlsTableNames.ENVIRONMENT_TABLE, XlsNodeTypes.XLS_ENVIRONMENT.toString() },
             { IXlsTableNames.TEST_METHOD_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString() },
+            { IXlsTableNames.TEST_TABLE, XlsNodeTypes.XLS_TEST_METHOD.toString() },
             { IXlsTableNames.RUN_METHOD_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString() },
+            { IXlsTableNames.RUN_TABLE, XlsNodeTypes.XLS_RUN_METHOD.toString() },
             { IXlsTableNames.PERSISTENCE_TABLE, XlsNodeTypes.XLS_PERSISTENT.toString() },
             { IXlsTableNames.PROPERTY_TABLE, XlsNodeTypes.XLS_PROPERTIES.toString() } };
 
