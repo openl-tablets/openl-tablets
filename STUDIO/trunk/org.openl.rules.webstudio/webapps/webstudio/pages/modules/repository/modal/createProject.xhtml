@@ -185,15 +185,16 @@
 
         // TODO Move code to namespace
 
+        enableCreateButton(false, #{rich:element("sbtFiles")});
+        enableCreateButton(false, #{rich:element("sbtZips")});
+        enableCreateButton(false, #{rich:element("sbtWorkspace")})
+
         function enableCreateButton(enable, button) {
-            button.disabled = !enable;
+            if (button) {
+                button.disabled = !enable;
+            }
         }
-        
-        enableCreateButton(false, #{rich:element('sbtTemplates')});
-        enableCreateButton(false, #{rich:element('sbtFiles')});
-        enableCreateButton(false, #{rich:element('sbtZips')});
-        enableCreateButton(false, #{rich:element('sbtWorkspace')})
-        
+
         function openNewProjectDialog() {
             RichFaces.$("modalNewProject").show();
             focusElement("createProjectFormTempl:projectName");
@@ -204,17 +205,14 @@
             initTemplates();
 
             $j("#createProjectFormFiles\\:projectName").val("");
+            $j("#uploadProjectForm\\:projectName").val("");
 
             RichFaces.$("modalNewProject").hide();
         }
 
         function changeStatus(element) {
             $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']").prop("checked", element.checked);
-            if (!element.checked) {
-                enableCreateButton(false, #{rich:element('sbtWorkspace')});
-                } else {
-                    enableCreateButton(true, #{rich:element('sbtWorkspace')});
-                }
+            enableCreateButton(element.checked, #{rich:element('sbtWorkspace')});
         }
 
         function changeAllProjectCheck(element) {
@@ -230,12 +228,8 @@
             if (checkedCount == allCount) {
                 $j("#uploadWorkspaceProjectForm INPUT[id='uploadPrjFromLocalTable:selectAll']").prop("checked", true);
             }
-            
-            if (checkedCount == 0) {
-                enableCreateButton(false, #{rich:element('sbtWorkspace')});
-                } else {
-                    enableCreateButton(true, #{rich:element('sbtWorkspace')});
-                }
+
+            enableCreateButton(checkedCount != 0, #{rich:element('sbtWorkspace')});
         }
 
         function uncheckSelectAllProject() {

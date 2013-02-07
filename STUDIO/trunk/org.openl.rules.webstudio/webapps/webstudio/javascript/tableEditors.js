@@ -20,7 +20,7 @@ function PropsEditor () {
 };
 
 function initComplexSelect(data, element) {
-   element.id = "cmplx_select_"+Math.floor(Math.random() * 1001);
+   element.id = "cmplx_select_" + Math.floor(Math.random() * 1001);
    prop = element.parentNode.props;
    var editor;
 
@@ -28,6 +28,8 @@ function initComplexSelect(data, element) {
        editor = new DateEditor('', element.id, '', prop.getValue() , '');
    } else if(data.type == "TEXT") {
        editor = new TextEditor('', element.id, '', prop.getValue() , '');
+   } else if(data.type == "SINGLE") {
+       editor = new DropdownEditor('', element.id, data.param, prop.getValue() , '');
    } else {
        editor = new MultiselectEditor('', element.id, data, element.innerHTML, '');
        editor.open();
