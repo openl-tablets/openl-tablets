@@ -190,7 +190,12 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             } else {
                 f = true;
             }
-            argsValues.append(arg.toString());
+            if (arg == null){
+                argsValues.append("null");
+            }else{
+                argsValues.append(arg.toString());
+
+            }
         }
         StringBuilder sb = new StringBuilder();
         sb.append("During OpenL rule execution exception was occured. Method name is \"".toUpperCase());
