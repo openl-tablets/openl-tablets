@@ -51,6 +51,18 @@ public class TablePropertyValues extends HttpServlet {
                         choisesString, displayValuesString);
 
                 outputStream.println(params);
+            } else if(propDefinition.getType().getInstanceClass().isEnum()) {
+                String[] values = EnumUtils.getNames(propDefinition.getType().getInstanceClass());
+                String[] displayValues = EnumUtils.getValues(propDefinition.getType().getInstanceClass());
+
+                String choisesString = "\"" + StringUtils.join(values, "\", \"") + "\"";
+                String displayValuesString = "\"" + StringUtils.join(displayValues, "\", \"") + "\"";
+
+                String params = String.format(
+                        "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
+                        choisesString, displayValuesString);
+
+                outputStream.println(params);
             } else if( Date.class.equals(propDefinition.getType().getInstanceClass()) ){
                 outputStream.println("{\"type\" : \"DATE\"}");
             } else {
