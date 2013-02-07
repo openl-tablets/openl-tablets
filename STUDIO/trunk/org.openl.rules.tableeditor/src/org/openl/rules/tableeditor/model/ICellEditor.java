@@ -22,6 +22,10 @@ public interface ICellEditor {
     String CE_BOOLEAN = "boolean";
     String CE_ARRAY = "array";
     String CE_RANGE = "range";
+    String CE_INTEGER = "integer";
+    String CE_CTRINTEGER = "ctrinteger";
+    String CE_DOUBLE = "double";
+    String CE_CHAR = "char";
 
     /**
      *
