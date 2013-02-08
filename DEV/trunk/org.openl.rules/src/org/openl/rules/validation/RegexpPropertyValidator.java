@@ -32,8 +32,8 @@ public class RegexpPropertyValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && tsn.getTableProperties()
-                .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
+            if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && ( tsn.getTableProperties() != null && tsn.getTableProperties()
+                .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE)) {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     if (validationResult == null) {

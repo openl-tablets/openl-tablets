@@ -170,6 +170,11 @@
       <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+    </dependency>
+
     <!-- Eclipse -->
     <dependency>
       <groupId>org.openl</groupId>
@@ -397,6 +402,12 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
       <classifier>sources</classifier>
     </dependency>
 

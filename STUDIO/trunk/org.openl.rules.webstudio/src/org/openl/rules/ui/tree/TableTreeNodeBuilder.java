@@ -38,8 +38,6 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         nodeKeysMap.put(XlsNodeTypes.XLS_DT.toString(), new NodeKey(0, new String[] { "Decision", "Decision Tables", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_SPREADSHEET.toString(), new NodeKey(1, new String[] { "Spreadsheet",
                 "Spreadsheet Tables", "" }));
-        nodeKeysMap.put(XlsNodeTypes.XLS_SPREADSHEET.toString(), new NodeKey(1, new String[] { "Spreadsheet",
-                "Spreadsheet Tables", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_TBASIC.toString(), new NodeKey(2, new String[] { "TBasic",
                 "Structured Algorithm Tables", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_COLUMN_MATCH.toString(), new NodeKey(3, new String[] { "Column Match",

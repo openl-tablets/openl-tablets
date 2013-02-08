@@ -10,7 +10,7 @@
 
         <rich:tree id="problemsTree" styleClass="tree" value="#{problemsBean.tree}" var="node"
             nodeType="#{node.type}" toggleType="client">
-            <rich:treeNode type="errors"
+            <rich:treeNode type="errors" id="problemsTree-errors"
                 iconCollapsed="webresource/images/error16.png"
                 iconExpanded="webresource/images/error16.png">
                 <h:outputText value="#{node.name}" />
@@ -20,7 +20,7 @@
                     <h:outputText value="#{node.name}" />
                 </h:outputLink>
             </rich:treeNode>
-            <rich:treeNode type="warnings"
+            <rich:treeNode type="warnings" id="problemsTree-warnings"
                 iconCollapsed="webresource/images/warning16.png"
                 iconExpanded="webresource/images/warning16.png">
                 <h:outputText value="#{node.name}" />
