@@ -28,6 +28,7 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
+import org.openl.rules.types.impl.DefaultPropertiesIntersectionFinder;
 import org.openl.rules.types.impl.DefaultTablePropertiesSorter;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcherHelper;
@@ -67,6 +68,7 @@ public class GenRulesCode {
         generateDefaultTablePropertiesSorter();
 
         generateDefaultPropertiesContextMatcherCode();
+        generateDefaultPropertiesIntersectionFinderCode();
         generateMatchingOpenMethodDispatcherCode();
         generateMatchingOpenMethodDispatcherHelperCode();
     }
@@ -173,7 +175,6 @@ public class GenRulesCode {
     }
 
     private void generateDefaultPropertiesContextMatcherCode() throws IOException {
-
         Map<String, Object> variables = new HashMap<String, Object>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
@@ -184,6 +185,19 @@ public class GenRulesCode {
 
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertiesContextMatcher.class);
         processSourceCode(sourceFilePath, "DefaultPropertiesContextMatcher-constraints.vm", variables);
+    }
+
+    private void generateDefaultPropertiesIntersectionFinderCode() throws IOException {
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+
+        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
+                .getDimensionalProperties();
+        variables.put("tool", new VelocityTool());
+        variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
+
+        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertiesIntersectionFinder.class);
+        processSourceCode(sourceFilePath, "DefaultPropertiesIntersectionFinder.vm", variables);
     }
 
     private void generateDefaultTablePropertiesSorter() throws IOException {
