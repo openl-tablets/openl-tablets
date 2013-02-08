@@ -1,6 +1,8 @@
 package org.openl.rules.types.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +36,8 @@ import org.openl.vm.trace.Tracer;
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
-    private ITablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
+    private DefaultTablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
+    private DefaultPropertiesIntersectionFinder intersectionMatcher = new DefaultPropertiesIntersectionFinder();
 
     private XlsModuleOpenClass moduleOpenClass;
 
@@ -146,8 +149,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
-        selectCandidates(selected, (IRulesRuntimeContext) context);        
-        
+        selectCandidates(selected, (IRulesRuntimeContext) context);
         maxMinSelectCandidates(selected, (IRulesRuntimeContext) context);
 
         switch (selected.size()) {
@@ -177,7 +179,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
                 throw new OpenLRuntimeException(String.format(
-                        "Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s", toString(candidates),
+                        "Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s", toString(selected),
                         context.toString()));
         }
 
@@ -205,76 +207,106 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         //If more that one method
-        if (selected.size() > 1){
+        if (selected.size() > 1) {
+            List<IOpenMethod> notPriorMethods = new ArrayList<IOpenMethod>();
+
+            List<String> notNullPropertyNames = getNotNullPropertyNames(context);
+            boolean hasMaxMinProperties = hasMaxMinProperties(context);
             //Find the most high priority method
             IOpenMethod mostPriority = null;
+            ITableProperties mostPriorityProperties = null;
+
+
             for (IOpenMethod candidate : selected) {
-                if (mostPriority == null){
+                if (mostPriority == null) {
                     mostPriority = candidate;
-                }else{
-                    if (prioritySorter.getMethodsComparator().compare(mostPriority, candidate) > 0){
-                        mostPriority = candidate;
+                    mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
+                } else {
+                    boolean nested = false;
+                    boolean contains = false;
+                    
+                    ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
+                    if (hasMaxMinProperties) {
+                        int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
+                        if (cmp < 0) {
+                            nested = true;
+                            contains = false;
+                        } else if (cmp > 0) {
+                            nested = false;
+                            contains = true;
+                        }
                     }
-                }
-            }
-            List<IOpenMethod> notPriorMethods = new ArrayList<IOpenMethod>();
-            //Remove methods those priority not equals to the most high priority method 
-            for (IOpenMethod candidate : selected) {
-                if (prioritySorter.getMethodsComparator().compare(candidate, mostPriority) != 0) {
-                    notPriorMethods.add(candidate);
+
+                    if (!nested && !contains) {
+                        propsLoop: for (String propName : notNullPropertyNames) {
+    
+                            switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
+                                case NESTED:
+                                    nested = true;
+                                    break;
+                                case CONTAINS:
+                                    contains = true;
+                                    break;
+                                case EQUALS:
+                                    // do nothing
+                                    break;
+                                case NO_INTERSECTION:
+                                case PARTLY_INTERSECTS:
+                                    nested = false;
+                                    contains = false;
+                                    break propsLoop;
+                            }
+                        }
+                    }
+
+                    if (nested && !contains) {
+                        notPriorMethods.add(mostPriority);
+                        mostPriority = candidate;
+                        mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
+                    } else if (contains && !nested) {
+                        notPriorMethods.add(candidate);
+                    }
                 }
             }
             selected.removeAll(notPriorMethods);
         }
     }
+    
+    private int compareMaxMinPriorities(ITableProperties properties1, ITableProperties properties2) {
+        for (Comparator<ITableProperties> comparator : prioritySorter.getMaxMinPriorityRules()) {
+            int cmp = comparator.compare(properties1, properties2);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        return 0;
+    }
 
-    // <<< INSERT MatchingProperties >>>
-	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-		selectCandidatesByProperty("effectiveDate", selected, context);
-		selectCandidatesByProperty("expirationDate", selected, context);
-		selectCandidatesByProperty("startRequestDate", selected, context);
-		selectCandidatesByProperty("endRequestDate", selected, context);
-		selectCandidatesByProperty("lob", selected, context);
-		selectCandidatesByProperty("usregion", selected, context);
-		selectCandidatesByProperty("country", selected, context);
-		selectCandidatesByProperty("currency", selected, context);
-		selectCandidatesByProperty("lang", selected, context);
-		selectCandidatesByProperty("state", selected, context);
-		selectCandidatesByProperty("region", selected, context);
-	}
-// <<< END INSERT MatchingProperties >>>
-
-    private void selectCandidatesByProperty(String propName, Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-
+     private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
-        List<IOpenMethod> matchedByDefault = new ArrayList<IOpenMethod>();
 
-        boolean matchExists = false;
+        List<String> notNullPropertyNames = getNotNullPropertyNames(context);
 
         for (IOpenMethod method : selected) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
-            MatchingResult res = matcher.match(propName, props, context);
 
-            switch (res) {
-                case NO_MATCH:
-                    nomatched.add(method);
-                    break;
-                case MATCH_BY_DEFAULT:
-                    matchedByDefault.add(method);
-                    break;
-                case MATCH:
-                    matchExists = true;
+            propsLoop: {
+                for (String propName : notNullPropertyNames) {
+                    MatchingResult res = matcher.match(propName, props, context);
+
+                    switch (res) {
+                        case NO_MATCH:
+                            nomatched.add(method);
+                            break propsLoop;
+                    }
+                }
             }
         }
 
         selected.removeAll(nomatched);
-
-        if (matchExists) {
-            selected.removeAll(matchedByDefault);
-        }
     }
 
-    private String toString(List<IOpenMethod> methods) {
+    private String toString(Collection<IOpenMethod> methods) {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Candidates: {\n");
@@ -297,4 +329,52 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         return candidatesSorted;
     }
+
+    // TODO generate this method
+    private boolean hasMaxMinProperties(IRulesRuntimeContext context) {
+        return context.getRequestDate() != null;
+    }
+
+// <<< INSERT MatchingProperties >>>
+    private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
+        List<String> propNames = new ArrayList<String>();
+
+        if (context.getCurrentDate() != null) {
+            propNames.add("effectiveDate");
+        }
+        if (context.getCurrentDate() != null) {
+            propNames.add("expirationDate");
+        }
+        if (context.getRequestDate() != null) {
+            propNames.add("startRequestDate");
+        }
+        if (context.getRequestDate() != null) {
+            propNames.add("endRequestDate");
+        }
+        if (context.getLob() != null) {
+            propNames.add("lob");
+        }
+        if (context.getUsRegion() != null) {
+            propNames.add("usregion");
+        }
+        if (context.getCountry() != null) {
+            propNames.add("country");
+        }
+        if (context.getCurrency() != null) {
+            propNames.add("currency");
+        }
+        if (context.getLang() != null) {
+            propNames.add("lang");
+        }
+        if (context.getUsState() != null) {
+            propNames.add("state");
+        }
+        if (context.getRegion() != null) {
+            propNames.add("region");
+        }
+
+        return propNames;
+    }
+
+// <<< END INSERT MatchingProperties >>>
 }
