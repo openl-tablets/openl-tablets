@@ -24,12 +24,14 @@ function initComplexSelect(data, element) {
    prop = element.parentNode.props;
    var editor;
 
-   if(data.type == "DATE") {
+   if (data.type == "DATE") {
        editor = new DateEditor('', element.id, '', prop.getValue() , '');
-   } else if(data.type == "TEXT") {
+   } else if (data.type == "TEXT") {
        editor = new TextEditor('', element.id, '', prop.getValue() , '');
-   } else if(data.type == "SINGLE") {
+   } else if (data.type == "SINGLE") {
        editor = new DropdownEditor('', element.id, data.param, prop.getValue() , '');
+   } else if (data.type == "BOOLEAN") {
+       editor = new BooleanEditor('', element.id, '', prop.getValue() , '');
    } else {
        editor = new MultiselectEditor('', element.id, data, element.innerHTML, '');
        editor.open();
@@ -44,7 +46,7 @@ function initComplexSelect(data, element) {
            tableModel.toEditPropsMode(this);
        };
 
-       if(data.type == "DATE") {
+       if (data.type == "DATE") {
            element.parentNode.props.value = editor.getValue();
        } else {
            element.parentNode.props.value = editor.getValue();
