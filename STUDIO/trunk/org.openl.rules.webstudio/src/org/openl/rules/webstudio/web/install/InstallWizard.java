@@ -3,11 +3,17 @@ package org.openl.rules.webstudio.web.install;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.event.ValueChangeEvent;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
@@ -38,14 +44,22 @@ public class InstallWizard {
     private String dbUrl;
     @NotBlank
     private String dbUsername;
+    @NotBlank
     private String dbPassword;
     private String dbDriver;
     private String dbPrefix;
+    
+    private UIInput dbURLInput;
+    private UIInput dbLoginInput;
+    private UIInput dbPasswordInput;
 
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
     private ConfigurationManager dbMySqlConfig;
+    private ConfigurationManager sqlErrorsConfig;
+
+    private Map<String, Object> dbErrors;
 
     public InstallWizard() {
         appConfig = new ConfigurationManager(
@@ -79,8 +93,14 @@ public class InstallWizard {
                 dbConfig = new ConfigurationManager(true,
                         workingDir + "/system-settings/db.properties",
                         System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+                sqlErrorsConfig =new ConfigurationManager(false,
+                    null,
+                    System.getProperty("webapp.root") + "/WEB-INF/conf/sql-errors.properties");
+                
+                dbErrors = sqlErrorsConfig.getProperties();
 
                 userMode = systemConfig.getStringProperty("user.mode");
+                
 
                 boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
                 appMode = innerDb ? "demo" : "production";
@@ -108,13 +128,11 @@ public class InstallWizard {
                 appConfig.save();
                 System.setProperty("webstudio.home", workingDir);
                 System.setProperty("webstudio.configured", "true");
-                
-                if (testDBConnection() == true ) {
+
                 if (appMode.equals("production") ) {
-                  
 
                     dbConfig.setProperty("db.url",
-                        dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
+                    dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
                     dbConfig.setProperty("db.user", dbUsername);
                     dbConfig.setProperty("db.password", dbPassword);
                     dbConfig.setProperty("db.driver", dbMySqlConfig.getStringProperty("db.driver"));
@@ -134,11 +152,9 @@ public class InstallWizard {
                         "/WEB-INF/spring/repository-beans.xml",
                         "/WEB-INF/spring/security-beans.xml",
                         "/WEB-INF/spring/security/security-" + userMode + ".xml" });
-                
+
                 context.refresh();
                 FacesUtils.redirectToRoot();
-                
-                } 
 
         } catch (Exception e) {
             LOG.error("Failed while saving the configuration", e);
@@ -148,50 +164,44 @@ public class InstallWizard {
 
         return null;
     }
-/**
- * Methods tests connection to DB. By default MYSQL uses in production mode;
- * 1045, 1049 - MySQL errors;
- * 1045 - wrong login or password
- * 1049 - invalid DB url 
- * 
- * @return boolean true or false
- */
-    public boolean testDBConnection (){
+
+    /**
+     * Methods tests connection to DB. Depending on the SQL error code
+     * corresponding validate exception will be thrown SQL errors loading from
+     * sql-errors.properties.
+     */
+
+    /*
+     * If a new database is added to the project, just add new sql error into
+     * the file sql-errors.properties
+     */
+    public void testDBConnection(String url, String login, String password) {
         Connection conn = null;
-        int errorCode=0;
-        
+        int errorCode = 0;
+        String errorMessage = (String) dbErrors.get("" + errorCode);
+
         try {
             Class.forName(dbDriver);
-            conn = DriverManager.getConnection((dbPrefix + dbUrl), dbUsername, dbPassword);
+            conn = DriverManager.getConnection((dbPrefix + url), login, password);
 
         } catch (SQLException sqle) {
             errorCode = sqle.getErrorCode();
 
-            if (errorCode == 1049) {
-                FacesUtils.addErrorMessage("Database error: \n Incorrect database name or database does not exist.");
+            if (errorMessage != null) {
                 LOG.error(sqle.getMessage(), sqle);
-                return false;
-            } else if (errorCode == 1045) {
-                FacesUtils.addErrorMessage("Database error: \n Incorrect login or password.");
-                LOG.error(sqle.getMessage(), sqle);
-                return false;
+                throw new ValidatorException(new FacesMessage(errorMessage));
             } else {
-                
-                FacesUtils.addErrorMessage("Data base connection error " + sqle.getMessage());
-                LOG.error("Database connection error", sqle);
-                return false;
+                LOG.error(sqle.getMessage(), sqle);
+                throw new ValidatorException(new FacesMessage("Incorrect database url"));
             }
 
-        }  catch (ClassNotFoundException cnfe) {
-            FacesUtils.addErrorMessage("Incorrectd database driver");
+        } catch (ClassNotFoundException cnfe) {
             LOG.error(cnfe.getMessage(), cnfe);
-            return false;
+            throw new ValidatorException(new FacesMessage("Incorrectd database driver"));
         } catch (Exception e) {
-            FacesUtils.addErrorMessage("Unexpected error, see instalation log");
             LOG.error("Unexpected error, see instalation log", e);
-            return false;
-        }
-        finally {
+            throw new ValidatorException(new FacesMessage("Unexpected error: " + e));
+        } finally {
             if (conn != null) {
                 try {
                     conn.close();
@@ -201,21 +211,20 @@ public class InstallWizard {
             }
         }
 
-        return true;
     }
 
-    public void dbUrlListener(ValueChangeEvent event) {
-        this.dbUrl = (String)event.getNewValue();
+    public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String dbURLString = (String) dbURLInput.getLocalValue();
+        String dbLoginString = (String) dbLoginInput.getLocalValue();
+        String dbPasswordString = (String) dbPasswordInput.getSubmittedValue();
+
+        if (StringUtils.isBlank(dbURLString)) {
+            throw new ValidatorException(new FacesMessage("Database URL may not be empty"));
+        } else {
+            testDBConnection(dbURLString, dbLoginString, dbPasswordString);
+        }
     }
-    
-    public void dbUsernameListener (ValueChangeEvent event) {
-        setDbUsername((String)event.getNewValue());
-    }
-    
-    public void dbPasswordListener (ValueChangeEvent event) {
-        setDbPassword((String)event.getNewValue());
-    }
-    
+
     public int getStep() {
         return step;
     }
@@ -278,5 +287,28 @@ public class InstallWizard {
         this.dbDriver = dbDriver;
     }
 
+    public UIInput getDbURLInput() {
+        return dbURLInput;
+    }
+
+    public void setDbURLInput(UIInput dbURLInput) {
+        this.dbURLInput = dbURLInput;
+    }
+
+    public UIInput getDbLoginInput() {
+        return dbLoginInput;
+    }
+
+    public void setDbLoginInput(UIInput dbLoginInput) {
+        this.dbLoginInput = dbLoginInput;
+    }
+
+    public UIInput getDbPasswordInput() {
+        return dbPasswordInput;
+    }
+
+    public void setDbPasswordInput(UIInput dbPasswordInput) {
+        this.dbPasswordInput = dbPasswordInput;
+    }
 
 }
