@@ -3,7 +3,14 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    template="/pages/layout/simpleLayout.xhtml">
+    template="/pages/layout/simpleLayout.xhtml"
+    xmlns:a4j="http://richfaces.org/a4j">
+                     
+   <style>
+        .error ul {
+        list-style-type: none;
+        }
+   </style>
 
     <ui:define name="content">
 
@@ -19,7 +26,7 @@
                             </div>
                         </h3>
                         <div>
-                            <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection">
+                            <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection" >
                                 <f:selectItem itemValue="single" itemLabel="Single-user" />
                                 <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                             </h:selectOneRadio>
@@ -49,29 +56,44 @@
                         </h3>
                         <div>
                             <table>
+                                   <tr>
+                                        <td colspan="2">
+                                        <a4j:outputPanel ajaxRendered="true">
+                                            <h:message  class="error" style="list-style-type: none;" for="dbPassword" />
+                                        </a4j:outputPanel>
+                                        </td>
+                                   </tr>
                                 <tr>
                                     <td><label>Database URL</label></td>
-                                    <td><h:inputText id="dbUrl" value="#{installWizard.dbUrl}" />
-                                        <h:message for="dbUrl" class="error" /></td>
+                                    <td>
+                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}"	
+                                        binding="#{installWizard.dbURLInput}" />
+                                    </td>
                                 </tr>
                                 <tr><td></td></tr>
                                 <tr><td></td></tr>
                                 <tr>
                                     <td><label>Username</label></td>
-                                    <td><h:inputText id="dbUsername" value="#{installWizard.dbUsername}" />
-                                        <h:message for="dbUsername" class="error" /></td>
+                                        <td>
+                                           <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" 
+                                           binding="#{installWizard.dbLoginInput}"
+                                           required="true"/>
+                                         </td>
                                 </tr>
                                 <tr>
                                     <td><label>Password</label></td>
-                                    <td><h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}" />
-                                        <h:message for="dbPassword" class="error" /></td>
+                                    <td>
+	                                    <h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}"
+	                                    binding="#{installWizard.dbPasswordInput}" 
+	                                    validator="#{installWizard.dbValidator}"/>
+                                    </td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                     <div class="wizard-buttons">
-                        <h:commandButton value="Prev" action="#{installWizard.prev}" />
-                        <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" />
+                        <h:commandButton value="Prev" action="#{installWizard.prev}" immediate="true"/>
+                         <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" />
                         <span style="color:#f50">Click 'Finish' to complete the installation process</span>
                     </div>
                 </h:form>
