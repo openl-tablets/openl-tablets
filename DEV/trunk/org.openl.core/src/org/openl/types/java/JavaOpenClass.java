@@ -17,6 +17,7 @@ import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -597,7 +598,13 @@ public class JavaOpenClass extends AOpenClass {
         	if (Map.class.isAssignableFrom(instClass))
         	{
         		return new JavaInstanceBasedInvocationhandler(new HashMap<Object, Object>());
+        	}
+        	
+        	if (Collection.class.isAssignableFrom(instClass))
+        	{
+        		return new JavaInstanceBasedInvocationhandler(new ArrayList<Object>());
         	}	
+        	
         	
             if (beanInterfaceHandler == null) {
                 beanInterfaceHandler = new BeanInterfaceInvocationHandler();

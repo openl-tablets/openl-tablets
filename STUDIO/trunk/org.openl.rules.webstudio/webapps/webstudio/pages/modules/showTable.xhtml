@@ -65,6 +65,10 @@
             padding: 4px 3px;
             margin: 0;
         }
+        .menuButton table {
+            border-collapse: collapse;
+            text-align: center;
+        }
         #tableToolbarPanel .delimeter {
             border-left: 1px solid white;
             border-right: 1px solid rgba(215,215,215,0.4);
@@ -203,7 +207,7 @@
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
-                                        <table style="border-collapse: collapse;">
+                                        <table>
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/run.gif" />
@@ -229,7 +233,7 @@
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
-                                        <table style="border-collapse: collapse;">
+                                        <table>
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/trace.gif" />
@@ -256,7 +260,7 @@
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         oncomplete="goTo('test/benchmarkMethod.xhtml')"
                                         style="padding-right: 1px">
-                                        <table style="border-collapse: collapse;">
+                                        <table>
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/clock-icon.png" />

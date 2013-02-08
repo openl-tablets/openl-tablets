@@ -20,29 +20,35 @@ function PropsEditor () {
 };
 
 function initComplexSelect(data, element) {
-   element.id = "cmplx_select_"+Math.floor(Math.random() * 1001);
+   element.id = "cmplx_select_" + Math.floor(Math.random() * 1001);
    prop = element.parentNode.props;
    var editor;
 
-   if(data.type == "DATE") {
+   if (data.type == "DATE") {
        editor = new DateEditor('', element.id, '', prop.getValue() , '');
-   } else if(data.type == "TEXT") {
+   } else if (data.type == "TEXT") {
        editor = new TextEditor('', element.id, '', prop.getValue() , '');
+   } else if (data.type == "SINGLE") {
+       editor = new DropdownEditor('', element.id, data.param, prop.getValue() , '');
+   } else if (data.type == "BOOLEAN") {
+       editor = new BooleanEditor('', element.id, '', prop.getValue() , '');
    } else {
        editor = new MultiselectEditor('', element.id, data, element.innerHTML, '');
        editor.open();
    }
 
    element.onclick = function() {};
+   element.parentNode.onclick = function() {};
 
    editor.getInputElement().onblur = function() {
        element.innerHTML = editor.getValue();
 
-       element.onclick = function(element) {
+       //set action to cell
+       element.parentNode.onclick = function(element) {
            tableModel.toEditPropsMode(this);
        };
 
-       if(data.type == "DATE") {
+       if (data.type == "DATE") {
            element.parentNode.props.value = editor.getValue();
        } else {
            element.parentNode.props.value = editor.getValue();
@@ -97,6 +103,7 @@ function Editor(){
         }
 
         element.setAttribute('onclick','');
+        element.parentNode.setAttribute('onclick','');
     };
 
     this.initReturnValue = function(dataCell, element) {
@@ -118,7 +125,8 @@ function Editor(){
         } else {
             this.value = element.value;
         }
-        element.parentNode.setAttribute('onclick','tableModel.toEditorMode(this)');
+        //set action to cell
+        element.parentNode.parentNode.setAttribute('onclick','tableModel.toEditorMode(this)');
 
         dataCell.value = this.value;
         span = element.parentNode;
@@ -222,6 +230,7 @@ function Editor(){
         newElement.value = dataCell.value;
         newElement.setAttribute('onchange','tableModel.toNormalMode(this)');
         newElement.setAttribute('onblur','tableModel.toNormalMode(this)');
+        newElement.focus();
 
         return newElement;
     };

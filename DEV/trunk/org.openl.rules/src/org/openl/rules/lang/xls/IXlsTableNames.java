@@ -24,17 +24,21 @@ public interface IXlsTableNames {
     String METHOD_TABLE2 = "Method";
     String DATA_TABLE = "Data";
     String DATATYPE_TABLE = "Datatype";
+    String ENVIRONMENT_TABLE = "Environment";
+    String TEST_METHOD_TABLE = "Testmethod";
+    String TEST_TABLE = "Test";
+    String RUN_METHOD_TABLE = "Runmethod";
+    String RUN_TABLE = "Run";
+    String PERSISTENCE_TABLE = "Persistent";
+
     String LANG_PROPERTY = "language";
     String INCLUDE_TABLE = "include";
     String IMPORT_MODULE = "module";
     String IMPORT_PROPERTY = "import";
+
     // For module dependencies
     String DEPENDENCY = "dependency";
     String VOCABULARY_PROPERTY = "vocabulary";
-    String ENVIRONMENT_TABLE = "Environment";
-    String TEST_METHOD_TABLE = "Testmethod";
-    String RUN_METHOD_TABLE = "Runmethod";
-    String PERSISTENCE_TABLE = "Persistent";
 
     String VIEW_BUSINESS = "business";
     String VIEW_DEVELOPER = "developer";
