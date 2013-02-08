@@ -38,11 +38,13 @@ function initComplexSelect(data, element) {
    }
 
    element.onclick = function() {};
+   element.parentNode.onclick = function() {};
 
    editor.getInputElement().onblur = function() {
        element.innerHTML = editor.getValue();
 
-       element.onclick = function(element) {
+       //set action to cell
+       element.parentNode.onclick = function(element) {
            tableModel.toEditPropsMode(this);
        };
 
@@ -101,6 +103,7 @@ function Editor(){
         }
 
         element.setAttribute('onclick','');
+        element.parentNode.setAttribute('onclick','');
     };
 
     this.initReturnValue = function(dataCell, element) {
@@ -122,7 +125,8 @@ function Editor(){
         } else {
             this.value = element.value;
         }
-        element.parentNode.setAttribute('onclick','tableModel.toEditorMode(this)');
+        //set action to cell
+        element.parentNode.parentNode.setAttribute('onclick','tableModel.toEditorMode(this)');
 
         dataCell.value = this.value;
         span = element.parentNode;
@@ -226,6 +230,7 @@ function Editor(){
         newElement.value = dataCell.value;
         newElement.setAttribute('onchange','tableModel.toNormalMode(this)');
         newElement.setAttribute('onblur','tableModel.toNormalMode(this)');
+        newElement.focus();
 
         return newElement;
     };
