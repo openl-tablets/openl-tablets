@@ -46,7 +46,14 @@
          version="5.9.5"
          unpack="false"/>
 
- 	<plugin
+   <plugin
+         id="org.openl.rules.ruleservice.ws.databinding"
+         download-size="0"
+         install-size="0"
+         version="5.9.5"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.ruleservice.ws.lib"
          download-size="0"
          install-size="0"

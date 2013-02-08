@@ -24,6 +24,7 @@ public interface RuleServiceLoader {
     DataSource getDataSource();
 
     /**
+     * Returns deployments
      * 
      * @return list of deployments.
      */
