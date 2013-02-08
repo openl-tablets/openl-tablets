@@ -104,15 +104,15 @@ var tableModel = {
         editElem.style.display = "";
     },
 
-    toEditorMode : function(element) {
-        cell = element.parentNode;
+    toEditorMode : function(cell) {
+        element = cell.firstChild;
 
         editor = new Editor();
         editor.initElement(cell.data, element);
     },
 
-    toEditPropsMode : function(element) {
-        cell = element.parentNode;
+    toEditPropsMode : function(cell) {
+        element = cell.firstChild;
 
         editor = new PropsEditor();
         editor.initElement(cell.props, element);
