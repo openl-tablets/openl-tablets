@@ -398,11 +398,11 @@
 				<version>${project.version}</version>
 			</dependency>
 
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.demo</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.demo</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!-- WSFrontend -->
 			<dependency>
@@ -417,6 +417,11 @@
 				<version>${project.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!--SOURCES -->
 			<!-- DEV -->
@@ -485,11 +490,11 @@
 			</dependency>
 
 			<dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio</artifactId>
-                <classifier>sources</classifier>
-                <version>${project.version}</version>
-            </dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.webstudio</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
@@ -568,12 +573,12 @@
 				<version>${project.version}</version>
 			</dependency>
 
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.demo</artifactId>
-                <classifier>sources</classifier>
-                <version>${project.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.demo</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!-- WSFrontend -->
 			<dependency>
@@ -586,6 +591,13 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice.ws</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
 				<classifier>sources</classifier>
 				<version>${project.version}</version>
 			</dependency>
@@ -631,12 +643,12 @@
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
 				<version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.openl.rules</groupId>
-                        <artifactId>org.openl.lib.poi.dev</artifactId>
-                    </exclusion>
-                </exclusions>
+				<exclusions>
+					<exclusion>
+						<groupId>org.openl.rules</groupId>
+						<artifactId>org.openl.lib.poi.dev</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
 		</dependencies>
