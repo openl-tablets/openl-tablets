@@ -32,19 +32,27 @@ public class RegexpPropertyValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && tsn.getTableProperties()
-                .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
-                String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
-                if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
-                    if (validationResult == null) {
-                        validationResult = new ValidationResult(ValidationStatus.FAIL);
+            if (!tsn.hasErrors()) {
+                if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && tsn.getTableProperties()
+                    .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE) {
+                    String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
+                    if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
+                        if (validationResult == null) {
+                            validationResult = new ValidationResult(ValidationStatus.FAIL);
+                        }
+                        SyntaxNodeException exception = new SyntaxNodeException(String.format(
+                                "Incorrect value \"%s\" for property \"%s\"", propertyValue,
+                                TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), null, tsn);
+                        tsn.addError(exception);
+                        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                     }
-                    SyntaxNodeException exception = new SyntaxNodeException(String.format(
-                            "Incorrect value \"%s\" for property \"%s\"", propertyValue,
-                            TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), null, tsn);
-                    tsn.addError(exception);
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
                 }
+            } else {
+                if (validationResult == null) {
+                    validationResult = new ValidationResult(ValidationStatus.FAIL);
+                }
+
+                ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(tsn.getErrors()[0]));
             }
         }
         if (validationResult != null) {
