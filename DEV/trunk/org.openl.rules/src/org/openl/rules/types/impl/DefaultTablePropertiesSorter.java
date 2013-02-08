@@ -9,10 +9,11 @@ import java.util.List;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
-import org.openl.rules.table.properties.expressions.sequence.FilledPropertiesPriorityRule;
+import org.openl.rules.table.properties.expressions.sequence.IntersectedPropertiesPriorityRule;
 import org.openl.types.IOpenMethod;
 
 public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
+    private List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<Comparator<ITableProperties>>();
     private List<Comparator<ITableProperties>> tablesPriorityRules = new ArrayList<Comparator<ITableProperties>>();
 
     private Comparator<IOpenMethod> methodsComparator;
@@ -24,7 +25,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
 
     private void initTablesPriorityRules() {
         // <<< INSERT >>>
-        tablesPriorityRules.add(new ASimplePriorityRule<java.util.Date>("startRequestDate") {
+        maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("startRequestDate") {
 
             public String getOperationName() {
                 return "MAX";
@@ -38,7 +39,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
                 return MAX (propertyValue1, propertyValue2);
             }
         });
-        tablesPriorityRules.add(new ASimplePriorityRule<java.util.Date>("endRequestDate") {
+        maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("endRequestDate") {
 
             public String getOperationName() {
                 return "MIN";
@@ -53,7 +54,8 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
         });
 // <<< END INSERT >>>
-        tablesPriorityRules.add(new FilledPropertiesPriorityRule());
+        tablesPriorityRules.addAll(maxMinPriorityRules);
+        tablesPriorityRules.add(new IntersectedPropertiesPriorityRule());
     }
 
     private void initMethodsCoparator() {
@@ -83,4 +85,9 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
     public Comparator<IOpenMethod> getMethodsComparator() {
         return methodsComparator;
     }
+
+    public List<Comparator<ITableProperties>> getMaxMinPriorityRules() {
+        return maxMinPriorityRules;
+    }
+
 }
