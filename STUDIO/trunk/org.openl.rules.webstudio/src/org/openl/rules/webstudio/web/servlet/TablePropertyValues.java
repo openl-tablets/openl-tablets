@@ -65,6 +65,8 @@ public class TablePropertyValues extends HttpServlet {
                 outputStream.println(params);
             } else if( Date.class.equals(propDefinition.getType().getInstanceClass()) ){
                 outputStream.println("{\"type\" : \"DATE\"}");
+            } else if ( Boolean.class.equals(propDefinition.getType().getInstanceClass()) ) {
+                outputStream.println("{\"type\" : \"BOOLEAN\"}");
             } else {
                 outputStream.println("{\"type\" : \"TEXT\"}");
             }
