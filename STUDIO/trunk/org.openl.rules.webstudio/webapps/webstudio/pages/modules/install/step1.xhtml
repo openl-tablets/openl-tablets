@@ -16,7 +16,8 @@
                             </div>
                         </h3>
                         <div>
-                            <h:inputText id="workingDir" value="#{installWizard.workingDir}" style="width: 350px" />
+                            <h:inputText id="workingDir" value="#{installWizard.workingDir}" style="width: 350px" 
+                            validator = "#{installWizard.validateFolderName}"/>
                             <h:message for="workingDir" class="error" />
                         </div>
                     </div>
