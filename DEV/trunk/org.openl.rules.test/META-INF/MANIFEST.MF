@@ -11,7 +11,6 @@ Require-Bundle: org.openl.rules,
 Export-Package: com.exigen.rules.openl.integrator,
  com.exigen.srp.idat,
  org.openl.binding,
- org.openl.rules.helpers,
  org.openl.rules.lang.xls,
  org.openl.rules.table,
  org.openl.rules.test
