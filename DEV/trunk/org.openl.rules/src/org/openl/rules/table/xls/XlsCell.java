@@ -123,6 +123,12 @@ public class XlsCell implements ICell {
             if (gridModel.hasEnumDomainMetaInfo(column, row)) {
                 writeCellMetaInfo = false;
             }
+            
+            // Don't write meta info for predefined String arrays to avoid
+            // removing Range Domain meta info.
+            if (gridModel.hasRangeDomainMetaInfo(column, row)) {
+                writeCellMetaInfo = false;
+            }
 
             AXlsCellWriter cellWriter = gridModel.getCellWriter(value);
             cellWriter.setCellToWrite(cell);
