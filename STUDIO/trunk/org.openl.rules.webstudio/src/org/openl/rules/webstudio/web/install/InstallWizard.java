@@ -231,13 +231,18 @@ public class InstallWizard {
  * @param toValidate
  * @param value
  */
-    public void validateFolderName (FacesContext context, UIComponent toValidate, Object value) {
+    public void validateFolderName(FacesContext context, UIComponent toValidate, Object value) {
 
-            File  installFolder = new File ((String) value); 
+        try {
+            File installFolder = new File((String) value);
 
             if (!installFolder.mkdir()) {
                 throw new ValidatorException(new FacesMessage("Incorrenct folder name."));
             }
+        } catch (Exception e) {
+            throw new ValidatorException(new FacesMessage("Incorrenct folder name."));
+        }
+
     }
     public int getStep() {
         return step;
