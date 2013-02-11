@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -225,25 +224,7 @@ public class InstallWizard {
             testDBConnection(dbURLString, dbLoginString, dbPasswordString);
         }
     }
-/**
- * Validates openL tablets instalation folder name
- * @param context
- * @param toValidate
- * @param value
- */
-    public void validateFolderName(FacesContext context, UIComponent toValidate, Object value) {
 
-        try {
-            File installFolder = new File((String) value);
-
-            if (!installFolder.mkdir()) {
-                throw new ValidatorException(new FacesMessage("Incorrenct folder name."));
-            }
-        } catch (Exception e) {
-            throw new ValidatorException(new FacesMessage("Incorrenct folder name."));
-        }
-
-    }
     public int getStep() {
         return step;
     }
