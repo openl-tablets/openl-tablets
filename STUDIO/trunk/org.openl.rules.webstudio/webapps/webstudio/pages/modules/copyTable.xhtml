@@ -14,9 +14,9 @@
 
     <div class="view_header">Copy Table</div>
     <div class="content" style="padding: 13px 9px">
-    <h:form>
+    <h:form id="copy-table-form">
         <h:outputText value="Copy as " />
-        <h:selectOneMenu value="#{tableCopierWizardManager.copyType}">
+        <h:selectOneMenu value="#{tableCopierWizardManager.copyType}" id="copy-table-type">
             <f:ajax event="change" render=":copyTableForm:technicalNamePanel :copyTableForm:copyPropertiesTable :copyTableForm:copyButtonPanel "
                 immediate="true" />
             <f:selectItem itemLabel="New Table" itemValue="CHANGE_NAMES" />
