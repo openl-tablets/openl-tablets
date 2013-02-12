@@ -1,5 +1,7 @@
 package org.openl.codegen.tools.generator;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,9 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.poi.util.IOUtils;
-
 
 public class SourceGenerator {
 
