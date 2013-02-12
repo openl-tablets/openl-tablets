@@ -115,15 +115,13 @@
                     <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
                         acceptedTypes="zip" maxFilesQuantity="1" >
                             <a4j:ajax event="uploadcomplete"
-                                execute="@none" render="projectName"
-                                oncomplete="enableCreateButton(true, #{rich:element('sbtZips')})" />
+                                execute="@none" />
                         </rich:fileUpload>
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                         <h:inputText id="projectName" size="35"
                             maxlength="50"
                             value="#{repositoryTreeController.projectName}"
-                            disabled="#{repositoryTreeController.projectName == null}"
                             onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtZips')});" />
                     </h:panelGrid>
 
@@ -187,7 +185,10 @@
 
         enableCreateButton(false, #{rich:element("sbtFiles")});
         enableCreateButton(false, #{rich:element("sbtZips")});
-        enableCreateButton(false, #{rich:element("sbtWorkspace")})
+        enableCreateButton(false, #{rich:element("sbtWorkspace")});
+        
+        #{rich:element("createProjectFormFiles:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtFiles")});}
+        #{rich:element("uploadProjectForm:projectName")}.onpaste=function(){enableCreateButton(true, #{rich:element("sbtZips")});}
 
         function enableCreateButton(enable, button) {
             if (button) {
@@ -237,7 +238,7 @@
         }
 
         //<![CDATA[
-
+        
         var selectedTemplate;
 
         function initTemplates() {
