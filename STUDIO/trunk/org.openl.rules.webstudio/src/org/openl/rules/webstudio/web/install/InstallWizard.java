@@ -200,7 +200,7 @@ public class InstallWizard {
             throw new ValidatorException(new FacesMessage("Incorrectd database driver"));
         } catch (Exception e) {
             LOG.error("Unexpected error, see instalation log", e);
-            throw new ValidatorException(new FacesMessage("Unexpected error: " + e));
+            throw new ValidatorException(new FacesMessage("Unexpected error: " + e.getMessage()));
         } finally {
             if (conn != null) {
                 try {
