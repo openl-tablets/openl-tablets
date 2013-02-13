@@ -47,7 +47,11 @@ public class RulesUtils {
     public static java.lang.Byte max(java.lang.Byte[] values) {
         return (java.lang.Byte) MathUtils.max(values);
     }
-
+    /** Returns max short value
+     * 
+     * @param values Short array 
+     * @return max short
+     */
     public static java.lang.Short max(java.lang.Short[] values) {
         return (java.lang.Short) MathUtils.max(values);
     }
@@ -1738,7 +1742,11 @@ public class RulesUtils {
     }
 
     // <<< isEmpty section for arrays and Strings >>>
-
+    /**
+     * Checks if an array of Objects is not empty or not null.
+     * @param array the array to test 
+     * @return true if the array is not empty or not null
+     */
     public static boolean isEmpty(Object[] array) {
         return ArrayUtils.isEmpty(array);
     }
@@ -1782,27 +1790,124 @@ public class RulesUtils {
     public static boolean isEmpty(BigInteger[] array) {
         return ArrayUtils.isEmpty(array);
     }
-
+    /**
+     * Checks if a String is empty ("") or null.<br /><br />
+     * <code>
+     * StringUtils.isEmpty(null)      = true <br />
+     * StringUtils.isEmpty("")        = true <br />
+     * StringUtils.isEmpty(" ")       = false <br />
+     * StringUtils.isEmpty("bob")     = false <br />
+     * StringUtils.isEmpty("  bob  ") = false <br />
+     * </code>
+     * @param str the String to check, may be null 
+     * @return true if the String is empty or null
+     */
     public static boolean isEmpty(String str) {
         return StringUtils.isBlank(str);
     }
 
     // <<< startsWith and endsWith for Strings >>>
-
+    /**
+     * Check if a String starts with a specified prefix.<br /><br />
+     * Two null references are considered to be equal. The comparison is case sensitive.<br /><br />
+     * <code>
+     *  StringUtils.startsWith(null, null)      = true <br />
+     * StringUtils.startsWith(null, "abc")     = false <br />
+     * StringUtils.startsWith("abcdef", null)  = false <br />
+     * StringUtils.startsWith("abcdef", "abc") = true <br />
+     * StringUtils.startsWith("ABCDEF", "abc") = false <br />
+     * </code>
+     * @param str the String to check, may be null
+     * @param prefix the prefix to find, may be null 
+     * @return true if the String starts with the prefix, case sensitive, or both null
+     */
     public static boolean startsWith(String str, String prefix) {
         return StringUtils.startsWith(str, prefix);
     }
 
+    /**
+     * Check if a String ends with a specified suffix.<br />
+     * <br />
+     * Two null references are considered to be equal. The comparison is case
+     * sensitive.<br />
+     * <br />
+     * <code>
+     * StringUtils.endsWith(null, null)      = true <br />
+     * StringUtils.endsWith(null, "def")     = false <br />
+     * StringUtils.endsWith("abcdef", null)  = false <br />
+     * StringUtils.endsWith("abcdef", "def") = true <br />
+     * StringUtils.endsWith("ABCDEF", "def") = false <br />
+     * StringUtils.endsWith("ABCDEF", "cde") = false <br />
+     * </code>
+     * 
+     * @param str the String to check, may be null
+     * @param suffix the suffix to find, may be null
+     * @return true if the String ends with the suffix, case sensitive, or both
+     *         null
+     */
     public static boolean endsWith(String str, String suffix) {
         return StringUtils.endsWith(str, suffix);
     }
 
     // <<< subString >>>
-
+    /**
+     * Gets a substring from the specified String<br />
+     * <br />
+     * A negative start position can be used to start n characters from the end
+     * of the String.<br />
+     * <br />
+     * A null String will return null. An empty ("") String will return "".<br />
+     * <br />
+     * * StringUtils.substring(null, *) = null <br />
+     * StringUtils.substring("", *) = "" <br />
+     * StringUtils.substring("abc", 0) = "abc" <br />
+     * StringUtils.substring("abc", 2) = "c" <br />
+     * StringUtils.substring("abc", 4) = "" <br />
+     * StringUtils.substring("abc", -2) = "bc" <br />
+     * StringUtils.substring("abc", -4) = "abc" <br />
+     * 
+     * @param str the String to get the substring from, may be null
+     * @param beginIndex the position to start from, negative means count back from the end of the String by this many characters 
+     * @return substring from start position, null if null String input
+     */
     public static String substring(String str, int beginIndex) {
         return StringUtils.substring(str, beginIndex);
     }
 
+    /**
+     * Gets a substring from the specified String <br />
+     * <br />
+     * A negative start position can be used to start/end n characters from the
+     * end of the String. <br />
+     * <br />
+     * The returned substring starts with the character in the start position
+     * and ends before the end position. All position counting is zero-based --
+     * i.e., to start at the beginning of the string use start = 0. Negative
+     * start and end positions can be used to specify offsets relative to the
+     * end of the String. <br />
+     * <br />
+     * If start is not strictly to the left of end, "" is returned.<br />
+     * <br />
+     * <code>
+     * StringUtils.substring(null, *, *)    = null <br />
+     * StringUtils.substring("", * ,  *)    = ""; <br />
+     * StringUtils.substring("abc", 0, 2)   = "ab" <br />
+     * StringUtils.substring("abc", 2, 0)   = "" <br />
+     * StringUtils.substring("abc", 2, 4)   = "c" <br />
+     * StringUtils.substring("abc", 4, 6)   = "" <br />
+     * StringUtils.substring("abc", 2, 2)   = "" <br />
+     * StringUtils.substring("abc", -2, -1) = "b" <br />
+     * StringUtils.substring("abc", -4, 2)  = "ab" <br />
+     * </code>
+     * 
+     * @param str the String to get the substring from, may be null
+     * @param beginIndex the position to start from, negative means count back
+     *            from the end of the String by this many characters
+     * @param endIndex the position to end at (exclusive), negative means
+     *            count back from the end of the String by this many characters
+     * @return substring from start position to end positon, null if null String
+     *         input
+     */
     public static String substring(String str, int beginIndex, int endIndex) {
         return StringUtils.substring(str, beginIndex, endIndex);
     }
@@ -1814,30 +1919,148 @@ public class RulesUtils {
      * if we write StringUtils.removeStart(str, remove); WebStudio won't work
      * correctly;
      */
+    /**
+     * Removes a substring only if it is at the begining of a source string,
+     * otherwise returns the source string. <br />
+     * <br />
+     * 
+     * A null source string will return null. An empty ("") source string will
+     * return the empty string. A null search string will return the source
+     * string. <br />
+     * <br />
+     * <code>
+     * StringUtils.removeStart(null, *)      = null <br />
+     * StringUtils.removeStart("", *)        = "" <br />
+     * StringUtils.removeStart(*, null)      = * <br />
+     * StringUtils.removeStart("www.domain.com", "www.")   = "domain.com" <br />
+     * StringUtils.removeStart("domain.com", "www.")       = "domain.com" <br />
+     * StringUtils.removeStart("www.domain.com", "domain") = "www.domain.com" <br />
+     * StringUtils.removeStart("abc", "")    = "abc" <br />
+     * </code>
+     * @param str the source String to search, may be null
+     * @param remove the String to search for and remove, may be null
+     * @return the substring with the string removed if found, null if null
+     *         String input
+     */
     public static String removeStart(String str, String remove) {
         return org.apache.commons.lang.StringUtils.removeStart(str, remove);
     }
 
+    /**
+     * Removes a substring only if it is at the end of a source string,
+     * otherwise returns the source string. <br /> <br />
+     * 
+     * A null source string will return null. An empty ("") source string will
+     * return the empty string. A null search string will return the source
+     * string. <br />
+     * <br />
+     * <code>
+     * StringUtils.removeEnd(null, *)      = null <br />
+     * StringUtils.removeEnd("", *)        = "" <br />
+     * StringUtils.removeEnd(*, null)      = * <br />
+     * StringUtils.removeEnd("www.domain.com", ".com.")  = "www.domain.com" <br />
+     * StringUtils.removeEnd("www.domain.com", ".com")   = "www.domain" <br />
+     * StringUtils.removeEnd("www.domain.com", "domain") = "www.domain.com" <br />
+     * StringUtils.removeEnd("abc", "")    = "abc" <br />
+     * </code>
+     * @param str the source String to search, may be null
+     * @param remove the String to search for and remove, may be null 
+     * @return the String to search for and remove, may be null 
+     */
     public static String removeEnd(String str, String remove) {
         return StringUtils.removeEnd(str, remove);
     }
 
     // <<< lowerCase and upperCase functions >>>
-
+    /**
+     * Converts a String to lower case <br /><br />
+     * A null input String returns null. <br /><br />
+     * 
+     * <code>
+     * StringUtils.lowerCase(null)  = null <br />
+     * StringUtils.lowerCase("")    = "" <br />
+     * StringUtils.lowerCase("aBc") = "abc" <br />
+     * </code>
+     *
+     * @param str the String to lower case, may be null 
+     * @return the lower cased String, null if null String input
+     */
     public static String lowerCase(String str) {
         return StringUtils.lowerCase(str);
     }
-
+    /**
+     * Converts a String to upper case <br /><br />
+     * A null input String returns null.<br /> <br />
+     * 
+     * <code>
+     * StringUtils.upperCase(null)  = null <br />
+     * StringUtils.upperCase("")    = "" <br />
+     * StringUtils.upperCase("aBc") = "ABC" <br />
+     * </code>
+     * 
+     * @param str the String to upper case, may be null 
+     * @return the upper cased String, null if null String input
+     */
     public static String upperCase(String str) {
         return StringUtils.upperCase(str);
     }
 
     // <<< replace functions for Strings >>>
-
+    /**
+     * Replaces all occurrences of a String within another String <br />
+     * <br />
+     * 
+     * A null reference passed to this method is a no-op. <br />
+     * <br />
+     * 
+     * <code>
+     * StringUtils.replace(null, *, *)        = null <br />
+     *  StringUtils.replace("", *, *)          = "" <br />
+     *  StringUtils.replace("any", null, *)    = "any" <br />
+     *  StringUtils.replace("any", *, null)    = "any" <br />
+     * StringUtils.replace("any", "", *)      = "any" <br />
+     * StringUtils.replace("aba", "a", null)  = "aba" <br />
+     *  StringUtils.replace("aba", "a", "")    = "b" <br />
+     *  StringUtils.replace("aba", "a", "z")   = "zbz" <br />
+     * </code>
+     * 
+     * @param str text to search and replace in, may be null
+     * @param searchString the String to search for, may be null
+     * @param replacement the String to replace it with, may be null
+     * @return the text with any replacements processed, null if null String
+     *         input
+     */
     public static String replace(String str, String searchString, String replacement) {
         return StringUtils.replace(str, searchString, replacement);
     }
 
+    /**
+     * Replaces a String with another String inside a larger String, for the
+     * first max values of the search String.<br><br />
+     * A null reference passed to this method is a no-op. <br /><br />
+     * 
+     * <code>
+     *  StringUtils.replace(null, *, *, *)         = null <br />
+     *  StringUtils.replace("", *, *, *)           = "" <br />
+     *  StringUtils.replace("any", null, *, *)     = "any" <br />
+     *  StringUtils.replace("any", *, null, *)     = "any"    <br />
+     *  StringUtils.replace("any", "", *, *)       = "any"    <br />
+     *  StringUtils.replace("any", *, *, 0)        = "any"    <br />
+     *  StringUtils.replace("abaa", "a", null, -1) = "abaa" <br />
+     *  StringUtils.replace("abaa", "a", "", -1)   = "b" <br />
+     *  StringUtils.replace("abaa", "a", "z", 0)   = "abaa" <br />
+     *  StringUtils.replace("abaa", "a", "z", 1)   = "zbaa" <br />
+     *  StringUtils.replace("abaa", "a", "z", 2)   = "zbza" <br />
+     *  StringUtils.replace("abaa", "a", "z", -1)  = "zbzz" <br />
+     * </code>
+     * 
+     * @param str text to search and replace in, may be null
+     * @param searchString  the String to search for, may be null
+     * @param replacement  the String to replace it with, may be null
+     * @param max maximum number of values to replace, or -1 if no maximum
+     * @return the text with any replacements processed, null if null String
+     *         input
+     */
     public static String replace(String str, String searchString, String replacement, int max) {
         return StringUtils.replace(str, searchString, replacement, max);
     }
