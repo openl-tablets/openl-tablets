@@ -14,12 +14,12 @@
     <ui:define name="data">
         <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/tooltip.css"></link>
-        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/datepicker.css"/>
-        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/common.css"/>
-        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/multiselect.css"/>
-        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/colorPicker.css"/>
-        <link rel="stylesheet" href="/webstudio/faces/tableEditor/css/popup.css"/>
+        <link rel="stylesheet" href="#{contextPath}/faces/tableEditor/css/tooltip.css"></link>
+        <link rel="stylesheet" href="#{contextPath}/faces/tableEditor/css/datepicker.css"/>
+        <link rel="stylesheet" href="#{contextPath}/faces/tableEditor/css/common.css"/>
+        <link rel="stylesheet" href="#{contextPath}/faces/tableEditor/css/multiselect.css"/>
+        <link rel="stylesheet" href="#{contextPath}/faces/tableEditor/css/colorPicker.css"/>
+        <link rel="stylesheet" href="#{contextPath}/faces/tableEditor/css/popup.css"/>
 
         <script src="#{contextPath}/faces/tableEditor/js/popup/popupmenu.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/datepicker.packed.js"></script>
@@ -62,6 +62,8 @@
         </style>
 
         <h:form name="srtTableForm" id="srtTableForm">
+            <span id="errorMessage" >
+            </span>
             <table id="srtTable" class="srt">
             </table>
             <script>
@@ -77,7 +79,7 @@
                 tableModel.header.inParam.push(new Param('<h:outputText value="#{inParam.typeName}"/>','<h:outputText value="#{inParam.name}"/>',<h:outputText value="#{inParam.iterable}"/>, 'condition', '#{inParam.type}'));
               </ui:repeat>
 
-              verticalRenderer.initDomTable(document.getElementById("srtTable"))
+              verticalRenderer.initDomTable(domTable)
               tableModel.initTable(verticalRenderer);
 
               function selectDataTypeAction(spanElem, event, id) {
@@ -104,6 +106,17 @@
                   var jsonStr = JSON.stringify(tableModel);
                   document.getElementById("srtTableForm:tableString").value = jsonStr;
               }
+ 
+              function prepareForNextAction() {
+                  error = tableModel.checkTable();
+
+                  if (error.length == 0) {
+                      setJSONTableString();
+                  } else {
+                      tableModel.renderer.setErrorMessage(error, $j("#errorMessage"))
+                      return false;
+                  }
+              }
 
               #{wizard.restoreTable}
 
@@ -114,7 +127,7 @@
 
             <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
                 oncomplete="go('simpleRules/step1.xhtml')" />
-            <a4j:commandButton value="Next" onclick="setJSONTableString();" action="#{tableCreatorWizardManager.next}"
+            <a4j:commandButton value="Next" onclick="return prepareForNextAction();" action="#{tableCreatorWizardManager.next}"
                 data="#{facesContext.maximumSeverity}"
                 oncomplete="if(!event.data) go('simpleRules/step3.xhtml')" />
             <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
