@@ -61,7 +61,7 @@ verticalRenderer = {
             } else {
                 this.setDataStyle(cell);
             }
-            
+
             cell.setAttribute('oncontextmenu','contentMenuAction(this, event, '+isTitle+')');
             cell.innerHTML = this.getCellHtml(dataRow[i].getValue(), "VALUE", cell);
         }
@@ -73,9 +73,11 @@ verticalRenderer = {
         } else if(type == "PROPERTY_TYPE") {
             return "<span id=\"t"+cell.parentNode.rowIndex+"\" onclick=\"tableModel.toEditPropTypeMode(this)\">"+value+"</span><span style=\"display : none\"></span>";
         } else if(type == "PROPERTY_VALUE") {
-            return "<div style=\"display: inline\" onclick=\"tableModel.toEditPropsMode(this)\">"+value+"</div>";
+            cell.setAttribute('onclick','tableModel.toEditPropsMode(this)');
+            return "<div style=\"display: inline\">"+value+"</div>";
         } else if(type == "VALUE"){
-            return "<div onclick=\"tableModel.toEditorMode(this)\">"+cell.data.value+"</div>";
+            cell.setAttribute('onclick','tableModel.toEditorMode(this)');
+            return "<div>"+cell.data.value+"</div>";
         } else {
             return value;
         }
@@ -193,6 +195,29 @@ verticalRenderer = {
         //create data rows
         for (var i = 1; i < tableModel.dataRows.length; i++) {
             this.createRow(tableModel.dataRows[i] , false);
+        }
+    },
+
+    setErrorMessage : function(error, element) {
+        element.html("");
+
+        if(error.length > 0) {
+            table = document.createElement('table');
+
+            for(var i = 0;  i < error.length; i++) {
+                tr = document.createElement('tr');
+                td = document.createElement('td');
+
+                d = document.createElement('div');
+                $j(d).addClass('error_box')
+                    .html(error[i])
+                    .appendTo(td);
+
+                $j(td).appendTo(tr);
+                $j(tr).appendTo(table);
+            }
+
+            $j(table).appendTo(element);
         }
     },
 }

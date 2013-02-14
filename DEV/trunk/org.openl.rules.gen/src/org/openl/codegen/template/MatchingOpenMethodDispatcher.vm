@@ -1,5 +1,12 @@
-	private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
+    private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
+        List<String> propNames = new ArrayList<String>();
+
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-		selectCandidatesByProperty("$tablePropertyDefinition.Definition.Name", selected, context);
+        if (context.get$tool.formatAccessorName($tablePropertyDefinition.ContextVar)() != null) {
+            propNames.add("$tablePropertyDefinition.Definition.Name");
+        }
 #end
-	}
+
+        return propNames;
+    }
+

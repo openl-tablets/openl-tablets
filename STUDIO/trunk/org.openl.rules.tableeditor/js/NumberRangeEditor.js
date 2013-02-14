@@ -8,14 +8,16 @@
 var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     rangePanel: null,
-    separatorDefault: "-",
-    separatorNew: " .. ",
+    generalSeparator: " .. ",
+    stableSeparators: ["more than ", "less than ", " and more", " - "],
+    unstableSeparators: [" ... ", ";", "+"],
+    dashSeparator: "-",
+    currentSeparator: null,
     destroyed: null,
     entryEditor: null,
     checkboxes: null,
     values: null,
     btns: null,
-    newFormat: false,
 
     editor_initialize: function(param) {
         var self = this;
@@ -53,13 +55,23 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         
         for (var i = 0; i < self.checkboxes.length; i++) {
             self.checkboxes[i].onclick = function() {
-                self.newFormat = true;
+                self.currentSeparator = self.generalSeparator;
                 self.changeRange();
             }
           }
         
         for (i = 0; i < self.values.length; i++) {
             self.values[i].onkeyup = function() {
+                if ((self.currentSeparator == self.stableSeparators[0]) && (this == self.values[1])) {
+                    self.currentSeparator = self.generalSeparator;
+                }
+                if ((self.currentSeparator == self.stableSeparators[1]) && (this == self.values[0])) {
+                    self.currentSeparator = self.generalSeparator;
+                }
+                if ((self.currentSeparator == self.stableSeparators[2]) && (this == self.values[1])) {
+                    self.currentSeparator = self.generalSeparator;
+                }
+                
                 self.changeRange();
             }
           }
@@ -67,17 +79,17 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         for (var i = 0; i < self.btns.length; i++) {
             self.btns[i].setAttribute("style", "width: 20px; height: 20px;");
             self.btns[i].onclick = function() {
-                self.newFormat = true;
+                self.currentSeparator = self.generalSeparator;
                 self.changeSign(this.id);
             }
           }
         
-     // Creating result DIV
+        // Creating result DIV
         var resultContainer = new Element("div");
         resultContainer.id = "range";
         this.rangePanel.appendChild(resultContainer);
         
-     // Creating buttons DIV
+        // Creating buttons DIV
         var buttonContainer = new Element("div");
         buttonContainer.innerHTML = '<br/> <input type="button" value="Done">'
         var b1 = buttonContainer.down().next();
@@ -109,59 +121,101 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
     
     open: function() {
-        this.rangePanel.setAttribute("style", "width: 220px; height: 140px; background: white; border:1px solid gray;");
+        this.rangePanel.setAttribute("style", "width: 230px; height: 140px; background: white; border:1px solid gray;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
         
         this.destroyed = false;
         
-        value = this.input.value;
-        if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
-            this.newFormat = true;
-            if (value.charAt(0) == "<") {
-                if (value.charAt(1) == "=") {
-                    this.checkboxes[1].setAttribute("checked", "checked");
-                    this.values[1].value = value.substring(2);
+        var value = this.input.value;
+        var self = this;
+        var values;
+        self.stableSeparators.each(function(separator) {
+            if (value.indexOf(separator) !== -1) {
+                self.currentSeparator = separator;
+                values = self.splitValue(value, separator);
+                if (separator == self.stableSeparators[0]) {
+                    self.values[0].value = values[1];
                 } else {
-                    this.values[1].value = value.substring(1);
-                }
-            } else {
-                if (value.charAt(1) == "=") {
-                    this.checkboxes[0].setAttribute("checked", "checked");
-                    this.values[0].value = value.substring(2);
-                } else {
-                    this.values[0].value = value.substring(1);
+                    if (values[0]) {
+                        self.values[0].value = values[0];
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                    }
+                    if (values[1]) {
+                        self.values[1].value = values[1];
+                        if (separator == " - ") {
+                            self.checkboxes[1].setAttribute("checked", "checked");
+                        }
+                    }
                 }
             }
-        } else {
-            var separator;
-            var values;
-            if ((value.charAt(0) == "(")||(value.charAt(0) == "[")) {
-                this.newFormat = true;
+        });
+        self.unstableSeparators.each(function(separator) {
+            if (value.indexOf(separator) !== -1) {
+                self.currentSeparator = self.generalSeparator;
+                values = self.splitValue(value, separator);
+                if (separator == ";") {
+                    if (values[0].charAt(0) == "[") {
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                    }
+                    if (values[1].charAt(values[1].length - 1) == "]") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                    }
+                    self.values[0].value = values[0].substring(1);
+                    self.values[1].value = values[1].substring(0, values[1].length - 1);
+                } else {
+                    self.values[0].value = values[0];
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                    if (separator == " ... ") {
+                        self.values[1].value = values[1];
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                    }
+                }
+            }
+        });
+        if ((value.indexOf(self.generalSeparator) != -1) || (value.charAt(0) == "<")||(value.charAt(0) == ">")) {
+            self.currentSeparator = self.generalSeparator;
+            if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
+                if (value.charAt(0) == "<") {
+                    if (value.charAt(1) == "=") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                        self.values[1].value = value.substring(2);
+                    } else {
+                        self.values[1].value = value.substring(1);
+                    }
+                } else {
+                    if (value.charAt(1) == "=") {
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                        self.values[0].value = value.substring(2);
+                    } else {
+                        self.values[0].value = value.substring(1);
+                    }
+                }
+            } else {
                 if (value.charAt(0) == "[") {
-                    this.checkboxes[0].setAttribute("checked", "checked");
+                    self.checkboxes[0].setAttribute("checked", "checked");
                 }
                 if (value.charAt(value.length - 1) == "]") {
-                    this.checkboxes[1].setAttribute("checked", "checked");
+                    self.checkboxes[1].setAttribute("checked", "checked");
                 }
-                separator = this.separatorNew;
-                values = this.splitValue(value.substring(1, value.length - 1), separator);
-            } else {
-                separator = this.separatorDefault;
-                values = this.splitValue(value, separator);
-                if (values.length == 1) {
-                    values[1] = values[0];
-                }
-                this.checkboxes[0].setAttribute("checked", "checked");
-                this.checkboxes[1].setAttribute("checked", "checked");
+                values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
+                self.values[0].value = values[0];
+                self.values[1].value = values[1];
             }
-            this.values[0].value = values[0];
-            this.values[1].value = values[1];
         }
-        
-        this.changeRange();
-        
-        Event.observe(document, 'click', this.documentClickListener);
+        if (!self.currentSeparator) {
+            self.currentSeparator = self.dashSeparator;
+            values = self.splitValue(value, self.currentSeparator);
+            if (values.length == 2) {
+                self.values[0].value = values[0];
+                self.values[1].value = values[1];
+            } else {
+                self.values[0].value = -values[1];
+                self.values[1].value = values[2];
+            }
+        }
+        self.changeRange();
+        Event.observe(document, 'click', self.documentClickListener);
     },
     
     changeRange: function() {
@@ -255,22 +309,37 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     isValid: function(value) {
         var valid = true;
         var self = this;
-        var separator = this.separatorDefault;
-        if ((value.charAt(0) == "(")||(value.charAt(0) == "[")) {
-            separator = this.separatorNew;
-            value = value.substring(1, value.length - 1);
-        } else if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
+        if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
             value = value.substring(1);
             if (value.charAt(0) == "=") {
                 value = value.substring(1);
             }
         }
+        if ((value.charAt(0) == "(")||(value.charAt(0) == "[")) {
+            value = value.substring(1, value.length - 1);
+        }
         if (self.entryEditor && value) {
-            var values = value.split(separator);
+            var values = value.split(self.currentSeparator);
+            if ((values.length == 3) && (self.currentSeparator == self.dashSeparator) && (value.charAt(0) == "-")) {
+                values.splice(1,1);
+            }
+            if (!values[0]) {
+                values.splice(0,1);
+            }
+            if (!values[1]) {
+                values.splice(1,1);
+            }
             values.each(function(v) {
-                var n = Number(v);
-                if (isNaN(n)) {
-                    valid = false;
+                if (self.entryEditor == "integer") {
+                    var matchInt = v.match(/^-?[0-9]+$/);
+                    if (!matchInt) {
+                        valid = false;
+                    }
+                } else {
+                    var matchDouble = v.match(/^-?[0-9]+\.[0-9][0-9]$/);
+                    if (!matchDouble) {
+                        valid = false;
+                    }
                 }
             });
         }
@@ -278,44 +347,47 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
     
     combineValue: function() {
-        var separator;
         var result;
-        if (this.checkboxes[0].checked && this.checkboxes[1].checked && !this.newFormat) {
-            separator = this.separatorDefault;
-        } else {
-            separator = this.separatorNew;
-        }
         var values = new Array();
         values[0] = this.values[0].value;
         values[1] = this.values[1].value;
         
-        if ((values[0]) && (values[1])) {
-            if (!this.newFormat && (values[0] == values[1])) {
+        if (values[0] && values[1]) {
+            if (values[0] == values[1]) {
                 result = values[0];
             } else {
-                result = values.join(separator);
+                result = values.join(this.currentSeparator);
             }
+        } else if (this.currentSeparator == this.stableSeparators[0]) {
+            result = this.currentSeparator + values[0];
+        } else if (this.currentSeparator == this.stableSeparators[1]) {
+            result = this.currentSeparator + values[1];
+        } else if (this.currentSeparator == this.stableSeparators[2]) {
+            result = values[0] + this.currentSeparator;
         } else {
             result = values.join("");
         }
-        if (separator == this.separatorNew) {
+        
+        if ((this.currentSeparator == this.generalSeparator) && (values[0] != values[1])) {
             var prefix = "";
             var suffix = "";
-            if (this.values[0].value && this.values[1].value){
+            if (values[0] && values[1]){
                 var leftBorder;
                 var rightBorder;
-                if (this.checkboxes[0].checked) {
-                    prefix = "[";
-                } else {
-                    prefix = "(";
-                }
-                if (this.checkboxes[1].checked) {
-                    suffix = "]";
-                } else {
-                    suffix = ")";
+                if (!(this.checkboxes[0].checked && this.checkboxes[1].checked)) {
+                    if (this.checkboxes[0].checked) {
+                        prefix = "[";
+                    } else {
+                        prefix = "(";
+                    }
+                    if (this.checkboxes[1].checked) {
+                        suffix = "]";
+                    } else {
+                        suffix = ")";
+                    }
                 }
             } else {
-                if (this.values[0].value) {
+                if (values[0]) {
                     if (this.checkboxes[0].checked) {
                         prefix = ">=";
                     } else {

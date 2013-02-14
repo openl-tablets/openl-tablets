@@ -27,7 +27,7 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                         projectBuilder.addFile(FilenameUtils.getName(file.getName()), file.getInput());
                     }
                 } catch (Exception e) {
-                    FacesUtils.addWarnMessage("Problem with file " + file.getName() + ". " + e.getMessage());
+                    FacesUtils.addErrorMessage("Problem with file " + file.getName() + ". " + e.getMessage());
                 }
             }
         }
