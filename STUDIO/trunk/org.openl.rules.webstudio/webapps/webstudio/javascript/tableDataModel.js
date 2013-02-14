@@ -104,15 +104,15 @@ var tableModel = {
         editElem.style.display = "";
     },
 
-    toEditorMode : function(element) {
-        cell = element.parentNode;
+    toEditorMode : function(cell) {
+        element = cell.firstChild;
 
         editor = new Editor();
         editor.initElement(cell.data, element);
     },
 
-    toEditPropsMode : function(element) {
-        cell = element.parentNode;
+    toEditPropsMode : function(cell) {
+        element = cell.firstChild;
 
         editor = new PropsEditor();
         editor.initElement(cell.props, element);
@@ -332,7 +332,7 @@ var tableModel = {
                 };
             }
         }
-  
+
         this.header = restoreTable.header;
         this.header.inParam = JSON.parse(restoreTable.header.inParam);
 
@@ -351,7 +351,40 @@ var tableModel = {
         }
 
         this.renderer.refreshTable(tableModel);
-    }
+    },
+
+    checkTable : function() {
+        var checkingRes = [];
+        if (this.header.inParam.length < 1) {
+            checkingRes.push("Required at least one parameter");
+        }
+
+        if (this.dataRows.length < 2) {
+            checkingRes.push("Required at least one rules row");
+        }
+
+        this.checkNames(checkingRes);
+
+        return checkingRes;
+    },
+
+    checkNames : function(checkingRes) {
+        re =/^([a-zA-Z_][a-zA-Z_0-9]*)$/;
+
+        if(!re.test(this.header.name)) {
+            checkingRes.push("Table name is invalid");
+        }
+
+        for (var i = 0; i < this.header.inParam.length; i++) {
+            if(this.header.inParam[i].type == "null") {
+                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid");
+            }
+
+            if(!re.test(this.header.inParam[i].name)) {
+                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid");
+            }
+        }
+    },
 };
 
 function Cell(value, valueType, iterable){

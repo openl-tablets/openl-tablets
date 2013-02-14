@@ -178,7 +178,6 @@ public class InstallWizard {
     public void testDBConnection(String url, String login, String password) {
         Connection conn = null;
         int errorCode = 0;
-        String errorMessage = (String) dbErrors.get("" + errorCode);
 
         try {
             Class.forName(dbDriver);
@@ -186,13 +185,14 @@ public class InstallWizard {
 
         } catch (SQLException sqle) {
             errorCode = sqle.getErrorCode();
-
+            String errorMessage = (String) dbErrors.get("" + errorCode);
+            
             if (errorMessage != null) {
                 LOG.error(sqle.getMessage(), sqle);
                 throw new ValidatorException(new FacesMessage(errorMessage));
             } else {
                 LOG.error(sqle.getMessage(), sqle);
-                throw new ValidatorException(new FacesMessage("Incorrect database url"));
+                throw new ValidatorException(new FacesMessage("Incorrect database URL, login or password"));
             }
 
         } catch (ClassNotFoundException cnfe) {
@@ -200,7 +200,7 @@ public class InstallWizard {
             throw new ValidatorException(new FacesMessage("Incorrectd database driver"));
         } catch (Exception e) {
             LOG.error("Unexpected error, see instalation log", e);
-            throw new ValidatorException(new FacesMessage("Unexpected error: " + e));
+            throw new ValidatorException(new FacesMessage("Unexpected error: " + e.getMessage()));
         } finally {
             if (conn != null) {
                 try {

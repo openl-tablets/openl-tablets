@@ -1,5 +1,5 @@
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.simplePriorityRuleWrappers )
-        tablesPriorityRules.add(new ASimplePriorityRule<$priorityRuleWrapper.propertyType>("$priorityRuleWrapper.propertyName") {
+        maxMinPriorityRules.add(new ASimplePriorityRule<$priorityRuleWrapper.propertyType>("$priorityRuleWrapper.propertyName") {
 
             public String getOperationName() {
                 return "$priorityRuleWrapper.operationName";
@@ -15,5 +15,5 @@
         });
 #end
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.javaClassPriorityRuleWrappers )
-        tablesPriorityRules.add(new JavaClassTablesComparator(new $priorityRuleWrapper.className ()));
+        maxMinPriorityRules.add(new JavaClassTablesComparator(new $priorityRuleWrapper.className ()));
 #end

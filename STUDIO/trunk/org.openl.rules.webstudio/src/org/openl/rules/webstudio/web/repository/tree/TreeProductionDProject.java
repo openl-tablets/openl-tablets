@@ -46,7 +46,7 @@ public class TreeProductionDProject extends TreeProductFolder {
             sortedArtefacts = prjList.toArray(sortedArtefacts);
 
             Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
-            
+
             for (AProjectArtefact apa : sortedArtefacts) {
                 addChild(apa);
             }
@@ -60,7 +60,7 @@ public class TreeProductionDProject extends TreeProductFolder {
         String name = childArtefact.getName();
         String id = String.valueOf(name.hashCode());
         if (childArtefact.isFolder()) {
-            TreeProductProject prj = new TreeProductProject(""+childArtefact.getName().hashCode(), childArtefact.getName(), null);
+            TreeProductProject prj = new TreeProductProject(""+childArtefact.getName().hashCode(), childArtefact.getName(), filter);
             prj.setData(childArtefact);
 
             add(prj);

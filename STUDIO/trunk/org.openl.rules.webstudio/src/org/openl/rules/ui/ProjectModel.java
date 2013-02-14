@@ -958,7 +958,7 @@ public class ProjectModel {
                 modulesCache.reset();
             case SINGLE:
                 if (moduleInfo != null) {
-                 // Clear the cache of dependency manager, as the project has been modified
+                    // Clear the cache of dependency manager, as the project has been modified
                     studio.getDependencyManager()
                         .reset(new Dependency(
                                 DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
@@ -1040,6 +1040,10 @@ public class ProjectModel {
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
+        }
+
+        if (reloadType != ReloadType.NO) {
+            modulesCache.removeCachedModule(moduleInfo);
         }
 
         File projectFolder = moduleInfo.getProject().getProjectFolder();
