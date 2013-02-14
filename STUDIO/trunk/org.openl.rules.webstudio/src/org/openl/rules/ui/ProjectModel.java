@@ -1,7 +1,9 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
+import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
@@ -959,7 +962,7 @@ public class ProjectModel {
             case SINGLE:
                 if (moduleInfo != null) {
                     // Clear the cache of dependency manager, as the project has been modified
-                    studio.getDependencyManager()
+                    getDependencyManager()
                         .reset(new Dependency(
                                 DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
                 }
@@ -1075,8 +1078,7 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
 
-        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, 
-            studio.getDependencyManager());
+        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, getDependencyManager());
         instantiationStrategy.setExternalParameters(studio.getSystemConfigManager().getProperties());
 
         try {
@@ -1323,5 +1325,9 @@ public class ProjectModel {
             JavaOpenClass.resetClassloader(classLoader);
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
         }
+    }
+    
+    private IDependencyManager getDependencyManager() {
+        return modulesCache.wrapToCollectDependencies(studio.getDependencyManager(), moduleInfo);
     }
 }
