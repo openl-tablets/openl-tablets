@@ -31,8 +31,8 @@
         <f:facet name="header">
           <rich:columnGroup>
             <rich:column>
-                <h:selectBooleanCheckbox id="allDeploymentsCheck" value="#{smartRedeployController.selectAll4SmartRedeploy}" onclick="changeAllItemStatus(this, 'smartRedeployForm');" title="Select All" >
-                  <f:ajax event="change" render="@form" execute="@this"/>
+                <h:selectBooleanCheckbox id="allDeploymentsCheck" value="#{smartRedeployController.selectAll4SmartRedeploy}" onclick="showLoader();" title="Select All" >
+                  <f:ajax event="click" render="@form" execute="@this"/>
                 </h:selectBooleanCheckbox>
             </rich:column>
             <rich:column>
@@ -45,7 +45,7 @@
         </f:facet>
 
         <rich:column style="text-align: center">
-          <h:selectBooleanCheckbox value="#{item.selected}" disabled="#{item.disabled}" onclick="changeItemStatus(this, 'smartRedeployForm', 'smartRedeployForm:smartRedeployTable:allDeploymentsCheck')">
+          <h:selectBooleanCheckbox value="#{item.selected}" disabled="#{item.disabled}" onclick="showLoader();">
             <f:ajax event="click" render="@form" execute="@this"/>
           </h:selectBooleanCheckbox>
         </rich:column>

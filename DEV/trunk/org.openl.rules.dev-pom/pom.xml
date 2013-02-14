@@ -39,36 +39,6 @@
 
 	</modules>
 
-	<repositories>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<id>local-dev-repo</id>
-			<url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<id>local-dev-plugin-repo</id>
-			<url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<reporting>
 		<plugins>
 			<plugin>

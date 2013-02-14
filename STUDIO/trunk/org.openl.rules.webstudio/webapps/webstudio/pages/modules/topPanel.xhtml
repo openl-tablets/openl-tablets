@@ -75,8 +75,7 @@
 					<span style="margin-left: 17px;" />
 
                     <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
-                        title="Create new table" styleClass="button-primary"
-                         onclick="return canLeavePage();">Create Table</h:outputLink>
+                        title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.canEditTable}"
                         value="#revert.xhtml" title="Revert Changes" styleClass="button" onclick="canLeavePage();">Revert</h:outputLink>

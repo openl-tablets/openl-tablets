@@ -197,4 +197,27 @@ verticalRenderer = {
             this.createRow(tableModel.dataRows[i] , false);
         }
     },
+
+    setErrorMessage : function(error, element) {
+        element.html("");
+
+        if(error.length > 0) {
+            table = document.createElement('table');
+
+            for(var i = 0;  i < error.length; i++) {
+                tr = document.createElement('tr');
+                td = document.createElement('td');
+
+                d = document.createElement('div');
+                $j(d).addClass('error_box')
+                    .html(error[i])
+                    .appendTo(td);
+
+                $j(td).appendTo(tr);
+                $j(tr).appendTo(table);
+            }
+
+            $j(table).appendTo(element);
+        }
+    },
 }
