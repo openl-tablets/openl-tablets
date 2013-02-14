@@ -7,6 +7,7 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJEC
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -1277,7 +1278,7 @@ public class RepositoryTreeController {
                     // JAR file
                     String templateUrl = resource.getURL().getPath();
                     String[] templateParsed = templateUrl.split("/");
-                    templateNames.add(templateParsed[templateParsed.length - 1]);
+                    templateNames.add((new URI(templateParsed[templateParsed.length - 1]).getPath()));
                 } else {
                     // File System
                     templateNames.add(resource.getFilename());
