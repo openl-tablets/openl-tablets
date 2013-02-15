@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -222,6 +223,22 @@ public class InstallWizard {
             throw new ValidatorException(new FacesMessage("Database URL may not be empty"));
         } else {
             testDBConnection(dbURLString, dbLoginString, dbPasswordString);
+        }
+    }
+
+    public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
+
+        try {
+            File studioWorkingDir = new File((String) value);
+            if (studioWorkingDir != null && studioWorkingDir.exists() && studioWorkingDir.canWrite()) {
+                return;
+            } else {
+                if (!studioWorkingDir.mkdir()) {
+                    throw new ValidatorException(new FacesMessage("Incorrect folder name"));
+                }
+            }
+        } catch (Exception e) {
+            throw new ValidatorException(new FacesMessage("Incorrect folder name"));
         }
     }
 
