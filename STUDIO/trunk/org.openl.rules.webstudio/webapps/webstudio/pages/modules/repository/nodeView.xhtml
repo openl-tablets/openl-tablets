@@ -43,16 +43,16 @@
     </h:panelGroup>
 
 	<c:set var="deleteMessage" value="Mark project as deleted" />
-	<c:set var="addFolderMessage" value="Add a folder" />
-	<c:set var="uploadFileMessage" value="Upload a file" />
-	<c:set var="undeleteMessage" value="Restore project" />
-	<c:set var="eraseMessage" value="Permanently erase the project from repository" />
+	<c:set var="addFolderMessage" value="Create a new folder in the project" />
+	<c:set var="uploadFileMessage" value="Upload a file to the project folder" />
+	<c:set var="undeleteMessage" value="Restore the project in Repository" />
+	<c:set var="eraseMessage" value="Permanently delete the project from repository" />
 	<c:set var="openMessage" value="Open project for viewing in rules editor" />
-    <c:set var="openVersionMessage" value="Open the specified project version for viewing in rules editor" />
-    <c:set var="closeMessage" value="Close project" />
+    <c:set var="openVersionMessage" value="Open the latest project revision" />
+    <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor" />
     <c:set var="editMessage" value="Make project available for editing in Rules Editor and lock it from editing by other users" />
-    <c:set var="saveMessage" value="Save project changes to repository as a new version and make it available for editing by other users" />
-    <c:set var="copyMessage" value="Create a new project with identical content and different name in repository" />
+    <c:set var="saveMessage" value="Save the project changes in Design Repository as a new revision and make it available for editing to other users" />
+    <c:set var="copyMessage" value="Create a new project in Design Repository with a different project name but the same content " />
 
   <h:panelGroup rendered="#{node.type == 'file'}">
     <h:panelGrid columns="2" cellpadding="3" cellspacing="0">

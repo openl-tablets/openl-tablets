@@ -255,9 +255,9 @@ public class HTMLRenderer {
                 + " class=\"item_separator\"></img>";
 
         result.append("<div style=\"" + (mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "") + "\" class=\"te_toolbar\">")
-            .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save"))
-            .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo"))
-            .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo"))
+            .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save changes"))
+            .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo changes"))
+            .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo changes"))
 
             .append(toolbarItemSeparator)
 
@@ -276,27 +276,27 @@ public class HTMLRenderer {
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
-                    "setAlignment('left', this)", "Align left"))
+                    "setAlignment('left', this)", "Align the text to the left"))
             .append(renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
-                    "setAlignment('center', this)", "Align center"))
+                    "setAlignment('center', this)", "Center the text"))
             .append(renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
-                    "setAlignment('right', this)", "Align right"))
+                    "setAlignment('right', this)", "Align the text to the right"))
 
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_font_bold", editorJsVar, "img/bold.png",
-                    "setFontBold('" + editorId + "_font_bold" + "')", "Bold"))
+                    "setFontBold('" + editorId + "_font_bold" + "')", "Make the text bold"))
             .append(renderEditorToolbarItem(editorId + "_font_italic", editorJsVar, "img/italic.png",
-                    "setFontItalic('" + editorId + "_font_italic" + "')", "Italic"))
+                    "setFontItalic('" + editorId + "_font_italic" + "')", "Italicize the text"))
             .append(renderEditorToolbarItem(editorId + "_font_underline", editorJsVar, "img/underline.png",
-                    "setFontUnderline('" + editorId + "_font_underline" + "')", "Underline"))
+                    "setFontUnderline('" + editorId + "_font_underline" + "')", "Underline the text"))
 
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_fill_color", editorJsVar, "img/fillColor.png",
-                    "selectFillColor('" + editorId + "_fill_color" + "')", "Fill color"))
+                    "selectFillColor('" + editorId + "_fill_color" + "')", "Color the cell background"))
             .append(renderEditorToolbarItem(editorId + "_font_color", editorJsVar, "img/fontColor.png",
-                    "selectFontColor('" + editorId + "_font_color" + "')", "Font color"))
+                    "selectFontColor('" + editorId + "_font_color" + "')", "Color the cell background"))
 
             .append(toolbarItemSeparator)
 

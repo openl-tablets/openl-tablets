@@ -26,7 +26,7 @@
 
             <div class="buttonPanel" style="display: inline-block; margin-left: 17px">
                 <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})"
-                    class="button">View</a>
+                    class="button" title="Show or hide table headers and/or formulas">View</a>
                 <div id="viewMenu">
                     <h:form>
                         <div>Show</div>
@@ -40,7 +40,7 @@
                 <div style="display:inline-block; margin-left: 15px">
                     <a target="_blank" style="background:url('webresource/images/compare.gif')"
                         onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                        href="#" title="Compare Excel files" class="imageButton" />
+                        href="#" title="Show a dialog for comparing Excel files" class="imageButton" />
                 </div>
             </div>
         </div>
@@ -49,25 +49,24 @@
             <h:form id="headerForm">
                 <div class="buttonPanel">
 					<a4j:ajax oncomplete="reloadCurrent()">
-						<h:commandLink action="#{mainBean.reload}" title="Refresh"
+						<h:commandLink action="#{mainBean.reload}" title="Refresh the project tree"
 							styleClass="imageButton"
 							style="background:url('webresource/images/refresh.png')" />
 
 						<h:commandLink action="#{mainBean.saveProject}"
-							title="Save Project"
+							title="Save the project to the Design Repository"
 							rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
 							styleClass="imageButton"
-							style="background:url('webresource/images/repository/checkin.gif')" 
-							onclick="return canLeavePage();"/>
+							style="background:url('webresource/images/repository/checkin.gif')"/>
 						<h:commandLink action="#{mainBean.editProject}"
-							title="Edit Project"
+							title="Edit the project; the project becomes read-only for all other users"
 							rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}"
 							styleClass="imageButton"
 							style="background:url('webresource/images/repository/checkout.gif')" />
 					</a4j:ajax>
 
 					<h:outputLink value="#test/runAllTests.xhtml"
-						title="Run #{treeBean.projectTestsCount} Tests"
+						title="Run #{treeBean.projectTestsCount} Test(s)"
 						rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}"
 						styleClass="imageButton"
 						style="background:url('webresource/images/test_ok.gif')" />
@@ -78,15 +77,15 @@
                         title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.canEditTable}"
-                        value="#revert.xhtml" title="Revert Changes" styleClass="button" onclick="canLeavePage();">Revert</h:outputLink>
+                        value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" onclick="canLeavePage();">Revert</h:outputLink>
 
                     <span style="margin-left: 13px;" />
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
                         value="#rulesDependencies.xhtml" styleClass="button"
-                        title="Rules Dependencies"
-                         onclick="return canLeavePage();"             
-                        >Dependencies</h:outputLink>
+                        title="Display Dependency graph"
+                         onclick="return canLeavePage();" >Dependencies
+                    </h:outputLink>
 
                 </div>
             </h:form>
