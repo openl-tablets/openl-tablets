@@ -33,7 +33,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.Log;
 
-public class DataTableCreationWizard extends BusinessTableCreationWizard {
+public class DataTableCreationWizard extends TableCreationWizard {
     @NotBlank(message = "Can not be empty")
     private String tableType;
 
@@ -415,10 +415,9 @@ public class DataTableCreationWizard extends BusinessTableCreationWizard {
     private static enum Page {
         NO_SUCH_PAGE(-1),
         SELECT_WIZARD_TYPE(0),
-        TABLE_BUSINESS_FIELDS(1),
-        DATA_TABLE_TYPE(2),
-        COLUMNS_CONFIGURATION(3),
-        DESTINATION(4);
+        DATA_TABLE_TYPE(1),
+        COLUMNS_CONFIGURATION(2),
+        DESTINATION(3);
 
         public static Page valueOf(int pageNum) {
             for (Page page : values()) {

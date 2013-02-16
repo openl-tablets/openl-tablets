@@ -1,29 +1,16 @@
-package org.openl.rules.ui.tablewizard.jsf;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.ui.tablewizard.TableWizard;
+package org.openl.rules.ui;
 
 /**
  * @author Aliaksandr Antonik.
  */
-public abstract class BaseWizardBean {
+public abstract class BaseWizard {
 
     private int step;
     private int maxVisitedStep;
     private int stepsCount;
 
-    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
-
     public void cancel() {
         onCancel();
-    }
-
-    public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {
-        return modifiedWorkbooks;
     }
 
     public int getMaxVisitedStep() {
@@ -59,12 +46,6 @@ public abstract class BaseWizardBean {
     protected void onFinish() throws Exception {
     }
 
-    protected void doSave() throws Exception {
-        for(XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks){
-            workbook.save();
-        }
-    }
-
     protected void onStepFirstVisit(int step) {
     }
 
@@ -80,17 +61,10 @@ public abstract class BaseWizardBean {
         this.stepsCount = stepsCount;
     }
 
-    public String start() {
+    public String start() throws Exception {
         maxVisitedStep = step = 0;
-        try {
-            onStart();
-            return getName();
-        } catch (IllegalArgumentException e) {
-            // Process the error during starting.
-            FacesUtils.addErrorMessage("Can`t create wizard for this kind of table.", e.getMessage());
-            return TableWizard.ERROR;
-        }
-   
+        onStart();
+        return getName();
     }
 
     public String finish() throws Exception {
