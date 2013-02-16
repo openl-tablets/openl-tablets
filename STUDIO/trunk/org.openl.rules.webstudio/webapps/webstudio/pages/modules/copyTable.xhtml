@@ -110,15 +110,15 @@
             <h3>Save To</h3>
             <div>
                 <span style="cursor: pointer; border-bottom: 1px dashed #777777"
-                    onclick="$j('#savePanel').slideDown();$j(this).hide()">#{wizard.workbookName} -> #{wizard.worksheetName}</span>
+                    onclick="$j('#savePanel').slideDown();$j(this).hide()">#{wizard.moduleName} -> #{wizard.worksheetName}</span>
                 <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
-                    <h:outputText value="Workbook" styleClass="required" />
+                    <h:outputText value="Module" styleClass="required" />
                     <h:selectOneMenu value="#{wizard.workbook}" style="width:100%">
                         <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
                         <f:selectItems value="#{wizard.workbooks}"/>
                     </h:selectOneMenu>
                     <h:outputText value="" />
-                    <h:outputText value="Worksheet" styleClass="required" />
+                    <h:outputText value="Category" styleClass="required" />
                     <h:panelGroup>
                         <h:selectOneMenu value="#{wizard.worksheetIndex}" id="sheet" style="width:100%">
                             <f:selectItems value="#{wizard.worksheets}" />
