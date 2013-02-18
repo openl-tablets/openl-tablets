@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -13,6 +16,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,15 +30,24 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
+import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
+import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * @author Aliaksandr Antonik.
+ * 
+ * TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
-public abstract class WizardBase extends BaseWizardBean {
+public abstract class TableCreationWizard extends BaseWizard {
+
+    private final Log log = LogFactory.getLog(TableCreationWizard.class);
+
     private static final String SHEET_EXSISTING = "existing";
     private static final String SHEET_NEW = "new";
     private String workbook;
@@ -49,7 +62,7 @@ public abstract class WizardBase extends BaseWizardBean {
     /** New table identifier */
     private String newTableUri;
 
-    private final Log log = LogFactory.getLog(WizardBase.class);
+    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
 
     protected XlsSheetSourceCodeModule getDestinationSheet() {
         XlsSheetSourceCodeModule sourceCodeModule;
@@ -89,9 +102,8 @@ public abstract class WizardBase extends BaseWizardBean {
         this.workbook = workbook;
     }
 
-    public String getWorkbookName() {
-        String[] parts = workbook.split("/");
-        return parts[parts.length - 1];
+    public String getModuleName() {
+        return FilenameUtils.getBaseName(workbook);
     }
 
     public void setWorksheetIndex(Integer worksheetIndex) {
@@ -101,8 +113,7 @@ public abstract class WizardBase extends BaseWizardBean {
     public List<SelectItem> getWorkbooks() {
         List<SelectItem> items = new ArrayList<SelectItem>(workbooks.size());
         for (String wbURI : workbooks.keySet()) {
-            String[] parts = wbURI.split("/");
-            items.add(new SelectItem(wbURI, parts[parts.length - 1]));
+            items.add(new SelectItem(wbURI, FilenameUtils.getBaseName(wbURI)));
         }
 
         return items;
@@ -165,6 +176,10 @@ public abstract class WizardBase extends BaseWizardBean {
         this.newTableUri = newTableUri;
     }
 
+    public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {
+        return modifiedWorkbooks;
+    }
+
     protected void reset() {
         worksheetIndex = 0;
         workbooks = null;
@@ -172,6 +187,12 @@ public abstract class WizardBase extends BaseWizardBean {
         wizardFinised = false;
         newWorksheetName = StringUtils.EMPTY;
         getModifiedWorkbooks().clear();
+    }
+
+    protected void doSave() throws Exception {
+        for(XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks){
+            workbook.save();
+        }
     }
 
     @Override
@@ -235,6 +256,39 @@ public abstract class WizardBase extends BaseWizardBean {
         }
 
         return true;
+    }
+
+    protected Map<String, Object> buildSystemProperties() {
+        String userMode = WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode");
+        Map<String, Object> result = new LinkedHashMap<String, Object>();
+
+        List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
+        for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
+            String systemValueDescriptor = systemPropDef.getSystemValueDescriptor();
+            if (userMode.equals("single") && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+                continue;
+            }
+            if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
+                Object systemValue = SystemValuesManager.getInstance().getSystemValue(systemValueDescriptor);
+                if (systemValue != null) {
+                    result.put(systemPropDef.getName(), systemValue);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    protected Map<String, Object> buildProperties() {
+        Map<String, Object> properties = new LinkedHashMap<String, Object>();
+
+        // Put system properties.
+        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
+            Map<String, Object> systemProperties = buildSystemProperties();
+            properties.putAll(systemProperties);
+        }
+
+        return properties;
     }
 
 }

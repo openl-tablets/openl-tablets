@@ -26,7 +26,7 @@ import org.openl.types.impl.DomainOpenClass;
 /**
  * @author Andrei Astrouski
  */
-public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
+public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message="Can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
@@ -167,7 +167,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
     @Override
     protected void onStepFirstVisit(int step) {
         switch (step) {
-            case 4:
+            case 3:
                 initWorkbooks();
                 break;
         }

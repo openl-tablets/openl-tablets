@@ -1,17 +1,15 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tablewizard.jsf.BaseWizardBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
-public abstract class TableWizard {
-
-    public static final String ERROR = "error";
+public abstract class BaseTableWizardManager {
 
     private IOpenLTable table;
 
-    protected BaseWizardBean wizard;
+    protected BaseWizard wizard;
 
     public abstract String startWizard();
 
@@ -19,7 +17,7 @@ public abstract class TableWizard {
 
     public abstract String cancel();
 
-    public BaseWizardBean getWizard() {
+    public BaseWizard getWizard() {
         return wizard;
     }
 

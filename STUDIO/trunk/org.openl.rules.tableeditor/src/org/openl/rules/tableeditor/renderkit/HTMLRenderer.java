@@ -446,7 +446,7 @@ public class HTMLRenderer {
                 s.append("<div class='te_bigtable_mes'>")
                 .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first "
                         + tableModel.getNumRowsToDisplay() + " rows).</div>")
-                .append("<div>To view the full table, use 'Edit In Excel'.</div>")
+                .append("<div>To view the full table, use 'Open In Excel'.</div>")
                 .append("</div>");
             }
 
