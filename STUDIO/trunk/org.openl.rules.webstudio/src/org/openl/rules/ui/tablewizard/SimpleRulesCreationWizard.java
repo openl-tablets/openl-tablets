@@ -49,7 +49,7 @@ import org.richfaces.json.JSONArray;
 import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
 
-public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
+public class SimpleRulesCreationWizard extends TableCreationWizard {
     @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
     private String tableName;
@@ -287,12 +287,6 @@ public class SimpleRulesCreationWizard extends BusinessTableCreationWizard {
 
     protected Map<String, Object> buildProperties() {
         Map<String, Object> properties = new LinkedHashMap<String, Object>();
-
-        // Put business properties.
-        String category = buildCategoryName();
-        if (category != null) {
-            properties.put("category", category);
-        }
 
         // Put system properties.
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
