@@ -68,38 +68,45 @@ function Editor(){
 
             element.innerHTML = "";
             element.appendChild(this.html);
+            element.firstChild.focus();
         } else if(dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
             this.html = this.getBooleanElement(dataCell);
 
             element.innerHTML = "";
             element.appendChild(this.html);
+            element.firstChild.focus();
         } else if(dataCell.valueType == "DATE" && !dataCell.iterable) {
-            //this.html = this.getDateElement(dataCell, element);
             element.id = Math.floor(Math.random() * 1001);
             dateEditor = new DateEditor('', element.id, '', dataCell.getValue() , '');
-            
+
             element.onclick = function() {};
-            
+
             dateEditor.getInputElement().onblur = function() {
                 element.innerHTML = dateEditor.getValue();
 
-                element.onclick = function(element) {
+                element.parentNode.onclick = function(element) {
                     tableModel.toEditorMode(this);
                 };
 
                 element.parentNode.data.value = dateEditor.getValue();
                 dateEditor.destroy(element.id);
             };
+
+            element.focus();
         } else if(dataCell.valueType == "STRING" && !dataCell.iterable) {
             this.html = this.getStringElement(dataCell);
 
             element.innerHTML = "";
             element.appendChild(this.html);
+
+            element.firstChild.focus();
         } else {
             this.html = this.getStringElement(dataCell);
 
             element.innerHTML = "";
             element.appendChild(this.html);
+
+            element.firstChild.focus();
         }
 
         element.setAttribute('onclick','');
@@ -137,15 +144,15 @@ function Editor(){
         var newElement = document.createElement('input');
         newElement.type = 'text';
         newElement.value = dataCell.getValue();
-        
+
         newElement.onchange = function () {
             tableModel.toNormalMode(this);
         }
-        
+
         newElement.onblur = function () {
             tableModel.toNormalMode(this);
         }
-        
+
         newElement.onkeypress = function(event) {
             var v = this.value;
             if (event.charCode == 0) return true;
@@ -158,7 +165,8 @@ function Editor(){
 
             return code >= 48 && code <= 57; // digits (0-9)
         }
-
+        
+        newElement.focus();
         return newElement;
     };
 
@@ -173,15 +181,16 @@ function Editor(){
             newElement.value = true;
             newElement.checked = "checked";
         }
-        
+
         newElement.onchange = function () {
             tableModel.toNormalMode(newElement);
         }
-        
+
         newElement.onblur = function () {
             tableModel.toNormalMode(newElement);
         }
-
+        
+        newElement.focus();
         return newElement;
     };
 
@@ -230,7 +239,6 @@ function Editor(){
         newElement.value = dataCell.value;
         newElement.setAttribute('onchange','tableModel.toNormalMode(this)');
         newElement.setAttribute('onblur','tableModel.toNormalMode(this)');
-        newElement.focus();
 
         return newElement;
     };
