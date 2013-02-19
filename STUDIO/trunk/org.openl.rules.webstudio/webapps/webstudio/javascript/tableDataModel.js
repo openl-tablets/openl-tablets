@@ -102,6 +102,10 @@ var tableModel = {
         editElem = element.nextSibling;
         element.style.display = "none";
         editElem.style.display = "";
+        editElem.firstChild.focus();
+        editElem.firstChild.onblur = function() {
+            this.onchange();
+        };
     },
 
     toEditorMode : function(cell) {
