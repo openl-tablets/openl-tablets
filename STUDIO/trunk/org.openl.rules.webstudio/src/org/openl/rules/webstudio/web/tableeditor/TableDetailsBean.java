@@ -36,6 +36,7 @@ import org.openl.util.StringTool;
 @ViewScoped
 public class TableDetailsBean {
     private IOpenLTable table;
+    private boolean editable;
     private ITableProperties props;
     private List<PropertyRow> propertyRows;
     private Map<String, List<TableProperty>> groups;
@@ -56,7 +57,9 @@ public class TableDetailsBean {
         }
 
         if (table.isCanContainProperties()) {
-            this.props = table.getProperties();
+            editable = WebStudioUtils.getProjectModel().isCanEditTable() && !table.getTechnicalName().startsWith(
+                    DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+            props = table.getProperties();
             initPropertyGroups();
         }
     }
@@ -121,12 +124,7 @@ public class TableDetailsBean {
     }
 
     public boolean isEditable() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-
-        boolean isDispatcherValidationNode = table.getTechnicalName().startsWith(
-                DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
-
-        return projectModel.isCanEditTable() && !isDispatcherValidationNode;
+        return editable;
     }
 
     private String getProprtiesTableUri(InheritanceLevel inheritanceLevel) {
