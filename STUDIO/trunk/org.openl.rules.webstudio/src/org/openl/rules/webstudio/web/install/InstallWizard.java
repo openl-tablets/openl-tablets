@@ -241,6 +241,8 @@ public class InstallWizard {
             } else {
                 if (studioWorkingDir.mkdir() == false) {
                     throw new ValidatorException(new FacesMessage("Incorrect folder name"));
+                } else if (studioWorkingDir != null) {
+                    studioWorkingDir.delete();
                 }
             }
         } catch (Exception e) {
