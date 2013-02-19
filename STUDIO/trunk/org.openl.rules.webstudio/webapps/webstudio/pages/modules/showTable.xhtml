@@ -95,7 +95,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <h:outputLink value="#showTable.xhtml" title="Edit Table" styleClass="toolbarButton"
+                                    <h:outputLink value="#showTable.xhtml" title="Edit the table" styleClass="toolbarButton"
                                         rendered="#{showTableBean.canEdit}"  >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <f:param name="mode" value="edit" />
@@ -106,7 +106,7 @@
                                 <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
                                         rendered="#{showTableBean.canEdit}"
-                                        title="Open Table In Excel - #{showTableBean.uri}" 
+                                        title="Open the table in Excel - #{showTableBean.uri}" 
                                         onclick="return canLeavePage()"
                                         target="hidden" >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
@@ -116,7 +116,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                                        oncomplete="goTo('copyTable.xhtml')" title="Copy Table"
+                                        oncomplete="goTo('copyTable.xhtml')" title="Create a new table based on the existing one"
                                         onclick="return canLeavePage()"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
@@ -124,7 +124,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
+                                    <a4j:commandLink action="#{showTableBean.removeTable}" title="Delete the table"
                                         rendered="#{showTableBean.canRemove}"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
@@ -295,14 +295,14 @@
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{showTableBean.canRun}">
-                                    <a class="toolbarButton" title="Run" href="javascript:void(0)"
+                                    <a class="toolbarButton" title="Launch the table" href="javascript:void(0)"
                                         onclick="canLeavePage(); showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
                                         <img src="webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a>
                                 </c:if>
                                 <c:if test="#{showTableBean.canTrace}">
-                                    <a class="toolbarButton" title="Trace" href="javascript:void(0)"
+                                    <a class="toolbarButton" title="Launch the table and trace steps" href="javascript:void(0)"
                                         onclick="canLeavePage(); showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
                                         <img src="webresource/images/trace.gif" />
                                         <span>Trace</span>
@@ -312,10 +312,10 @@
                                     <ui:include src="/pages/modules/test/inputTestCase.xhtml" />
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Run" title="Launch the table"
                                             oncomplete="goTo('#{runLink}')"/> 
                                         <a4j:commandButton id="traceButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Launch the table and trace steps"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win')" />
                                         <h:commandButton id="traceIntoFileButton" style="display: none"
                                             action="#{showTableBean.traceIntoFile(true)}" value="Trace into File"
@@ -359,7 +359,7 @@
                 <td>
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton" title="Create new Test" onclick="return canLeavePage();"
+                            styleClass="toolbarButton" title="Create a new Test table" onclick="return canLeavePage();"
                             oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
@@ -484,7 +484,7 @@
 
     <ui:remove>
     <div style="position: absolute; right: 10px">
-        <ui:include src="/pages/modules/tableProperties.xhtml" />
+        <ui:include src="/pages/modules/tableDetails.xhtml" />
     </div>
     </ui:remove>
 

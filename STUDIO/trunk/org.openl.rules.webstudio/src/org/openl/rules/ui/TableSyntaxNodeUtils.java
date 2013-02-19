@@ -12,33 +12,25 @@ import org.openl.types.IOpenMethod;
 public class TableSyntaxNodeUtils {
 
     private static final String ROUND_BRACKETS_WITH_ANY_TEXT = "\\(.*\\)";
-    private static final String DISPLAY_TABLE_PROPERTY_NAME = "display";    
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode) {
         return getTableDisplayValue(tableSyntaxNode, 0);
     }
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i) {
-        
         return getTableDisplayValue(tableSyntaxNode, i, null);
     }
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i, OverloadedMethodsDictionary dictionary) {
-        
+
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        
+
         String display = null;
         String name = null;
 
         if (tableProperties != null) {
-
             name = tableProperties.getName();
-            // FIXME: What a property name 'display'??? there is no such property.
-            display = tableProperties.getPropertyValueAsString(DISPLAY_TABLE_PROPERTY_NAME);
-        
-            if (display == null) {
-                display = name;
-            }
+            display = name;
         }
 
         if (name == null) {
@@ -54,11 +46,11 @@ public class TableSyntaxNodeUtils {
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode.getMember() instanceof IOpenMethod
                 && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
-            
+
             if (dictionary.getAllMethodOverloads((IOpenMethod)tableSyntaxNode.getMember()).size() > 1) {
                 // Add dimension properties info only if there are more than one table in dictionary.
                 // For single table don`t add this info.
-                //   
+                //
                 String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
 
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
@@ -70,7 +62,7 @@ public class TableSyntaxNodeUtils {
                                 StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ", propertyInfo });
                     }
                 }
-            }            
+            }
         }
 
         if (!StringUtils.isEmpty(dimensionInfo)) {
@@ -82,10 +74,9 @@ public class TableSyntaxNodeUtils {
     }
 
     private static String str2display(String src, String type) {
-
         return src;
     }
-    
+
     // TODO: refactor
     // Pass the HeaderSyntaxNode of the tsn and gets it`s name
     // Update header parsing in all components on Binding phase

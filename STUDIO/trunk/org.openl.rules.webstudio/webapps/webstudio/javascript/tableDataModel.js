@@ -355,9 +355,10 @@ var tableModel = {
 
     checkTable : function() {
         var checkingRes = [];
+        /*Simple rule can have no input parameters
         if (this.header.inParam.length < 1) {
             checkingRes.push("Required at least one parameter");
-        }
+        }*/
 
         if (this.dataRows.length < 2) {
             checkingRes.push("Required at least one rules row");
@@ -387,7 +388,7 @@ var tableModel = {
     },
 };
 
-function Cell(value, valueType, iterable){
+function Cell(value, valueType, iterable) {
     this.value = value;
     this.valueType = valueType;
     this.iterable = iterable;
