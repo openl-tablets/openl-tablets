@@ -32,7 +32,7 @@
 		<property name="supportVariations" ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
 	</bean>
 	
-	<bean id="webServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	<bean id="webServicesDataBinding" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" scope="prototype">
 		<property name="targetObject" ref="aegisDatabindingFactoryBean"/>
 		<property name="targetMethod" value="createAegisDatabinding"/>
 		<property name="singleton" value="false"/>

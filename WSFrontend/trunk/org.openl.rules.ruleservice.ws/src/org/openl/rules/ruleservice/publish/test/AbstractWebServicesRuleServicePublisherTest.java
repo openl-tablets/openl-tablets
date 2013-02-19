@@ -92,7 +92,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @return data binding
      */
     protected DataBinding getDataBinding() {
-        return getApplicationContext().getBean(DataBinding.class);
+        return getApplicationContext().getBean("webServicesDataBinding", DataBinding.class);
     }
 
     /**
