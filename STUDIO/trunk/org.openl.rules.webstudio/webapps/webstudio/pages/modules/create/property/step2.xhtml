@@ -15,7 +15,7 @@
         <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
         <h:form id="propertiesForm">
-            <h:outputLabel value="Name " for="techName" />
+            <h:outputLabel value="Name " for="techName"  styleClass="required" style="margin-right:3px" />
             <h:inputText id="techName" value="#{wizard.tableName}" 
             validator="#{wizard.validateTechnicalName}" immediate="true"/>
             <a4j:outputPanel ajaxRendered="true">

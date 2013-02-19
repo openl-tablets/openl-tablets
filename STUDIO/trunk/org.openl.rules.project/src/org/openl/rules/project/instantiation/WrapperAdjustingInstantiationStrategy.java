@@ -65,7 +65,7 @@ public class WrapperAdjustingInstantiationStrategy extends SingleModuleInstantia
             wrapper = null;
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
-                log.error(String.format("Faield to reser wrapper '%s'.", getModule().getClassname()), e);
+                log.error(String.format("Failed to reset wrapper '%s'.", getModule().getClassname()), e);
             }
         }
     }

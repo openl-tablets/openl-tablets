@@ -39,7 +39,7 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
-import org.openl.rules.ui.tablewizard.WizardBase;
+import org.openl.rules.ui.tablewizard.TableCreationWizard;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.conf.Version;
@@ -50,7 +50,7 @@ import org.richfaces.component.UIRepeat;
  *
  * @author Andrei Astrouski.
  */
-public class TableCopier extends WizardBase {
+public class TableCopier extends TableCreationWizard {
 
     private final Log log = LogFactory.getLog(TableCopier.class);
 
@@ -75,7 +75,11 @@ public class TableCopier extends WizardBase {
     }
 
     public TableCopier(IOpenLTable table) {
-        start();
+        try {
+            start();
+        } catch (Exception e) {
+            log.error(e);
+        }
         this.table = table;
         propertiesManager = new PropertiesBean(getAllPossibleProperties(table.getType()));
         initTableName();
@@ -241,27 +245,6 @@ public class TableCopier extends WizardBase {
         builder.endTable();
 
         return uri;
-    }
-
-    /**
-     * Creates system properties for new table.
-     * 
-     * @return
-     */
-    protected Map<String, Object> buildSystemProperties() {
-        Map<String, Object> result = new HashMap<String, Object>();
-        List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
-
-        for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
-            if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
-                Object systemValue = SystemValuesManager.getInstance().getSystemValue(
-                        systemPropDef.getSystemValueDescriptor());
-                if (systemValue != null){
-                    result.put(systemPropDef.getName(), systemValue);                    
-                }
-            }
-        }
-        return result;
     }
 
     /**

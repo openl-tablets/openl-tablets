@@ -34,8 +34,9 @@ import org.openl.util.StringTool;
 
 @ManagedBean
 @ViewScoped
-public class TablePropertiesBean {
+public class TableDetailsBean {
     private IOpenLTable table;
+    private boolean editable;
     private ITableProperties props;
     private List<PropertyRow> propertyRows;
     private Map<String, List<TableProperty>> groups;
@@ -44,7 +45,7 @@ public class TablePropertiesBean {
     private String newTableUri;
     private String propertyToAdd;
 
-    public TablePropertiesBean() {
+    public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         String uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
@@ -55,8 +56,10 @@ public class TablePropertiesBean {
             table = studio.getModel().getTable(uri);
         }
 
-        if (isShowProperties()) {
-            this.props = table.getProperties();
+        if (table.isCanContainProperties()) {
+            editable = WebStudioUtils.getProjectModel().isCanEditTable() && !table.getTechnicalName().startsWith(
+                    DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+            props = table.getProperties();
             initPropertyGroups();
         }
     }
@@ -121,12 +124,7 @@ public class TablePropertiesBean {
     }
 
     public boolean isEditable() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-
-        boolean isDispatcherValidationNode = table.getTechnicalName().startsWith(
-                DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
-
-        return projectModel.isCanEditTable() && !isDispatcherValidationNode;
+        return editable;
     }
 
     private String getProprtiesTableUri(InheritanceLevel inheritanceLevel) {
@@ -139,8 +137,8 @@ public class TablePropertiesBean {
         return uri;
     }
 
-    public boolean isShowProperties() {
-        return table.isCanContainProperties();
+    public IOpenLTable getTable() {
+        return table;
     }
 
     public String getNewTableUri() {

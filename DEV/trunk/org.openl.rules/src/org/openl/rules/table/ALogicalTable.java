@@ -60,9 +60,23 @@ public abstract class ALogicalTable implements ILogicalTable {
         StringBuffer tableVisualization = new StringBuffer();     
         tableVisualization.append(super.toString()).append("\n");
         
-        for (int i = 0; i < getHeight(); i++) {
+        int height = getHeight();
+        int width = getWidth();
+        if (width > 0) {
+            // Include height of merged cells
+            for (int i = 0; i < height; i++) {
+                height += getSource().getCell(0, i).getHeight() - 1;
+            }
+        }
+        if (height > 0) {
+            // Include width of merged cells
+            for (int j = 0; j < width; j++) {
+                width += getSource().getCell(j, 0).getWidth() - 1;
+            }
+        }
+        for (int i = 0; i < height; i++) {
             int length = 0;
-            for (int j = 0; j < getWidth(); j++) {
+            for (int j = 0; j < width; j++) {
                 String stringValue = getSource().getCell(j, i).getStringValue();
                 if (stringValue == null) {
                     stringValue = "EMPTY";

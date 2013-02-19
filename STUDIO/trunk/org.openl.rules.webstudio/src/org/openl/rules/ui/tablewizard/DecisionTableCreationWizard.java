@@ -21,7 +21,7 @@ import org.openl.rules.table.xls.builder.DecisionTableBuilder;
 /**
  * @author Aliaksandr Antonik.
  */
-public class DecisionTableCreationWizard extends BusinessTableCreationWizard {
+public class DecisionTableCreationWizard extends TableCreationWizard {
     private final Log log = LogFactory.getLog(DecisionTableCreationWizard.class);
     private static final String ORIENTATATION_HORIZONTAL = "hor";
     private static final String ORIENTATATION_VERTICAL = "ver";

@@ -10,6 +10,7 @@ import javax.faces.bean.RequestScoped;
  */
 @ManagedBean
 @RequestScoped
+@Deprecated
 public class Counter {
     private int count;
 

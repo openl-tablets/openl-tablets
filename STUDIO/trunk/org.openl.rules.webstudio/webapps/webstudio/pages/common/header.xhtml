@@ -38,7 +38,7 @@
 
         <div id="rb">
             <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                title="Help">Help</a>
+                title="Launch OpenL Tablets online help">Help</a>
             <c:if test="#{systemConfig['user.mode'] != 'single'}">
             <span id="userName" title="Current user" style="margin: 0 1px 0 9px">
                 <authz:authentication operation="username" />
@@ -49,12 +49,12 @@
         </div>
 
         <div id="ll" style="position: absolute; top: 8px; right: 300px;">
-            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}">Rules Editor</a>
-            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}">Repository</a>
+            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}" title="Switch to Rules editor">Rules Editor</a>
+            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}" title="Switch to Repository editor">Repository</a>
 
             <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
             <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
-                <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}">Administration</a>
+                <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="Manage system settings and users">Administration</a>
             </h:panelGroup>
         </div>
     </div>
