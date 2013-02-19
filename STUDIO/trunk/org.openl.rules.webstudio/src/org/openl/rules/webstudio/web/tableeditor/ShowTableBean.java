@@ -64,6 +64,8 @@ public class ShowTableBean {
 
     private String uri;
     private IOpenLTable table;
+    private boolean editable;
+    private boolean copyable;
 
     private List<OpenLMessage> errors;
     private List<OpenLMessage> warnings;
@@ -98,6 +100,11 @@ public class ShowTableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {*/
+            editable = model.isEditable() && !isDispatcherValidationNode();
+            copyable = editable && table.isCanContainProperties()
+                    && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
+                    && isGranted(PRIVILEGE_CREATE_TABLES);
+
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
                     || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
@@ -107,7 +114,7 @@ public class ShowTableBean {
             initProblems();
             initTests(model);        
             initParams();
-            
+
             //Save last visited table
             WebStudioUtils.getProjectModel().getRecentlyVisitedTables().setLastVisitedTable(table);
             //Check the save table parameter
@@ -299,13 +306,6 @@ public class ShowTableBean {
         return targetTables;
     }
 
-    public boolean isCopyable() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && table.isCanContainProperties()
-                && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
-                && isGranted(PRIVILEGE_CREATE_TABLES); 
-    }
-
     /**
      * 
      * @return true if it is possible to create tests for current table.
@@ -315,8 +315,11 @@ public class ShowTableBean {
     }    
 
     public boolean isEditable() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && !isDispatcherValidationNode();
+        return editable;
+    }
+
+    public boolean isCopyable() {
+        return copyable;
     }
 
     public boolean isHasErrors() {
