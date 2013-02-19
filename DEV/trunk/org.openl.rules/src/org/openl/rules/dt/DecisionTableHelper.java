@@ -11,7 +11,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.RulesCommons;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
@@ -20,7 +19,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -218,7 +216,7 @@ public class DecisionTableHelper {
         
         // write return
         //
-        writeReturn(grid, originalTable, decisionTable, columnsForConditions, numberOfHcondition > 0 ? true : false);
+        writeReturn(grid, originalTable, decisionTable, columnsForConditions, numberOfHcondition > 0);
     }
 
     private static void writeReturn(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
@@ -236,7 +234,7 @@ public class DecisionTableHelper {
         grid.setCellValue(columnsForConditions, 0, (DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1").intern());
         
         if (!isLookupTable && !(originalTable.getWidth() <= getNumberOfConditions(decisionTable))) {
-            int mergedColumnsCounts = mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
+            int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
             
             if (mergedColumnsCounts > 1) {
                 for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
@@ -261,6 +259,7 @@ public class DecisionTableHelper {
             // write headers
             //
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
+            boolean lastCondition = i + 1 == numberOfConditions;
 
             if (isThatVCondition) {
                 vColumnCounter++;
@@ -277,25 +276,30 @@ public class DecisionTableHelper {
 
             //Set type of condition values(for Ranges and Array)
             grid.setCellValue(column, 2,
-                    checkTypeOfValues(originalTable, column, decisionTable.getSignature().getParameterTypes()[i].getDisplayName(0)/* getParameterType(i) .getTypes()getName()*/, isThatVCondition, vColumnCounter) );
+                    checkTypeOfValues(originalTable, i, decisionTable.getSignature().getParameterTypes()[i].getDisplayName(0)/* getParameterType(i) .getTypes()getName()*/, isThatVCondition, lastCondition, vColumnCounter) );
 
             //merge columns
-            int mergedColumnsCounts = originalTable.getColumnWidth(i);
-
-            if (mergedColumnsCounts > 1) {
-                for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                    grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
+            if (isThatVCondition || lastCondition) {
+                int mergedColumnsCounts = isThatVCondition ? originalTable.getColumnWidth(i) : originalTable
+                        .getSource().getCell(vColumnCounter, i - vColumnCounter).getWidth();
+    
+                if (mergedColumnsCounts > 1) {
+                    for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                        grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
+                    }
                 }
+    
+                column += mergedColumnsCounts;
+            } else {
+                column++;
             }
-
-            column += mergedColumnsCounts;
         }
         return column;
     }
     
     /**
      * Check type of condition values. If condition values are complex(Range, Array) 
-     * than types of complex values will be returned 
+     * then types of complex values will be returned 
      * 
      * @param originalTable The original body of simple Decision Table.
      * @param column The number of a condition 
@@ -306,7 +310,7 @@ public class DecisionTableHelper {
      * @return type of condition values
      */
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
-            boolean isThatVCondition, int vColumnCounter) {
+            boolean isThatVCondition, boolean lastCondition, int vColumnCounter) {
         final List<String> intType = Arrays.asList("byte","short","int","Byte","Short","Int",
                 "ByteValue","ShortValue","IntValue","BigIntegerValue", "Integer", "IntegerValue");
         final List<String> doubleType = Arrays.asList("long","float","double","Long","Float","Double",
@@ -318,20 +322,21 @@ public class DecisionTableHelper {
             decisionValues = originalTable.getColumn(column);
             width = decisionValues.getHeight();
         } else {
-            //The first cell of SimpleLookupTable merge rows and column of vertical and horizontal conditions
-            ICell mergedCell = originalTable.getSource().getCell(0, 0);
             int numOfHRow = column - vColumnCounter;
             
             decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(numOfHRow));
             width = decisionValues.getWidth();
         }
         
-        int mergedColumnsCounts = originalTable.getColumnWidth(column);
-        boolean isMerged = mergedColumnsCounts > 1 ? true : false;
-        
-        //if the name row is merged than we have Array
-        if (isMerged) {
-            return typeName+"[]";
+        if (isThatVCondition || lastCondition) {
+            int mergedColumnsCounts = isThatVCondition ? originalTable.getColumnWidth(column) : originalTable
+                    .getSource().getCell(vColumnCounter, column - vColumnCounter).getWidth();
+            boolean isMerged = mergedColumnsCounts > 1;
+            
+            //if the name row is merged then we have Array
+            if (isMerged) {
+                return typeName+"[]";
+            }
         }
         
         for (int valueNum = 1; valueNum < width; valueNum++) {
