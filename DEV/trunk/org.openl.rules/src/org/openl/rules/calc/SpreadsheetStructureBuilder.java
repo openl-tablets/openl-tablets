@@ -26,7 +26,9 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.convertor.String2DoubleConvertor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -125,7 +127,7 @@ public class SpreadsheetStructureBuilder {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
                 /** build spreadsheet cell*/
                 SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex);
-                
+
                 /** init cells array with appropriate cell*/
                 cells[rowIndex][columnIndex] = spreadsheetCell;
                 
@@ -163,8 +165,16 @@ public class SpreadsheetStructureBuilder {
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex),
                 componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
-
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
+
+        IGridTable sourceTable = cell.getSource();
+        String oldValue = sourceTable.getCell(0, 0).getStringValue();
+
+        //Correct links to columns
+        String newStringValue = correctColumnLinks(oldValue, rowHeaders.get(rowIndex).getFirstname(), columnHeaders);
+        IWritableGrid grid = (IWritableGrid) sourceTable.getGrid();
+        grid.setCellValue(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), newStringValue);
+
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = source.getCode();
 
@@ -190,15 +200,32 @@ public class SpreadsheetStructureBuilder {
             componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
+
+        /*Revert changes after Syntax node generating for correct table showing*/
+        grid.setCellValue(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), oldValue);
     }
-    
+
+    private String correctColumnLinks(String columnValue, String rowName, Map<Integer, SpreadsheetHeaderDefinition> columnHeaders) {
+        if (columnValue != null && columnValue.indexOf(DOLLAR_SIGN) > -1) {
+            for (SpreadsheetHeaderDefinition column : columnHeaders.values()) {
+               if (columnValue.indexOf(DOLLAR_SIGN + column.getFirstname()) > -1 && columnValue.indexOf(DOLLAR_SIGN + column.getFirstname() + DOLLAR_SIGN) == -1) {
+                   if (!columnValue.matches(".*"+column.getFirstname()+"[a-zA-Z_]+")) {
+                       columnValue = columnValue.replace(DOLLAR_SIGN + column.getFirstname(), DOLLAR_SIGN + column.getFirstname() + DOLLAR_SIGN + rowName);
+                   }
+               }
+            }
+        }
+
+        return columnValue;
+    }
+
     /**
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, SpreadsheetCell spreadsheetCell, int rowIndex, int columnIndex) {
         SpreadsheetHeaderDefinition columnHeaders = componentsBuilder.getColumnHeaders().get(columnIndex);
         SpreadsheetHeaderDefinition rowHeaders = componentsBuilder.getRowHeaders().get(rowIndex);
-        
+
         if (columnHeaders == null || rowHeaders == null) {
             return;
         }
