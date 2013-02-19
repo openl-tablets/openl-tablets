@@ -89,6 +89,9 @@ public class ModuleGuiWrapper {
 
     public void setType(ModuleType type) {
         module.setType(type);
+        if (ModuleType.API == type) {
+            setClassname(null);
+        }
     }
 
     public String getClassname() {
