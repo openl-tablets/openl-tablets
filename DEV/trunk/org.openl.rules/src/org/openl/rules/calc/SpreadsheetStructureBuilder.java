@@ -25,6 +25,7 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.convertor.String2DoubleConvertor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -202,7 +203,10 @@ public class SpreadsheetStructureBuilder {
         }
 
         /*Revert changes after Syntax node generating for correct table showing*/
+        CellMetaInfo cellMeta = grid.getCell(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom()).getMetaInfo();
+
         grid.setCellValue(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), oldValue);
+        grid.setCellMetaInfo(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), cellMeta);
     }
 
     private String correctColumnLinks(String columnValue, String rowName, Map<Integer, SpreadsheetHeaderDefinition> columnHeaders) {
