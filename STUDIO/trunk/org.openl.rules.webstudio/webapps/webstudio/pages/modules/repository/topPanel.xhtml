@@ -7,22 +7,22 @@
 
     <h:panelGroup id="topPanel" layout="block">
         <div class="buttonPanel">
-            <a4j:commandLink id="designRepoRefresh" title="Refresh" action="#{repositoryTreeController.refreshTree}"
+            <a4j:commandLink id="designRepoRefresh" title="Refresh the project tree" action="#{repositoryTreeController.refreshTree}"
                 render="projectTree nodeView uploadPrjFromLocalDiv uploadPrjFromLocalTable" process="@this"
                 style="background:url('webresource/images/refresh.png')" styleClass="imageButton" />
-            <a4j:commandLink id="productionRepoRefresh" title="Refresh" action="#{productionRepositoriesTreeController.refreshTree}"
+            <a4j:commandLink id="productionRepoRefresh" title="Refresh the project tree" action="#{productionRepositoriesTreeController.refreshTree}"
                 render="prodTree" process="@this" style="background:url('webresource/images/refresh.png'); display: none;"
                 styleClass="imageButton" />
 
             <span style="margin-left: 17px;"></span>
 
             <h:outputLink onclick="openNewProjectDialog();return false;" styleClass="button-primary"
-                title="Create or Import project" rendered="#{repositoryTreeState.canCreate}">
+                title="Create a new project" rendered="#{repositoryTreeState.canCreate}">
                 <h:outputText value="Create Project" />
             </h:outputLink>
 
             <h:outputLink onclick="openNewDeploymentProjectDialog();return false;" styleClass="button" title="Create new Deploy Configuration" rendered="#{repositoryTreeState.canCreateDeployment}">
-                <h:outputText value="Create Deploy Configuration" />
+                <h:outputText value="Create a new Deploy configuration" />
             </h:outputLink>
         </div>
     </h:panelGroup>

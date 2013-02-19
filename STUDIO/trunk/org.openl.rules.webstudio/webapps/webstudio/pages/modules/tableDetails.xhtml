@@ -3,6 +3,7 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:oh="http://openl-tablets.sf.net/jsf/html">
@@ -12,6 +13,16 @@
     <script src="webresource/js/validation.js"></script>
 
     <style>
+        .table-data td {
+            padding: 4px 0;
+        }
+        .table-data-name {
+            color: #333;
+            min-width: 55px;
+        }
+        .table-data-value {
+            font-weight: bold;
+        }
         .propsGroupHeader {
             color: #1199EE;
             font-size: 110%;
@@ -32,10 +43,11 @@
         .propName {
             color: #555555;
             padding: 3px 0 2px 3px;
-            min-width: 70px;
+            min-width: 75px;
         }
         .propData {
             padding: 3px 0 1px;
+            width: 100%;
         }
         .propValue {
             margin-left: 5px;
@@ -63,12 +75,18 @@
         }
     </style>
 
-    <h:panelGroup rendered="#{tablePropertiesBean.showProperties}" layout="block">
     <h:form prependId="false">
         <h:panelGroup id="propsTable" layout="block">
         <table>
-            <a4j:repeat value="#{tablePropertiesBean.propertyRows}" var="row">
+            <h:panelGroup rendered="#{!empty tableDetailsBean.table.name}">
+            <tr class="table-data">
+                <td class="table-data-name">Name</td>
+                <td class="table-data-value">#{tableDetailsBean.table.name}</td>
+            </tr>
+            </h:panelGroup>
 
+            <c:if test="#{tableDetailsBean.table.canContainProperties}">
+            <a4j:repeat value="#{tableDetailsBean.propertyRows}" var="row">
             <h:panelGroup rendered="#{row.type.name() == 'GROUP'}">
             <tr>
                 <td colspan="2" class="propsGroupHeader">#{row.data}</td>
@@ -79,7 +97,7 @@
 
             <ui:param name="prop" value="#{row.data}" />
             <ui:param name="editable"
-                value="#{tablePropertiesBean.editable and (!prop.system or !studio.updateSystemProperties) and prop.canBeOverridenInTable and prop.name != 'version'}" />
+                value="#{tableDetailsBean.editable and (!prop.system or !studio.updateSystemProperties) and prop.canBeOverridenInTable and prop.name != 'version'}" />
             <ui:param name="added" value="#{empty prop.value}" />
 
             <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}#{!empty prop.deprecation ? ' deprecatedProp' : ''}"
@@ -121,7 +139,7 @@
                             title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
-                        <a4j:commandLink id="removePropBtn" action="#{tablePropertiesBean.remove(prop)}" title="Remove"
+                        <a4j:commandLink id="removePropBtn" action="#{tableDetailsBean.remove(prop)}" title="Remove"
                             render="propsTable :addPropsPanel"
                             style="#{empty prop.deprecation ? 'display: none' : ''}">
                             <img style="opacity: 0.5" src="webresource/images/close.gif" />
@@ -132,30 +150,31 @@
             </h:panelGroup>
 
             </a4j:repeat>
+            </c:if>
         </table>
 
-        <h:panelGroup rendered="#{tablePropertiesBean.editable}" style="margin: 8px 0" layout="block">
-            <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tablePropertiesBean.changed ? 'display:inline' : 'display:none'}"
-                action="#{tablePropertiesBean.save}" data="#{tablePropertiesBean.newTableUri}"
+        <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}" style="margin: 8px 0" layout="block">
+            <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tableDetailsBean.changed ? 'display:inline' : 'display:none'}"
+                action="#{tableDetailsBean.save}" data="#{tableDetailsBean.newTableUri}"
                 oncomplete="goTo('showTable.xhtml?uri=' + encodeURIComponent(event.data), true)" />
             <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('#addPropsPanel').fadeIn()"
-                rendered="#{!empty tablePropertiesBean.propertiesToAdd}" style="margin-left: 4px">Add</h:outputLink>
+                rendered="#{!empty tableDetailsBean.propertiesToAdd}" style="margin-left: 4px">Add Property</h:outputLink>
         </h:panelGroup>
         </h:panelGroup>
 
-    <h:panelGroup rendered="#{tablePropertiesBean.editable}">
+    <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}">
         <h:panelGroup id="addPropsPanel" layout="block"
             style="display: none; margin: 7px 3px; padding: 8px; border: 1px solid #eeeeee; background: #f5f5f5; text-align: center">
             <div style="display: inline-block; text-align: left;">
                 <div style="color: #555555; margin-bottom: 8px">Select property to add</div>
                 <div>
-                    <h:selectOneMenu value="#{tablePropertiesBean.propertyToAdd}">
-                        <f:selectItems value="#{tablePropertiesBean.propertiesToAdd}" />
+                    <h:selectOneMenu value="#{tableDetailsBean.propertyToAdd}">
+                        <f:selectItems value="#{tableDetailsBean.propertiesToAdd}" />
                     </h:selectOneMenu>
                 </div>
                 <div style="margin-top: 9px">
                     <a4j:commandButton value="Add" onclick="$j('#addPropsPanel').hide()"
-                        action="#{tablePropertiesBean.addNew}" render=":propsTable @form"
+                        action="#{tableDetailsBean.addNew}" render=":propsTable @form"
                         oncomplete="$j('#savePropsButton').fadeIn();$j('#addPropBtn').fadeIn()" />
                     <a href="javascript:void(0)" onclick="$j('#addPropsPanel').hide();$j('#addPropBtn').fadeIn()"
                         style="margin-left: 3px">Cancel</a>
@@ -189,6 +208,5 @@
                 $j(row).find("a[id*='removePropBtn']").hide();
         }
     </script>
-    </h:panelGroup>
 
 </ui:composition>

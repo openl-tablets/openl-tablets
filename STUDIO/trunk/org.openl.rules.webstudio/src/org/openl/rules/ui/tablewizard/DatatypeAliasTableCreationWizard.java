@@ -24,7 +24,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Andrei Astrouski
  */
-public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizard {
+public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message="Can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
@@ -139,7 +139,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
     @Override
     protected void onStepFirstVisit(int step) {
         switch (step) {
-            case 4:
+            case 3:
                 initWorkbooks();
                 break;
         }

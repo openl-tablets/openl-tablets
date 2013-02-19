@@ -34,7 +34,7 @@ import org.openl.util.StringTool;
 
 @ManagedBean
 @ViewScoped
-public class TablePropertiesBean {
+public class TableDetailsBean {
     private IOpenLTable table;
     private ITableProperties props;
     private List<PropertyRow> propertyRows;
@@ -44,7 +44,7 @@ public class TablePropertiesBean {
     private String newTableUri;
     private String propertyToAdd;
 
-    public TablePropertiesBean() {
+    public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         String uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
@@ -55,7 +55,7 @@ public class TablePropertiesBean {
             table = studio.getModel().getTable(uri);
         }
 
-        if (isShowProperties()) {
+        if (table.isCanContainProperties()) {
             this.props = table.getProperties();
             initPropertyGroups();
         }
@@ -139,8 +139,8 @@ public class TablePropertiesBean {
         return uri;
     }
 
-    public boolean isShowProperties() {
-        return table.isCanContainProperties();
+    public IOpenLTable getTable() {
+        return table;
     }
 
     public String getNewTableUri() {
