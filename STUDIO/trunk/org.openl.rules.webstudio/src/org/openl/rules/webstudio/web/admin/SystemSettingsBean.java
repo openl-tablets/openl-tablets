@@ -421,39 +421,6 @@ public class SystemSettingsBean {
         return productionConfigManagerFactory.getConfigurationManager(configName);
     }
 
-    public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        File studioWorkingDir;
-        File tmpFile = null;
-        try {
-            studioWorkingDir = new File((String) value);
-
-            if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir, "tmp");
-                /* If temp file already exists - deleting it.*/
-                tmpFile.delete();
-                boolean hasAccess = tmpFile.mkdir();
-
-                if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder '" + (String) value + 
-                        "'    Please, contact to your system administrator."));
-                }
-            } else {
-                if (studioWorkingDir.mkdir() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect folder name '" + studioWorkingDir.getName() + "'" ));
-                }
-            }
-        } catch (Exception e) {
-           // throw new ValidatorException(new FacesMessage(e.getMessage()));
-            FacesUtils.addErrorMessage(e.getMessage());
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
-           
-        } finally {
-            if (tmpFile != null && tmpFile.exists()) {
-                tmpFile.delete();
-            }
-        }
-    }
-  
     private String getConfigName(String repositoryName) {
         String configName = "rules-";
         if (repositoryName != null) {
