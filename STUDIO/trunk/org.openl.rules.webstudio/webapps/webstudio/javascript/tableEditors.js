@@ -40,6 +40,24 @@ function initComplexSelect(data, element) {
    element.onclick = function() {};
    element.parentNode.onclick = function() {};
 
+   editor.getInputElement().onkeypress = function(event) {
+       if(event.keyCode == 13) {
+           element.innerHTML = editor.getValue();
+
+           //set action to cell
+           element.parentNode.onclick = function(element) {
+               tableModel.toEditPropsMode(this);
+           };
+
+           if (data.type == "DATE") {
+               element.parentNode.props.value = editor.getValue();
+           } else {
+               element.parentNode.props.value = editor.getValue();
+               editor.close();
+           }
+       }
+   };
+
    editor.getInputElement().onblur = function() {
        element.innerHTML = editor.getValue();
 
@@ -147,13 +165,17 @@ function Editor(){
 
         newElement.onchange = function () {
             tableModel.toNormalMode(this);
-        }
+        };
 
         newElement.onblur = function () {
             tableModel.toNormalMode(this);
-        }
+        };
 
         newElement.onkeypress = function(event) {
+            if(event.keyCode == 13) {
+                tableModel.toNormalMode(this);
+            }
+
             var v = this.value;
             if (event.charCode == 0) return true;
             var code = event.charCode == undefined ? event.keyCode : event.charCode;
@@ -184,12 +206,18 @@ function Editor(){
 
         newElement.onchange = function () {
             tableModel.toNormalMode(newElement);
-        }
+        };
 
         newElement.onblur = function () {
             tableModel.toNormalMode(newElement);
-        }
-        
+        };
+
+        newElement.onkeypress = function(event) {
+            if(event.keyCode == 13) {
+                tableModel.toNormalMode(this);
+            }
+        };
+
         newElement.focus();
         return newElement;
     };
@@ -209,6 +237,12 @@ function Editor(){
 
         newElement.onblur = function() {
             tableModel.toNormalMode(this);
+        };
+
+        newElement.onkeypress = function(event) {
+            if(event.keyCode == 13) {
+                tableModel.toNormalMode(this);
+            }
         };
 
         element.innerHTML = "";
@@ -237,8 +271,22 @@ function Editor(){
         var newElement = document.createElement('input');
         newElement.type = 'text';
         newElement.value = dataCell.value;
-        newElement.setAttribute('onchange','tableModel.toNormalMode(this)');
-        newElement.setAttribute('onblur','tableModel.toNormalMode(this)');
+        //newElement.setAttribute('onchange','tableModel.toNormalMode(this)');
+        //newElement.setAttribute('onblur','tableModel.toNormalMode(this)');
+
+        newElement.onclick = function() {
+            datePickerController.show(newElement.id);
+        };
+
+        newElement.onblur = function() {
+            tableModel.toNormalMode(this);
+        };
+
+        newElement.onkeypress = function(event) {
+            if(event.keyCode == 13) {
+                tableModel.toNormalMode(this);
+            }
+        };
 
         return newElement;
     };

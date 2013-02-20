@@ -106,6 +106,13 @@ var tableModel = {
         editElem.firstChild.onblur = function() {
             this.onchange();
         };
+
+        editElem.firstChild.onkeypress = function(event) {
+            if(event.keyCode == 13) {
+                this.onchange();
+                return false;
+            }
+        };
     },
 
     toEditorMode : function(cell) {
