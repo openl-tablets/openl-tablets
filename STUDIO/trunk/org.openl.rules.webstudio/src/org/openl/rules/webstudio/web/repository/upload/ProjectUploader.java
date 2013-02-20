@@ -97,11 +97,11 @@ public class ProjectUploader {
 
     private String getProblemWithProjectName() {
         String problem = null;
-        if (userWorkspace.hasProject(projectName)) {
-            problem = NAME_ALREADY_EXISTS;
-        } else if (!NameChecker.checkName(projectName)) {
+        if (!NameChecker.checkName(projectName)) {
             problem = INVALID_PROJECT_NAME + " " + NameChecker.BAD_NAME_MSG;
-        }
+        } else if (userWorkspace.hasProject(projectName)) {
+            problem = NAME_ALREADY_EXISTS;
+        } 
         return problem;
     }
 
