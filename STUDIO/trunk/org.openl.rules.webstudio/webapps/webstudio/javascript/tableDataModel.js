@@ -81,10 +81,10 @@ var tableModel = {
         var row = [];
 
         for(i = 0;  i < this.header.inParam.length; i++) {
-            row.push(new Cell("empty", this.header.inParam[i].valuesType, this.header.inParam[i].iterable));
+            row.push(new Cell("", this.header.inParam[i].valuesType, this.header.inParam[i].iterable));
         }
 
-        row.push(new Cell("empty",this.header.returnType.valuesType, this.header.returnType.iterable));
+        row.push(new Cell("",this.header.returnType.valuesType, this.header.returnType.iterable));
 
         this.dataRows.push(row);
         this.renderer.createRow(row, false);
@@ -211,7 +211,7 @@ var tableModel = {
 
         for(i = 0; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
-            var cell = new Cell("empty", newParam.valuesType, newParam.iterable);
+            var cell = new Cell("", newParam.valuesType, newParam.iterable);
 
             row.splice(id, 0, cell);
         }
