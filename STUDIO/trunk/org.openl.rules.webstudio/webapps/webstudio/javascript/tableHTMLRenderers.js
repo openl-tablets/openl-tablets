@@ -10,7 +10,7 @@ verticalRenderer = {
         obj.style.borderWidth = "1px 1px 1px 1px";
         obj.style.borderColor = "#bbbbdd #bbbbdd #bbbbdd #bbbbdd;";
         obj.style.borderStyle = "solid solid solid solid";
-        obj.style.textAlign="center";
+        obj.style.textAlign = "center";
     },
 
     setHeaderStyle : function(obj) {
