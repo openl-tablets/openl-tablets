@@ -6,7 +6,8 @@ java -jar compiler.jar ^
 	js/popup/popupmenu.js ^
 	js/BaseEditor.js ^
 	js/BaseTextEditor.js ^
-	js/datepicker.packed.js ^
+	js/datepicker/en.js ^
+	js/datepicker/datepicker.packed.js ^
 	js/TextEditor.js ^
 	js/MultiLineEditor.js ^
 	js/NumericEditor.js ^
