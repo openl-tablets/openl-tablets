@@ -81,10 +81,10 @@ var tableModel = {
         var row = [];
 
         for(i = 0;  i < this.header.inParam.length; i++) {
-            row.push(new Cell("empty", this.header.inParam[i].valuesType, this.header.inParam[i].iterable));
+            row.push(new Cell("", this.header.inParam[i].valuesType, this.header.inParam[i].iterable));
         }
 
-        row.push(new Cell("empty",this.header.returnType.valuesType, this.header.returnType.iterable));
+        row.push(new Cell("",this.header.returnType.valuesType, this.header.returnType.iterable));
 
         this.dataRows.push(row);
         this.renderer.createRow(row, false);
@@ -211,7 +211,7 @@ var tableModel = {
 
         for(i = 0; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
-            var cell = new Cell("empty", newParam.valuesType, newParam.iterable);
+            var cell = new Cell("", newParam.valuesType, newParam.iterable);
 
             row.splice(id, 0, cell);
         }
@@ -372,7 +372,7 @@ var tableModel = {
         }*/
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("Required at least one rules row");
+            checkingRes.push("There are no rules row in the table. Please, add at least one rules row in the table.");
         }
 
         this.checkNames(checkingRes);
@@ -382,18 +382,25 @@ var tableModel = {
 
     checkNames : function(checkingRes) {
         re =/^([a-zA-Z_][a-zA-Z_0-9]*)$/;
+        onlyChar = /^([a-zA-Z]+)/;
 
-        if(!re.test(this.header.name)) {
-            checkingRes.push("Table name is invalid");
+        if (!re.test(this.header.name)) {
+            checkingRes.push("Table name '"+this.header.name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'.");
+        }
+
+        if (this.header.name.length == 1) {
+            if (!onlyChar.test(this.header.name)) {
+                checkingRes.push("Table name is invalid. Only letters can be used as one symbol table name.");
+            }
         }
 
         for (var i = 0; i < this.header.inParam.length; i++) {
             if(this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid");
+                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid. Please, select parameter type type.");
             }
 
             if(!re.test(this.header.inParam[i].name)) {
-                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid");
+                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
             }
         }
     },
