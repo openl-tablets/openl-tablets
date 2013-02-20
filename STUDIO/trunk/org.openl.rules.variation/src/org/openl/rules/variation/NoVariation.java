@@ -11,7 +11,7 @@ public class NoVariation extends Variation {
      * ID for original calculation. Can be used for retrieving result of
      * calculation without variations.
      */
-    public static final String ORIGINAL_CALCULATION = "Original calcuation";
+    public static final String ORIGINAL_CALCULATION = "Original calculation";
 
     public NoVariation() {
         super(ORIGINAL_CALCULATION);
