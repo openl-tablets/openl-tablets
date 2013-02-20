@@ -331,16 +331,19 @@ public class RepositoryTreeController {
     }
 
     public String createNewRulesProject() {
+        String msg = null;
         if (StringUtils.isBlank(projectName)) {
-            FacesUtils.addErrorMessage("Project name must not be empty.");
+            msg = "Project name must not be empty.";
+        } else if (!NameChecker.checkName(projectName)) {
+            msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
+        } else if (userWorkspace.hasProject(projectName)) {
+            msg = "Cannot create project because project with such name already exists.";
+        } 
+        
+        if (msg != null) {
+            this.clearForm();
+            FacesUtils.addErrorMessage(msg);
             return null;
-        }
-
-        if (userWorkspace.hasProject(projectName)) {
-            String msg = "Cannot create project because project with such name already exists.";
-            FacesUtils.addErrorMessage(msg, null);
-
-            return msg;
         }
 
         ProjectFile[] templateFiles = getProjectTemplateFiles(TEMPLATES_PATH + newProjectTemplate);
