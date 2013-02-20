@@ -102,6 +102,17 @@ var tableModel = {
         editElem = element.nextSibling;
         element.style.display = "none";
         editElem.style.display = "";
+        editElem.firstChild.focus();
+        editElem.firstChild.onblur = function() {
+            this.onchange();
+        };
+
+        editElem.firstChild.onkeypress = function(event) {
+            if(event.keyCode == 13) {
+                this.onchange();
+                return false;
+            }
+        };
     },
 
     toEditorMode : function(cell) {

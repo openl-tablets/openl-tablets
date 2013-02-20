@@ -22,7 +22,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 /**
  * @author Aliaksandr Antonik.
  */
-public class TestTableCreationWizard extends BusinessTableCreationWizard {
+public class TestTableCreationWizard extends TableCreationWizard {
 
     private SelectItem[] tableItems;
 
@@ -179,7 +179,7 @@ public class TestTableCreationWizard extends BusinessTableCreationWizard {
 
     @Override
     protected void onStepFirstVisit(int step) {
-        if (step == 3) {
+        if (step == 2) {
             initWorkbooks();
         }
     }

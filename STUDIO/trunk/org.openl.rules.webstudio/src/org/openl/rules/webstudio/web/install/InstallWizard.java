@@ -49,7 +49,7 @@ public class InstallWizard {
     private String dbPassword;
     private String dbDriver;
     private String dbPrefix;
-    
+
     private UIInput dbURLInput;
     private UIInput dbLoginInput;
     private UIInput dbPasswordInput;
@@ -63,12 +63,12 @@ public class InstallWizard {
     private Map<String, Object> dbErrors;
 
     public InstallWizard() {
-        appConfig = new ConfigurationManager(
-                false, System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
+        appConfig = new ConfigurationManager(false,
+            System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getPath("webstudio.home");
 
-        dbMySqlConfig = new ConfigurationManager(
-                false, System.getProperty("webapp.root") + "/WEB-INF/conf/db-mysql.properties");
+        dbMySqlConfig = new ConfigurationManager(false,
+            System.getProperty("webapp.root") + "/WEB-INF/conf/db-mysql.properties");
     }
 
     public String start() {
@@ -88,27 +88,26 @@ public class InstallWizard {
             // Get defaults from 'system.properties'
             if (newWorkingDir || systemConfig == null) {
                 systemConfig = new ConfigurationManager(true,
-                        workingDir + "/system-settings/system.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                    workingDir + "/system-settings/system.properties",
+                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
 
                 dbConfig = new ConfigurationManager(true,
-                        workingDir + "/system-settings/db.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
-                sqlErrorsConfig =new ConfigurationManager(false,
+                    workingDir + "/system-settings/db.properties",
+                    System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+                sqlErrorsConfig = new ConfigurationManager(false,
                     null,
                     System.getProperty("webapp.root") + "/WEB-INF/conf/sql-errors.properties");
-                
+
                 dbErrors = sqlErrorsConfig.getProperties();
 
                 userMode = systemConfig.getStringProperty("user.mode");
-                
 
                 boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
                 appMode = innerDb ? "demo" : "production";
 
                 ConfigurationManager defaultDbConfig = !innerDb ? dbConfig : dbMySqlConfig;
                 dbUrl = defaultDbConfig.getStringProperty("db.url").split("//")[1];
-                dbPrefix =  defaultDbConfig.getStringProperty("db.url").split("//")[0]+ "//";
+                dbPrefix = defaultDbConfig.getStringProperty("db.url").split("//")[0] + "//";
                 dbUsername = defaultDbConfig.getStringProperty("db.user");
                 dbPassword = defaultDbConfig.getStringProperty("db.password");
                 dbDriver = defaultDbConfig.getStringProperty("db.driver");
@@ -121,41 +120,38 @@ public class InstallWizard {
     public String finish() {
 
         try {
-                systemConfig.setProperty("user.mode", userMode);
-                systemConfig.save();
+            systemConfig.setProperty("user.mode", userMode);
+            systemConfig.save();
 
-                appConfig.setPath("webstudio.home", workingDir);
-                appConfig.setProperty("webstudio.configured", true);
-                appConfig.save();
-                System.setProperty("webstudio.home", workingDir);
-                System.setProperty("webstudio.configured", "true");
+            appConfig.setPath("webstudio.home", workingDir);
+            appConfig.setProperty("webstudio.configured", true);
+            appConfig.save();
+            System.setProperty("webstudio.home", workingDir);
+            System.setProperty("webstudio.configured", "true");
 
-                if (appMode.equals("production") ) {
+            if (appMode.equals("production")) {
 
-                    dbConfig.setProperty("db.url",
-                    dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
-                    dbConfig.setProperty("db.user", dbUsername);
-                    dbConfig.setProperty("db.password", dbPassword);
-                    dbConfig.setProperty("db.driver", dbMySqlConfig.getStringProperty("db.driver"));
-                    dbConfig.setProperty("db.hibernate.dialect",
-                        dbMySqlConfig.getStringProperty("db.hibernate.dialect"));
-                    dbConfig.save();
-                   
-                } else {
-                    dbConfig.restoreDefaults();
-                }
+                dbConfig.setProperty("db.url", dbMySqlConfig.getStringProperty("db.url").split("//")[0] + "//" + dbUrl);
+                dbConfig.setProperty("db.user", dbUsername);
+                dbConfig.setProperty("db.password", dbPassword);
+                dbConfig.setProperty("db.driver", dbMySqlConfig.getStringProperty("db.driver"));
+                dbConfig.setProperty("db.hibernate.dialect", dbMySqlConfig.getStringProperty("db.hibernate.dialect"));
+                dbConfig.save();
 
-                XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.
-                        getWebApplicationContext(FacesUtils.getServletContext());
+            } else {
+                dbConfig.restoreDefaults();
+            }
 
-                context.setConfigLocations(new String[] { "/WEB-INF/spring/webstudio-beans.xml",
-                        "/WEB-INF/spring/system-config-beans.xml",
-                        "/WEB-INF/spring/repository-beans.xml",
-                        "/WEB-INF/spring/security-beans.xml",
-                        "/WEB-INF/spring/security/security-" + userMode + ".xml" });
+            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
 
-                context.refresh();
-                FacesUtils.redirectToRoot();
+            context.setConfigLocations(new String[] { "/WEB-INF/spring/webstudio-beans.xml",
+                    "/WEB-INF/spring/system-config-beans.xml",
+                    "/WEB-INF/spring/repository-beans.xml",
+                    "/WEB-INF/spring/security-beans.xml",
+                    "/WEB-INF/spring/security/security-" + userMode + ".xml" });
+
+            context.refresh();
+            FacesUtils.redirectToRoot();
 
         } catch (Exception e) {
             LOG.error("Failed while saving the configuration", e);
@@ -187,7 +183,7 @@ public class InstallWizard {
         } catch (SQLException sqle) {
             errorCode = sqle.getErrorCode();
             String errorMessage = (String) dbErrors.get("" + errorCode);
-            
+
             if (errorMessage != null) {
                 LOG.error(sqle.getMessage(), sqle);
                 throw new ValidatorException(new FacesMessage(errorMessage));
@@ -227,18 +223,35 @@ public class InstallWizard {
     }
 
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-
+        File studioWorkingDir;
+        File tmpFile = null;
         try {
-            File studioWorkingDir = new File((String) value);
-            if (studioWorkingDir != null && studioWorkingDir.exists() && studioWorkingDir.canWrite()) {
-                return;
+            studioWorkingDir = new File((String) value);
+
+            if (studioWorkingDir.exists()) {
+                tmpFile = new File(studioWorkingDir, "tmp");
+                /* If temp file already exists - deleting it.*/
+                tmpFile.delete();
+                boolean hasAccess = tmpFile.mkdir();
+
+                if (!hasAccess) {
+                    throw new ValidatorException(new FacesMessage("Can't get access to the folder '" + (String) value + 
+                        "'    Please, contact to your system administrator."));
+                }
             } else {
-                if (!studioWorkingDir.mkdir()) {
+                if (studioWorkingDir.mkdir() == false) {
                     throw new ValidatorException(new FacesMessage("Incorrect folder name"));
+                } else if (studioWorkingDir != null) {
+                    studioWorkingDir.delete();
                 }
             }
         } catch (Exception e) {
-            throw new ValidatorException(new FacesMessage("Incorrect folder name"));
+            throw new ValidatorException(new FacesMessage(e.getMessage()));
+           
+        } finally {
+            if (tmpFile != null && tmpFile.exists()) {
+                tmpFile.delete();
+            }
         }
     }
 

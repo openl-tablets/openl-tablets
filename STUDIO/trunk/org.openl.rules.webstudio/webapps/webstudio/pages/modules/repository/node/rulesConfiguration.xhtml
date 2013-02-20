@@ -50,7 +50,7 @@
     <h:panelGrid columns="2" columnClasses="label," styleClass="configBlock">
       <ui:param name="descriptor" value="#{repositoryProjectRulesConfig.descriptor}" />
 
-      <h:outputLabel for="#{prefix}id" value="Project id"/>
+      <h:outputLabel for="#{prefix}id" value="Project id" styleClass="#{openedForEditing ? 'required' : ''}"/>
       <h:panelGroup>
           <h:inputText id="#{prefix}id" maxlength="100" size="40" value="#{descriptor.id}" rendered="#{openedForEditing}"/>
           <h:outputText value="#{descriptor.id}" rendered="#{!openedForEditing}"/>
@@ -90,27 +90,29 @@
     <br/>
 
     <h:panelGroup>
-      <h:outputLabel value="Modules:" styleClass="blockHeader"/>
+      <h:outputLabel value="Modules:" styleClass="blockHeader #{openedForEditing ? 'required' : ''}"/>
       <br/>
       <ui:repeat var="module" value="#{repositoryProjectRulesConfig.modules}">
         <h:panelGrid columns="2" columnClasses=",removeButton" styleClass="configBlock">
-          <h:panelGrid columns="2" columnClasses="label,">
-              <h:outputLabel for="#{prefix}name" value="Name"/>
+          <h:panelGrid id="#{prefix}currentModule" columns="2" columnClasses="label,">
+              <h:outputLabel for="#{prefix}name" value="Name" styleClass="#{openedForEditing ? 'required' : ''}"/>
               <h:inputText id="#{prefix}name" maxlength="100" size="40" value="#{module.name}" rendered="#{openedForEditing}"/>
               <h:outputText value="#{module.name}" rendered="#{!openedForEditing}"/>
 
-              <h:outputLabel for="#{prefix}type" value="Type"/>
+              <h:outputLabel for="#{prefix}type" value="Type" styleClass="#{openedForEditing ? 'required' : ''}"/>
               <h:selectOneMenu id="#{prefix}type" value="#{module.type}" disabled="#{!openedForEditing}">
+                  <f:ajax event="change" execute="#{prefix}currentModule" render="#{prefix}currentModule" />
                   <f:selectItem itemValue="STATIC" itemLabel="Static" />
                   <f:selectItem itemValue="DYNAMIC" itemLabel="Dynamic" />
                   <f:selectItem itemValue="API" itemLabel="API" />
               </h:selectOneMenu>
 
-              <h:outputLabel for="#{prefix}classname" value="Class"/>
-              <h:inputText id="#{prefix}classname" maxlength="100" size="40" value="#{module.classname}" rendered="#{openedForEditing}"/>
-              <h:outputText value="#{module.classname}" rendered="#{!openedForEditing}"/>
+              <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
+              <h:outputLabel for="#{prefix}classname" value="Class" rendered="#{needJavaClassName}" styleClass="#{openedForEditing ? 'required' : ''}"/>
+              <h:inputText id="#{prefix}classname" maxlength="100" size="40" value="#{module.classname}" rendered="#{openedForEditing and needJavaClassName}"/>
+              <h:outputText value="#{module.classname}" rendered="#{!openedForEditing and needJavaClassName}"/>
 
-              <h:outputLabel for="#{prefix}rulesRootPath" value="Rules root path"/>
+              <h:outputLabel for="#{prefix}rulesRootPath" value="Rules root path" styleClass="#{openedForEditing ? 'required' : ''}"/>
               <h:inputText id="#{prefix}rulesRootPath" maxlength="100" size="40" value="#{module.rulesRootPath.path}" rendered="#{openedForEditing}"/>
               <h:outputText value="#{module.rulesRootPath.path}" rendered="#{!openedForEditing}"/>
 

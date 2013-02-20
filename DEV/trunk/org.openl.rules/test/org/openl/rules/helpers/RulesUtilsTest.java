@@ -13,7 +13,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.BigDecimalValue;
@@ -477,5 +476,32 @@ public class RulesUtilsTest {
         assertEquals("25/13 15:03", RulesUtils.format(c.getTime(), "dd/YY HH:mm"));
         assertEquals("25/13 15:03", RulesUtils.dateToString(c.getTime(), "dd/YY HH:mm"));
         
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void testSmallByte() {
+        byte [] array = {10, 32, 35, 25};
+       assertTrue(RulesUtils.small(array, 1) == 10);
+       assertTrue(RulesUtils.small(array, 2) == 25);
+       assertTrue(RulesUtils.small(array, 3) == 32);
+       assertTrue(RulesUtils.small(array, 4) == 35);
+       
+       RulesUtils.small(array, 0);
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void testBigByte() {
+        byte[] array = {10, 32, 35, 25};
+        assertTrue(RulesUtils.big(array, 4) == 10);
+        assertTrue(RulesUtils.big(array, 3) == 25);
+        assertTrue(RulesUtils.big(array, 2) == 32);
+        assertTrue(RulesUtils.big(array, 1) == 35);
+        
+        RulesUtils.small(array, 0);
+    }
+    
+    @Test
+    public void quotientIntTest () {
+        System.out.println(RulesUtils.quotient(9, 4));
     }
 }

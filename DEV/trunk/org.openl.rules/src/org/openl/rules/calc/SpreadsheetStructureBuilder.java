@@ -25,8 +25,11 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.convertor.String2DoubleConvertor;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -125,7 +128,7 @@ public class SpreadsheetStructureBuilder {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
                 /** build spreadsheet cell*/
                 SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex);
-                
+
                 /** init cells array with appropriate cell*/
                 cells[rowIndex][columnIndex] = spreadsheetCell;
                 
@@ -163,8 +166,8 @@ public class SpreadsheetStructureBuilder {
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex),
                 componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
-
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
+
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = source.getCode();
 
@@ -191,14 +194,14 @@ public class SpreadsheetStructureBuilder {
             BindHelper.processError(e, spreadsheetBindingContext);
         }
     }
-    
+
     /**
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, SpreadsheetCell spreadsheetCell, int rowIndex, int columnIndex) {
         SpreadsheetHeaderDefinition columnHeaders = componentsBuilder.getColumnHeaders().get(columnIndex);
         SpreadsheetHeaderDefinition rowHeaders = componentsBuilder.getRowHeaders().get(rowIndex);
-        
+
         if (columnHeaders == null || rowHeaders == null) {
             return;
         }

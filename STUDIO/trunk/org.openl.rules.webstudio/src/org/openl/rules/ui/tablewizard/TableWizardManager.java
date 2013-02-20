@@ -4,13 +4,14 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.commons.web.jsf.FacesUtils;
 
 /**
  * @author Aliaksandr Antonik.
  */
 @ManagedBean(name="tableCreatorWizardManager")
 @SessionScoped
-public class TableWizardManager extends TableWizard{
+public class TableWizardManager extends BaseTableWizardManager {
 
     static enum TableType {
         UNKNOWN,
@@ -62,23 +63,23 @@ public class TableWizardManager extends TableWizard{
                 break;
             case DATATYPE:
                 wizard = new DatatypeTableCreationWizard();
-                wizard.setStepsCount(4);
+                wizard.setStepsCount(3);
                 break;
             case DATATYPE_ALIAS:
                 wizard = new DatatypeAliasTableCreationWizard();
-                wizard.setStepsCount(4);
+                wizard.setStepsCount(3);
                 break;
             case DATA:
                 wizard = new DataTableCreationWizard();
-                wizard.setStepsCount(4);
+                wizard.setStepsCount(3);
                 break;
             case TEST:
                 wizard = new TestTableCreationWizard();
-                wizard.setStepsCount(4);
+                wizard.setStepsCount(3);
                 break;
             case TEST_DIRECT:
                 wizard = new TestTableCreationWizardDirect(getTable());
-                wizard.setStepsCount(3);
+                wizard.setStepsCount(2);
                 break;
             case PROPERTY:
                 wizard = new PropertyTableCreationWizard();
@@ -86,19 +87,20 @@ public class TableWizardManager extends TableWizard{
                 break;
             case SIMPLERULES:
                 wizard = new SimpleRulesCreationWizard();
-                wizard.setStepsCount(2);
+                wizard.setStepsCount(3);
                 break;
             default:
                 return null;
         }
 
-        String ret = wizard.start();
-        if (ERROR.equals(ret)) {
-            // process the error situation on start.
-            return StringUtils.EMPTY;
-        } else {
+        try {
+            String next = wizard.start();
             wizard.next();
-            return ret;
+            return next;
+        } catch (Exception e) {
+            // Process the error situation on start.
+            FacesUtils.addErrorMessage("Can`t create wizard for this kind of table.", e.getMessage());
+            return StringUtils.EMPTY;
         }
     }
 
