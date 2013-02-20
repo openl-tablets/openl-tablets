@@ -37,6 +37,7 @@ public class InstallWizard {
     @NotBlank
     private String workingDir;
     private boolean newWorkingDir;
+    private boolean showErrorMessage = false;
 
     private String userMode = "single";
     private String appMode = "production";
@@ -225,33 +226,48 @@ public class InstallWizard {
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         File studioWorkingDir;
         File tmpFile = null;
+        boolean hasAccess;
+
         try {
             studioWorkingDir = new File((String) value);
 
             if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir, "tmp");
-                /* If temp file already exists - deleting it.*/
-                tmpFile.delete();
-                boolean hasAccess = tmpFile.mkdir();
+                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
+
+                hasAccess = tmpFile.mkdir();
 
                 if (!hasAccess) {
                     throw new ValidatorException(new FacesMessage("Can't get access to the folder '" + (String) value + 
                         "'    Please, contact to your system administrator."));
                 }
             } else {
-                if (studioWorkingDir.mkdir() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect folder name"));
-                } else if (studioWorkingDir != null) {
-                    studioWorkingDir.delete();
+                if (studioWorkingDir.mkdirs() == false) {
+                    showErrorMessage = true;
+                    throw new ValidatorException(new FacesMessage("Incorrect folder name."));
+                } else {
+                    showErrorMessage = false;
+                    deleteFolder((String) value);
                 }
             }
         } catch (Exception e) {
             throw new ValidatorException(new FacesMessage(e.getMessage()));
-           
+
         } finally {
             if (tmpFile != null && tmpFile.exists()) {
                 tmpFile.delete();
             }
+        }
+    }
+
+    /* Deleting the folder which were created for validating folder permissions */
+    public void deleteFolder(String folderPath) {
+        File workFolder = new File(folderPath);
+        File parent = workFolder.getParentFile();
+
+        while (parent != null) {
+            workFolder.delete();
+            parent = workFolder.getParentFile();
+            workFolder = parent;
         }
     }
 
@@ -339,6 +355,14 @@ public class InstallWizard {
 
     public void setDbPasswordInput(UIInput dbPasswordInput) {
         this.dbPasswordInput = dbPasswordInput;
+    }
+
+    public boolean isShowErrorMessage() {
+        return showErrorMessage;
+    }
+
+    public void setShowErrorMessage(boolean showErrorMessage) {
+        this.showErrorMessage = showErrorMessage;
     }
 
 }
