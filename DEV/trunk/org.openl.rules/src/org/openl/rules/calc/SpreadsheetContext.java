@@ -21,41 +21,31 @@ public class SpreadsheetContext extends ComponentBindingContext {
     @Override
     public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
                                                                                              FieldNotFoundException {
-        
+
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;
-        IOpenField res = ranges.get(key); 
-        if (res != null)
-            return res;
-        
         IOpenField fstart = findVar(namespace, rangeStartName, true);
-        
-        if (fstart == null)
+
+        if (fstart == null) {
             throw new FieldNotFoundException("Can not find range start: ", rangeStartName, null);
-        
+        }
+
         IOpenField fend = findVar(namespace, rangeEndName, true);
         
-        if (fend == null)
+        if (fend == null) {
             throw new FieldNotFoundException("Can not find range end: ", rangeEndName, null);
+        }
 
-        if (!(fstart instanceof SpreadsheetCellField))
+        if (!(fstart instanceof SpreadsheetCellField)) {
             throw new FieldNotFoundException("Range start must point to the cell: ", rangeStartName, null);
-        
-        if (!(fend instanceof SpreadsheetCellField))
+        }
+
+        if (!(fend instanceof SpreadsheetCellField)) {
             throw new FieldNotFoundException("Range end must point to the cell: ", rangeEndName, null);
-        
-        
-        res = new SpreadsheetRangeField(key, (SpreadsheetCellField)fstart, (SpreadsheetCellField)fend);
-        
-        ranges.put(key, res);
-        
+        }
+
+        IOpenField res = new SpreadsheetRangeField(key, (SpreadsheetCellField)fstart, (SpreadsheetCellField)fend);
+
         return res;
     }
-    
-    
-    
-    
-    Map<String, IOpenField> ranges = new HashMap<String, IOpenField>();
-    
-    
 
 }

@@ -168,14 +168,6 @@ public class SpreadsheetStructureBuilder {
                 componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
 
-        IGridTable sourceTable = cell.getSource();
-        String oldValue = sourceTable.getCell(0, 0).getStringValue();
-
-        //Correct links to columns
-        String newStringValue = correctColumnLinks(oldValue, rowHeaders.get(rowIndex).getFirstname(), columnHeaders);
-        IWritableGrid grid = (IWritableGrid) sourceTable.getGrid();
-        grid.setCellValue(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), newStringValue);
-
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = source.getCode();
 
@@ -201,26 +193,6 @@ public class SpreadsheetStructureBuilder {
             componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
-
-        /*Revert changes after Syntax node generating for correct table showing*/
-        CellMetaInfo cellMeta = grid.getCell(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom()).getMetaInfo();
-
-        grid.setCellValue(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), oldValue);
-        grid.setCellMetaInfo(sourceTable.getRegion().getLeft(), sourceTable.getRegion().getBottom(), cellMeta);
-    }
-
-    private String correctColumnLinks(String columnValue, String rowName, Map<Integer, SpreadsheetHeaderDefinition> columnHeaders) {
-        if (columnValue != null && columnValue.indexOf(DOLLAR_SIGN) > -1) {
-            for (SpreadsheetHeaderDefinition column : columnHeaders.values()) {
-               if (columnValue.indexOf(DOLLAR_SIGN + column.getFirstname()) > -1 && columnValue.indexOf(DOLLAR_SIGN + column.getFirstname() + DOLLAR_SIGN) == -1) {
-                   if (!columnValue.matches(".*"+column.getFirstname()+"[a-zA-Z_]+")) {
-                       columnValue = columnValue.replace(DOLLAR_SIGN + column.getFirstname(), DOLLAR_SIGN + column.getFirstname() + DOLLAR_SIGN + rowName);
-                   }
-               }
-            }
-        }
-
-        return columnValue;
     }
 
     /**
