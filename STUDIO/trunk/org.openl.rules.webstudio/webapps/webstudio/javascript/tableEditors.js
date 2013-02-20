@@ -81,7 +81,7 @@ function Editor(){
     var value = "";
 
     this.initElement = function(dataCell, element) {
-        if(dataCell.valueType == "INT" && !dataCell.iterable) {
+        if((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
             this.html = this.getIntElement(dataCell);
 
             element.innerHTML = "";
@@ -182,7 +182,7 @@ function Editor(){
 
             if (code == 45)  // minus
                 return v.indexOf("-") < 0;
-            if (code == 46)  // point
+            if (code == 46 && dataCell.valueType == "FLOAT")  // point
                 return v.indexOf(".") < 0;
 
             return code >= 48 && code <= 57; // digits (0-9)
