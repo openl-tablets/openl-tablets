@@ -372,7 +372,7 @@ var tableModel = {
         }*/
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("Required at least one rules row");
+            checkingRes.push("There are no rules row in the table. Please add at least one rules row in the table.");
         }
 
         this.checkNames(checkingRes);
@@ -382,9 +382,16 @@ var tableModel = {
 
     checkNames : function(checkingRes) {
         re =/^([a-zA-Z_][a-zA-Z_0-9]*)$/;
+        onlyChar = /^([a-zA-Z]+)/;
 
-        if(!re.test(this.header.name)) {
-            checkingRes.push("Table name is invalid");
+        if (!re.test(this.header.name)) {
+            checkingRes.push("Table name '{0}' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'.");
+        }
+
+        if (this.header.name.length == 1) {
+            if (!onlyChar.test(this.header.name)) {
+                checkingRes.push("Table name is invalid. Only letters can be used as one symbol table name.");
+            }
         }
 
         for (var i = 0; i < this.header.inParam.length; i++) {
@@ -393,7 +400,7 @@ var tableModel = {
             }
 
             if(!re.test(this.header.inParam[i].name)) {
-                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid");
+                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
             }
         }
     },
