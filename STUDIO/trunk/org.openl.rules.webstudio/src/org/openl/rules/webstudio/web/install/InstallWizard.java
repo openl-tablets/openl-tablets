@@ -227,9 +227,11 @@ public class InstallWizard {
         File studioWorkingDir;
         File tmpFile = null;
         boolean hasAccess;
-
+        String studioPath;
         try {
-            studioWorkingDir = new File((String) value);
+            setWorkingDir((String)value);
+            studioPath = getWorkingDir();
+            studioWorkingDir = new File(studioPath);
 
             if (studioWorkingDir.exists()) {
                 tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
@@ -237,8 +239,8 @@ public class InstallWizard {
                 hasAccess = tmpFile.mkdir();
 
                 if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder '" + (String) value + 
-                        "'    Please, contact to your system administrator."));
+                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " +studioPath + 
+                        " '    Please, contact to your system administrator."));
                 }
             } else {
                 if (studioWorkingDir.mkdirs() == false) {
@@ -246,7 +248,7 @@ public class InstallWizard {
                     throw new ValidatorException(new FacesMessage("Incorrect folder name."));
                 } else {
                     showErrorMessage = false;
-                    deleteFolder((String) value);
+                    deleteFolder(studioPath);
                 }
             }
         } catch (Exception e) {
