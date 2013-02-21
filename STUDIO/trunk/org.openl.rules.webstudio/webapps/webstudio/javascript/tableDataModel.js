@@ -366,13 +366,9 @@ var tableModel = {
 
     checkTable : function() {
         var checkingRes = [];
-        /*Simple rule can have no input parameters
-        if (this.header.inParam.length < 1) {
-            checkingRes.push("Required at least one parameter");
-        }*/
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rules row in the table. Please, add at least one rules row in the table.");
+            checkingRes.push("There are no rules row in the table. Please, <a href=\"#\" title=\"Add rule row\" onclick=\"tableModel.createEmptyRow(); return false;\">add</a> at least one rules row in the table.");
         }
 
         this.checkNames(checkingRes);
