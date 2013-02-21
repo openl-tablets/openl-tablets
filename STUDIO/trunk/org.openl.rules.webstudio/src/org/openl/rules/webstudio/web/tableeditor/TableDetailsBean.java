@@ -141,6 +141,11 @@ public class TableDetailsBean {
         return table;
     }
 
+    public boolean isHasNameProperty() {
+        ITableProperties properties = table.getProperties();
+        return properties != null && properties.getName() != null;
+    }
+
     public String getNewTableUri() {
         return newTableUri;
     }

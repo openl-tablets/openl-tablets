@@ -398,23 +398,24 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                 } else if (openClass.toString().equals(boolean.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(Boolean.class.getCanonicalName().toString())) {
                     this.type = "BOOLEAN";
-                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(BigInteger.class.getCanonicalName().toString()) ||
+                } else if (openClass.toString().equals(BigInteger.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(BigIntegerValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(ByteValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(LongValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(ShortValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(DoubleValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(FloatValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(byte.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(double.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(float.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(long.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(short.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(int.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(IntValue.class.getCanonicalName().toString())) {
                     this.type = "INT";
+                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(DoubleValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(FloatValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(double.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(float.class.getCanonicalName().toString())) {
+                    this.type = "FLOAT";
                 } else {
                     this.type = "STRING";
                 }
