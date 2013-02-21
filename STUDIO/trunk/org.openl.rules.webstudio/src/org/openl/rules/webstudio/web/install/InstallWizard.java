@@ -262,7 +262,7 @@ public class InstallWizard {
     }
 
     /* Deleting the folder which were created for validating folder permissions */
-    public void deleteFolder(String folderPath) {
+    private void deleteFolder(String folderPath) {
         File workFolder = new File(folderPath);
         File parent = workFolder.getParentFile();
 
