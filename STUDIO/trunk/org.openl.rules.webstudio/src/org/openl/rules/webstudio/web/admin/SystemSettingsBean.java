@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,13 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
@@ -421,39 +416,6 @@ public class SystemSettingsBean {
         return productionConfigManagerFactory.getConfigurationManager(configName);
     }
 
-    public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        File studioWorkingDir;
-        File tmpFile = null;
-        try {
-            studioWorkingDir = new File((String) value);
-
-            if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir, "tmp");
-                /* If temp file already exists - deleting it.*/
-                tmpFile.delete();
-                boolean hasAccess = tmpFile.mkdir();
-
-                if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder '" + (String) value + 
-                        "'    Please, contact to your system administrator."));
-                }
-            } else {
-                if (studioWorkingDir.mkdir() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect folder name '" + studioWorkingDir.getName() + "'" ));
-                }
-            }
-        } catch (Exception e) {
-           // throw new ValidatorException(new FacesMessage(e.getMessage()));
-            FacesUtils.addErrorMessage(e.getMessage());
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
-           
-        } finally {
-            if (tmpFile != null && tmpFile.exists()) {
-                tmpFile.delete();
-            }
-        }
-    }
-  
     private String getConfigName(String repositoryName) {
         String configName = "rules-";
         if (repositoryName != null) {
