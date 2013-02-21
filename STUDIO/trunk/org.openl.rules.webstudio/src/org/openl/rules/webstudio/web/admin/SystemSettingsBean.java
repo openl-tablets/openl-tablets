@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
@@ -458,6 +463,67 @@ public class SystemSettingsBean {
         return maxNumber;
     }
 
+    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
+
+        setUserWorkspaceHome((String) value);
+        workingDirValidator(getUserWorkspaceHome(), "Workspace Directory");
+
+    }
+
+    public void historyDirValidator (FacesContext context, UIComponent toValidate, Object value) {
+
+        setProjectHistoryHome((String) value);
+        workingDirValidator(getProjectHistoryHome(), "History Directory");
+
+    }
+
+    public void workingDirValidator(String value, String folderType) {
+        File studioWorkingDir;
+        File tmpFile = null;
+        boolean hasAccess;
+        try {
+
+            studioWorkingDir = new File(value);
+
+            if (studioWorkingDir.exists()) {
+                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
+
+                hasAccess = tmpFile.mkdir();
+
+                if (!hasAccess) {
+                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value + 
+                        " '    Please, contact to your system administrator."));
+                }
+            } else {
+                if (studioWorkingDir.mkdirs() == false) {
+                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " name: " + value));
+                } else {
+                    deleteFolder(value);
+                }
+            }
+        } catch (Exception e) {
+            FacesUtils.addErrorMessage(e.getMessage());
+            throw new ValidatorException(new FacesMessage(e.getMessage()));
+
+        } finally {
+            if (tmpFile != null && tmpFile.exists()) {
+                tmpFile.delete();
+            }
+        }
+    }
+
+    /* Deleting the folder which were created for validating folder permissions */
+    private void deleteFolder(String folderPath) {
+        File workFolder = new File(folderPath);
+        File parent = workFolder.getParentFile();
+
+        while (parent != null) {
+            workFolder.delete();
+            parent = workFolder.getParentFile();
+            workFolder = parent;
+        }
+    }
+    
     public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
         return productionRepositoriesTreeController;
     }
