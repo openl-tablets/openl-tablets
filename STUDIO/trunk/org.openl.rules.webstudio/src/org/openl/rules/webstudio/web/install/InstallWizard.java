@@ -229,8 +229,8 @@ public class InstallWizard {
         boolean hasAccess;
         String studioPath;
         try {
-            setWorkingDir((String)value);
-            studioPath = getWorkingDir();
+
+            studioPath = ConfigurationManager.normalizePath((String)value);
             studioWorkingDir = new File(studioPath);
 
             if (studioWorkingDir.exists()) {
@@ -243,6 +243,7 @@ public class InstallWizard {
                         " '    Please, contact to your system administrator."));
                 }
             } else {
+
                 if (studioWorkingDir.mkdirs() == false) {
                     showErrorMessage = true;
                     throw new ValidatorException(new FacesMessage("Incorrect folder name."));
