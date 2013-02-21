@@ -37,8 +37,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
-import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -46,6 +44,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ArrayOpenClass;
+import org.openl.types.impl.OpenClassDelegator;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -167,7 +166,12 @@ public class DomainTree {
             type = getComponentType(type);
         }
                 
-        String simpleTypeName = type.getDisplayName(INamedThing.SHORT);
+        String simpleTypeName;
+        if (type instanceof OpenClassDelegator) {
+            simpleTypeName = type.getName();
+        } else {
+            simpleTypeName = type.getDisplayName(INamedThing.SHORT);
+        }
 
         if (!treeElements.containsKey(simpleTypeName) && !ignoredTypes.contains(simpleTypeName)) {
             Class<?> instanceClass = type.getInstanceClass(); // instance class can be null, in case 
@@ -212,53 +216,43 @@ public class DomainTree {
     /**
      * Flat list of class names.
      *
-     * @param sorted if <code>true</code> returned collection is sorted,
-     *            otherwise name order is not specified.
-     * @return all class names of the domain tree
+     * @return sorted collection of the domain tree
      */
-    public Collection<IOpenClass> getAllOpenClasses(boolean sorted) {
+    public Collection<IOpenClass> getAllOpenClasses() {
         Collection<IOpenClass> unsortedClasses = treeElements.values();
-        if (sorted) {
-            List<IOpenClass> sortedClasses = new ArrayList<IOpenClass>(unsortedClasses);
-            Collections.sort(sortedClasses, new Comparator<IOpenClass>() {
-                public int compare(IOpenClass s1, IOpenClass s2) {
-                    return s1.getDisplayName(IOpenClass.SHORT).compareTo(s2.getDisplayName(IOpenClass.SHORT));
-                }
-            });
+        List<IOpenClass> sortedClasses = new ArrayList<IOpenClass>(unsortedClasses);
+        Collections.sort(sortedClasses, new Comparator<IOpenClass>() {
+            public int compare(IOpenClass s1, IOpenClass s2) {
+                return s1.getDisplayName(IOpenClass.SHORT).compareTo(s2.getDisplayName(IOpenClass.SHORT));
+            }
+        });
 
-            return sortedClasses;
-        } else {
-            return unsortedClasses;
-        }
+        return sortedClasses;
     }
     
-    public Collection<String> getAllClasses(boolean sorted) {
+    public Collection<String> getAllClasses() {
         Collection<String> unsortedClasses = treeElements.keySet();
-        if (sorted) {
-            List<String> sortedClasses = new ArrayList<String>(unsortedClasses);
-            Collections.sort(sortedClasses, new Comparator<String>() {
-                public int compare(String s1, String s2) {
-                    boolean primitive1 = predefinedTypes.containsKey(s1);
-                    boolean primitive2 = predefinedTypes.containsKey(s2);
-                    if (primitive1 == primitive2) {
-                        boolean defPackage1 = s1.startsWith("java.");
-                        boolean defPackage2 = s2.startsWith("java.");
-                        if (defPackage1 != defPackage2) {
-                            if (primitive1) {
-                                return defPackage2 ? -1 : 1;
-                            }
-                            return defPackage1 ? -1 : 1;
+        List<String> sortedClasses = new ArrayList<String>(unsortedClasses);
+        Collections.sort(sortedClasses, new Comparator<String>() {
+            public int compare(String s1, String s2) {
+                boolean primitive1 = predefinedTypes.containsKey(s1);
+                boolean primitive2 = predefinedTypes.containsKey(s2);
+                if (primitive1 == primitive2) {
+                    boolean defPackage1 = s1.startsWith("java.");
+                    boolean defPackage2 = s2.startsWith("java.");
+                    if (defPackage1 != defPackage2) {
+                        if (primitive1) {
+                            return defPackage2 ? -1 : 1;
                         }
-                        return s1.compareTo(s2);
+                        return defPackage1 ? -1 : 1;
                     }
-                    return primitive1 ? -1 : 1;
+                    return s1.compareTo(s2);
                 }
-            });
+                return primitive1 ? -1 : 1;
+            }
+        });
 
-            return sortedClasses;
-        } else {
-            return unsortedClasses;
-        }
+        return sortedClasses;
     }
 
     /**
@@ -308,7 +302,11 @@ public class DomainTree {
             }
             openClass = field.getType();
         }
-        return openClass.getName();
+        if (openClass instanceof OpenClassDelegator) {
+            return openClass.getName();
+        } else {
+            return openClass.getDisplayName(INamedThing.SHORT);
+        }
     }
 
 }
