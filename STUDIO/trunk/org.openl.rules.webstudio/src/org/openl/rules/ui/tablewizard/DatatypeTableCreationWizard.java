@@ -40,6 +40,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
     private String parent;
+    private int definedDatatypesLength;
 
     private HtmlDataTable parametersTable;
 
@@ -88,6 +89,14 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     public void setParametersTable(HtmlDataTable parametersTable) {
         this.parametersTable = parametersTable;
+    }
+
+    public int getDefinedDatatypesLength() {
+        return definedDatatypes.length;
+    }
+
+    public void setDefinedDatatypesLength(int definedDatatypesLength) {
+        this.definedDatatypesLength = definedDatatypesLength;
     }
 
     @Override
