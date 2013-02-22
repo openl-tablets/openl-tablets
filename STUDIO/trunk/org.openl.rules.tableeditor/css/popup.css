@@ -7,10 +7,7 @@
     background: rgb(253, 253, 253);
     border-width: 1px;
     border-style: solid;
-    border-color: rgb(180, 180, 180) rgb(100, 100, 100) rgb(100, 100, 100) rgb(180, 180, 180);
-    color: rgb(40, 40, 40);
-
+    border-color: #b4b4b4 #646464 #646464 #b4b4b4;
+    color: #282828;
     border-radius: 1px;
-    -moz-border-radius: 1px;
-    -webkit-border-radius: 1px;
 }
