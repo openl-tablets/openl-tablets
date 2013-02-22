@@ -56,6 +56,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         this.categoryNameSelector = categoryNameSelector;
     }
 
+    // Not sure, probably method can be removed  
     public List<SelectItem> getCategoryNamesList() {
         List<SelectItem> categoryList = new ArrayList<SelectItem>();
         Set<String> categories = getAllCategories();
@@ -67,9 +68,11 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         return categoryList;
     }
 
+    // Not sure, probably method can be removed 
     private Set<String> getAllCategories() {
         Set<String> categories = new TreeSet<String>();
         TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes();
+        
         for (TableSyntaxNode node : syntaxNodes) {
             ITableProperties tableProperties = node.getTableProperties();
             if (tableProperties != null) {
@@ -80,6 +83,35 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
             }
         }
         return categories;
+    }
+
+    public List<SelectItem> getSpecificCategoryNameList() {
+        List<SelectItem> specCategoryList = new ArrayList<SelectItem>();
+        Set<String> categories = getAllSpecificCategories();
+
+        for (String categoryName : categories) {
+            specCategoryList.add(new SelectItem(
+                    // Replace new line by space
+                    categoryName.replaceAll("[\r\n]", " ")));
+        }
+        return specCategoryList;
+    }
+    
+    private Set<String> getAllSpecificCategories() {
+        Set<String> specificCategories = new TreeSet<String>();
+        TableSyntaxNode[] syntaxNodes = getMetaInfo().getXlsModuleNode().getXlsTableSyntaxNodes();
+
+        for (TableSyntaxNode node : syntaxNodes) {
+
+            XlsSheetSourceCodeModule tableModule = node.getXlsSheetSourceCodeModule();
+            if (tableModule != null) {
+                String categoryName = tableModule.getDisplayName();
+                if (StringUtils.isNotBlank(categoryName)) {
+                    specificCategories.add(categoryName);
+                }
+            }
+        }
+        return specificCategories;
     }
 
     public PropertiesBean getPropertiesManager() {
