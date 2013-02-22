@@ -3,6 +3,8 @@ package org.openl.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 public class EnumUtils {
 
     public static String getName(Enum<?> constant) {
@@ -11,7 +13,7 @@ public class EnumUtils {
     
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static Object valueOf(Class enumClass, String constantName) {
-        return Enum.valueOf(enumClass, constantName);
+        return StringUtils.isEmpty(constantName) ? null : Enum.valueOf(enumClass, constantName);
     }
     
     public static String[] getNames(Object[] constants) {
