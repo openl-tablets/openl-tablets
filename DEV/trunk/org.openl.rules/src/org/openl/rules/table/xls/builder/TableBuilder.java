@@ -427,6 +427,16 @@ public class TableBuilder {
                 writeCell(1, currentRow, 1, 1, key, style);
                 Object value = properties.get(key);
                 writeCell(2, currentRow, 1, 1, value, style);
+                //write empty column for correct border showing
+                if(width > 2) {
+                    int column = 3;
+
+                    while (column <= width) {
+                        writeCell(column, currentRow, 1, 1, null, style);
+                        column++;
+                    }
+                }
+
                 currentRow++;
             }
         }

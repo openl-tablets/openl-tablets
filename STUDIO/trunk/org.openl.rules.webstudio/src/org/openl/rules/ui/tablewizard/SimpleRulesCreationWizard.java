@@ -45,6 +45,7 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.OpenClassDelegator;
 import org.richfaces.json.JSONArray;
 import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
@@ -99,18 +100,26 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             }
         }
 
-        Collection<String> allClasses = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllClasses(true);
+        Collection<String> allClasses = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllClasses();
         for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            if (type instanceof OpenClassDelegator) {
+                allClasses.add(type.getName());
+            } else {
+                allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            }
         }
 
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
-        Collection<IOpenClass> classTypes =  DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses(true);
+        Collection<IOpenClass> classTypes =  DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses();
         this.typesList = new ArrayList<DomainTypeHolder>();
 
         for (IOpenClass oc : classTypes) {
-            typesList.add(new DomainTypeHolder(oc.getDisplayName(INamedThing.SHORT), oc, false));
+            if (oc instanceof OpenClassDelegator) {
+                typesList.add(new DomainTypeHolder(oc.getName(), oc, false));
+            } else {
+                typesList.add(new DomainTypeHolder(oc.getDisplayName(INamedThing.SHORT), oc, false));
+            }
         }
     }
     
@@ -389,23 +398,24 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                 } else if (openClass.toString().equals(boolean.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(Boolean.class.getCanonicalName().toString())) {
                     this.type = "BOOLEAN";
-                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(BigInteger.class.getCanonicalName().toString()) ||
+                } else if (openClass.toString().equals(BigInteger.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(BigIntegerValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(ByteValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(LongValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(ShortValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(DoubleValue.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(FloatValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(byte.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(double.class.getCanonicalName().toString()) ||
-                        openClass.toString().equals(float.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(long.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(short.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(int.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(IntValue.class.getCanonicalName().toString())) {
                     this.type = "INT";
+                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(DoubleValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(FloatValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(double.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(float.class.getCanonicalName().toString())) {
+                    this.type = "FLOAT";
                 } else {
                     this.type = "STRING";
                 }
