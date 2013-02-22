@@ -336,7 +336,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                         valid = false;
                     }
                 } else {
-                    var matchDouble = v.match(/^-?[0-9]+\.[0-9][0-9]$/);
+                    var matchDouble = v.match(/^-?[0-9]+(\.?[0-9]+)?$/);
                     if (!matchDouble) {
                         valid = false;
                     }

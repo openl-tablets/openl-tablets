@@ -18,10 +18,11 @@
                     <h:message for="technicalName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:outputText value="Parent type" />
-                <h:selectOneMenu value="#{wizard.parent}">
+                <h:outputText value="Parent type" rendered="#{wizard.definedDatatypesLength > 1}"/>
+                <h:selectOneMenu value="#{wizard.parent}" rendered="#{wizard.definedDatatypesLength > 1}">
                     <f:selectItems value="#{wizard.definedDatatypes}" />
                 </h:selectOneMenu>
+
             </h:panelGrid>
             <br />
             <hr />
