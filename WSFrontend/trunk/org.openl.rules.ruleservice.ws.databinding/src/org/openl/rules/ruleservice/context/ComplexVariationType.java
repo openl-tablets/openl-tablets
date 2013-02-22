@@ -50,7 +50,7 @@ public class ComplexVariationType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
+                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(), 
                     context.getGlobalContext(),
                     defaultType);
                 if (type != null) {
