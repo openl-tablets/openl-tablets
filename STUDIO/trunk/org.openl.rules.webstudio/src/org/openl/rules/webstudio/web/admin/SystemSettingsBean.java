@@ -421,39 +421,6 @@ public class SystemSettingsBean {
         return productionConfigManagerFactory.getConfigurationManager(configName);
     }
 
-    public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        File studioWorkingDir;
-        File tmpFile = null;
-        try {
-            studioWorkingDir = new File((String) value);
-
-            if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir, "tmp");
-                /* If temp file already exists - deleting it.*/
-                tmpFile.delete();
-                boolean hasAccess = tmpFile.mkdir();
-
-                if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder '" + (String) value + 
-                        "'    Please, contact to your system administrator."));
-                }
-            } else {
-                if (studioWorkingDir.mkdir() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect folder name '" + studioWorkingDir.getName() + "'" ));
-                }
-            }
-        } catch (Exception e) {
-           // throw new ValidatorException(new FacesMessage(e.getMessage()));
-            FacesUtils.addErrorMessage(e.getMessage());
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
-           
-        } finally {
-            if (tmpFile != null && tmpFile.exists()) {
-                tmpFile.delete();
-            }
-        }
-    }
-  
     private String getConfigName(String repositoryName) {
         String configName = "rules-";
         if (repositoryName != null) {
@@ -496,6 +463,67 @@ public class SystemSettingsBean {
         return maxNumber;
     }
 
+    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
+
+        setUserWorkspaceHome((String) value);
+        workingDirValidator(getUserWorkspaceHome(), "Workspace Directory");
+
+    }
+
+    public void historyDirValidator (FacesContext context, UIComponent toValidate, Object value) {
+
+        setProjectHistoryHome((String) value);
+        workingDirValidator(getProjectHistoryHome(), "History Directory");
+
+    }
+
+    public void workingDirValidator(String value, String folderType) {
+        File studioWorkingDir;
+        File tmpFile = null;
+        boolean hasAccess;
+        try {
+
+            studioWorkingDir = new File(value);
+
+            if (studioWorkingDir.exists()) {
+                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
+
+                hasAccess = tmpFile.mkdir();
+
+                if (!hasAccess) {
+                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value + 
+                        " '    Please, contact to your system administrator."));
+                }
+            } else {
+                if (studioWorkingDir.mkdirs() == false) {
+                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " name: " + value));
+                } else {
+                    deleteFolder(value);
+                }
+            }
+        } catch (Exception e) {
+            FacesUtils.addErrorMessage(e.getMessage());
+            throw new ValidatorException(new FacesMessage(e.getMessage()));
+
+        } finally {
+            if (tmpFile != null && tmpFile.exists()) {
+                tmpFile.delete();
+            }
+        }
+    }
+
+    /* Deleting the folder which were created for validating folder permissions */
+    private void deleteFolder(String folderPath) {
+        File workFolder = new File(folderPath);
+        File parent = workFolder.getParentFile();
+
+        while (parent != null) {
+            workFolder.delete();
+            parent = workFolder.getParentFile();
+            workFolder = parent;
+        }
+    }
+    
     public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
         return productionRepositoriesTreeController;
     }

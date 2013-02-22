@@ -30,7 +30,7 @@ import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.Log;
 
 public class DataTableCreationWizard extends TableCreationWizard {
@@ -96,23 +96,30 @@ public class DataTableCreationWizard extends TableCreationWizard {
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         importedClasses = WizardUtils.getImportedClasses();
         
-        Collection<String> allClasses = domainTree.getAllClasses(true);
-        for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
-        }
-        
+        Collection<String> allClasses = domainTree.getAllClasses();
+
         Iterator<String> classIterator = allClasses.iterator();
         
-        while(classIterator.hasNext()) {
-            String className = classIterator.next();
-            IOpenClass type = getUserDefinedType(className);
-            
-            if (type instanceof DomainOpenClass) {
-                // remove alias types
-                classIterator.remove();
+        String typeName, className;
+
+        while (classIterator.hasNext()) {
+            className = classIterator.next();
+            for (IOpenClass dataType : domainTree.getAllOpenClasses()) {
+                if (dataType instanceof OpenClassDelegator) {
+                    typeName = dataType.getName();
+                    if (typeName.equals(className)) {
+                        classIterator.remove();
+                    }
+                }
             }
         }
-        
+
+        for (IOpenClass type : importedClasses) {
+            if (!(type instanceof OpenClassDelegator)) {
+                allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            }
+        }
+
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
         allDataTables = new ArrayList<TableSyntaxNode>();

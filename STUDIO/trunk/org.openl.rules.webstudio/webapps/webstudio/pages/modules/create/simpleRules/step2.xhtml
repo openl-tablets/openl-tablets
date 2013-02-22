@@ -15,7 +15,8 @@
         <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
         <script src="#{contextPath}/faces/tableEditor/js/popup/popupmenu.js"></script>
-        <script src="#{contextPath}/faces/tableEditor/js/datepicker.packed.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/datepicker/en.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/datepicker/datepicker.packed.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/BaseEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/BaseTextEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/TextEditor.js"></script>
@@ -50,6 +51,10 @@
                 border-color: gray;
                 border-collapse: collapse;
                 background-color: white;
+            }
+
+            table.srt tr {
+                height : 20px;
             }
 
         </style>
