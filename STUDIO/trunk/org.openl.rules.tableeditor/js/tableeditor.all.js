@@ -828,7 +828,13 @@ var TableEditor = Class.create({
     },
 
     showEditorWrapper: function(cell) {
-        this.editorWrapper.style.width = cell.offsetWidth - 2 + "px";
+        var minWidth = 20;
+        var width = cell.offsetWidth - 2;
+        if (width < minWidth) {
+            cell.style.minWidth = minWidth + "px";
+            width = cell.offsetWidth - 2;
+        }
+        this.editorWrapper.style.width = width + "px";
         this.editorWrapper.style.height = cell.offsetHeight - 2 + "px";
         var pos = Element.positionedOffset(cell);
         this.editorWrapper.style.left = pos[0] + "px";
@@ -851,6 +857,9 @@ var TableEditor = Class.create({
 
     setCellValue: function(prevValue) {
         if (this.editor) {
+            if (this.editCell && this.editCell.style) {
+                this.editCell.style.minWidth = null;
+            }
             if (prevValue) {
                 this.editor.initialValue = prevValue;
             }
