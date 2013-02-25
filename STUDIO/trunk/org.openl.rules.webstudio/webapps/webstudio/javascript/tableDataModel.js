@@ -384,17 +384,17 @@ var tableModel = {
 
         if (this.header.name.length == 1) {
             if (!onlyChar.test(this.header.name)) {
-                checkingRes.push("Table name is invalid. Only letters can be used as one symbol table name.");
+                checkingRes.push("Table name '"+this.header.name+"' is invalid. Only letters can be used as one symbol table name.");
             }
         }
 
         for (var i = 0; i < this.header.inParam.length; i++) {
             if(this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid. Select parameter type type.");
+                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type type.");
             }
 
             if(!re.test(this.header.inParam[i].name)) {
-                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
+                checkingRes.push("Parameter name '"+this.header.inParam[i].name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
             }
         }
     },
