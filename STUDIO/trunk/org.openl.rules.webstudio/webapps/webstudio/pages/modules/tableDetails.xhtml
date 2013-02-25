@@ -77,14 +77,14 @@
                 elem.find(".propValue").hide();
                 elem.find(".propEditor").show();
                 $j("#savePropsButton").show();
-    
+
                 var tooltipData = elem.find(".propEditor .propDescription").html();
                 if (tooltipData) {
                     var tooltipElemId = elem.find(".propEditor input").attr("id");
                     new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
                 }
             }
-    
+
             function showRemoveBtn(row, deprecated) {
                 if (!deprecated)
                     $j(row).find("a[id*='removePropBtn']").show();
