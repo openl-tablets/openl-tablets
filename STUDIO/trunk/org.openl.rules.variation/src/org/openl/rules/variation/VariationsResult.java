@@ -1,5 +1,6 @@
 package org.openl.rules.variation;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -130,6 +131,8 @@ public class VariationsResult<T> {
             XStream xStream = new XStream(new Sun14ReflectionProvider());
             GZIPInputStream gzipInputStream = null;
             try {
+                ByteArrayInputStream bais = new ByteArrayInputStream(variationFailuresData);
+                gzipInputStream = new GZIPInputStream(bais);
                 StringWriter writer = new StringWriter();
                 IOUtils.copy(gzipInputStream, writer, "UTF-8");
                 String xmlVariationFailures = writer.toString();
@@ -147,6 +150,8 @@ public class VariationsResult<T> {
             XStream xStream = new XStream(new Sun14ReflectionProvider());
             GZIPInputStream gzipInputStream = null;
             try {
+                ByteArrayInputStream bais = new ByteArrayInputStream(variationResultsData);
+                gzipInputStream = new GZIPInputStream(bais);
                 StringWriter writer = new StringWriter();
                 IOUtils.copy(gzipInputStream, writer, "UTF-8");
                 String xmlVariationResults = writer.toString();
@@ -163,15 +168,16 @@ public class VariationsResult<T> {
     }
 
     public void pack() {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream byteArrayOutputStream = null;
         XStream xStream = new XStream(new Sun14ReflectionProvider());
         String xmlVariationFailures = xStream.toXML(variationFailures);
         String xmlVariationResults = xStream.toXML(variationResults);
         GZIPOutputStream gzipOutputStream = null;
         try {
+            byteArrayOutputStream = new ByteArrayOutputStream();
             gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
             gzipOutputStream.write(xmlVariationFailures.getBytes("UTF-8"));
-            gzipOutputStream.flush();
+            gzipOutputStream.close();
             variationFailuresData = byteArrayOutputStream.toByteArray();
             variationFailures.clear();
         } catch (IOException e) {
@@ -188,9 +194,11 @@ public class VariationsResult<T> {
         }
         gzipOutputStream = null;
         try {
-            gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-            gzipOutputStream.write(xmlVariationResults.getBytes("UTF-8"));
-            gzipOutputStream.flush();
+            byteArrayOutputStream = new ByteArrayOutputStream();
+            byte[] data = xmlVariationResults.getBytes("UTF-8");
+            gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream, data.length);
+            gzipOutputStream.write(data);
+            gzipOutputStream.close();
             variationResultsData = byteArrayOutputStream.toByteArray();
             variationResults.clear();
         } catch (IOException e) {

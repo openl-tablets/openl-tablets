@@ -54,16 +54,8 @@ public class HTMLRenderer {
             List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
         result.append("<div>")
-            .append(renderCSS("css/common.css"))
-            .append(renderCSS("css/tooltip.css"));
+            .append(renderCSS("css/tableeditor.min.css"));
 
-        if (editor.isEditable()) {
-            result
-                .append(renderCSS("css/datepicker.css"))
-                .append(renderCSS("css/multiselect.css"))
-                .append(renderCSS("css/colorPicker.css"))
-                .append(renderCSS("css/popup.css"));
-        }
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
         }

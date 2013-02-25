@@ -294,7 +294,7 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
-        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses(true));
+        domainTypes = FacesUtils.createSelectItems(domainTree.getAllClasses());
     }
 
     @Override

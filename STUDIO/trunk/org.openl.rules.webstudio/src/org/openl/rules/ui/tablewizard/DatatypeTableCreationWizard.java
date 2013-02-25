@@ -22,6 +22,7 @@ import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.OpenClassDelegator;
 
 /**
  * @author Andrei Astrouski
@@ -39,6 +40,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
     private String parent;
+    private int definedDatatypesLength;
 
     private HtmlDataTable parametersTable;
 
@@ -55,6 +57,10 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     public List<TypeNamePair> getParameters() {
         return parameters;
+    }
+
+    public boolean isHasOneParameter() {
+        return parameters.size() == 1;
     }
 
     public void setParameters(List<TypeNamePair> parameters) {
@@ -89,6 +95,14 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         this.parametersTable = parametersTable;
     }
 
+    public int getDefinedDatatypesLength() {
+        return definedDatatypes.length;
+    }
+
+    public void setDefinedDatatypesLength(int definedDatatypesLength) {
+        this.definedDatatypesLength = definedDatatypesLength;
+    }
+
     @Override
     public String getName() {
         return "newDatatypeTable";
@@ -118,9 +132,13 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         }
         
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
-        Collection<String> allClasses = domainTree.getAllClasses(true);
+        Collection<String> allClasses = domainTree.getAllClasses();
         for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            if (type instanceof OpenClassDelegator) {
+                allClasses.add(type.getName());
+            } else {
+                allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            }
         }
         domainTypes = FacesUtils.createSelectItems(allClasses);
 

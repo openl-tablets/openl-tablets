@@ -93,7 +93,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass(), false);
-        Collection<String> allClasses = domainTree.getAllClasses(true);
+        Collection<String> allClasses = domainTree.getAllClasses();
         domainTypes = FacesUtils.createSelectItems(allClasses);
         
         if (!CollectionUtils.isEmpty(allClasses) && CollectionUtils.contains(allClasses.iterator(), "String")) {
