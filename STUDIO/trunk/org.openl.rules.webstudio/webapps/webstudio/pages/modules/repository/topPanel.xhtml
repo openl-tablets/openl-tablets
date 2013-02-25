@@ -7,10 +7,10 @@
 
     <h:panelGroup id="topPanel" layout="block">
         <div class="buttonPanel">
-            <a4j:commandLink id="designRepoRefresh" title="Refresh the project tree" action="#{repositoryTreeController.refreshTree}"
+            <a4j:commandLink id="designRepoRefresh" title="Refresh" action="#{repositoryTreeController.refreshTree}"
                 render="projectTree nodeView uploadPrjFromLocalDiv uploadPrjFromLocalTable" process="@this"
                 style="background:url('webresource/images/refresh.png')" styleClass="imageButton" />
-            <a4j:commandLink id="productionRepoRefresh" title="Refresh the project tree" action="#{productionRepositoriesTreeController.refreshTree}"
+            <a4j:commandLink id="productionRepoRefresh" title="Refresh" action="#{productionRepositoriesTreeController.refreshTree}"
                 render="prodTree" process="@this" style="background:url('webresource/images/refresh.png'); display: none;"
                 styleClass="imageButton" />
 
