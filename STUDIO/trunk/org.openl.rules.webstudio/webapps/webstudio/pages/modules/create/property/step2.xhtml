@@ -44,6 +44,10 @@
 
                                 <h:inputText id="inputText" value="#{prop.value}"
                                     rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}" />
+
+                                <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
+                                    <f:selectItems value="#{prop.enumArrayItems}" />
+                                </h:selectOneMenu> 
                             </td>
                             <td>
                                 <a4j:commandLink action="#{propertiesManager.removeProperty}"
