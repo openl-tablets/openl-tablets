@@ -27,13 +27,13 @@ function initComplexSelect(data, element) {
    if (data.type == "DATE") {
        editor = new DateEditor('', element.id, '', prop.getValue() , '');
    } else if (data.type == "TEXT") {
-       editor = new TextEditor('', element.id, '', prop.getValue() , '');
+       editor = new TextEditor('', element.id, '', prop.getValue() , true);
    } else if (data.type == "SINGLE") {
-       editor = new DropdownEditor('', element.id, data.param, prop.getValue() , '');
+       editor = new DropdownEditor('', element.id, data.param, prop.getValue() , true);
    } else if (data.type == "BOOLEAN") {
-       editor = new BooleanEditor('', element.id, '', prop.getValue() , '');
+       editor = new BooleanEditor('', element.id, '', prop.getValue() == true ? "true" : "false", true);
    } else {
-       editor = new MultiselectEditor('', element.id, data, element.innerHTML, '');
+       editor = new MultiselectEditor('', element.id, data, element.innerHTML, true);
        editor.open();
    }
 
@@ -42,23 +42,18 @@ function initComplexSelect(data, element) {
 
    editor.getInputElement().onkeypress = function(event) {
        if(event.keyCode == 13) {
+           element.parentNode.props.value = editor.getValue();
            element.innerHTML = editor.getValue();
 
            //set action to cell
            element.parentNode.onclick = function(element) {
                tableModel.toEditPropsMode(this);
            };
-
-           if (data.type == "DATE") {
-               element.parentNode.props.value = editor.getValue();
-           } else {
-               element.parentNode.props.value = editor.getValue();
-               editor.close();
-           }
        }
    };
 
    editor.getInputElement().onblur = function() {
+       element.parentNode.props.value = editor.getValue();
        element.innerHTML = editor.getValue();
 
        //set action to cell
@@ -66,12 +61,6 @@ function initComplexSelect(data, element) {
            tableModel.toEditPropsMode(this);
        };
 
-       if (data.type == "DATE") {
-           element.parentNode.props.value = editor.getValue();
-       } else {
-           element.parentNode.props.value = editor.getValue();
-           editor.close();
-       }
    };
 
 };

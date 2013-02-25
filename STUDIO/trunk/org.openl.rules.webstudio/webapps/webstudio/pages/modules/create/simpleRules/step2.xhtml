@@ -25,7 +25,7 @@
         <script src="#{contextPath}/faces/tableEditor/js/ArrayEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/DateEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/BooleanEditor.js"></script>
-        
+
         <script src="#{contextPath}/javascript/tableDataModel.js"></script>
         <script src="#{contextPath}/javascript/tableHTMLRenderers.js"></script>
         <script src="#{contextPath}/javascript/tableEditors.js"></script>
@@ -56,14 +56,36 @@
             table.srt tr {
                 height : 20px;
             }
+            
+            .tips_div {
+                width: 300px;
+                padding: 5px 5px 15px 5px;
+                background: rgba(220, 220, 220, 0.1);
+                border-width: 1px;
+                border-style: solid;
+                border-color: #DDDDDD;
+            }
+            
+            .tips_text{
+                padding-left: 15px;
+            }
 
         </style>
 
         <h:form name="srtTableForm" id="srtTableForm">
             <span id="errorMessage" >
             </span>
+            <br/>
             <table id="srtTable" class="srt">
             </table>
+            <br/>
+            <div id="tip" class="tips_div">
+                <strong>Tips</strong><br/>
+                <div class="tips_text">
+                        &#8226;&#160;For a cell value editing click left mouse button<br/>
+                        &#8226;&#160;For an action with table click right mouse button on a cell
+                </div>
+            </div>
             <script>
             //<![CDATA[
                 var domTable = document.getElementById("srtTable");

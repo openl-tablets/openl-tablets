@@ -59,6 +59,10 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         return parameters;
     }
 
+    public boolean isHasOneParameter() {
+        return parameters.size() == 1;
+    }
+
     public void setParameters(List<TypeNamePair> parameters) {
         this.parameters = parameters;
     }
