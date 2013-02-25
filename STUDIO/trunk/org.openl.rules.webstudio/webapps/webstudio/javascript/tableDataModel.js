@@ -28,7 +28,7 @@ var tableModel = {
         + "</span><span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span>"
         + "(" + params + ")";
     },
-    
+
     setReturnParam : function(returnParam) {
         this.header.returnType = returnParam;
     },
@@ -65,8 +65,6 @@ var tableModel = {
         this.renderer.deletePropsRow(this.properties);
         this.properties.push(new Property());
         this.renderer.refreshPropertyRegion(this.properties);
-        
-        
     },
 
     deleteProps : function(rowId) {
@@ -368,7 +366,7 @@ var tableModel = {
         var checkingRes = [];
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rules row in the table. Please, <a href=\"#\" title=\"Add rule row\" onclick=\"tableModel.createEmptyRow(); return false;\">add</a> at least one rules row in the table.");
+            checkingRes.push("There are no rule rows in the table. <a href=\"#\" title=\"Add rule row\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rules row in the table.");
         }
 
         this.checkNames(checkingRes);
@@ -392,7 +390,7 @@ var tableModel = {
 
         for (var i = 0; i < this.header.inParam.length; i++) {
             if(this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid. Please, select parameter type type.");
+                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid. Select parameter type type.");
             }
 
             if(!re.test(this.header.inParam[i].name)) {
