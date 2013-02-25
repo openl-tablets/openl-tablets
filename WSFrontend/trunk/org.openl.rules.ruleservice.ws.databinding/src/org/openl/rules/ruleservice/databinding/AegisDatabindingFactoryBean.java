@@ -11,11 +11,37 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.common.util.XMLSchemaQNames;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.rules.ruleservice.context.ArgumentReplacementVariationType;
+import org.openl.rules.ruleservice.context.BigDecimalValueType;
+import org.openl.rules.ruleservice.context.BigIntegerValueType;
+import org.openl.rules.ruleservice.context.ByteValueType;
+import org.openl.rules.ruleservice.context.ComplexVariationType;
+import org.openl.rules.ruleservice.context.DeepCloningVariationType;
+import org.openl.rules.ruleservice.context.DoubleRangeBeanType;
+import org.openl.rules.ruleservice.context.DoubleValueType;
+import org.openl.rules.ruleservice.context.FloatValueType;
+import org.openl.rules.ruleservice.context.IntRangeBeanType;
+import org.openl.rules.ruleservice.context.IntValueType;
+import org.openl.rules.ruleservice.context.JXPathVariationType;
+import org.openl.rules.ruleservice.context.LongValueType;
+import org.openl.rules.ruleservice.context.RuntimeContextBeanType;
+import org.openl.rules.ruleservice.context.ShortValueType;
+import org.openl.rules.ruleservice.context.VariationsResultType;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
 import org.openl.rules.variation.DeepCloningVariaion;
 import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
 
 public class AegisDatabindingFactoryBean {
 
@@ -32,26 +58,20 @@ public class AegisDatabindingFactoryBean {
 
     public AegisDatabinding createAegisDatabinding() {
         AegisDatabinding aegisDatabinding = new AegisDatabinding();
-        aegisDatabinding.setOverrideTypes(getOverrideTypesWithDefaultOpenLTypes());
-
         if (getConfiguration() != null) {
-            aegisDatabinding.setConfiguration(getConfiguration());
-        }
-
-        if (getWriteXsiTypes() != null) {
-            aegisDatabinding.getAegisContext().setWriteXsiTypes(getWriteXsiTypes().booleanValue());
+            aegisDatabinding.setConfiguration(configuration);
         }
 
         if (getMtomUseXmime() != null) {
             aegisDatabinding.setMtomUseXmime(getMtomUseXmime().booleanValue());
         }
 
-        if (getBus() != null) {
-            aegisDatabinding.setBus(getBus());
-        }
-
         if (getMtomEnabled() != null) {
             aegisDatabinding.setMtomEnabled(getMtomEnabled().booleanValue());
+        }
+        
+        if (getBus() != null) {
+            aegisDatabinding.setBus(getBus());
         }
 
         if (getMtomThreshold() != null) {
@@ -65,8 +85,33 @@ public class AegisDatabindingFactoryBean {
         if (getSchemas() != null) {
             aegisDatabinding.setSchemas(getSchemas());
         }
+        
+        aegisDatabinding.setOverrideTypes(getOverrideTypesWithDefaultOpenLTypes());
 
-        fillDefaultOpenLTypesMappings(aegisDatabinding);
+        if (getWriteXsiTypes() != null) {
+            aegisDatabinding.getAegisContext().setWriteXsiTypes(getWriteXsiTypes().booleanValue());
+        }
+        
+        TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
+        typeMapping.register(new RuntimeContextBeanType());
+        if (supportVariations) {
+            typeMapping.register(new VariationsResultType());
+            typeMapping.register(new JXPathVariationType());
+            typeMapping.register(new ArgumentReplacementVariationType());
+            typeMapping.register(new DeepCloningVariationType());
+            typeMapping.register(new ComplexVariationType());
+        }
+        typeMapping.register(new IntRangeBeanType());
+        typeMapping.register(new DoubleRangeBeanType());
+        typeMapping.register(ShortValue.class, XMLSchemaQNames.XSD_SHORT, new ShortValueType());
+        typeMapping.register(LongValue.class, XMLSchemaQNames.XSD_LONG, new LongValueType());
+        typeMapping.register(IntValue.class, XMLSchemaQNames.XSD_INT, new IntValueType());
+        typeMapping.register(FloatValue.class, XMLSchemaQNames.XSD_FLOAT, new FloatValueType());
+        typeMapping.register(DoubleValue.class, XMLSchemaQNames.XSD_DOUBLE, new DoubleValueType());
+        typeMapping.register(ByteValue.class, XMLSchemaQNames.XSD_BYTE, new ByteValueType());
+        typeMapping.register(BigIntegerValue.class, XMLSchemaQNames.XSD_INTEGER, new BigIntegerValueType());
+        typeMapping.register(BigDecimalValue.class, XMLSchemaQNames.XSD_DECIMAL, new BigDecimalValueType());
+        
         return aegisDatabinding;
     }
 
@@ -76,19 +121,14 @@ public class AegisDatabindingFactoryBean {
             overrideTypes.addAll(getOverrideTypes());
         }
         if (supportVariations) {
+            overrideTypes.add(Variation.class.getCanonicalName());
+            overrideTypes.add(ComplexVariation.class.getName());
             overrideTypes.add(NoVariation.class.getName());
             overrideTypes.add(JXPathVariation.class.getName());
             overrideTypes.add(DeepCloningVariaion.class.getName());
-            overrideTypes.add(ComplexVariation.class.getName());
             overrideTypes.add(ArgumentReplacementVariation.class.getName());
         }
         return overrideTypes;
-    }
-
-    protected void fillDefaultOpenLTypesMappings(AegisDatabinding aegisDatabinding) {
-        TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
-        OpenLTypeMapping openLTypeMapping = new OpenLTypeMapping(typeMapping, supportVariations);
-        aegisDatabinding.getAegisContext().setTypeMapping(openLTypeMapping);
     }
 
     public Boolean getWriteXsiTypes() {

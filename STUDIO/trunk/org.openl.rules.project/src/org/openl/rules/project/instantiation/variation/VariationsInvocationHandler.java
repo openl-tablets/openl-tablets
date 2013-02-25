@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation.variation;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -200,7 +201,11 @@ class VariationsInvocationHandler implements InvocationHandler {
                 if (log.isWarnEnabled()) {
                     log.warn("Failed to calculate \"" + variation.getVariationID() + "\"", e);
                 }
-                variationsResults.registerFailure(variation.getVariationID(), e.getMessage());
+                Throwable e1 = e;
+                if (e instanceof InvocationTargetException && e.getCause() != null){
+                   e1 = e.getCause();
+                }
+                variationsResults.registerFailure(variation.getVariationID(), e1.getMessage());
             }
         } finally {
             if (modifiedArguments != null) {
