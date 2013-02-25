@@ -61,7 +61,7 @@
           &#160;
           <h:commandLink immediate="true"
               rendered="#{repositoryTreeState.canCreate}"
-              onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy">
+              onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Create a new project in Design Repository with a different project name but the same content">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
@@ -69,7 +69,7 @@
               <h:commandLink immediate="true"
                   action="#{repositoryTreeController.deleteRulesProject}"
                   onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}"
-                  title="Delete">
+                  title="Mark project as deleted">
                   <f:param name="projectName" value="#{prj.name}" />
                   <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete"/>
               </h:commandLink>
