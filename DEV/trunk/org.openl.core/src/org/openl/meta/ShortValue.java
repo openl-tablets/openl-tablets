@@ -402,6 +402,12 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
         return false;
     }
+    
+     public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
+        return subtract(value, ONE);
+    }
+    
+  
         // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    

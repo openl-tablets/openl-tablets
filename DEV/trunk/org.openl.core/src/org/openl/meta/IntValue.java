@@ -402,6 +402,12 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         return false;
     }
+    
+     public static org.openl.meta.IntValue dec(org.openl.meta.IntValue value) {
+        return subtract(value, ONE);
+    }
+    
+  
         // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
