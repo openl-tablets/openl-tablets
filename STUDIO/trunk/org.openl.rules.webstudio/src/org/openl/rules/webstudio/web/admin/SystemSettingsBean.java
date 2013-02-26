@@ -463,15 +463,22 @@ public class SystemSettingsBean {
         return maxNumber;
     }
 
-    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
+    public void dateFormatValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String inputDate = (String) value;
 
+        isValueNull(inputDate, "Date format");
+
+    }
+
+    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
+        isValueNull(value, "Workspace Directory");
         setUserWorkspaceHome((String) value);
         workingDirValidator(getUserWorkspaceHome(), "Workspace Directory");
 
     }
 
     public void historyDirValidator (FacesContext context, UIComponent toValidate, Object value) {
-
+        isValueNull(value, "History Directory");
         setProjectHistoryHome((String) value);
         workingDirValidator(getProjectHistoryHome(), "History Directory");
 
@@ -481,6 +488,7 @@ public class SystemSettingsBean {
         File studioWorkingDir;
         File tmpFile = null;
         boolean hasAccess;
+        
         try {
 
             studioWorkingDir = new File(value);
@@ -496,7 +504,7 @@ public class SystemSettingsBean {
                 }
             } else {
                 if (studioWorkingDir.mkdirs() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " name: " + value));
+                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " name: '" + value + "'"));
                 } else {
                     deleteFolder(value);
                 }
@@ -510,6 +518,17 @@ public class SystemSettingsBean {
                 tmpFile.delete();
             }
         }
+    }
+
+    private boolean isValueNull (Object value, String folderType) {
+        boolean isNull = StringUtils.isBlank((String)value);
+        String errorMessage = folderType + "  could not be empty";
+       
+        if (isNull) {
+            FacesUtils.addErrorMessage(errorMessage);
+            throw new ValidatorException(new FacesMessage(errorMessage));
+        }
+        return isNull;
     }
 
     /* Deleting the folder which were created for validating folder permissions */

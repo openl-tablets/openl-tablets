@@ -40,7 +40,7 @@
 	                <h:column>
 	                    <a4j:commandLink action="#{wizard.removeValue(value)}"
 	                        render="valuesTable" execute="@form"
-	                        title="Remove Value" style="margin-left: 5px;">
+	                        title="Remove Value" style="margin-left: 5px;" disabled="#{wizard.values.size() == 1}">
 	                        <h:graphicImage value="/images/delete.png" />
 	                    </a4j:commandLink>
 	                    <a4j:outputPanel ajaxRendered="true">
