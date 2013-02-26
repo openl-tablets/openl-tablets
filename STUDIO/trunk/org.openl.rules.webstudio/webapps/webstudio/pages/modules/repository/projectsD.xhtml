@@ -60,12 +60,14 @@
       <rich:column>
         <h:panelGroup rendered="#{!prj.data.deleted}">
           &#160;
-          <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}" onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" title="Copy">
+          <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}" 
+                onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" 
+                title="Create a new project in Design Repository with a different project name but the same content">
             <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and (not prj.data.locked or prj.data.lockedByMe)}">
             &#160;
-            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Delete"
+            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Mark project as deleted"
               onclick="if(!window.confirm('Are you sure you want to delete the Deploy Configuration?')) {return false;}">
               <f:param name="deploymentProjectName" value="#{prj.name}" />
               <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
