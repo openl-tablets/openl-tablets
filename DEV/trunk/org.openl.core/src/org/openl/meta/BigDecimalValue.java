@@ -323,11 +323,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public static org.openl.meta.BigDecimalValue positive(org.openl.meta.BigDecimalValue value) {
         return value;
     }
-    
-    public static org.openl.meta.BigDecimalValue dec(org.openl.meta.BigDecimalValue value) {
-        return subtract(value, ONE);
-    }
-    
+
     // Autocasts
     
 	public static org.openl.meta.BigDecimalValue autocast(byte x, org.openl.meta.BigDecimalValue y) {
@@ -407,8 +403,22 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      public static org.openl.meta.BigDecimalValue dec(org.openl.meta.BigDecimalValue value) {
         return subtract(value, ONE);
     }
-    
-  
+    // sort
+    public static org.openl.meta.BigDecimalValue[] sort (org.openl.meta.BigDecimalValue[] values ) {
+        org.openl.meta.BigDecimalValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new org.openl.meta.BigDecimalValue[values.length];
+           org.openl.meta.BigDecimalValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
@@ -584,22 +594,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
             primitiveArray[i] = values[i].getValue();
         }
         return primitiveArray;
-    }
-
-    public static BigDecimalValue[] sort(BigDecimalValue[] values) {
-        BigDecimalValue[] sortedArray = null;
-        if (values != null) {
-            sortedArray = new BigDecimalValue[values.length];
-            BigDecimalValue[] notNullArray = ArrayTool.removeNulls(values);
-
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
     }
 
 }

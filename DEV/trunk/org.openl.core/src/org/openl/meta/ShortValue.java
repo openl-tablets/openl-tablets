@@ -322,11 +322,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static org.openl.meta.ShortValue positive(org.openl.meta.ShortValue value) {
         return value;
     }
-    
-    public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
-        return subtract(value, ONE);
-    }
-    
+
     // Autocasts
     
 	public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
@@ -406,8 +402,22 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
         return subtract(value, ONE);
     }
-    
-  
+    // sort
+    public static org.openl.meta.ShortValue[] sort (org.openl.meta.ShortValue[] values ) {
+        org.openl.meta.ShortValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new org.openl.meta.ShortValue[values.length];
+           org.openl.meta.ShortValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************    
@@ -559,20 +569,5 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return shortArray;
     }
     
-    public static ShortValue[] sort (ShortValue[] values) {
-        ShortValue[] sortedArray = null;
-        if (values != null) {
-            sortedArray = new ShortValue[values.length];
-            ShortValue[] notNullArray = ArrayTool.removeNulls(values);
-
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
 
 }

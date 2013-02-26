@@ -322,11 +322,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public static org.openl.meta.ByteValue positive(org.openl.meta.ByteValue value) {
         return value;
     }
-    
-    public static org.openl.meta.ByteValue dec(org.openl.meta.ByteValue value) {
-        return subtract(value, ONE);
-    }
-    
+
     // Autocasts
     
 	public static org.openl.meta.ByteValue autocast(byte x, org.openl.meta.ByteValue y) {
@@ -406,8 +402,22 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      public static org.openl.meta.ByteValue dec(org.openl.meta.ByteValue value) {
         return subtract(value, ONE);
     }
-    
-  
+    // sort
+    public static org.openl.meta.ByteValue[] sort (org.openl.meta.ByteValue[] values ) {
+        org.openl.meta.ByteValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new org.openl.meta.ByteValue[values.length];
+           org.openl.meta.ByteValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
@@ -561,19 +571,4 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return primitiveArray;
     }
 
-    public static ByteValue[] sort(ByteValue[] values) {
-        ByteValue[] sortedArray = null;
-        if (values != null) {
-            sortedArray = new ByteValue[values.length];
-            ByteValue[] notNullArray = ArrayTool.removeNulls(values);
-
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
 }
