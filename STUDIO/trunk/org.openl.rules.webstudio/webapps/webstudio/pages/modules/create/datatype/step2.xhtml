@@ -19,6 +19,7 @@
         </style>
 
         <h:form>
+        <f:validateBean disabled="#{wizard.containsRemoveLink(param)}">
             <a4j:commandLink action="#{wizard.addParameter}"
                 render="paramTable" title="Add more" styleClass="addButton">
                 <h:outputText value="Add Parameter" />
@@ -53,10 +54,9 @@
 	                </h:column>
 	
 	                <h:column>
-	                    <a4j:commandLink action="#{wizard.removeParameter(parameter)}"
+	                    <a4j:commandLink id="removeLink" action="#{wizard.removeParameter(parameter)}" 
 	                        render="paramTable" execute="@form"
-                            onclick="document.getElementById(this.id.substring(0, this.id.lastIndexOf(':')) + ':pname').value='_'"
-	                        title="Remove Parameter" style="margin-left: 5px;" disabled="#{wizard.parameters.size() == 1}">
+                            title="Remove Parameter" style="margin-left: 5px;" disabled="#{wizard.parameters.size() == 1}">
 	                        <h:graphicImage value="/images/delete.png" />
 	                    </a4j:commandLink>
 	                    <a4j:outputPanel ajaxRendered="true">
@@ -76,6 +76,7 @@
             </a4j:commandButton>
             <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
                 oncomplete="goTo('create/index.xhtml')" />
+         </f:validateBean> 
         </h:form>
 
   </ui:define>
