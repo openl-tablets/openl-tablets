@@ -322,7 +322,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static org.openl.meta.IntValue positive(org.openl.meta.IntValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.IntValue dec(org.openl.meta.IntValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.IntValue autocast(byte x, org.openl.meta.IntValue y) {
@@ -399,9 +403,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return false;
     }
     
-     public static org.openl.meta.IntValue dec(org.openl.meta.IntValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.IntValue[] sort (org.openl.meta.IntValue[] values ) {
         org.openl.meta.IntValue[] sortedArray = null;

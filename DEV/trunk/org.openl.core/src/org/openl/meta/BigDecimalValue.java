@@ -323,7 +323,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     public static org.openl.meta.BigDecimalValue positive(org.openl.meta.BigDecimalValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.BigDecimalValue dec(org.openl.meta.BigDecimalValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.BigDecimalValue autocast(byte x, org.openl.meta.BigDecimalValue y) {
@@ -400,9 +404,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return false;
     }
     
-     public static org.openl.meta.BigDecimalValue dec(org.openl.meta.BigDecimalValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.BigDecimalValue[] sort (org.openl.meta.BigDecimalValue[] values ) {
         org.openl.meta.BigDecimalValue[] sortedArray = null;
