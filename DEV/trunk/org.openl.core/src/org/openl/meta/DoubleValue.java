@@ -358,11 +358,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static org.openl.meta.DoubleValue positive(org.openl.meta.DoubleValue value) {
         return value;
     }
-    
-    public static org.openl.meta.DoubleValue dec(org.openl.meta.DoubleValue value) {
-        return subtract(value, ONE);
-    }
-    
+
     // Autocasts
     
 	public static org.openl.meta.DoubleValue autocast(byte x, org.openl.meta.DoubleValue y) {
@@ -442,8 +438,22 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      public static org.openl.meta.DoubleValue dec(org.openl.meta.DoubleValue value) {
         return subtract(value, ONE);
     }
-    
-  
+    // sort
+    public static org.openl.meta.DoubleValue[] sort (org.openl.meta.DoubleValue[] values ) {
+        org.openl.meta.DoubleValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new org.openl.meta.DoubleValue[values.length];
+           org.openl.meta.DoubleValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
@@ -669,22 +679,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             primitiveArray[i] = values[i].getValue();
         }
         return primitiveArray;
-    }
-
-    public static DoubleValue[] sort(DoubleValue[] values) {
-        DoubleValue[] sortedArray = null;
-        if (values != null) {
-            sortedArray = new DoubleValue[values.length];
-            DoubleValue[] notNullArray = ArrayTool.removeNulls(values);
-
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
     }
 
 }

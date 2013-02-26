@@ -322,11 +322,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public static org.openl.meta.LongValue positive(org.openl.meta.LongValue value) {
         return value;
     }
-    
-    public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
-        return subtract(value, ONE);
-    }
-    
+
     // Autocasts
     
 	public static org.openl.meta.LongValue autocast(byte x, org.openl.meta.LongValue y) {
@@ -406,8 +402,22 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
         return subtract(value, ONE);
     }
-    
-  
+    // sort
+    public static org.openl.meta.LongValue[] sort (org.openl.meta.LongValue[] values ) {
+        org.openl.meta.LongValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new org.openl.meta.LongValue[values.length];
+           org.openl.meta.LongValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         // <<< END INSERT Functions >>>
 
     // ******* Autocasts*************
@@ -559,19 +569,4 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     }
 
-    public static LongValue[] sort(LongValue[] values) {
-        LongValue[] sortedArray = null;
-        if (values != null) {
-            sortedArray = new LongValue[values.length];
-            LongValue[] notNullArray = ArrayTool.removeNulls(values);
-
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
 }

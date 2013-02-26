@@ -282,11 +282,7 @@
     public static $tool.getTypeName($type) ${positiveFunction.Name}($tool.getTypeName($type) value) {
         return value;
     }
-    
-    public static $tool.getTypeName($type) ${decFunction.Name}($tool.getTypeName($type) value) {
-        return subtract(value, ONE);
-    }
-    
+
     // Autocasts
     
 #foreach ($primitiveNumericType in $primitiveNumericTypes)
@@ -359,5 +355,25 @@
         }
 
         return false;
+    }
+    
+     public static $tool.getTypeName($type) ${decFunction.Name}($tool.getTypeName($type) value) {
+        return subtract(value, ONE);
+    }
+    // sort
+    public static $tool.getTypeName($type)[] sort ($tool.getTypeName($type)[] values ) {
+        $tool.getTypeName($type)[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new $tool.getTypeName($type)[values.length];
+           $tool.getTypeName($type)[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
         
