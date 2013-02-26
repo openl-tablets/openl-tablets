@@ -360,4 +360,22 @@
 
         return false;
     }
+    
+
+    // sort
+    public static $tool.getTypeName($type)[] sort ($tool.getTypeName($type)[] values ) {
+        $tool.getTypeName($type)[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new $tool.getTypeName($type)[values.length];
+           $tool.getTypeName($type)[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         
