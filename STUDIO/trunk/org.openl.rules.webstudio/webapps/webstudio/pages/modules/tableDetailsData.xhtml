@@ -11,7 +11,7 @@
     <h:form prependId="false">
         <h:panelGroup id="propsTable" layout="block">
         <table>
-            <h:panelGroup rendered="#{tableDetailsBean.hasNameProperty and !empty tableDetailsBean.table.name}">
+            <h:panelGroup rendered="#{!empty tableDetailsBean.table.name}">
             <tr class="table-data">
                 <td class="table-data-name">Name</td>
                 <td class="table-data-value">#{tableDetailsBean.table.name}</td>
