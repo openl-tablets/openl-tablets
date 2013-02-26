@@ -22,286 +22,265 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     private static final LongValue MINUS_ONE = new LongValue((long) -1);
 
     // <<< INSERT Functions >>>
-    private long value;
+	private long value;
 
-    public static boolean eq(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.EQ.toString());
 
-        return Operators.eq(value1.getValue(), value2.getValue());
-    }
+	public static boolean eq(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, LogicalExpressions.EQ.toString());
+		
+		return Operators.eq(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ge(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, LogicalExpressions.GE.toString());
+		
+		return Operators.ge(value1.getValue(), value2.getValue());		
+	}
+	public static boolean gt(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, LogicalExpressions.GT.toString());
+		
+		return Operators.gt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean le(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, LogicalExpressions.LE.toString());
+		
+		return Operators.le(value1.getValue(), value2.getValue());		
+	}
+	public static boolean lt(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, LogicalExpressions.LT.toString());
+		
+		return Operators.lt(value1.getValue(), value2.getValue());		
+	}
+	public static boolean ne(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		validate(value1, value2, LogicalExpressions.NE.toString());
+		
+		return Operators.ne(value1.getValue(), value2.getValue());		
+	}
 
-    public static boolean ge(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.GE.toString());
-
-        return Operators.ge(value1.getValue(), value2.getValue());
-    }
-
-    public static boolean gt(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.GT.toString());
-
-        return Operators.gt(value1.getValue(), value2.getValue());
-    }
-
-    public static boolean le(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.LE.toString());
-
-        return Operators.le(value1.getValue(), value2.getValue());
-    }
-
-    public static boolean lt(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.LT.toString());
-
-        return Operators.lt(value1.getValue(), value2.getValue());
-    }
-
-    public static boolean ne(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        validate(value1, value2, LogicalExpressions.NE.toString());
-
-        return Operators.ne(value1.getValue(), value2.getValue());
-    }
-
-    public static org.openl.meta.LongValue avg(org.openl.meta.LongValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+	public static org.openl.meta.LongValue avg(org.openl.meta.LongValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        long[] primitiveArray = unwrap(values);
-        long avg = MathUtils.avg(primitiveArray);
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(avg), NumberOperations.AVG, values);
-    }
-
-    public static org.openl.meta.LongValue sum(org.openl.meta.LongValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+		long[] primitiveArray = unwrap(values);
+		long avg = MathUtils.avg(primitiveArray);
+		return new org.openl.meta.LongValue(new org.openl.meta.LongValue(avg), NumberOperations.AVG, values);
+	}
+	public static org.openl.meta.LongValue sum(org.openl.meta.LongValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        long[] primitiveArray = unwrap(values);
-        long sum = MathUtils.sum(primitiveArray);
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(sum), NumberOperations.SUM, values);
-    }
-
-    public static org.openl.meta.LongValue median(org.openl.meta.LongValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+		long[] primitiveArray = unwrap(values);
+		long sum = MathUtils.sum(primitiveArray);
+		return new org.openl.meta.LongValue(new org.openl.meta.LongValue(sum), NumberOperations.SUM, values);
+	}
+	public static org.openl.meta.LongValue median(org.openl.meta.LongValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        long[] primitiveArray = unwrap(values);
-        long median = MathUtils.median(primitiveArray);
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(median), NumberOperations.MEDIAN, values);
-    }
+		long[] primitiveArray = unwrap(values);
+		long median = MathUtils.median(primitiveArray);
+		return new org.openl.meta.LongValue(new org.openl.meta.LongValue(median), NumberOperations.MEDIAN, values);
+	}
 
-    public static org.openl.meta.LongValue max(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2;
+	public static org.openl.meta.LongValue max(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MAX.toString());
+		if (value1 == null)
+		    return value2; 
         if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.LongValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+            return value1; 
+		
+		return new org.openl.meta.LongValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.LongValue[] { value1, value2 });
-    }
-
-    public static org.openl.meta.LongValue min(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2;
+	}
+	public static org.openl.meta.LongValue min(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+	    // Commented to support operations with nulls
+	    // "null" means that data does not exist
+		// validate(value1, value2, NumberOperations.MIN.toString());
+		if (value1 == null)
+		    return value2; 
         if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.LongValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+            return value1; 
+		
+		return new org.openl.meta.LongValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
             new org.openl.meta.LongValue[] { value1, value2 });
-    }
+	}
 
-    public static org.openl.meta.LongValue max(org.openl.meta.LongValue[] values) {
-        org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.max(values);
+	public static org.openl.meta.LongValue max(org.openl.meta.LongValue[] values) {
+		org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.max(values); 		
+		
+		return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result), 
+            NumberOperations.MAX_IN_ARRAY, values);
+	}
+	public static org.openl.meta.LongValue min(org.openl.meta.LongValue[] values) {
+		org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.min(values); 		
+		
+		return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result), 
+            NumberOperations.MIN_IN_ARRAY, values);
+	}
 
-        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    public static org.openl.meta.LongValue min(org.openl.meta.LongValue[] values) {
-        org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.min(values);
-
-        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY,
-            values);
-    }
-
-    public static org.openl.meta.LongValue copy(org.openl.meta.LongValue value, String name) {
-        if (value.getName() == null) {
+	public static org.openl.meta.LongValue copy(org.openl.meta.LongValue value, String name) {
+		if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.LongValue result = new org.openl.meta.LongValue(value,
-                NumberOperations.COPY,
-                new org.openl.meta.LongValue[] { value });
-            result.setName(name);
+        	org.openl.meta.LongValue result = new org.openl.meta.LongValue (value, NumberOperations.COPY, 
+        		new org.openl.meta.LongValue[] { value });
+        	result.setName(name);
 
             return result;
         }
         return value;
-    }
-
-    // REM
-    public static org.openl.meta.LongValue rem(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // Commented to support operations with nulls. See also MathUtils.mod()
-        // validate(value1, value2, Formulas.REM.toString());
-        if (value1 == null || value2 == null) {
+	}
+	
+	//REM
+	public static org.openl.meta.LongValue rem(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+	    // Commented to support operations with nulls. See also MathUtils.mod()
+		// validate(value1, value2, Formulas.REM.toString());
+		if (value1 == null || value2 == null) {
             return ZERO;
         }
-
-        return new org.openl.meta.LongValue(value1,
-            value2,
-            Operators.rem(value1.getValue(), value2.getValue()),
-            Formulas.REM);
-    }
-
-    // ADD
-    public static org.openl.meta.LongValue add(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.ADD.toString());
-        // conditions for classes that are wrappers over primitives
-        if (value1 == null || value1.getValue() == 0) {
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
+			Formulas.REM);		
+	}
+	 	
+	
+	//ADD
+	public static org.openl.meta.LongValue add(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.ADD.toString());
+		//conditions for classes that are wrappers over primitives
+		if (value1 == null || value1.getValue() == 0) {
             return value2;
         }
 
         if (value2 == null || value2.getValue() == 0) {
             return value1;
         }
-
-        return new org.openl.meta.LongValue(value1,
-            value2,
-            Operators.add(value1.getValue(), value2.getValue()),
-            Formulas.ADD);
-    }
-
-    // MULTIPLY
-    public static org.openl.meta.LongValue multiply(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.MULTIPLY.toString());
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return value1;
-        }
-
-        return new org.openl.meta.LongValue(value1,
-            value2,
-            Operators.multiply(value1.getValue(), value2.getValue()),
-            Formulas.MULTIPLY);
-    }
-
-    // SUBTRACT
-    public static org.openl.meta.LongValue subtract(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.SUBTRACT.toString());
-        if (value1 == null && value2 == null) {
-            return null;
-        }
-
-        if (value1 == null) {
-            return negative(value2);
-        }
-
-        if (value2 == null) {
-            return value1;
-        }
-
-        return new org.openl.meta.LongValue(value1,
-            value2,
-            Operators.subtract(value1.getValue(), value2.getValue()),
-            Formulas.SUBTRACT);
-    }
-
-    // DIVIDE
-    public static org.openl.meta.LongValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // temporary commented to support operations with nulls
-        //
-        // validate(value1, value2, Formulas.DIVIDE.toString());
-        if (value1 == null && value2 == null) {
-            return null;
-        }
-
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.LongValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
-            }
-        }
-
-        if (value2 == null) {
-            return new org.openl.meta.LongValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
-        }
-
-        if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
-        }
-
-        return new org.openl.meta.LongValue(value1,
-            value2,
-            Operators.divide(value1.getValue(), value2.getValue()),
-            Formulas.DIVIDE);
-    }
-
-    // QUAOTIENT
-    public static LongValue quotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
+        
+		return new org.openl.meta.LongValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
+			Formulas.ADD);	
+	}
+	
+	// MULTIPLY
+	public static org.openl.meta.LongValue multiply(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.MULTIPLY.toString());
+		if (value1 == null) {
+			return value2;
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
+			Formulas.MULTIPLY);		
+	}
+	
+	//SUBTRACT
+	public static org.openl.meta.LongValue subtract(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
+		if (value1 == null) {
+			return negative(value2);
+		}
+		
+		if (value2 == null) {
+			return value1;
+		}
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+			Formulas.SUBTRACT);		
+	}
+	
+	// DIVIDE
+	public static org.openl.meta.LongValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+		// temporary commented to support operations with nulls
+		//
+		//		validate(value1, value2, Formulas.DIVIDE.toString());
+		if (value1 == null && value2 == null) {
+			return null;
+		}
+		
+		if (value1 == null) {
+			if (value2 != null && value2.doubleValue() != 0) {
+				return new org.openl.meta.LongValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+			}
+		}
+		
+		if (value2 == null) {
+			return new org.openl.meta.LongValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+		}
+		
+		if (value2.doubleValue() == 0) {
+			throw new OpenlNotCheckedException("Division by zero");
+		}
+		
+		return new org.openl.meta.LongValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
+			Formulas.DIVIDE);		
+	}
+	
+	
+	// QUAOTIENT
+	public static LongValue quotient(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
-
-    // generated product function for types that are wrappers over primitives
-    public static DoubleValue product(org.openl.meta.LongValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+	
+	// generated product function for types that are wrappers over primitives
+	public static DoubleValue product(org.openl.meta.LongValue[] values) {
+		if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         long[] primitiveArray = unwrap(values);
         double product = MathUtils.product(primitiveArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-    }
-
-    public static org.openl.meta.LongValue mod(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
+	}
+	
+	public static org.openl.meta.LongValue mod(org.openl.meta.LongValue number, org.openl.meta.LongValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.LongValue result = new org.openl.meta.LongValue(MathUtils.mod(number.getValue(),
-                divisor.getValue()));
-            return new org.openl.meta.LongValue(result, NumberOperations.MOD, new org.openl.meta.LongValue[] { number,
-                    divisor });
+            org.openl.meta.LongValue result = new org.openl.meta.LongValue(MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.LongValue(result, NumberOperations.MOD, new org.openl.meta.LongValue[]{number, divisor} );
         }
         return null;
     }
-
+    
     public static org.openl.meta.LongValue small(org.openl.meta.LongValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         long[] primitiveArray = unwrap(values);
         long small = MathUtils.small(primitiveArray, position);
-        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values,
-            new org.openl.meta.LongValue(small)), NumberOperations.SMALL, values);
+        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, new org.openl.meta.LongValue(small)), 
+            NumberOperations.SMALL, values);
     }
-
+    
     public static org.openl.meta.LongValue big(org.openl.meta.LongValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         long[] primitiveArray = unwrap(values);
         long big = MathUtils.big(primitiveArray, position);
-        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values,
-            new org.openl.meta.LongValue(big)), NumberOperations.BIG, values);
+        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, new org.openl.meta.LongValue(big)), 
+            NumberOperations.BIG, values);
     }
-
+    
     public static org.openl.meta.LongValue pow(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
@@ -312,11 +291,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         } else if (value2 == null) {
             return value1;
         }
-
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(Operators.pow(value1.getValue(),
-            value2.getValue())), NumberOperations.POW, new org.openl.meta.LongValue[] { value1, value2 });
+        
+        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(Operators.pow(value1.getValue(), value2.getValue())), 
+            NumberOperations.POW, new org.openl.meta.LongValue[] { value1, value2 });
     }
-
+    
     public static org.openl.meta.LongValue abs(org.openl.meta.LongValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
@@ -328,56 +307,51 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         // create instance with information about last operation
         return new org.openl.meta.LongValue(result, NumberOperations.ABS, new org.openl.meta.LongValue[] { value });
     }
-
+    
     public static org.openl.meta.LongValue negative(org.openl.meta.LongValue value) {
         if (value == null) {
             return null;
         }
         return multiply(value, MINUS_ONE);
     }
-
+    
     public static org.openl.meta.LongValue inc(org.openl.meta.LongValue value) {
         return add(value, ONE);
     }
-
+    
     public static org.openl.meta.LongValue positive(org.openl.meta.LongValue value) {
         return value;
     }
-
+    
     public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
         return subtract(value, ONE);
     }
-
+    
     // Autocasts
-
-    public static org.openl.meta.LongValue autocast(byte x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-
-    public static org.openl.meta.LongValue autocast(short x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-
-    public static org.openl.meta.LongValue autocast(int x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-
-    public static org.openl.meta.LongValue autocast(long x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-
-    public static org.openl.meta.LongValue autocast(float x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-
-    public static org.openl.meta.LongValue autocast(double x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
-    }
-
+    
+	public static org.openl.meta.LongValue autocast(byte x, org.openl.meta.LongValue y) {
+		return new org.openl.meta.LongValue((long) x);
+	}		
+	public static org.openl.meta.LongValue autocast(short x, org.openl.meta.LongValue y) {
+		return new org.openl.meta.LongValue((long) x);
+	}		
+	public static org.openl.meta.LongValue autocast(int x, org.openl.meta.LongValue y) {
+		return new org.openl.meta.LongValue((long) x);
+	}		
+	public static org.openl.meta.LongValue autocast(long x, org.openl.meta.LongValue y) {
+		return new org.openl.meta.LongValue((long) x);
+	}		
+	public static org.openl.meta.LongValue autocast(float x, org.openl.meta.LongValue y) {
+		return new org.openl.meta.LongValue((long) x);
+	}		
+	public static org.openl.meta.LongValue autocast(double x, org.openl.meta.LongValue y) {
+		return new org.openl.meta.LongValue((long) x);
+	}		
+    
     // Constructors
     public LongValue(long value) {
         this.value = value;
-    }
+    }    
 
     public LongValue(long value, String name) {
         super(name);
@@ -386,16 +360,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     public LongValue(long value, IMetaInfo metaInfo) {
         super(metaInfo);
-        this.value = value;
-    }
+        this.value = value;        
+    }    
 
-    /** Formula constructor **/
+    /**Formula constructor**/
     public LongValue(org.openl.meta.LongValue lv1, org.openl.meta.LongValue lv2, long value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
-    }
+    }    
 
-    /** Cast constructor **/
+    /**Cast constructor**/
     public LongValue(long value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("LongValue", autocast));
         this.value = value;
@@ -403,23 +377,23 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     @Override
     public org.openl.meta.LongValue copy(String name) {
-        return copy(this, name);
-    }
-
-    public String printValue() {
+        return copy(this, name);        
+    }    
+    
+    public String printValue() {        
         return String.valueOf(value);
     }
-
-    public long getValue() {
+    
+    public long getValue() {        
         return value;
     }
-
+    
     public void setValue(long value) {
         this.value = value;
     }
-
-    // Equals
-    @Override
+    
+    //Equals
+	@Override
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.LongValue) {
             org.openl.meta.LongValue secondObj = (org.openl.meta.LongValue) obj;
@@ -428,8 +402,13 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
         return false;
     }
-
-    // <<< END INSERT Functions >>>
+    
+     public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
+        return subtract(value, ONE);
+    }
+    
+  
+        // <<< END INSERT Functions >>>
 
     // ******* Autocasts*************
 
