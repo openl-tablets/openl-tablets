@@ -69,10 +69,10 @@
   <h:panelGroup rendered="#{node.type == 'folder'}">
     <h:panelGrid columns="3" cellpadding="3" cellspacing="0" rendered="#{repositoryTreeState.canModify}">
       <h:commandButton id="addFolder1" value="Add Folder" onclick="openNewFolderDialog();return false;">
-          <rich:tooltip showDelay="500">#{addFolderMessage}"</rich:tooltip>
+          <rich:tooltip showDelay="500">#{addFolderMessage}</rich:tooltip>
       </h:commandButton>
       <h:commandButton id="uploadFile1" value="Upload File" onclick="openNewFileDialog();return false;">
-          <rich:tooltip showDelay="500">"#{uploadFileMessage}"</rich:tooltip>
+          <rich:tooltip showDelay="500">#{uploadFileMessage}</rich:tooltip>
       </h:commandButton>
       <h:commandButton id="deleteFolderId" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;">
         <rich:tooltip showDelay="500">Delete the folder</rich:tooltip>

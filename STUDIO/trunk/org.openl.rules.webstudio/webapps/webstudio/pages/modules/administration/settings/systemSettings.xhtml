@@ -117,8 +117,9 @@
                                 <h:selectBooleanCheckbox value="#{systemSettingsBean.updateSystemProperties}"
                                     disabled="#{jsffn:isSystemProp('update.system.properties')}"/>
                                 <h:outputText value="Date Format:" />
-                                <h:inputText value="#{systemSettingsBean.datePattern}"
-                                    disabled="#{jsffn:isSystemProp('data.format.date')}" />
+                                <h:inputText id="date-format" value="#{systemSettingsBean.datePattern}"
+                                    disabled="#{jsffn:isSystemProp('data.format.date')}" 
+                                    validator = "#{systemSettingsBean.dateFormatValidator}"/>
                             </h:panelGrid>
                         </div>
                     </section>

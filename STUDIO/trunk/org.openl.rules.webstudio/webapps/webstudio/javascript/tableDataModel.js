@@ -28,7 +28,7 @@ var tableModel = {
         + "</span><span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span>"
         + "(" + params + ")";
     },
-    
+
     setReturnParam : function(returnParam) {
         this.header.returnType = returnParam;
     },
@@ -65,8 +65,6 @@ var tableModel = {
         this.renderer.deletePropsRow(this.properties);
         this.properties.push(new Property());
         this.renderer.refreshPropertyRegion(this.properties);
-        
-        
     },
 
     deleteProps : function(rowId) {
@@ -368,7 +366,7 @@ var tableModel = {
         var checkingRes = [];
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rules row in the table. Please, <a href=\"#\" title=\"Add rule row\" onclick=\"tableModel.createEmptyRow(); return false;\">add</a> at least one rules row in the table.");
+            checkingRes.push("There are no rule rows in the table. <a href=\"#\" title=\"Add rule row\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rules row in the table.");
         }
 
         this.checkNames(checkingRes);
@@ -386,17 +384,17 @@ var tableModel = {
 
         if (this.header.name.length == 1) {
             if (!onlyChar.test(this.header.name)) {
-                checkingRes.push("Table name is invalid. Only letters can be used as one symbol table name.");
+                checkingRes.push("Table name '"+this.header.name+"' is invalid. Only letters can be used as one symbol table name.");
             }
         }
 
         for (var i = 0; i < this.header.inParam.length; i++) {
             if(this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type "+this.header.inParam[i].type+" is invalid. Please, select parameter type type.");
+                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type type.");
             }
 
             if(!re.test(this.header.inParam[i].name)) {
-                checkingRes.push("Parameter name "+this.header.inParam[i].name+" is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
+                checkingRes.push("Parameter name '"+this.header.inParam[i].name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
             }
         }
     },

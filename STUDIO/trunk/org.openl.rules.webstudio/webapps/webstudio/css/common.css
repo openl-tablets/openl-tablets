@@ -12,7 +12,7 @@ table, input, textarea {
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px !important;
     border-style: solid !important;
-    border-color: #aaaaaa #dddddd #dddddd #aaaaaa !important;
+    border-color: #c7c7c7 #ddd #ddd #c7c7c7 !important;
     border-radius: 1px !important;
     background: #ffffff !important;
 }
@@ -30,24 +30,25 @@ input[type='submit'], input[type='reset'],
 input[type='button'], button,
 .button, .imageButton {
     padding: 4px 6px;
-    border: 1px solid #dddddd;
+    border: 1px solid #e5e5e5;
     background: #fbfbfb;
     color: #444444;
     margin-right: 4px;
     cursor: pointer;
+    box-shadow: 0 0 2px #fff inset;
 }
 
 input[type='submit']:hover, input[type='reset']:hover,
 input[type='button']:hover, button:hover,
 .button:hover, .imageButton:hover {
-    border-color: #cccccc;
+    border-color: #ddd;
     color: #222222;
 }
 
 input[type='submit']:active, input[type='reset']:active,
 input[type='button']:active, button:active,
 .button:active, .imageButton:active {
-    border-color: #bbbbbb;
+    border-color: #ccc;
 }
 
 input[type='submit']:disabled, input[type='reset']:disabled,
@@ -71,6 +72,7 @@ input[type='button']:disabled, button:disabled,
     background: #ff8111 !important;
     border-color: #ff8111 !important;
     color: white !important;
+    box-shadow: none !important;
 }
 
 a.button-primary {

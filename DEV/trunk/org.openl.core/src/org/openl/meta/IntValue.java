@@ -402,6 +402,24 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         return false;
     }
+    
+
+    // sort
+    public static org.openl.meta.IntValue[] sort (org.openl.meta.IntValue[] values ) {
+        org.openl.meta.IntValue[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new org.openl.meta.IntValue[values.length];
+           org.openl.meta.IntValue[] notNullArray = ArrayTool.removeNulls(values);
+
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
+    }
         // <<< END INSERT Functions >>>
     
     // ******* Autocasts*************
@@ -553,20 +571,4 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return intArray;
     }
     
-    public static IntValue[] sort (IntValue[] values ) {
-        IntValue[] sortedArray = null;
-        if (values != null) {
-            sortedArray = new IntValue[values.length];
-            IntValue[] notNullArray = ArrayTool.removeNulls(values);
-
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
-
 }
