@@ -12,6 +12,14 @@
     <ui:define name="header">Input name and properties</ui:define>
 
     <ui:define name="data">
+        <style>
+            .addButton {
+                background: url(#{contextPath}/webresource/images/add_obj.gif) no-repeat 2px;
+                padding: 3px 5px 3px 21px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
+        </style>
         <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
         <h:form id="propertiesForm">
@@ -62,8 +70,7 @@
                 </table>
             </h:panelGroup>
 
-            <a4j:commandLink oncomplete="#{rich:component('newPropertyDlg')}.show();">
-                <h:graphicImage value="/images/add_obj.gif" alt="Add property" title="Add property" />
+            <a4j:commandLink oncomplete="#{rich:component('newPropertyDlg')}.show();" title="Add more" styleClass="addButton">
                 <h:outputText value="Add Property" />
             </a4j:commandLink>
             <br />
