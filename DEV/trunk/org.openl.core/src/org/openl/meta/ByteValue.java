@@ -322,7 +322,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public static org.openl.meta.ByteValue positive(org.openl.meta.ByteValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.ByteValue dec(org.openl.meta.ByteValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.ByteValue autocast(byte x, org.openl.meta.ByteValue y) {
@@ -399,9 +403,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return false;
     }
     
-     public static org.openl.meta.ByteValue dec(org.openl.meta.ByteValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.ByteValue[] sort (org.openl.meta.ByteValue[] values ) {
         org.openl.meta.ByteValue[] sortedArray = null;

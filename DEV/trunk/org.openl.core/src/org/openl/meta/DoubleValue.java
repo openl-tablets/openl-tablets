@@ -358,7 +358,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static org.openl.meta.DoubleValue positive(org.openl.meta.DoubleValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.DoubleValue dec(org.openl.meta.DoubleValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.DoubleValue autocast(byte x, org.openl.meta.DoubleValue y) {
@@ -435,9 +439,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return false;
     }
     
-     public static org.openl.meta.DoubleValue dec(org.openl.meta.DoubleValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.DoubleValue[] sort (org.openl.meta.DoubleValue[] values ) {
         org.openl.meta.DoubleValue[] sortedArray = null;

@@ -282,7 +282,11 @@
     public static $tool.getTypeName($type) ${positiveFunction.Name}($tool.getTypeName($type) value) {
         return value;
     }
-
+    
+    public static $tool.getTypeName($type) ${decFunction.Name}($tool.getTypeName($type) value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 #foreach ($primitiveNumericType in $primitiveNumericTypes)
@@ -357,9 +361,7 @@
         return false;
     }
     
-     public static $tool.getTypeName($type) ${decFunction.Name}($tool.getTypeName($type) value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static $tool.getTypeName($type)[] sort ($tool.getTypeName($type)[] values ) {
         $tool.getTypeName($type)[] sortedArray = null;

@@ -322,7 +322,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public static org.openl.meta.LongValue positive(org.openl.meta.LongValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.LongValue autocast(byte x, org.openl.meta.LongValue y) {
@@ -399,9 +403,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return false;
     }
     
-     public static org.openl.meta.LongValue dec(org.openl.meta.LongValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.LongValue[] sort (org.openl.meta.LongValue[] values ) {
         org.openl.meta.LongValue[] sortedArray = null;

@@ -322,7 +322,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue positive(org.openl.meta.FloatValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.FloatValue dec(org.openl.meta.FloatValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.FloatValue autocast(byte x, org.openl.meta.FloatValue y) {
@@ -399,9 +403,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return false;
     }
     
-     public static org.openl.meta.FloatValue dec(org.openl.meta.FloatValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.FloatValue[] sort (org.openl.meta.FloatValue[] values ) {
         org.openl.meta.FloatValue[] sortedArray = null;

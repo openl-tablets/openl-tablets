@@ -322,7 +322,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static org.openl.meta.ShortValue positive(org.openl.meta.ShortValue value) {
         return value;
     }
-
+    
+    public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
+        return subtract(value, ONE);
+    }
+    
     // Autocasts
     
 	public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
@@ -399,9 +403,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return false;
     }
     
-     public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
-        return subtract(value, ONE);
-    }
+
     // sort
     public static org.openl.meta.ShortValue[] sort (org.openl.meta.ShortValue[] values ) {
         org.openl.meta.ShortValue[] sortedArray = null;
