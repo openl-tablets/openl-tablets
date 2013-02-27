@@ -6,7 +6,6 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
@@ -91,28 +90,25 @@ public class RecentlyVisitedTables {
      * This is the class wrapper. It is used for the properly name showing
      */
     public class VisitedTableWrapper {
-        private final String uri;
-        private final String type;
-        private final String name;
+        private IOpenLTable table;
+        
+        public IOpenLTable getTable() {
+            return this.table;
+        }
         
         public VisitedTableWrapper(IOpenLTable table) {
-            this.uri = table.getUri();
-            this.type = table.getType();
-            this.name = getName(table);
+            this.table = table;
         }
         
         public String getUri() {
-            return uri;
+            return table.getUri();
         }
         
         public String getType() {
-            return type;
+            return table.getType();
         }
         
         public String getName() {
-            return name;
-        }
-        private String getName(IOpenLTable table) {
             String tableName = table.getName();
             
             if (tableName == null || tableName.isEmpty()) {
@@ -156,7 +152,7 @@ public class RecentlyVisitedTables {
             
             VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
             
-            return  new EqualsBuilder().append(getUri(), wrapper.getUri()).isEquals();
+            return wrapper.getTable().equals(this.table);
         }
         
         public int hashCode() {
