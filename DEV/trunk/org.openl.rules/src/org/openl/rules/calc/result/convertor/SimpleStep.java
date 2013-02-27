@@ -9,8 +9,6 @@ package org.openl.rules.calc.result.convertor;
  */
 public class SimpleStep extends CodeStep {
     
-    private static final long serialVersionUID = 3906469763279262117L;
-    
     private Double formula;
     private Double value;
     private String text;

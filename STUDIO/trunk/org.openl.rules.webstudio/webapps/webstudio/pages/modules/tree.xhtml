@@ -148,20 +148,19 @@
             </rich:treeNode>
         </rich:tree>
 
-         <script>
+        <script>
             openTreeNode();
-
+            
             function changeNode(event, url) {
                 event = event || window.event
                 var target = event.target || event.srcElement
 
                 // ensure that we didn't click on "a href" element
-                //  nodeName == 'span' is a '+' into the tree
-                if ( (target.nodeName != 'A' ) &amp;&amp; (target.nodeName !='SPAN') ) {
+                if (target.nodeName != 'A') {
                     goTo(url);
                 };
             }
-        </script> 
+        </script>
 
     </ui:define>
 
