@@ -155,10 +155,25 @@ public class DateTool {
      * @return String date format
      */
     public static String dateToString(Date date, String dateFormat) {
-        DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
-        return  df.format(date);
+        DateFormat df = null;
+        String stringDate = "Incorrect date format";
+        String datePattern = "([A-Za-z]{1,}(.|/|-| )){1,}";
+
+        try {
+            df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
+
+            if (dateFormat == null) {
+                stringDate = df.format(date);
+            } else if (dateFormat.matches(datePattern)) {
+                stringDate = df.format(date);
+            }
+        } catch (Exception e) {
+            return stringDate;
+        }
+
+        return stringDate;
     }
-    
+
     /** 
      * Converts a date to the String value according the default locale. 
      * @param date
