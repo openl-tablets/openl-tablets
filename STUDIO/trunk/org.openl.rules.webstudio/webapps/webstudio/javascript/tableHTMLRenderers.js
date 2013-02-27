@@ -13,6 +13,7 @@ verticalRenderer = {
         obj.style.textAlign = "center";
         obj.style.fontSize = "14";
         obj.style.fontFamily = "Franklin Gothik Book";
+        obj.style.minWidth="50px";
     },
 
     setHeaderStyle : function(obj) {
