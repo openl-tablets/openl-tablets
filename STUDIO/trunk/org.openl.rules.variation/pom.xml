@@ -1,47 +1,41 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.openl.rules</groupId>
-		<artifactId>org.openl.rules.studio-pom</artifactId>
-		<version>5.9.5-SNAPSHOT</version>
-		<relativePath>../org.openl.rules.studio-pom</relativePath>
-	</parent>
+  <parent>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.studio-pom</artifactId>
+    <version>5.9.5-SNAPSHOT</version>
+    <relativePath>../org.openl.rules.studio-pom</relativePath>
+  </parent>
 
-	<groupId>org.openl.rules</groupId>
-	<artifactId>org.openl.rules.variation</artifactId>
-	<packaging>jar</packaging>
-	<name>OpenL - Variation</name>
-	<description>Classes and utilities to work with OpenL Rules Variations</description>
-	<url>http://openl-tablets.sf.net/</url>
+  <groupId>org.openl.rules</groupId>
+  <artifactId>org.openl.rules.variation</artifactId>
+  <packaging>jar</packaging>
+  <name>OpenL - Variation</name>
+  <description>Classes and utilities to work with OpenL Rules Variations</description>
+  <url>http://openl-tablets.sf.net/</url>
 
-	<dependencies>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
+  <dependencies>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>commons-jxpath</groupId>
-			<artifactId>commons-jxpath</artifactId>
-		</dependency>
+    <dependency>
+      <groupId>commons-jxpath</groupId>
+      <artifactId>commons-jxpath</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-		</dependency>
+    <dependency>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>uk.com.robust-it</groupId>
-			<artifactId>cloning</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.caucho</groupId>
-			<artifactId>hessian</artifactId>
-		</dependency>		
-	</dependencies>
+    <dependency>
+      <groupId>uk.com.robust-it</groupId>
+      <artifactId>cloning</artifactId>      
+    </dependency>
+  </dependencies>
 
 </project>

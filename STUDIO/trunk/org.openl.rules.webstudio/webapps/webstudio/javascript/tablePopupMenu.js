@@ -10,7 +10,7 @@ function contentMenuAction(cell, event, isTitle) {
     var addRowLink = document.createElement('a');
     addRowLink.setAttribute('href','javascript:void(0)');
     addRowLink.setAttribute('onclick','tableModel.createEmptyRow();');
-    addRowLink.innerHTML = ("Add Rule Row");
+    addRowLink.innerHTML = ("Add Rule");
     div.appendChild(addRowLink);
 
     div.appendChild(document.createElement('br'));
@@ -18,7 +18,7 @@ function contentMenuAction(cell, event, isTitle) {
     var addColLink = document.createElement('a');
     addColLink.setAttribute('href','javascript:void(0)');
     addColLink.setAttribute('onclick','tableModel.createEmptyCol('+cell.cellIndex+');');
-    addColLink.innerHTML = ("Add Condition L");
+    addColLink.innerHTML = ("Add Condition Before");
     div.appendChild(addColLink);
 
     if(cell.cellIndex != (domTable.rows[dataRowsStartIndex].cells.length -1)) {
@@ -29,7 +29,7 @@ function contentMenuAction(cell, event, isTitle) {
         var addColLink = document.createElement('a');
         addColLink.setAttribute('href','javascript:void(0)');
         addColLink.setAttribute('onclick','tableModel.createEmptyCol('+cellIndex+');');
-        addColLink.innerHTML = ("Add Condition R");
+        addColLink.innerHTML = ("Add Condition After");
         div.appendChild(addColLink);
     }
 
