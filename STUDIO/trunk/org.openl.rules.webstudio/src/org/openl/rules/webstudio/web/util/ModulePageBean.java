@@ -70,21 +70,40 @@ public class ModulePageBean {
  */
     public List<String> getIncludes() {
         List<String> includeList = getTableSyntaxNodes().get("include");
-        String[] includedFiles;
-        List<String> includedModulesList = new ArrayList<String>();
+        List<String> includedModulesList = null;//= new ArrayList<String>();
 
         if (includeList != null) {
-            for (String include : includeList) {
-                includedFiles = include.split("/");
 
-                includedModulesList.add(includedFiles[includedFiles.length - 1].split(".xls")[0]);
-            }
+            includedModulesList = removeXLSExtention(includeList);
         }
 
         return includedModulesList;
     }
 
     public List<String> getDependencies () {
-        return getTableSyntaxNodes().get("dependency");
+        List<String> dependencyList = getTableSyntaxNodes().get("dependency");
+        List<String> dependencyFilesList = null; // = new ArrayList<String>();
+        
+        if (dependencyList != null) {
+
+            dependencyFilesList = removeXLSExtention(dependencyList);
+        }
+        return dependencyFilesList;
+    }
+    /**
+     * Removes .xls into include or dependency file/module
+     * @param lists
+     * @return
+     */
+    private List<String> removeXLSExtention (List<String> lists) {
+        String[] dependencyFiles;
+        List<String> dependencyFilesList = new ArrayList<String>();
+        
+        for (String dependency : lists) {
+            dependencyFiles = dependency.split("/");
+            dependencyFilesList.add(dependencyFiles[dependencyFiles.length - 1].split(".xls")[0]);
+        }
+        
+        return dependencyFilesList;
     }
 }
