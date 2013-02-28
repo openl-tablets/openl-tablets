@@ -195,13 +195,17 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     }
                 }
             } else {
-                if (value.charAt(0) == "[") {
-                    self.checkboxes[0].setAttribute("checked", "checked");
+                if ((value.charAt(0) == "[") || (value.charAt(0) == "(")) {
+                    if (value.charAt(0) == "[") {
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                    }
+                    if (value.charAt(value.length - 1) == "]") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                    }
+                    values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
+                } else {
+                    values = self.splitValue(value, self.currentSeparator);
                 }
-                if (value.charAt(value.length - 1) == "]") {
-                    self.checkboxes[1].setAttribute("checked", "checked");
-                }
-                values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
             }
@@ -221,11 +225,11 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.values[1].value = -values[1];
                 }
                 self.equals = true;
-                this.checkboxes[0].setAttribute("disabled","disabled");
-                this.checkboxes[1].setAttribute("disabled","disabled");
-                this.values[0].setAttribute("disabled","disabled");
+                this.checkboxes[0].setAttribute("disabled", "disabled");
+                this.checkboxes[1].setAttribute("disabled", "disabled");
+                this.values[0].setAttribute("disabled", "disabled");
             } else {
-                document.getElementById("btnDone").setAttribute("disabled","disabled");
+                document.getElementById("btnDone").setAttribute("disabled", "disabled");
             }
         }
         self.changeRange();
@@ -271,9 +275,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         }
         document.getElementById("range").innerHTML = '<br/>' + content;
         if (content == "") {
-            document.getElementById("btnDone").setAttribute("disabled","disabled");
+            document.getElementById("btnDone").setAttribute("disabled", "disabled");
         } else {
-            document.getElementById("btnDone").removeAttribute("disabled","disabled");
+            document.getElementById("btnDone").removeAttribute("disabled", "disabled");
         }
     },
     
@@ -285,8 +289,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 this.values[0].value = "";
             }
         } else {
-            this.checkboxes[1].setAttribute("disabled","disabled");
-            this.values[1].setAttribute("disabled","disabled");
+            this.checkboxes[1].setAttribute("disabled", "disabled");
+            this.values[1].setAttribute("disabled", "disabled");
         } 
         
         if (btnId != "btnLess") {
@@ -296,15 +300,15 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 this.values[1].value = "";
             }
         } else {
-            this.checkboxes[0].setAttribute("disabled","disabled");
-            this.values[0].setAttribute("disabled","disabled");
+            this.checkboxes[0].setAttribute("disabled", "disabled");
+            this.values[0].setAttribute("disabled", "disabled");
         }
         
         if (btnId == "btnEquals") {
-            this.checkboxes[0].setAttribute("disabled","disabled");
-            this.checkboxes[1].setAttribute("disabled","disabled");
+            this.checkboxes[0].setAttribute("disabled", "disabled");
+            this.checkboxes[1].setAttribute("disabled", "disabled");
             this.values[0].value = "";
-            this.values[0].setAttribute("disabled","disabled");
+            this.values[0].setAttribute("disabled", "disabled");
             this.equals = true;
         } else {
             this.equals = false;
