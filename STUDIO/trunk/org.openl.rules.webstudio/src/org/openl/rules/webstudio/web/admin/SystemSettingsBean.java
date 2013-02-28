@@ -504,7 +504,7 @@ public class SystemSettingsBean {
                 }
             } else {
                 if (studioWorkingDir.mkdirs() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " name: '" + value + "'"));
+                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " '" + value + "'"));
                 } else {
                     deleteFolder(value);
                 }
