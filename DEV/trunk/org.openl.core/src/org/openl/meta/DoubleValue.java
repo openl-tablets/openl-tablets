@@ -190,11 +190,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         //
         //        validate(value1, value2, Formulas.ADD.toString());
         //conditions for classes that are wrappers over primitives
-        if (value1 == null || value1.getValue() == 0) {
+        if (value1 == null) {
             return value2;
         }
 
-        if (value2 == null || value2.getValue() == 0) {
+        if (value2 == null) {
             return value1;
         }
 

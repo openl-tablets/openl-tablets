@@ -1,5 +1,6 @@
 package org.openl.meta;
 
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -20,6 +21,9 @@ public class ByteValueTest {
         ByteValue zeroValue = new ByteValue((byte) 0);
         assertEquals(bval2, ByteValue.add(zeroValue, bval2));
         assertEquals(bval1, ByteValue.add(bval1, zeroValue));
+
+        assertEquals("0", ByteValue.add(null, new ByteValue((byte) 0)).toString());
+        assertEquals("0", ByteValue.add(new ByteValue((byte) 0), null).toString());
     }
 
 }
