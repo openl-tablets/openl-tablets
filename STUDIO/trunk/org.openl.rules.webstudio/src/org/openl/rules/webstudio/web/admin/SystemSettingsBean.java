@@ -87,7 +87,7 @@ public class SystemSettingsBean {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
     };
 
-    private ConfigurationManager configManager = WebStudioUtils.getWebStudio().getSystemConfigManager();
+    private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
