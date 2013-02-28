@@ -22,245 +22,243 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     private static final ShortValue MINUS_ONE = new ShortValue((short) -1);
 
     // <<< INSERT Functions >>>
-	private short value;
+    private short value;
 
 
-	public static boolean eq(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		validate(value1, value2, LogicalExpressions.EQ.toString());
-		
-		return Operators.eq(value1.getValue(), value2.getValue());		
-	}
-	public static boolean ge(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		validate(value1, value2, LogicalExpressions.GE.toString());
-		
-		return Operators.ge(value1.getValue(), value2.getValue());		
-	}
-	public static boolean gt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		validate(value1, value2, LogicalExpressions.GT.toString());
-		
-		return Operators.gt(value1.getValue(), value2.getValue());		
-	}
-	public static boolean le(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		validate(value1, value2, LogicalExpressions.LE.toString());
-		
-		return Operators.le(value1.getValue(), value2.getValue());		
-	}
-	public static boolean lt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		validate(value1, value2, LogicalExpressions.LT.toString());
-		
-		return Operators.lt(value1.getValue(), value2.getValue());		
-	}
-	public static boolean ne(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		validate(value1, value2, LogicalExpressions.NE.toString());
-		
-		return Operators.ne(value1.getValue(), value2.getValue());		
-	}
+    public static boolean eq(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, LogicalExpressions.EQ.toString());
 
-	public static org.openl.meta.ShortValue avg(org.openl.meta.ShortValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+        return Operators.eq(value1.getValue(), value2.getValue());
+    }
+    public static boolean ge(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, LogicalExpressions.GE.toString());
+
+        return Operators.ge(value1.getValue(), value2.getValue());
+    }
+    public static boolean gt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, LogicalExpressions.GT.toString());
+
+        return Operators.gt(value1.getValue(), value2.getValue());
+    }
+    public static boolean le(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, LogicalExpressions.LE.toString());
+
+        return Operators.le(value1.getValue(), value2.getValue());
+    }
+    public static boolean lt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, LogicalExpressions.LT.toString());
+
+        return Operators.lt(value1.getValue(), value2.getValue());
+    }
+    public static boolean ne(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        validate(value1, value2, LogicalExpressions.NE.toString());
+
+        return Operators.ne(value1.getValue(), value2.getValue());
+    }
+
+    public static org.openl.meta.ShortValue avg(org.openl.meta.ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-		short[] primitiveArray = unwrap(values);
-		short avg = MathUtils.avg(primitiveArray);
-		return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(avg), NumberOperations.AVG, values);
-	}
-	public static org.openl.meta.ShortValue sum(org.openl.meta.ShortValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+        short[] primitiveArray = unwrap(values);
+        short avg = MathUtils.avg(primitiveArray);
+        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(avg), NumberOperations.AVG, values);
+    }
+    public static org.openl.meta.ShortValue sum(org.openl.meta.ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-		short[] primitiveArray = unwrap(values);
-		short sum = MathUtils.sum(primitiveArray);
-		return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values);
-	}
-	public static org.openl.meta.ShortValue median(org.openl.meta.ShortValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+        short[] primitiveArray = unwrap(values);
+        short sum = MathUtils.sum(primitiveArray);
+        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values);
+    }
+    public static org.openl.meta.ShortValue median(org.openl.meta.ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-		short[] primitiveArray = unwrap(values);
-		short median = MathUtils.median(primitiveArray);
-		return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(median), NumberOperations.MEDIAN, values);
-	}
+        short[] primitiveArray = unwrap(values);
+        short median = MathUtils.median(primitiveArray);
+        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(median), NumberOperations.MEDIAN, values);
+    }
 
-	public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-	    // Commented to support operations with nulls
-	    // "null" means that data does not exist
-		// validate(value1, value2, NumberOperations.MAX.toString());
-		if (value1 == null)
-		    return value2; 
+    public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        // validate(value1, value2, NumberOperations.MAX.toString());
+        if (value1 == null)
+            return value2; 
         if (value2 == null)
             return value1; 
-		
-		return new org.openl.meta.ShortValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+
+        return new org.openl.meta.ShortValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.ShortValue[] { value1, value2 });
-	}
-	public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-	    // Commented to support operations with nulls
-	    // "null" means that data does not exist
-		// validate(value1, value2, NumberOperations.MIN.toString());
-		if (value1 == null)
-		    return value2; 
+    }
+    public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        // validate(value1, value2, NumberOperations.MIN.toString());
+        if (value1 == null)
+            return value2; 
         if (value2 == null)
             return value1; 
-		
-		return new org.openl.meta.ShortValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+
+        return new org.openl.meta.ShortValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
             new org.openl.meta.ShortValue[] { value1, value2 });
-	}
+    }
 
-	public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue[] values) {
-		org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.max(values); 		
-		
-		return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result), 
+    public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue[] values) {
+        org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.max(values);
+
+        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
-	}
-	public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue[] values) {
-		org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.min(values); 		
-		
-		return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY, values);
-	}
+    }
+    public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue[] values) {
+        org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.min(values);
 
-	public static org.openl.meta.ShortValue copy(org.openl.meta.ShortValue value, String name) {
-		if (value.getName() == null) {
+        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result),
+            NumberOperations.MIN_IN_ARRAY, values);
+    }
+
+    public static org.openl.meta.ShortValue copy(org.openl.meta.ShortValue value, String name) {
+        if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-        	org.openl.meta.ShortValue result = new org.openl.meta.ShortValue (value, NumberOperations.COPY, 
-        		new org.openl.meta.ShortValue[] { value });
-        	result.setName(name);
+            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue (value, NumberOperations.COPY, 
+                new org.openl.meta.ShortValue[] { value });
+            result.setName(name);
 
             return result;
         }
         return value;
-	}
-	
-	//REM
-	public static org.openl.meta.ShortValue rem(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-	    // Commented to support operations with nulls. See also MathUtils.mod()
-		// validate(value1, value2, Formulas.REM.toString());
-		if (value1 == null || value2 == null) {
+    }
+
+    //REM
+    public static org.openl.meta.ShortValue rem(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // Commented to support operations with nulls. See also MathUtils.mod()
+        // validate(value1, value2, Formulas.REM.toString());
+        if (value1 == null || value2 == null) {
             return ZERO;
         }
-		
-		return new org.openl.meta.ShortValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
-			Formulas.REM);		
-	}
-	 	
-	
-	//ADD
-	public static org.openl.meta.ShortValue add(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.ADD.toString());
-		//conditions for classes that are wrappers over primitives
-		if (value1 == null || value1.getValue() == 0) {
+
+        return new org.openl.meta.ShortValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+            Formulas.REM);
+    }
+
+    //ADD
+    public static org.openl.meta.ShortValue add(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.ADD.toString());
+        //conditions for classes that are wrappers over primitives
+        if (value1 == null || value1.getValue() == 0) {
             return value2;
         }
 
         if (value2 == null || value2.getValue() == 0) {
             return value1;
         }
-        
-		return new org.openl.meta.ShortValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
-			Formulas.ADD);	
-	}
-	
-	// MULTIPLY
-	public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.MULTIPLY.toString());
-		if (value1 == null) {
-			return value2;
-		}
-		
-		if (value2 == null) {
-			return value1;
-		}
-		
-		return new org.openl.meta.ShortValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
-			Formulas.MULTIPLY);		
-	}
-	
-	//SUBTRACT
-	public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
-		if (value1 == null && value2 == null) {
-			return null;
-		}
-		
-		if (value1 == null) {
-			return negative(value2);
-		}
-		
-		if (value2 == null) {
-			return value1;
-		}
-		
-		return new org.openl.meta.ShortValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
-			Formulas.SUBTRACT);		
-	}
-	
-	// DIVIDE
-	public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.DIVIDE.toString());
-		if (value1 == null && value2 == null) {
-			return null;
-		}
-		
-		if (value1 == null) {
-			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.ShortValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
-			}
-		}
-		
-		if (value2 == null) {
-			return new org.openl.meta.ShortValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
-		}
-		
-		if (value2.doubleValue() == 0) {
-			throw new OpenlNotCheckedException("Division by zero");
-		}
-		
-		return new org.openl.meta.ShortValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
-			Formulas.DIVIDE);		
-	}
-	
-	
-	// QUAOTIENT
-	public static LongValue quotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
+
+        return new org.openl.meta.ShortValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+            Formulas.ADD);
+}
+
+    // MULTIPLY
+    public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value2 == null) {
+            return value1;
+        }
+
+        return new org.openl.meta.ShortValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+            Formulas.MULTIPLY);
+    }
+
+    //SUBTRACT
+    public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null) {
+            return negative(value2);
+        }
+
+        if (value2 == null) {
+            return value1;
+        }
+
+        return new org.openl.meta.ShortValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+            Formulas.SUBTRACT);
+    }
+
+    // DIVIDE
+    public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null) {
+            if (value2 != null && value2.doubleValue() != 0) {
+                return new org.openl.meta.ShortValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            }
+        }
+
+        if (value2 == null) {
+            return new org.openl.meta.ShortValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+        }
+
+        if (value2.doubleValue() == 0) {
+            throw new OpenlNotCheckedException("Division by zero");
+        }
+
+        return new org.openl.meta.ShortValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+            Formulas.DIVIDE);
+    }
+
+    // QUAOTIENT
+    public static LongValue quotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
-	
-	// generated product function for types that are wrappers over primitives
-	public static DoubleValue product(org.openl.meta.ShortValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+
+    // generated product function for types that are wrappers over primitives
+    public static DoubleValue product(org.openl.meta.ShortValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         short[] primitiveArray = unwrap(values);
         double product = MathUtils.product(primitiveArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-	}
-	
-	public static org.openl.meta.ShortValue mod(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
+    }
+
+    public static org.openl.meta.ShortValue mod(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
         if (number != null && divisor != null) {
             org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(MathUtils.mod(number.getValue(), divisor.getValue()));
             return new org.openl.meta.ShortValue(result, NumberOperations.MOD, new org.openl.meta.ShortValue[]{number, divisor} );
         }
         return null;
     }
-    
+
     public static org.openl.meta.ShortValue small(org.openl.meta.ShortValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -270,17 +268,17 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)), 
             NumberOperations.SMALL, values);
     }
-    
+
     public static org.openl.meta.ShortValue big(org.openl.meta.ShortValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         short[] primitiveArray = unwrap(values);
         short big = MathUtils.big(primitiveArray, position);
-        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)), 
+        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)),
             NumberOperations.BIG, values);
     }
-    
+
     public static org.openl.meta.ShortValue pow(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
@@ -291,11 +289,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         } else if (value2 == null) {
             return value1;
         }
-        
+
         return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.ShortValue[] { value1, value2 });
     }
-    
+
     public static org.openl.meta.ShortValue abs(org.openl.meta.ShortValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
@@ -307,51 +305,51 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         // create instance with information about last operation
         return new org.openl.meta.ShortValue(result, NumberOperations.ABS, new org.openl.meta.ShortValue[] { value });
     }
-    
+
     public static org.openl.meta.ShortValue negative(org.openl.meta.ShortValue value) {
         if (value == null) {
             return null;
         }
         return multiply(value, MINUS_ONE);
     }
-    
+
     public static org.openl.meta.ShortValue inc(org.openl.meta.ShortValue value) {
         return add(value, ONE);
     }
-    
+
     public static org.openl.meta.ShortValue positive(org.openl.meta.ShortValue value) {
         return value;
     }
-    
+
     public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
         return subtract(value, ONE);
     }
-    
+
     // Autocasts
-    
-	public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
-		return new org.openl.meta.ShortValue((short) x);
-	}		
-	public static org.openl.meta.ShortValue autocast(short x, org.openl.meta.ShortValue y) {
-		return new org.openl.meta.ShortValue((short) x);
-	}		
-	public static org.openl.meta.ShortValue autocast(int x, org.openl.meta.ShortValue y) {
-		return new org.openl.meta.ShortValue((short) x);
-	}		
-	public static org.openl.meta.ShortValue autocast(long x, org.openl.meta.ShortValue y) {
-		return new org.openl.meta.ShortValue((short) x);
-	}		
-	public static org.openl.meta.ShortValue autocast(float x, org.openl.meta.ShortValue y) {
-		return new org.openl.meta.ShortValue((short) x);
-	}		
-	public static org.openl.meta.ShortValue autocast(double x, org.openl.meta.ShortValue y) {
-		return new org.openl.meta.ShortValue((short) x);
-	}		
-    
+
+    public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
+        return new org.openl.meta.ShortValue((short) x);
+    }
+    public static org.openl.meta.ShortValue autocast(short x, org.openl.meta.ShortValue y) {
+        return new org.openl.meta.ShortValue((short) x);
+    }
+    public static org.openl.meta.ShortValue autocast(int x, org.openl.meta.ShortValue y) {
+        return new org.openl.meta.ShortValue((short) x);
+    }
+    public static org.openl.meta.ShortValue autocast(long x, org.openl.meta.ShortValue y) {
+        return new org.openl.meta.ShortValue((short) x);
+    }
+    public static org.openl.meta.ShortValue autocast(float x, org.openl.meta.ShortValue y) {
+        return new org.openl.meta.ShortValue((short) x);
+    }
+    public static org.openl.meta.ShortValue autocast(double x, org.openl.meta.ShortValue y) {
+        return new org.openl.meta.ShortValue((short) x);
+    }
+
     // Constructors
     public ShortValue(short value) {
         this.value = value;
-    }    
+    }
 
     public ShortValue(short value, String name) {
         super(name);
@@ -360,14 +358,14 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     public ShortValue(short value, IMetaInfo metaInfo) {
         super(metaInfo);
-        this.value = value;        
-    }    
+        this.value = value;
+    }
 
     /**Formula constructor**/
     public ShortValue(org.openl.meta.ShortValue lv1, org.openl.meta.ShortValue lv2, short value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
-    }    
+    }
 
     /**Cast constructor**/
     public ShortValue(short value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
@@ -377,23 +375,23 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     @Override
     public org.openl.meta.ShortValue copy(String name) {
-        return copy(this, name);        
-    }    
-    
-    public String printValue() {        
+        return copy(this, name);
+    }
+
+    public String printValue() {
         return String.valueOf(value);
     }
-    
-    public short getValue() {        
+
+    public short getValue() {
         return value;
     }
-    
+
     public void setValue(short value) {
         this.value = value;
     }
-    
+
     //Equals
-	@Override
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.ShortValue) {
             org.openl.meta.ShortValue secondObj = (org.openl.meta.ShortValue) obj;
@@ -402,7 +400,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
         return false;
     }
-    
 
     // sort
     public static org.openl.meta.ShortValue[] sort (org.openl.meta.ShortValue[] values ) {
