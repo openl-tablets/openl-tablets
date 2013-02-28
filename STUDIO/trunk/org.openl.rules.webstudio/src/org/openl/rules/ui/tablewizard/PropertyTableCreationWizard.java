@@ -15,6 +15,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -36,6 +37,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
     private String scopeType;
     @NotBlank(message="Can not be empty")
+    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
     private String tableName;
     private String categoryName;
 
