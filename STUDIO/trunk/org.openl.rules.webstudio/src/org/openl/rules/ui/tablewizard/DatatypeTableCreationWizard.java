@@ -215,15 +215,4 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         super.onFinish();
     }
 
-    public boolean containsRemoveLink(Map<String, String> params) {
-        if (params == null)
-            return false;
-        for (String param : params.keySet()) {
-            if (param.endsWith("removeLink")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
