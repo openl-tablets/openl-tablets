@@ -23,6 +23,9 @@
     </fileSet>
     <fileSet>
       <directory>webapps/webstudio</directory>
+      <excludes>
+        <exclude>WEB-INF/classes/**</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>META-INF</directory>
