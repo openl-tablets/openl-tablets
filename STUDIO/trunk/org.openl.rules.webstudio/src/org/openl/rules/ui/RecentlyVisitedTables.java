@@ -6,6 +6,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
@@ -88,25 +89,29 @@ public class RecentlyVisitedTables {
      * This is the class wrapper. It is used for the properly name showing
      */
     public class VisitedTableWrapper {
-        private IOpenLTable table;
-        
-        public IOpenLTable getTable() {
-            return this.table;
-        }
+        private final String uri;
+        private final String type;
+        private final String name;
         
         public VisitedTableWrapper(IOpenLTable table) {
-            this.table = table;
+            this.uri = table.getUri();
+            this.type = table.getType();
+            this.name = getName(table);
         }
         
         public String getUri() {
-            return table.getUri();
+            return uri;
         }
         
         public String getType() {
-            return table.getType();
+            return type;
         }
         
         public String getName() {
+            return name;
+        }
+
+        private String getName(IOpenLTable table) {
             return TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue()
                     , XlsNodeTypes.getEnumByValue(table.getType()));
         }
@@ -126,12 +131,11 @@ public class RecentlyVisitedTables {
             
             VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
             
-            return wrapper.getTable().equals(this.table);
+            return  new EqualsBuilder().append(getUri(), wrapper.getUri()).isEquals();
         }
         
         public int hashCode() {
             return new HashCodeBuilder(17, 31).append(getUri()).toHashCode();
         }
     }
-
 }
