@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.WebStudio;
 
@@ -70,7 +69,22 @@ public class ModulePageBean {
  * @return List of all includes
  */
     public List<String> getIncludes() {
-        return getTableSyntaxNodes().get("include");
+        List<String> includeList = getTableSyntaxNodes().get("include");
+        String[] includedFiles;
+        List<String> includedModulesList = new ArrayList<String>();
+
+        if (includeList != null) {
+            for (String include : includeList) {
+                includedFiles = include.split("/");
+
+                includedModulesList.add(includedFiles[includedFiles.length - 1].split(".xls")[0]);
+            }
+        }
+
+        return includedModulesList;
     }
 
+    public List<String> getDependencies () {
+        return getTableSyntaxNodes().get("dependency");
+    }
 }

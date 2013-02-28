@@ -35,36 +35,34 @@ import org.openl.util.StringTool;
 @ManagedBean
 @ViewScoped
 public class TableDetailsBean {
-    private IOpenLTable table;
     private boolean editable;
-    private ITableProperties props;
     private List<PropertyRow> propertyRows;
     private Map<String, List<TableProperty>> groups;
     private Set<String> propsToRemove = new HashSet<String>();
 
     private String newTableUri;
     private String propertyToAdd;
+    private String uri;
 
     public TableDetailsBean() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        String uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
-        table = studio.getModel().getTable(uri);
+        uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
-        if (table == null) {
+        if (studio.getModel().getTable(uri) == null) {
             uri = studio.getTableUri();
-            table = studio.getModel().getTable(uri);
         }
+
+        IOpenLTable table = getTable();
 
         if (table.isCanContainProperties()) {
             editable = WebStudioUtils.getProjectModel().isCanEditTable() && !table.getTechnicalName().startsWith(
                     DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
-            props = table.getProperties();
-            initPropertyGroups();
+            initPropertyGroups(table, table.getProperties());
         }
     }
 
-    public void initPropertyGroups() {
+    public void initPropertyGroups(IOpenLTable table, ITableProperties props) {
         groups = new LinkedHashMap<String, List<TableProperty>>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsForTable(table.getType());
@@ -79,7 +77,7 @@ public class TableDetailsBean {
                 prop.setInheritanceLevel(inheritanceLevel);
                 if (InheritanceLevel.MODULE.equals(inheritanceLevel)
                         || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
-                    prop.setInheritedTableUri(getProprtiesTableUri(inheritanceLevel));
+                    prop.setInheritedTableUri(getProprtiesTableUri(inheritanceLevel, props));
                 }
 
                 storeProperty(prop);
@@ -127,7 +125,7 @@ public class TableDetailsBean {
         return editable;
     }
 
-    private String getProprtiesTableUri(InheritanceLevel inheritanceLevel) {
+    private String getProprtiesTableUri(InheritanceLevel inheritanceLevel, ITableProperties props) {
         String uri = null;
         ILogicalTable propertiesTable = props.getInheritedPropertiesTable(inheritanceLevel);
         if (propertiesTable != null) {
@@ -138,7 +136,7 @@ public class TableDetailsBean {
     }
 
     public IOpenLTable getTable() {
-        return table;
+        return WebStudioUtils.getWebStudio().getModel().getTable(uri);
     }
 
     public String getNewTableUri() {
@@ -150,6 +148,7 @@ public class TableDetailsBean {
     }
 
     public List<SelectItem> getPropertiesToAdd() {
+        IOpenLTable table = getTable();
         List<SelectItem> propertiesToAdd = new ArrayList<SelectItem>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
                 .getDefaultDefinitionsForTable(table.getType(), InheritanceLevel.TABLE, true);
@@ -194,6 +193,7 @@ public class TableDetailsBean {
         if (propertyRows == null) {
             return false;
         }
+        ITableProperties props = getTable().getProperties();
         for (PropertyRow row : propertyRows) {
             if (row.getType().equals(PropertyRowType.PROPERTY)) {
                 TableProperty property = (TableProperty) row.getData();
@@ -216,11 +216,14 @@ public class TableDetailsBean {
     }
 
     public void save() throws Exception {
+        IOpenLTable table = getTable();
+
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         TableEditorModel tableEditorModel = model.getTableEditorModel(table);
         boolean toSave = false;
 
+        ITableProperties props = table.getProperties();
         for (PropertyRow row : propertyRows) {
             if (row.getType().equals(PropertyRowType.PROPERTY)) {
                 TableProperty property = (TableProperty) row.getData();

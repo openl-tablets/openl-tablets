@@ -23,10 +23,10 @@ var tableModel = {
             +"<span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.inParam[i].name+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>";
         }
 
-        return  "SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
-        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <span onclick='tableModel.toEditMode(this)'>" + this.header.name
-        + "</span><span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span>"
-        + "(" + params + ")";
+        return  "<font size=\"3\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
+        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font color=\"black\"><strong><span onclick='tableModel.toEditMode(this)'>" + this.header.name
+        + "</span><span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span></strong></font>"
+        + " (" + params + ")</font>";
     },
 
     setReturnParam : function(returnParam) {
@@ -43,11 +43,11 @@ var tableModel = {
     setTitleRow : function() {
         var row = [];
 
-        for(i = 0;  i < this.header.inParam.length; i++) {
-            row.push(new Cell(this.header.inParam[i].name, "STRING",false));
+        for(var i = 0;  i < this.header.inParam.length; i++) {
+            row.push(new Cell(this.header.inParam[i].name, "STRING", false, false));
         }
 
-        row.push(new Cell("RETURN", "STRING",false));
+        row.push(new Cell("RETURN", "STRING", false, true));
 
         this.dataRows.push(row);
         this.renderer.createRow(row, true);
@@ -79,13 +79,13 @@ var tableModel = {
         var row = [];
 
         for(i = 0;  i < this.header.inParam.length; i++) {
-            row.push(new Cell("", this.header.inParam[i].valuesType, this.header.inParam[i].iterable));
+            row.push(new Cell("", this.header.inParam[i].valuesType, this.header.inParam[i].iterable, false));
         }
 
-        row.push(new Cell("",this.header.returnType.valuesType, this.header.returnType.iterable));
+        row.push(new Cell("",this.header.returnType.valuesType, this.header.returnType.iterable, true));
 
         this.dataRows.push(row);
-        this.renderer.createRow(row, false);
+        this.renderer.createRow(row, false, true);
     },
 
     startDataTableRowIndex : function() {
@@ -207,9 +207,9 @@ var tableModel = {
     createEmptyCol : function(id) {
         var newParam = this.setParamToParamList(id);
 
-        for(i = 0; i < this.dataRows.length; i++) {
+        for(var i = 0; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
-            var cell = new Cell("", newParam.valuesType, newParam.iterable);
+            var cell = new Cell("", newParam.valuesType, newParam.iterable, false);
 
             row.splice(id, 0, cell);
         }
@@ -400,10 +400,11 @@ var tableModel = {
     },
 };
 
-function Cell(value, valueType, iterable) {
+function Cell(value, valueType, iterable, isReturn) {
     this.value = value;
     this.valueType = valueType;
     this.iterable = iterable;
+    this.isReturn = isReturn;
 
     this.getValue = function () {
         if(this.valueType == "DATE" && this.value.getDate) {

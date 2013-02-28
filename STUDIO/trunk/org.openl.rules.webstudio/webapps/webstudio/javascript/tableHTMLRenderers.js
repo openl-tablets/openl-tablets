@@ -6,37 +6,76 @@ verticalRenderer = {
         this.setDefaultStyle(this.htmlTable);
     },
 
+    /*  
+    Take away these style methods to a new class which should be inherited by new style-scheme classes. Delegate methods from that new class to this class
+    */
     setDefaultStyle : function(obj) {
-        obj.style.borderWidth = "1px 1px 1px 1px";
-        obj.style.borderColor = "#bbbbdd #bbbbdd #bbbbdd #bbbbdd;";
-        obj.style.borderStyle = "solid solid solid solid";
         obj.style.textAlign = "center";
+        obj.style.fontSize = "14";
+        obj.style.fontFamily = "Franklin Gothik Book";
+        obj.style.minWidth="50px";
     },
 
     setHeaderStyle : function(obj) {
         this.setDefaultStyle(obj);
-        obj.style.backgroundColor="black";
-        obj.style.color = "white"; 
+
+        obj.style.color = "#808080";
+        obj.style.backgroundColor="#FFFFFF";
+        obj.style.borderTop = "1px solid black";
     },
 
     setTitleStyle : function(obj) {
         this.setDefaultStyle(obj);
-        obj.style.backgroundColor="#CCFFFF";
+
+        obj.style.backgroundColor= "#A6A6A6";
+        obj.style.borderBottom = "1px solid black";
+        obj.style.fontWeight = 'bold';
     },
 
     setDataStyle : function(obj) {
         this.setDefaultStyle(obj);
-        obj.style.backgroundColor="#FFFF99";
+
+        obj.style.backgroundColor="#FFFFFF";
+        obj.style.borderWidth = "1px 1px 1px 1px";
+        obj.style.borderColor = "#DDDDDD #DDDDDD #DDDDDD #DDDDDD";
+        obj.style.borderStyle = "solid solid solid solid";
     },
 
     setPropValueStyle : function(obj) {
         this.setDefaultStyle(obj);
+
         obj.style.textAlign="left";
+        obj.style.color = "#808080";
+        obj.style.backgroundColor="#FFFFFF";
+        obj.style.borderTop = "1px solid black";
+        obj.style.borderBottom = "1px solid black";
     },
 
-    setReturnStyle : function(obj) {
+    setReturnTitleStyle : function(obj) {
         this.setDefaultStyle(obj);
-        obj.style.backgroundColor="#FFCC99";
+
+        obj.style.backgroundColor= "#F0DB5E";
+        obj.style.borderBottom = "2px solid #FFC91D";
+        obj.style.fontWeight = 'bold';
+    },
+
+    setReturnDataStyle : function(obj) {
+        this.setDefaultStyle(obj);
+
+        obj.style.backgroundColor="#D9D9D9";
+        obj.style.borderWidth = "1px 1px 1px 1px";
+        obj.style.borderColor = "#DDDDDD #DDDDDD #DDDDDD #DDDDDD";
+        obj.style.borderStyle = "solid solid solid solid";
+    },
+
+    setLastCellBorderStyle : function(obj, isReturnCell) {
+        obj.style.borderTop = "1px solid #DDDDDD";
+
+        if(!isReturnCell) {
+            obj.style.borderBottom = "1px solid black";
+        } else {
+            obj.style.borderBottom = "2px solid #FFC91D";
+        }
     },
 
     createHeaderRow : function(table) {
@@ -49,21 +88,70 @@ verticalRenderer = {
         cell.innerHTML = table.headerRow();
     },
 
-    createRow : function(dataRow, isTitle) {
+    createRow : function(dataRow, isTitle, isLast) {
         var row = this.htmlTable.insertRow(-1);
 
         for(var i = 0; i < dataRow.length; i++) {
             var cell = row.insertCell(-1);
             cell.data = dataRow[i];
-            
+
             if(isTitle) {
-                this.setTitleStyle(cell);
+                if(cell.data.isReturn) {
+                    this.setReturnTitleStyle(cell);
+                } else {
+                    this.setTitleStyle(cell);
+                }
             } else {
-                this.setDataStyle(cell);
+                if(cell.data.isReturn) {
+                    this.setReturnDataStyle(cell);
+                } else {
+                    this.setDataStyle(cell);
+                }
+            }
+
+            if (isLast) {
+                //set button border for last cell;
+                if(cell.data.isReturn) {
+                    this.setLastCellBorderStyle(cell, true);
+                } else {
+                    this.setLastCellBorderStyle(cell, false);
+                }
+            }
+
+            if(this.htmlTable.rows.length - 2 > tableModel.startDataTableRowIndex()) {
+                //if needed delete last row style from prev cell
+                this.deleteCellStyleFromPrevRow();
             }
 
             cell.setAttribute('oncontextmenu','contentMenuAction(this, event, '+isTitle+')');
             cell.innerHTML = this.getCellHtml(dataRow[i].getValue(), "VALUE", cell);
+        }
+    },
+
+    deleteCellStyleFromPrevRow : function() {
+        var beforeLastRow = this.htmlTable.rows[this.htmlTable.rows.length - 2];
+
+        for (var cellNum = 0; cellNum < beforeLastRow.cells.length; cellNum++) {
+            if(cellNum < tableModel.header.inParam.length) {
+                this.setDataStyle(beforeLastRow.cells[cellNum]);
+            } else {
+                this.setReturnDataStyle(beforeLastRow.cells[cellNum]);
+            }
+
+        }
+    },
+
+    refreshLastRowStyle : function() {
+        if(this.htmlTable.rows.length > tableModel.startDataTableRowIndex()) {
+            var lastRow = this.htmlTable.rows[this.htmlTable.rows.length - 1];
+
+            for (var cellNum = 0; cellNum < lastRow.cells.length; cellNum++) {
+               if (tableModel.header.inParam.length == cellNum) {
+                   this.setLastCellBorderStyle(lastRow.cells[cellNum], true);
+               } else {
+                   this.setLastCellBorderStyle(lastRow.cells[cellNum], false);
+               }
+            }
         }
     },
 
@@ -88,7 +176,7 @@ verticalRenderer = {
         var element = span.previousSibling;
         span.style.display = "none";
         element.style.display = "";
-        
+
         if(editElem.value == "") {
             element.innerHTML = "undefined";
         } else {
@@ -103,10 +191,11 @@ verticalRenderer = {
 
         headerCell.colSpan = headerCell.colSpan + 1;
 
+        var cell = null;
         for(var i = tableModel.startDataTableRowIndex(); i < rows.length; i++) {
             var row = rows[i];
             var dataRow = dataRows[i - tableModel.startDataTableRowIndex()];
-            var cell = row.insertCell(id);
+            cell = row.insertCell(id);
             cell.data = dataRow[id];
  
             if(i == tableModel.startDataTableRowIndex()) {
@@ -118,6 +207,9 @@ verticalRenderer = {
             cell.setAttribute('oncontextmenu','contentMenuAction(this, event,'+(i == tableModel.startDataTableRowIndex())+')');
             cell.innerHTML = this.getCellHtml(dataRow[id].getValue(),"VALUE",cell);
         }
+
+        //set button border for last cell;
+        this.setLastCellBorderStyle(cell);
 
         this.refreshTableHeader();
     },
@@ -137,6 +229,8 @@ verticalRenderer = {
 
     deleteRow : function(rowId) {
         this.htmlTable.deleteRow(rowId);
+
+        this.refreshLastRowStyle();
     },
 
     deleteCondition : function(index) {
@@ -162,12 +256,12 @@ verticalRenderer = {
             if(i == 0) {
                 titleCell = row.insertCell(-1);
                 titleCell.rowSpan = properties.length;
-                this.setDefaultStyle(titleCell);
+                this.setPropValueStyle(titleCell);
                 titleCell.innerHTML = "Properties";
             }
 
             typeCell = row.insertCell(-1);
-            this.setDefaultStyle(typeCell);
+            this.setPropValueStyle(typeCell);
             typeCell.innerHTML = this.getCellHtml(properties[i].type, "PROPERTY_TYPE", typeCell);
             typeCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
 
@@ -190,11 +284,16 @@ verticalRenderer = {
         this.refreshPropertyRegion(tableModel.properties);
         //create title
         this.htmlTable.deleteRow(tableModel.startDataTableRowIndex());
-        this.createRow(tableModel.dataRows[0] , true);
+        this.createRow(tableModel.dataRows[0] , true, false);
 
         //create data rows
         for (var i = 1; i < tableModel.dataRows.length; i++) {
-            this.createRow(tableModel.dataRows[i] , false);
+            if((i + 1) < tableModel.dataRows.length) {
+                this.createRow(tableModel.dataRows[i] , false, false);
+            } else {
+                //last row
+                this.createRow(tableModel.dataRows[i] , false, true);
+            }
         }
     },
 

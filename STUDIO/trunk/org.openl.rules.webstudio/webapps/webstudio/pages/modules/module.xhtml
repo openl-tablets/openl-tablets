@@ -50,6 +50,17 @@
 
       </h:panelGrid>
 
+	  <h:panelGroup rendered="#{modulePageBean.dependencies.size() > 0}" layout="block" styleClass="module-imports">
+           <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">Project dependencies:</div>
+          <div>
+              <ul>
+                  <a4j:repeat value="#{modulePageBean.dependencies}" var="keys" >
+                      <li>#{keys}</li>
+                  </a4j:repeat>
+              </ul>
+          </div>
+      </h:panelGroup>
+
 	  <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}" layout="block" styleClass="module-imports">
 	      <div style="font-weight: bold; margin-left: 7px;">Included modules:</div>
 	      <div>
