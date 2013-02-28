@@ -8,11 +8,6 @@ public class ResultNotFoundException extends Exception {
         super();
     }
 
-    public ResultNotFoundException(String message, Throwable cause, boolean enableSuppression,
-            boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
     public ResultNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
