@@ -72,6 +72,9 @@ public class Explanation {
     }
     
     protected String expandArgument(ExplanationNumberValue<?> value, boolean isMultiplicative, String parentUrl, int level) {
+        if (value == null) {
+            return null;
+        }
         String url = findUrl(value, parentUrl);
         if (value.getValueType().equals(ValueType.FORMULA)) {
             NumberFormula<?> formula = value.getFormula();
