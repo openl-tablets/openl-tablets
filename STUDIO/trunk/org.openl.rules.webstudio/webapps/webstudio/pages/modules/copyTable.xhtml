@@ -58,35 +58,36 @@
 
                 <h:panelGroup id="copyPropertiesTable">
                     <table>
-                        <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop">
+                        <a4j:repeat value="#{wizard.propertiesToDisplay}" var="prop" id="prop-values">
                             <tr>
                                 <td style="min-width: 97px">
                                     <h:outputText value="#{prop.displayName}" />
                                 </td>
                                 <td style="width: 156px">
                                     <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
-                                        rendered="#{prop.dateType}" />
+                                        rendered="#{prop.dateType}" id="calendar"/>
 
-                                    <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+                                    <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" id="bool-type"/>
 
                                     <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
-                                        rendered="#{prop.enumArray}" />
+                                        rendered="#{prop.enumArray}" 
+                                        id="multiselect"/>
 
-                                    <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}">
+                                    <h:panelGroup id="versionProperty" rendered="#{prop.name == 'version'}" >
                                         <table>
                                             <tr>
-                                                <td><oh:inputVersion value="#{prop.value}"/></td>
+                                                <td><oh:inputVersion value="#{prop.value}" id="input-version"/></td>
                                                 <td>Current:</td>
                                                 <td><h:outputText value="#{wizard.originalVersion}"/></td>
                                             </tr>
                                         </table>
                                     </h:panelGroup>
-
-                                    <h:inputText value="#{prop.value}"
+                                    
+                                    <h:inputText value="#{prop.value}" id="input-prop-text"
                                         rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{propertiesManager.removeProperty}"
+                                    <a4j:commandLink action="#{propertiesManager.removeProperty}" id="remove-prop-btn"
                                         render="copyPropertiesTable newPropertySelect"
                                         rendered="{(tableCopierWizardManager.copyType == 'CHANGE_NAMES' and prop.name != 'name') or (tableCopierWizardManager.copyType != 'CHANGE_VERSION' and prop.name == 'version') or (tableCopierWizardManager.copyType != 'CHANGE_DIMENSION' and !prop.dimensional)}">
                                         <h:graphicImage value="/images/delete.png"
@@ -101,7 +102,7 @@
                 </h:panelGroup>
 
 	            <a4j:commandButton value="Edit Properties" oncomplete="#{rich:component('newPropertyDlg')}.show();"
-	               style="margin-top: 8px" rendered="false" />
+	               style="margin-top: 8px" rendered="false" id="edit-prop-btn"/>
 
             </div>
         </section>
@@ -110,10 +111,10 @@
             <h3>Save To</h3>
             <div>
                 <span style="cursor: pointer; border-bottom: 1px dashed #777777"
-                    onclick="$j('#savePanel').slideDown();$j(this).hide()">#{wizard.moduleName} -> #{wizard.worksheetName}</span>
+                    onclick="$j('#savePanel').slideDown();$j(this).hide()" id="save-panel">#{wizard.moduleName} -> #{wizard.worksheetName}</span>
                 <h:panelGrid id="savePanel" columns="3" style="display: none" cellspacing="4">
                     <h:outputText value="Module" styleClass="required" />
-                    <h:selectOneMenu value="#{wizard.workbook}" style="width:100%">
+                    <h:selectOneMenu value="#{wizard.workbook}" style="width:100%" id="workbooks">
                         <a4j:ajax event="change" render="sheet" execute="@this" oncomplete="updateControls()" />
                         <f:selectItems value="#{wizard.workbooks}"/>
                     </h:selectOneMenu>
