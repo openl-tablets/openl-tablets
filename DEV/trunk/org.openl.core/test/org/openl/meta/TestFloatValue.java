@@ -35,5 +35,11 @@ public class TestFloatValue {
         assertEquals("12.65", FloatValue.round(value1, 2).toString());
  
     }
+
+    @Test
+    public void testAdd() {
+        assertEquals("0.0", FloatValue.add(null, new FloatValue(0)).toString());
+        assertEquals("0.0", FloatValue.add(new FloatValue(0), null).toString());
+    }
 }
     
