@@ -9,6 +9,8 @@ package org.openl.rules.calc.result.convertor;
  */
 public class CodeStep extends CalculationStep {
     
+    private static final long serialVersionUID = 7372598798002605558L;
+    
     private String code;
     
     public String getCode() {
