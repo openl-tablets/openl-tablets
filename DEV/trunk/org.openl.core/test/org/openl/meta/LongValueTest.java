@@ -30,6 +30,9 @@ public class LongValueTest {
         value1 = null;
         value2 = null;
         assertNull(LongValue.add(value1, value2));        
+
+        assertEquals("0", LongValue.add(null, new LongValue(0)).toString());
+        assertEquals("0", LongValue.add(new LongValue(0), null).toString());
     }
     
     @Test

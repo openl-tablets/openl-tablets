@@ -3,17 +3,12 @@ package org.openl.rules.variation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.IOUtils;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.reflection.Sun14ReflectionProvider;
+import com.caucho.hessian.io.Hessian2Input;
+import com.caucho.hessian.io.Hessian2Output;
 
 /**
  * Container of result from calculation with variations. Stores results for each
@@ -27,12 +22,11 @@ import com.thoughtworks.xstream.converters.reflection.Sun14ReflectionProvider;
  * @author PUdalau, Marat Kamalov
  */
 public class VariationsResult<T> {
-    private byte[] variationResultsData;
-    private byte[] variationFailuresData;
+    private byte[] data;
 
     private Map<String, T> variationResults;
     private Map<String, String> variationFailures;
-    
+
     public VariationsResult() {
         variationResults = new LinkedHashMap<String, T>();
         variationFailures = new LinkedHashMap<String, String>();
@@ -109,110 +103,67 @@ public class VariationsResult<T> {
         return ids;
     }
 
-    public byte[] getVariationResultsData() {
-        return variationResultsData;
+    public byte[] getData() {
+        return data;
     }
 
-    public void setVariationResultsData(byte[] variationResultsData) {
-        this.variationResultsData = variationResultsData;
-    }
-
-    public byte[] getVariationFailuresData() {
-        return variationFailuresData;
-    }
-
-    public void setVariationFailuresData(byte[] variationFailuresData) {
-        this.variationFailuresData = variationFailuresData;
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
     @SuppressWarnings("unchecked")
     public void unpack() throws IOException {
-        if (variationFailuresData != null) {
-            XStream xStream = new XStream(new Sun14ReflectionProvider());
-            GZIPInputStream gzipInputStream = null;
+        if (data != null) {
+            ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
+            Hessian2Input input = new Hessian2Input(byteInputStream);
             try {
-                ByteArrayInputStream bais = new ByteArrayInputStream(variationFailuresData);
-                gzipInputStream = new GZIPInputStream(bais);
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(gzipInputStream, writer, "UTF-8");
-                String xmlVariationFailures = writer.toString();
-                variationFailures = (Map<String, String>) xStream.fromXML(xmlVariationFailures);
+                input.startMessage();
+                variationFailures = (Map<String, String>) input.readObject();
+                variationResults = (Map<String, T>) input.readObject();
+                input.completeMessage();
+                input.close();
+            } catch (IOException e) {
+                throw e;
             } finally {
-                if (gzipInputStream != null) {
+                if (byteInputStream != null) {
                     try {
-                        gzipInputStream.close();
-                    } catch (IOException ignored) {
+                        byteInputStream.close();
+                    } catch (IOException e) {
+
                     }
                 }
             }
-        }
-        if (variationResultsData != null) {
-            XStream xStream = new XStream(new Sun14ReflectionProvider());
-            GZIPInputStream gzipInputStream = null;
-            try {
-                ByteArrayInputStream bais = new ByteArrayInputStream(variationResultsData);
-                gzipInputStream = new GZIPInputStream(bais);
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(gzipInputStream, writer, "UTF-8");
-                String xmlVariationResults = writer.toString();
-                variationResults = (Map<String, T>) xStream.fromXML(xmlVariationResults);
-            } finally {
-                if (gzipInputStream != null) {
-                    try {
-                        gzipInputStream.close();
-                    } catch (IOException ignored) {
-                    }
-                }
-            }
+
         }
     }
 
     public void pack() {
-        ByteArrayOutputStream byteArrayOutputStream = null;
-        XStream xStream = new XStream(new Sun14ReflectionProvider());
-        String xmlVariationFailures = xStream.toXML(variationFailures);
-        String xmlVariationResults = xStream.toXML(variationResults);
-        GZIPOutputStream gzipOutputStream = null;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Hessian2Output out = new Hessian2Output(byteArrayOutputStream);
+        long t = System.currentTimeMillis();
         try {
-            byteArrayOutputStream = new ByteArrayOutputStream();
-            gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-            gzipOutputStream.write(xmlVariationFailures.getBytes("UTF-8"));
-            gzipOutputStream.close();
-            variationFailuresData = byteArrayOutputStream.toByteArray();
+            out.startMessage();
+            out.writeObject(variationFailures);
+            out.writeObject(variationResults);
+            out.completeMessage();
+            out.close();
+            data = byteArrayOutputStream.toByteArray();
             variationFailures.clear();
-        } catch (IOException e) {
-            // Should never happen for ByteArrayOutputStream. If happen - something is broken.
-            throw new IllegalStateException(e);
-        } finally {
-            if (gzipOutputStream != null) {
-                try {
-                    gzipOutputStream.close();
-                } catch (IOException e) {
-
-                }
-            }
-        }
-        gzipOutputStream = null;
-        try {
-            byteArrayOutputStream = new ByteArrayOutputStream();
-            byte[] data = xmlVariationResults.getBytes("UTF-8");
-            gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream, data.length);
-            gzipOutputStream.write(data);
-            gzipOutputStream.close();
-            variationResultsData = byteArrayOutputStream.toByteArray();
             variationResults.clear();
         } catch (IOException e) {
-            // Should never happen for ByteArrayOutputStream. If happen - something is broken.
+            // Should never happen for ByteArrayOutputStream. If happen -
+            // something is broken.
             throw new IllegalStateException(e);
         } finally {
-            if (gzipOutputStream != null) {
+            if (byteArrayOutputStream != null) {
                 try {
-                    gzipOutputStream.close();
+                    byteArrayOutputStream.close();
                 } catch (IOException e) {
 
                 }
             }
         }
+        System.out.println(System.currentTimeMillis() - t);
     }
 
     /**
