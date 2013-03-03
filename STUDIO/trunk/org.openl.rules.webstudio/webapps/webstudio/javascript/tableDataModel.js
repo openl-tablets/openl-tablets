@@ -16,17 +16,16 @@ var tableModel = {
             if(i > 0) {
                 params += ", ";
             }
-            params += "<span id=\"param"+i+"\" oncontextmenu=\"arrayContexMenu(event, "+i+","+this.header.inParam[i].iterable+")\" onclick=\"selectDataTypeAction(this,event,"+i+")\">"
-            + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") 
-            + "</span> <span onclick='tableModel.toEditMode(this)'>" 
-            + this.header.inParam[i].name +"</span>"
-            +"<span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.inParam[i].name+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>";
+            params += "<span id=\"param"+i+"\" onclick=\"selectDataTypeAction(this,event,"+i+","+this.header.inParam[i].iterable+")\">"
+            + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") +" </span> "
+            +"<span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.inParam[i].name+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
+            +"<span onclick='tableModel.toEditMode(this)'>" 
+            + this.header.inParam[i].name +"</span>";
         }
 
-        return  "<font size=\"3\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
-        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font color=\"black\"><strong><span onclick='tableModel.toEditMode(this)'>" + this.header.name
-        + "</span><span style=\"display : none\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span></strong></font>"
-        + " (" + params + ")</font>";
+        return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
+        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font color=\"black\"><strong><span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
+        + "</span></strong></font> (" + params + ")</font>";
     },
 
     setReturnParam : function(returnParam) {
@@ -97,9 +96,12 @@ var tableModel = {
     },
 
     toEditMode : function(element) {
-        editElem = element.nextSibling;
-        element.style.display = "none";
+        editElem = element.previousSibling;
         editElem.style.display = "";
+
+        editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+        editElem.firstChild.style.height = ($j(element).outerHeight() + 3) + "px";
+
         editElem.firstChild.focus();
         editElem.firstChild.onblur = function() {
             this.onchange();
@@ -117,14 +119,14 @@ var tableModel = {
         element = cell.firstChild;
 
         editor = new Editor();
-        editor.initElement(cell.data, element);
+        editor.initElement(cell);
     },
 
     toEditPropsMode : function(cell) {
         element = cell.firstChild;
 
         editor = new PropsEditor();
-        editor.initElement(cell.props, element);
+        editor.initElement(cell);
     },
 
     toNormalMode : function(element) {
@@ -237,7 +239,7 @@ var tableModel = {
     },
 
     toEditPropTypeMode : function(element) {
-        editElem = element.nextSibling;
+        editElem = element.previousSibling;
         element.style.display = "none";
         editElem.style.display = "";
         editElem.innerHTML = document.getElementById("propsDataType").innerHTML;
@@ -366,7 +368,7 @@ var tableModel = {
         var checkingRes = [];
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rule rows in the table. <a href=\"#\" title=\"Add rule row\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rules row in the table.");
+            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule in the table.");
         }
 
         this.checkNames(checkingRes);
