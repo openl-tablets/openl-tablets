@@ -10,7 +10,7 @@
 
     <h:panelGroup id="#{uid}" rendered="#{!empty rendered ? rendered : true}">
 
-        <h:selectManyMenu id="#{uid}-select" value="#{selected}" style="display:none">
+        <h:selectManyMenu id="#{uid}-select" value="#{selected}" style="display:none" required="#{!empty required ? required : false}" requiredMessage="#{!empty requiredMessage ? requiredMessage : requiredMessage}">
             <f:selectItems value="#{items}" />
         </h:selectManyMenu>
 

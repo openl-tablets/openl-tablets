@@ -87,7 +87,7 @@ public class SystemSettingsBean {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
     };
 
-    private ConfigurationManager configManager = WebStudioUtils.getWebStudio().getSystemConfigManager();
+    private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
@@ -355,7 +355,10 @@ public class SystemSettingsBean {
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
             throw new RepositoryValidationException(msg);
-        }
+        } 
+        
+        //workingDirValidator(prodConfig.getPath(), "Production Repository directory");
+        
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
@@ -466,22 +469,37 @@ public class SystemSettingsBean {
     public void dateFormatValidator (FacesContext context, UIComponent toValidate, Object value) {
         String inputDate = (String) value;
 
-        isValueNull(inputDate, "Date format");
+        isPathNull(inputDate, "Date format");
 
     }
 
     public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        isValueNull(value, "Workspace Directory");
+        String directoryType = "Workspace Directory";
+        isPathNull(value, directoryType);
         setUserWorkspaceHome((String) value);
-        workingDirValidator(getUserWorkspaceHome(), "Workspace Directory");
+        workingDirValidator(getUserWorkspaceHome(), directoryType);
 
     }
 
     public void historyDirValidator (FacesContext context, UIComponent toValidate, Object value) {
-        isValueNull(value, "History Directory");
+        String directoryType = "History Directory";
+        isPathNull(value, directoryType);
         setProjectHistoryHome((String) value);
-        workingDirValidator(getProjectHistoryHome(), "History Directory");
+        workingDirValidator(getProjectHistoryHome(), directoryType);
 
+    }
+    
+    public void designRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String directoryType = "Design Repository directory";
+        isPathNull(value, directoryType);
+        setDesignRepositoryPath((String)value);
+        workingDirValidator(getDesignRepositoryPath(), directoryType);
+    }
+    
+    public void productionRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String directoryType = "Production Repositories directory";
+        isPathNull(value, directoryType);
+        workingDirValidator((String)value, directoryType);
     }
 
     public void workingDirValidator(String value, String folderType) {
@@ -504,13 +522,13 @@ public class SystemSettingsBean {
                 }
             } else {
                 if (studioWorkingDir.mkdirs() == false) {
-                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " name: '" + value + "'"));
+                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " '" + value + "'"));
                 } else {
                     deleteFolder(value);
                 }
             }
         } catch (Exception e) {
-            FacesUtils.addErrorMessage(e.getMessage());
+            //FacesUtils.addErrorMessage(e.getMessage());
             throw new ValidatorException(new FacesMessage(e.getMessage()));
 
         } finally {
@@ -520,7 +538,7 @@ public class SystemSettingsBean {
         }
     }
 
-    private boolean isValueNull (Object value, String folderType) {
+    private boolean isPathNull (Object value, String folderType) {
         boolean isNull = StringUtils.isBlank((String)value);
         String errorMessage = folderType + "  could not be empty";
        

@@ -26,6 +26,7 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>webapps/webstudio</warSourceDirectory>
+          <warSourceExcludes>WEB-INF/classes/**</warSourceExcludes>
           <warName>${war.name}</warName>
         </configuration>
       </plugin>
