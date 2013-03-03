@@ -428,8 +428,8 @@ public class TableBuilder {
                 Object value = properties.get(key);
                 writeCell(2, currentRow, 1, 1, value, style);
                 //write empty column for correct border showing
-                if(width > 2) {
-                    int column = 3;
+                if(width > TableBuilder.PROPERTIES_MIN_WIDTH) {
+                    int column = TableBuilder.PROPERTIES_MIN_WIDTH;
 
                     while (column <= width) {
                         writeCell(column, currentRow, 1, 1, null, style);

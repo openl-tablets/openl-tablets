@@ -1,5 +1,7 @@
 function PropsEditor () {
-    this.initElement = function(cellProps, element) {
+    this.initElement = function(cell) {
+        var cellProps = cell.data;
+        
         var propName = cellProps.type;
 
         var actionURL = "/webstudio/action/prop_values";
@@ -10,7 +12,7 @@ function PropsEditor () {
             dataType: "json",
             success:function(data, textStatus, XMLHttpRequest){
                 hideLoader();
-                initComplexSelect(data, element);
+                initComplexSelect(data, cell);
             },
             error:function(XMLHttpRequest, textStatus, errorThrown){
                 hideLoader();
@@ -19,13 +21,25 @@ function PropsEditor () {
     };
 };
 
-function initComplexSelect(data, element) {
-   element.id = "cmplx_select_" + Math.floor(Math.random() * 1001);
-   prop = element.parentNode.props;
+function createDiv() {
+    var newElement = document.createElement('div');
+    newElement.id = "div_editor_holder"+Math.floor(Math.random() * 1001);
+
+    return newElement;
+}
+
+function initComplexSelect(data, cell) {
+   var element = createDiv();
+
+   prop = cell.data;
    var editor;
+   showEditorDiv(cell, element);
 
    if (data.type == "DATE") {
-       editor = new DateEditor('', element.id, '', prop.getValue() , '');
+       var specElement = createDiv();
+       $j(element).append(specElement);
+       
+       editor = new DateEditor('', specElement.id, '', prop.getValue() , '');
    } else if (data.type == "TEXT") {
        editor = new TextEditor('', element.id, '', prop.getValue() , true);
    } else if (data.type == "SINGLE") {
@@ -37,246 +51,79 @@ function initComplexSelect(data, element) {
        editor.open();
    }
 
-   element.onclick = function() {};
-   element.parentNode.onclick = function() {};
-
-   editor.getInputElement().onkeypress = function(event) {
-       if(event.keyCode == 13) {
-           element.parentNode.props.value = editor.getValue();
-           element.innerHTML = editor.getValue();
-
-           //set action to cell
-           element.parentNode.onclick = function(element) {
-               tableModel.toEditPropsMode(this);
-           };
-       }
-   };
-
-   editor.getInputElement().onblur = function() {
-       element.parentNode.props.value = editor.getValue();
-       element.innerHTML = editor.getValue();
-
-       //set action to cell
-       element.parentNode.onclick = function(element) {
-           tableModel.toEditPropsMode(this);
-       };
-
-   };
-
+   setNewEditor(cell, editor);
 };
 
+function closeEditor(cell, value) {
+    var dataCell = cell.data;
+    $j("#editor_div").hide();
+    $j("#editor_div").offset({left:0,top:0});
+    dataCell.value = value;
+    cell.innerHTML = dataCell.getValue();
+};
+
+function showEditorDiv(cell, elementForAdding) {
+    if (typeof elementForAdding != "undefined") {
+        $j("#editor_div").html("");
+        $j("#editor_div").append(elementForAdding);
+    }
+
+    var topPos = $j(cell).position().top;
+    var leftPos = $j(cell).position().left;
+
+    var position = {
+            top : topPos,
+            left : leftPos
+    };
+
+    $j('#editor_div').css(position);
+
+    $j("#editor_div").height("18px");
+    $j("#editor_div").width(($j(cell).outerWidth())+"px");
+
+    $j("#editor_div").show();
+
+    $j("#editor_div").find(">:first-child").height("18px");
+    $j("#editor_div").find(">:first-child").width(($j(cell).outerWidth())+"px");
+    $j("#editor_div").find(">:first-child").focus();
+}
+
+function setNewEditor(cell, editor) {
+    $j("#editor_div").keypress(function(event) {
+        if(event.keyCode == 13) {
+            closeEditor(cell, editor.getValue());
+            return false;
+        }
+    });
+
+    editor.getInputElement().onblur = function() {
+        closeEditor(cell, editor.getValue());
+    };
+}
+
 function Editor(){
-    var html = "";
-    var value = "";
+    this.initElement = function(cell) {
+        var dataCell = cell.data;
 
-    this.initElement = function(dataCell, element) {
+        var element = createDiv();
+        showEditorDiv(cell, element);
+        var editor = null;
+
         if((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
-            this.html = this.getIntElement(dataCell);
-
-            element.innerHTML = "";
-            element.appendChild(this.html);
-            element.firstChild.focus();
+            //this.html = this.getIntElement(cell);
+            editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
         } else if(dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
-            this.html = this.getBooleanElement(dataCell);
-
-            element.innerHTML = "";
-            element.appendChild(this.html);
-            element.firstChild.focus();
+            //this.html = this.getBooleanElement(cell);
+            editor = new BooleanEditor('', element.id, '', dataCell.getValue() == true ? "true" : "false", true);
         } else if(dataCell.valueType == "DATE" && !dataCell.iterable) {
-            element.id = Math.floor(Math.random() * 1001);
-            dateEditor = new DateEditor('', element.id, '', dataCell.getValue() , '');
-
-            element.onclick = function() {};
-
-            dateEditor.getInputElement().onblur = function() {
-                element.innerHTML = dateEditor.getValue();
-
-                element.parentNode.onclick = function(element) {
-                    tableModel.toEditorMode(this);
-                };
-
-                element.parentNode.data.value = dateEditor.getValue();
-                dateEditor.destroy(element.id);
-            };
-
-            element.focus();
+            editor = new DateEditor('', element.id, '', dataCell.getValue() , '');
         } else if(dataCell.valueType == "STRING" && !dataCell.iterable) {
-            this.html = this.getStringElement(dataCell);
-
-            element.innerHTML = "";
-            element.appendChild(this.html);
-
-            element.firstChild.focus();
+            //this.html = this.getStringElement(cell);
+            editor = new TextEditor('', element.id, '', dataCell.getValue() , true);
         } else {
-            this.html = this.getStringElement(dataCell);
-
-            element.innerHTML = "";
-            element.appendChild(this.html);
-
-            element.firstChild.focus();
+            editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
         }
 
-        element.setAttribute('onclick','');
-        element.parentNode.setAttribute('onclick','');
-    };
-
-    this.initReturnValue = function(dataCell, element) {
-        if(dataCell.valueType == "INT") {
-            this.value = element.value;
-        } else if(dataCell.valueType == "BOOLEAN") {
-            this.value = element.checked;
-        } else if(dataCell.valueType == "DATE") {
-            arr = element.value.split("/");
-
-            if(arr.length == 3) {
-                this.value = new Date(arr[2],arr[0]-1,arr[1]);
-            } else {
-                this.value = element.value;
-            }
-            //this.value = element.value;
-        } else if(dataCell.valueType == "STRING") {
-            this.value = element.value;
-        } else {
-            this.value = element.value;
-        }
-        //set action to cell
-        element.parentNode.parentNode.setAttribute('onclick','tableModel.toEditorMode(this)');
-
-        dataCell.value = this.value;
-        span = element.parentNode;
-        span.innerHTML = dataCell.getValue();
-    };
-
-    this.getIntElement = function(dataCell) {
-        var newElement = document.createElement('input');
-        newElement.type = 'text';
-        newElement.value = dataCell.getValue();
-
-        newElement.onchange = function () {
-            tableModel.toNormalMode(this);
-        };
-
-        newElement.onblur = function () {
-            tableModel.toNormalMode(this);
-        };
-
-        newElement.onkeypress = function(event) {
-            if(event.keyCode == 13) {
-                tableModel.toNormalMode(this);
-            }
-
-            var v = this.value;
-            if (event.charCode == 0) return true;
-            var code = event.charCode == undefined ? event.keyCode : event.charCode;
-
-            if (code == 45)  // minus
-                return v.indexOf("-") < 0;
-            if (code == 46 && dataCell.valueType == "FLOAT")  // point
-                return v.indexOf(".") < 0;
-
-            return code >= 48 && code <= 57; // digits (0-9)
-        }
-        
-        newElement.focus();
-        return newElement;
-    };
-
-    this.getBooleanElement = function(dataCell) {
-        var newElement = document.createElement('input');
-        newElement.type = 'checkbox';
-
-        if(dataCell.value != true) {
-            newElement.value = false;
-            newElement.checked = "";
-        } else {
-            newElement.value = true;
-            newElement.checked = "checked";
-        }
-
-        newElement.onchange = function () {
-            tableModel.toNormalMode(newElement);
-        };
-
-        newElement.onblur = function () {
-            tableModel.toNormalMode(newElement);
-        };
-
-        newElement.onkeypress = function(event) {
-            if(event.keyCode == 13) {
-                tableModel.toNormalMode(this);
-            }
-        };
-
-        newElement.focus();
-        return newElement;
-    };
-
-    this.getDateElement = function(dataCell, element) {
-        var newElement = new Element("input");
-        newElement.setAttribute("type", "text");
-        newElement.value = dataCell.getValue();
-        /*gen random id*/
-        newElement.id = Math.floor(Math.random() * 1001);
-        //newElement.setAttribute('onclick','datePickerController.show('+newElement.id+')');
-        //newElement.setAttribute("onchange","tableModel.toNormalMode(this)");
-
-        newElement.onclick = function() {
-            datePickerController.show(newElement.id);
-        };
-
-        newElement.onblur = function() {
-            tableModel.toNormalMode(this);
-        };
-
-        newElement.onkeypress = function(event) {
-            if(event.keyCode == 13) {
-                tableModel.toNormalMode(this);
-            }
-        };
-
-        element.innerHTML = "";
-        element.appendChild(newElement);
-
-        var datePickerOpts = {
-            formElements: {},
-            noFadeEffect: true,
-            finalOpacity: 100
-        };
-
-        datePickerOpts.formElements[newElement.id] = "m-sl-d-sl-Y";
-
-        var datePickerGlobalOpts = {
-            noDrag: true
-        };
-
-        datePickerController.setGlobalVars(datePickerGlobalOpts);
-        datePickerController.createDatePicker(datePickerOpts);
-
-        //datePickerController.show(newElement.id);
-        //return newElement;
-    };
-
-    this.getStringElement = function(dataCell) {
-        var newElement = document.createElement('input');
-        newElement.type = 'text';
-        newElement.value = dataCell.value;
-        //newElement.setAttribute('onchange','tableModel.toNormalMode(this)');
-        //newElement.setAttribute('onblur','tableModel.toNormalMode(this)');
-
-        newElement.onclick = function() {
-            datePickerController.show(newElement.id);
-        };
-
-        newElement.onblur = function() {
-            tableModel.toNormalMode(this);
-        };
-
-        newElement.onkeypress = function(event) {
-            if(event.keyCode == 13) {
-                tableModel.toNormalMode(this);
-            }
-        };
-
-        return newElement;
+        setNewEditor(cell, editor);
     };
 };
