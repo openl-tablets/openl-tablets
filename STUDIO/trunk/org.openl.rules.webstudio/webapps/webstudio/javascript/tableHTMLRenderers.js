@@ -320,4 +320,14 @@ verticalRenderer = {
             $j(table).appendTo(element);
         }
     },
+
+    setConditionTitle : function(newTitle, conditionId) {
+        var titleRowId = tableModel.startDataTableRowIndex();
+        var title = this.htmlTable.rows[titleRowId].cells[conditionId].innerHTML;
+        
+        if(title == "") {
+            this.htmlTable.rows[titleRowId].cells[conditionId].innerHTML = newTitle;
+            this.htmlTable.rows[titleRowId].cells[conditionId].data.value = newTitle;
+        }           
+    }
 }
