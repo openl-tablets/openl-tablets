@@ -18,8 +18,8 @@ var tableModel = {
             }
             params += "<span id=\"param"+i+"\" onclick=\"selectDataTypeAction(this,event,"+i+","+this.header.inParam[i].iterable+")\">"
             + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") +" </span> "
-            +"<span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.inParam[i].name+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
-            +"<span onclick='tableModel.toEditMode(this)'>" 
+            +"<span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+((this.header.inParam[i].name == 'null') ? "" :  this.header.inParam[i].name)+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
+            +"<span onclick='tableModel.toEditMode(this)' id=\"param_value"+i+"\">" 
             + this.header.inParam[i].name +"</span>";
         }
 
@@ -164,6 +164,8 @@ var tableModel = {
 
         if(paramId > -1) {
             this.header.inParam[paramId].name = editElem.value;
+            
+            this.renderer.setConditionTitle(editElem.value, paramId);
         } else {
             this.header.name = editElem.value;
         }
@@ -217,6 +219,8 @@ var tableModel = {
         }
 
         this.renderer.createEmptyCol(id, this.dataRows);
+        //show tooltip for setting patameter type
+        $j("#param"+id).click();
     },
 
     deleteRow : function(rowId) {
@@ -271,6 +275,11 @@ var tableModel = {
         }
 
         this.renderer.refreshTableHeader();
+        
+        if(this.header.inParam[id].name == 'null') {
+            //open property name editor
+            $j("#param_value"+id).click();
+        }
     },
 
     changeColumnValueType : function(columnId, valuesType) {
