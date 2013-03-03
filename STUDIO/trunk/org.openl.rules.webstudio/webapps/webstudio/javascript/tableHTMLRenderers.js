@@ -13,7 +13,8 @@ verticalRenderer = {
         obj.style.textAlign = "center";
         obj.style.fontSize = "14";
         obj.style.fontFamily = "Franklin Gothik Book";
-        obj.style.minWidth="50px";
+        obj.style.minWidth = "50px";
+        obj.style.height = "20px";
     },
 
     setHeaderStyle : function(obj) {
@@ -159,13 +160,13 @@ verticalRenderer = {
         if(type == "DATA_TYPE") {
             return value;
         } else if(type == "PROPERTY_TYPE") {
-            return "<span id=\"t"+cell.parentNode.rowIndex+"\" onclick=\"tableModel.toEditPropTypeMode(this)\">"+value+"</span><span style=\"display : none\"></span>";
+            return "<span style=\"display : none\"></span><span id=\"t"+cell.parentNode.rowIndex+"\" onclick=\"tableModel.toEditPropTypeMode(this)\">"+value+"</span>";
         } else if(type == "PROPERTY_VALUE") {
             cell.setAttribute('onclick','tableModel.toEditPropsMode(this)');
-            return "<div style=\"display: inline\">"+value+"</div>";
+            return value;
         } else if(type == "VALUE"){
             cell.setAttribute('onclick','tableModel.toEditorMode(this)');
-            return "<div>"+cell.data.value+"</div>";
+            return cell.data.value;
         } else {
             return value;
         }
@@ -173,7 +174,7 @@ verticalRenderer = {
 
     selectValue : function(editElem) {
         var span = editElem.parentNode;
-        var element = span.previousSibling;
+        var element = span.nextSibling;
         span.style.display = "none";
         element.style.display = "";
 
@@ -269,7 +270,7 @@ verticalRenderer = {
             this.setPropValueStyle(valueCell);
             valueCell.innerHTML = this.getCellHtml(properties[i].value, "PROPERTY_VALUE", valueCell);
             valueCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
-            valueCell.props = properties[i];
+            valueCell.data = properties[i];
         }
 
         this.refreshTableHeader();
