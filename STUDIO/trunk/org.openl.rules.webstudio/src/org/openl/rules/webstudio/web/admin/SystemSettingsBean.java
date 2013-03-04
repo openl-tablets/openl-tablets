@@ -528,7 +528,7 @@ public class SystemSettingsBean {
                 }
             }
         } catch (Exception e) {
-            //FacesUtils.addErrorMessage(e.getMessage());
+            FacesUtils.addErrorMessage(e.getMessage());
             throw new ValidatorException(new FacesMessage(e.getMessage()));
 
         } finally {
