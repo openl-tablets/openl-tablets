@@ -39,6 +39,9 @@ public class TestDoubleValue {
     	v1 = null;
     	v2 = null;
     	assertNull(DoubleValue.add(v1, v2));
+
+        assertEquals("0.0", DoubleValue.add(null, DoubleValue.ZERO).toString());
+        assertEquals("0.0", DoubleValue.add(DoubleValue.ZERO, null).toString());
     }
     
     @Test

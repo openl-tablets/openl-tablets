@@ -45,6 +45,9 @@ public class IntValueTest {
     	v1 = null;
     	v2 = null;
     	assertNull(IntValue.add(v1, v2));
+
+        assertEquals("0", IntValue.add(null, new IntValue(0)).toString());
+        assertEquals("0", IntValue.add(new IntValue(0), null).toString());
     }
     
     @Test

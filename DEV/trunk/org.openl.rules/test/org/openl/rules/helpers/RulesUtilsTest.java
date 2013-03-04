@@ -463,19 +463,19 @@ public class RulesUtilsTest {
         Locale.setDefault(Locale.ENGLISH);
                
         c.set(year, month, date, hour, min);
-        
+
         System.out.println("Default locale is: " + Locale.getDefault());
         System.out.println("Locale date format: " + RulesUtils.dateToString(c.getTime()));
-        
+
         assertEquals("2/25/13", RulesUtils.format(c.getTime()) );
         assertEquals("2/25/13", RulesUtils.dateToString(c.getTime()));
-        
-        assertEquals("25/13", RulesUtils.format(c.getTime(), "dd/YY"));
-        assertEquals("25/13", RulesUtils.dateToString(c.getTime(), "dd/YY") );
-        
-        assertEquals("25/13 15:03", RulesUtils.format(c.getTime(), "dd/YY HH:mm"));
-        assertEquals("25/13 15:03", RulesUtils.dateToString(c.getTime(), "dd/YY HH:mm"));
-        
+
+        assertEquals("25/13", RulesUtils.format(c.getTime(), "dd/yy"));
+        assertEquals("25/13", RulesUtils.dateToString(c.getTime(), "dd/yy") );
+
+        assertEquals("25/13 15:03", RulesUtils.format(c.getTime(), "dd/yy HH:mm"));
+        assertEquals("25/13 15:03", RulesUtils.dateToString(c.getTime(), "dd/yy HH:mm"));
+
     }
     
     @Test (expected = IllegalArgumentException.class)
@@ -502,6 +502,6 @@ public class RulesUtilsTest {
     
     @Test
     public void quotientIntTest () {
-        System.out.println(RulesUtils.quotient(9, 4));
+        assertEquals(2, RulesUtils.quotient(9, 4));
     }
 }

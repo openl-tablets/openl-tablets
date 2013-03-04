@@ -77,13 +77,13 @@ public class DomainTree {
         predefinedTypes.put(CHAR.getSimpleName(), CHAR);
 
         // wrappers for primitives
-//      predefinedTypes.put("Integer", JavaOpenClass.getOpenClass(Integer.class));
-//      predefinedTypes.put("Boolean", JavaOpenClass.getOpenClass(Boolean.class));
-//      predefinedTypes.put("Long", JavaOpenClass.getOpenClass(Long.class));
-//      predefinedTypes.put("Double", JavaOpenClass.getOpenClass(Double.class));
-//      predefinedTypes.put("Float", JavaOpenClass.getOpenClass(Float.class));
-//      predefinedTypes.put("Short", JavaOpenClass.getOpenClass(Short.class));
-//      predefinedTypes.put("Character", JavaOpenClass.getOpenClass(Character.class));
+      predefinedTypes.put("Integer", JavaOpenClass.getOpenClass(Integer.class));
+      predefinedTypes.put("Boolean", JavaOpenClass.getOpenClass(Boolean.class));
+      predefinedTypes.put("Long", JavaOpenClass.getOpenClass(Long.class));
+      predefinedTypes.put("Double", JavaOpenClass.getOpenClass(Double.class));
+      predefinedTypes.put("Float", JavaOpenClass.getOpenClass(Float.class));
+      predefinedTypes.put("Short", JavaOpenClass.getOpenClass(Short.class));
+      predefinedTypes.put("Character", JavaOpenClass.getOpenClass(Character.class));
 
         predefinedTypes.put(STRING.getSimpleName(), STRING);
         predefinedTypes.put("Date", JavaOpenClass.getOpenClass(Date.class));

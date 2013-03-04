@@ -22,245 +22,243 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     private static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
 
     // <<< INSERT Functions >>>
-	private byte value;
+    private byte value;
 
 
-	public static boolean eq(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		validate(value1, value2, LogicalExpressions.EQ.toString());
-		
-		return Operators.eq(value1.getValue(), value2.getValue());		
-	}
-	public static boolean ge(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		validate(value1, value2, LogicalExpressions.GE.toString());
-		
-		return Operators.ge(value1.getValue(), value2.getValue());		
-	}
-	public static boolean gt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		validate(value1, value2, LogicalExpressions.GT.toString());
-		
-		return Operators.gt(value1.getValue(), value2.getValue());		
-	}
-	public static boolean le(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		validate(value1, value2, LogicalExpressions.LE.toString());
-		
-		return Operators.le(value1.getValue(), value2.getValue());		
-	}
-	public static boolean lt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		validate(value1, value2, LogicalExpressions.LT.toString());
-		
-		return Operators.lt(value1.getValue(), value2.getValue());		
-	}
-	public static boolean ne(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		validate(value1, value2, LogicalExpressions.NE.toString());
-		
-		return Operators.ne(value1.getValue(), value2.getValue());		
-	}
+    public static boolean eq(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        validate(value1, value2, LogicalExpressions.EQ.toString());
 
-	public static org.openl.meta.ByteValue avg(org.openl.meta.ByteValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+        return Operators.eq(value1.getValue(), value2.getValue());
+    }
+    public static boolean ge(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        validate(value1, value2, LogicalExpressions.GE.toString());
+
+        return Operators.ge(value1.getValue(), value2.getValue());
+    }
+    public static boolean gt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        validate(value1, value2, LogicalExpressions.GT.toString());
+
+        return Operators.gt(value1.getValue(), value2.getValue());
+    }
+    public static boolean le(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        validate(value1, value2, LogicalExpressions.LE.toString());
+
+        return Operators.le(value1.getValue(), value2.getValue());
+    }
+    public static boolean lt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        validate(value1, value2, LogicalExpressions.LT.toString());
+
+        return Operators.lt(value1.getValue(), value2.getValue());
+    }
+    public static boolean ne(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        validate(value1, value2, LogicalExpressions.NE.toString());
+
+        return Operators.ne(value1.getValue(), value2.getValue());
+    }
+
+    public static org.openl.meta.ByteValue avg(org.openl.meta.ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-		byte[] primitiveArray = unwrap(values);
-		byte avg = MathUtils.avg(primitiveArray);
-		return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(avg), NumberOperations.AVG, values);
-	}
-	public static org.openl.meta.ByteValue sum(org.openl.meta.ByteValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+        byte[] primitiveArray = unwrap(values);
+        byte avg = MathUtils.avg(primitiveArray);
+        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(avg), NumberOperations.AVG, values);
+    }
+    public static org.openl.meta.ByteValue sum(org.openl.meta.ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-		byte[] primitiveArray = unwrap(values);
-		byte sum = MathUtils.sum(primitiveArray);
-		return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum), NumberOperations.SUM, values);
-	}
-	public static org.openl.meta.ByteValue median(org.openl.meta.ByteValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+        byte[] primitiveArray = unwrap(values);
+        byte sum = MathUtils.sum(primitiveArray);
+        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum), NumberOperations.SUM, values);
+    }
+    public static org.openl.meta.ByteValue median(org.openl.meta.ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-		byte[] primitiveArray = unwrap(values);
-		byte median = MathUtils.median(primitiveArray);
-		return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(median), NumberOperations.MEDIAN, values);
-	}
+        byte[] primitiveArray = unwrap(values);
+        byte median = MathUtils.median(primitiveArray);
+        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(median), NumberOperations.MEDIAN, values);
+    }
 
-	public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-	    // Commented to support operations with nulls
-	    // "null" means that data does not exist
-		// validate(value1, value2, NumberOperations.MAX.toString());
-		if (value1 == null)
-		    return value2; 
+    public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        // validate(value1, value2, NumberOperations.MAX.toString());
+        if (value1 == null)
+            return value2; 
         if (value2 == null)
             return value1; 
-		
-		return new org.openl.meta.ByteValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
+
+        return new org.openl.meta.ByteValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.ByteValue[] { value1, value2 });
-	}
-	public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-	    // Commented to support operations with nulls
-	    // "null" means that data does not exist
-		// validate(value1, value2, NumberOperations.MIN.toString());
-		if (value1 == null)
-		    return value2; 
+    }
+    public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // Commented to support operations with nulls
+        // "null" means that data does not exist
+        // validate(value1, value2, NumberOperations.MIN.toString());
+        if (value1 == null)
+            return value2; 
         if (value2 == null)
             return value1; 
-		
-		return new org.openl.meta.ByteValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
+
+        return new org.openl.meta.ByteValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
             new org.openl.meta.ByteValue[] { value1, value2 });
-	}
+    }
 
-	public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue[] values) {
-		org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.max(values); 		
-		
-		return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result), 
+    public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue[] values) {
+        org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.max(values);
+
+        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
-	}
-	public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue[] values) {
-		org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.min(values); 		
-		
-		return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result), 
-            NumberOperations.MIN_IN_ARRAY, values);
-	}
+    }
+    public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue[] values) {
+        org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.min(values);
 
-	public static org.openl.meta.ByteValue copy(org.openl.meta.ByteValue value, String name) {
-		if (value.getName() == null) {
+        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
+            NumberOperations.MIN_IN_ARRAY, values);
+    }
+
+    public static org.openl.meta.ByteValue copy(org.openl.meta.ByteValue value, String name) {
+        if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-        	org.openl.meta.ByteValue result = new org.openl.meta.ByteValue (value, NumberOperations.COPY, 
-        		new org.openl.meta.ByteValue[] { value });
-        	result.setName(name);
+            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue (value, NumberOperations.COPY, 
+                new org.openl.meta.ByteValue[] { value });
+            result.setName(name);
 
             return result;
         }
         return value;
-	}
-	
-	//REM
-	public static org.openl.meta.ByteValue rem(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-	    // Commented to support operations with nulls. See also MathUtils.mod()
-		// validate(value1, value2, Formulas.REM.toString());
-		if (value1 == null || value2 == null) {
+    }
+
+    //REM
+    public static org.openl.meta.ByteValue rem(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // Commented to support operations with nulls. See also MathUtils.mod()
+        // validate(value1, value2, Formulas.REM.toString());
+        if (value1 == null || value2 == null) {
             return ZERO;
         }
-		
-		return new org.openl.meta.ByteValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()), 
-			Formulas.REM);		
-	}
-	 	
-	
-	//ADD
-	public static org.openl.meta.ByteValue add(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.ADD.toString());
-		//conditions for classes that are wrappers over primitives
-		if (value1 == null || value1.getValue() == 0) {
+
+        return new org.openl.meta.ByteValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+            Formulas.REM);
+    }
+
+    //ADD
+    public static org.openl.meta.ByteValue add(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.ADD.toString());
+        //conditions for classes that are wrappers over primitives
+        if (value1 == null) {
             return value2;
         }
 
-        if (value2 == null || value2.getValue() == 0) {
+        if (value2 == null) {
             return value1;
         }
-        
-		return new org.openl.meta.ByteValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()), 
-			Formulas.ADD);	
-	}
-	
-	// MULTIPLY
-	public static org.openl.meta.ByteValue multiply(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.MULTIPLY.toString());
-		if (value1 == null) {
-			return value2;
-		}
-		
-		if (value2 == null) {
-			return value1;
-		}
-		
-		return new org.openl.meta.ByteValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()), 
-			Formulas.MULTIPLY);		
-	}
-	
-	//SUBTRACT
-	public static org.openl.meta.ByteValue subtract(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.SUBTRACT.toString());		
-		if (value1 == null && value2 == null) {
-			return null;
-		}
-		
-		if (value1 == null) {
-			return negative(value2);
-		}
-		
-		if (value2 == null) {
-			return value1;
-		}
-		
-		return new org.openl.meta.ByteValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
-			Formulas.SUBTRACT);		
-	}
-	
-	// DIVIDE
-	public static org.openl.meta.ByteValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-		// temporary commented to support operations with nulls
-		//
-		//		validate(value1, value2, Formulas.DIVIDE.toString());
-		if (value1 == null && value2 == null) {
-			return null;
-		}
-		
-		if (value1 == null) {
-			if (value2 != null && value2.doubleValue() != 0) {
-				return new org.openl.meta.ByteValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
-			}
-		}
-		
-		if (value2 == null) {
-			return new org.openl.meta.ByteValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
-		}
-		
-		if (value2.doubleValue() == 0) {
-			throw new OpenlNotCheckedException("Division by zero");
-		}
-		
-		return new org.openl.meta.ByteValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()), 
-			Formulas.DIVIDE);		
-	}
-	
-	
-	// QUAOTIENT
-	public static LongValue quotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
+
+        return new org.openl.meta.ByteValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+            Formulas.ADD);
+}
+
+    // MULTIPLY
+    public static org.openl.meta.ByteValue multiply(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        if (value1 == null) {
+            return value2;
+        }
+
+        if (value2 == null) {
+            return value1;
+        }
+
+        return new org.openl.meta.ByteValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+            Formulas.MULTIPLY);
+    }
+
+    //SUBTRACT
+    public static org.openl.meta.ByteValue subtract(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null) {
+            return negative(value2);
+        }
+
+        if (value2 == null) {
+            return value1;
+        }
+
+        return new org.openl.meta.ByteValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+            Formulas.SUBTRACT);
+    }
+
+    // DIVIDE
+    public static org.openl.meta.ByteValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        // temporary commented to support operations with nulls
+        //
+        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        if (value1 == null && value2 == null) {
+            return null;
+        }
+
+        if (value1 == null) {
+            if (value2 != null && value2.doubleValue() != 0) {
+                return new org.openl.meta.ByteValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            }
+        }
+
+        if (value2 == null) {
+            return new org.openl.meta.ByteValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+        }
+
+        if (value2.doubleValue() == 0) {
+            throw new OpenlNotCheckedException("Division by zero");
+        }
+
+        return new org.openl.meta.ByteValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+            Formulas.DIVIDE);
+    }
+
+    // QUAOTIENT
+    public static LongValue quotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
     }
-	
-	// generated product function for types that are wrappers over primitives
-	public static DoubleValue product(org.openl.meta.ByteValue[] values) {
-		if (ArrayUtils.isEmpty(values)) {
+
+    // generated product function for types that are wrappers over primitives
+    public static DoubleValue product(org.openl.meta.ByteValue[] values) {
+        if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         byte[] primitiveArray = unwrap(values);
         double product = MathUtils.product(primitiveArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-	}
-	
-	public static org.openl.meta.ByteValue mod(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
+    }
+
+    public static org.openl.meta.ByteValue mod(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
             org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(MathUtils.mod(number.getValue(), divisor.getValue()));
             return new org.openl.meta.ByteValue(result, NumberOperations.MOD, new org.openl.meta.ByteValue[]{number, divisor} );
         }
         return null;
     }
-    
+
     public static org.openl.meta.ByteValue small(org.openl.meta.ByteValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -270,17 +268,17 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)), 
             NumberOperations.SMALL, values);
     }
-    
+
     public static org.openl.meta.ByteValue big(org.openl.meta.ByteValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         byte[] primitiveArray = unwrap(values);
         byte big = MathUtils.big(primitiveArray, position);
-        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)), 
+        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)),
             NumberOperations.BIG, values);
     }
-    
+
     public static org.openl.meta.ByteValue pow(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
@@ -291,11 +289,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         } else if (value2 == null) {
             return value1;
         }
-        
+
         return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(Operators.pow(value1.getValue(), value2.getValue())), 
             NumberOperations.POW, new org.openl.meta.ByteValue[] { value1, value2 });
     }
-    
+
     public static org.openl.meta.ByteValue abs(org.openl.meta.ByteValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
@@ -307,51 +305,51 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         // create instance with information about last operation
         return new org.openl.meta.ByteValue(result, NumberOperations.ABS, new org.openl.meta.ByteValue[] { value });
     }
-    
+
     public static org.openl.meta.ByteValue negative(org.openl.meta.ByteValue value) {
         if (value == null) {
             return null;
         }
         return multiply(value, MINUS_ONE);
     }
-    
+
     public static org.openl.meta.ByteValue inc(org.openl.meta.ByteValue value) {
         return add(value, ONE);
     }
-    
+
     public static org.openl.meta.ByteValue positive(org.openl.meta.ByteValue value) {
         return value;
     }
-    
+
     public static org.openl.meta.ByteValue dec(org.openl.meta.ByteValue value) {
         return subtract(value, ONE);
     }
-    
+
     // Autocasts
-    
-	public static org.openl.meta.ByteValue autocast(byte x, org.openl.meta.ByteValue y) {
-		return new org.openl.meta.ByteValue((byte) x);
-	}		
-	public static org.openl.meta.ByteValue autocast(short x, org.openl.meta.ByteValue y) {
-		return new org.openl.meta.ByteValue((byte) x);
-	}		
-	public static org.openl.meta.ByteValue autocast(int x, org.openl.meta.ByteValue y) {
-		return new org.openl.meta.ByteValue((byte) x);
-	}		
-	public static org.openl.meta.ByteValue autocast(long x, org.openl.meta.ByteValue y) {
-		return new org.openl.meta.ByteValue((byte) x);
-	}		
-	public static org.openl.meta.ByteValue autocast(float x, org.openl.meta.ByteValue y) {
-		return new org.openl.meta.ByteValue((byte) x);
-	}		
-	public static org.openl.meta.ByteValue autocast(double x, org.openl.meta.ByteValue y) {
-		return new org.openl.meta.ByteValue((byte) x);
-	}		
-    
+
+    public static org.openl.meta.ByteValue autocast(byte x, org.openl.meta.ByteValue y) {
+        return new org.openl.meta.ByteValue((byte) x);
+    }
+    public static org.openl.meta.ByteValue autocast(short x, org.openl.meta.ByteValue y) {
+        return new org.openl.meta.ByteValue((byte) x);
+    }
+    public static org.openl.meta.ByteValue autocast(int x, org.openl.meta.ByteValue y) {
+        return new org.openl.meta.ByteValue((byte) x);
+    }
+    public static org.openl.meta.ByteValue autocast(long x, org.openl.meta.ByteValue y) {
+        return new org.openl.meta.ByteValue((byte) x);
+    }
+    public static org.openl.meta.ByteValue autocast(float x, org.openl.meta.ByteValue y) {
+        return new org.openl.meta.ByteValue((byte) x);
+    }
+    public static org.openl.meta.ByteValue autocast(double x, org.openl.meta.ByteValue y) {
+        return new org.openl.meta.ByteValue((byte) x);
+    }
+
     // Constructors
     public ByteValue(byte value) {
         this.value = value;
-    }    
+    }
 
     public ByteValue(byte value, String name) {
         super(name);
@@ -360,14 +358,14 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     public ByteValue(byte value, IMetaInfo metaInfo) {
         super(metaInfo);
-        this.value = value;        
-    }    
+        this.value = value;
+    }
 
     /**Formula constructor**/
     public ByteValue(org.openl.meta.ByteValue lv1, org.openl.meta.ByteValue lv2, byte value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
-    }    
+    }
 
     /**Cast constructor**/
     public ByteValue(byte value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
@@ -377,23 +375,23 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     @Override
     public org.openl.meta.ByteValue copy(String name) {
-        return copy(this, name);        
-    }    
-    
-    public String printValue() {        
+        return copy(this, name);
+    }
+
+    public String printValue() {
         return String.valueOf(value);
     }
-    
-    public byte getValue() {        
+
+    public byte getValue() {
         return value;
     }
-    
+
     public void setValue(byte value) {
         this.value = value;
     }
-    
+
     //Equals
-	@Override
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.ByteValue) {
             org.openl.meta.ByteValue secondObj = (org.openl.meta.ByteValue) obj;
@@ -402,7 +400,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
         return false;
     }
-    
 
     // sort
     public static org.openl.meta.ByteValue[] sort (org.openl.meta.ByteValue[] values ) {
