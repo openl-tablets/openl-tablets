@@ -116,7 +116,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
     
     open: function() {
-        this.rangePanel.setAttribute("style", "width: 230px; height: 160px; background: white; border:1px solid gray;");
+        this.rangePanel.setAttribute("style", "width: 230px; height: 170px; background: white; border:1px solid gray;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
         
@@ -292,7 +292,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     changeSign: function(btnId) {
         var self = this;
         if (btnId == "btnRange") {
-            self.checkboxes[1].removeAttribute("disabled");
+            if (self.checkboxes[1]) {
+                self.checkboxes[1].removeAttribute("disabled");
+            }
             self.disableInputsChecks(2);
         } else if (btnId == "btnEquals") {
             self.disableInputsChecks(3);
@@ -360,8 +362,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
              }
              self.check0.update('<span style="font-size:20px"> &infin; </span>');
              self.check0.setAttribute("style", "width: 80px;");
-             self.minValue.setAttribute("style", "width: 0px;");
              self.minValue.update('');
+             self.minValue.setAttribute("style", "width: 2px;");
          }
          
          if (btnId != 3) {
@@ -476,7 +478,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         } else {
             result = values.join("");
         }
-        
         if ((this.currentSeparator == this.generalSeparator) && (values[0] != values[1])) {
             var prefix = "";
             var suffix = "";
@@ -498,7 +499,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             } else {
                 if (!this.equals) {
                     if (this.moreThan) {
-                        if (this.checkboxes[0].checked) {
+                        if (this.checkboxes[1].checked) {
                             prefix = ">=";
                         } else {
                             prefix = ">";
