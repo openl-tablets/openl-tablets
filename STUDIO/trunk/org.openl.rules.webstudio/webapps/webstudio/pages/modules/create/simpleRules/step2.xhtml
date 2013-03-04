@@ -25,6 +25,7 @@
         <script src="#{contextPath}/faces/tableEditor/js/ArrayEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/DateEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/BooleanEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/NumericEditor.js"></script>
 
         <script src="#{contextPath}/javascript/tableDataModel.js"></script>
         <script src="#{contextPath}/javascript/tableHTMLRenderers.js"></script>
@@ -56,7 +57,7 @@
             table.srt tr {
                 height : 20px;
             }
-            
+
             .tips_div {
                 width: 365px;
                 padding: 5px 5px 15px 5px;
@@ -65,7 +66,7 @@
                 border-style: solid;
                 border-color: #DDDDDD;
             }
-            
+
             .tips_text{
                 padding-left: 15px;
             }
@@ -75,7 +76,7 @@
         <h:form name="srtTableForm" id="srtTableForm">
             <span id="errorMessage" >
             </span>
-            <br/>
+            <br/><div id="editor_div" style="display : none; position: absolute"/>
             <table id="srtTable" class="srt">
             </table>
             <br/>
@@ -102,9 +103,28 @@
               verticalRenderer.initDomTable(domTable)
               tableModel.initTable(verticalRenderer);
 
-              function selectDataTypeAction(spanElem, event, id) {
+              function selectDataTypeAction(spanElem, event, id, iterable) {
                   var div = document.getElementById("dataTypeDiv");
                   div.innerHTML = "";
+
+                  var addRowCheck = document.createElement('input');
+                  addRowCheck.setAttribute('type','checkbox');
+                  addRowCheck.setAttribute('onchange','tableModel.setIterable('+id+','+!iterable+');PopupMenu.closeMenu();');
+
+                  if(iterable) {
+                      addRowCheck.setAttribute('checked','checked');
+                  }
+
+                  div.appendChild(addRowCheck);
+
+                  var addRowLink = document.createElement('a');
+                  addRowLink.setAttribute('href','javascript:void(0)');
+                  addRowLink.setAttribute('onclick','tableModel.setIterable('+id+','+!iterable+');');
+                  addRowLink.innerHTML = ("As Array");
+
+                  div.appendChild(addRowLink);
+
+                  div.appendChild(document.createElement('hr'));
 
                   <ui:repeat value="#{wizard.typesList}" var="domParam">
                       var addRowLink = document.createElement('a');
