@@ -20,7 +20,7 @@ var tableModel = {
             + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") +" </span> "
             +"<span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+((this.header.inParam[i].name == 'null') ? "" :  this.header.inParam[i].name)+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
             +"<span onclick='tableModel.toEditMode(this)' id=\"param_value"+i+"\">" 
-            + this.header.inParam[i].name +"</span>";
+            + ((this.header.inParam[i].name == 'null' || this.header.inParam[i].name == "") ? "undefined" :  this.header.inParam[i].name) +"</span>";
         }
 
         return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
@@ -99,8 +99,21 @@ var tableModel = {
         editElem = element.previousSibling;
         editElem.style.display = "";
 
-        editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
-        editElem.firstChild.style.height = ($j(element).outerHeight() + 3) + "px";
+        var browserName = navigator.appName;
+        if (browserName == "Netscape") { 
+            if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                //chrome
+                editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+                editElem.firstChild.style.height = ($j(element).outerHeight() + 2) + "px";
+            } else {
+                editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+                editElem.firstChild.style.height = ($j(element).outerHeight() + 1) + "px";
+            }
+        } else if (browserName=="Microsoft Internet Explorer") {
+            editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+            editElem.firstChild.style.height = ($j(element).outerHeight() - 6) + "px";
+        }
+
 
         editElem.firstChild.focus();
         editElem.firstChild.onblur = function() {
@@ -275,8 +288,8 @@ var tableModel = {
         }
 
         this.renderer.refreshTableHeader();
-        
-        if(this.header.inParam[id].name == 'null') {
+
+        if(id > -1 && this.header.inParam[id].name == 'null') {
             //open property name editor
             $j("#param_value"+id).click();
         }
@@ -401,7 +414,7 @@ var tableModel = {
 
         for (var i = 0; i < this.header.inParam.length; i++) {
             if(this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type type.");
+                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type.");
             }
 
             if(!re.test(this.header.inParam[i].name)) {
