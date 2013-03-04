@@ -205,7 +205,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             String paramStr = "";
             for (int i = 0; i < inParam.length(); i++) {
                 JSONObject param = (JSONObject) inParam.get(i);
-                
+
                 paramStr += ((i > 0)? ", " : "") + param.getString("type") +((param.getBoolean("iterable"))? "[]" : "")+ " " + param.getString("name");
             }
 
@@ -412,6 +412,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                 } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(BigDecimalValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(DoubleValue.class.getCanonicalName().toString()) ||
+                        openClass.toString().equals(Double.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(FloatValue.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(double.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(float.class.getCanonicalName().toString())) {
@@ -499,7 +500,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
             int i = 0;
             for (TypeNamePair param : parameters) {
-                if (paramId != i && param.getName() != null && param.getName().toUpperCase().equals(name)){
+                if (paramId != i && param.getName() != null && param.getName().equals(name)){
                     message.setDetail("Parameter with such name already exists");
                     validEx = new ValidatorException(message);
                     throw validEx;
@@ -539,7 +540,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                 return Integer.parseInt(elements[2]);
             }
         }
-        
+
         return 0;
     }
 

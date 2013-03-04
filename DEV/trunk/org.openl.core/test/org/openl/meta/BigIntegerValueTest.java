@@ -85,8 +85,10 @@ public class BigIntegerValueTest {
         
         assertEquals(expectedResult, result);
     }
-    
-    
-    
-    
+
+    @Test
+    public void testAdd() {
+        assertEquals("0", BigIntegerValue.add(null, new BigIntegerValue("0")).toString());
+        assertEquals("0", BigIntegerValue.add(new BigIntegerValue("0"), null).toString());
+    }
 }

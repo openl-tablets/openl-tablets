@@ -14,10 +14,6 @@ public class VariationException extends Exception {
         super();
     }
 
-    public VariationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
     public VariationException(String message, Throwable cause) {
         super(message, cause);
     }

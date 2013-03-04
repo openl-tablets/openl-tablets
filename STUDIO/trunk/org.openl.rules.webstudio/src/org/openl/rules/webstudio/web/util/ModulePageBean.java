@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.WebStudio;
 
@@ -70,7 +69,41 @@ public class ModulePageBean {
  * @return List of all includes
  */
     public List<String> getIncludes() {
-        return getTableSyntaxNodes().get("include");
+        List<String> includeList = getTableSyntaxNodes().get("include");
+        List<String> includedModulesList = null;//= new ArrayList<String>();
+
+        if (includeList != null) {
+
+            includedModulesList = removeXLSExtention(includeList);
+        }
+
+        return includedModulesList;
     }
 
+    public List<String> getDependencies () {
+        List<String> dependencyList = getTableSyntaxNodes().get("dependency");
+        List<String> dependencyFilesList = null; // = new ArrayList<String>();
+        
+        if (dependencyList != null) {
+
+            dependencyFilesList = removeXLSExtention(dependencyList);
+        }
+        return dependencyFilesList;
+    }
+    /**
+     * Removes .xls into include or dependency file/module
+     * @param lists
+     * @return
+     */
+    private List<String> removeXLSExtention (List<String> lists) {
+        String[] dependencyFiles;
+        List<String> dependencyFilesList = new ArrayList<String>();
+        
+        for (String dependency : lists) {
+            dependencyFiles = dependency.split("/");
+            dependencyFilesList.add(dependencyFiles[dependencyFiles.length - 1].split(".xls")[0]);
+        }
+        
+        return dependencyFilesList;
+    }
 }

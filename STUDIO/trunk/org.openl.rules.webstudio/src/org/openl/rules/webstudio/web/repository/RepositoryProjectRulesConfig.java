@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +37,11 @@ import com.thoughtworks.xstream.XStreamException;
 
 @ManagedBean
 @ViewScoped
-public class RepositoryProjectRulesConfig {
+public class RepositoryProjectRulesConfig implements Serializable{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private static final String RULES_CONFIGURATION_FILE = "rules.xml";
     private final Log log = LogFactory.getLog(RepositoryProjectRulesConfig.class);
 
