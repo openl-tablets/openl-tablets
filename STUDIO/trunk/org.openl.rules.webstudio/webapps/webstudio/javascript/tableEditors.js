@@ -68,23 +68,53 @@ function showEditorDiv(cell, elementForAdding) {
         $j("#editor_div").append(elementForAdding);
     }
 
+    var minWidth = 20;
+    var width = cell.offsetWidth - 2;
+
+    if (width < minWidth) {
+        cell.style.minWidth = minWidth + "px";
+        width = cell.offsetWidth - 2;
+    }
+
     var topPos = $j(cell).position().top;
     var leftPos = $j(cell).position().left;
 
+    var browserName = navigator.appName; 
+    if (browserName == "Netscape") { 
+        
+        if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+            //chrome
+            $j("#editor_div").height(cell.offsetHeight + 2 + "px");
+            $j("#editor_div").width(width + 2 +"px");
+
+
+            $j("#editor_div").find(">:first-child").height(cell.offsetHeight + 2 + "px");
+            $j("#editor_div").find(">:first-child").width(width + 2 +"px");
+        } else {
+            $j("#editor_div").height(cell.offsetHeight - 2 + "px");
+            $j("#editor_div").width(width+"px");
+
+
+            $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 2 + "px");
+            $j("#editor_div").find(">:first-child").width(width+"px");
+        }
+    } else if (browserName=="Microsoft Internet Explorer") {
+        $j("#editor_div").height(cell.offsetHeight - 9 + "px");
+        $j("#editor_div").width((width - 7)+"px");
+
+
+        $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 9 + "px");
+        $j("#editor_div").find(">:first-child").width((width - 7)+"px");
+    }
+    
     var position = {
             top : topPos,
             left : leftPos
     };
 
     $j('#editor_div').css(position);
-
-    $j("#editor_div").height("18px");
-    $j("#editor_div").width(($j(cell).outerWidth())+"px");
-
     $j("#editor_div").show();
 
-    $j("#editor_div").find(">:first-child").height("18px");
-    $j("#editor_div").find(">:first-child").width(($j(cell).outerWidth())+"px");
     $j("#editor_div").find(">:first-child").focus();
 }
 
