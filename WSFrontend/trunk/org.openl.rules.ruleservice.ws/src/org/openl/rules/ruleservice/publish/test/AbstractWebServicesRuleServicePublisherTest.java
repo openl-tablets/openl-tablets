@@ -89,10 +89,12 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
     /**
      * Return dataBinding. This data binding is used in tests by default.
      * 
+     * @param serviceName - serviceName
+     * 
      * @return data binding
      */
-    protected DataBinding getDataBinding() {
-        return getApplicationContext().getBean("webServicesDataBinding", DataBinding.class);
+    protected DataBinding getDataBinding(String serviceName) {
+        return getRuleServicePublisher().getDataBinding(serviceName);
     }
 
     /**
@@ -169,9 +171,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
             clazzForClient = clazz;
         }
         if (dataBinding == null) {
-            dataBindingForClient = getDataBinding();
-        } else {
-            dataBindingForClient = dataBinding;
+            dataBindingForClient = getDataBinding(serviceName);
         }
         if (address == null) {
             addressForClient = getRuleServicePublisher().getBaseAddress() + service.getUrl();
@@ -181,7 +181,9 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         ClientProxyFactoryBean clientProxyFactoryBean = new ClientProxyFactoryBean();
         clientProxyFactoryBean.setServiceClass(clazzForClient);
         clientProxyFactoryBean.setAddress(addressForClient);
-        clientProxyFactoryBean.setDataBinding(dataBindingForClient);
+        if (dataBindingForClient != null){
+            clientProxyFactoryBean.setDataBinding(dataBindingForClient);
+        }
         ClientFactoryBean clientFactoryBean = new ClientFactoryBean();
         clientFactoryBean.setClientProxyFactoryBean(clientProxyFactoryBean);
         return (T) clientFactoryBean.create();

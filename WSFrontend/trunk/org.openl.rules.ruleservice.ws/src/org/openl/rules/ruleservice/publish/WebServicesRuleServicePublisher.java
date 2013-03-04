@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -25,7 +26,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
     private final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
-    private Map<OpenLService, Server> runningServices = new HashMap<OpenLService, Server>();
+    private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
     private String baseAddress;
 
     public String getBaseAddress() {
@@ -63,7 +64,8 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         
         try {
             Server wsServer = svrFactory.create();
-            runningServices.put(service, wsServer);
+            ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
+            runningServices.put(service, serviceServer);
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
                         serviceAddress));
@@ -73,6 +75,14 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+    
+    public DataBinding getDataBinding(String serviceName){
+        OpenLService service = getServiceByName(serviceName);
+        if (service == null) {
+            return null;
+        }
+        return runningServices.get(service).getDatabinding();
     }
 
     public Collection<OpenLService> getServices() {
@@ -95,7 +105,7 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
                     serviceName));
         }
         try {
-            runningServices.get(service).stop();
+            runningServices.get(service).getServer().stop();
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName,
                         baseAddress + service.getUrl()));
@@ -120,5 +130,27 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceRedeployException("Service redeploy was failed", e);
         }
 
+    }
+    
+    private static class ServiceServer{
+        private Server server;
+        private DataBinding databinding;
+        
+        public ServiceServer(Server server, DataBinding dataBinding) {
+            if (server == null) {
+                throw new IllegalArgumentException("server arg can't be null!");
+            }
+
+            this.server = server;
+            this.databinding = dataBinding;
+        }
+        
+        public DataBinding getDatabinding() {
+            return databinding;
+        }
+        
+        public Server getServer() {
+            return server;
+        }
     }
 }
