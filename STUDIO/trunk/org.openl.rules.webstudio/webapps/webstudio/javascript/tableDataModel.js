@@ -240,6 +240,17 @@ var tableModel = {
         this.renderer.createEmptyCol(id, this.dataRows);
         //show tooltip for setting patameter type
         $j("#param"+id).click();
+
+        //set popup menu on the bottom of param
+        var topPos = $j("#param"+id).offset().top;
+        var leftPos = $j("#param"+id).offset().left + $j("#param"+id).width() - 3;
+
+        var position = {
+                top : topPos,
+                left : leftPos
+        };
+
+        $j(PopupMenu.te_menu).css(position);
     },
 
     deleteRow : function(rowId) {
@@ -396,7 +407,7 @@ var tableModel = {
         var checkingRes = [];
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule in the table.");
+            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule to the table.");
         }
 
         this.checkNames(checkingRes);
