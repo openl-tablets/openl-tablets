@@ -330,4 +330,4 @@ verticalRenderer = {
             this.htmlTable.rows[titleRowId].cells[conditionId].data.value = newTitle;
         }           
     }
-}
+};
