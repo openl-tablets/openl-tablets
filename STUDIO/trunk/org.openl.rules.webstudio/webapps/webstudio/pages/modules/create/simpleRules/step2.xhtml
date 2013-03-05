@@ -76,7 +76,7 @@
         <h:form name="srtTableForm" id="srtTableForm">
             <span id="errorMessage" >
             </span>
-            <br/><div id="editor_div" style="display : none; position: absolute"/>
+            <br/><div id="editor_div" style="display : none; position: absolute; z-index: 3;"/>
             <table id="srtTable" class="srt">
             </table>
             <br/>
@@ -120,7 +120,7 @@
                   var addRowLink = document.createElement('a');
                   addRowLink.setAttribute('href','javascript:void(0)');
                   addRowLink.setAttribute('onclick','tableModel.setIterable('+id+','+!iterable+');');
-                  addRowLink.innerHTML = ("As Array");
+                  addRowLink.innerHTML = ("Array");
 
                   div.appendChild(addRowLink);
 

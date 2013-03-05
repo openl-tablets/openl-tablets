@@ -66,7 +66,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     private String returnValueType;
 
-    @Valid
     private List<TypeNamePair> parameters = new ArrayList<TypeNamePair>();
 
     @Override
@@ -496,7 +495,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         int paramId = this.getParamId(toValidate.getClientId());
 
         try {
-            String name = ((String) value).toUpperCase();
+            String name = ((String) value);
 
             int i = 0;
             for (TypeNamePair param : parameters) {
