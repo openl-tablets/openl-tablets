@@ -828,7 +828,7 @@ var TableEditor = Class.create({
     },
 
     showEditorWrapper: function(cell) {
-        var minWidth = 20;
+        var minWidth = 41;
         var width = cell.offsetWidth - 2;
         if (width < minWidth) {
             cell.style.minWidth = minWidth + "px";
@@ -2453,7 +2453,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
         // Creating information DIV
         var infoContainer = new Element("div");
-        var table = new Element('table', { 'class':'hide-on-screen' } );
+        var table = new Element('table', {'class':'hide-on-screen'} );
         table.setAttribute("style", "padding-top: 5px;");
         
         self.tdCheckboxes = new Array(2);
