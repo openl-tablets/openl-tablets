@@ -20,6 +20,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -64,10 +65,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         // Add generated type to be accessible through binding context.
         //
         if (spreadsheet.isCustomSpreadsheetType()) {
+            IOpenClass type = null;
             try {
-                builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, spreadsheet.getType());
-            } catch (Exception e) {     
-                String message = String.format("Cannot add type %s to the binding context", spreadsheet.getType().getName());
+                type = spreadsheet.getType(); // Can throw RuntimeException
+                builder.getBindingContext().addType(ISyntaxConstants.THIS_NAMESPACE, type);
+            } catch (Exception e) {
+                String message = String.format("Cannot add type %s to the binding context", type != null ? type.getName() : spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(exception);
                 BindHelper.processError(exception, builder.getBindingContext());
