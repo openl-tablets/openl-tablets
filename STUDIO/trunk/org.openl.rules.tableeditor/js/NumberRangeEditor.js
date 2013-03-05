@@ -8,20 +8,28 @@
 var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     rangePanel: null,
-    check0: null,
-    check1: null,
-    minValue: null,
-    maxValue: null,
+
+    // td with checkBoxes and input text elements
+    tdCheckboxes: null,
+    tdValues: null,
+
+    // checkBoxes and input text elements
+    checkboxes: null,
+    values: null,
+
+    // buttons
+    btns: null,
+
+    // separators
     generalSeparator: " .. ",
     stableSeparators: ["more than ", "less than ", " and more", " - "],
     unstableSeparators: [" ... ", ";", "+"],
     dashSeparator: "-",
     currentSeparator: null,
+
     destroyed: null,
     entryEditor: null,
-    checkboxes: null,
-    values: null,
-    btns: null,
+    
     equals: false,
     moreThan: false,
     range: false,
@@ -35,42 +43,51 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
         // Creating information DIV
         var infoContainer = new Element("div");
-        var table = new Element('table', { 'class':'hide-on-screen'} );
+        var table = new Element('table', {'class':'hide-on-screen'} );
         table.setAttribute("style", "padding-top: 5px;");
-        self.check0 = new Element("td");
-        self.check0.setAttribute("align", "center");
-        self.check0.setAttribute("valign", "middle");
-        table.appendChild(this.check0);
-        self.minValue = new Element("td");
-        self.minValue.setAttribute("align", "center");
-        self.minValue.setAttribute("valign", "middle");
-        table.appendChild(this.minValue);
+        
+        self.tdCheckboxes = new Array(2);
+        for (var i = 0; i < self.tdCheckboxes.length; i++) {
+            self.tdCheckboxes[i] = new Element("td");
+            self.tdCheckboxes[i].setAttribute("align", "center");
+            self.tdCheckboxes[i].setAttribute("valign", "middle");
+        }
+        table.appendChild(this.tdCheckboxes[0]);
+        
+        self.tdValues = new Array(2);
+        for (var i = 0; i < self.tdValues.length; i++) {
+            self.tdValues[i] = new Element("td");
+            self.tdValues[i].setAttribute("align", "center");
+            self.tdValues[i].setAttribute("valign", "middle");
+        }
+
+        table.appendChild(this.tdValues[0]);
+
         var buttnons = new Element("td")
                 .update('<input type="button" id="btnMore" value=">"/> <br/> <input type="button" id="btnLess" value="<"/> <br/> <input type="button" id="btnRange" value="-"/> <br/> <input type="button" id="btnEquals" value="="/>');
         table.appendChild(buttnons);
-        self.maxValue = new Element("td");
-        self.maxValue.setAttribute("align", "center");
-        self.maxValue.setAttribute("valign", "middle");
-        table.appendChild(this.maxValue);
-        self.check1 = new Element("td");
-        self.check1.setAttribute("align", "center");
-        self.check1.setAttribute("valign", "middle");
-        table.appendChild(this.check1);
+
+        table.appendChild(this.tdValues[1]);
+        table.appendChild(this.tdCheckboxes[1]);
+        
         infoContainer.appendChild(table);
         self.rangePanel.appendChild(infoContainer);
-        
+
         self.checkboxes = new Array();
         self.values = new Array();
-        self.btns = new Array();
-        self.values[0] = self.minValue;
+        self.btns = new Array(4);
+        self.values[0] = self.tdValues[0];
         self.values[0].value = "";
+
         self.btns[0] = buttnons.down();
-        self.btns[1] = self.btns[0].next().next();
-        self.btns[2] = self.btns[1].next().next();
-        self.btns[3] = self.btns[2].next().next();
-        self.values[1] = self.maxValue;
+
+        for (var i = 1; i < self.btns.length; i++) {
+            self.btns[i] = self.btns[i - 1].next().next();
+        }
+
+        self.values[1] = self.tdValues[1];
         self.values[1].value = "";
-        
+
         for (var i = 0; i < self.btns.length; i++) {
             self.btns[i].setAttribute("style", "width: 20px; height: 20px;");
             self.btns[i].onclick = function() {
@@ -78,13 +95,13 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.changeSign(this.id);
             }
           }
-        
+
         // Creating result DIV
         var resultContainer = new Element("div");
         resultContainer.id = "range";
         this.rangePanel.appendChild(resultContainer);
-        
-        // Creating buttons DIV
+
+        // Creating button Done DIV
         var buttonContainer = new Element("div");
         buttonContainer.innerHTML = '<br/> <input type="button" id="btnDone" value="Done">'
         var b1 = buttonContainer.down().next();
@@ -92,20 +109,20 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.finishEdit();
         }
         this.rangePanel.appendChild(buttonContainer);
-        
+
         if (param) {
             this.entryEditor = param.entryEditor;
         };
-        
+
         this.input.onclick = function(event) {
             self.open();
         };
-        
+
         this.input.onkeydown = function(event) {
             self.open();
             return false;
         };
-        
+
         this.input.oncontextmenu = function(event) {
             return false;
         };
@@ -114,14 +131,14 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         
         this.destroyed = true;
     },
-    
+
     open: function() {
         this.rangePanel.setAttribute("style", "width: 230px; height: 170px; background: white; border:1px solid gray;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
-        
+
         this.destroyed = false;
-        
+
         var value = this.input.value;
         var self = this;
         var values;
@@ -183,7 +200,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.currentSeparator = self.generalSeparator;
             if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
                 if (value.charAt(0) == "<") {
-                    self.disableInputsChecks(2);
+                    self.disableInputsChecks(1);
                     if (value.charAt(1) == "=") {
                         self.checkboxes[1].setAttribute("checked", "checked");
                         self.values[1].value = value.substring(2);
@@ -226,6 +243,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.checkboxes[0].setAttribute("checked", "checked");
                 self.checkboxes[1].setAttribute("checked", "checked");
             } else if (values[0] || values[1]) {
+                self.currentSeparator = self.generalSeparator;
                 self.disableInputsChecks(3);
                 if (values[0]) {
                     self.values[1].value = values[0];
@@ -234,6 +252,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 }
                 self.equals = true;
             } else {
+                self.currentSeparator = self.generalSeparator;
                 self.values[0] = "";
                 self.values[1] = "";
                 self.disableInputsChecks(2);
@@ -245,7 +264,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         self.changeRange();
         Event.observe(document, 'click', self.documentClickListener);
     },
-    
+
     changeRange: function() {
         var content = "";
         if (this.currentSeparator == "more than " || this.currentSeparator == "less than ") {
@@ -288,7 +307,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             document.getElementById("btnDone").removeAttribute("disabled");
         }
     },
-    
+
     changeSign: function(btnId) {
         var self = this;
         if (btnId == "btnRange") {
@@ -305,7 +324,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.disableInputsChecks(1);
             self.checkboxes[1].removeAttribute("disabled");
         }
-        
+
         if (btnId == "btnMore") {
             self.moreThan = true;
         } else {
@@ -318,7 +337,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         } else {
             self.range = true;
         }
-        
+
         if (btnId == "btnEquals") {
             self.equals = true;
         } else {
@@ -330,12 +349,12 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
      disableInputsChecks: function(btnId) {
          var self = this;
          if (btnId == 2) {
-             self.check0.update('Include <br/> <input type="checkbox"/>');
-             self.check0.setAttribute("style", "width: 40px;");
-             self.minValue.update('From <br/> <input type="text" style="width: 40px"/>');
-             self.values[0] = self.minValue.down().next();
-             self.checkboxes[0] = self.check0.down().next();
-             self.maxValue.update('To <br/> <input type="text" style="width: 40px"/>');
+             self.tdCheckboxes[0].update('Include <br/> <input type="checkbox"/>');
+             self.tdCheckboxes[0].setAttribute("style", "width: 40px;");
+             self.tdValues[0].update('From <br/> <input type="text" style="width: 40px"/>');
+             self.values[0] = self.tdValues[0].down().next();
+             self.checkboxes[0] = self.tdCheckboxes[0].down().next();
+             self.tdValues[1].update('To <br/> <input type="text" style="width: 40px"/>');
              self.checkboxes[0].onclick = function() {
                  self.currentSeparator = self.generalSeparator;
                  self.changeRange();
@@ -344,55 +363,55 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                  self.changeRange();
              }
          } else if (btnId == 3) {
-             self.check0.update('');
-             self.check0.setAttribute("style", "width: 40px;");
-             self.minValue.update('');
-             self.minValue.setAttribute("style", "width: 40px;");
-             self.maxValue.update('<br/> <input type="text" style="width: 40px"/>');
-             self.check1.update('');
-             self.check1.setAttribute("style", "width: 40px;");
+             self.tdCheckboxes[0].update('');
+             self.tdCheckboxes[0].setAttribute("style", "width: 40px;");
+             self.tdValues[0].update('');
+             self.tdValues[0].setAttribute("style", "width: 40px;");
+             self.tdValues[1].update('<br/> <input type="text" style="width: 40px"/>');
+             self.tdCheckboxes[1].update('');
+             self.tdCheckboxes[1].setAttribute("style", "width: 40px;");
              if (self.checkboxes[1]) {
                  self.checkboxes[1].removeAttribute("checked");
              }
          } else {
              if (btnId == 0) {
-                 self.maxValue.update('From <br/> <input type="text" style="width: 40px"/>');
+                 self.tdValues[1].update('From <br/> <input type="text" style="width: 40px"/>');
              } else {
-                 self.maxValue.update('To <br/> <input type="text" style="width: 40px"/>');
+                 self.tdValues[1].update('To <br/> <input type="text" style="width: 40px"/>');
              }
-             self.check0.update('<span style="font-size:20px"> &infin; </span>');
-             self.check0.setAttribute("style", "width: 80px;");
-             self.minValue.update('');
-             self.minValue.setAttribute("style", "width: 2px;");
+             self.tdCheckboxes[0].update('<span style="font-size:20px"> &infin; </span>');
+             self.tdCheckboxes[0].setAttribute("style", "width: 80px;");
+             self.tdValues[0].update('');
+             self.tdValues[0].setAttribute("style", "width: 2px;");
          }
-         
+
          if (btnId != 3) {
-             self.check1.update('Include <br/> <input type="checkbox"/>');
-             self.check1.setAttribute("style", "width: 40px;");
+             self.tdCheckboxes[1].update('Include <br/> <input type="checkbox"/>');
+             self.tdCheckboxes[1].setAttribute("style", "width: 40px;");
              if (self.checkboxes[1]) {
                  if (self.checkboxes[1].checked) {
-                     self.check1.down().next().setAttribute("checked", "checked");
+                     self.tdCheckboxes[1].down().next().setAttribute("checked", "checked");
                  }
              }
-             self.checkboxes[1] = self.check1.down().next();
+             self.checkboxes[1] = self.tdCheckboxes[1].down().next();
              self.checkboxes[1].onclick = function() {
                  self.currentSeparator = self.generalSeparator;
                  self.changeRange();
              }
          }
-         
+
          if (btnId == 0) {
              if (self.values[0].value) {
-                 self.maxValue.down().next().value = self.values[0].value;
+                 self.tdValues[1].down().next().value = self.values[0].value;
              } else if (self.values[1].value) {
-                 self.maxValue.down().next().value = self.values[1].value;
+                 self.tdValues[1].down().next().value = self.values[1].value;
              }
          } else {
              if (self.values[1].value) {
-                 self.maxValue.down().next().value = self.values[1].value;
+                 self.tdValues[1].down().next().value = self.values[1].value;
              }
          }
-         
+
          for (var i = 0; i < self.btns.length; i++) {
              if (i != btnId) {
                  self.btns[i].setAttribute("style", "color: black; width: 20px; height: 20px;");
@@ -400,8 +419,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                  self.btns[i].setAttribute("style", "color: red; width: 20px; height: 20px;");
              }
          }
-         
-         self.values[1] = self.maxValue.down().next();
+
+         self.values[1] = self.tdValues[1].down().next();
          self.values[1].onkeyup = function() {
              self.changeRange();
          }
@@ -422,7 +441,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             this.destroy();
         }
     },
-    
+
     isValid: function(value) {
         var valid = true;
         var self = this;
@@ -462,7 +481,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         }
         return valid;
     },
-    
+
     combineValue: function() {
         var result;
         var values = new Array();
@@ -517,7 +536,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         }
         return result;
     },
-    
+
     splitValue: function(value, separator) {
         return value.split(separator);
     },
