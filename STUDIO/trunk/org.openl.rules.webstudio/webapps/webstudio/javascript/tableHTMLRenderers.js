@@ -179,7 +179,7 @@ verticalRenderer = {
         element.style.display = "";
 
         if(editElem.value == "") {
-            element.innerHTML = "undefined";
+            element.innerHTML = editElem.value;
         } else {
             element.innerHTML = editElem.value;
         }
