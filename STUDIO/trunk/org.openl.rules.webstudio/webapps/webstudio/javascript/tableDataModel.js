@@ -23,7 +23,7 @@ var tableModel = {
             + ((this.header.inParam[i].name == 'null' || this.header.inParam[i].name == "") ? "undefined" :  this.header.inParam[i].name) +"</span>";
         }
 
-        return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
+        return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" onclick=\"selectDataTypeAction(this,event, -1,"+this.header.returnType.iterable+")\">"+
         this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font color=\"black\"><strong><span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
         + "</span></strong></font> (" + params + ")</font>";
     },
