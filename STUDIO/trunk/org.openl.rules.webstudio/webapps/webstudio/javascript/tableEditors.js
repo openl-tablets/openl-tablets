@@ -47,7 +47,7 @@ function initComplexSelect(data, cell) {
    } else if (data.type == "BOOLEAN") {
        editor = new BooleanEditor('', element.id, '', prop.getValue() == true ? "true" : "false", true);
    } else {
-       editor = new MultiselectEditor('', element.id, data, element.innerHTML, true);
+       editor = new MultiselectEditor('', element.id, data, element.innerHTML, false);
        editor.open();
    }
 
@@ -81,7 +81,6 @@ function showEditorDiv(cell, elementForAdding) {
 
     var browserName = navigator.appName; 
     if (browserName == "Netscape") { 
-        
         if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
             //chrome
             $j("#editor_div").height(cell.offsetHeight + 2 + "px");
