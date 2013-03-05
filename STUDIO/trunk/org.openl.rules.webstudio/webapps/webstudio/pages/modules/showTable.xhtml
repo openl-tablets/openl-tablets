@@ -539,12 +539,9 @@
             if (t.hasChanges) {
                 var isOk = confirm('Table is not saved. Do you want to save all changes?');
                 if (isOk) {
-                    //t.rollback();
                     t.saveChanges();
                 }  else {
-                   // return true;
                    t.undoredo();
-                    //t.save();
                 } 
             }
             return true;
