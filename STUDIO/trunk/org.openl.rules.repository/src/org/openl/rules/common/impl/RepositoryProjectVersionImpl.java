@@ -114,7 +114,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     public String getVersionName() {
         if (versionName == null) {
-            if (major != MAX_MM_INT && minor != MAX_MM_INT) {
+            if (major != MAX_MM_INT && minor != MAX_MM_INT && major == -1 && minor == -1) {
                 versionName = new StringBuilder().append(major).append(".").append(minor).append(".").append(revision)
                         .toString();
             } else {
