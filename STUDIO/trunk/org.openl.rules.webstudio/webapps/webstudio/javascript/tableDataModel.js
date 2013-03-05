@@ -23,7 +23,7 @@ var tableModel = {
             + ((this.header.inParam[i].name == 'null' || this.header.inParam[i].name == "") ? "undefined" :  this.header.inParam[i].name) +"</span>";
         }
 
-        return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
+        return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" onclick=\"selectDataTypeAction(this,event, -1,"+this.header.returnType.iterable+")\">"+
         this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font color=\"black\"><strong><span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
         + "</span></strong></font> (" + params + ")</font>";
     },
@@ -240,6 +240,17 @@ var tableModel = {
         this.renderer.createEmptyCol(id, this.dataRows);
         //show tooltip for setting patameter type
         $j("#param"+id).click();
+
+        //set popup menu on the bottom of param
+        var topPos = $j("#param"+id).offset().top;
+        var leftPos = $j("#param"+id).offset().left + $j("#param"+id).width() - 3;
+
+        var position = {
+                top : topPos,
+                left : leftPos
+        };
+
+        $j(PopupMenu.te_menu).css(position);
     },
 
     deleteRow : function(rowId) {
@@ -396,7 +407,7 @@ var tableModel = {
         var checkingRes = [];
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule in the table.");
+            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule to the table.");
         }
 
         this.checkNames(checkingRes);
