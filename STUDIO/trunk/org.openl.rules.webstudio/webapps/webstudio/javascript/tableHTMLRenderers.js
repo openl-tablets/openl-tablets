@@ -179,7 +179,7 @@ verticalRenderer = {
         element.style.display = "";
 
         if(editElem.value == "") {
-            element.innerHTML = editElem.value;
+            element.innerHTML = "undefined"/*editElem.value*/;
         } else {
             element.innerHTML = editElem.value;
         }
@@ -193,6 +193,14 @@ verticalRenderer = {
         headerCell.colSpan = headerCell.colSpan + 1;
 
         var cell = null;
+        if (tableModel.headerSpanCell() > 3) {
+            for(var i = 1; i < tableModel.startDataTableRowIndex(); i++) {
+                var row = rows[i];
+                cell = row.insertCell(-1);
+                this.setPropValueStyle(cell);
+            }
+        }
+
         for(var i = tableModel.startDataTableRowIndex(); i < rows.length; i++) {
             var row = rows[i];
             var dataRow = dataRows[i - tableModel.startDataTableRowIndex()];
@@ -211,7 +219,6 @@ verticalRenderer = {
 
         //set button border for last cell;
         this.setLastCellBorderStyle(cell);
-
         this.refreshTableHeader();
     },
 
@@ -235,6 +242,14 @@ verticalRenderer = {
     },
 
     deleteCondition : function(index) {
+        if (tableModel.headerSpanCell() > 2) {
+            for(var i = 1; i < tableModel.startDataTableRowIndex(); i++) {
+                var row = this.htmlTable.rows[i];
+                alert("rowid "+i+"cell "+row.cells.length-1);
+                row.deleteCell(row.cells.length-1);
+            }
+        }
+
         for(var i = tableModel.startDataTableRowIndex(); i < domTable.rows.length; i++) {
             this.htmlTable.rows[i].deleteCell(index);
         }
@@ -251,7 +266,7 @@ verticalRenderer = {
     },
 
     refreshPropertyRegion : function(properties) {
-        for(var i = 0;  i < properties.length; i++) {
+        for (var i = 0;  i < properties.length; i++) {
             row = this.htmlTable.insertRow(i+1);
 
             if(i == 0) {
@@ -271,6 +286,12 @@ verticalRenderer = {
             valueCell.innerHTML = this.getCellHtml(properties[i].value, "PROPERTY_VALUE", valueCell);
             valueCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
             valueCell.data = properties[i];
+
+            for (var propColumn = 3; propColumn < tableModel.headerSpanCell(); propColumn++) {
+                valueCell = row.insertCell(-1);
+                this.setPropValueStyle(valueCell);
+                valueCell.innerHTML = "";
+            }
         }
 
         this.refreshTableHeader();
