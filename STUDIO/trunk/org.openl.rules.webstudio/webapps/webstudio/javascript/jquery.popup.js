@@ -81,4 +81,21 @@
             });
         });
     };
+    
+    /**
+     * If user clicks outside the edited table the canLeavePage function will appears. (Save changes or not) 
+     */
+    $(document).mouseup(function (e)
+            {
+                var container = document.getElementById("tablePanel");
+                
+                if (container != null ) {
+                    container = $("#tablePanel");
+
+                    if (container.has(e.target).length === 0)
+                    {
+                        canLeavePage();
+                    }
+                }
+            });
 })(jQuery);

@@ -24,7 +24,7 @@ public class ExplainTreeBuilder extends TreeBuilder {
     @Override
     protected String getUrl(ITreeElement<?> element) {
         ExplanationNumberValue<?> explanationValue = (ExplanationNumberValue<?>) element;
-        String url = explanationValue.getMetaInfo() == null ? null : explanationValue.getMetaInfo().getSourceUrl();
+        String url = explanationValue == null || explanationValue.getMetaInfo() == null ? null : explanationValue.getMetaInfo().getSourceUrl();
         if (StringUtils.isNotBlank(url)) {
             return getUrlToElement(element, url);
         }
