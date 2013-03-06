@@ -118,6 +118,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         TreeNode dest = new TreeNode(true);
         dest.setName("null");
         dest.setTitle("null");
+        dest.setUrl(getUrl(null));
         dest.setType(ValueType.SINGLE_VALUE.toString());
         return dest;
     }
