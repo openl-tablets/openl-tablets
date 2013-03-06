@@ -45,7 +45,7 @@ var BaseTextEditor = Class.create(BaseEditor, {
 
         } else if (input.setSelectionRange) {
             input.setSelectionRange(0, 0);
-            input.focus();
+            this.focus();
         }
         Event.stop(event);
     },
@@ -64,7 +64,7 @@ var BaseTextEditor = Class.create(BaseEditor, {
         } else if (input.setSelectionRange) {
             var len = input.value.length;
             input.setSelectionRange(len, len);
-            input.focus();
+            this.focus();
         }
 
         if (event) Event.stop(event);
@@ -72,7 +72,7 @@ var BaseTextEditor = Class.create(BaseEditor, {
 
     show: function($super, value) {
         $super(value);
-        if (this.focus) {
+        if (this.focussed) {
             this.handleF3();
         }
     }

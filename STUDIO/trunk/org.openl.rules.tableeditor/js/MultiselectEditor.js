@@ -139,8 +139,9 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         ).join(this.separator)
     },
 
-    destroy: function() {
+    destroy: function($super) {
         this.close();
+        $super();
     },
 
     setAllCheckBoxes: function(value) {

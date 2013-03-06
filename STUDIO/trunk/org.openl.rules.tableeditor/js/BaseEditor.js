@@ -12,9 +12,10 @@ var BaseEditor = Class.create({
     tableEditor: null,
     parentElement: null,
     input: null,
+    params: null,
     initialValue: null,
     stoppedEvents: null,
-    focus: null,
+    focussed: null,
     style: null,
 
     /**
@@ -23,7 +24,7 @@ var BaseEditor = Class.create({
      *   1. Saves initial cell value into initialValue variable
      *   2. Creates an HTML editor control (e.g. HTMLInputElement) and sets its value
      */
-    initialize: function(tableEditor, parentId, params, initialValue, focus, style) {
+    initialize: function(tableEditor, parentId, params, initialValue, focussed, style) {
         if (parentId) {
             this.tableEditor = tableEditor;
             this.parentElement = $(parentId);
@@ -32,9 +33,10 @@ var BaseEditor = Class.create({
 
             this.initialValue = initialValue;
 
+            this.params = params;
             this.editor_initialize(params);
             this.input.id = this.getId();
-            this.focus = (focus && focus == true) ? focus : '';
+            this.focussed = (focussed && focussed == true) ? focussed : '';
             this.show(this.initialValue);
         }
     },
@@ -75,10 +77,14 @@ var BaseEditor = Class.create({
             this.parentElement.innerHTML = "";
             this.parentElement.appendChild(this.input);
             this.setValue(value);
-            if (this.focus) {
-                this.input.focus();
+            if (this.focussed) {
+                this.focus();
             }
         }
+    },
+
+    focus: function() {
+        this.input.focus();
     },
 
     /**
@@ -95,7 +101,9 @@ var BaseEditor = Class.create({
     /**
      * Can be overridden in editors to clean up resources.
      */
-    destroy: Prototype.emptyFunction,
+    destroy: function() {
+        this.unbind();
+    },
 
     getId: function() {
         return '_' + this.parentElement.id;
