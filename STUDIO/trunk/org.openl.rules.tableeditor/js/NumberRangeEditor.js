@@ -541,8 +541,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         return value.split(separator);
     },
 
-    destroy: function() {
+    destroy: function($super) {
         this.close();
+        $super();
     },
 
     documentClickHandler: function(e) {

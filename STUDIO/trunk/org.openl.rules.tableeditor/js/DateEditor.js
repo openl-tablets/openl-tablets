@@ -11,7 +11,6 @@ var DateEditor = Class.create(BaseTextEditor, {
     editor_initialize: function() {
         this.createInput();
 
-        this.input.style.width =    "-moz-calc(100% - 28px)";
         this.input.style.width = "-webkit-calc(100% - 28px)";
         this.input.style.width =         "calc(100% - 28px)";
 
@@ -35,7 +34,6 @@ var DateEditor = Class.create(BaseTextEditor, {
 
         var datePickerOpts = {
             formElements: {},
-            noFadeEffect: true,
             finalOpacity: 100
         };
         datePickerOpts.formElements[inputId] = "m-sl-d-sl-Y";
@@ -47,10 +45,27 @@ var DateEditor = Class.create(BaseTextEditor, {
         datePickerController.setGlobalVars(datePickerGlobalOpts);
 
         datePickerController.createDatePicker(datePickerOpts);
+
+        if (this.focussed) {
+            this.focus();
+        }
     },
 
-    destroy: function(value) {
+    focus: function() {
+        datePickerController.show(this.getId());
+    },
+
+    bind: function($super, event, handler) {
+        if (event == "blur") {
+            datePickerController.onBlur(this.getId(), handler);
+        } else {
+            $super(event, handler);
+        }
+    },
+
+    destroy: function($super) {
         datePickerController.destroyDatePicker(this.getId());
+        $super();
     },
 
     keyPressed: function(event) {
