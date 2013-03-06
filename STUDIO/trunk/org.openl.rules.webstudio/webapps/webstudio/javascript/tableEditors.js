@@ -39,7 +39,7 @@ function initComplexSelect(data, cell) {
        var specElement = createDiv();
        $j(element).append(specElement);
        
-       editor = new DateEditor('', specElement.id, '', prop.getValue() , '');
+       editor = new DateEditor('', specElement.id, '', prop.getValue() , true);
    } else if (data.type == "TEXT") {
        editor = new TextEditor('', element.id, '', prop.getValue() , true);
    } else if (data.type == "SINGLE") {
