@@ -38,10 +38,6 @@ var MultiLineEditor = Class.create(BaseTextEditor, {
         }
     },
 
-    destroy: function() {
-        Event.stopObserving(this.input, "keypress", this.eventHandler);
-    },
-
     getValue: function() {
         var res = this.input.value;
         return res.gsub("\r\n", "\n").replace(/\n$/, "");

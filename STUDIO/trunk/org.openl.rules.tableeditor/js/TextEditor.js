@@ -14,10 +14,6 @@ var TextEditor = Class.create(BaseTextEditor, {
         Event.observe(this.input, "keypress", this.eventHandler);
     },
 
-    destroy: function() {
-        Event.stopObserving(this.input, "keypress", this.eventHandler);
-    },
-
     handleKeyPress: function (event) {
         switch (event.keyCode) {
             case 13:
