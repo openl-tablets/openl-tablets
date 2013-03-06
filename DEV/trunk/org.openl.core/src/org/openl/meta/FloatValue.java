@@ -518,33 +518,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public static FloatValue round(FloatValue value, int scale) {
-        if (value.floatValue() < 1) {
-            float val = value.floatValue() + 1;
-            val = org.apache.commons.math.util.MathUtils.round(val, scale);
-            val--;
-            
-            return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(val,
-                    scale)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
-        } else {
-            return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
+        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
                 scale)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
-        }
     }
 
     public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
-        if (value.floatValue() < 1) {
-            float val = value.floatValue() + 1;
-            val = org.apache.commons.math.util.MathUtils.round(val, scale);
-            val--;
-            
-            return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(val,
+        return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
                     scale,
                     roundingMethod)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
-        } else {
-            return new FloatValue(new FloatValue(org.apache.commons.math.util.MathUtils.round(value.floatValue(),
-                    scale,
-                    roundingMethod)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
-        }
     }
 
     public FloatValue(String valueString) {
