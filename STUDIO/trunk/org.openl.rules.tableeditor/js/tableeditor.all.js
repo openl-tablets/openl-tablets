@@ -2453,7 +2453,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
         // Creating information DIV
         var infoContainer = new Element("div");
-        var table = new Element('table', { 'class':'hide-on-screen' } );
+        var table = new Element('table', {'class':'hide-on-screen'} );
         table.setAttribute("style", "padding-top: 5px;");
         
         self.tdCheckboxes = new Array(2);
@@ -2536,10 +2536,24 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         this.input.oncontextmenu = function(event) {
             return false;
         };
+        
+        this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
+        Event.observe(this.rangePanel, "keypress", this.eventHandler);
 
         this.documentClickListener = this.documentClickHandler.bindAsEventListener(this);
-        
+
         this.destroyed = true;
+    },
+
+    show: function($super, value) {
+        $super(value);
+        this.open();
+    },
+
+    createInput: function() {
+        this.input = new Element("textarea");
+        this.setDefaultStyle();
+        this.input.setStyle(this.style);
     },
 
     open: function() {
@@ -2673,6 +2687,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         }
         self.changeRange();
         Event.observe(document, 'click', self.documentClickListener);
+        self.values[1].focus();
     },
 
     changeRange: function() {
@@ -2952,6 +2967,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     destroy: function() {
+        Event.stopObserving(this.input, "keypress", this.eventHandler);
         this.close();
     },
 
@@ -2974,6 +2990,16 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             } while (element = element.parentNode);
         }
         return false;
+    },
+
+    handleKeyPress: function (event) {
+        switch (event.keyCode) {
+            case 13:
+                this.finishEdit();
+                break;
+            default:
+                break;
+        }
     }
 
 });
