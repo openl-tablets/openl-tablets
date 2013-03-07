@@ -488,16 +488,14 @@ div.datePicker table
         {               
         margin:0;
         padding:0;
-        border:1px solid #ccc;        
-        background:#fff url(../img/datepicker/gradient-e5e5e5-ffffff.gif) repeat-x 0 -20px;
+        border: 1px solid #d2d2d2;
+        background: #fff;
         text-align:center;
         border-spacing:2px;
-        padding:0.3em; 
-        width:auto;             
-        empty-cells:show;   
-        border-radius:0.8em;             
-        -moz-border-radius:0.8em;
-        -moz-box-shadow:0px 0px 5px #aaa;               
+        padding:0.3em;
+        width:auto;
+        empty-cells:show;
+        box-shadow: 2px 2px 3px #eee;
         }
 /* Common TD & TH styling */
 div.datePicker table td,
@@ -508,15 +506,13 @@ div.datePicker table tbody th
         text-align:center;
         vertical-align:middle;               
         cursor:pointer;
-        background:#fff url(../img/datepicker/gradient-e5e5e5-ffffff.gif) repeat-x 0 -40px;
+        background: #fff;
         width:3em;
         height:3em;   
         overflow:hidden;      
         outline:transparent none 0px;        
         border:1px solid #ccc;
         text-transform:none;         
-        -moz-border-radius:2px;         
-        border-radius:2px;
         }
 div.datePicker table td:focus,
 div.datePicker table td:active
@@ -591,7 +587,8 @@ div.datePicker table thead th.date-picker-day-header
 /* The "todays date" style */
 div.datePicker table tbody td.date-picker-today
         {
-        background:#fff url(../img/datepicker/bullet2.gif) no-repeat 0 0;
+        background: #fff;
+        border-color: #6ad !important;
         color:rgb(100,100,100) !important;
         }
 
@@ -608,7 +605,7 @@ div.datePicker table thead th.date-picker-highlight
 /* The "active cursor" style */
 div.datePicker table tbody td.date-picker-hover
         {
-        background:#fff url(../img/datepicker/bg_header.jpg) no-repeat 0 0;
+        background: #d8f3ff;
         cursor:pointer;
         border-color:rgb(100,130,170) !important;
         color:rgb(100,130,170); 
@@ -626,7 +623,7 @@ div.datePicker table tbody td.month-out
         {
         border-color:#ddd;
         color:#aaa !important;
-        background:#fff url(../img/datepicker/gradient-e5e5e5-ffffff.gif) repeat-x 0 -40px;                             
+        background: #fff;
         } 
 /* The "selected date" style */
 div.datePicker table tbody td.date-picker-selected-date
@@ -697,7 +694,6 @@ div.datePicker table tbody td.date-picker-hover
         overflow:hidden;
         outline:0px solid #ff0000;        
 	-moz-outline: 0 none;
-	-o-highlight:0 none;
 	color:rgb(100,130,170) !important;        	
         }
 div.static-datepicker table
@@ -711,8 +707,7 @@ div.datepicker-focus table
         outline:none;
          -moz-box-shadow:0px 0px 5px #aaa;         
         }    
-       *:-o-prefocus{outline : -o-highlight-border;}
- 
+
 /* INTERNET EXPLORER WOES
    ======================
    
@@ -731,13 +726,6 @@ div.datePicker table tbody tr.dp-row-highlight td
         }
 */
 
-/* Remove the images for Internet Explorer <= v6 using the "* html" hack  
-   This is a workaround for a nasty IE6 bug that never caches background images on dynamically created DOM nodes
-   which means that they are downloaded for every cell for every table - nasty! */    
-* html div.datePicker table td
-        {
-        background-image:none;
-        }
 * html div.datePicker table td.date-picker-unused
         {
         background:#f2f2f2;
@@ -746,42 +734,13 @@ body.fd-drag-active
         {
         -webkit-user-select:none;
         }
-/* Chrome has problems with the -webkit-box-shadow and -webkit-border-radius styles together 
-   Remove one or the other to get things looking less ugly */       
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-        div.datePicker table
-                {
-                border-spacing:0.3em;
-                /* Naughty, naughty */
-                -webkit-box-shadow:0px 0px 5px #aaa;                 
-                -webkit-border-radius:0.8em;                
-                }          
-        div.static-datepicker table
-                {
-                -webkit-box-shadow:0 0 0 transparent;
-                } 
-        div.datepicker-focus table
-                {        
-                -webkit-box-shadow:0px 0px 5px #aaa;       
-                }       
-        div.datePicker table td,
-        div.datePicker table tbody th
-                {
-                padding:0.1em;
-                -webkit-border-radius:2px;
-                }
-        div.datePicker table tbody td.date-picker-hover
-                {                
-                -webkit-box-shadow:0px 0px 1px rgb(100,130,170);
-                }       
-}.multiselect_container_outer {
+.multiselect_container_outer {
     position: absolute;
-    background: #FAFAFA;
-    border: 1px solid #D7D7D7;
-    border-radius: 1px;
+    background: #fff;
+    border: 1px solid #d2d2d2;
     padding-top: 3px;
     z-index: 9001;
-    box-shadow: 0 0 7px #D5D5D5;
+    box-shadow: 2px 2px 3px #eee;
     min-width: 149px;
 }
 
