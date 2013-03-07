@@ -47,8 +47,7 @@ function initComplexSelect(data, cell) {
    } else if (data.type == "BOOLEAN") {
        editor = new BooleanEditor('', element.id, '', prop.getValue() == true ? "true" : "false", true);
    } else {
-       editor = new MultiselectEditor('', element.id, data, prop.getValue(), false);
-       editor.open();
+       editor = new MultiselectEditor('', element.id, data, prop.getValue(), true);
    }
 
    setNewEditor(cell, editor);
