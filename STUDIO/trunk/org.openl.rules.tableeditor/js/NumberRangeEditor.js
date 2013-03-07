@@ -556,9 +556,10 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         return value.split(separator);
     },
 
-    destroy: function() {
+    destroy: function($super) {
         Event.stopObserving(this.input, "keypress", this.eventHandler);
         this.close();
+        $super();
     },
 
     documentClickHandler: function(e) {
