@@ -1874,16 +1874,7 @@ var BaseTextEditor = Class.create(BaseEditor, {
             this.handleF3();
         }
     }
-});var fdLocale = {
-                fullMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],
-                monthAbbrs:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-                fullDays:  ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-                dayAbbrs:  ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-                titles:    ["Previous month","Next month","Previous year","Next year", "Today", "Open Calendar", "wk", "Week [[%0%]] of [[%1%]]", "Week", "Select a date", "Click \u0026 Drag to move", "Display \u201C[[%0%]]\u201D first", "Go to Today\u2019s date", "Disabled date:"],
-                firstDayOfWeek:0
-};
-try { datePickerController.loadLanguage(); } catch(err) {} 
-/*
+});/*
         DatePicker v5.4 by frequency-decoder.com
 
         Released under a creative commons Attribution-Share Alike 3.0 Unported license (http://creativecommons.org/licenses/by-sa/3.0/)
@@ -1938,36 +1929,6 @@ var datePickerController = (function datePickerController() {
                 if(typeof json === "object" && !("err" in json)) {                          
                         affectJSON(json);
                 };
-       
-                if(typeof(fdLocale) != "object") {
-                        var head   = document.getElementsByTagName("head")[0] || document.documentElement,
-                            loc    = scriptFiles[scriptFiles.length - 1].src.substr(0, scriptFiles[scriptFiles.length - 1].src.lastIndexOf("/")) + "/lang/",
-                            script;
-                        
-                        for(var i = 0; i < languageInfo.length; i++) {                                 
-                                script = document.createElement('script');                                               
-                                script.type = "text/javascript";                         
-                                script.src  = loc + languageInfo[i] + ".js"; 
-                                script.charSet = "utf-8";
-                                
-                                /*@cc_on
-                                /*@if(@_win32)
-                                var bases = document.getElementsByTagName('base');
-                                if (bases.length && bases[0].childNodes.length) {
-                                        bases[0].appendChild(script);
-                                } else {
-                                        document.getElementsByTagName('head')[0].appendChild(script);
-                                };
-                                bases = null;
-                                @else @*/
-                                head.appendChild(script);
-                                /*@end
-                                @*/    
-                        };
-                        script = null;                      
-                } else {
-                        returnLocaleDate = true;
-                };                              
         })();
         
         function parseUILanguage() {                                 
