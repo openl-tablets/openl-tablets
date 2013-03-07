@@ -14,6 +14,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     separator: null,
     separatorEscaper: null,
     destroyed: null,
+    onBlur: null,
 
     editor_initialize: function(param) {
         var self = this;
@@ -105,6 +106,9 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
             Event.stopObserving(document, 'click', this.documentClickListener);
             Element.remove(this.multiselectPanel);
             this.destroyed = true;
+            if (this.onBlur) {
+                this.onBlur();
+            }
         }
     },
 
@@ -142,6 +146,30 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     destroy: function($super) {
         this.close();
         $super();
+    },
+
+    focus: function() {
+        this.open();
+    },
+
+    bind: function($super, event, handler) {
+        if (event == "blur") {
+            // TODO Use array to keep a few blur handlers
+            this.onBlur = handler;
+        } else {
+            $super(event, handler);
+        }
+    },
+
+    unbind: function($super, event, handler) {
+        if (!event) {
+            this.onBlur = null;
+            $super(event, handler);
+        } else if (event == "blur") {
+            this.onBlur = null;
+        } else {
+            $super(event, handler);
+        }
     },
 
     setAllCheckBoxes: function(value) {
