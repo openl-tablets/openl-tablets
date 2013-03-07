@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -147,10 +148,16 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
         List<TableSyntaxNode> syntaxNodes = getSyntaxNodes();
         List<SelectItem> result = new ArrayList<SelectItem>();
+        String itemName = null;
 
         for (int i = 0; i < syntaxNodes.size(); i++) {
-            TableSyntaxNode node = syntaxNodes.get(i);            
-            result.add(new SelectItem(i, node.getMember().getName()));
+            TableSyntaxNode node = syntaxNodes.get(i);
+            itemName = node.getMember().getName();
+
+            if (!StringUtils.containsIgnoreCase(itemName, "GapOverlap") ) {
+                result.add(new SelectItem(i, node.getMember().getName()));
+            }
+
         }
 
         tableItems = result.toArray(new SelectItem[result.size()]);

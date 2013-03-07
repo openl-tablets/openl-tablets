@@ -76,14 +76,14 @@
                         title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.canEditTable}"
-                        value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" onclick="canLeavePage();">Revert</h:outputLink>
+                        value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" >Revert</h:outputLink>
 
                     <span style="margin-left: 13px;" />
 
                     <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
                         value="#rulesDependencies.xhtml" styleClass="button"
                         title="Display Dependency graph"
-                         onclick="return canLeavePage();" >Dependencies
+                         >Dependencies
                     </h:outputLink>
 
                 </div>
