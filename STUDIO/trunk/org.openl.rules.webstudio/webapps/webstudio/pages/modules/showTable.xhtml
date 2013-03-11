@@ -379,7 +379,7 @@
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{targetTable.uri}" />
-                                <h:outputText value="#{targetTable.name}" />
+                                <h:outputText value="#{showTableBean.getTableName(targetTable)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
                                 onclick="showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
@@ -395,7 +395,7 @@
                         <div>
                             <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{targetTable.uri}" />
-                                <h:outputText value="#{targetTable.name}" />
+                                <h:outputText value="#{showTableBean.getTableName(targetTable)}" /> 
                             </h:outputLink>
                         </div>
                         </h:panelGroup>

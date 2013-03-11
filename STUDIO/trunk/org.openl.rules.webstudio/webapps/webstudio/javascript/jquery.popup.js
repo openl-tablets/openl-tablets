@@ -88,11 +88,12 @@
     $(document).mouseup(function (e)
             {
                 var container = document.getElementById("tablePanel");
-                
+                var datePicker =  document.getElementById("datePickerTable");
+
                 if (container != null ) {
                     container = $("#tablePanel");
 
-                    if (container.has(e.target).length === 0)
+                    if ( (container.has(e.target).length === 0) && !(datePicker instanceof HTMLTableElement ))
                     {
                         canLeavePage();
                     }
