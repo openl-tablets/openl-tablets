@@ -44,7 +44,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         // Creating information DIV
         var infoContainer = new Element("div");
         var table = new Element('table', {'class':'hide-on-screen'} );
-        table.setAttribute("style", "padding-top: 5px;");
         
         self.tdCheckboxes = new Array(2);
         for (var i = 0; i < self.tdCheckboxes.length; i++) {
@@ -145,7 +144,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        this.rangePanel.setAttribute("style", "width: 230px; height: 170px; background: white; border:1px solid gray;");
+        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: white; border:1px solid gray;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
 
