@@ -63,6 +63,17 @@ var DateEditor = Class.create(BaseTextEditor, {
         }
     },
 
+    unbind: function($super, event, handler) {
+        if (!event) {
+            datePickerController.onBlur(this.getId(), "");
+            $super(event, handler);
+        } else if (event == "blur") {
+            datePickerController.onBlur(this.getId(), "");
+        } else {
+            $super(event, handler);
+        }
+    },
+
     destroy: function($super) {
         datePickerController.destroyDatePicker(this.getId());
         $super();
