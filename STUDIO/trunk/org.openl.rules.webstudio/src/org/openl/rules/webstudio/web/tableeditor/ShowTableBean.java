@@ -212,7 +212,6 @@ public class ShowTableBean {
         ITableProperties tableProps = table.getProperties();
         String dimension = "";
         String tableName = table.getName();
-        System.out.println(table);
         if (tableProps != null) {
             for (int i=0; i < dimensionProps.length; i++) {
                 String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
@@ -223,10 +222,8 @@ public class ShowTableBean {
             }
         }
         if (!dimension.isEmpty()) {
-            System.out.println(tableName +" ["+ dimension +"]");
             return tableName +" ["+ dimension +"]";
         } else {
-            System.out.println(tableName);
             return tableName;
         }
         
