@@ -53,36 +53,6 @@ var datePickerController = (function datePickerController() {
                 if(typeof json === "object" && !("err" in json)) {                          
                         affectJSON(json);
                 };
-       
-                if(typeof(fdLocale) != "object") {
-                        var head   = document.getElementsByTagName("head")[0] || document.documentElement,
-                            loc    = scriptFiles[scriptFiles.length - 1].src.substr(0, scriptFiles[scriptFiles.length - 1].src.lastIndexOf("/")) + "/lang/",
-                            script;
-                        
-                        for(var i = 0; i < languageInfo.length; i++) {                                 
-                                script = document.createElement('script');                                               
-                                script.type = "text/javascript";                         
-                                script.src  = loc + languageInfo[i] + ".js"; 
-                                script.charSet = "utf-8";
-                                
-                                /*@cc_on
-                                /*@if(@_win32)
-                                var bases = document.getElementsByTagName('base');
-                                if (bases.length && bases[0].childNodes.length) {
-                                        bases[0].appendChild(script);
-                                } else {
-                                        document.getElementsByTagName('head')[0].appendChild(script);
-                                };
-                                bases = null;
-                                @else @*/
-                                head.appendChild(script);
-                                /*@end
-                                @*/    
-                        };
-                        script = null;                      
-                } else {
-                        returnLocaleDate = true;
-                };                              
         })();
         
         function parseUILanguage() {                                 
@@ -692,6 +662,7 @@ var datePickerController = (function datePickerController() {
                         this.table.onmouseover = this.onmouseover;
                         this.table.onmouseout  = this.onmouseout;
                         this.table.onclick     = this.onclick;
+                        this.table.id  = "datePickerTable";
                         
                         if(this.staticPos) {
                                 this.table.onmousedown  = this.onmousedown;

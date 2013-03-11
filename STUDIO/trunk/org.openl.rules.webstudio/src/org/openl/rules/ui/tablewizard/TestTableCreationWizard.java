@@ -15,10 +15,13 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import static org.openl.rules.ui.tablewizard.WizardUtils.getMetaInfo;
 
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 
 /**
  * @author Aliaksandr Antonik.
@@ -154,10 +157,9 @@ public class TestTableCreationWizard extends TableCreationWizard {
             TableSyntaxNode node = syntaxNodes.get(i);
             itemName = node.getMember().getName();
 
-            if (!StringUtils.containsIgnoreCase(itemName, "GapOverlap") ) {
-                result.add(new SelectItem(i, node.getMember().getName()));
+            if (!StringUtils.containsIgnoreCase(itemName, DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) ) {
+                result.add(new SelectItem(i, getNodeName(node)));
             }
-
         }
 
         tableItems = result.toArray(new SelectItem[result.size()]);
@@ -167,7 +169,28 @@ public class TestTableCreationWizard extends TableCreationWizard {
             }
         });
     }   
-    
+    private String getNodeName (TableSyntaxNode syntaxNode) {
+         String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+         ITableProperties tableProps = syntaxNode.getTableProperties();
+         
+         String nodeName = syntaxNode.getMember().getName();
+         String dimension = "";
+         
+         if (tableProps != null) {
+             for (int i=0; i < dimensionProps.length; i++) {
+                 String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
+                 
+                 if (propValue != null && !propValue.isEmpty()) {
+                     dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                 }
+             }
+         }
+         if (!dimension.isEmpty()) {
+             return nodeName +" ["+ dimension +"]";
+         } else {
+             return nodeName;
+         }
+    }
     /**
      * Checks if it is possible to create test for current table(table is executable at runtime), and checks if
      * return type of the table is not void.
