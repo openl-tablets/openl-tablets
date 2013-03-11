@@ -662,6 +662,7 @@ var datePickerController = (function datePickerController() {
                         this.table.onmouseover = this.onmouseover;
                         this.table.onmouseout  = this.onmouseout;
                         this.table.onclick     = this.onclick;
+                        this.table.id  = "datePickerTable";
                         
                         if(this.staticPos) {
                                 this.table.onmousedown  = this.onmousedown;
