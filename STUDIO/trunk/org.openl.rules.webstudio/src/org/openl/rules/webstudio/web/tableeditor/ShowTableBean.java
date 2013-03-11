@@ -27,6 +27,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -205,6 +207,32 @@ public class ShowTableBean {
         }
     }
 
+    public String getTableName (IOpenLTable table) {
+        String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+        ITableProperties tableProps = table.getProperties();
+        String dimension = "";
+        String tableName = table.getName();
+        System.out.println(table);
+        if (tableProps != null) {
+            for (int i=0; i < dimensionProps.length; i++) {
+                String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
+                
+                if (propValue != null && !propValue.isEmpty()) {
+                    dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                }
+            }
+        }
+        if (!dimension.isEmpty()) {
+            System.out.println(tableName +" ["+ dimension +"]");
+            return tableName +" ["+ dimension +"]";
+        } else {
+            System.out.println(tableName);
+            return tableName;
+        }
+        
+        
+    }
+    
     public boolean isDispatcherValidationNode() {
         return table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
