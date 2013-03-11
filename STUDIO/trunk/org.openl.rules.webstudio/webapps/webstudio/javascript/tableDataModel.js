@@ -20,11 +20,11 @@ var tableModel = {
             + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") +" </span> "
             +"<span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+((this.header.inParam[i].name == 'null') ? "" :  this.header.inParam[i].name)+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
             +"<span onclick='tableModel.toEditMode(this)' id=\"param_value"+i+"\">" 
-            + this.header.inParam[i].name +"</span>";
+            + ((this.header.inParam[i].name == 'null' || this.header.inParam[i].name == "") ? "undefined" :  this.header.inParam[i].name) +"</span>";
         }
 
-        return  "<font size=\"3\" style=\"position: relative\">SimpleRules <span id=\"returnSRT\" oncontextmenu=\"arrayContexMenu(event, -1,"+this.header.returnType.iterable+")\" onclick=\"selectDataTypeAction(this,event, -1)\">"+
-        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font color=\"black\"><strong><span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
+        return  "<font style=\"position: relative\">SimpleRules <span id=\"returnSRT\" onclick=\"selectDataTypeAction(this,event, -1,"+this.header.returnType.iterable+")\">"+
+        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font size=\"3\" color=\"black\"><strong><span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
         + "</span></strong></font> (" + params + ")</font>";
     },
 
@@ -99,8 +99,21 @@ var tableModel = {
         editElem = element.previousSibling;
         editElem.style.display = "";
 
-        editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
-        editElem.firstChild.style.height = ($j(element).outerHeight() + 3) + "px";
+        var browserName = navigator.appName;
+        if (browserName == "Netscape") { 
+            if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                //chrome
+                editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+                editElem.firstChild.style.height = ($j(element).outerHeight() + 2) + "px";
+            } else {
+                editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+                editElem.firstChild.style.height = ($j(element).outerHeight() + 1) + "px";
+            }
+        } else if (browserName=="Microsoft Internet Explorer") {
+            editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+            editElem.firstChild.style.height = ($j(element).outerHeight() - 6) + "px";
+        }
+
 
         editElem.firstChild.focus();
         editElem.firstChild.onblur = function() {
@@ -160,14 +173,20 @@ var tableModel = {
     },
 
     setInParamValue : function(editElem, paramId) {
-        this.renderer.selectValue(editElem);
-
         if(paramId > -1) {
-            this.header.inParam[paramId].name = editElem.value;
-            
-            this.renderer.setConditionTitle(editElem.value, paramId);
+            if (editElem.value != "") {
+                this.header.inParam[paramId].name = editElem.value;
+                this.renderer.setConditionTitle(editElem.value, paramId);
+                this.renderer.selectValue(editElem);
+            } else {
+                this.header.inParam[paramId].name = "param" + (paramId + 1);
+                this.renderer.setConditionTitle("param" + (paramId + 1), paramId);
+                editElem.value = "param" + (paramId + 1);
+                this.renderer.selectValue(editElem);
+            }
         } else {
             this.header.name = editElem.value;
+            this.renderer.selectValue(editElem);
         }
     },
 
@@ -182,7 +201,7 @@ var tableModel = {
 
     getPropById : function(index) {
         rowId = index.substr(1,index.length);
-    
+
         return this.properties[rowId - 1];
     },
 
@@ -190,7 +209,7 @@ var tableModel = {
         list = this.header.inParam;
         this.header.inParam = [];
         var set = false;
-        var newParam = new Param('null', 'null', false, 'condition',"STRING");
+        var newParam = new Param('param'+(id+1), 'null', false, 'condition',"STRING");
 
         for (i = 0; i < list.length; i++) {
             if (i == id) {
@@ -221,6 +240,17 @@ var tableModel = {
         this.renderer.createEmptyCol(id, this.dataRows);
         //show tooltip for setting patameter type
         $j("#param"+id).click();
+
+        //set popup menu on the bottom of param
+        var topPos = $j("#param"+id).offset().top;
+        var leftPos = $j("#param"+id).offset().left + $j("#param"+id).width() - 3;
+
+        var position = {
+                top : topPos,
+                left : leftPos
+        };
+
+        $j(PopupMenu.te_menu).css(position);
     },
 
     deleteRow : function(rowId) {
@@ -275,8 +305,8 @@ var tableModel = {
         }
 
         this.renderer.refreshTableHeader();
-        
-        if(this.header.inParam[id].name == 'null') {
+
+        if(id > -1 && this.header.inParam[id].name == 'param'+(id+1)) {
             //open property name editor
             $j("#param_value"+id).click();
         }
@@ -377,7 +407,7 @@ var tableModel = {
         var checkingRes = [];
 
         if (this.dataRows.length < 2) {
-            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule in the table.");
+            checkingRes.push("There are no rules in the table. <a href=\"#\" title=\"Add rule\" onclick=\"tableModel.createEmptyRow(); return false;\">Add</a> at least one rule to the table.");
         }
 
         this.checkNames(checkingRes);
@@ -388,6 +418,7 @@ var tableModel = {
     checkNames : function(checkingRes) {
         re =/^([a-zA-Z_][a-zA-Z_0-9]*)$/;
         onlyChar = /^([a-zA-Z]+)/;
+        var repittedNames = new Array();
 
         if (!re.test(this.header.name)) {
             checkingRes.push("Table name '"+this.header.name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'.");
@@ -400,12 +431,21 @@ var tableModel = {
         }
 
         for (var i = 0; i < this.header.inParam.length; i++) {
-            if(this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type type.");
+            if (this.header.inParam[i].type == "null") {
+                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type.");
             }
 
-            if(!re.test(this.header.inParam[i].name)) {
+            if (!re.test(this.header.inParam[i].name)) {
                 checkingRes.push("Parameter name '"+this.header.inParam[i].name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
+            }
+
+            for (var paramId = 0; paramId < this.header.inParam.length; paramId++) {
+                if (paramId != i && this.header.inParam[paramId].name == this.header.inParam[i].name) {
+                    if (repittedNames.indexOf(this.header.inParam[i].name) == -1) {
+                        checkingRes.push("Parameter '"+this.header.inParam[i].name+"' already exists. Rename this parameter.");
+                        repittedNames.push(this.header.inParam[i].name);
+                    }
+                }
             }
         }
     },

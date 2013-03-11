@@ -5,8 +5,7 @@ type ^
     js\popup\popupmenu.js ^
     js\BaseEditor.js ^
     js\BaseTextEditor.js ^
-    js\datepicker\en.js ^
-    js\datepicker\datepicker.packed.js ^
+    js\datepicker.js ^
     js\TextEditor.js ^
     js\MultiLineEditor.js ^
     js\NumericEditor.js ^

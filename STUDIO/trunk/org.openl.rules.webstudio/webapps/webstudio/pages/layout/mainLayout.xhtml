@@ -85,7 +85,7 @@
                     } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                         reloadCurrent();
                     } else {
-                        message(errorMessage);
+                        message(errorMessage, 7000);
                     }
                     return;
                 }

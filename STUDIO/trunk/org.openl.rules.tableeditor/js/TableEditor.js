@@ -596,7 +596,7 @@ var TableEditor = Class.create({
     },
 
     showEditorWrapper: function(cell) {
-        var minWidth = 20;
+        var minWidth = 41;
         var width = cell.offsetWidth - 2;
         if (width < minWidth) {
             cell.style.minWidth = minWidth + "px";
