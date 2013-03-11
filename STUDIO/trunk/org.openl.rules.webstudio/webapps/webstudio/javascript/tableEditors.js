@@ -39,7 +39,7 @@ function initComplexSelect(data, cell) {
        var specElement = createDiv();
        $j(element).append(specElement);
        
-       editor = new DateEditor('', specElement.id, '', prop.getValue() , '');
+       editor = new DateEditor('', specElement.id, '', prop.getValue() , true);
    } else if (data.type == "TEXT") {
        editor = new TextEditor('', element.id, '', prop.getValue() , true);
    } else if (data.type == "SINGLE") {
@@ -47,19 +47,10 @@ function initComplexSelect(data, cell) {
    } else if (data.type == "BOOLEAN") {
        editor = new BooleanEditor('', element.id, '', prop.getValue() == true ? "true" : "false", true);
    } else {
-       editor = new MultiselectEditor('', element.id, data, element.innerHTML, false);
-       editor.open();
+       editor = new MultiselectEditor('', element.id, data, prop.getValue(), true);
    }
 
    setNewEditor(cell, editor);
-};
-
-function closeEditor(cell, value) {
-    var dataCell = cell.data;
-    $j("#editor_div").hide();
-    $j("#editor_div").offset({left:0,top:0});
-    dataCell.value = value;
-    cell.innerHTML = dataCell.getValue();
 };
 
 function showEditorDiv(cell, elementForAdding) {
@@ -105,30 +96,37 @@ function showEditorDiv(cell, elementForAdding) {
         $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 9 + "px");
         $j("#editor_div").find(">:first-child").width((width - 7)+"px");
     }
-    
+
     var position = {
-            top : topPos,
-            left : leftPos
+        top : topPos,
+        left : leftPos
     };
 
     $j('#editor_div').css(position);
     $j("#editor_div").show();
-
-    $j("#editor_div").find(">:first-child").focus();
 }
 
 function setNewEditor(cell, editor) {
     $j("#editor_div").keypress(function(event) {
         if(event.keyCode == 13) {
-            closeEditor(cell, editor.getValue());
+            closeEditor(cell, editor);
             return false;
         }
     });
 
-    editor.getInputElement().onblur = function() {
-        closeEditor(cell, editor.getValue());
-    };
+    editor.bind("blur", function() {
+        closeEditor(cell, editor);
+    });
 }
+
+function closeEditor(cell, editor) {
+    var dataCell = cell.data;
+    $j("#editor_div").hide();
+    $j("#editor_div").offset({left:0,top:0});
+    dataCell.value = editor.getValue();
+    editor.destroy();
+    cell.innerHTML = dataCell.getValue();
+};
 
 function Editor(){
     this.initElement = function(cell) {
@@ -145,7 +143,7 @@ function Editor(){
             //this.html = this.getBooleanElement(cell);
             editor = new BooleanEditor('', element.id, '', dataCell.getValue() == true ? "true" : "false", true);
         } else if(dataCell.valueType == "DATE" && !dataCell.iterable) {
-            editor = new DateEditor('', element.id, '', dataCell.getValue() , '');
+            editor = new DateEditor('', element.id, '', dataCell.getValue() , true);
         } else if(dataCell.valueType == "STRING" && !dataCell.iterable) {
             //this.html = this.getStringElement(cell);
             editor = new TextEditor('', element.id, '', dataCell.getValue() , true);
