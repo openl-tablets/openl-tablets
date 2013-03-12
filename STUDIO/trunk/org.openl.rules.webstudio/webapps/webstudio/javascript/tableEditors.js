@@ -47,8 +47,7 @@ function initComplexSelect(data, cell) {
    } else if (data.type == "BOOLEAN") {
        editor = new BooleanEditor('', element.id, '', prop.getValue() == true ? "true" : "false", true);
    } else {
-       editor = new MultiselectEditor('', element.id, data, prop.getValue(), false);
-       editor.open();
+       editor = new MultiselectEditor('', element.id, data, prop.getValue(), true);
    }
 
    setNewEditor(cell, editor);
@@ -60,24 +59,36 @@ function showEditorDiv(cell, elementForAdding) {
         $j("#editor_div").append(elementForAdding);
     }
 
+    var minWidth = 20;
     var width = cell.offsetWidth - 2;
-    var topPos = $j(cell).position().top;
-    var leftPos = $j(cell).position().left;
 
-    var browserName = navigator.appName; 
+    if (width < minWidth) {
+        cell.style.minWidth = minWidth + "px";
+        width = cell.offsetWidth - 2;
+    }
+
+    var jcell = $j(cell);
+
+    var position = {
+        top : jcell.position().top + jcell.offsetParent().scrollTop(),
+        left : jcell.position().left +  + jcell.offsetParent().scrollLeft()
+    };
+
+    //var height = jcell.outerHeight();
+    //$j("#editor_div").css({"height" : height + "px"});
+
+    var browserName = navigator.appName;
     if (browserName == "Netscape") { 
         if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
             //chrome
             $j("#editor_div").height(cell.offsetHeight + 2 + "px");
             $j("#editor_div").width(width + 2 +"px");
 
-
             $j("#editor_div").find(">:first-child").height(cell.offsetHeight + 2 + "px");
             $j("#editor_div").find(">:first-child").width(width + 2 +"px");
         } else {
             $j("#editor_div").height(cell.offsetHeight - 2 + "px");
             $j("#editor_div").width(width+"px");
-
 
             $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 2 + "px");
             $j("#editor_div").find(">:first-child").width(width+"px");
@@ -86,15 +97,9 @@ function showEditorDiv(cell, elementForAdding) {
         $j("#editor_div").height(cell.offsetHeight - 9 + "px");
         $j("#editor_div").width((width - 7)+"px");
 
-
         $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 9 + "px");
         $j("#editor_div").find(">:first-child").width((width - 7)+"px");
     }
-
-    var position = {
-        top : topPos,
-        left : leftPos
-    };
 
     $j('#editor_div').css(position);
     $j("#editor_div").show();
@@ -102,7 +107,7 @@ function showEditorDiv(cell, elementForAdding) {
 
 function setNewEditor(cell, editor) {
     $j("#editor_div").keypress(function(event) {
-        if (event.keyCode == 13) {
+        if(event.keyCode == 13) {
             closeEditor(cell, editor);
             return false;
         }
@@ -130,15 +135,15 @@ function Editor(){
         showEditorDiv(cell, element);
         var editor = null;
 
-        if ((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
+        if((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
             //this.html = this.getIntElement(cell);
             editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
-        } else if (dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
+        } else if(dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
             //this.html = this.getBooleanElement(cell);
             editor = new BooleanEditor('', element.id, '', dataCell.getValue() == true ? "true" : "false", true);
-        } else if (dataCell.valueType == "DATE" && !dataCell.iterable) {
+        } else if(dataCell.valueType == "DATE" && !dataCell.iterable) {
             editor = new DateEditor('', element.id, '', dataCell.getValue() , true);
-        } else if (dataCell.valueType == "STRING" && !dataCell.iterable) {
+        } else if(dataCell.valueType == "STRING" && !dataCell.iterable) {
             //this.html = this.getStringElement(cell);
             editor = new TextEditor('', element.id, '', dataCell.getValue() , true);
         } else {

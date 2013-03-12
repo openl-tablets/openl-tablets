@@ -47,6 +47,13 @@
                                             <span>#{template}</span>
                                         </td></tr>
                                     </ui:repeat>
+                                    <tr><th>Examples</th></tr>
+                                    <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('examples')}">
+                                        <tr><td>
+                                            <input type="hidden" value="examples/#{template}" />
+                                            <span>#{template}</span>
+                                        </td></tr>
+                                    </ui:repeat>
                                     <tr><th>Tutorials</th></tr>
                                     <ui:repeat var="template" value="#{repositoryTreeController.getProjectTemplates('tutorials')}">
                                         <tr><td>
