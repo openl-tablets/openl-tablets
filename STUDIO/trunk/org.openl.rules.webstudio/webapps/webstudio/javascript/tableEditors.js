@@ -67,23 +67,28 @@ function showEditorDiv(cell, elementForAdding) {
         width = cell.offsetWidth - 2;
     }
 
-    var topPos = $j(cell).position().top;
-    var leftPos = $j(cell).position().left;
+    var jcell = $j(cell);
 
-    var browserName = navigator.appName; 
+    var position = {
+        top : jcell.position().top + jcell.offsetParent().scrollTop(),
+        left : jcell.position().left +  + jcell.offsetParent().scrollLeft()
+    };
+
+    //var height = jcell.outerHeight();
+    //$j("#editor_div").css({"height" : height + "px"});
+
+    var browserName = navigator.appName;
     if (browserName == "Netscape") { 
         if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
             //chrome
             $j("#editor_div").height(cell.offsetHeight + 2 + "px");
             $j("#editor_div").width(width + 2 +"px");
 
-
             $j("#editor_div").find(">:first-child").height(cell.offsetHeight + 2 + "px");
             $j("#editor_div").find(">:first-child").width(width + 2 +"px");
         } else {
             $j("#editor_div").height(cell.offsetHeight - 2 + "px");
             $j("#editor_div").width(width+"px");
-
 
             $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 2 + "px");
             $j("#editor_div").find(">:first-child").width(width+"px");
@@ -92,15 +97,9 @@ function showEditorDiv(cell, elementForAdding) {
         $j("#editor_div").height(cell.offsetHeight - 9 + "px");
         $j("#editor_div").width((width - 7)+"px");
 
-
         $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 9 + "px");
         $j("#editor_div").find(">:first-child").width((width - 7)+"px");
     }
-
-    var position = {
-        top : topPos,
-        left : leftPos
-    };
 
     $j('#editor_div').css(position);
     $j("#editor_div").show();
