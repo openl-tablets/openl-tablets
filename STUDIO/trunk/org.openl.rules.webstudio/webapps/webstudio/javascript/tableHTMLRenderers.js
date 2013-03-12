@@ -11,26 +11,33 @@ verticalRenderer = {
     */
     setDefaultStyle : function(obj) {
         obj.style.textAlign = "center";
-        obj.style.fontSize = "14";
+        obj.style.fontSize = "12px";
         obj.style.fontFamily = "Franklin Gothik Book";
         obj.style.minWidth = "50px";
-        obj.style.height = "20px";
+        obj.style.height = "21px";
     },
 
     setHeaderStyle : function(obj) {
         this.setDefaultStyle(obj);
 
-        obj.style.color = "#808080";
+        obj.style.color = "#000000";
         obj.style.backgroundColor="#FFFFFF";
-        obj.style.borderTop = "1px solid black";
+        obj.style.borderTop = "1px solid #000000";
+        obj.style.borderBottom = "1px solid #000000";
+
+        tableModel.header.style.push(obj.style);
+        console.log(obj.style);
     },
 
     setTitleStyle : function(obj) {
         this.setDefaultStyle(obj);
 
         obj.style.backgroundColor= "#A6A6A6";
-        obj.style.borderBottom = "1px solid black";
+        obj.style.borderBottom = "1px solid #000000";
         obj.style.fontWeight = 'bold';
+
+        obj.data.style = obj.style;
+        console.log(obj.data.style );
     },
 
     setDataStyle : function(obj) {
@@ -40,24 +47,36 @@ verticalRenderer = {
         obj.style.borderWidth = "1px 1px 1px 1px";
         obj.style.borderColor = "#DDDDDD #DDDDDD #DDDDDD #DDDDDD";
         obj.style.borderStyle = "solid solid solid solid";
+
+        obj.data.style = obj.style;
     },
 
+    setPropStyle : function(obj) {
+        this.setDefaultStyle(obj);
+
+        obj.style.textAlign="left";
+        obj.style.color = "#808080";
+        obj.style.backgroundColor="#FFFFFF";
+    },
+    
     setPropValueStyle : function(obj) {
         this.setDefaultStyle(obj);
 
         obj.style.textAlign="left";
         obj.style.color = "#808080";
         obj.style.backgroundColor="#FFFFFF";
-        obj.style.borderTop = "1px solid black";
-        obj.style.borderBottom = "1px solid black";
+        
+        obj.data.style = obj.style;
     },
 
     setReturnTitleStyle : function(obj) {
         this.setDefaultStyle(obj);
 
-        obj.style.backgroundColor= "#F0DB5E";
-        obj.style.borderBottom = "2px solid #FFC91D";
+        obj.style.backgroundColor= "rgb(246, 219, 102)";//"#F0DB5E";
+        obj.style.borderBottom = "3px solid #FFC91D";
         obj.style.fontWeight = 'bold';
+
+        obj.data.style = obj.style;
     },
 
     setReturnDataStyle : function(obj) {
@@ -67,36 +86,40 @@ verticalRenderer = {
         obj.style.borderWidth = "1px 1px 1px 1px";
         obj.style.borderColor = "#DDDDDD #DDDDDD #DDDDDD #DDDDDD";
         obj.style.borderStyle = "solid solid solid solid";
+
+        obj.data.style = obj.style;
     },
 
     setLastCellBorderStyle : function(obj, isReturnCell) {
         obj.style.borderTop = "1px solid #DDDDDD";
 
         if(!isReturnCell) {
-            obj.style.borderBottom = "1px solid black";
+            obj.style.borderBottom = "1px solid #000000";
         } else {
-            obj.style.borderBottom = "2px solid #FFC91D";
+            obj.style.borderBottom = "3px solid #FFC91D";
         }
+
+        obj.data.style = obj.style;
     },
 
     createHeaderRow : function(table) {
         var row = this.htmlTable.insertRow(0);
         var cell = row.insertCell(0);
+        cell.colSpan = table.header.inParam.length + 1;
+        cell.innerHTML = table.headerRow();
+
         //this.setDefaultStyle(cell);
         this.setHeaderStyle(cell);
-        cell.colSpan = table.header.inParam.length + 1;
-
-        cell.innerHTML = table.headerRow();
     },
 
     createRow : function(dataRow, isTitle, isLast) {
         var row = this.htmlTable.insertRow(-1);
 
-        for(var i = 0; i < dataRow.length; i++) {
+        for (var i = 0; i < dataRow.length; i++) {
             var cell = row.insertCell(-1);
             cell.data = dataRow[i];
 
-            if(isTitle) {
+            if (isTitle) {
                 if(cell.data.isReturn) {
                     this.setReturnTitleStyle(cell);
                 } else {
@@ -119,7 +142,7 @@ verticalRenderer = {
                 }
             }
 
-            if(this.htmlTable.rows.length - 2 > tableModel.startDataTableRowIndex()) {
+            if (this.htmlTable.rows.length - 2 > tableModel.startDataTableRowIndex()) {
                 //if needed delete last row style from prev cell
                 this.deleteCellStyleFromPrevRow();
             }
@@ -143,7 +166,7 @@ verticalRenderer = {
     },
 
     refreshLastRowStyle : function() {
-        if(this.htmlTable.rows.length > tableModel.startDataTableRowIndex()) {
+        if (this.htmlTable.rows.length > tableModel.startDataTableRowIndex()) {
             var lastRow = this.htmlTable.rows[this.htmlTable.rows.length - 1];
 
             for (var cellNum = 0; cellNum < lastRow.cells.length; cellNum++) {
@@ -157,7 +180,7 @@ verticalRenderer = {
     },
 
     getCellHtml : function(value, type, cell) {
-        if(type == "DATA_TYPE") {
+        if (type == "DATA_TYPE") {
             return value;
         } else if(type == "PROPERTY_TYPE") {
             return "<span style=\"display : none\"></span><span id=\"t"+cell.parentNode.rowIndex+"\" onclick=\"tableModel.toEditPropTypeMode(this)\">"+value+"</span>";
@@ -197,11 +220,11 @@ verticalRenderer = {
             for(var i = 1; i < tableModel.startDataTableRowIndex(); i++) {
                 var row = rows[i];
                 cell = row.insertCell(-1);
-                this.setPropValueStyle(cell);
+                this.setPropStyle(cell);
             }
         }
 
-        for(var i = tableModel.startDataTableRowIndex(); i < rows.length; i++) {
+        for (var i = tableModel.startDataTableRowIndex(); i < rows.length; i++) {
             var row = rows[i];
             var dataRow = dataRows[i - tableModel.startDataTableRowIndex()];
             cell = row.insertCell(id);
@@ -245,12 +268,11 @@ verticalRenderer = {
         if (tableModel.headerSpanCell() > 2) {
             for(var i = 1; i < tableModel.startDataTableRowIndex(); i++) {
                 var row = this.htmlTable.rows[i];
-                alert("rowid "+i+"cell "+row.cells.length-1);
                 row.deleteCell(row.cells.length-1);
             }
         }
 
-        for(var i = tableModel.startDataTableRowIndex(); i < domTable.rows.length; i++) {
+        for (var i = tableModel.startDataTableRowIndex(); i < domTable.rows.length; i++) {
             this.htmlTable.rows[i].deleteCell(index);
         }
 
@@ -258,10 +280,10 @@ verticalRenderer = {
     },
 
     deletePropsRow : function(properties) {
-        for(var i = 0;  i < properties.length; i++) {
+        for (var i = 0;  i < properties.length; i++) {
             this.htmlTable.deleteRow(1);
         }
-        
+
         this.refreshTableHeader();
     },
 
@@ -269,28 +291,30 @@ verticalRenderer = {
         for (var i = 0;  i < properties.length; i++) {
             row = this.htmlTable.insertRow(i+1);
 
-            if(i == 0) {
+            if (i == 0) {
                 titleCell = row.insertCell(-1);
                 titleCell.rowSpan = properties.length;
-                this.setPropValueStyle(titleCell);
+                this.setPropStyle(titleCell);
                 titleCell.innerHTML = "Properties";
             }
 
             typeCell = row.insertCell(-1);
-            this.setPropValueStyle(typeCell);
+            this.setPropStyle(typeCell);
             typeCell.innerHTML = this.getCellHtml(properties[i].type, "PROPERTY_TYPE", typeCell);
             typeCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
 
             valueCell = row.insertCell(-1);
-            this.setPropValueStyle(valueCell);
             valueCell.innerHTML = this.getCellHtml(properties[i].value, "PROPERTY_VALUE", valueCell);
             valueCell.setAttribute('oncontextmenu','propsContentMenuAction(this, event)');
             valueCell.data = properties[i];
 
+            this.setPropValueStyle(valueCell);
+
             for (var propColumn = 3; propColumn < tableModel.headerSpanCell(); propColumn++) {
                 valueCell = row.insertCell(-1);
-                this.setPropValueStyle(valueCell);
                 valueCell.innerHTML = "";
+
+                this.setPropStyle(valueCell);
             }
         }
 
@@ -310,7 +334,7 @@ verticalRenderer = {
 
         //create data rows
         for (var i = 1; i < tableModel.dataRows.length; i++) {
-            if((i + 1) < tableModel.dataRows.length) {
+            if ((i + 1) < tableModel.dataRows.length) {
                 this.createRow(tableModel.dataRows[i] , false, false);
             } else {
                 //last row
@@ -322,10 +346,10 @@ verticalRenderer = {
     setErrorMessage : function(error, element) {
         element.html("");
 
-        if(error.length > 0) {
+        if (error.length > 0) {
             table = document.createElement('table');
 
-            for(var i = 0;  i < error.length; i++) {
+            for (var i = 0;  i < error.length; i++) {
                 tr = document.createElement('tr');
                 td = document.createElement('td');
 
@@ -346,7 +370,7 @@ verticalRenderer = {
         var titleRowId = tableModel.startDataTableRowIndex();
         var title = this.htmlTable.rows[titleRowId].cells[conditionId].innerHTML;
         
-        if(title == "") {
+        if (title == "") {
             this.htmlTable.rows[titleRowId].cells[conditionId].innerHTML = newTitle;
             this.htmlTable.rows[titleRowId].cells[conditionId].data.value = newTitle;
         }           
