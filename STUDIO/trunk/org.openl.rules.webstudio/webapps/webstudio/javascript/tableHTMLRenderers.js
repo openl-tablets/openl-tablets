@@ -72,7 +72,7 @@ verticalRenderer = {
     setReturnTitleStyle : function(obj) {
         this.setDefaultStyle(obj);
 
-        obj.style.backgroundColor= "rgb(246, 219, 102)";//"#F0DB5E";
+        obj.style.backgroundColor= "rgb(250, 205, 70)";//"#F0DB5E";
         obj.style.borderBottom = "3px solid #FFC91D";
         obj.style.fontWeight = 'bold';
 
