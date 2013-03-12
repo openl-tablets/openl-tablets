@@ -64,7 +64,7 @@ function contentMenuAction(cell, event, isTitle) {
     }
 
     event.preventDefault();
-    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 150);
+    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 0);
     return false;
 }
 
@@ -87,7 +87,7 @@ function propsContentMenuAction(cell, event) {
     div.appendChild(addColLink);
 
     event.preventDefault();
-    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 150);
+    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 0);
     return false;
 }
 
@@ -107,6 +107,6 @@ function arrayContexMenu(event, id, iterable) {
     div.appendChild(addRowLink);
 
     event.preventDefault();
-    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 150);
+    PopupMenu.sheduleShowMenu('srtPopupDiv', event, 0);
     return false;
 }
