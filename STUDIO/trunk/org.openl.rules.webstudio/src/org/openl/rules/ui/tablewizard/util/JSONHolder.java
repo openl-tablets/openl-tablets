@@ -33,7 +33,6 @@ public class JSONHolder {
 
             return returnObj.getString("type") +((returnObj.getBoolean("iterable"))? "[]" : "")+ " " +tableName + "("+paramStr+")";
         } catch (Exception e) {
-            e.printStackTrace();
             return "";
         }
     }
@@ -113,7 +112,7 @@ public class JSONHolder {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            return new HashMap<String, Object>();
         }
 
         return properties;
@@ -124,14 +123,13 @@ public class JSONHolder {
             JSONArray inParam = new JSONArray(table.getJSONObject("header").get("inParam").toString());
             return  inParam.length() + 1;
         } catch (Exception e) {
-            e.printStackTrace();
             return 0;
         }
     }
 
     public JSONObject getHeaderStyle() {
         try {
-            //fix header style saving. At the moment we have a problem with CSS2Properties
+            //FIXME header style saving. At the moment we have a problem with CSS2Properties
             JSONArray style = new JSONArray(table.getJSONObject("header").getString("style"));
 
             return style.getJSONObject(0);

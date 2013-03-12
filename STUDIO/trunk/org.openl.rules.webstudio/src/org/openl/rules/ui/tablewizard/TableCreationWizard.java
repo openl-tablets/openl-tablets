@@ -190,7 +190,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     protected void doSave() throws Exception {
-        for(XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks){
+        for (XlsWorkbookSourceCodeModule workbook : modifiedWorkbooks){
             workbook.save();
         }
     }
