@@ -55,7 +55,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode>{
     
-    public static final String DISPATCHER_TABLES_SHEET = "Dispatcher Tables Sheet";
+    private static final String DISPATCHER_TABLES_SHEET_FORMAT = "$%sDispatcher Tables Sheet";
     public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
     private static String VIRTUAL_EXCEL_FILE = "/FAKE_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls";
     
@@ -182,10 +182,12 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
         
         int numberOfColumns = getNumberOfColumns(conditions) + 1; // + 1 for return column
-        
-        IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, 
-        		DISPATCHER_TABLES_SHEET + getDispatcherTableName(), numberOfColumns);
-    	
+
+        // TODO Excel has a maximum sheet name length limit. Find a solution for case when name is longer.
+        String sheetName = String.format(DISPATCHER_TABLES_SHEET_FORMAT, getMethodName());
+        IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(VIRTUAL_EXCEL_FILE, sheetName,
+                numberOfColumns);
+
         DispatcherTableReturnColumn returnColumn = getReturnColumn();
         
         DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder(new Point(0, 0));
@@ -199,7 +201,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         
         return decisionTableBuilder; 
     }
-    
+
     private String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
         String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2, 
             returnColumn.getReturnType().getDisplayName(0), tableName);
