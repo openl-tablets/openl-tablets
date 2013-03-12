@@ -54,9 +54,11 @@ function initComplexSelect(data, cell) {
 };
 
 function showEditorDiv(cell, elementForAdding) {
+    var editorDiv = $j("#editor_div");
+
     if (typeof elementForAdding != "undefined") {
-        $j("#editor_div").html("");
-        $j("#editor_div").append(elementForAdding);
+        editorDiv.html("");
+        editorDiv.append(elementForAdding);
     }
 
     var minWidth = 20;
@@ -76,33 +78,32 @@ function showEditorDiv(cell, elementForAdding) {
 
     //var height = jcell.outerHeight();
     //$j("#editor_div").css({"height" : height + "px"});
+    var divHeight;
+    var divWidth;
 
     var browserName = navigator.appName;
     if (browserName == "Netscape") { 
         if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
             //chrome
-            $j("#editor_div").height(cell.offsetHeight + 2 + "px");
-            $j("#editor_div").width(width + 2 +"px");
-
-            $j("#editor_div").find(">:first-child").height(cell.offsetHeight + 2 + "px");
-            $j("#editor_div").find(">:first-child").width(width + 2 +"px");
+            divHeight = cell.offsetHeight + 2 + "px";
+            divWidth = width + 2 +"px";
         } else {
-            $j("#editor_div").height(cell.offsetHeight - 2 + "px");
-            $j("#editor_div").width(width+"px");
-
-            $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 2 + "px");
-            $j("#editor_div").find(">:first-child").width(width+"px");
+            divHeight = cell.offsetHeight - 1 + "px";
+            divWidth = width +"px";
         }
     } else if (browserName=="Microsoft Internet Explorer") {
-        $j("#editor_div").height(cell.offsetHeight - 9 + "px");
-        $j("#editor_div").width((width - 7)+"px");
-
-        $j("#editor_div").find(">:first-child").height(cell.offsetHeight - 9 + "px");
-        $j("#editor_div").find(">:first-child").width((width - 7)+"px");
+        divHeight = cell.offsetHeight - 9 + "px";
+        divWidth = (width - 7)+"px";
     }
 
-    $j('#editor_div').css(position);
-    $j("#editor_div").show();
+    editorDiv.height(divHeight);
+    editorDiv.find(">:first-child").height(divHeight);
+
+    editorDiv.width(divWidth);
+    editorDiv.find(">:first-child").width(divWidth);
+
+    editorDiv.css(position);
+    editorDiv.show();
 }
 
 function setNewEditor(cell, editor) {
@@ -135,15 +136,15 @@ function Editor(){
         showEditorDiv(cell, element);
         var editor = null;
 
-        if((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
+        if ((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
             //this.html = this.getIntElement(cell);
             editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
-        } else if(dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
+        } else if (dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
             //this.html = this.getBooleanElement(cell);
             editor = new BooleanEditor('', element.id, '', dataCell.getValue() == true ? "true" : "false", true);
-        } else if(dataCell.valueType == "DATE" && !dataCell.iterable) {
+        } else if (dataCell.valueType == "DATE" && !dataCell.iterable) {
             editor = new DateEditor('', element.id, '', dataCell.getValue() , true);
-        } else if(dataCell.valueType == "STRING" && !dataCell.iterable) {
+        } else if (dataCell.valueType == "STRING" && !dataCell.iterable) {
             //this.html = this.getStringElement(cell);
             editor = new TextEditor('', element.id, '', dataCell.getValue() , true);
         } else {
