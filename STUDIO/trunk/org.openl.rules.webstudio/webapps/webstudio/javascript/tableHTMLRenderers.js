@@ -58,21 +58,21 @@ verticalRenderer = {
         obj.style.color = "#808080";
         obj.style.backgroundColor="#FFFFFF";
     },
-    
+
     setPropValueStyle : function(obj) {
         this.setDefaultStyle(obj);
 
         obj.style.textAlign="left";
         obj.style.color = "#808080";
         obj.style.backgroundColor="#FFFFFF";
-        
+
         obj.data.style = obj.style;
     },
 
     setReturnTitleStyle : function(obj) {
         this.setDefaultStyle(obj);
 
-        obj.style.backgroundColor= "rgb(250, 205, 70)";//"#F0DB5E";
+        obj.style.backgroundColor= "rgb(250, 210, 70)";//"#F0DB5E";
         obj.style.borderBottom = "3px solid #FFC91D";
         obj.style.fontWeight = 'bold';
 
@@ -108,7 +108,6 @@ verticalRenderer = {
         cell.colSpan = table.header.inParam.length + 1;
         cell.innerHTML = table.headerRow();
 
-        //this.setDefaultStyle(cell);
         this.setHeaderStyle(cell);
     },
 
@@ -369,7 +368,7 @@ verticalRenderer = {
     setConditionTitle : function(newTitle, conditionId) {
         var titleRowId = tableModel.startDataTableRowIndex();
         var title = this.htmlTable.rows[titleRowId].cells[conditionId].innerHTML;
-        
+
         if (title == "") {
             this.htmlTable.rows[titleRowId].cells[conditionId].innerHTML = newTitle;
             this.htmlTable.rows[titleRowId].cells[conditionId].data.value = newTitle;
