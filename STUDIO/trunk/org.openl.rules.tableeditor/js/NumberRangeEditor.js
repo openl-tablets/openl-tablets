@@ -550,7 +550,21 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     keyPressed: function(event) {
-        var v = this.input.getValue();
+        var oneLetterWidth = 8.5;
+        var minCharacters = 4;
+        var length;
+        if (this.values[0].value.length > this.values[1].value.length) {
+            length = this.values[0].value.length;
+        } else {
+            length = this.values[1].value.length;
+        }
+        if (length > minCharacters) {
+            this.values[0].setAttribute("style", 'width:' + oneLetterWidth * length + 'px');
+            this.values[1].setAttribute("style", 'width:' + oneLetterWidth * length + 'px');
+        } else {
+            this.values[0].setAttribute("style", "width: 40px;");
+            this.values[1].setAttribute("style", "width: 40px;");
+        }
         if (event.charCode == 0) return true;
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
 
