@@ -1,8 +1,12 @@
 package org.openl.rules.table.xls.builder;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
 /**
@@ -40,10 +44,10 @@ public class SimpleRulesTableBuilder extends TableBuilder {
         super.endTable();
     }
 
-    public void writeTableBodyRow(List<Object> row) {
+    public void writeTableBodyRow(List<Map<String, Object>> row) {
         int i = 0;
-        for (Object cell : row) {
-            writeCell(i, getCurrentRow(), 1, 1, cell);
+        for (Map<String, Object> cell : row) {
+            writeCell(i, getCurrentRow(), 1, 1, cell.get("value"), (ICellStyle) cell.get("style") );
             i++;
         }
 
@@ -58,9 +62,8 @@ public class SimpleRulesTableBuilder extends TableBuilder {
      *
      * @param signature method signature for the table.
      */
-    public void writeHeader(String signature) {
+    public void writeHeader(String signature, ICellStyle style) {
         String headerText = IXlsTableNames.SIMPLE_DECISION_TABLE + " " + signature;
-        super.writeHeader(headerText, null);
+        super.writeHeader(headerText, style);
     }
-
 }
