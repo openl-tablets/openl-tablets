@@ -50,7 +50,7 @@ public class InstallWizard {
     private String dbPassword;
     private String dbDriver;
     private String dbPrefix;
-    private String folderSeparator;
+    
 
     private UIInput dbURLInput;
     private UIInput dbLoginInput;
