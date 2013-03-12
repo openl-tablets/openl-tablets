@@ -71,7 +71,7 @@ public class ProductionRepositoriesTreeState {
             productionRepository.setData(null);
 
             root.addChild(prName, productionRepository);
-            
+
             /*Get repo's deployment configs*/
             IFilter<AProjectArtefact> filter = this.filter;
             List<ADeploymentProject> repoList = getPRepositoryProjects(repoConfig);
@@ -82,20 +82,6 @@ public class ProductionRepositoriesTreeState {
                 tpdp.setData(project);
                 tpdp.setParent(productionRepository);
                 productionRepository.add(tpdp);
-                /*
-                Collection<AProjectArtefact> prjList = project.getArtefacts();
-                AProjectArtefact[] sortedArtefacts = new AProjectArtefact[prjList.size()];
-                sortedArtefacts = prjList.toArray(sortedArtefacts);
-
-                Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
-                
-                for (AProjectArtefact apa : sortedArtefacts) {
-                    TreeProductProject prj = new TreeProductProject(""+apa.getName().hashCode(), apa.getName(), filter);
-                    prj.setData(apa);
-
-                    productionRepository.add(prj);
-                }
-                */
             }
 
         }
@@ -142,13 +128,13 @@ public class ProductionRepositoriesTreeState {
     
     public String initTree() {
         buildTree();
-        
+
         return null;
     }
     
     public void processSelection(TreeSelectionChangeEvent event) {
         List<Object> selection = new ArrayList<Object>(event.getNewSelection());
-        
+
         /*If there are no selected nodes*/
         if (selection.isEmpty()) {
            return;
@@ -162,7 +148,16 @@ public class ProductionRepositoriesTreeState {
         repositorySelectNodeStateHolder.setSelectedNode((TreeNode) tree.getRowData());
         tree.setRowKey(storedKey);
     }
-    
+
+    public TreeNode getFirstProductionRepo() {
+        try {
+            String repoName = getRepositories().iterator().next().getName();
+            TreeNode node = root.getElements().get(repoName);
+            return node;
+        } catch (Exception e) {
+            return null;
+        }
+    }
     /**
      * Forces tree rebuild during next access.
      */

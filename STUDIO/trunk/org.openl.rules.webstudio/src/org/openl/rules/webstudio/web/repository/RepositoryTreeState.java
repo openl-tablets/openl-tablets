@@ -279,6 +279,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         tree.setRowKey(storedKey);
     }
 
+    public void rulesRepositorySelection() {
+        setSelectedNode(rulesRepository);
+    }
+
     /**
      * Refreshes repositoryTreeState.selectedNode.
      */

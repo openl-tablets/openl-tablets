@@ -229,9 +229,9 @@ public class TableBuilder {
             setCellStyle(cell, cellStyle);
             // we need to create new style if value is of type date.
             if (value instanceof Date) {
-                //cellStyle = null;
-                //cellStyle = getDateCellStyle(cell);
-                cell.getCellStyle().setDataFormat((short) BuiltinFormats
+               //cellStyle = null;
+               //cellStyle = getDateCellStyle(cell);
+               cell.getCellStyle().setDataFormat((short) BuiltinFormats
                         .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
             }
         } else {
