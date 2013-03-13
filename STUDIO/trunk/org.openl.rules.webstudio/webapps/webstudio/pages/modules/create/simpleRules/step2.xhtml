@@ -58,13 +58,20 @@
             .tips_text{
                 padding-left: 15px;
             }
+            
+            .edt_div{
+                display : none;
+                position: absolute;
+                z-index: 3;
+                background-color: #B4C8FF;
+            }
 
         </style>
 
         <h:form name="srtTableForm" id="srtTableForm">
             <span id="errorMessage" >
             </span>
-            <br/><div id="editor_div" style="display : none; position: absolute; z-index: 3; background-color: #B4C8FF;"/>
+            <br/><div id="editor_div" class="edt_div"/>
             <table id="srtTable" class="srt">
             </table>
             <br/>
