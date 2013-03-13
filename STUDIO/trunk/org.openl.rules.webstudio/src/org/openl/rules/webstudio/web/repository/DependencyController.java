@@ -40,24 +40,30 @@ public class DependencyController {
         if (StringUtils.isEmpty(s) || s.startsWith(".") || s.endsWith("..")) {
             return null;
         }
+
         String[] parts = s.split("\\.");
         if ((parts.length == 0) || (parts.length > 3)) {
             return null;
         }
-        
+
         int rev = 0;
+        int major = 0;
+        int minor = 0;
         try {
             if (parts.length == 1) {
                 rev = Integer.parseInt(parts[0]);
+                return new RepositoryProjectVersionImpl(rev, null);
             } else {
-                rev = (parts.length < 3) ? 0 : Integer.parseInt(parts[2]);
-            }
-            
-            if (rev < 0) {
-                return null;
+                if (parts.length == 3) {
+                    major = Integer.parseInt(parts[0]);
+                    minor = Integer.parseInt(parts[1]);
+                    rev = Integer.parseInt(parts[2]);
+
+                    return new RepositoryProjectVersionImpl(major, minor, rev, null);
+                }
             }
 
-            return new RepositoryProjectVersionImpl(rev, null);
+            return null;
         } catch (Exception e) {
             // ignore exception
             return null;
