@@ -92,10 +92,10 @@ public class XlsDataFormatterFactory {
         if (xlsStyle != null) {
             short formatIndex = xlsStyle.getDataFormat();
             String format = xlsStyle.getDataFormatString();
-
-            formatter = new XlsNumberFormatter(
-                    formatIndex, format, dataFormatter, locale);
-
+            if (format.contains("#\" \"")) {
+                format = format.replaceAll("#\" \"", "# ");
+            }
+            formatter = new XlsNumberFormatter(formatIndex, format, dataFormatter, locale);
         }
 
         return formatter;
