@@ -1,7 +1,7 @@
 function PropsEditor () {
     this.initElement = function(cell) {
         var cellProps = cell.data;
-        
+
         var propName = cellProps.type;
 
         var actionURL = "/webstudio/action/prop_values";
@@ -38,16 +38,16 @@ function initComplexSelect(data, cell) {
    if (data.type == "DATE") {
        var specElement = createDiv();
        $j(element).append(specElement);
-       
+
        editor = new DateEditor('', specElement.id, '', prop.getValue() , true);
-   } else if (data.type == "TEXT") {
-       editor = new TextEditor('', element.id, '', prop.getValue() , true);
+   } else if (data.type == "MULTI") {
+       editor = new MultiselectEditor('', element.id, data, prop.getValue(), true);
    } else if (data.type == "SINGLE") {
        editor = new DropdownEditor('', element.id, data.param, prop.getValue() , true);
    } else if (data.type == "BOOLEAN") {
        editor = new BooleanEditor('', element.id, '', prop.getValue() == true ? "true" : "false", true);
    } else {
-       editor = new MultiselectEditor('', element.id, data, prop.getValue(), true);
+       editor = new TextEditor('', element.id, '', prop.getValue() , true);
    }
 
    setNewEditor(cell, editor);
@@ -78,29 +78,32 @@ function showEditorDiv(cell, elementForAdding) {
 
     //var height = jcell.outerHeight();
     //$j("#editor_div").css({"height" : height + "px"});
-    var divHeight;
-    var divWidth;
+    var elemHeight;
+    var elemWidth;
 
     var browserName = navigator.appName;
     if (browserName == "Netscape") { 
         if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
             //chrome
-            divHeight = cell.offsetHeight + 2 + "px";
-            divWidth = width + 2 +"px";
+            elemHeight = cell.offsetHeight + 2 + "px";
+            elemWidth = width + 2 +"px";
         } else {
-            divHeight = cell.offsetHeight - 1 + "px";
-            divWidth = width +"px";
+            elemHeight = cell.offsetHeight - 1 + "px";
+            elemWidth = width +"px";
         }
+
+        editorDiv.height(elemHeight);
+        editorDiv.width(elemWidth);
     } else if (browserName=="Microsoft Internet Explorer") {
-        divHeight = cell.offsetHeight - 9 + "px";
-        divWidth = (width - 7)+"px";
+        elemHeight = cell.offsetHeight - 9 + "px";
+        elemWidth = (width - 7)+"px";
+
+        editorDiv.height(cell.offsetHeight + "px");
+        editorDiv.width(width + 1 + "px");
     }
 
-    editorDiv.height(divHeight);
-    editorDiv.find(">:first-child").height(divHeight);
-
-    editorDiv.width(divWidth);
-    editorDiv.find(">:first-child").width(divWidth);
+    editorDiv.find(">:first-child").height(elemHeight);
+    editorDiv.find(">:first-child").width(elemWidth);
 
     editorDiv.css(position);
     editorDiv.show();
@@ -137,18 +140,17 @@ function Editor(){
         var editor = null;
 
         if ((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
-            //this.html = this.getIntElement(cell);
             editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
         } else if (dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
-            //this.html = this.getBooleanElement(cell);
             editor = new BooleanEditor('', element.id, '', dataCell.getValue() == true ? "true" : "false", true);
         } else if (dataCell.valueType == "DATE" && !dataCell.iterable) {
             editor = new DateEditor('', element.id, '', dataCell.getValue() , true);
         } else if (dataCell.valueType == "STRING" && !dataCell.iterable) {
-            //this.html = this.getStringElement(cell);
             editor = new TextEditor('', element.id, '', dataCell.getValue() , true);
+        } else if (dataCell.valueType == "RANGE") {
+            editor = new NumberRangeEditor('', element.id, '', dataCell.getValue() , true);
         } else {
-            editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
+            editor = new TextEditor('', element.id, '', dataCell.getValue() , true);
         }
 
         setNewEditor(cell, editor);
