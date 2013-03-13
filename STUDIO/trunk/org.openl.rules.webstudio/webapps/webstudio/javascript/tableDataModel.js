@@ -243,19 +243,18 @@ var tableModel = {
         }
 
         this.renderer.createEmptyCol(id, this.dataRows);
-        //show tooltip for setting patameter type
-        $j("#param"+id).click();
 
-        //set popup menu on the bottom of param
-        var topPos = $j("#param"+id).offset().top;
-        var leftPos = $j("#param"+id).offset().left + $j("#param"+id).width() - 3;
+        // Show popup for setting patameter type
+        $j("#param" + id).click();
 
+        // Set popup menu on the bottom of param
         var position = {
-                top : topPos,
-                left : leftPos
+            "top" : $j("#param" + id).offset().top + "px",
+            "left" : $j("#param" + id).offset().left + $j("#param" + id).width() - 3  + "px"
         };
-
-        $j(PopupMenu.te_menu).css(position);
+        setTimeout(function() {
+            $j(PopupMenu.te_menu).css(position);
+        }, 10);
     },
 
     deleteRow : function(rowId) {
