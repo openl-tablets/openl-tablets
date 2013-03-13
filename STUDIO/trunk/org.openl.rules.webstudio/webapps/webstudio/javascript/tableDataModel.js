@@ -20,7 +20,7 @@ var tableModel = {
             }
             params += "<span id=\"param"+i+"\" onclick=\"selectDataTypeAction(this,event,"+i+","+this.header.inParam[i].iterable+")\">"
             + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") +" </span> "
-            +"<span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+((this.header.inParam[i].name == 'null') ? "" :  this.header.inParam[i].name)+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
+            +"<span style=\"display : none; position: absolute;\"><input type=\"text\" class=\"editTableInParam\" value=\""+((this.header.inParam[i].name == 'null') ? "" :  this.header.inParam[i].name)+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
             +"<span onclick='tableModel.toEditMode(this)' id=\"param_value"+i+"\">" 
             + ((this.header.inParam[i].name == 'null' || this.header.inParam[i].name == "") ? "undefined" :  this.header.inParam[i].name) +"</span>";
         }
@@ -100,29 +100,32 @@ var tableModel = {
     toEditMode : function(element) {
         editElem = element.previousSibling;
         editElem.style.display = "";
+        var textEditor = editElem.firstChild;
+        var editorWidth = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
+        var editorHeight = "20px";
 
         var browserName = navigator.appName;
         if (browserName == "Netscape") { 
             if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
                 //chrome
-                editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
-                editElem.firstChild.style.height = ($j(element).outerHeight() + 2) + "px";
+                editorHeight = ($j(element).outerHeight() + 2) + "px";
             } else {
-                editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
-                editElem.firstChild.style.height = ($j(element).outerHeight() + 1) + "px";
+                //FF
+                editorHeight = ($j(element).outerHeight() + 3) + "px";
             }
         } else if (browserName=="Microsoft Internet Explorer") {
-            editElem.firstChild.style.width = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
-            editElem.firstChild.style.height = ($j(element).outerHeight() - 6) + "px";
+            editorHeight = ($j(element).outerHeight() - 6) + "px";
         }
 
+        textEditor.style.width = editorWidth;
+        textEditor.style.height = editorHeight;
 
-        editElem.firstChild.focus();
-        editElem.firstChild.onblur = function() {
+        textEditor.focus();
+        textEditor.onblur = function() {
             this.onchange();
         };
 
-        editElem.firstChild.onkeypress = function(event) {
+        textEditor.onkeypress = function(event) {
             if(event.keyCode == 13) {
                 this.onchange();
                 return false;
@@ -433,11 +436,13 @@ var tableModel = {
 
         for (var i = 0; i < this.header.inParam.length; i++) {
             if (this.header.inParam[i].type == "null") {
-                checkingRes.push("Parameter type '"+this.header.inParam[i].type+"' is invalid. Select parameter type.");
+                checkingRes.push("Parameter type cannot be empty. Select the parameter type.");
             }
 
-            if (!re.test(this.header.inParam[i].name)) {
-                checkingRes.push("Parameter name '"+this.header.inParam[i].name+"' is invalid. Name should start with letter or symbols '_' and contain only letters, numbers or symbol '_'");
+            if (this.header.inParam[i].name.length == 0) {
+                checkingRes.push("Parameter name cannot be empty. The name should start with a letter or a symbols '_' and contain only letters, numbers or symbol '_'.");
+            } else if (!re.test(this.header.inParam[i].name)) {
+                checkingRes.push("Parameter name '"+this.header.inParam[i].name+"' is invalid. The name should start with a letter or a symbols '_' and contain only letters, numbers or symbol '_'.");
             }
 
             for (var paramId = 0; paramId < this.header.inParam.length; paramId++) {

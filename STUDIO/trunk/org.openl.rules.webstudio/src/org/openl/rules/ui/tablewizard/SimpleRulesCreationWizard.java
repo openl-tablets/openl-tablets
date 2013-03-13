@@ -3,14 +3,11 @@ package org.openl.rules.ui.tablewizard;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -18,9 +15,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -37,24 +32,17 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.ui.CellStyle;
-import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DataTableBuilder;
 import org.openl.rules.table.xls.builder.SimpleRulesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
-import org.openl.rules.ui.tablewizard.util.CellStyleCreator;
 import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenClassDelegator;
-import org.richfaces.json.JSONArray;
 import org.richfaces.json.JSONException;
-import org.richfaces.json.JSONObject;
 
 public class SimpleRulesCreationWizard extends TableCreationWizard {
     @NotBlank(message = "Can not be empty")
@@ -127,7 +115,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             }
         }
     }
-    
+
     public int getColumnSize() {
         int size = 0;
         size += this.parameters.size();
@@ -459,6 +447,17 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         }
 
         return 0;
+    }
+
+    public boolean containsRemoveLink(Map<String, String> params) {
+        if (params == null)
+            return false;
+        for (String param : params.keySet()) {
+            if (param.endsWith("removeLink")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
