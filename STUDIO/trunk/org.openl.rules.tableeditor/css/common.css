@@ -103,6 +103,10 @@
     height: 18px;
 }
 
+.te_table {
+    white-space: nowrap;	
+}
+
 /* Deprecated */
 
 .te_menu {
