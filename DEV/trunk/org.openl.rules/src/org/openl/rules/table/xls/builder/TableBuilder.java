@@ -226,12 +226,14 @@ public class TableBuilder {
         if (width == 1 && height == 1) {
             Cell cell = PoiExcelHelper.getOrCreateCell(x, y, gridModel.getSheetSource().getSheet());
             gridModel.setCellValue(x, y, value);
+            setCellStyle(cell, cellStyle);
             // we need to create new style if value is of type date.
             if (value instanceof Date) {
-                cellStyle = null;
-                cellStyle = getDateCellStyle(cell);                
+               //cellStyle = null;
+               //cellStyle = getDateCellStyle(cell);
+               cell.getCellStyle().setDataFormat((short) BuiltinFormats
+                        .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
             }
-            setCellStyle(cell, cellStyle);
         } else {
             int x2 = x + width - 1;
             int y2 = y + height - 1;
@@ -271,12 +273,12 @@ public class TableBuilder {
      */
     private CellStyle getDateCellStyle(Cell cell) {
         CellStyle previousStyle = cell.getCellStyle();
-        
-        previousStyle.setBorderBottom(ICellStyle.BORDER_THIN);
-        previousStyle.setBorderTop(ICellStyle.BORDER_THIN);
-        previousStyle.setBorderLeft(ICellStyle.BORDER_THIN);
-        previousStyle.setBorderRight(ICellStyle.BORDER_THIN);
-        
+
+        //previousStyle.setBorderBottom(ICellStyle.BORDER_THIN);
+        //previousStyle.setBorderTop(ICellStyle.BORDER_THIN);
+        //previousStyle.setBorderLeft(ICellStyle.BORDER_THIN);
+        //previousStyle.setBorderRight(ICellStyle.BORDER_THIN);
+
         cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle().setDataFormat((short) BuiltinFormats
@@ -416,9 +418,11 @@ public class TableBuilder {
         if (properties == null) {
             throw new IllegalArgumentException("properties must be not null");
         }
+
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
+
         if (!properties.isEmpty()) {
             writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
             Set<String> keys = properties.keySet();
@@ -431,7 +435,7 @@ public class TableBuilder {
                 if(width > TableBuilder.PROPERTIES_MIN_WIDTH) {
                     int column = TableBuilder.PROPERTIES_MIN_WIDTH;
 
-                    while (column <= width) {
+                    while (column < width) {
                         writeCell(column, currentRow, 1, 1, null, style);
                         column++;
                     }

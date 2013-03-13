@@ -14,6 +14,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -2261,7 +2262,13 @@ public class RulesUtils {
      * @return String formated date value
      */
     public static String dateToString(Date date, String dateFormat) {
-        return DateTool.dateToString(date, dateFormat);
+        String stringDate = "Incorrect date format";
+        try {
+            stringDate = DateTool.dateToString(date, dateFormat);
+        } catch (Exception e) {
+            throw new OpenLRuntimeException(stringDate + " '" + dateFormat + "'");
+        }
+        return stringDate;
     }
 
     /**
@@ -2272,7 +2279,13 @@ public class RulesUtils {
      * @return String formated date value
      */
     public static String dateToString(Date date) {
-        return DateTool.dateToString(date);
+        String stringDate = "Incorrect date format";
+        try {
+            stringDate = DateTool.dateToString(date);
+        } catch (Exception e) {
+            throw new OpenLRuntimeException(stringDate);
+        }
+        return stringDate;
     }
 
     public static String format(double d) {

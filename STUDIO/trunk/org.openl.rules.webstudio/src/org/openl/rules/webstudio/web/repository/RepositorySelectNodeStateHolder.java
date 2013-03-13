@@ -22,6 +22,4 @@ public class RepositorySelectNodeStateHolder {
     public void setSelectedNode(TreeNode selectedNode) {
         this.selectedNode = selectedNode;
     }
-    
-    
 }

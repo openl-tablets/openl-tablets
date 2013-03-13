@@ -37,27 +37,38 @@ public class DependencyController {
     private String upperVersion;
 
     public static ProjectVersion versionFromString(String s) {
-        if (StringUtils.isEmpty(s) || s.startsWith(".") || s.endsWith("..")) {
+        if (StringUtils.isEmpty(s) || s.startsWith(".") || s.indexOf("..") > -1) {
             return null;
         }
+
         String[] parts = s.split("\\.");
         if ((parts.length == 0) || (parts.length > 3)) {
             return null;
         }
-        
+
         int rev = 0;
+        int major = 0;
+        int minor = 0;
         try {
             if (parts.length == 1) {
                 rev = Integer.parseInt(parts[0]);
+                return new RepositoryProjectVersionImpl(rev, null);
             } else {
-                rev = (parts.length < 3) ? 0 : Integer.parseInt(parts[2]);
-            }
-            
-            if (rev < 0) {
-                return null;
+                if (parts.length == 3) {
+                    major = Integer.parseInt((StringUtils.isEmpty(parts[0]) ? "0" : parts[0]));
+                    minor = Integer.parseInt((StringUtils.isEmpty(parts[1]) ? "0" : parts[1]));
+                    rev = Integer.parseInt((StringUtils.isEmpty(parts[2]) ? "0" : parts[2]));
+
+                    return new RepositoryProjectVersionImpl(major, minor, rev, null);
+                } else if (parts.length == 2) {
+                    major = Integer.parseInt((StringUtils.isEmpty(parts[0]) ? "0" : parts[0]));
+                    minor = Integer.parseInt((StringUtils.isEmpty(parts[1]) ? "0" : parts[1]));
+
+                    return new RepositoryProjectVersionImpl(major, minor, rev, null);
+                }
             }
 
-            return new RepositoryProjectVersionImpl(rev, null);
+            return null;
         } catch (Exception e) {
             // ignore exception
             return null;
