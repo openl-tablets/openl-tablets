@@ -56,7 +56,7 @@
 
   <h:panelGroup rendered="#{node.type == 'file'}">
     <h:panelGrid columns="2" cellpadding="3" cellspacing="0">
-      <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Upload file" onclick="openUpdateFileDialog();return false;">
+      <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="openUpdateFileDialog();return false;">
           <rich:tooltip showDelay="500">Upload the updated file</rich:tooltip>
       </h:commandButton>
 
