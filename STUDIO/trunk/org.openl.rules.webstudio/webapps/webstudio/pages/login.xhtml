@@ -14,7 +14,7 @@
                     <div align="center">
                         <!-- possible error messages -->
                         <c:if test="#{not empty SPRING_SECURITY_LAST_EXCEPTION}">
-                            <p class="error">Wrong user name or/and password</p>
+                            <p class="error">Wrong username or/and password</p>
                             <c:set var="SPRING_SECURITY_LAST_EXCEPTION" value="#{null}" />
                         </c:if>
                         <div>
@@ -23,7 +23,7 @@
                                 <table id="loginForm" style="text-align: left;">
                                     <tr>
                                         <td align="right">
-                                            <label for="loginName">Login:</label>
+                                            <label for="loginName">Username:</label>
                                         </td>
                                         <td>
                                             <input type="text" name="j_username" id="loginName" style="width: 120px" />
@@ -50,7 +50,7 @@
                                     <tr>
                                         <td>&#160;</td>
                                         <td>
-                                            <input type="submit" id="loginSubmit" value="Login" />
+                                            <input type="submit" id="loginSubmit" value="Sign in" />
                                         </td>
                                     </tr>
                                 </table>

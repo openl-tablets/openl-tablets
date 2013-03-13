@@ -103,6 +103,10 @@
     height: 18px;
 }
 
+.te_table {
+    white-space: nowrap;	
+}
+
 /* Deprecated */
 
 .te_menu {
@@ -619,7 +623,7 @@ div.datePicker table tbody td.day-disabled
         cursor:default;
         text-decoration:line-through;
         } 
-div.datePicker table tbody td.month-out 
+div.datePicker table tbody td.month-out
         {
         border-color:#ddd;
         color:#aaa !important;
