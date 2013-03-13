@@ -1,11 +1,12 @@
 package org.apache.poi.ss.usermodel;
 
+import java.util.Locale;
 import junit.framework.TestCase;
 
 public class DataFormatterTest extends TestCase {
 
     public void testFormatRawCellContentsAccountingFormat() {
-        DataFormatter formatter = new DataFormatter();
+        DataFormatter formatter = new DataFormatter(Locale.US);
         assertEquals("-0.002000000ð.", formatter.formatRawCellContents(-0.002, 175,
                 "_-* #,##0.000000000\"ð.\"_-;\\-* #,##0.000000000\"ð.\"_-;_-* \"-\"?????????\"ð.\"_-;_-@_-"));
         assertEquals("$1.234567890", formatter.formatRawCellContents(1.23456789, 166,
