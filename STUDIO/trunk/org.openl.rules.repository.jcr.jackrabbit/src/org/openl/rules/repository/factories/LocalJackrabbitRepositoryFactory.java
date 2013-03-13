@@ -240,7 +240,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             }
         }
     }
-    
+
     @Override
     protected RRepository createRepository() throws RRepositoryException {
         if(convert){
@@ -248,7 +248,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             convert = false;
         }
         // TODO Auto-generated method stub
-        return super.createRepository();
+        return super.createJcrRepository();
     }
     
     /** {@inheritDoc} */
