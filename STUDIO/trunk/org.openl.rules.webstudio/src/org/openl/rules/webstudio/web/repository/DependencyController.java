@@ -37,7 +37,7 @@ public class DependencyController {
     private String upperVersion;
 
     public static ProjectVersion versionFromString(String s) {
-        if (StringUtils.isEmpty(s) || s.startsWith(".") || s.endsWith("..")) {
+        if (StringUtils.isEmpty(s) || s.startsWith(".") || s.indexOf("..") > -1) {
             return null;
         }
 
@@ -55,9 +55,14 @@ public class DependencyController {
                 return new RepositoryProjectVersionImpl(rev, null);
             } else {
                 if (parts.length == 3) {
-                    major = Integer.parseInt(parts[0]);
-                    minor = Integer.parseInt(parts[1]);
-                    rev = Integer.parseInt(parts[2]);
+                    major = Integer.parseInt((StringUtils.isEmpty(parts[0]) ? "0" : parts[0]));
+                    minor = Integer.parseInt((StringUtils.isEmpty(parts[1]) ? "0" : parts[1]));
+                    rev = Integer.parseInt((StringUtils.isEmpty(parts[2]) ? "0" : parts[2]));
+
+                    return new RepositoryProjectVersionImpl(major, minor, rev, null);
+                } else if (parts.length == 2) {
+                    major = Integer.parseInt((StringUtils.isEmpty(parts[0]) ? "0" : parts[0]));
+                    minor = Integer.parseInt((StringUtils.isEmpty(parts[1]) ? "0" : parts[1]));
 
                     return new RepositoryProjectVersionImpl(major, minor, rev, null);
                 }

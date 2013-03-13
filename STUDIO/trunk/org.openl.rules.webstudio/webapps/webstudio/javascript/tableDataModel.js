@@ -101,22 +101,19 @@ var tableModel = {
         editElem = element.previousSibling;
         editElem.style.display = "";
         var textEditor = editElem.firstChild;
-        var editorWidth = "100px";
+        var editorWidth = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
         var editorHeight = "20px";
 
         var browserName = navigator.appName;
         if (browserName == "Netscape") { 
             if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
                 //chrome
-                editorWidth = ($j(element).outerWidth() < 50) ?  editorWidth : $j(element).outerWidth() + "px";
                 editorHeight = ($j(element).outerHeight() + 2) + "px";
             } else {
                 //FF
-                editorWidth = ($j(element).outerWidth() < 50) ?  editorWidth : $j(element).outerWidth() + "px";
                 editorHeight = ($j(element).outerHeight() + 3) + "px";
             }
         } else if (browserName=="Microsoft Internet Explorer") {
-            editorWidth = ($j(element).outerWidth() < 50) ?  editorWidth : $j(element).outerWidth() + "px";
             editorHeight = ($j(element).outerHeight() - 6) + "px";
         }
 
