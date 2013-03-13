@@ -170,7 +170,6 @@ public class DateTool {
         } catch (Exception e) {
             return stringDate;
         }
-
         return stringDate;
     }
 
