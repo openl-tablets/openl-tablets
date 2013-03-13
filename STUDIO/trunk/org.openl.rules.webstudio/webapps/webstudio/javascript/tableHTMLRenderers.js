@@ -26,7 +26,6 @@ verticalRenderer = {
         obj.style.borderBottom = "1px solid #000000";
 
         tableModel.header.style.push(obj.style);
-        console.log(obj.style);
     },
 
     setTitleStyle : function(obj) {
@@ -37,7 +36,6 @@ verticalRenderer = {
         obj.style.fontWeight = 'bold';
 
         obj.data.style = obj.style;
-        console.log(obj.data.style );
     },
 
     setDataStyle : function(obj) {
