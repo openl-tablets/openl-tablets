@@ -56,6 +56,11 @@ public class ProductionRepositoriesTreeController {
         if (repo.equals("production")) {
             productionRepositoriesTreeState.initTree();
         }
+
+        TreeNode node = productionRepositoriesTreeState.getFirstProductionRepo();
+        if (node != null) {
+            repositorySelectNodeStateHolder.setSelectedNode(node);
+        }
     }
 
     public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {

@@ -1,11 +1,13 @@
 var tableModel = {
     properties : [],
+    propertyStyle : [],
     dataRows : [],
     renderer : null,
-    
+
     header : {
         name : null,
         returnType : null,
+        style : [],
         inParam : []
     },
 
@@ -24,8 +26,8 @@ var tableModel = {
         }
 
         return  "<font style=\"position: relative\">SimpleRules <span id=\"returnSRT\" onclick=\"selectDataTypeAction(this,event, -1,"+this.header.returnType.iterable+")\">"+
-        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <font size=\"3\" color=\"black\"><strong><span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
-        + "</span></strong></font> (" + params + ")</font>";
+        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
+        + "</span> (" + params + ")</font>";
     },
 
     setReturnParam : function(returnParam) {
@@ -42,7 +44,7 @@ var tableModel = {
     setTitleRow : function() {
         var row = [];
 
-        for(var i = 0;  i < this.header.inParam.length; i++) {
+        for (var i = 0;  i < this.header.inParam.length; i++) {
             row.push(new Cell(this.header.inParam[i].name, "STRING", false, false));
         }
 
@@ -53,7 +55,7 @@ var tableModel = {
     },
 
     headerSpanCell : function () {
-        if(this.header.inParam) {
+        if (this.header.inParam) {
             return this.header.inParam.length + 1;
         } else {
             return 1;
@@ -77,7 +79,7 @@ var tableModel = {
     createEmptyRow : function() {
         var row = [];
 
-        for(i = 0;  i < this.header.inParam.length; i++) {
+        for (i = 0;  i < this.header.inParam.length; i++) {
             row.push(new Cell("", this.header.inParam[i].valuesType, this.header.inParam[i].iterable, false));
         }
 
@@ -88,7 +90,7 @@ var tableModel = {
     },
 
     startDataTableRowIndex : function() {
-        if(this.properties) {
+        if (this.properties) {
             return this.properties.length + 1;
         } else {
             return 1;
@@ -161,10 +163,10 @@ var tableModel = {
 
         prop = this.getPropById(editElem.id);
 
-        if(cellType == "PROPERTY_VALUE") {
+        if (cellType == "PROPERTY_VALUE") {
             prop.name = editElem.value;
         } else {
-            if(editElem.value == "") {
+            if (editElem.value == "") {
                 prop.type = "undefined";
             } else {
                 prop.type = editElem.value;
@@ -173,7 +175,7 @@ var tableModel = {
     },
 
     setInParamValue : function(editElem, paramId) {
-        if(paramId > -1) {
+        if (paramId > -1) {
             if (editElem.value != "") {
                 this.header.inParam[paramId].name = editElem.value;
                 this.renderer.setConditionTitle(editElem.value, paramId);
@@ -220,7 +222,7 @@ var tableModel = {
             this.header.inParam.push(list[i]);
         }
 
-        if(list.length == 0 || set == false) {
+        if (list.length == 0 || set == false) {
             this.header.inParam.push(newParam);
         }
 
@@ -262,7 +264,7 @@ var tableModel = {
         this.deleteInputParam(index);
         this.renderer.deleteCondition(index);
 
-        for(i = 0; i < this.dataRows.length; i++) {
+        for (i = 0; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
             row.splice(index,1);
         }
@@ -283,7 +285,7 @@ var tableModel = {
         editElem.firstChild.focus();
 
         /*delete selected items*/
-        for(i = 0; i < this.properties.length; i++) {
+        for (i = 0; i < this.properties.length; i++) {
             if(this.properties[i].type != element.innerHTML) {
                 $j(editElem.firstChild).find('option[value="'+this.properties[i].type+'"]').remove(); 
             }
@@ -292,7 +294,7 @@ var tableModel = {
 
     setDataTypeTo : function(elemId, value, id, valuesType) {
     //this.renderer.setDataTypeTo(elemId, value);
-        if(id > -1) {
+        if (id > -1) {
           this.header.inParam[id].type = value;
           this.header.inParam[id].valuesType = valuesType;
 
@@ -306,17 +308,17 @@ var tableModel = {
 
         this.renderer.refreshTableHeader();
 
-        if(id > -1 && this.header.inParam[id].name == 'param'+(id+1)) {
+        if (id > -1 && this.header.inParam[id].name == 'param'+(id+1)) {
             //open property name editor
             $j("#param_value"+id).click();
         }
     },
 
     changeColumnValueType : function(columnId, valuesType) {
-        for(i = 1; i < this.dataRows.length; i++) {
+        for (i = 1; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
 
-            if(columnId > -1) {
+            if (columnId > -1) {
                 row[columnId].valueType = valuesType;
             } else {
                 row[row.length - 1].valueType = valuesType;
@@ -325,10 +327,10 @@ var tableModel = {
     },
 
     changeColumnIterableStatus : function(columnId, iterable) {
-        for(i = 1; i < this.dataRows.length; i++) {
+        for (i = 1; i < this.dataRows.length; i++) {
             row = this.dataRows[i];
-            
-            if(columnId > -1) {
+
+            if (columnId > -1) {
                 row[columnId].iterable = iterable;
             } else {
                 row[row.length - 1].iterable = iterable;
@@ -337,7 +339,7 @@ var tableModel = {
     },
 
     setIterable : function(id, iterable) {
-        if(id > -1) {
+        if (id > -1) {
             this.header.inParam[id].iterable = iterable;
         } else {
             this.header.returnType.iterable = iterable;
@@ -350,9 +352,9 @@ var tableModel = {
     restoreTableFromJSONString : function(restoreTable) {
         this.properties = JSON.parse(restoreTable.properties);
 
-        for(var i = 0; i < this.properties.length; i++) {
+        for (var i = 0; i < this.properties.length; i++) {
             this.properties[i].getValue = function () {
-                if(this.valueType == "DATE" && this.value.getDate) {
+                if (this.valueType == "DATE" && this.value.getDate) {
                     var curr_date = this.value.getDate();
                     var curr_month = this.value.getMonth();
                     curr_month++;
@@ -366,11 +368,11 @@ var tableModel = {
 
         this.dataRows = JSON.parse(restoreTable.dataRows);
 
-        for(var i = 0; i < this.dataRows.length; i++) {
+        for (var i = 0; i < this.dataRows.length; i++) {
             var row = this.dataRows[i];
-            for(var j = 0; j < row.length; j++) {
+            for (var j = 0; j < row.length; j++) {
                 row[j].getValue = function () {
-                    if(this.valueType == "DATE" && this.value.getDate) {
+                    if (this.valueType == "DATE" && this.value.getDate) {
                         var curr_date = this.value.getDate();
                         var curr_month = this.value.getMonth();
                         curr_month++;
@@ -386,9 +388,9 @@ var tableModel = {
         this.header = restoreTable.header;
         this.header.inParam = JSON.parse(restoreTable.header.inParam);
 
-        for(var i = 0; i < this.header.inParam.length; i++) {
+        for (var i = 0; i < this.header.inParam.length; i++) {
             this.header.inParam[i].getValue = function () {
-                if(this.valueType == "DATE" && this.value.getDate) {
+                if (this.valueType == "DATE" && this.value.getDate) {
                     var curr_date = this.value.getDate();
                     var curr_month = this.value.getMonth();
                     curr_month++;
@@ -456,9 +458,10 @@ function Cell(value, valueType, iterable, isReturn) {
     this.valueType = valueType;
     this.iterable = iterable;
     this.isReturn = isReturn;
+    this.style;
 
     this.getValue = function () {
-        if(this.valueType == "DATE" && this.value.getDate) {
+        if (this.valueType == "DATE" && this.value.getDate) {
             var curr_date = this.value.getDate();
             var curr_month = this.value.getMonth();
             curr_month++;
@@ -474,9 +477,10 @@ function Property() {
     var name;
     var type;
     var value;
+    var style;
 
     this.getValue = function () {
-        if(this.valueType == "DATE" && this.value.getDate) {
+        if (this.valueType == "DATE" && this.value.getDate) {
             var curr_date = this.value.getDate();
             var curr_month = this.value.getMonth();
             curr_month++;
