@@ -262,19 +262,22 @@ public class StringTool {
         return buf;
     }
 
-    public static String encodeURL(String url) {
+     // TODO Move to URLUtils class
+     public static String encodeURL(String url) {
         String encodedUrl = null;
         if (StringUtils.isBlank(url)) {
             return url;
         }
         try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8");
+            encodedUrl = URLEncoder.encode(url, "UTF-8")
+                .replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return encodedUrl;
     }
-    
+
+    // TODO Move to URLUtils class
     public static String decodeURL(String url) {
         String decodedUrl = null;
         if (StringUtils.isBlank(url)) {
