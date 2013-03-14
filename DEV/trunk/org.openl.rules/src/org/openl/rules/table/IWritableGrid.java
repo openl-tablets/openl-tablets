@@ -291,7 +291,6 @@ public interface IWritableGrid extends IGrid {
 
             actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset, topCell + firstPropertyRow,
                     newPropValue));
-
             return new UndoableCompositeAction(actions);
         }
 
@@ -321,10 +320,10 @@ public interface IWritableGrid extends IGrid {
             actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME));
 
             // clear cells for properties
-            for (int prpCell = leftCell + 1; prpCell < leftCell + 3; prpCell++) {
+            for (int prpCell = leftCell + 1; prpCell < leftCell + regionWidth; prpCell++) {
                 actions.add(new UndoableClearAction(prpCell, headerRegion.getBottom() + 1));
-                //actions.add(new SetBorderStyleAction(prpCell, headerRegion.getBottom() + 1,
-                //        makeNewPropStyle(grid, prpCell, headerRegion.getBottom() + 1, prpCell, regionWidth, null) ));
+                /*actions.add(new SetBorderStyleAction(prpCell, headerRegion.getBottom() + 1,
+                        makeNewPropStyle(grid, prpCell, headerRegion.getBottom() + 1, prpCell, regionWidth, null) ));*/
             }
 
             if (regionWidth >= 3) {
@@ -387,14 +386,17 @@ public interface IWritableGrid extends IGrid {
                 if (borderStyle.length == 4) {
                     borderStyle = new short[]{CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, borderStyle[3]};
                 }
-            } else if (col == regionWidth) {
+            } else if (col - regionLeftCell == regionWidth - 1) {
                 //Only right border will be set
                 if (borderStyle.length == 4) {
+                    borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
+                    /*FIXME add bottom border for expender row (only for last)
                     if (actionType != null && actionType == ActionType.EXPAND) {
                         borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], borderStyle[2], CellStyle.BORDER_NONE};
                     } else {
                         borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
                     }
+                    */
                }
             } else {
                 borderStyle = new short[]{CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
