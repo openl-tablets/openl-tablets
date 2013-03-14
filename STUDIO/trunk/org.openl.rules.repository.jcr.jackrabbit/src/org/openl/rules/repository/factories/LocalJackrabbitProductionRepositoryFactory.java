@@ -39,7 +39,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
      * {@inheritDoc}
      */
     @Override
-    protected RProductionRepository createRepository() throws RRepositoryException {
+    public RProductionRepository createRepository() throws RRepositoryException {
         try {
             if(convert){
                 convert();

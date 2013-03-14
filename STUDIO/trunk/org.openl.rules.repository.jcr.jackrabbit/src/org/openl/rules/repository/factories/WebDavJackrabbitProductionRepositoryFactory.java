@@ -22,7 +22,7 @@ public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbit
     }
 
     @Override
-    protected RProductionRepository createRepository() throws RRepositoryException {
+    public RProductionRepository createRepository() throws RRepositoryException {
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
