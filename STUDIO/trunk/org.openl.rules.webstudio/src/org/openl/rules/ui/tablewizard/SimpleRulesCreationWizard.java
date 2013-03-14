@@ -28,6 +28,8 @@ import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.rules.domaintree.DomainTree;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -321,6 +323,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                         openClass.toString().equals(double.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(float.class.getCanonicalName().toString())) {
                     this.type = "FLOAT";
+                } else if (openClass.toString().equals(IntRange.class.getCanonicalName().toString()) ||
+                     openClass.toString().equals(DoubleRange.class.getCanonicalName().toString())) { 
+                    this.type = "RANGE";
                 } else {
                     this.type = "STRING";
                 }
