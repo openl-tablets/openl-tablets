@@ -242,7 +242,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     }
 
     @Override
-    protected RRepository createRepository() throws RRepositoryException {
+    public RRepository createRepository() throws RRepositoryException {
         if(convert){
             convert();
             convert = false;
