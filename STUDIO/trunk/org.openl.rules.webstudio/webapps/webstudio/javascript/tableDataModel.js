@@ -280,18 +280,20 @@ var tableModel = {
         editElem = element.previousSibling;
         element.style.display = "none";
         editElem.style.display = "";
-        editElem.innerHTML = document.getElementById("propsDataType").innerHTML;
-        editElem.firstChild.id = element.id;
-        editElem.firstChild.value = element.innerHTML;
-        
-        editElem.firstChild.focus();
+        editElem.innerHTML = $j("#propsDataType").html();
+        var selectBox = editElem.firstChild;
+        selectBox.id = element.id;
+        selectBox.value = element.innerHTML;
+
+        selectBox.focus();
 
         /*delete selected items*/
         for (i = 0; i < this.properties.length; i++) {
             if(this.properties[i].type != element.innerHTML) {
-                $j(editElem.firstChild).find('option[value="'+this.properties[i].type+'"]').remove(); 
+                $j(selectBox).find('option[value="'+this.properties[i].type+'"]').remove(); 
             }
         }
+
     },
 
     setDataTypeTo : function(elemId, value, id, valuesType) {
