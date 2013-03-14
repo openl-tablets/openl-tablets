@@ -248,7 +248,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             convert = false;
         }
         // TODO Auto-generated method stub
-        return super.createJcrRepository();
+        return super.createRepository();
     }
     
     /** {@inheritDoc} */
