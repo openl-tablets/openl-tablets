@@ -3,14 +3,11 @@ package org.openl.rules.ui.tablewizard;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -18,9 +15,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -33,6 +28,8 @@ import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.rules.domaintree.DomainTree;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -42,13 +39,12 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DataTableBuilder;
 import org.openl.rules.table.xls.builder.SimpleRulesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.ui.tablewizard.util.CellStyleManager;
+import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenClassDelegator;
-import org.richfaces.json.JSONArray;
 import org.richfaces.json.JSONException;
-import org.richfaces.json.JSONObject;
 
 public class SimpleRulesCreationWizard extends TableCreationWizard {
     @NotBlank(message = "Can not be empty")
@@ -56,7 +52,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     private String tableName;
     private SelectItem[] domainTypes;
     private String jsonTable;
-    private JSONObject table;
+    private JSONHolder table;
     private String restoreTable;
     private final String TABLE_TYPE = "xls.dt";
 
@@ -121,7 +117,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             }
         }
     }
-    
+
     public int getColumnSize() {
         int size = 0;
         size += this.parameters.size();
@@ -140,7 +136,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         propertyNames.add(selectItem);
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if(propDefinition.getDeprecation() == null) {
+            if (propDefinition.getDeprecation() == null) {
                 String propName = propDefinition.getName();
                 selectItem = new SelectItem(propName);
                 selectItem.setLabel(propDefinition.getDisplayName());
@@ -195,127 +191,38 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         super.onFinish();
     }
 
-    private String getHeaderStr() {
-        try {
-            String tableName = this.table.getJSONObject("header").getString("name");
-            JSONArray inParam = new JSONArray(table.getJSONObject("header").get("inParam").toString());
-            JSONObject returnObj = table.getJSONObject("header").getJSONObject("returnType");
-
-            String paramStr = "";
-            for (int i = 0; i < inParam.length(); i++) {
-                JSONObject param = (JSONObject) inParam.get(i);
-
-                paramStr += ((i > 0)? ", " : "") + param.getString("type") +((param.getBoolean("iterable"))? "[]" : "")+ " " + param.getString("name");
-            }
-
-            return returnObj.getString("type") +((returnObj.getBoolean("iterable"))? "[]" : "")+ " " +tableName + "("+paramStr+")";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);
         SimpleRulesTableBuilder builder = new SimpleRulesTableBuilder(gridModel);
 
-        JSONArray dataRow = null;
-        int rowSize = 0;
-        if (!this.table.isNull("dataRows")) {
-            try {
-                dataRow = new JSONArray(table.get("dataRows").toString());
-                rowSize = dataRow.length();
-            } catch (Exception e) {
-                
-            }
-        }
+        CellStyleManager styleManager = new CellStyleManager(gridModel, table);
 
         Map<String, Object> properties = buildProperties();
+        properties.putAll(table.getProperties());
 
         int width = DataTableBuilder.MIN_WIDTH;
         if (!properties.isEmpty()) {
             width = TableBuilder.PROPERTIES_MIN_WIDTH;
         }
 
-        width = Math.max(getFieldsCount(), width);
-        int height = TableBuilder.HEADER_HEIGHT + properties.size() + rowSize;
+        List<List<Map<String, Object>>> rows = table.getDataRows(styleManager);
+        width = Math.max(table.getFieldsCount(), width);
+        int height = TableBuilder.HEADER_HEIGHT + properties.size() + rows.size();
 
         builder.beginTable(width, height);
-        builder.writeHeader(getHeaderStr());
-        builder.writeProperties(properties, null);
+        builder.writeHeader(table.getHeaderStr(), styleManager.getHeaderStyle());
 
-        if (dataRow != null) {
-            try {
-                for (int i = 0; i < dataRow.length(); i++) {
-                    JSONArray rowElements = new JSONArray(dataRow.get(i).toString());
+        builder.writeProperties(properties, styleManager.getPropertyStyles());
 
-                    List<Object> row = new ArrayList<Object>();
-                    for (int j= 0; j < rowElements.length(); j++) {
-                        JSONObject dataCell = ((JSONObject)rowElements.get(j));
-                        if (dataCell.getString("valueType").equals("DATE")) {
-                            String dateString = dataCell.getString("value");
-                            String dateFormat = "yyyy-MM-dd'T'HH:mm:ss";
-
-                            SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
-                            formatter.setLenient(false);
-                            formatter.setTimeZone(TimeZone.getDefault());
-                            try{
-                                row.add(formatter.parse(dateString));
-                            } catch (Exception e) {
-                                row.add(dateString);
-                            }
-                        } else {
-                            row.add(((JSONObject)rowElements.get(j)).getString("value"));
-                        }
-                    }
-
-                    builder.writeTableBodyRow(row);
-                }
-            } catch (Exception e) {
-                
-            }
+        for(List<Map<String, Object>> row : rows) {
+            builder.writeTableBodyRow(row);
         }
 
         String uri = gridModel.getRangeUri(builder.getTableRegion());
 
         builder.endTable();
-        
+
         return uri;
-    }
-    
-    private int getFieldsCount() {
-        try {
-            JSONArray inParam = new JSONArray(table.getJSONObject("header").get("inParam").toString());
-            return  inParam.length() + 1;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    protected Map<String, Object> buildProperties() {
-        Map<String, Object> properties = new LinkedHashMap<String, Object>();
-
-        // Put system properties.
-        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
-            Map<String, Object> systemProperties = buildSystemProperties();
-            properties.putAll(systemProperties);
-        }
-
-        try {
-            if (!table.isNull("properties")) {
-                JSONArray propertiesJSON = new JSONArray(table.get("properties").toString());;
-                for (int i = 0; i < propertiesJSON.length(); i++) {
-                    JSONObject prop = (JSONObject) propertiesJSON.get(i);
-                    properties.put(prop.getString("type"), prop.getString("value"));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-            
-
-        return properties;
     }
 
     public void addParameter() {
@@ -384,7 +291,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         public void setType(String type) {
             this.type = type;
         }
-        
+
         DomainTypeHolder(String name, IOpenClass openClass, boolean iterable) {
             this.name = name;
             this.iterable = iterable;
@@ -416,6 +323,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                         openClass.toString().equals(double.class.getCanonicalName().toString()) ||
                         openClass.toString().equals(float.class.getCanonicalName().toString())) {
                     this.type = "FLOAT";
+                } else if (openClass.toString().equals(IntRange.class.getCanonicalName().toString()) ||
+                     openClass.toString().equals(DoubleRange.class.getCanonicalName().toString())) { 
+                    this.type = "RANGE";
                 } else {
                     this.type = "STRING";
                 }
@@ -456,8 +366,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     public void setJsonTable(String jsonTable) {
         this.jsonTable = jsonTable;
+
         try {
-            this.table = new JSONObject(jsonTable);
+            this.table = new JSONHolder(jsonTable);
             this.restoreTable = getTableInitFunction(jsonTable);
         } catch (JSONException e) {
             // TODO Auto-generated catch block
@@ -532,7 +443,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private int getParamId(String componentId) {
-        if(componentId != null) {
+        if (componentId != null) {
             String[] elements = componentId.split(":");
             
             if (elements.length > 3) {
@@ -541,6 +452,17 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         }
 
         return 0;
+    }
+
+    public boolean containsRemoveLink(Map<String, String> params) {
+        if (params == null)
+            return false;
+        for (String param : params.keySet()) {
+            if (param.endsWith("removeLink")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+
 public class DateTool {
 
     public static final int MONTHS_IN_YEAR = 12;
@@ -154,21 +155,17 @@ public class DateTool {
      * @param dateFormat 
      * @return String date format
      */
-    public static String dateToString(Date date, String dateFormat) {
+    public static String dateToString(Date date, String dateFormat) throws Exception {
         DateFormat df = null;
-        String stringDate = "Incorrect date format";
+        String stringDate = "";
         String datePattern = "([A-Za-z]{1,}(.|/|-| )){1,}";
 
-        try {
-            df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
+        df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
 
-            if (dateFormat == null) {
-                stringDate = df.format(date);
-            } else if (dateFormat.matches(datePattern)) {
-                stringDate = df.format(date);
-            }
-        } catch (Exception e) {
-            return stringDate;
+        if (dateFormat == null) {
+            stringDate = df.format(date);
+        } else if (dateFormat.matches(datePattern)) {
+            stringDate = df.format(date);
         }
 
         return stringDate;
@@ -178,8 +175,9 @@ public class DateTool {
      * Converts a date to the String value according the default locale. 
      * @param date
      * @return String date format
+     * @throws Exception 
      */
-    public static String dateToString (Date date) {
+    public static String dateToString (Date date) throws Exception {
         return dateToString(date, null);
     }
 }

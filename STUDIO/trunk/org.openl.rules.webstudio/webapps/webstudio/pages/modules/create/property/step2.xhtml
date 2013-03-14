@@ -35,13 +35,13 @@
             <br />
             <br />
             <h:panelGroup id="propertiesTable">
-                <table cellpadding="2">
+                <table cellpadding="2" >
                     <a4j:repeat id="property" value="#{propertiesManager.properties}" var="prop">
-                        <tr>
+                        <tr >
                             <td>
                                 <h:outputText value="#{prop.displayName}" />
                             </td>
-                            <td style="width: 156px">
+                            <td>
                                 <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
                                     rendered="#{prop.dateType}" required="true" requiredMessage="Can not be empty " />
 
@@ -64,7 +64,9 @@
                                     <f:setPropertyActionListener value="#{prop}"
                                         target="#{propertiesManager.propToRemove}" />
                                 </a4j:commandLink>
-                                <a4j:outputPanel ajaxRendered="true">
+                            </td>
+                            <td>
+                                <a4j:outputPanel ajaxRendered="true"  >
                                     <h:message for="date"
                                         styleClass="error" />
                                     <h:message for="inputText"
