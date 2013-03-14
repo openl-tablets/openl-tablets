@@ -176,16 +176,16 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     /** {@inheritDoc} */
     public RRepository getRepositoryInstance() throws RRepositoryException {
         if(rulesRepository == null){
-            rulesRepository = createJcrRepository();
+            rulesRepository = createRepository();
         }
         return rulesRepository;
     }
-
+/*
     protected RRepository createRepository() throws RRepositoryException {
         return createJcrRepository();
     }
-
-    protected RRepository createJcrRepository() throws RRepositoryException {
+*/
+    protected RRepository createRepository() throws RRepositoryException {
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession("user", "pass");
