@@ -88,9 +88,9 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
 
                 for (Module module : modulesOfProject) {
                     ModuleDescription moduleDescription = new ModuleDescription.ModuleDescriptionBuilder()
-                        .setDeploymentName(deployment.getDeploymentName())
-                        .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
-                        .setProjectName(project.getName()).build();
+                            .setDeploymentName(deployment.getDeploymentName())
+                            .setDeploymentVersion(deployment.getCommonVersion()).setModuleName(module.getName())
+                            .setProjectName(project.getName()).build();
                     serviceDescriptionBuilder.addModuleInService(moduleDescription);
                 }
 
@@ -129,10 +129,8 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                             }
                         }
                     }
-                    boolean lastVersion = isLastVersion(deployments, deployment);
-                    serviceDescriptionBuilder.setName(getServiceName(deployment, project, rulesDeploy, lastVersion));
-                    serviceDescriptionBuilder.setUrl(getServiceUrl(deployment, project, rulesDeploy, lastVersion));
-
+                    serviceDescriptionBuilder.setName(buildServiceName(deployment, project, rulesDeploy));
+                    serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, project, rulesDeploy));
                     ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
                     if (!serviceDescriptions.contains(serviceDescription)
                             && !serviceURLs.contains(serviceDescription.getUrl())) {
@@ -175,45 +173,20 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
     public void setSupportVariations(boolean supportVariations) {
         this.supportVariations = supportVariations;
     }
-    
-    private String getServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy, boolean lastVersion) {
-        if (lastVersion) {
-            if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getServiceName())) {
-                return rulesDeploy.getServiceName();
-            } else {
-                return String.format("%s_%s", deployment.getDeploymentName(), project.getName());
-            }
-        }
 
-        // Old version of deployment
-        return String.format("%s_%s_%s", deployment.getDeploymentName(), project.getName(), deployment
-                .getCommonVersion().getVersionName());
+    protected String buildServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
+        if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getServiceName())) {
+            return rulesDeploy.getServiceName();
+        } else {
+            return String.format("%s_%s", deployment.getDeploymentName(), project.getName());
+        }
     }
 
-    private  String getServiceUrl(Deployment deployment, AProject project, RulesDeploy rulesDeploy, boolean lastVersion) {
-        if (lastVersion) {
-            if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getUrl())) {
-                return rulesDeploy.getUrl();
-            } else {
-                return String.format("%s/%s", deployment.getDeploymentName(), project.getName());
-            }
+    protected String buildServiceUrl(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
+        if (rulesDeploy != null && !StringUtils.isEmpty(rulesDeploy.getUrl())) {
+            return rulesDeploy.getUrl();
+        } else {
+            return String.format("%s/%s", deployment.getDeploymentName(), project.getName());
         }
-
-        // Old version of deployment
-        return String.format("%s/%s/%s", deployment.getDeploymentName(), project.getName(), deployment
-                .getCommonVersion().getVersionName());
-    }
-
-    private boolean isLastVersion(Collection<Deployment> allDeployments, Deployment deployment) {
-        for (Deployment d : allDeployments) {
-            if (!d.getDeploymentName().equals(deployment.getDeploymentName())) {
-                continue;
-            }
-            if (d.getCommonVersion().compareTo(deployment.getCommonVersion()) > 0) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
