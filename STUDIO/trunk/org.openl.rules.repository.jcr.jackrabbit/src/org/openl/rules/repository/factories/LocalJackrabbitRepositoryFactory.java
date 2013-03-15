@@ -221,7 +221,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         return;
         
     }
-    
+
     private boolean isProductionRepository() {
         Session systemSession = null;
         try {
@@ -250,7 +250,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         // TODO Auto-generated method stub
         return super.createRepository();
     }
-    
+
     /** {@inheritDoc} */
     @Override
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {
