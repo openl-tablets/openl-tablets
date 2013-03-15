@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.commons.lang.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
@@ -80,7 +81,7 @@ public class CellEditorSelector {
                 }
 
             // Range
-            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class, true)) {
+            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class, true) && (!instanceClass.equals(CharRange.class))) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class, true)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER);
                 } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class, true)) {
