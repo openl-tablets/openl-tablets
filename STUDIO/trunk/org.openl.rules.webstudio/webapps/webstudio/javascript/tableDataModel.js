@@ -21,12 +21,12 @@ var tableModel = {
             params += "<span id=\"param"+i+"\" onclick=\"selectDataTypeAction(this,event,"+i+","+this.header.inParam[i].iterable+")\">"
             + this.header.inParam[i].type + ((this.header.inParam[i].iterable == true)? "[]" : "") +" </span> "
             +"<span style=\"display : none; position: absolute;\"><input type=\"text\" class=\"editTableInParam\" value=\""+((this.header.inParam[i].name == 'null') ? "" :  this.header.inParam[i].name)+"\" onchange=\"tableModel.setInParamValue(this,"+i+")\"/></span>"
-            +"<span onclick='tableModel.toEditMode(this)' id=\"param_value"+i+"\">" 
+            +"<span onclick='tableModel.toEditHeaderMode(this)' id=\"param_value"+i+"\">" 
             + ((this.header.inParam[i].name == 'null' || this.header.inParam[i].name == "") ? "undefined" :  this.header.inParam[i].name) +"</span>";
         }
 
         return  "<font style=\"position: relative\">SimpleRules <span id=\"returnSRT\" onclick=\"selectDataTypeAction(this,event, -1,"+this.header.returnType.iterable+")\">"+
-        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditMode(this)'>" + this.header.name
+        this.header.returnType.type + ((this.header.returnType.iterable == true)? "[]" : "") +"</span> <span style=\"display : none; position: absolute\"><input type=\"text\" class=\"editTableInParam\" value=\""+this.header.name+"\" onchange=\"tableModel.setInParamValue(this,-1)\"/></span><span onclick='tableModel.toEditHeaderMode(this)'>" + this.header.name
         + "</span> (" + params + ")</font>";
     },
 
@@ -97,7 +97,7 @@ var tableModel = {
         }
     },
 
-    toEditMode : function(element) {
+    toEditHeaderMode : function(element) {
         editElem = element.previousSibling;
         editElem.style.display = "";
         var textEditor = editElem.firstChild;
@@ -133,11 +133,14 @@ var tableModel = {
         };
     },
 
-    toEditorMode : function(cell) {
+    toEditDataMode : function(cell, event) {
+        event.stopPropagation();
         element = cell.firstChild;
 
         editor = new Editor();
         editor.initElement(cell);
+
+        return false;
     },
 
     toEditPropsMode : function(cell) {
@@ -280,18 +283,20 @@ var tableModel = {
         editElem = element.previousSibling;
         element.style.display = "none";
         editElem.style.display = "";
-        editElem.innerHTML = document.getElementById("propsDataType").innerHTML;
-        editElem.firstChild.id = element.id;
-        editElem.firstChild.value = element.innerHTML;
-        
-        editElem.firstChild.focus();
+        editElem.innerHTML = $j("#propsDataType").html();
+        var selectBox = editElem.firstChild;
+        selectBox.id = element.id;
+        selectBox.value = element.innerHTML;
+
+        selectBox.focus();
 
         /*delete selected items*/
         for (i = 0; i < this.properties.length; i++) {
             if(this.properties[i].type != element.innerHTML) {
-                $j(editElem.firstChild).find('option[value="'+this.properties[i].type+'"]').remove(); 
+                $j(selectBox).find('option[value="'+this.properties[i].type+'"]').remove(); 
             }
         }
+
     },
 
     setDataTypeTo : function(elemId, value, id, valuesType) {

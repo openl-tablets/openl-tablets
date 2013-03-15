@@ -1,4 +1,5 @@
 function contentMenuAction(cell, event, isTitle) {
+    //FIXME move out tableModel using
     var dataRowsStartIndex = tableModel.startDataTableRowIndex();
 
     if(!dataRowsStartIndex)
@@ -53,7 +54,7 @@ function contentMenuAction(cell, event, isTitle) {
         div.appendChild(addColLink);
     }
 
-    if(isTitle) {
+    if(isTitle && isPropertyCanBeAdded()) {
         div.appendChild(document.createElement('br'));
 
         var addColLink = document.createElement('a');
@@ -78,13 +79,15 @@ function propsContentMenuAction(cell, event) {
     addRowLink.innerHTML = ("Delete Property");
     div.appendChild(addRowLink);
 
-    div.appendChild(document.createElement('br'));
+    if(isPropertyCanBeAdded()) {
+        div.appendChild(document.createElement('br'));
 
-    var addColLink = document.createElement('a');
-    addColLink.setAttribute('href','javascript:void(0)');
-    addColLink.setAttribute('onclick','tableModel.addNewProps();');
-    addColLink.innerHTML = ("Add Property");
-    div.appendChild(addColLink);
+        var addColLink = document.createElement('a');
+        addColLink.setAttribute('href','javascript:void(0)');
+        addColLink.setAttribute('onclick','tableModel.addNewProps();');
+        addColLink.innerHTML = ("Add Property");
+        div.appendChild(addColLink);
+    }
 
     event.preventDefault();
     PopupMenu.sheduleShowMenu('srtPopupDiv', event, 0);
@@ -109,4 +112,9 @@ function arrayContexMenu(event, id, iterable) {
     event.preventDefault();
     PopupMenu.sheduleShowMenu('srtPopupDiv', event, 0);
     return false;
+}
+
+//FIXME move out tableModel using
+function isPropertyCanBeAdded() {
+    return ($j("#propsDataType").find('option').size() - 1) > tableModel.properties.length;
 }
