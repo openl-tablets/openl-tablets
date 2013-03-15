@@ -9,21 +9,23 @@ verticalRenderer = {
     /*  
     Take away these style methods to a new class which should be inherited by new style-scheme classes. Delegate methods from that new class to this class
     */
+    //DON'T use color #FFFFFF and #00000 you will have problem
     setDefaultStyle : function(obj) {
         obj.style.textAlign = "center";
         obj.style.fontSize = "12px";
         obj.style.fontFamily = "Franklin Gothik Book";
         obj.style.minWidth = "50px";
         obj.style.height = "21px";
+        obj.style.backgroundColor="#FFFFFE";
     },
 
     setHeaderStyle : function(obj) {
         this.setDefaultStyle(obj);
 
-        obj.style.color = "#000000";
-        obj.style.backgroundColor="#FFFFFF";
-        obj.style.borderTop = "1px solid #000000";
-        obj.style.borderBottom = "1px solid #000000";
+        obj.style.color = "#000001";
+        //obj.style.backgroundColor="#FFFFFF";
+        obj.style.borderTop = "1px solid #000001";
+        obj.style.borderBottom = "1px solid #000001";
 
         tableModel.header.style.push(obj.style);
     },
@@ -32,7 +34,7 @@ verticalRenderer = {
         this.setDefaultStyle(obj);
 
         obj.style.backgroundColor= "#A6A6A6";
-        obj.style.borderBottom = "1px solid #000000";
+        obj.style.borderBottom = "1px solid #000001";
         obj.style.fontWeight = 'bold';
 
         obj.data.style = obj.style;
@@ -41,7 +43,7 @@ verticalRenderer = {
     setDataStyle : function(obj) {
         this.setDefaultStyle(obj);
 
-        obj.style.backgroundColor="#FFFFFF";
+        //obj.style.backgroundColor="#FFFFFF";
         obj.style.borderWidth = "1px 1px 1px 1px";
         obj.style.borderColor = "#DDDDDD #DDDDDD #DDDDDD #DDDDDD";
         obj.style.borderStyle = "solid solid solid solid";
@@ -54,7 +56,7 @@ verticalRenderer = {
 
         obj.style.textAlign="left";
         obj.style.color = "#808080";
-        obj.style.backgroundColor="#FFFFFF";
+        //obj.style.backgroundColor="#FFFFFF";
     },
 
     setPropValueStyle : function(obj) {
@@ -62,7 +64,7 @@ verticalRenderer = {
 
         obj.style.textAlign="left";
         obj.style.color = "#808080";
-        obj.style.backgroundColor="#FFFFFF";
+        //obj.style.backgroundColor="#FFFFFF";
 
         obj.data.style = obj.style;
     },
@@ -92,7 +94,7 @@ verticalRenderer = {
         obj.style.borderTop = "1px solid #DDDDDD";
 
         if(!isReturnCell) {
-            obj.style.borderBottom = "1px solid #000000";
+            obj.style.borderBottom = "1px solid #000001";
         } else {
             obj.style.borderBottom = "3px solid #FFC91D";
         }
