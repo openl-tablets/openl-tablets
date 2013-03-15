@@ -9,7 +9,7 @@ verticalRenderer = {
     /*  
     Take away these style methods to a new class which should be inherited by new style-scheme classes. Delegate methods from that new class to this class
     */
-    //DON'T use color #FFFFFF and #00000 you will have problem
+    //NOT use color #FFFFFF and #00000 you will have problem wich colors
     setDefaultStyle : function(obj) {
         obj.style.textAlign = "center";
         obj.style.fontSize = "12px";
@@ -187,7 +187,7 @@ verticalRenderer = {
             cell.setAttribute('onclick','tableModel.toEditPropsMode(this)');
             return value;
         } else if(type == "VALUE"){
-            cell.setAttribute('onclick','tableModel.toEditorMode(this)');
+            cell.setAttribute('onclick','tableModel.toEditDataMode(this, event)');
             return cell.data.value;
         } else {
             return value;

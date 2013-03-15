@@ -33,6 +33,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     equals: false,
     moreThan: false,
     range: false,
+    onBlur: null,
 
     editor_initialize: function(param) {
         var self = this;
@@ -413,11 +414,39 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
          self.values[1].onkeyup = function() {self.changeRange()};
      },
 
-    close: function() {
+     close: function() {
         if (!this.destroyed) {
             Event.stopObserving(document, 'click', this.documentClickListener);
             Element.remove(this.rangePanel);
             this.destroyed = true;
+
+            if (this.onBlur) {
+                this.onBlur();
+            }
+        }
+    },
+
+    focus: function() {
+        this.open();
+    },
+
+    bind: function($super, event, handler) {
+        if (event == "blur") {
+            // TODO Use array to keep a few blur handlers
+            this.onBlur = handler;
+        } else {
+            $super(event, handler);
+        }
+    },
+
+    unbind: function($super, event, handler) {
+        if (!event) {
+            this.onBlur = null;
+            $super(event, handler);
+        } else if (event == "blur") {
+            this.onBlur = null;
+        } else {
+            $super(event, handler);
         }
     },
 
@@ -525,7 +554,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     documentClickHandler: function(e) {
         var element = Event.element(e);
         var abort = false;
-        if (!this.is(element)) this.close();
+        if (!this.is(element)) {
+            this.close();
+        }
     },
 
     is: function($super, element) {
@@ -533,7 +564,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             return true;
         } else {
             do {
-                if (element == this.rangePanel) return true;
+                if (element == this.rangePanel) {
+                    return true;
+                }
             } while (element = element.parentNode);
         }
         return false;
