@@ -37,7 +37,7 @@ public class IntValueTest {
     	IntValue v1 = new IntValue(123);
     	IntValue v2 = null;    	
     	assertEquals(123, IntValue.add(v1, v2).intValue());
-    	
+
     	v1 = null;
     	v2 = new IntValue(1578);
     	assertEquals(1578, IntValue.add(v1, v2).intValue());
@@ -119,6 +119,32 @@ public class IntValueTest {
         } catch (IllegalArgumentException e) {
             assertEquals("There is no position '5' in the given array", e.getMessage());
         }
+    }
+
+    @Test
+    public void testEq () {
+        IntValue v = new IntValue(1);
+        IntValue v2 = new IntValue(1);
+        assertEquals(v, v2);
+    }
+
+    @Test
+    public void testCopy () {
+        IntValue v = new IntValue(1);
+        IntValue copied = IntValue.copy(v, "v2");
+
+        assertEquals("v2", copied.getName());
+        assertEquals(v.getValue(), copied.getValue());
+
+    }
+
+    @Test
+    public void testRem () {
+        IntValue v = new IntValue (1);
+        IntValue v2 = new IntValue (2);
+        IntValue rem = IntValue.rem(v, v2);
+
+        assertEquals(1, rem.getValue());
     }
 
 }
