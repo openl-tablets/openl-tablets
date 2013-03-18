@@ -246,7 +246,18 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.values[1].value = values[1];
                 self.checkboxes[0].setAttribute("checked", "checked");
                 self.checkboxes[1].setAttribute("checked", "checked");
-            } else if (values[0] || values[1]) {
+            } else if (!values[0] && !values[1] || values[0] && !self.isValid(values[0])){
+                if (values[0]) {
+                    self.input.value = null;
+                }
+                self.currentSeparator = self.generalSeparator;
+                self.values[0] = "";
+                self.values[1] = "";
+                self.disableInputsChecks(2);
+                self.checkboxes[0].setAttribute("checked", "checked");
+                self.checkboxes[1].setAttribute("checked", "checked");
+                document.getElementById("btnDone").setAttribute("disabled", "disabled");
+            } else {
                 self.currentSeparator = self.generalSeparator;
                 self.disableInputsChecks(3);
                 if (values[0]) {
@@ -255,14 +266,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.values[1].value = -values[1];
                 }
                 self.equals = true;
-            } else {
-                self.currentSeparator = self.generalSeparator;
-                self.values[0] = "";
-                self.values[1] = "";
-                self.disableInputsChecks(2);
-                self.checkboxes[0].setAttribute("checked", "checked");
-                self.checkboxes[1].setAttribute("checked", "checked");
-                document.getElementById("btnDone").setAttribute("disabled", "disabled");
             }
         }
         self.changeRange();
