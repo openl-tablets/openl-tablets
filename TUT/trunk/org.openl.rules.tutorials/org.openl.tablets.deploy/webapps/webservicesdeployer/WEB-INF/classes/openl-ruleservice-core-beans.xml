@@ -21,11 +21,11 @@
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
 		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
-        <property name="externalParameters">
-            <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-                <property name="location" value="classpath:system.properties"/>
-            </bean>
-        </property>
+		<property name="externalParameters">
+			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+				<property name="location" value="classpath:system.properties"/>
+			</bean>
+		</property>
 	</bean>
 
 	<!-- Controls all services currently exposed.
