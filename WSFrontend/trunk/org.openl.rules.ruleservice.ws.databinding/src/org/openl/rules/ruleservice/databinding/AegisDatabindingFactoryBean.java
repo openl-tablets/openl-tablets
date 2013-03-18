@@ -119,7 +119,7 @@ public class AegisDatabindingFactoryBean {
             typeMapping.register(aegisType);
         } catch (Exception e) {
             if (log.isWarnEnabled()) {
-                log.warn("Aegis type \"" + aegisTypeClassName + "\" registeration failed!", e);
+                log.warn("Aegis type \"" + aegisTypeClassName + "\" registration failed!", e);
             }
         }
     }
@@ -127,7 +127,7 @@ public class AegisDatabindingFactoryBean {
     protected void loadAegisTypeClassAndRegister(String typeClassName, String aegisTypeClassName, QName qName,
             TypeMapping typeMapping) {
         try {
-            Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(aegisTypeClassName);
+            Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(typeClassName);
             Class<?> aegisTypeClazz = Thread.currentThread().getContextClassLoader().loadClass(aegisTypeClassName);
             Constructor<?> constructor = aegisTypeClazz.getConstructor();
             AegisType aegisType = (AegisType) constructor.newInstance();

@@ -20,6 +20,7 @@
 	<bean id="serviceDescriptionConfigurationSupportVariationsFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationSupportVariationsFactoryBean"
 		scope="prototype" >
+		<property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
 	</bean>
 
 	<!-- Data binding type in WebServices(set it to the "serverPrototype" bean). -->
