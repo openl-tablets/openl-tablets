@@ -22,7 +22,10 @@
           <input id="projectName1" value="#{artefact.name}" type="text" size="35"
               readonly="readonly" title="#{artefact.name}"/>
           <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name" />
-          <h:inputText id="newProjectName" size="35" maxlength="50" value="#{repositoryTreeController.newProjectName}" />
+          <h:inputText id="newProjectName" size="35"
+              maxlength="50"
+              value="#{repositoryTreeController.newProjectName}"
+              onkeyup="#{rich:element('sbt')}.disabled = this.value.length == 0;" />
         </h:panelGrid>
   
         <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
@@ -38,6 +41,8 @@
   </rich:popupPanel>
 
   <script>
+    #{rich:element('sbt')}.disabled = true;
+
     function openCopyProjectDialog(projectName) {
       if (projectName) {
         document.getElementById('projectName1').value = projectName;
