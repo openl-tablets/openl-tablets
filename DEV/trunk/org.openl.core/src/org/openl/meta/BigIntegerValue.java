@@ -26,37 +26,78 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     private java.math.BigInteger value;
 
 
+    /**
+     * Compares two values
+     * @param value1
+     * @param value2
+     * @return true if  value1 equal value2
+     */
     public static boolean eq(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         validate(value1, value2, LogicalExpressions.EQ.toString());
 
         return Operators.eq(value1.getValue(), value2.getValue());
     }
+    /**
+     * Compares two values
+     * @param value1
+     * @param value2
+     * @return true if  value1 greater or equal value2
+     */
     public static boolean ge(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         validate(value1, value2, LogicalExpressions.GE.toString());
 
         return Operators.ge(value1.getValue(), value2.getValue());
     }
+    /**
+     * Compares two values
+     * @param value1
+     * @param value2
+     * @return true if  value1 greater value2
+     */
     public static boolean gt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         validate(value1, value2, LogicalExpressions.GT.toString());
 
         return Operators.gt(value1.getValue(), value2.getValue());
     }
+    /**
+     * Compares two values
+     * @param value1
+     * @param value2
+     * @return true if  value1 less or equal value2
+     */
     public static boolean le(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         validate(value1, value2, LogicalExpressions.LE.toString());
 
         return Operators.le(value1.getValue(), value2.getValue());
     }
+    /**
+     * Compares two values
+     * @param value1
+     * @param value2
+     * @return true if  value1 less value2
+     */
     public static boolean lt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         validate(value1, value2, LogicalExpressions.LT.toString());
 
         return Operators.lt(value1.getValue(), value2.getValue());
     }
+    /**
+     * Compares two values
+     * @param value1
+     * @param value2
+     * @return true if  value1 not equal value2
+     */
     public static boolean ne(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         validate(value1, value2, LogicalExpressions.NE.toString());
 
         return Operators.ne(value1.getValue(), value2.getValue());
     }
 
+     /**
+     * average
+     * @param values  array of org.openl.meta.BigIntegerValue values
+     * @return the average value from the array
+     */
     public static org.openl.meta.BigIntegerValue avg(org.openl.meta.BigIntegerValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -65,6 +106,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         java.math.BigInteger avg = MathUtils.avg(primitiveArray);
         return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(avg), NumberOperations.AVG, values);
     }
+     /**
+     * sum
+     * @param values  array of org.openl.meta.BigIntegerValue values
+     * @return the sum value from the array
+     */
     public static org.openl.meta.BigIntegerValue sum(org.openl.meta.BigIntegerValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -73,6 +119,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         java.math.BigInteger sum = MathUtils.sum(primitiveArray);
         return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(sum), NumberOperations.SUM, values);
     }
+     /**
+     * median
+     * @param values  array of org.openl.meta.BigIntegerValue values
+     * @return the median value from the array
+     */
     public static org.openl.meta.BigIntegerValue median(org.openl.meta.BigIntegerValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -82,6 +133,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(median), NumberOperations.MEDIAN, values);
     }
 
+     /**
+     * Compares value1 and value2 and returns the max value
+     * @param value1
+     * @param value2
+     * @return max value
+     */
     public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
@@ -95,6 +152,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             NumberOperations.MAX,
             new org.openl.meta.BigIntegerValue[] { value1, value2 });
     }
+     /**
+     * Compares value1 and value2 and returns the min value
+     * @param value1
+     * @param value2
+     * @return min value
+     */
     public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
@@ -109,19 +172,34 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             new org.openl.meta.BigIntegerValue[] { value1, value2 });
     }
 
+    /**
+     * 
+     * @param values an array org.openl.meta.BigIntegerValue, must not be null
+     * @return org.openl.meta.BigIntegerValue the max element from array
+     */
     public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue[] values) {
         org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.max(values);
 
         return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
     }
+    /**
+     * 
+     * @param values an array org.openl.meta.BigIntegerValue, must not be null
+     * @return org.openl.meta.BigIntegerValue the min element from array
+     */
     public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue[] values) {
         org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.min(values);
 
         return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);
     }
-
+        /**
+     * 
+     * @param value of variable which should be copied
+     * @param name of new variable
+     * @return the new org.openl.meta.BigIntegerValue variable with name <b>name</b> and value <b>value</b>
+     */
     public static org.openl.meta.BigIntegerValue copy(org.openl.meta.BigIntegerValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
@@ -138,6 +216,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     //REM
+    /**
+     * Divides left hand operand by right hand operand and returns remainder
+     * @param value1 org.openl.meta.BigIntegerValue 
+     * @param value2 org.openl.meta.BigIntegerValue 
+     * @return remainder from division value1 by value2
+     */
     public static org.openl.meta.BigIntegerValue rem(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
@@ -150,6 +234,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     //ADD
+     /**
+     * Adds left hand operand to right hand operand
+     * @param value1 org.openl.meta.BigIntegerValue
+     * @param value2 org.openl.meta.BigIntegerValue
+     * @return the result of addition operation
+     */
     public static org.openl.meta.BigIntegerValue add(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // temporary commented to support operations with nulls
         //
@@ -168,6 +258,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 }
 
     // MULTIPLY
+     /**
+     * Multiplies left hand operand to right hand operand
+     * @param value1 org.openl.meta.BigIntegerValue
+     * @param value2 org.openl.meta.BigIntegerValue
+     * @return the result of multiplication  operation
+     */
     public static org.openl.meta.BigIntegerValue multiply(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // temporary commented to support operations with nulls
         //
@@ -185,6 +281,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     //SUBTRACT
+    /**
+     * Subtracts left hand operand to right hand operand
+     * @param value1 org.openl.meta.BigIntegerValue
+     * @param value2 org.openl.meta.BigIntegerValue
+     * @return the result of subtraction  operation
+     */
     public static org.openl.meta.BigIntegerValue subtract(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // temporary commented to support operations with nulls
         //
@@ -206,6 +308,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     // DIVIDE
+    /**
+     * Divides left hand operand by right hand operand
+     * @param value1 org.openl.meta.BigIntegerValue
+     * @param value2 org.openl.meta.BigIntegerValue
+     * @return the result of division  operation
+     */
     public static org.openl.meta.BigIntegerValue divide(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // temporary commented to support operations with nulls
         //
@@ -233,6 +341,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     // QUAOTIENT
+    /**
+     * Divides left hand operand by right hand operand
+     * @param value1 org.openl.meta.BigIntegerValue
+     * @param value2 org.openl.meta.BigIntegerValue
+     * @return LongValue the result of division  operation
+     */
     public static LongValue quotient(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
@@ -242,6 +356,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     // generated product function for big types
+     /**
+     * Multiplies the numbers from the provided array and returns the product as a number.
+     * @param values an array of IntValue which will be converted to DoubleValue
+     * @return the product as a number
+     */
     public static org.openl.meta.BigIntegerValue product(org.openl.meta.BigIntegerValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -251,7 +370,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         // we loose the parameters, but not the result of computation.
         return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(product), NumberOperations.PRODUCT, null);
     }
-
+     /**
+     *   
+     * @param number
+     * @param divisor
+     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor.
+     */
     public static org.openl.meta.BigIntegerValue mod(org.openl.meta.BigIntegerValue number, org.openl.meta.BigIntegerValue divisor) {
         if (number != null && divisor != null) {
             org.openl.meta.BigIntegerValue result = new org.openl.meta.BigIntegerValue(MathUtils.mod(number.getValue(), divisor.getValue()));
@@ -260,6 +384,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return null;
     }
 
+    /**
+     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position <b>position</b>
+     * @param values array of org.openl.meta.BigIntegerValue values 
+     * @param position int value
+     * @return the value from array <b>values</b> at position <b>position</b>
+     */
     public static org.openl.meta.BigIntegerValue small(org.openl.meta.BigIntegerValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -270,6 +400,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             NumberOperations.SMALL, values);
     }
 
+    /**
+     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position <b>position</b>
+     * @param values array of org.openl.meta.BigIntegerValue values 
+     * @param position int value
+     * @return the value from array <b>values</b> at position <b>position</b>
+     */
     public static org.openl.meta.BigIntegerValue big(org.openl.meta.BigIntegerValue[] values, int position) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
@@ -280,6 +416,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             NumberOperations.BIG, values);
     }
 
+    /**
+     * 
+     * @param value1
+     * @param value2
+     * @return the result of value1 raised to the power of value2
+     */
     public static org.openl.meta.BigIntegerValue pow(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
@@ -295,6 +437,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             NumberOperations.POW, new org.openl.meta.BigIntegerValue[] { value1, value2 });
     }
 
+    /**
+     * 
+     * @param value
+     * @return the absolute value (module) of the value <b>value </b>
+     */
     public static org.openl.meta.BigIntegerValue abs(org.openl.meta.BigIntegerValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
@@ -307,6 +454,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return new org.openl.meta.BigIntegerValue(result, NumberOperations.ABS, new org.openl.meta.BigIntegerValue[] { value });
     }
 
+    /**
+     * 
+     * @param value
+     * @return the negative value of the <b>value</b>
+     */
     public static org.openl.meta.BigIntegerValue negative(org.openl.meta.BigIntegerValue value) {
         if (value == null) {
             return null;
@@ -314,35 +466,86 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return multiply(value, MINUS_ONE);
     }
 
+    /**
+     * 
+     * @param value
+     * @return the <b>value</b> increased by 1
+     */
     public static org.openl.meta.BigIntegerValue inc(org.openl.meta.BigIntegerValue value) {
         return add(value, ONE);
     }
 
+    /**
+     * 
+     * @param value
+     * @return the <b>value</b>
+     */
     public static org.openl.meta.BigIntegerValue positive(org.openl.meta.BigIntegerValue value) {
         return value;
     }
 
+    /**
+     * 
+     * @param value
+     * @return the <b>value </b> decreased by 1
+     */
     public static org.openl.meta.BigIntegerValue dec(org.openl.meta.BigIntegerValue value) {
         return subtract(value, ONE);
     }
 
     // Autocasts
 
+    /**
+     * Is used to overload implicit cast operators from byte to org.openl.meta.BigIntegerValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
     public static org.openl.meta.BigIntegerValue autocast(byte x, org.openl.meta.BigIntegerValue y) {
         return new org.openl.meta.BigIntegerValue(String.valueOf(x));
     }
+    /**
+     * Is used to overload implicit cast operators from short to org.openl.meta.BigIntegerValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
     public static org.openl.meta.BigIntegerValue autocast(short x, org.openl.meta.BigIntegerValue y) {
         return new org.openl.meta.BigIntegerValue(String.valueOf(x));
     }
+    /**
+     * Is used to overload implicit cast operators from int to org.openl.meta.BigIntegerValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
     public static org.openl.meta.BigIntegerValue autocast(int x, org.openl.meta.BigIntegerValue y) {
         return new org.openl.meta.BigIntegerValue(String.valueOf(x));
     }
+    /**
+     * Is used to overload implicit cast operators from long to org.openl.meta.BigIntegerValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
     public static org.openl.meta.BigIntegerValue autocast(long x, org.openl.meta.BigIntegerValue y) {
         return new org.openl.meta.BigIntegerValue(String.valueOf(x));
     }
+    /**
+     * Is used to overload implicit cast operators from float to org.openl.meta.BigIntegerValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
     public static org.openl.meta.BigIntegerValue autocast(float x, org.openl.meta.BigIntegerValue y) {
         return new org.openl.meta.BigIntegerValue(String.valueOf(x));
     }
+    /**
+     * Is used to overload implicit cast operators from double to org.openl.meta.BigIntegerValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
     public static org.openl.meta.BigIntegerValue autocast(double x, org.openl.meta.BigIntegerValue y) {
         return new org.openl.meta.BigIntegerValue(String.valueOf(x));
     }
@@ -374,25 +577,40 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         this.value = new java.math.BigInteger(valueString);
     }
 
+    /**
+    *Copy the current value with new name <b>name</b>
+    */
     @Override
     public org.openl.meta.BigIntegerValue copy(String name) {
         return copy(this, name);
     }
 
+    /**
+    * Prints the value of the current variable
+    */
     public String printValue() {
         return String.valueOf(value);
     }
 
+    /**
+    * Returns the value of the current variable
+    */
     public java.math.BigInteger getValue() {
         return value;
     }
 
+    /**
+    * Sets the value of the current variable
+    */
     public void setValue(java.math.BigInteger value) {
         this.value = value;
     }
 
     //Equals
     @Override
+     /**
+     * Indicates whether some other object is "equal to" this org.openl.meta.BigIntegerValue variable. 
+     */
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.BigIntegerValue) {
             org.openl.meta.BigIntegerValue secondObj = (org.openl.meta.BigIntegerValue) obj;
@@ -403,6 +621,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     // sort
+    /**
+    * Sorts the array <b>values</b>
+    * @param values an array for sorting
+    * @return the sorted array
+    */
     public static org.openl.meta.BigIntegerValue[] sort (org.openl.meta.BigIntegerValue[] values ) {
         org.openl.meta.BigIntegerValue[] sortedArray = null;
         if (values != null) {

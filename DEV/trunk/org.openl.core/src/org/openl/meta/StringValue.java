@@ -34,16 +34,25 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     public IOpenSourceCodeModule asSourceCodeModule() {
         return new StringSourceCodeModule(value, getMetaInfo().getSourceUrl());
     }
-
+    
+    /**
+     * Returns a character at position 'index' of current StringValue variable
+     */
     public char charAt(int index) {
         return value.charAt(index);
     }
 
+    /**
+     * Compares StringValue v with current StringValue variable
+     */
     public int compareTo(StringValue v) {
         return value.compareTo(v.value);
     }
 
     @Override
+    /**
+     * Indicates whether some other object is "equal to" this org.openl.meta.IntValue variable. 
+     */
     public boolean equals(Object obj) {
 
         if (obj instanceof StringValue) {
@@ -58,27 +67,47 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         return false;
     }
 
+    /**
+     * Returns the metainfo of current StringValue variable
+     */
     public ValueMetaInfo getMetaInfo() {
         return metaInfo;
     }
-
+    
+    /**
+     * 
+     * @return the value of current StringValue variable
+     */
     public String getValue() {
         return value;
     }
 
     @Override
+    /**
+     * Returns the hash code of the value
+     */
     public int hashCode() {
         return value.hashCode();
     }
 
+    /**
+     * 
+     * @return true if value is empty, and false if not
+     */
     public boolean isEmpty() {
         return value.trim().length() == 0;
     }
 
+    /**
+     * Return the length of the value
+     */
     public int length() {
         return value.length();
     }
 
+    /**
+     * Sets the metainfo for the value
+     */
     public void setMetaInfo(IMetaInfo metaInfo) {
         if (metaInfo instanceof ValueMetaInfo) {
             setMetaInfo((ValueMetaInfo) metaInfo);
@@ -95,14 +124,24 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         }
     }
 
+    /**
+     * Sets the metainfo for the value
+     */
     public void setMetaInfo(ValueMetaInfo metaInfo) {
         this.metaInfo = metaInfo;
     }
 
+    /**
+     * Sets a value for the current StringValue variable 
+     * @param value
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     * Returns a new character sequence that is a subsequence of this sequence.
+     */
     public CharSequence subSequence(int start, int end) {
         return value.subSequence(start, end);
     }
@@ -112,6 +151,11 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         return value;
     }
 
+    /**
+     * Sorts the StringValue array
+     * @param values array for sorting
+     * @return the sorted array
+     */
     public static StringValue[] sort(StringValue[] values) {
         StringValue[] sortedArray = null;
         if (values != null) {
