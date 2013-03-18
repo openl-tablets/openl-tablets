@@ -39,7 +39,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         if (!children[0].isLvalue()) {
 
             String message = String.format("The node '%s' is not an Lvalue", children[0].getClass().getName());
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
             //            throw new BoundError(message,                children[0].getSyntaxNode());
