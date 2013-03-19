@@ -19,7 +19,6 @@
         </style>
 
         <h:form>
-          <f:validateBean disabled="#{wizard.containsRemoveLink(param)}">
             <h:panelGrid columns="3" cellspacing="5">
                 <h:outputText value="Table Name" styleClass="required" />
                 <h:inputText id="srTableName" value="#{wizard.tableName}" immediate="true" />
@@ -32,6 +31,7 @@
                     <f:selectItems value="#{wizard.domainTypes}" />
                 </h:selectOneMenu>
             </h:panelGrid>
+          <f:validateBean disabled="true">
             <h:panelGroup id="inputParamTable">
                 <h:dataTable value="#{wizard.parameters}" var="parameter" rendered="#{!empty wizard.parameters}">
                     <h:column>
@@ -55,7 +55,8 @@
                             <h:outputText value="Name"/>
                         </f:facet>
                         <h:inputText id="pname" value="#{parameter.name}"
-                        valueChangeListener="#{wizard.pNameListener}"/>
+                        valueChangeListener="#{wizard.pNameListener}" validator="#{wizard.validatePropsName}">
+                        </h:inputText>
                     </h:column>
 
                     <h:column>
