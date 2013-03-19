@@ -46,7 +46,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
 
-            if (Character.isLetterOrDigit(c)) {
+            if (Character.isLetterOrDigit(c) || c == '_' || c == '-') {
                 sb.append(c);
             } else {
                 // replace non letter or digit char with "(<hex>)"
