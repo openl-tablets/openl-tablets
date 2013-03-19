@@ -5277,7 +5277,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         table.appendChild(this.tdValues[0]);
 
         var buttnons = new Element("td")
-                .update('<input type="button" id="btnMore" value=">"/> <br/> <input type="button" id="btnLess" value="<"/> <br/> <input type="button" id="btnRange" value="-"/> <br/> <input type="button" id="btnEquals" value="="/>');
+                .update('<input type="button" id="btnMore"  title="More than" value=">"/> <br/> <input type="button" id="btnLess"  title="Less than" value="<"/> <br/> <input type="button" id="btnRange"  title="Range" value="-"/> <br/> <input type="button" id="btnEquals" title="Equals" value="="/>');
         table.appendChild(buttnons);
 
         table.appendChild(this.tdValues[1]);
@@ -5358,7 +5358,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: white; border:1px solid gray;");
+        // TODO Move to CSS file
+        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: #fff; border:1px solid #d2d2d2;box-shadow: 2px 2px 3px #eee;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
 
@@ -5407,8 +5408,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.disableInputsChecks(2);
                     self.values[0].value = values[0];
                     self.values[1].value = values[1];
-                    self.checkboxes[0].setAttribute("checked", "checked");
-                    self.checkboxes[1].setAttribute("checked", "checked");
                 } else {
                     self.disableInputsChecks(0);
                     self.moreThan = "true";
@@ -5432,6 +5431,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.disableInputsChecks(0);
                     self.moreThan = "true";
                     if (value.charAt(1) == "=") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
                         self.values[1].value = value.substring(2);
                     } else {
                         self.values[1].value = value.substring(1);
@@ -5445,6 +5445,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
                 } else {
                     values = self.splitValue(value, self.currentSeparator);
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                    self.checkboxes[1].setAttribute("checked", "checked");
                 }
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
@@ -5492,17 +5494,23 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             if (this.values[1].value) content = this.currentSeparator + this.values[1].value;
         } else if (this.currentSeparator == " and more") {
             if (this.values[1].value) content = this.values[1].value + this.currentSeparator;
+        } else if (this.currentSeparator == " - " || this.currentSeparator == "-") {
+            content = this.values[0].value + " - " + this.values[1].value;
         } else if (this.values[0].value || this.range) {
-            if (this.checkboxes[0].checked) {
-                content = "[";
+            if (this.checkboxes[0].checked && this.checkboxes[1].checked) {
+                content = this.values[0].value + " .. " + this.values[1].value;
             } else {
-                content = "(";
-            }
-            content = content + this.values[0].value + "-" + this.values[1].value;
-            if (this.checkboxes[1].checked) {
-                content = content + "]";
-            } else {
-                content = content + ")";
+                if (this.checkboxes[0].checked) {
+                    content = "[";
+                } else {
+                    content = "(";
+                }
+                content = content + this.values[0].value + " .. " + this.values[1].value;
+                if (this.checkboxes[1].checked) {
+                    content = content + "]";
+                } else {
+                    content = content + ")";
+                }
             }
         } else if (this.values[1].value) {
             if (!this.equals) {
