@@ -5446,6 +5446,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
                 } else {
                     values = self.splitValue(value, self.currentSeparator);
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                    self.checkboxes[1].setAttribute("checked", "checked");
                 }
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
