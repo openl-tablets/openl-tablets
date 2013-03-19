@@ -99,6 +99,29 @@ public class UsersBean {
         return groups.toArray(new String[groups.size()]);
     }
 
+    public String[] getOnlyAdminGroups(Object objUser) {
+        if (!isOnlyAdmin(objUser)) {
+            return new String[0];
+        }
+
+        String adminPrivilege = DefaultPrivileges.PRIVILEGE_ADMINISTRATE.name();
+        String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
+
+        List<String> groups = new ArrayList<String>();
+        @SuppressWarnings("unchecked")
+        Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
+        for (Privilege authority : authorities) {
+            if (authority instanceof Group) {
+                Group group = (Group) authority;
+                if (group.hasPrivilege(adminPrivilege) || group.hasPrivilege(allPrivileges)) {
+                    groups.add(group.getAuthority());
+                }
+            }
+        }
+
+        return groups.toArray(new String[groups.size()]);
+    }
+
     private List<Privilege> getSelectedGroups() {
         List<Privilege> resultGroups = new ArrayList<Privilege>();
         Map<String, Group> groups = new HashMap<String, Group>();

@@ -140,7 +140,6 @@ public class VariationsResult<T> {
     public void pack() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Hessian2Output out = new Hessian2Output(byteArrayOutputStream);
-        long t = System.currentTimeMillis();
         try {
             out.startMessage();
             out.writeObject(variationFailures);
@@ -163,7 +162,6 @@ public class VariationsResult<T> {
                 }
             }
         }
-        System.out.println(System.currentTimeMillis() - t);
     }
 
     /**

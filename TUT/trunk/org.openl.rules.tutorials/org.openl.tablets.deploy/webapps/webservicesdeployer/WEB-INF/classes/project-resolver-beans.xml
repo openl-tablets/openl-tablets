@@ -24,8 +24,8 @@
 		<property name="resolvingStrategies">
 			<list>
 				<ref bean="descriptorBasedStrategy" />
-				<ref bean="eclipseBasedStrategy" />
 				<ref bean="simpleXLSStrategy" />
+				<ref bean="eclipseBasedStrategy" />
 			</list>
 		</property>
 	</bean>

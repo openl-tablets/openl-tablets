@@ -145,8 +145,7 @@
                                     value="#{systemSettingsBean.designRepositoryType == 'local' ? 'Directory' : 'URL'}:" />
                                 <h:inputText id="designRepositoryPath"
                                     value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
-                                        disabled="#{systemSettingsBean.designRepositoryPathSystem}" 
-                                        validator = "#{systemSettingsBean.designRepositoryValidator}"/>
+                                        disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                             </h:panelGrid>
                         </td></tr></table>
                         </div>
@@ -174,8 +173,7 @@
                                         value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" />
                                     <h:inputText id="productionRepositoryPath"
                                         value="#{repository.path}" styleClass="pathInput"
-                                        disabled="#{repository.productionRepositoryPathSystem}" 
-                                        validator = "#{systemSettingsBean.productionRepositoryValidator}"/>
+                                        disabled="#{repository.productionRepositoryPathSystem}" />
                                 </h:panelGrid>
                                 </td>
                                 <td class="repositoryConfigButton">

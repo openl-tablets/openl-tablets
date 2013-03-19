@@ -22,6 +22,12 @@ public class RepositorySelectNodeStateHolder {
     public void setSelectedNode(TreeNode selectedNode) {
         this.selectedNode = selectedNode;
     }
-    
-    
+
+    public boolean isProductionNode() {
+        if (selectedNode.getType().indexOf("prod") > -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -103,6 +103,10 @@
     height: 18px;
 }
 
+.te_table {
+    white-space: nowrap;	
+}
+
 /* Deprecated */
 
 .te_menu {
@@ -122,9 +126,9 @@
     color: rgb(215,125,0);
 }/* Tooltip skins */
 .tooltip_skin-default {
-    background: rgb(253, 253, 253);
-    border: 1px solid rgb(120, 120, 120);
-    color: rgb(60, 60, 60);
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #555;
 }
 
 .tooltip_skin-green {
@@ -151,7 +155,7 @@
     position: absolute;
     z-index: 9101;
     left: -1000px;
-    padding: 3px 7px;
+    padding: 3px 8px;
     font-family: Times New Roman, Verdana, Arial, Tahoma;
     font-size: 12px;
 }
@@ -258,11 +262,11 @@
 }
 
 .corner_all {
-    border-radius: 2px;
+    border-radius: 1px;
 }
 
 .shadow_all {
-    box-shadow: 3px 3px 3px #DDDDDD;
+    box-shadow: 2px 2px 3px #eee;
 }
 /* This is a very basic stylesheet for the date-picker. Feel free to create your own. */
 
@@ -619,7 +623,7 @@ div.datePicker table tbody td.day-disabled
         cursor:default;
         text-decoration:line-through;
         } 
-div.datePicker table tbody td.month-out 
+div.datePicker table tbody td.month-out
         {
         border-color:#ddd;
         color:#aaa !important;
@@ -810,11 +814,11 @@ body.fd-drag-active
 }
 
 .corner_all {
-    border-radius: 2px;
+    border-radius: 1px;
 }
 
 .shadow_all {
-    box-shadow: 3px 3px 3px #DDDDDD;
+    box-shadow: 2px 2px 3px #eee;
 }
 .popup {
     position: absolute;
