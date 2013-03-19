@@ -5358,7 +5358,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: white; border:1px solid gray;");
+        // TODO Move to CSS file
+        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: #fff; border:1px solid #d2d2d2;box-shadow: 2px 2px 3px #eee;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
 
