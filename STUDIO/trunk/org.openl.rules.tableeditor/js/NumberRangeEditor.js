@@ -145,7 +145,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: white; border:1px solid gray;");
+        // TODO Move to CSS file
+        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: #fff; border:1px solid #d2d2d2;box-shadow: 2px 2px 3px #eee;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
 
@@ -232,6 +233,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
                 } else {
                     values = self.splitValue(value, self.currentSeparator);
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                    self.checkboxes[1].setAttribute("checked", "checked");
                 }
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
