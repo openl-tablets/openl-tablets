@@ -7,13 +7,10 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     template="/pages/layout/wizardStep.xhtml">
 
-    <ui:define name="header">
-
-    SimpleRules Table Editor</ui:define>
+    <ui:define name="header">Construct a table</ui:define>
 
     <ui:define name="data">
         <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
-
         <script src="#{contextPath}/faces/tableEditor/js/popup/popupmenu.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/datepicker.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/BaseEditor.js"></script>
@@ -25,6 +22,7 @@
         <script src="#{contextPath}/faces/tableEditor/js/DateEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/BooleanEditor.js"></script>
         <script src="#{contextPath}/faces/tableEditor/js/NumericEditor.js"></script>
+        <script src="#{contextPath}/faces/tableEditor/js/NumberRangeEditor.js"></script>
 
         <script src="#{contextPath}/javascript/tableDataModel.js"></script>
         <script src="#{contextPath}/javascript/tableHTMLRenderers.js"></script>
@@ -69,13 +67,20 @@
             .tips_text{
                 padding-left: 15px;
             }
+            
+            .edt_div{
+                display : none;
+                position: absolute;
+                z-index: 3;
+                background-color: #B4C8FF;
+            }
 
         </style>
 
         <h:form name="srtTableForm" id="srtTableForm">
             <span id="errorMessage" >
             </span>
-            <br/><div id="editor_div" style="display : none; position: absolute; z-index: 3;"/>
+            <br/><div id="editor_div" class="edt_div"/>
             <table id="srtTable" class="srt">
             </table>
             <br/>
@@ -135,7 +140,7 @@
                   </ui:repeat>
 
                   event.preventDefault();
-                  PopupMenu.sheduleShowMenu('dataTypeDiv', event, 150);
+                  PopupMenu.sheduleShowMenu('dataTypeDiv', event, 0);
                   return false;
               }
 

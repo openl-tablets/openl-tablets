@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -152,7 +153,7 @@ public class PoiExcelHelper {
             return true;
         }
 
-        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {            
+        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
             String v = cell.getStringCellValue();
             return v == null || v.trim().length() == 0;
         }
@@ -335,6 +336,62 @@ public class PoiExcelHelper {
         styles[3] = style.getBorderLeft();
 
         return styles;
+    }
+
+    public static void setCellBorderColors(CellStyle style, short[][] colors, Workbook workbook) {
+        if (style instanceof HSSFCellStyle) {
+            HSSFWorkbook hssfWorkbook = (HSSFWorkbook) workbook;
+            if (colors[0] != null) {
+                style.setTopBorderColor(getOrAddColorIndex(colors[0], hssfWorkbook));
+            }
+            if (colors[1] != null) {
+                style.setRightBorderColor(getOrAddColorIndex(colors[1], hssfWorkbook));
+            }
+            if (colors[2] != null) {
+                style.setBottomBorderColor(getOrAddColorIndex(colors[2], hssfWorkbook));
+            }
+            if (colors[3] != null) {
+                style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
+            }
+        } else if(style instanceof XSSFCellStyle) {
+            XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
+            if (colors[0] != null) {
+                xssfStyle.setTopBorderColor(new XSSFColor(shortToByte(colors[0])));
+            }
+            if (colors[1] != null) {
+                xssfStyle.setRightBorderColor(new XSSFColor(shortToByte(colors[1])));
+            }
+            if (colors[2] != null) {
+                xssfStyle.setBottomBorderColor(new XSSFColor(shortToByte(colors[2])));
+            }
+            if (colors[3] != null) {
+                xssfStyle.setLeftBorderColor(new XSSFColor(shortToByte(colors[3])));
+            }
+        }
+    }
+
+    private static byte[] shortToByte(short[] shortRgb) {
+        byte rgb[] = new byte[3];
+        for (int i = 0; i < 3; i++) {
+            rgb[i] = (byte) (shortRgb[i] & 0xFF);
+        }
+        return rgb;
+    }
+
+    private static short getOrAddColorIndex(short[] rgb, HSSFWorkbook wb) {
+        HSSFPalette palette = wb.getCustomPalette();
+        HSSFColor color = palette.findColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+
+        if (color == null) {
+            try {
+                color = palette.addColor((byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+            } catch (RuntimeException e) {
+                // Could not find free color index
+                color = palette.findSimilarColor(rgb[0], rgb[1], rgb[2]);
+            }
+        }
+
+        return color.getIndex();
     }
 
 }

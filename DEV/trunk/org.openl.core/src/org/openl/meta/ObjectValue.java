@@ -27,19 +27,32 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 
+    /**
+     * Returns the Metainfo of the Object
+     */
     public IMetaInfo getMetaInfo() {
         return metaInfo;
     }
 
+    /**
+     * Sets the Metainfo of the Object
+     */
     public void setMetaInfo(IMetaInfo info) {
         this.metaInfo = info;
     }
-
+    
+    /**
+     * 
+     * @return the value of current Objct
+     */
     public Object getValue() {
         return value;
     }
 
     @Override
+    /**
+     * Indicates whether some other object is "equal to" obj variable. 
+     */
     public boolean equals(Object obj) {
 
         if (obj instanceof ObjectValue) {
@@ -55,10 +68,16 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     }
 
     @Override
+    /**
+     * Returns the hashCode of the current value
+     */
     public int hashCode() {
         return value.hashCode();
     }
 
+    /**
+     * Compares the current object with the <b>objectToCompare</b>
+     */
     public int compareTo(ObjectValue objectToCompare) {
         int result = -1;
         if (value instanceof String && objectToCompare.getValue() instanceof String) {
@@ -79,6 +98,11 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
         return result;
     }
 
+    /**
+     * Sorts the array <b>values</b> 
+     * @param values array of Objects
+     * @return the sorted array
+     */
     public static ObjectValue[] sort(ObjectValue[] values) {
         ObjectValue[] sortedArray = null;
         if (values != null) {

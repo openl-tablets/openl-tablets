@@ -28,7 +28,7 @@ public class StudioLaunchTarget extends ALaunchTarget {
     public static final String MAIN_CLASS_NAME = "org.openl.rules.webstudio.util.StartTomcat";
 
     public static final String VM_ARGS = "-Xms256M -Xmx1024M -XX:+UseParallelOldGC -XX:MaxPermSize=256M -XX:PermSize=128M"
-        + " -D" + WORKSPACE_HOME_PROPERTY_NAME + "=${workspace_loc}"
+        + " -D" + WORKSPACE_HOME_PROPERTY_NAME + "=\"${workspace_loc}\""
         + " -D" + IRulesLaunchConstants.START_PROJECT_PROPERTY_NAME + "=";
 
     private IResource resource;

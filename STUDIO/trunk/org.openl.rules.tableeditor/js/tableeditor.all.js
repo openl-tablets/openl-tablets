@@ -1442,6 +1442,7 @@ function isToolbarItemDisabled(img) {
 }
 
 
+// @Deprecated
 var PopupMenu = {
 	showChild: function (id, show)
 	{
@@ -2538,8 +2539,7 @@ var datePickerController = (function datePickerController() {
                         this.table.onmouseover = this.onmouseover;
                         this.table.onmouseout  = this.onmouseout;
                         this.table.onclick     = this.onclick;
-                        this.table.id  = "datePickerTable";
-                        
+
                         if(this.staticPos) {
                                 this.table.onmousedown  = this.onmousedown;
                         };
@@ -5246,6 +5246,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     equals: false,
     moreThan: false,
     range: false,
+    onBlur: null,
 
     editor_initialize: function(param) {
         var self = this;
@@ -5276,7 +5277,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         table.appendChild(this.tdValues[0]);
 
         var buttnons = new Element("td")
-                .update('<input type="button" id="btnMore" value=">"/> <br/> <input type="button" id="btnLess" value="<"/> <br/> <input type="button" id="btnRange" value="-"/> <br/> <input type="button" id="btnEquals" value="="/>');
+                .update('<input type="button" id="btnMore"  title="More than" value=">"/> <br/> <input type="button" id="btnLess"  title="Less than" value="<"/> <br/> <input type="button" id="btnRange"  title="Range" value="-"/> <br/> <input type="button" id="btnEquals" title="Equals" value="="/>');
         table.appendChild(buttnons);
 
         table.appendChild(this.tdValues[1]);
@@ -5357,7 +5358,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     open: function() {
-        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: white; border:1px solid gray;");
+        // TODO Move to CSS file
+        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: #fff; border:1px solid #d2d2d2;box-shadow: 2px 2px 3px #eee;");
         this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
 
@@ -5406,8 +5408,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.disableInputsChecks(2);
                     self.values[0].value = values[0];
                     self.values[1].value = values[1];
-                    self.checkboxes[0].setAttribute("checked", "checked");
-                    self.checkboxes[1].setAttribute("checked", "checked");
                 } else {
                     self.disableInputsChecks(0);
                     self.moreThan = "true";
@@ -5431,6 +5431,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.disableInputsChecks(0);
                     self.moreThan = "true";
                     if (value.charAt(1) == "=") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
                         self.values[1].value = value.substring(2);
                     } else {
                         self.values[1].value = value.substring(1);
@@ -5444,6 +5445,8 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
                 } else {
                     values = self.splitValue(value, self.currentSeparator);
+                    self.checkboxes[0].setAttribute("checked", "checked");
+                    self.checkboxes[1].setAttribute("checked", "checked");
                 }
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
@@ -5458,7 +5461,18 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.values[1].value = values[1];
                 self.checkboxes[0].setAttribute("checked", "checked");
                 self.checkboxes[1].setAttribute("checked", "checked");
-            } else if (values[0] || values[1]) {
+            } else if (!values[0] && !values[1] || values[0] && !self.isValid(values[0])){
+                if (values[0]) {
+                    self.input.value = null;
+                }
+                self.currentSeparator = self.generalSeparator;
+                self.values[0] = "";
+                self.values[1] = "";
+                self.disableInputsChecks(2);
+                self.checkboxes[0].setAttribute("checked", "checked");
+                self.checkboxes[1].setAttribute("checked", "checked");
+                document.getElementById("btnDone").setAttribute("disabled", "disabled");
+            } else {
                 self.currentSeparator = self.generalSeparator;
                 self.disableInputsChecks(3);
                 if (values[0]) {
@@ -5467,14 +5481,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     self.values[1].value = -values[1];
                 }
                 self.equals = true;
-            } else {
-                self.currentSeparator = self.generalSeparator;
-                self.values[0] = "";
-                self.values[1] = "";
-                self.disableInputsChecks(2);
-                self.checkboxes[0].setAttribute("checked", "checked");
-                self.checkboxes[1].setAttribute("checked", "checked");
-                document.getElementById("btnDone").setAttribute("disabled", "disabled");
             }
         }
         self.changeRange();
@@ -5488,17 +5494,23 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             if (this.values[1].value) content = this.currentSeparator + this.values[1].value;
         } else if (this.currentSeparator == " and more") {
             if (this.values[1].value) content = this.values[1].value + this.currentSeparator;
+        } else if (this.currentSeparator == " - " || this.currentSeparator == "-") {
+            content = this.values[0].value + " - " + this.values[1].value;
         } else if (this.values[0].value || this.range) {
-            if (this.checkboxes[0].checked) {
-                content = "[";
+            if (this.checkboxes[0].checked && this.checkboxes[1].checked) {
+                content = this.values[0].value + " .. " + this.values[1].value;
             } else {
-                content = "(";
-            }
-            content = content + this.values[0].value + "-" + this.values[1].value;
-            if (this.checkboxes[1].checked) {
-                content = content + "]";
-            } else {
-                content = content + ")";
+                if (this.checkboxes[0].checked) {
+                    content = "[";
+                } else {
+                    content = "(";
+                }
+                content = content + this.values[0].value + " .. " + this.values[1].value;
+                if (this.checkboxes[1].checked) {
+                    content = content + "]";
+                } else {
+                    content = content + ")";
+                }
             }
         } else if (this.values[1].value) {
             if (!this.equals) {
@@ -5626,11 +5638,39 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
          self.values[1].onkeyup = function() {self.changeRange()};
      },
 
-    close: function() {
+     close: function() {
         if (!this.destroyed) {
             Event.stopObserving(document, 'click', this.documentClickListener);
             Element.remove(this.rangePanel);
             this.destroyed = true;
+
+            if (this.onBlur) {
+                this.onBlur();
+            }
+        }
+    },
+
+    focus: function() {
+        this.open();
+    },
+
+    bind: function($super, event, handler) {
+        if (event == "blur") {
+            // TODO Use array to keep a few blur handlers
+            this.onBlur = handler;
+        } else {
+            $super(event, handler);
+        }
+    },
+
+    unbind: function($super, event, handler) {
+        if (!event) {
+            this.onBlur = null;
+            $super(event, handler);
+        } else if (event == "blur") {
+            this.onBlur = null;
+        } else {
+            $super(event, handler);
         }
     },
 
@@ -5738,7 +5778,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     documentClickHandler: function(e) {
         var element = Event.element(e);
         var abort = false;
-        if (!this.is(element)) this.close();
+        if (!this.is(element)) {
+            this.close();
+        }
     },
 
     is: function($super, element) {
@@ -5746,7 +5788,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             return true;
         } else {
             do {
-                if (element == this.rangePanel) return true;
+                if (element == this.rangePanel) {
+                    return true;
+                }
             } while (element = element.parentNode);
         }
         return false;
@@ -5763,7 +5807,21 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     },
 
     keyPressed: function(event) {
-        var v = this.input.getValue();
+        var oneLetterWidth = 8.5;
+        var minCharacters = 4;
+        var length;
+        if (this.values[0].value.length > this.values[1].value.length) {
+            length = this.values[0].value.length;
+        } else {
+            length = this.values[1].value.length;
+        }
+        if (length > minCharacters) {
+            this.values[0].setAttribute("style", 'width:' + oneLetterWidth * length + 'px');
+            this.values[1].setAttribute("style", 'width:' + oneLetterWidth * length + 'px');
+        } else {
+            this.values[0].setAttribute("style", "width: 40px;");
+            this.values[1].setAttribute("style", "width: 40px;");
+        }
         if (event.charCode == 0) return true;
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
 

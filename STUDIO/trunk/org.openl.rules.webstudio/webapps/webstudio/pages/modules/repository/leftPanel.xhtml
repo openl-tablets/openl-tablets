@@ -7,10 +7,15 @@
     <h:panelGroup layout="block">
         <div>
             <div class="view_header">
-                <span id="designRepoLink" onclick="goToRepo('design', 'production')" class="view-header-link" title="Design Repository">Design</span>
+                <span>
+                    <a4j:commandLink id="designRepoLink" value="Design" oncomplete="goToRepo('design', 'production')"
+                    render="projectTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency"
+                    action="#{repositoryTreeState.rulesRepositorySelection}"
+                    styleClass="view-header-link" title="Design Repository" />
+                </span>
                 <span>-</span>
                 <span><a4j:commandLink id="productionRepoLink" value="Production" oncomplete="goToRepo('production', 'design')"
-                    render="prodTree" title="Production Repository"
+                    render="prodTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency" title="Production Repository"
                     action="#{productionRepositoriesTreeController.tabChange('production')}"
                     styleClass="view-header-link view-header-link-inactive" /></span>
             </div>
@@ -79,6 +84,14 @@
         }
 
         initFilter();
+
+        var productionFlag = #{repositorySelectNodeStateHolder.isProductionNode()};
+        console.log(productionFlag);
+        if(productionFlag) {
+            goToRepo('production', 'design');
+        } else {
+            goToRepo('design', 'production')
+        }
 
       //]]>
     </script>

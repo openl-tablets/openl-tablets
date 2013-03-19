@@ -89,7 +89,7 @@ public class WebTool {
      * @see <a href="http://stackoverflow.com/questions/93551/how-to-encode-the-filename-parameter-of-content-disposition-header-in-http/6745788#6745788">Stackoverflow post</a>
      */
     public static void setContentDisposition(HttpServletResponse response, String fileName) {
-        String encodedfileName = StringTool.encodeURL(fileName).replace("+", "%20");
+        String encodedfileName = StringTool.encodeURL(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=" + encodedfileName + "; filename*=UTF-8''" + encodedfileName);
     }
 

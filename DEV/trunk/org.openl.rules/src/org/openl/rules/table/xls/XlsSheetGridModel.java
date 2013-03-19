@@ -388,24 +388,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             newPoiStyle.setBorderLeft(borderStyle[3]);
             
         }
-        
+
         if (style.getBorderRGB() != null) {
-            short[][] borderGBR = style.getBorderRGB();
-            
-            if (borderGBR[0] != null)
-                newPoiStyle.setTopBorderColor(borderGBR[0][0]);
-            
-            if (borderGBR[1] != null)
-            newPoiStyle.setRightBorderColor(borderGBR[1][0]);
-            
-            if (borderGBR[2] != null)
-            newPoiStyle.setBottomBorderColor(borderGBR[2][0]);
-            
-            if (borderGBR[3] != null)
-            newPoiStyle.setLeftBorderColor(borderGBR[3][0]);
-            
+            PoiExcelHelper.setCellBorderColors(newPoiStyle, style.getBorderRGB(), sheet.getWorkbook());
         }
-        
+
         poiCell.setCellStyle(newPoiStyle);
     }
 
