@@ -16,6 +16,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -401,13 +403,18 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      * Validation for properties name
      */
     public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
+        String name = ((String) value);
         FacesMessage message = new FacesMessage();
         ValidatorException validEx = null;
         int paramId = this.getParamId(toValidate.getClientId());
 
-        try {
-            String name = ((String) value);
+        if (this.containsRemoveLink(context.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
+            return;
+        }
 
+        checkParameterName(name);
+
+        try {
             int i = 0;
             for (TypeNamePair param : parameters) {
                 if (paramId != i && param.getName() != null && param.getName().equals(name)){
@@ -455,8 +462,10 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     public boolean containsRemoveLink(Map<String, String> params) {
-        if (params == null)
+        if (params == null) {
             return false;
+        }
+
         for (String param : params.keySet()) {
             if (param.endsWith("removeLink")) {
                 return true;
@@ -465,4 +474,21 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         return false;
     }
 
+    private void checkParameterName(String name) {
+        String regex = "([a-zA-Z_][a-zA-Z_0-9]*)?";
+        FacesMessage message = new FacesMessage();
+        ValidatorException validEx = null;
+
+        if (StringUtils.isEmpty(name)) {
+            message.setDetail("Can not be empty");
+            validEx = new ValidatorException(message);
+            throw validEx;
+        }
+
+        if (!name.matches(regex)) {
+            message.setDetail("Invalid name");
+            validEx = new ValidatorException(message);
+            throw validEx;
+        }
+    }
 }
