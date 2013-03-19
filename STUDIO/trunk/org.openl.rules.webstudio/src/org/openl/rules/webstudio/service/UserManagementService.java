@@ -60,7 +60,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         }
         persistUser.setGroups(groups);
 
-        userDao.merge(persistUser);
+        userDao.save(persistUser);
     }
 
     public void updateUser(org.openl.rules.security.User user) {
@@ -75,7 +75,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         }
         persistUser.setGroups(groups);
 
-        userDao.merge(persistUser);
+        userDao.update(persistUser);
     }
 
     public void deleteUser(String username) {
