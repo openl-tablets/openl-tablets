@@ -371,17 +371,15 @@ public class RepositoryTreeController {
                 resetStudioModel();
 
                 FacesUtils.addInfoMessage("Project was created successfully.");
+                /* Clear the load form */
+                this.clearForm();
+                this.editProject();
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
             }
         } else {
             FacesUtils.addErrorMessage(creationMessage);
         }
-
-        /* Clear the load form */
-        this.clearForm();
-
-        this.editProject();
 
         return creationMessage;
     }
