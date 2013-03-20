@@ -214,6 +214,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         allCheckBoxes.each (function (e) {
             e.observe ('change', function(e) {
+                val.value = "Select All";
                 if (isAllBoxesUnchecked()) {
                     val.value = "Select All";
                 }
