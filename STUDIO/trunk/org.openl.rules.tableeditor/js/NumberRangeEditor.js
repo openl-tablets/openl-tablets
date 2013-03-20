@@ -360,7 +360,11 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
              self.tdCheckboxes[0].update('Include <br/> <input type="checkbox"/>');
              self.tdCheckboxes[0].setAttribute("style", "width: 40px;");
              self.tdValues[0].update('From <br/> <input type="text" style="width: 40px"/>');
+             var minValue = self.values[0].value;
              self.values[0] = self.tdValues[0].down().next();
+             if (!self.values[0].value && minValue) {
+                 self.values[0].value = minValue;
+             }
              self.checkboxes[0] = self.tdCheckboxes[0].down().next();
              self.tdValues[1].update('To <br/> <input type="text" style="width: 40px"/>');
              self.checkboxes[0].onclick = function() {
