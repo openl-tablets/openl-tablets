@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 
 /**
@@ -28,7 +29,7 @@ public class RootFolderExtractor {
         if (needToExtract()) {
             for (String folderName : folderNames) {
                 int ind = folderName.indexOf('/');
-                if (ind > 0 && isValidFolderName(folderName)) {
+                if (ind > 0) {
                     rootName = folderName.substring(0, ind + 1);
                     return;
                 }
@@ -64,28 +65,43 @@ public class RootFolderExtractor {
      * @return true if there is a single root folder in the set of folder names
      */
     private boolean needToExtract() {
-        int cnt = 0;
+        String firstFolderName = null;
+
         for (String name : folderNames) {
-            if (name.indexOf('/') == (name.length() - 1)) {
-                cnt++;
+            int ind = name.indexOf('/');
+
+            if (ind > -1 && isValidFolderName(name)) {
+                String secondFolderName = getFolderName(name);
+                firstFolderName = !StringUtils.isEmpty(firstFolderName) ? firstFolderName : secondFolderName;
+
+                if (!firstFolderName.equals(secondFolderName)) {
+                    return false;
+                }
             }
         }
-        if (cnt > 1) {
-            return false;
-        } else {
+
+        if (!StringUtils.isEmpty(firstFolderName)) {
             return true;
         }
+
+        return false;
     }
 
     private boolean isValidFolderName(String name) {
         if (filter != null) {
-            int ind = name.indexOf("/");
-            if (ind > -1) {
-                return filter.accept(name.substring(0, ind));
-            }
+            return filter.accept(getFolderName(name));
         }
 
         return true;
+    }
+
+    private String getFolderName(String path) {
+        int ind = path.indexOf("/");
+        if (ind > -1) {
+            return path.substring(0, ind);
+        }
+
+        return "";
     }
 
 }
