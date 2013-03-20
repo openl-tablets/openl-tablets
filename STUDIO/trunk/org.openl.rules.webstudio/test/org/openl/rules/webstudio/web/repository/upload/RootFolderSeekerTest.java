@@ -17,7 +17,7 @@ public class RootFolderSeekerTest {
     public void initFolderExtractor() {
         Set<String> folderNames = initFolderNames();
         
-        folderExtractor = new RootFolderExtractor(folderNames);
+        folderExtractor = new RootFolderExtractor(folderNames, null);
     }
     
     @Test
