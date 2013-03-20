@@ -4982,6 +4982,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     separatorEscaper: null,
     destroyed: null,
     onBlur: null,
+    selectAllButton: null,
 
     editor_initialize: function(param) {
         var self = this;
@@ -5000,6 +5001,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Done">'
         var b1 = buttonContainer.down(), b2 = b1.next();
+        self.selectAllButton = b1;
+
         b1.onclick = function() {
             self.setAllCheckBoxes(this.value == "Select All");
             this.value = (this.value == "Select All" ? "Deselect All" : "Select All");
@@ -5019,12 +5022,13 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         var pc = param.choices, pd = param.displayValues;
         for (var ind = 0, len = pc.length; ind < len; ++ind) {
             var entry = new Element("div");
-            entry.innerHTML = '<input type="checkbox">' + pd[ind].escapeHTML();
+
+            entry.innerHTML = '<input type="checkbox" >' + pd[ind].escapeHTML();
             container.appendChild(entry);
 
             this.entries[pc[ind]] = entry.down();
         }
-
+        
         this.multiselectPanel.appendChild(container);
 
         this.input.onclick = function(event) {
@@ -5048,6 +5052,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
     open: function() {
         var pos = Element.positionedOffset(this.input);
+
         pos[1] += this.input.getHeight();
         this.multiselectPanel.style.left = pos[0] + "px";
         this.multiselectPanel.style.top = pos[1] + "px";
@@ -5056,6 +5061,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         this.destroyed = false;
         var entries = this.entries;
+        
         this.splitValue(this.input.value).each(function (key) {
             if (key) {
                 var checkbox = entries[key.strip()];
@@ -5064,6 +5070,12 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
                 }
             }
         });
+
+        if (isAllBoxesChecked()) {
+            this.selectAllButton.value = "Deselect All";
+        };
+
+        this.isCheckBoxChanged(this.selectAllButton);
 
         Event.observe(document, 'click', this.documentClickListener);
     },
@@ -5165,13 +5177,64 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
             } while (element = element.parentNode);
         }
         return false;
+    },
+
+    isCheckBoxChanged: function(val) {
+        var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+
+        allCheckBoxes.each (function (e) {
+            e.observe ('change', function(e) {
+                if (isAllBoxesUnchecked()) {
+                    val.value = "Select All";
+                }
+                if (isAllBoxesChecked()) {
+                    val.value = "Deselect All";
+                }
+            }); 
+         }); 
     }
 
 });
 
 if (BaseEditor.isTableEditorExists()) {
 	TableEditor.Editors["multiselect"] = MultiselectEditor;
-}/**
+}
+
+function isAllBoxesChecked()  {
+    var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+    var checkedNumber = 0;
+    var isAllChecked = true;
+
+    for (i = 0; i < allCheckBoxes.size(); i++) {
+        if (allCheckBoxes[i].checked) {
+            checkedNumber ++;
+        }
+    }
+
+    if (checkedNumber != allCheckBoxes.size()) {
+        isAllChecked = false;
+    }
+    return isAllChecked;
+}
+
+function isAllBoxesUnchecked () {
+    var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+    var uncheckedNumber = 0;
+    var isAllUnchecked = false;
+
+    for (i = 0; i < allCheckBoxes.size(); i++) {
+        if (!allCheckBoxes[i].checked) {
+            uncheckedNumber ++;
+        }
+    }
+
+    if (uncheckedNumber == allCheckBoxes.size()) {
+        isAllUnchecked = true;
+    }
+
+    return isAllUnchecked;
+}
+/**
  * Array editor.
  * 
  * @requires Prototype v1.6.1+ library

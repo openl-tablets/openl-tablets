@@ -15,6 +15,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     separatorEscaper: null,
     destroyed: null,
     onBlur: null,
+    selectAllButton: null,
 
     editor_initialize: function(param) {
         var self = this;
@@ -33,6 +34,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Done">'
         var b1 = buttonContainer.down(), b2 = b1.next();
+        self.selectAllButton = b1;
+
         b1.onclick = function() {
             self.setAllCheckBoxes(this.value == "Select All");
             this.value = (this.value == "Select All" ? "Deselect All" : "Select All");
@@ -97,6 +100,12 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
                 }
             }
         });
+
+        if (isAllBoxesChecked()) {
+            this.selectAllButton.value = "Deselect All";
+        };
+
+        this.changeSelectAllBtnName(this.selectAllButton);
 
         Event.observe(document, 'click', this.documentClickListener);
     },
@@ -198,10 +207,60 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
             } while (element = element.parentNode);
         }
         return false;
+    },
+
+    changeSelectAllBtnName: function(val) {
+        var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+
+        allCheckBoxes.each (function (e) {
+            e.observe ('change', function(e) {
+                if (isAllBoxesUnchecked()) {
+                    val.value = "Select All";
+                }
+                if (isAllBoxesChecked()) {
+                    val.value = "Deselect All";
+                }
+            }); 
+         }); 
     }
 
 });
 
 if (BaseEditor.isTableEditorExists()) {
 	TableEditor.Editors["multiselect"] = MultiselectEditor;
+}
+
+function isAllBoxesChecked()  {
+    var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+    var checkedNumber = 0;
+    var isAllChecked = true;
+
+    for (i = 0; i < allCheckBoxes.size(); i++) {
+        if (allCheckBoxes[i].checked) {
+            checkedNumber ++;
+        }
+    }
+
+    if (checkedNumber != allCheckBoxes.size()) {
+        isAllChecked = false;
+    }
+    return isAllChecked;
+}
+
+function isAllBoxesUnchecked () {
+    var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+    var uncheckedNumber = 0;
+    var isAllUnchecked = false;
+
+    for (i = 0; i < allCheckBoxes.size(); i++) {
+        if (!allCheckBoxes[i].checked) {
+            uncheckedNumber ++;
+        }
+    }
+
+    if (uncheckedNumber == allCheckBoxes.size()) {
+        isAllUnchecked = true;
+    }
+
+    return isAllUnchecked;
 }
