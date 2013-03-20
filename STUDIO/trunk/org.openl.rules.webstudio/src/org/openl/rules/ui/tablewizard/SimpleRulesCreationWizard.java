@@ -431,6 +431,22 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         }
     }
 
+    /**
+     * Validation for table name
+     */
+    public void validateTableName(FacesContext context, UIComponent toValidate, Object value) {
+        String name = ((String) value);
+        FacesMessage message = new FacesMessage();
+        ValidatorException validEx = null;
+        int paramId = this.getParamId(toValidate.getClientId());
+
+        if (this.containsRemoveLink(context.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
+            return;
+        }
+
+        checkParameterName(name);
+    }
+
     public void pNameListener(ValueChangeEvent valueChangeEvent) {
         int paramId = this.getParamId(valueChangeEvent.getComponent().getClientId());
 
