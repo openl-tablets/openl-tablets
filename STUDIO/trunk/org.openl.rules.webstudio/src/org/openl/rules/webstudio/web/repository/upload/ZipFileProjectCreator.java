@@ -35,8 +35,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
         this.zipFilter = zipFilter;
     }
     
-    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames) throws ProjectException {        
-        RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames);
+    private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) throws ProjectException {        
+        RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
         return new ZipRulesProjectBuilder(getUserWorkspace(), getProjectName(), zipFilter, folderExtractor);
     }
     
@@ -58,7 +58,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         Set<String> sortedNames = sortZipEntriesNames(zipFile);
-        ZipRulesProjectBuilder projectBuilder = getZipProjectBuilder(sortedNames);
+        ZipRulesProjectBuilder projectBuilder = getZipProjectBuilder(sortedNames, zipFilter);
         for (String name : sortedNames) {
             try {
                 ZipEntry item = zipFile.getEntry(name);

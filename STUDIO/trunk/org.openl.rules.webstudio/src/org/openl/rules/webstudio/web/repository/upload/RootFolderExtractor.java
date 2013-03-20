@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.util.Set;
 
+import org.openl.rules.workspace.filter.PathFilter;
+
 /**
  * Ectractor for folder name paths from the top root folder.
  * 
@@ -9,12 +11,13 @@ import java.util.Set;
  *
  */
 public class RootFolderExtractor {
-    
     private Set<String> folderNames;
     private String rootName;
+    private PathFilter filter;
     
-    public RootFolderExtractor(Set<String> folderNames) {        
+    public RootFolderExtractor(Set<String> folderNames, PathFilter filter) {        
         this.folderNames = folderNames;
+        this.filter = filter;
         initRootFolderPath();
     }
     
@@ -25,7 +28,7 @@ public class RootFolderExtractor {
         if (needToExtract()) {
             for (String folderName : folderNames) {
                 int ind = folderName.indexOf('/');
-                if (ind > 0) {
+                if (ind > 0 && isValidFolderName(folderName)) {
                     rootName = folderName.substring(0, ind + 1);
                     return;
                 }
@@ -52,7 +55,7 @@ public class RootFolderExtractor {
         }
         return folderName;
     }
-    
+
     /**
      * Check if there is a single root folder in the set of folder names.
      * Algorithm: if there is only one folder path which contains first found symbol '/', and it`s number
@@ -61,7 +64,7 @@ public class RootFolderExtractor {
      * @return true if there is a single root folder in the set of folder names
      */
     private boolean needToExtract() {
-        int cnt = 0;        
+        int cnt = 0;
         for (String name : folderNames) {
             if (name.indexOf('/') == (name.length() - 1)) {
                 cnt++;
@@ -74,5 +77,15 @@ public class RootFolderExtractor {
         }
     }
 
+    private boolean isValidFolderName(String name) {
+        if (filter != null) {
+            int ind = name.indexOf("/");
+            if (ind > -1) {
+                return filter.accept(name.substring(0, ind));
+            }
+        }
+
+        return true;
+    }
 
 }
