@@ -19,9 +19,10 @@
         </style>
 
         <h:form>
+          <f:validateBean disabled="true">
             <h:panelGrid columns="3" cellspacing="5">
                 <h:outputText value="Table Name" styleClass="required" />
-                <h:inputText id="srTableName" value="#{wizard.tableName}" immediate="true" />
+                <h:inputText id="srTableName" value="#{wizard.tableName}" validator="#{wizard.validateTableName}"/>
                 <a4j:outputPanel ajaxRendered="true">
                     <h:message for="srTableName" styleClass="error" />
                 </a4j:outputPanel>
@@ -31,7 +32,6 @@
                     <f:selectItems value="#{wizard.domainTypes}" />
                 </h:selectOneMenu>
             </h:panelGrid>
-          <f:validateBean disabled="true">
             <h:panelGroup id="inputParamTable">
                 <h:dataTable value="#{wizard.parameters}" var="parameter" rendered="#{!empty wizard.parameters}">
                     <h:column>
