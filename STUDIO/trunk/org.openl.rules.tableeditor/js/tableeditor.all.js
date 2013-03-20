@@ -5575,8 +5575,6 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
              self.tdValues[0].update('From <br/> <input type="text" style="width: 40px"/>');
              var minValue = self.values[0].value;
              self.values[0] = self.tdValues[0].down().next();
-             alert(minValue);
-             alert(self.values[0].value);
              if (!self.values[0].value && minValue) {
                  self.values[0].value = minValue;
              }
