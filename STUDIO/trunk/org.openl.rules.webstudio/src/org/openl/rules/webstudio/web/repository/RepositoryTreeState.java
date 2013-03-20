@@ -173,7 +173,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
             if (((AProjectArtefact)artefact).getProject() instanceof UserWorkspaceProject)
                 return (UserWorkspaceProject) ((AProjectArtefact)artefact).getProject();
         } 
-        
+
         return null;
     }
 
