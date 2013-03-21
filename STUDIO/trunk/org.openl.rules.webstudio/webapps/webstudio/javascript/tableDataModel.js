@@ -459,6 +459,24 @@ var tableModel = {
                 }
             }
         }
+
+        for (var i = 1; i < this.dataRows.length; i++) {
+            var isEmpty = true;
+            var row = this.dataRows[i];
+
+            for (var col = 0; col < row.length; col++) {
+                var cell = row[col];
+
+                if ((cell.getValue() != null) && (cell.getValue()+"" != "")) {
+                    isEmpty = false;
+                }
+            }
+
+            if (isEmpty) {
+                checkingRes.push("Rule row #"+(i)+" is empty. Fill it in.");
+            }
+
+        }
     },
 };
 
