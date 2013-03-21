@@ -60,7 +60,7 @@
 
                      jqXHR.done(
                          function (data) {
-                             if (data.indexOf("OPENL_LOGIN_PAGE") != -1) {
+                             if (typeof(data) == "string" && data.indexOf("OPENL_LOGIN_PAGE") != -1) {
                                  location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                              } else {
                                  deferredRequest.resolveWith(this, arguments);
@@ -302,7 +302,7 @@
                         tableLink.parents(".rf-tr-nd-colps").each(function() {
                             var node = $j(this);
                             node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
-                            node.find(".rf-trn-hnd-colps").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                            node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
                         });
                         // Select node
                         $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");

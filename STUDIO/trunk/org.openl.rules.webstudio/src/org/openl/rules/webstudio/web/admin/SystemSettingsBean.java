@@ -201,17 +201,17 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
                 validate(prodConfig);
             }
-            
+
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
                 prodConfig.delete();
             }
             deletedConfigurations.clear();
-    
+
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
                 productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
             }
-    
+
             saveSystemConfig();
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -561,7 +561,5 @@ public class SystemSettingsBean {
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
-   
-    
-    
+
 }
