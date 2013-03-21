@@ -5639,7 +5639,14 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
              if (!self.values[0].value && minValue) {
                  self.values[0].value = minValue;
              }
+             var checked = false;
+             if (self.checkboxes[0]) {
+                 checked = self.checkboxes[0].checked;
+             }
              self.checkboxes[0] = self.tdCheckboxes[0].down().next();
+             if (checked) {
+                 self.checkboxes[0].setAttribute("checked", "checked");
+             }
              self.tdValues[1].update('To <br/> <input type="text" style="width: 40px"/>');
              self.checkboxes[0].onclick = function() {
                  self.currentSeparator = self.generalSeparator;
