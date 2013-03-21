@@ -43,6 +43,7 @@
             var loadingPanel;
 
             $j.ajaxSetup({
+                handleLoginPage: true,
                 cache: false,
                 beforeSend: showLoader,
                 success: hideLoader,
@@ -50,6 +51,27 @@
                 error: function(response, message, error) {
                     hideLoader();
                     handleError(response.status);
+                }
+            });
+
+            $j.ajaxPrefilter(function( options, _, jqXHR ) {
+                if (options.handleLoginPage) {
+                     var deferredRequest = $j.Deferred();
+
+                     jqXHR.done(
+                         function (data) {
+                             if (data.indexOf("OPENL_LOGIN_PAGE") != -1) {
+                                 location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                             } else {
+                                 deferredRequest.resolveWith(this, arguments);
+                             }
+                         }
+                     );
+
+                     deferredRequest.promise(jqXHR);
+
+                     jqXHR.success = jqXHR.done;
+                     jqXHR.error = jqXHR.fail;
                 }
             });
 
