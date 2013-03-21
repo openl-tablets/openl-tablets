@@ -60,7 +60,7 @@
 
                      jqXHR.done(
                          function (data) {
-                             if (data.indexOf("OPENL_LOGIN_PAGE") != -1) {
+                             if (typeof(data) == "string" && data.indexOf("OPENL_LOGIN_PAGE") != -1) {
                                  location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                              } else {
                                  deferredRequest.resolveWith(this, arguments);
