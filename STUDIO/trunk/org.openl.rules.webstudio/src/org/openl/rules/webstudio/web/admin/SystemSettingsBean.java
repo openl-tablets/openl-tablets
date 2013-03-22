@@ -30,8 +30,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -203,17 +201,17 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
                 validate(prodConfig);
             }
-            
+
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
                 prodConfig.delete();
             }
             deletedConfigurations.clear();
-    
+
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
                 productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
             }
-    
+
             saveSystemConfig();
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -227,9 +225,6 @@ public class SystemSettingsBean {
         boolean saved = configManager.save();
         if (saved) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
-            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-                    .getWebApplicationContext(FacesUtils.getServletContext());
-            context.refresh();
         }
     }
 
@@ -247,9 +242,6 @@ public class SystemSettingsBean {
         boolean restored = configManager.restoreDefaults();
         if (restored) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
-            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-                    .getWebApplicationContext(FacesUtils.getServletContext());
-            context.refresh();
         }
 
         initProductionRepositoryConfigurations();
@@ -569,7 +561,5 @@ public class SystemSettingsBean {
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
-   
-    
-    
+
 }
