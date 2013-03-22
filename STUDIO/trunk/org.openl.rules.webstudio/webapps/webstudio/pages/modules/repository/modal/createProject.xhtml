@@ -174,7 +174,7 @@
                     </h:panelGrid>
                     <hr style="margin-bottom: 15px" />
 
-                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                    <h:panelGrid id="localUploadButtonPanel" columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary" 
                         rendered="#{not empty localUpload.projects4Upload}" process="@form" value="Create"
                         oncomplete="hideNewProjectDialog()"
