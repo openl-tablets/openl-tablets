@@ -21,6 +21,8 @@ import java.util.List;
 @ManagedBean(name="localUpload")
 @RequestScoped
 public class LocalUploadController {
+    private boolean selectAll = false;
+
     public static class UploadBean {
         private String projectName;
 
@@ -121,5 +123,13 @@ public class LocalUploadController {
         }
 
         return null;
+    }
+
+    public boolean isSelectAll() {
+        return false;
+    }
+
+    public void setSelectAll(boolean selectAll) {
+        this.selectAll = selectAll;
     }
 }
