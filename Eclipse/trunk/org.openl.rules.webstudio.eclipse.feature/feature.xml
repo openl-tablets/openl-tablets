@@ -17,7 +17,7 @@
    </license>
 
    <requires>
-      <import feature="org.openl.rules.eclipse.feature" version="5.11.0-SNAPSHOT"/>
+      <import feature="org.openl.rules.eclipse.feature" version="5.11.0"/>
    </requires>
 
    <plugin
