@@ -281,7 +281,7 @@ public class InstallWizard {
 
                 } else {
 
-                    deleteFolder(existingFolder);
+                    deleteFolder(existingFolder, studioDir);
                 }
             }
 
@@ -313,16 +313,16 @@ public class InstallWizard {
      * Deletes the folder which was created for validating folder permissions
      * 
      * @param existingFolder folder which already exists on file system
+     * @param studioFolder folder were studio will be installed
      */
-    private void deleteFolder(File existingFolder) {
+    private void deleteFolder(File existingFolder, File  studioFolder) {
 
-        File[] folders = existingFolder.listFiles();
-        try {
-            FileUtils.deleteDirectory(folders[0]);
-        } catch (IOException e) {
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
+        studioFolder.delete();
+
+        while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
+            studioFolder.delete();
+            studioFolder = studioFolder.getParentFile();
         }
-       
     }
 
     public int getStep() {
