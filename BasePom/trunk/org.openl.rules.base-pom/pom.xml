@@ -348,12 +348,12 @@
 				<repository>
 					<id>internal-minsk</id>
 					<name>Release Repository</name>
-					<url>http://192.168.38.37:8085/nexus/content/repositories/releases/</url>
+					<url>https://mnsnexus.exigenservices.com/nexus/content/repositories/openl-release/</url>
 				</repository>
 				<snapshotRepository>
 					<id>internal-minsk</id>
 					<name>Snapshot Repository</name>
-					<url>http://192.168.38.37:8085/nexus/content/repositories/snapshots/</url>
+					<url>https://mnsnexus.exigenservices.com/nexus/content/repositories/openl-snapshot/</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
