@@ -62,6 +62,7 @@ import org.richfaces.model.UploadedFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -1275,8 +1276,9 @@ public class RepositoryTreeController {
             }
 
             for (Resource resource : templates) {
-                if (resource.getURL().getProtocol().equals("jar")) {
+                if (!ResourceUtils.isFileURL(resource.getURL())) {
                     // JAR file
+                    // In most of cases protocol is "jar", but in case of IBM WebSphere protocol is "wsjar"
                     String templateUrl = URLDecoder.decode(resource.getURL().getPath(), "UTF8");
                     String[] templateParsed = templateUrl.split("/");
                     templateNames.add(templateParsed[templateParsed.length - 1]);
