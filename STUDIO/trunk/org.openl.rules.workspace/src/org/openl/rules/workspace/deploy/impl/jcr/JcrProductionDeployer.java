@@ -2,6 +2,7 @@ package org.openl.rules.workspace.deploy.impl.jcr;
 
 import java.util.Collection;
 
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
@@ -25,10 +26,17 @@ import org.openl.rules.workspace.deploy.ProductionDeployer;
 public class JcrProductionDeployer implements ProductionDeployer {
     private final ProductionRepositoryFactoryProxy repositoryFactoryProxy;
     private final String repositoryConfigName;
+    private boolean deploymentFormatOld = false;
 
     public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
         this.repositoryConfigName = repositoryConfigName;
+    }
+
+    public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName, boolean deploymentFormatOld) {
+        this.repositoryFactoryProxy = repositoryFactoryProxy;
+        this.repositoryConfigName = repositoryConfigName;
+        this.deploymentFormatOld = deploymentFormatOld;
     }
 
     private void copyProperties(AProjectArtefact newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
@@ -50,13 +58,13 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
 
     public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
-      DeployID id = generateDeployID(deploymentProject);
-      
+        DeployID id = generateDeployID(deploymentProject);
+
         boolean alreadyDeployed = false;
         try {
             RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
 
-            if (rRepository.hasDeploymentProject(id.getName())) {
+            if (rRepository.hasDeploymentProject(id.getName()) || rRepository.hasDeploymentProject(getOtherDeploymentProjectName(deploymentProject))) {
                 alreadyDeployed = true;
             } else {
                 FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
@@ -83,7 +91,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         return id;
     }
-    
+
     /**
      * Checks if deploymentConfiguration is already deployed to this production
      * repository.
@@ -99,7 +107,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
     public synchronized boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration) throws RRepositoryException {
         RProductionRepository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
         DeployID id = generateDeployID(deploymentConfiguration);
-        return repository.hasDeploymentProject(id.getName());
+        String otherPossibleID = this.getOtherDeploymentProjectName(deploymentConfiguration);
+
+        return repository.hasDeploymentProject(id.getName()) || repository.hasDeploymentProject(otherPossibleID);
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws RRepositoryException,
@@ -115,7 +125,15 @@ public class JcrProductionDeployer implements ProductionDeployer {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
         if (projectVersion != null) {
-            sb.append('#').append(projectVersion.getVersionName());
+            if (deploymentFormatOld) {
+                if (isOldFormatVersion(projectVersion)) {
+                    sb.append('#').append(projectVersion.getVersionName());
+                } else {
+                    sb.append('#').append("0.0." + projectVersion.getVersionName());
+                }
+            } else {
+                sb.append('#').append(projectVersion.getRevision());
+            }
         }
         return new DeployID(sb.toString());
     }
@@ -125,5 +143,37 @@ public class JcrProductionDeployer implements ProductionDeployer {
         if (repositoryFactoryProxy != null) {
             repositoryFactoryProxy.releaseRepository(repositoryConfigName);
         }
+    }
+
+    private boolean isOldFormatVersion (ProjectVersion version) {
+        if (version.getMajor() != CommonVersion.MAX_MM_INT && version.getMajor() != -1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Method for generating other possible version of deployment ID (e.g if we have id like projectName#1 then we will have id like projectName#0.0.1)
+     * 
+     * @param deploymentConfiguration deployment configuration for project
+     *            trying to deploy
+     * @return
+     */
+    private String getOtherDeploymentProjectName(ADeploymentProject deploymentProject) {
+        StringBuilder sb = new StringBuilder(deploymentProject.getName());
+        ProjectVersion projectVersion = deploymentProject.getVersion();
+        if (projectVersion != null) {
+            if (!deploymentFormatOld) {
+                if (isOldFormatVersion(projectVersion)) {
+                    sb.append('#').append(projectVersion.getVersionName());
+                } else {
+                    sb.append('#').append("0.0." + projectVersion.getVersionName());
+                }
+            } else {
+                sb.append('#').append(projectVersion.getRevision());
+            }
+        }
+        return sb.toString();
     }
 }
