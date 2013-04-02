@@ -155,10 +155,7 @@ public class JcrVersion implements RVersion {
             long l = ((MAX_MM_INT & 0x7FFF) << 16) | (MAX_MM_INT & 0x7FFF);
             node.setProperty(ArtefactProperties.PROP_VERSION, l);
         }
-        /*
-        long l = ((version.getMajor() & 0x7FFF) << 16) | (version.getMinor() & 0x7FFF);
-        node.setProperty(ArtefactProperties.PROP_VERSION, l);
-        */
+
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
     
