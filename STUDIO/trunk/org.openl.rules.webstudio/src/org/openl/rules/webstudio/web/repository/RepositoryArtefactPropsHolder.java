@@ -26,7 +26,7 @@ public class RepositoryArtefactPropsHolder {
     private static final String PROPS_FILE = "repository-artefact-props.properties";
 
     /** Properties holder. */
-    private static Map<String, String> props = getRepositoryArtefactProps();
+    private static Map<String, String> props;
 
     /**
      * Returns collection of properties to use and their names.
@@ -55,8 +55,11 @@ public class RepositoryArtefactPropsHolder {
         }
         return propsMap;
     }
-
+    
     public Map<String, String> getProps() {
+        if (props == null) {
+            props = getRepositoryArtefactProps();
+        }
         return props;
     }
 
