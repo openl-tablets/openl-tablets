@@ -29,8 +29,10 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
 
     private ProjectModel projectModel;
     private FileStorage storage;
+    private int maxFilesInStorage;
+    private boolean unlimitedStorage;
 
-    public FileBasedProjectHistoryManager(ProjectModel projectModel, String storagePath) {
+    public FileBasedProjectHistoryManager(ProjectModel projectModel, String storagePath, Integer maxFilesInStorage, boolean unlimitedStorage) {
         if (projectModel == null) {
             throw new IllegalArgumentException();
         }
@@ -39,10 +41,22 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         }
         this.projectModel = projectModel;
         storage = new FileStorage(storagePath, true);
+        this.unlimitedStorage = unlimitedStorage;
+        if (!unlimitedStorage && maxFilesInStorage == null) {
+            throw new IllegalArgumentException();
+        }
+        this.maxFilesInStorage = maxFilesInStorage;
+        if (!unlimitedStorage) {
+            delete();
+        }
     }
 
     public void save(File source) {
         storage.add(source);
+    }
+
+    public void delete() {
+        storage.delete(maxFilesInStorage);
     }
 
     public File get(long date) {

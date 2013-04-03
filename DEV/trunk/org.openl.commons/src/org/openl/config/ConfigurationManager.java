@@ -109,6 +109,10 @@ public class ConfigurationManager {
         return compositeConfiguration.getBoolean(key);
     }
 
+    public int getIntegerProperty(String key) {
+        return compositeConfiguration.getInt(key);
+    }
+
     public Map<String, Object> getProperties() {
         return getProperties(false);
     }
