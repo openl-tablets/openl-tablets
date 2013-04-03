@@ -160,7 +160,11 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
     }
 
     public void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
-        this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
+        //This is hot fix of following issue:
+        //EPBDS-4461    Mapper cannot load mapping file with OpenL 5.10.0.RC1
+        //All tests passed, but code doesn't clean up. We need clean up a code if OpenL works correctly without this method.
+       
+        //this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
     }
 
     public boolean isInheritExtendedConfigurationLoader() {
