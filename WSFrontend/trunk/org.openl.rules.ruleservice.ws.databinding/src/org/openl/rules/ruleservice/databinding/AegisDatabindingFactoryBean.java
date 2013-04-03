@@ -145,6 +145,7 @@ public class AegisDatabindingFactoryBean {
             overrideTypes.addAll(getOverrideTypes());
         }
         if (supportVariations) {
+            overrideTypes.add("org.openl.rules.variation.VariationsResult");
             overrideTypes.add("org.openl.rules.variation.Variation");
             overrideTypes.add("org.openl.rules.variation.ComplexVariation");
             overrideTypes.add("org.openl.rules.variation.NoVariation");
