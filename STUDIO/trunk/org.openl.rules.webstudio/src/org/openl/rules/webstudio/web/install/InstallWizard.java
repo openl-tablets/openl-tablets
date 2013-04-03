@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.install;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,6 +15,9 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -209,7 +213,6 @@ public class InstallWizard {
                 }
             }
         }
-
     }
 
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -218,60 +221,107 @@ public class InstallWizard {
         String dbPasswordString = (String) dbPasswordInput.getSubmittedValue();
 
         if (StringUtils.isBlank(dbURLString)) {
-            throw new ValidatorException(new FacesMessage("Database URL may not be empty"));
+            throw new ValidatorException(new FacesMessage("Database URL can not be blank"));
         } else {
             testDBConnection(dbURLString, dbLoginString, dbPasswordString);
         }
     }
 
+    /**
+     * Validates WebStudio working directory for write access. If specified
+     * folder is not writable the validation error will appears
+     * 
+     * @param context
+     * @param toValidate
+     * @param value
+     */
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        File studioWorkingDir;
-        File tmpFile = null;
-        boolean hasAccess;
         String studioPath;
-        try {
+        File studioDir;
 
-            studioPath = ConfigurationManager.normalizePath((String)value);
-            studioWorkingDir = new File(studioPath);
+        if (!StringUtils.isEmpty((String) value)) {
+            studioPath = ConfigurationManager.normalizePath((String) value);
+            studioDir = new File(studioPath);
 
-            if (studioWorkingDir.exists()) {
-                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
+            if (studioDir.exists()) {
+                if (studioDir.isDirectory()) {
 
-                hasAccess = tmpFile.mkdir();
-
-                if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " +studioPath + 
-                        " '    Please, contact to your system administrator."));
+                    if (studioDir.canWrite()) {
+                        /*
+                         * If canWrite() returns true the temp file will be
+                         * created. It's needed because in Windows OS method
+                         * canWrite() returns true if folder isn't marked 'read
+                         * only' but such folders can have security permissions
+                         * 'deny all'
+                         */
+                        isWritable(studioDir);
+                    } else {
+                        throw new ValidatorException(new FacesMessage("There is not enough access rights for installing WebStudio into the folder: '" + studioPath + "'"));
+                    }
+                } else {
+                    throw new ValidatorException(new FacesMessage("'" + studioPath + "' is not a folder"));
                 }
             } else {
+                File parentFolder = studioDir.getParentFile();
+                File existingFolder = null;
 
-                if (studioWorkingDir.mkdirs() == false) {
-                    showErrorMessage = true;
-                    throw new ValidatorException(new FacesMessage("Incorrect folder name."));
+                while (parentFolder != null) {
+                    if (parentFolder.exists()) {
+                        existingFolder = parentFolder.getAbsoluteFile();
+
+                        break;
+                    }
+                    parentFolder = parentFolder.getParentFile();
+                }
+                boolean hasAccess = studioDir.mkdirs();
+
+                if (!hasAccess) {
+
+                    isWritable(studioDir);
+
                 } else {
-                    showErrorMessage = false;
-                    deleteFolder(studioPath);
+
+                    deleteFolder(existingFolder, studioDir);
                 }
             }
-        } catch (Exception e) {
-            throw new ValidatorException(new FacesMessage(e.getMessage()));
 
-        } finally {
-            if (tmpFile != null && tmpFile.exists()) {
-                tmpFile.delete();
-            }
+        } else {
+            throw new ValidatorException(new FacesMessage("WebStudio working directory name can not be blank"));
         }
     }
 
-    /* Deleting the folder which were created for validating folder permissions */
-    private void deleteFolder(String folderPath) {
-        File workFolder = new File(folderPath);
-        File parent = workFolder.getParentFile();
+    /**
+     * Creates a temp file for validating folder write permisions
+     * @param file is a folder where temp file will be created
+     * @return true if specified folder is writable, otherwise returns false
+     */
+    public boolean isWritable(File file) {
+        boolean isAccessable = false;
 
-        while (parent != null) {
-            workFolder.delete();
-            parent = workFolder.getParentFile();
-            workFolder = parent;
+        try {
+            File tmpFile = File.createTempFile("temp", null, file);
+            isAccessable = true;
+            tmpFile.delete();
+
+        } catch (IOException ioe) {
+            throw new ValidatorException(new FacesMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
+        }
+        return isAccessable;
+    }
+
+    /**
+     * Deletes the folder which was created for validating folder permissions
+     * 
+     * @param existingFolder folder which already exists on file system
+     * @param studioFolder folder were studio will be installed
+     */
+    private void deleteFolder(File existingFolder, File  studioFolder) {
+
+        studioFolder.delete();
+
+        while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
+            studioFolder.delete();
+            studioFolder = studioFolder.getParentFile();
         }
     }
 

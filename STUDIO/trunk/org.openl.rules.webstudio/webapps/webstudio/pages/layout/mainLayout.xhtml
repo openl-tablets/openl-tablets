@@ -43,6 +43,7 @@
             var loadingPanel;
 
             $j.ajaxSetup({
+                handleLoginPage: true,
                 cache: false,
                 beforeSend: showLoader,
                 success: hideLoader,
@@ -50,6 +51,27 @@
                 error: function(response, message, error) {
                     hideLoader();
                     handleError(response.status);
+                }
+            });
+
+            $j.ajaxPrefilter(function( options, _, jqXHR ) {
+                if (options.handleLoginPage) {
+                     var deferredRequest = $j.Deferred();
+
+                     jqXHR.done(
+                         function (data) {
+                             if (typeof(data) == "string" && data.indexOf("OPENL_LOGIN_PAGE") != -1) {
+                                 location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                             } else {
+                                 deferredRequest.resolveWith(this, arguments);
+                             }
+                         }
+                     );
+
+                     deferredRequest.promise(jqXHR);
+
+                     jqXHR.success = jqXHR.done;
+                     jqXHR.error = jqXHR.fail;
                 }
             });
 
@@ -159,7 +181,7 @@
                 } else if (code == 404) { // File Not Found
                     message("Sorry! Page Not Found!", 7000);
                 } else {
-                    message("Sorry! Something went wrong. Please, try to refresh WebStudio!", 7000);
+                    message("Sorry! Something went wrong. Please, try to refresh the page!", 7000);
                 }
             }
 
@@ -280,7 +302,7 @@
                         tableLink.parents(".rf-tr-nd-colps").each(function() {
                             var node = $j(this);
                             node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
-                            node.find(".rf-trn-hnd-colps").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                            node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
                         });
                         // Select node
                         $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");

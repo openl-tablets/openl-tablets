@@ -76,6 +76,11 @@ public class ClassFinder {
                 ClassLocator locator = locators.get(protocol.toLowerCase());
                 if (locator != null) {
                     classes.addAll(locator.getClasses(resource, packageName, classLoader));
+                } else {
+                    if (log.isWarnEnabled()) {
+                        String message = String.format("A ClassLocator for protocol \"%s\" not found", protocol);
+                        log.warn(message);
+                    }
                 }
             }
         }
@@ -85,5 +90,7 @@ public class ClassFinder {
     private void initDefaultLocators(List<? extends LocatorExceptionHandler> handlers) {
         setLocator("file", new DirectoryClassLocator(handlers));
         setLocator("jar", new JarClassLocator(handlers));
+        setLocator("wsjar", new JarClassLocator(handlers)); // Used by IBM WebSphere
+        setLocator("zip", new JarClassLocator(handlers)); // Used by BEA WebLogic Server
     }
 }

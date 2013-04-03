@@ -61,7 +61,7 @@
 
     <script>
       //<![CDATA[
-        function editUser(username, firstName, lastName, groups) {
+        function editUser(username, firstName, lastName, groups, onlyAdminGroups) {
             $j("#editUserForm\\:username").text(username);
             $j("#editUserForm\\:usernameHidden").val(username);
             $j("#editUserForm\\:firstName").val(firstName);
@@ -71,6 +71,19 @@
                 $j("input[id^='editUserForm\\:editUserGroups'][value='" + groups[i] + "']").attr("checked", true);
             }
 
+            for (var i = 0; i < onlyAdminGroups.length; i++) {
+                var group = $j("input[id^='editUserForm\\:editUserGroups'][value='" + onlyAdminGroups[i] + "']");
+                group.attr("disabled", true);
+
+                // Disabled fields will not be submitted. Let's create a hidden input for them
+                $j('<input>').attr({
+                    type: 'hidden',
+                    id: group.attr('id') + "_hidden_admin",
+                    name: group.attr('name'),
+                    value: group.val()
+                }).appendTo("#editUserForm");
+            }
+
             RichFaces.$("modalEditUser").show();
         }
 
@@ -78,6 +91,9 @@
             RichFaces.$("modalEditUser").hide();
 
             $j("#editUserForm\\:firstNameError,#editUserForm\\:lastNameError,#editUserForm\\:groupsError").text("");
+
+            $j("input[id$='_hidden_admin']").remove();
+            $j("input[id^='editUserForm\\:editUserGroups']").attr("disabled", false);
 
             // Reset form
             $j("#editUserForm")[0].reset();
