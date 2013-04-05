@@ -382,7 +382,6 @@ public class XlsLoader {
                 }
             } catch (Throwable e) {
                 log.error("Error trying close input stream:", e);
-                return null;
             }
         }
 
