@@ -68,6 +68,7 @@ public class ProjectsInHistoryController {
     public String deleteProjects() {
         List<ProjectBean> beans = projectBeans;
         projectBeans = null;
+        String msg;
         if (beans != null) {
             String beansNames = "";
             int beansSize = 0;
@@ -77,7 +78,7 @@ public class ProjectsInHistoryController {
                         String projectPath = getProjectHistoryHome() + File.separator + bean.getProjectName();
                         FileUtils.deleteDirectory(new File(projectPath));
                     } catch (Exception e) {
-                        String msg = "Failed to clean history of project '" + bean.getProjectName() + "'!";
+                        msg = "Failed to clean history of project '" + bean.getProjectName() + "'!";
                         log.error(msg, e);
                         FacesUtils.addErrorMessage(msg, e.getMessage());
                     }
@@ -85,13 +86,14 @@ public class ProjectsInHistoryController {
                     beansSize = beansSize + 1;
                 }
             }
-            beansNames = beansNames.substring(0, beansNames.length() - 2);
-            if (beansSize == 1) {
-                FacesUtils.addInfoMessage("The history of " + beansNames
-                        + " was cleaned successfully");
-            } else if (beansSize != 0) {
-                FacesUtils.addInfoMessage("Histories of projects " + beansNames
-                        + " were cleaned successfully");
+            if (beansSize != 0) {
+                beansNames = beansNames.substring(0, beansNames.length() - 2);
+                if (beansSize == 1) {
+                    msg = "The history of " + beansNames + " was cleaned successfully";
+                } else {
+                    msg = "Histories of projects " + beansNames + " were cleaned successfully";
+                }
+                FacesUtils.addInfoMessage(msg);
             }
         }
         return null;
