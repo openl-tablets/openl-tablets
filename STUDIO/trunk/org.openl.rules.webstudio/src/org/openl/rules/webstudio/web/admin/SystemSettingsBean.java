@@ -49,6 +49,8 @@ public class SystemSettingsBean {
 
     private static final String USER_WORKSPACE_HOME = "user.workspace.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
+    private static final String PROJECT_HISTORY_COUNT = "project.history.count";
+    private static final String PROJECT_HISTORY_UNLIMITED = "project.history.unlimited";
     private static final String DATE_PATTERN = "data.format.date";
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
 
@@ -126,6 +128,26 @@ public class SystemSettingsBean {
 
     public void setProjectHistoryHome(String projectHistoryHome) {
         configManager.setPath(PROJECT_HISTORY_HOME, projectHistoryHome);
+    }
+
+    public String getProjectHistoryCount() {
+        if (isUnlimitHistory()) {
+            return null;
+        } else {
+            return Integer.toString(configManager.getIntegerProperty(PROJECT_HISTORY_COUNT));
+        }
+    }
+
+    public void setProjectHistoryCount(String count) {
+        configManager.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
+    }
+
+    public boolean isUnlimitHistory() {
+        return configManager.getBooleanProperty(PROJECT_HISTORY_UNLIMITED);
+    }
+
+    public void setUnlimitHistory(boolean unlimited) {
+        configManager.setProperty(PROJECT_HISTORY_UNLIMITED, unlimited);
     }
 
     public String getDesignRepositoryType() {
@@ -480,7 +502,21 @@ public class SystemSettingsBean {
         workingDirValidator(getProjectHistoryHome(), directoryType);
 
     }
-    
+
+    public void historyCountValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String errorMessage = null;
+        String count = (String)value;
+        isPathNull(count, "The maximum count of saved changes");
+        if (!Pattern.matches("[0-9]+", count)) {
+            errorMessage = "The maximum count of saved changes should be positive integer";
+        }
+
+        if (errorMessage != null) {
+            FacesUtils.addErrorMessage(errorMessage);
+            throw new ValidatorException(new FacesMessage(errorMessage));
+        }
+    }
+
     public void designRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Design Repository directory";
         isPathNull(value, directoryType);
