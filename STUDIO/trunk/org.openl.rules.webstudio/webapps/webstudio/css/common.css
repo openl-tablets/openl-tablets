@@ -26,6 +26,16 @@ input[type='text'], input[type='password'], textarea {
     padding: 3px;
 }
 
+/* Removing clear button (x) from input text element for MS IE 10 */
+::-ms-clear {
+    display: none;
+}
+
+/*Removing button 'show password' in MS IE 10 */
+::-ms-reveal {
+    display: none;
+}
+
 input[type='submit'], input[type='reset'],
 input[type='button'], button,
 .button, .imageButton {

@@ -23,7 +23,7 @@ function PropsEditor () {
 
 function createDiv() {
     var newElement = document.createElement('div');
-    newElement.id = "div_editor_holder"+Math.floor(Math.random() * 1001);
+    newElement.id = "div_editor_holder" + Math.floor(Math.random() * 1001);
 
     return newElement;
 }
@@ -92,16 +92,20 @@ function showEditorDiv(cell, elementForAdding) {
             elemWidth = width +"px";
         }
 
+        /* Setting div size for correct rendering background if the edit element is smaller then the Cell size.
+         F.ex: BooleanEditor. */
         editorDiv.height(elemHeight);
         editorDiv.width(elemWidth);
     } else if (browserName=="Microsoft Internet Explorer") {
-        elemHeight = cell.offsetHeight - 9 + "px";
-        elemWidth = (width - 7)+"px";
+        elemHeight = (cell.offsetHeight - 8) + "px";
+        elemWidth = (width - 5) + "px";
 
-        editorDiv.height(cell.offsetHeight + "px");
+        /* Setting div size for correct rendering background if the edit element is smaller then the Cell size.
+         F.ex: BooleanEditor. */
+        editorDiv.height(cell.offsetHeight -1  + "px");
         editorDiv.width(width + 1 + "px");
     }
-
+    //For correct work of DateEditor
     editorDiv.find(">:first-child").height(elemHeight);
     editorDiv.find(">:first-child").width(elemWidth);
 
