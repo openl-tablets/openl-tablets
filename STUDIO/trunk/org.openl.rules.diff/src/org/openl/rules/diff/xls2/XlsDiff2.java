@@ -214,21 +214,16 @@ public class XlsDiff2 {
     }
 
     protected void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
+        //TODO Review the algorithm. Seems like it is not optimal.
         boolean matched[] = new boolean[grid1.getHeight()];
         int[] match2 = new int[grid1.getHeight()];
-        int[][] map = new int[grid1.getHeight()][grid2.getHeight()];
+        // The getDiffsCount() is used instead of map to prevent OutOfMemoryError. Not so fast but less memory-consumptive.
+//        int[][] map = new int[grid1.getHeight()][grid2.getHeight()];
 
         int y2s = 0;
         for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
             for (int y2 = y2s; y2 < grid2.getHeight(); y2++) {
-                int nDiff = 0;
-                for (int x = 0; x < grid1.getWidth(); x++) {
-                    ICell c1 = grid1.getCell(x, y1);
-                    ICell c2 = grid2.getCell(x, y2);
-                    if (!compareCells(c1, c2)) {
-                        nDiff++;
-                    }
-                }
+                int nDiff = getDiffsCount(grid1, grid2, y1, y2);
                 // faster but too greed, i.e. non-optimal
                 if (nDiff == 0) {
                     matched[y1] = true;
@@ -236,7 +231,7 @@ public class XlsDiff2 {
                     y2s = y2+1;
                     break;
                 }
-                map[y1][y2] = nDiff;
+//                map[y1][y2] = nDiff;
             }
         }
 
@@ -265,10 +260,12 @@ public class XlsDiff2 {
                     // find best match
                     int i1 = y1;
                     int i2 = y2s;
-                    int n = map[i1][i2];
+//                    int n = map[i1][i2];
+                    int n = getDiffsCount(grid1, grid2, i1, i2);
                     for (int y = y1; y < y1e; y++) {
                         for (int y2 = y2s; y2 < y2e; y2++) {
-                            int m = map[y][y2];
+//                            int m = map[y][y2];
+                            int m = getDiffsCount(grid1, grid2, y, y2);
                             if (m < n) {
                                 n = m;
                                 i1 = y;
@@ -305,6 +302,18 @@ public class XlsDiff2 {
                 diff.add(c1);
             }
         }
+    }
+
+    private int getDiffsCount(IGridTable grid1, IGridTable grid2, int y1, int y2) {
+        int nDiff = 0;
+        for (int x = 0; x < grid1.getWidth(); x++) {
+            ICell c1 = grid1.getCell(x, y1);
+            ICell c2 = grid2.getCell(x, y2);
+            if (!compareCells(c1, c2)) {
+                nDiff++;
+            }
+        }
+        return nDiff;
     }
 
     protected void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
