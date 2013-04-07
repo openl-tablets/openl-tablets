@@ -18,6 +18,8 @@ import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -49,6 +51,8 @@ import org.openl.types.impl.OpenClassDelegator;
 import org.richfaces.json.JSONException;
 
 public class SimpleRulesCreationWizard extends TableCreationWizard {
+    private final Log log = LogFactory.getLog(SimpleRulesCreationWizard.class);
+
     @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = "Invalid name")
     private String tableName;
@@ -60,7 +64,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     private String restoreTableFunction = "tableModel.restoreTableFromJSONString";
 
-    List<DomainTypeHolder> typesList;
+    private List<DomainTypeHolder> typesList;
 
     private String returnValueType;
 
@@ -68,7 +72,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     @Override
     protected void onCancel() {
-        // TODO Auto-generated method stub
+        reset();
     }
 
     @Override
@@ -275,7 +279,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         this.typesList = typesList;
     }
     
-    public class DomainTypeHolder{
+    public class DomainTypeHolder {
         private String name;
         private String type;
         private boolean iterable = false;
@@ -373,8 +377,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             this.table = new JSONHolder(jsonTable);
             this.restoreTable = getTableInitFunction(jsonTable);
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -408,7 +413,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         ValidatorException validEx = null;
         int paramId = this.getParamId(toValidate.getClientId());
 
-        if (this.containsRemoveLink(context.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
+        if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
             return;
         }
 
@@ -440,7 +445,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         ValidatorException validEx = null;
         int paramId = this.getParamId(toValidate.getClientId());
 
-        if (this.containsRemoveLink(context.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
+        if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
             return;
         }
 
