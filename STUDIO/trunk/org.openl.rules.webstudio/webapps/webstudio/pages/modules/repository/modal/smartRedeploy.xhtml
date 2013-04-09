@@ -32,7 +32,7 @@
           <rich:columnGroup>
             <rich:column>
                 <h:selectBooleanCheckbox id="allDeploymentsCheck" value="#{smartRedeployController.selectAll4SmartRedeploy}" onclick="showLoader();" title="Select All" >
-                  <f:ajax event="click" render="@form" execute="@this"/>
+                  <f:ajax event="change" render="@form" execute="@this"/>
                 </h:selectBooleanCheckbox>
             </rich:column>
             <rich:column>
