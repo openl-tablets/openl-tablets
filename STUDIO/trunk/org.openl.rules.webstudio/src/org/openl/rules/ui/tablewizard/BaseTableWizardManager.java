@@ -7,7 +7,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public abstract class BaseTableWizardManager {
 
-    private IOpenLTable table;
+    private String tableUri;
 
     protected BaseWizard wizard;
 
@@ -30,18 +30,16 @@ public abstract class BaseTableWizardManager {
     }
 
     public IOpenLTable getTable() {
-        return table;
+        return WebStudioUtils.getWebStudio().getModel().getTable(tableUri);
     }
 
     protected void reload() {
-        table = null;
+        tableUri = null;
         init();        
     }
 
     protected void init() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        String tableUri = studio.getTableUri();
-        table = studio.getModel().getTable(tableUri);
+        tableUri = WebStudioUtils.getWebStudio().getTableUri();
     }
 
 }
