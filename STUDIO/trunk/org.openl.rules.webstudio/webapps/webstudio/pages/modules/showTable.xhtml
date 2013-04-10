@@ -65,6 +65,10 @@
             padding: 4px 3px;
             margin: 0;
         }
+        .menuButton table {
+            border-collapse: collapse;
+            text-align: center;
+        }
         #tableToolbarPanel .delimeter {
             border-left: 1px solid white;
             border-right: 1px solid rgba(215,215,215,0.4);
@@ -91,8 +95,8 @@
                         <table>
                             <tr>
                                 <td>
-                                    <h:outputLink value="#showTable.xhtml" title="Edit Table" styleClass="toolbarButton"
-                                        rendered="#{showTableBean.canEdit}">
+                                    <h:outputLink value="#showTable.xhtml" title="Edit the table" styleClass="toolbarButton"
+                                        rendered="#{showTableBean.canEdit}"  >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <f:param name="mode" value="edit" />
                                         <img src="webresource/images/editTable.gif" />
@@ -102,7 +106,8 @@
                                 <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
                                         rendered="#{showTableBean.canEdit}"
-                                        title="Open Table In Excel - #{showTableBean.uri}" target="hidden" >
+                                        title="Open the table in Excel - #{showTableBean.uri}" 
+                                        target="hidden" >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
                                         <img src="webresource/images/excel.png" />
                                         <span>Open</span>
@@ -110,15 +115,14 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableCopierWizardManager.start}" rendered="#{showTableBean.copyable}"
-                                        oncomplete="goTo('copyTable.xhtml')" title="Copy Table"
-                                        onclick="return canLeavePage()"
+                                        oncomplete="goTo('copyTable.xhtml')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
                                         <span>Copy</span>
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink action="#{showTableBean.removeTable}" title="Remove Table"
+                                    <a4j:commandLink action="#{showTableBean.removeTable}" title="Delete the table"
                                         rendered="#{showTableBean.canRemove}"
                                         onclick="if(!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
@@ -175,7 +179,7 @@
                             <div style="padding: 6px 5px">
                                 <a4j:commandButton id="runButton" action="#{showTableBean.makeTestSuite}" value="Run"
                                     rendered="#{showTableBean.canRun}"
-                                    title="Run" onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
+                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="goTo('#{runLink}')"
                                     style="display:none" />
                                 <a4j:commandButton id="traceButton" action="#{showTableBean.makeTestSuite}"
                                     rendered="#{showTableBean.canTrace}"
@@ -197,11 +201,11 @@
                                 <td>
                                     <a4j:commandLink id="runLink" action="#{showTableBean.makeTestSuite}" title="Run" styleClass="toolbarButton menuButton"
                                         rendered="#{showTableBean.canRun}"
-                                        onclick="return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
+                                        onclick=" return isAnyTestSelected();" oncomplete="goTo('#{runLink}')"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
-                                        <table style="border-collapse: collapse;">
+                                        <table>
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/run.gif" />
@@ -227,7 +231,7 @@
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
-                                        <table style="border-collapse: collapse;">
+                                        <table>
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/trace.gif" />
@@ -254,7 +258,7 @@
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         oncomplete="goTo('test/benchmarkMethod.xhtml')"
                                         style="padding-right: 1px">
-                                        <table style="border-collapse: collapse;">
+                                        <table>
                                             <tr>
                                                 <td>
                                                     <img src="webresource/images/clock-icon.png" />
@@ -289,15 +293,15 @@
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{showTableBean.canRun}">
-                                    <a class="toolbarButton" title="Run" href="javascript:void(0)"
+                                    <a class="toolbarButton" title="Launch the table" href="javascript:void(0)"
                                         onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
                                         <img src="webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a>
                                 </c:if>
                                 <c:if test="#{showTableBean.canTrace}">
-                                    <a class="toolbarButton" title="Trace" href="javascript:void(0)"
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
+                                    <a class="toolbarButton" title="Launch the table and trace steps" href="javascript:void(0)"
+                                        onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
                                         <img src="webresource/images/trace.gif" />
                                         <span>Trace</span>
                                     </a>
@@ -306,10 +310,10 @@
                                     <ui:include src="/pages/modules/test/inputTestCase.xhtml" />
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Run" title="Run"
-                                            oncomplete="goTo('#{runLink}')" />
+                                            action="#{inputArgsBean.makeTestSuite}" value="Run" title="Launch the table"
+                                            oncomplete="goTo('#{runLink}')"/> 
                                         <a4j:commandButton id="traceButton" style="display: none"
-                                            action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Trace"
+                                            action="#{inputArgsBean.makeTestSuite}" value="Trace" title="Launch the table and trace steps"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win')" />
                                         <h:commandButton id="traceIntoFileButton" style="display: none"
                                             action="#{showTableBean.traceIntoFile(true)}" value="Trace into File"
@@ -353,8 +357,8 @@
                 <td>
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton" title="Create new Test"
-                            oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')">
+                            styleClass="toolbarButton" title="Create a new Test table" 
+                            oncomplete="goTo('create/index.xhtml?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
                             <span>Create Test</span>
@@ -375,7 +379,7 @@
                         <h:panelGroup rendered="#{i.index == 0}">
                             <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{targetTable.uri}" />
-                                <h:outputText value="#{targetTable.name}" />
+                                <h:outputText value="#{showTableBean.getTableName(targetTable)}" />
                             </h:outputLink>
                             <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
                                 onclick="showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
@@ -391,7 +395,7 @@
                         <div>
                             <h:outputLink value="#showTable.xhtml">
                                 <f:param name="uri" value="#{targetTable.uri}" />
-                                <h:outputText value="#{targetTable.name}" />
+                                <h:outputText value="#{showTableBean.getTableName(targetTable)}" /> 
                             </h:outputLink>
                         </div>
                         </h:panelGroup>
@@ -408,7 +412,7 @@
                     <div>
                         <ui:repeat value="#{showTableBean.allTests}" var="test" varStatus="i">
                         <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#showTable.xhtml">
+                            <h:outputLink value="#showTable.xhtml" >
                                 <f:param name="uri" value="#{test.info.sourceUrl}" />
                                 <h:outputText value="#{showTableBean.getTestName(test)}" />
                             </h:outputLink>
@@ -466,7 +470,7 @@
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}" afterSaveAction="#{showTableBean.afterSaveAction}"
                 onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
-                onError="javascript:onError(data);" excludeScripts="prototype">
+                onError="javascript:onError(data);" excludeScripts="prototype"  >
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{showTableBean.canEdit}">Edit in Excel</h:outputLink>
@@ -477,7 +481,7 @@
 
     <ui:remove>
     <div style="position: absolute; right: 10px">
-        <ui:include src="/pages/modules/tableProperties.xhtml" />
+        Table Details
     </div>
     </ui:remove>
 
@@ -515,6 +519,7 @@
         }
 
         function isAnyTestSelected() {
+
             var numChecked = $j("#testTable :checked").length;
             if (numChecked > 0) {
                 return true;
@@ -526,18 +531,19 @@
 
         function canLeavePage() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
-            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId
+            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId te_toolbar
             
             if (t.hasChanges) {
-                var isOk = confirm('Table is not saved. Do you want to rollback all changes?');
+                var isOk = confirm('Table is not saved. Do you want to save all changes?');
                 if (isOk) {
-                    t.rollback();
-                } else {
-                    return false;
-                }
+                    t.saveChanges();
+                }  else {
+                   t.undoredo();
+                } 
             }
             return true;
         }
+        
       //]]>
     </script>
 

@@ -1,6 +1,6 @@
 body {
     color: #171717;
-    background: #fefefe;
+    background: #fff;
     font-family: Verdana, Helvetica, Arial;
     font-size: 70%;
 }
@@ -12,7 +12,7 @@ table, input, textarea {
 input[type='text'], input[type='password'], textarea, select {
     border-width: 1px !important;
     border-style: solid !important;
-    border-color: #aaaaaa #dddddd #dddddd #aaaaaa !important;
+    border-color: #c7c7c7 #ddd #ddd #c7c7c7 !important;
     border-radius: 1px !important;
     background: #ffffff !important;
 }
@@ -30,24 +30,25 @@ input[type='submit'], input[type='reset'],
 input[type='button'], button,
 .button, .imageButton {
     padding: 4px 6px;
-    border: 1px solid #dddddd;
+    border: 1px solid #e5e5e5;
     background: #fbfbfb;
     color: #444444;
     margin-right: 4px;
     cursor: pointer;
+    box-shadow: 0 0 2px #fff inset;
 }
 
 input[type='submit']:hover, input[type='reset']:hover,
 input[type='button']:hover, button:hover,
 .button:hover, .imageButton:hover {
-    border-color: #cccccc;
+    border-color: #ddd;
     color: #222222;
 }
 
 input[type='submit']:active, input[type='reset']:active,
 input[type='button']:active, button:active,
 .button:active, .imageButton:active {
-    border-color: #bbbbbb;
+    border-color: #ccc;
 }
 
 input[type='submit']:disabled, input[type='reset']:disabled,
@@ -71,6 +72,7 @@ input[type='button']:disabled, button:disabled,
     background: #ff8111 !important;
     border-color: #ff8111 !important;
     color: white !important;
+    box-shadow: none !important;
 }
 
 a.button-primary {
@@ -166,7 +168,7 @@ fieldset {
 
 .warning_box {
     padding: 12px 7px 12px 43px;
-    background: url(webresource/images/warning32.png) no-repeat 5px #FFF4AD;
+    background: url(webresource/images/warning32.png) no-repeat 5px #FFF9AD;
     border: 1px solid;
     border-color: #DFA660 #EFCAA3;
     border-radius: 1px;
@@ -233,6 +235,17 @@ fieldset {
     background: #fafafa;
 }
 
+.table-over tr:hover td {
+    background: #f7f7f7;
+    cursor: pointer;
+}
+
+.table .row-selected {
+    background: #59c !important;
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
 .badge {
     background: #999;
     border-radius: 1px;
@@ -244,6 +257,12 @@ fieldset {
     white-space: nowrap;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
     vertical-align: 12%;
+}
+
+.badge-small {
+    font-size: 8px;
+    padding: 0 3px 1px;
+    padding-top: 1px\9; /* IE 9*/
 }
 
 .badge-info {
@@ -501,6 +520,17 @@ form.standard table.buttonPanel {
      background: rgba(220, 220, 220, 0.1);
 }
 
+.view-header-link {
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+}
+
+.view-header-link-inactive {
+    color: #777;
+    border-bottom: 1px dashed #ccc;
+}
+
 .view_toolbar {
     height: 34px;
 }
@@ -544,6 +574,52 @@ form.standard table.buttonPanel {
     width: 20px;
 }
 
+.field-description {
+    font-size: 11px;
+    color: #888;
+}
+
+.wizard-page {
+    text-align: center;
+}
+
+.wizard-page .wizard-page-container {
+    margin: 40px 30px;
+    display: inline-block;
+    text-align: left;
+    width: 650px;
+}
+
+.wizard-page .wizard-block {
+    margin-bottom: 30px;
+}
+
+.wizard-page .wizard-block > h2,
+.wizard-page .wizard-block > h3 {
+    font-weight: normal;
+    color: #28b;
+}
+
+.wizard-page .wizard-block > h2 {
+    margin-bottom: 27px;
+    font-size: 16px;
+}
+
+.wizard-page .wizard-block > h3 {
+    font-size: 14px;
+}
+
+.wizard-page .field-description {
+    margin-top: 3px;
+    color: #555;
+}
+
+.wizard-page .wizard-buttons {
+    border-top: 1px solid #ddd;
+    margin-top: 50px;
+    padding-top: 15px;
+}
+
 /* RichFaces styles */
 
 .rf-trn, .rf-tr-nd {
@@ -562,6 +638,17 @@ form.standard table.buttonPanel {
 .rf-trn-sel {
     font-weight: bold;
     background: none !important;
+}
+
+.rf-trn-cnt {
+    width: 100%;
+}
+
+.rf-trn-lbl {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: -webkit-calc(100% - 35px);
+    width: calc(100% - 35px);
 }
 
 .rf-tab-hdr {

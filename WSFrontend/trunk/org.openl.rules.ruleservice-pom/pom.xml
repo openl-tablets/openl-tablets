@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.base-pom</artifactId>
-		<version>5.9.4.1</version>
+		<version>5.10.0</version>
 		<relativePath>../../../BasePom/trunk/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
 	</parent>
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-	<version>5.9.4.1</version>
+	<version>5.10.0</version>
 	<packaging>pom</packaging>
 	<name>OpenL - RuleService</name>
 	<description>Rules Service Pom Project</description>
@@ -24,6 +24,7 @@
 
 	<modules>
 		<module>../org.openl.rules.ruleservice</module>
+		<module>../org.openl.rules.ruleservice.ws.databinding</module>
 		<module>../org.openl.rules.ruleservice.ws</module>
 	</modules>
 
@@ -127,6 +128,12 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

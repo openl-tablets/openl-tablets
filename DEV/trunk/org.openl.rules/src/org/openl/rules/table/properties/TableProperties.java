@@ -258,6 +258,18 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setCustom2(java.lang.String[] custom2) {
 		setFieldValue("custom2", custom2);
 	}	
+	public java.lang.Boolean getCacheable() {
+		return (java.lang.Boolean) getPropertyValue("cacheable"); 
+	}
+	public void setCacheable(java.lang.Boolean cacheable) {
+		setFieldValue("cacheable", cacheable);
+	}	
+	public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
+		return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate"); 
+	}
+	public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
+		setFieldValue("recalculate", recalculate);
+	}	
 // <<< END INSERT >>>
 
     /**

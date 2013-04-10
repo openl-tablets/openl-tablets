@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets Studio Plug-in
 Bundle-SymbolicName: org.openl.rules.webstudio;singleton:=true
-Bundle-Version: 5.9.4.1
+Bundle-Version: 5.10.0
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Require-Bundle: org.junit;visibility:=reexport,
@@ -15,4 +15,5 @@ Require-Bundle: org.junit;visibility:=reexport,
  org.openl.rules.tableeditor;visibility:=reexport,
  org.openl.rules.diff,
  org.openl.rules.repository.jcr.jackrabbit;visibility:=reexport,
+ org.openl.rules.demo;visibility:=reexport,
  org.openl.rules.project;visibility:=reexport

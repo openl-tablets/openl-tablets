@@ -41,10 +41,17 @@ public class XlsNumberFormatter implements IFormatter {
             log.debug("Should be Number: " + value);
             return null;
         }
-
+        
         double doubleValue = ((Number) value).doubleValue();
         String formattedDate = dataFormatter.formatRawCellContents(doubleValue, formatIndex, format);
-
+        
+        if ((format.startsWith("# ?/")) || (format.startsWith("# ??/")) || (format.startsWith("# ???/"))) {
+            if ((doubleValue < 1) && (doubleValue > 0)) {
+                formattedDate = formattedDate.substring(2);
+            } else if ((doubleValue < 0) && (doubleValue > -1)) {
+                formattedDate = "-" + formattedDate.substring(3);
+            }
+        }
         return formattedDate;
     }
 

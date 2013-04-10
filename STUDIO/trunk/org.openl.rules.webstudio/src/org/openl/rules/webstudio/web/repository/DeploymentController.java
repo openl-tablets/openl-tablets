@@ -45,6 +45,9 @@ public class DeploymentController {
     private String cachedForProject;
     private String repositoryConfigName;
 
+    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+
     @ManagedProperty(value="#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
@@ -155,9 +158,11 @@ public class DeploymentController {
 
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
-                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'", 
+                String message = String.format("Configuration '%s' successfully deployed with id '%s' to repository '%s'", 
                         project.getName(), id.getName(), repo.getName());
                 FacesUtils.addInfoMessage(message);
+
+                productionRepositoriesTreeController.refreshTree();
             } catch (Exception e) {
                 String msg = String.format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
                 log.error(msg, e);
@@ -263,7 +268,7 @@ public class DeploymentController {
         
         return new ArrayList<ProjectVersion>();
     }
-    
+
     private ADeploymentProject getSelectedProject() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof ADeploymentProject) {
@@ -348,7 +353,7 @@ public class DeploymentController {
     public void setRepositoryConfigName(String repositoryConfigName) {
         this.repositoryConfigName = repositoryConfigName;
     }
-    
+
     public Collection<RepositoryConfiguration> getRepositories() {
         List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
@@ -361,4 +366,14 @@ public class DeploymentController {
         Collections.sort(repos, RepositoryConfiguration.COMPARATOR);
         return repos;
     }
+
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
 }

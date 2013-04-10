@@ -9,7 +9,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenField;
-import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
 
 public class RangeVariableBinder extends ANodeBinder {

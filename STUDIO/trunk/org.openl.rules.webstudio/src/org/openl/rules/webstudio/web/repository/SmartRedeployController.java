@@ -35,9 +35,9 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 /**
- *
+ * 
  * @author Aleh Bykhavets
- *
+ * 
  */
 @ManagedBean
 @ViewScoped
@@ -46,19 +46,22 @@ public class SmartRedeployController {
     private final Log log = LogFactory.getLog(SmartRedeployController.class);
 
     /** A controller which contains pre-built UI object tree. */
-    @ManagedProperty(value="#{repositoryTreeState}")
+    @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value="#{deploymentManager}")
+    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+
+    @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
     private List<DeploymentProjectItem> items;
 
     private String repositoryConfigName;
-    
+
     private AProject currentProject;
 
     public synchronized List<DeploymentProjectItem> getItems() {
@@ -77,19 +80,19 @@ public class SmartRedeployController {
         }
         return items;
     }
-    
+
     public synchronized boolean isProjectHasSelectedItems() {
         List<DeploymentProjectItem> items = getItems();
         if (items == null) {
             return false;
         }
-        
+
         for (DeploymentProjectItem item : items) {
             if (item.isSelected()) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -116,11 +119,11 @@ public class SmartRedeployController {
             ADeploymentProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
                 try {
-                    latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(
-                            deploymentProject.getName());
+                    latestDeploymentVersion = workspace.getDesignTimeRepository()
+                        .getDDProject(deploymentProject.getName());
                 } catch (RepositoryException e) {
-                    log.error("Failed to get latest version for deployment project '" + deploymentProject.getName()
-                            + "'", e);
+                    log.error("Failed to get latest version for deployment project '" + deploymentProject.getName() + "'",
+                        e);
                 }
             }
 
@@ -166,7 +169,8 @@ public class SmartRedeployController {
                 }
             } else if (cmp < 0) {
                 if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
-                    // Don't have permission to edit deployment configuration - skip it
+                    // Don't have permission to edit deployment configuration -
+                    // skip it
                     continue;
                 }
                 if (deploymentProject.isOpenedForEditing()) {
@@ -188,8 +192,7 @@ public class SmartRedeployController {
                     // overwrite settings
                     checker.addProject(project);
                     if (checker.check()) {
-                        item.setMessages("Can be updated to " + project.getVersion().getVersionName() + " from "
-                                + descrVersion.getVersionName() + " and then deployed");
+                        item.setMessages("Can be updated to " + project.getVersion().getVersionName() + " from " + descrVersion.getVersionName() + " and then deployed");
                     } else {
                         item.setMessages("Has dependency conflict!");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
@@ -246,23 +249,28 @@ public class SmartRedeployController {
             }
         }
 
-        // redeploy takes more time 
+        // redeploy takes more time
         String repositoryName = getRepositoryName(repositoryConfigName);
 
         for (ADeploymentProject deploymentProject : successfulyUpdated) {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
-                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'", 
-                        project.getName(), id.getName(), repositoryName);
+                String message = String.format("Project '%s' successfully deployed with id '%s' to repository '%s'",
+                    project.getName(),
+                    id.getName(),
+                    repositoryName);
                 FacesUtils.addInfoMessage(message);
             } catch (Exception e) {
-                String msg = String.format("Failed to deploy '%s' to repository '%s'", project.getName(), repositoryName);
+                String msg = String.format("Failed to deploy '%s' to repository '%s'",
+                    project.getName(),
+                    repositoryName);
                 log.error(msg, e);
                 FacesUtils.addErrorMessage(msg, e.getMessage());
             }
         }
 
         reset();
+        productionRepositoriesTreeController.refreshTree();
 
         return UiConst.OUTCOME_SUCCESS;
     }
@@ -298,30 +306,32 @@ public class SmartRedeployController {
             }
 
             // get latest version
-            ADeploymentProject deploymentProject = workspace.getDDProject(deploymentName);
-            
-            boolean sameVersion = deploymentProject.hasProjectDescriptor(project.getName())
-                    && project.getVersion().compareTo(deploymentProject.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
+            // FIXME ADeploymentProject should be renamed to
+            // ADeploymentConfiguration, because of the renaming 'Deployment
+            // Project' to the 'Deployment configuration'
+            ADeploymentProject deploymentConfiguration = workspace.getDDProject(deploymentName);
+
+            boolean sameVersion = deploymentConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
+                .compareTo(deploymentConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
-                return deploymentProject;
-            } else if (deploymentProject.isLocked()) {
+                return deploymentConfiguration;
+            } else if (deploymentConfiguration.isLocked()) {
                 // someone else is locked it while we were thinking
-                FacesUtils.addWarnMessage("Deployment project '" + deploymentName + "' is locked by other user");
+                FacesUtils.addWarnMessage("Deployment configuration '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
-                deploymentProject.edit();
-
+                deploymentConfiguration.edit();
                 // rewrite project->version
-                deploymentProject.addProjectDescriptor(project.getName(), project.getVersion());
+                deploymentConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
 
-                deploymentProject.save();
+                deploymentConfiguration.save();
 
-                FacesUtils.addInfoMessage("Deployment project '" + deploymentName + "' successfully updated");
-                return deploymentProject;
+                FacesUtils.addInfoMessage("Deployment configuration '" + deploymentName + "' successfully updated");
+                return deploymentConfiguration;
             }
         } catch (ProjectException e) {
-            String msg = "Failed to update deployment project '" + deploymentName + "'";
+            String msg = "Failed to update deployment configuration '" + deploymentName + "'";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg);
         }
@@ -346,7 +356,7 @@ public class SmartRedeployController {
         }
         this.repositoryConfigName = repositoryConfigName;
     }
-    
+
     public Collection<RepositoryConfiguration> getRepositories() {
         List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
@@ -360,12 +370,12 @@ public class SmartRedeployController {
 
         return repos;
     }
-    
+
     public boolean isSelectAll4SmartRedeploy() {
         List<DeploymentProjectItem> items = getItems();
 
         boolean hasSelectedItem = false;
-        
+
         for (DeploymentProjectItem item : items) {
             if (!item.isDisabled() && !item.isSelected()) {
                 return false;
@@ -374,10 +384,10 @@ public class SmartRedeployController {
                 hasSelectedItem = true;
             }
         }
-        
+
         return hasSelectedItem;
     }
-    
+
     public void setSelectAll4SmartRedeploy(boolean newState) {
         List<DeploymentProjectItem> items = getItems();
 
@@ -397,4 +407,13 @@ public class SmartRedeployController {
     public void openDialogListener(AjaxBehaviorEvent event) {
         reset();
     }
+
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
 }

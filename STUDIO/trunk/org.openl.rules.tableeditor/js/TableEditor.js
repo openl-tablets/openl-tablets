@@ -232,6 +232,7 @@ var TableEditor = Class.create({
      * Sends corresponding request to the server.
      */
     save: function() {
+    	this.setCellValue();
         var self = this;
 
         var beforeSavePassed = true;
@@ -246,6 +247,19 @@ var TableEditor = Class.create({
             }
         });
     },
+    
+    saveChanges: function() {
+        this.setCellValue();
+        var selt = this;
+        
+        var beforeSavePassed = true;
+        if (this.actions && this.actions.beforeSave) {
+            beforeSavePassed = this.actions.beforeSave();
+        }
+        if (beforeSavePassed == false) return;
+
+        this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, hideLoader());
+     },
 
     /**
      * Rolls back all changes. Sends corresponding request to the server.
@@ -280,11 +294,38 @@ var TableEditor = Class.create({
         this.setCellValue();
         if (this.isCell(elt)) {
             this.selectElement(elt);
+            this.isFormated(elt);
+
         } else if (this.isToolbar(elt)) {
             // Do Nothing
         } else {
             this.tableBlur();
         }
+    },
+    
+
+    isFormated: function(elt) {
+
+        var cell = this.currentElement;
+        var decorator = this.decorator;
+        var boldElement = $(this.editorId + "_font_bold");
+        var italicElement = $(this.editorId + "_font_italic");
+        var underlineElement = $(this.editorId + "_font_underline");
+        var alignRightElement =  $(this.editorId + "_align_right");
+        var alignCenterElement =  $(this.editorId + "_align_center");
+        var alignLeftElement = $(this.editorId + "_align_left");
+
+        function decorate(elem, decorated) {
+            decorated ? decorator.decorateToolBar(elem) : decorator.undecorateToolBar(elem);
+        }
+
+        decorate(boldElement, cell.style.fontWeight == "bold");
+        decorate(italicElement, cell.style.fontStyle == "italic");
+        decorate(underlineElement, cell.style.textDecoration == "underline");
+        decorate(alignRightElement, cell.style.textAlign == "right");
+        decorate(alignCenterElement, cell.style.textAlign == "center");
+        decorate(alignLeftElement, cell.style.textAlign == "left");
+        decorate(alignLeftElement, cell.style.textAlign == "");
     },
 
     /**
@@ -452,6 +493,7 @@ var TableEditor = Class.create({
         }
 
         var editorStyle = this.getCellEditorStyle(cell);
+        
         this.showEditorWrapper(cell);
 
         this.showCellEditor(response.editor, this.editorWrapper, initialValue, response.params, editorStyle);
@@ -554,7 +596,13 @@ var TableEditor = Class.create({
     },
 
     showEditorWrapper: function(cell) {
-        this.editorWrapper.style.width = cell.offsetWidth - 2 + "px";
+        var minWidth = 41;
+        var width = cell.offsetWidth - 2;
+        if (width < minWidth) {
+            cell.style.minWidth = minWidth + "px";
+            width = cell.offsetWidth - 2;
+        }
+        this.editorWrapper.style.width = width + "px";
         this.editorWrapper.style.height = cell.offsetHeight - 2 + "px";
         var pos = Element.positionedOffset(cell);
         this.editorWrapper.style.left = pos[0] + "px";
@@ -577,6 +625,9 @@ var TableEditor = Class.create({
 
     setCellValue: function(prevValue) {
         if (this.editor) {
+            if (this.editCell && this.editCell.style) {
+                this.editCell.style.minWidth = null;
+            }
             if (prevValue) {
                 this.editor.initialValue = prevValue;
             }
@@ -621,7 +672,7 @@ var TableEditor = Class.create({
         if (elt && this.currentElement && elt.id == this.currentElement.id) return;
 
         var wasSelected = this.hasSelection();
-
+        
         if (elt && dir) { // save to selection history
             if (this.selectionPos) this.selectionHistory.push([dir, this.selectionPos[0], this.selectionPos[1]]);
             if (this.selectionHistory.length > 10) this.selectionHistory.shift();
@@ -648,6 +699,7 @@ var TableEditor = Class.create({
     },
 
     tableBlur: function() {
+        
         if (this.currentElement) {
             this.decorator.undecorate(this.currentElement);
             this.currentElement = null;
@@ -706,11 +758,19 @@ var TableEditor = Class.create({
         return splitted;
     },
 
-    setAlignment: function(_align) {
+    setAlignment: function(_align, elt) {
         if (!this.checkSelection()) return;
-
+        
         var cell = this.currentElement;
         var self = this;
+        var cellStyle = cell.style.textAlign;
+        var undecorateElement;
+        
+        if (cellStyle) {
+            undecorateElement = $(this.editorId + '_align_' + cellStyle);
+        } else {
+            undecorateElement = $(this.editorId + '_align_' + "left");
+        }
 
         var params = {
             editorId: this.editorId,
@@ -719,12 +779,19 @@ var TableEditor = Class.create({
             align: _align
         };
 
+        if (undecorateElement) {
+            this.decorator.undecorateToolBar(undecorateElement);
+        }
+
+        this.decorator.decorateToolBar(elt);
+
         this.doOperation(TableEditor.Operations.SET_ALIGN, params, function(data) {
             if (self.editor) {
                 self.editor.input.style.textAlign = _align;
             }
             cell.style.textAlign = _align;
         });
+
     },
 
     selectFillColor: function(actionElemId) {
@@ -829,47 +896,62 @@ var TableEditor = Class.create({
         });
     },
 
-    setFontBold: function() {
+    setFontBold: function(elt) {
         if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var _bold = cell.style.fontWeight == "bold";
-
+        var decorator = this.decorator;
+        
         var params = {
             editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             bold: !_bold
         };
-
+        this.decorator.decorateToolBar(elt);
         this.doOperation(TableEditor.Operations.SET_FONT_BOLD, params, function(data) {
-            cell.style.fontWeight = _bold ? "normal" : "bold";
+ 
+            if ( _bold) {
+                cell.style.fontWeight = "normal";
+                decorator.undecorateToolBar(elt);
+            } else {
+                cell.style.fontWeight = "bold";
+            }
         });
     },
 
-    setFontItalic: function() {
+    setFontItalic: function(elt) {
         if (!this.checkSelection()) return;
-
+        
         var cell = this.currentElement;
         var _italic = cell.style.fontStyle == "italic";
-
+        var decorator = this.decorator;
+        
         var params = {
             editorId: this.editorId,
             row: this.selectionPos[0],
             col: this.selectionPos[1],
             italic: !_italic
         };
-
+        this.decorator.decorateToolBar(elt);
         this.doOperation(TableEditor.Operations.SET_FONT_ITALIC, params, function(data) {
-            cell.style.fontStyle = _italic ? "normal" : "italic";
+
+            if (_italic) {
+                cell.style.fontStyle = "normal";
+                decorator.undecorateToolBar(elt);
+            } else {
+                cell.style.fontStyle = "italic";  
+            }
         });
     },
 
-    setFontUnderline: function() {
+    setFontUnderline: function(elt) {
         if (!this.checkSelection()) return;
 
         var cell = this.currentElement;
         var _underline = cell.style.textDecoration == "underline";
+        var decorator = this.decorator;
 
         var params = {
             editorId: this.editorId,
@@ -877,17 +959,24 @@ var TableEditor = Class.create({
             col: this.selectionPos[1],
             underline: !_underline
         };
-
+        this.decorator.decorateToolBar(elt);
         this.doOperation(TableEditor.Operations.SET_FONT_UNDERLINE, params, function(data) {
-            cell.style.textDecoration = _underline ? "none" : "underline";
+
+            if (_underline) {
+                cell.style.textDecoration = "none";
+                decorator.undecorateToolBar(elt);
+            } else {
+                cell.style.textDecoration = "underline";
+            }
         });
     },
 
     checkSelection: function() {
+        
         if (!this.hasSelection()) {
             this.error("Nothing is selected");
             return false;
-        }
+        } 
         return true;
     },
 
@@ -910,7 +999,7 @@ var TableEditor = Class.create({
     hasSelection : function() {
         return this.selectionPos && this.currentElement;
     },
-
+    
     // Callback functions
     undoStateUpdated : Prototype.emptyFunction,
     redoStateUpdated : Prototype.emptyFunction,
@@ -964,7 +1053,7 @@ var Decorator = Class.create({
     decorate: function(/* Element */ elt) {
         if (elt) {
             elt.addClassName(this.selectStyleClass);
-        }
+        } 
     },
 
     /**
@@ -973,12 +1062,23 @@ var Decorator = Class.create({
     undecorate: function(/* Element */ elt) {
         if (elt) {
             elt.removeClassName(this.selectStyleClass);
-        }
+        } 
+    },
+    /**
+     * Reverts 'selection' from toolBar buttons
+     */
+    undecorateToolBar: function (elt) {
+        $(elt).removeClassName("te_toolbar_item_pressed");
+    },
+    
+    decorateToolBar: function (elt) {
+       $(elt).addClassName("te_toolbar_item_pressed"); 
     }
+
 });
 
 
-//TableEditor Menu
+//TableEditor Menu 
 
 // @Deprecated
 function openMenu(menuId, event) {
@@ -1008,6 +1108,7 @@ var other_items = ["_help"];
 var itemClass = "te_toolbar_item";
 var disabledClass = "te_toolbar_item_disabled";
 var overClass = "te_toolbar_item_over";
+var pressedClass = "te_toolbar_item_pressed";
 
 // @Deprecated
 function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
@@ -1017,13 +1118,17 @@ function initTableEditor(editorId, url, cellToEdit, actions, mode, editable) {
         [save_item, undo_item].each(function(item) {
             processItem(getItemId(editorId, item), hasItems);
         });
-        if (hasItems) {
+       /* if (hasItems) {
             window.onbeforeunload = function() {
+               // alert('not saved');
+           
                 return "Your changes have not been saved.";
             };
         } else { // remove handler if Save/Undo items are disabled
-            window.onbeforeunload = function() {};
-        }
+           
+          //  window.onbeforeunload = function() {};
+           
+        }*/
     };
 
     tableEditor.redoStateUpdated = function(hasItems) {
@@ -1075,6 +1180,7 @@ function getItemId(editorId, itemId) {
 function enableToolbarItem(img) {
     if (!isToolbarItemDisabled(img = $(img))) return;
     img.removeClassName(disabledClass);
+    img.removeClassName(pressedClass);
 
     if (img._mouseover) img.onmouseover = img._mouseover;
     if (img._mouseout) img.onmouseout = img._mouseout;
@@ -1085,16 +1191,22 @@ function enableToolbarItem(img) {
 // @Deprecated
 function disableToolbarItem(img) {
     if (isToolbarItemDisabled(img = $(img))) return;
-    img.addClassName(disabledClass);
+    if (img) {
+        img.addClassName(disabledClass);
+        img.removeClassName(pressedClass);
 
-    img._mouseover = img.onmouseover;
-    img._mouseout = img.onmouseout;
-    img._onclick = img.onclick;
-    img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;
+        img._mouseover = img.onmouseover;
+        img._mouseout = img.onmouseout;
+        img._onclick = img.onclick;
+        img.onmouseover = img.onmouseout = img.onclick = Prototype.emptyFunction;  
+    }
 }
 
 // @Deprecated
 function isToolbarItemDisabled(img) {
+    if (img)
     return img.hasClassName(disabledClass)
         && img._onclick;
 }
+
+

@@ -2,7 +2,10 @@ package org.openl.rules.ruleservice.core;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class designed for storing service info.
@@ -18,7 +21,10 @@ public final class ServiceDescription {
     private String serviceClassName;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
+    private Map<String, Object> configuration;
     private Collection<ModuleDescription> modules;
+    private Set<ModuleDescription> modulesInService;
+    private DeploymentDescription deployment;
 
     /**
      * Main constructor.
@@ -31,26 +37,38 @@ public final class ServiceDescription {
      * @param modules
      */
     ServiceDescription(String name, String url, String serviceClassName, boolean provideRuntimeContext,
-             boolean provideVariations, Collection<ModuleDescription> modules) {
+            boolean provideVariations, Collection<ModuleDescription> modules, Set<ModuleDescription> modulesInService, Map<String, Object> configuration) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.provideVariations = provideVariations;
+        if (configuration == null) {
+            this.configuration = Collections.emptyMap();
+        } else {
+            this.configuration = Collections.unmodifiableMap(configuration);
+        }
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
             this.modules = Collections.emptySet();
         }
+        
+        if (modulesInService != null) {
+            this.modulesInService = Collections.unmodifiableSet(modulesInService);
+        } else {
+            this.modulesInService = Collections.emptySet();
+        }
+        
+        if (!modules.isEmpty()) {
+            ModuleDescription m = modules.iterator().next();
+            this.deployment = new DeploymentDescription(m.getDeploymentName(), m.getDeploymentVersion());
+        }
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name,
-            builder.url,
-            builder.serviceClassName,
-            builder.provideRuntimeContext,
-            builder.provideVariations,
-            builder.modules);
+        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext,
+                builder.provideVariations, builder.modules, builder.modulesInService, builder.configuration);
     }
 
     /**
@@ -81,7 +99,7 @@ public final class ServiceDescription {
     }
 
     /**
-     * Return provideRuntimeContext value. This value is define that service
+     * Returns provideRuntimeContext value. This value is define that service
      * methods first argument is IRulesRuntimeContext.
      * 
      * @return
@@ -101,12 +119,34 @@ public final class ServiceDescription {
     }
 
     /**
-     * Return modules for the service.
+     * Returns modules for the deployment.
      * 
      * @return a set of modules
      */
     public Collection<ModuleDescription> getModules() {
         return modules;
+    }
+
+    /**
+     * Get module names in service
+     * 
+     * @return module names in service
+     */
+    public Set<ModuleDescription> getModulesInService() {
+        return modulesInService;
+    }
+
+    /**
+     * Retuns configuration
+     * 
+     * @return configuration
+     */
+    public Map<String, Object> getConfiguration() {
+        return configuration;
+    }
+
+    public DeploymentDescription getDeployment() {
+        return deployment;
     }
 
     /** {@inheritDoc} */
@@ -151,7 +191,9 @@ public final class ServiceDescription {
         private String serviceClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
+        private Map<String, Object> configuration;
         private Collection<ModuleDescription> modules;
+        private Set<ModuleDescription> modulesInService;
 
         /**
          * Sets name to the builder.
@@ -202,7 +244,7 @@ public final class ServiceDescription {
         public ServiceDescriptionBuilder addModules(Collection<ModuleDescription> modules) {
             if (this.modules == null) {
                 this.modules = new HashSet<ModuleDescription>(modules);
-            }else{
+            } else {
                 this.modules.addAll(modules);
             }
             return this;
@@ -220,6 +262,52 @@ public final class ServiceDescription {
             }
             if (module != null) {
                 this.modules.add(module);
+            }
+            return this;
+        }
+
+        /**
+         * Set a new set of modules in deployment to the builder.
+         * 
+         * @param modulesInDeployment
+         * @return
+         */
+        public ServiceDescriptionBuilder setModulesInService(Collection<ModuleDescription> moduleNamesInService) {
+            if (moduleNamesInService == null) {
+                this.modulesInService = new HashSet<ModuleDescription>(0);
+            } else {
+                this.modulesInService = new HashSet<ModuleDescription>(moduleNamesInService);
+            }
+            return this;
+        }
+
+        /**
+         * Adds modules in deployment to the builder.
+         * 
+         * @param modulesInDeployment
+         * @return
+         */
+        public ServiceDescriptionBuilder addModulesInService(Collection<ModuleDescription> moduleNamesInService) {
+            if (this.modulesInService == null) {
+                this.modulesInService = new HashSet<ModuleDescription>(moduleNamesInService);
+            } else {
+                this.modulesInService.addAll(moduleNamesInService);
+            }
+            return this;
+        }
+
+        /**
+         * Add module in deployment to the builder.
+         * 
+         * @param moduleInDeployment
+         * @return
+         */
+        public ServiceDescriptionBuilder addModuleInService(ModuleDescription moduleInDeployment) {
+            if (this.modulesInService == null) {
+                this.modulesInService = new HashSet<ModuleDescription>(0);
+            }
+            if (moduleInDeployment != null) {
+                this.modulesInService.add(moduleInDeployment);
             }
             return this;
         }
@@ -248,11 +336,25 @@ public final class ServiceDescription {
 
         /**
          * Sets flag that is responsible for variations support.
+         * 
          * @param provideVariations
          * @return
          */
         public ServiceDescriptionBuilder setProvideVariations(boolean provideVariations) {
             this.provideVariations = provideVariations;
+            return this;
+        }
+
+        public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
+            if (this.configuration == null) {
+                this.configuration = new HashMap<String, Object>();
+            }
+            this.configuration.put(key, value);
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setConfiguration(Map<String, Object> configuration) {
+            this.configuration = configuration;
             return this;
         }
 
@@ -264,6 +366,15 @@ public final class ServiceDescription {
         public ServiceDescription build() {
             if (this.name == null) {
                 throw new IllegalStateException("name is required field for building ServiceDescription");
+            }
+            if (this.modules == null) {
+                throw new IllegalStateException("modules is required field for building ServiceDescription");
+            }
+            if (this.modulesInService == null) {
+                throw new IllegalStateException("modulesInService is required field for building ServiceDescription");
+            }
+            if (modules.size() < modulesInService.size()) {
+                throw new IllegalStateException("moduleNamesInService size cannot be greater than modules in deployment size");
             }
             return new ServiceDescription(this);
         }

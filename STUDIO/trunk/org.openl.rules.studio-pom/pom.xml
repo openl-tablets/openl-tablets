@@ -5,13 +5,13 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.base-pom</artifactId>
-    <version>5.9.4.1</version>
+    <version>5.10.0</version>
 		<relativePath>../../../BasePom/trunk/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
   </parent>
 
   <groupId>org.openl.rules</groupId>
   <artifactId>org.openl.rules.studio-pom</artifactId>
-  <version>5.9.4.1</version>
+  <version>5.10.0</version>
   <packaging>pom</packaging>
   <name>OpenL - STUDIO</name>
   <description>OpenL WebStudio Pom Project</description>
@@ -30,52 +30,14 @@
     <module>../org.openl.rules.workspace</module>
     <module>../org.openl.commons.web</module>
     <module>../org.openl.rules.webstudio</module>
-    <module>../org.openl.rules.project</module>    
+    <module>../org.openl.rules.variation</module>
+    <module>../org.openl.rules.project</module>
+    <module>../org.openl.rules.demo</module>
     <module>../org.openl.rules.security</module>
     <module>../org.openl.rules.security.standalone</module>
     <module>../org.openl.rules.diff</module>
     <module>../org.openl.rules.tomcat.lib</module>
   </modules>
-
-  <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-      <id>local-studio-repo</id>
-      <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
-    </repository>
-
-    <!--<repository>
-      <id>jboss</id>
-      <url>http://repository.jboss.com/maven2</url>
-    </repository>
-
-    <repository>
-      <id>apache-incubating</id>
-      <url>http://people.apache.org/repo/m2-incubating-repository/</url>
-    </repository>-->
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </snapshots>
-      <id>local-studio-plugin-repo</id>
-      <url>file://${basedir}/../org.openl.rules.studio-pom/m2_repo</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -272,6 +234,12 @@
 
       <dependency>
         <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.variation</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.project</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -303,6 +271,12 @@
       <dependency>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.tomcat.lib</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.demo</artifactId>
         <version>${project.version}</version>
       </dependency>
 

@@ -16,6 +16,8 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
+import org.apache.poi.hssf.usermodel.HSSFOptimiser;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -32,6 +34,9 @@ public class TableBuilder {
 
     public static final String TABLE_PROPERTIES = "properties";
     public static final String TABLE_PROPERTIES_NAME = "name";
+    
+    /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
+    private static final int MAX_STYLES = 4030;
 
     public static final int HEADER_HEIGHT = 1;
     public static final int PROPERTIES_MIN_WIDTH = 3;
@@ -221,12 +226,14 @@ public class TableBuilder {
         if (width == 1 && height == 1) {
             Cell cell = PoiExcelHelper.getOrCreateCell(x, y, gridModel.getSheetSource().getSheet());
             gridModel.setCellValue(x, y, value);
+            setCellStyle(cell, cellStyle);
             // we need to create new style if value is of type date.
             if (value instanceof Date) {
-                cellStyle = null;
-                cellStyle = getDateCellStyle(cell);                
+               //cellStyle = null;
+               //cellStyle = getDateCellStyle(cell);
+               cell.getCellStyle().setDataFormat((short) BuiltinFormats
+                        .getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
             }
-            setCellStyle(cell, cellStyle);
         } else {
             int x2 = x + width - 1;
             int y2 = y + height - 1;
@@ -266,6 +273,12 @@ public class TableBuilder {
      */
     private CellStyle getDateCellStyle(Cell cell) {
         CellStyle previousStyle = cell.getCellStyle();
+
+        //previousStyle.setBorderBottom(ICellStyle.BORDER_THIN);
+        //previousStyle.setBorderTop(ICellStyle.BORDER_THIN);
+        //previousStyle.setBorderLeft(ICellStyle.BORDER_THIN);
+        //previousStyle.setBorderRight(ICellStyle.BORDER_THIN);
+
         cell.setCellStyle(cell.getSheet().getWorkbook().createCellStyle());
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle().setDataFormat((short) BuiltinFormats
@@ -286,6 +299,9 @@ public class TableBuilder {
                 style2style.put(cellStyle, style);
             } else {
                 Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+                if (workbook.getNumCellStyles() == MAX_STYLES){
+                    HSSFOptimiser.optimiseCellStyles((HSSFWorkbook) workbook);
+                }
                 style = workbook.createCellStyle();
                 try {
                     style.cloneStyleFrom(cellStyle);                    
@@ -402,9 +418,11 @@ public class TableBuilder {
         if (properties == null) {
             throw new IllegalArgumentException("properties must be not null");
         }
+
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
+
         if (!properties.isEmpty()) {
             writeCell(0, currentRow, 1, properties.size(), TABLE_PROPERTIES, style);
             Set<String> keys = properties.keySet();
@@ -413,6 +431,16 @@ public class TableBuilder {
                 writeCell(1, currentRow, 1, 1, key, style);
                 Object value = properties.get(key);
                 writeCell(2, currentRow, 1, 1, value, style);
+                //write empty column for correct border showing
+                if(width > TableBuilder.PROPERTIES_MIN_WIDTH) {
+                    int column = TableBuilder.PROPERTIES_MIN_WIDTH;
+
+                    while (column < width) {
+                        writeCell(column, currentRow, 1, 1, null, style);
+                        column++;
+                    }
+                }
+
                 currentRow++;
             }
         }

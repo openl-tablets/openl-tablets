@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
@@ -30,6 +31,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.AGrid;
@@ -315,6 +317,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             if (hasEnumDomainMetaInfo(col, row)) {
                 writeCellMetaInfo = false;
             }
+            
+            // Don't write meta info for predefined String arrays to avoid
+            // removing Range Domain meta info.
+            if (hasRangeDomainMetaInfo(col, row)) {
+                writeCellMetaInfo = false;
+            }
 
             AXlsCellWriter cellWriter = getCellWriter(value);
             cellWriter.setCellToWrite(poiCell);
@@ -342,20 +350,19 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     public void setCellStyle(int col, int row, ICellStyle style) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle newPoiStyle = sheet.getWorkbook().createCellStyle();
-
+        CellStyle newPoiStyle;
         CellStyle styleToClone = null;
 
         if (style instanceof XlsCellStyle) {
-            styleToClone = ((XlsCellStyle) style).getXlsStyle();
-            newPoiStyle.cloneStyleFrom(styleToClone);
-        
+            newPoiStyle = ((XlsCellStyle) style).getXlsStyle();
+            newPoiStyle.cloneStyleFrom(newPoiStyle);
         }/* else if (style instanceof org.openl.rules.table.ui.CellStyle) {
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
             
             setCellStyle(newPoiStyle, style);
         }*/ else {
+            newPoiStyle = sheet.getWorkbook().createCellStyle();
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
         }
@@ -381,24 +388,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             newPoiStyle.setBorderLeft(borderStyle[3]);
             
         }
-        
+
         if (style.getBorderRGB() != null) {
-            short[][] borderGBR = style.getBorderRGB();
-            
-            if (borderGBR[0] != null)
-                newPoiStyle.setTopBorderColor(borderGBR[0][0]);
-            
-            if (borderGBR[1] != null)
-            newPoiStyle.setRightBorderColor(borderGBR[1][0]);
-            
-            if (borderGBR[2] != null)
-            newPoiStyle.setBottomBorderColor(borderGBR[2][0]);
-            
-            if (borderGBR[3] != null)
-            newPoiStyle.setLeftBorderColor(borderGBR[3][0]);
-            
+            PoiExcelHelper.setCellBorderColors(newPoiStyle, style.getBorderRGB(), sheet.getWorkbook());
         }
-        
+
         poiCell.setCellStyle(newPoiStyle);
     }
 
@@ -538,6 +532,22 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             if (dataType != null) {
                 IDomain<?> domain = dataType.getDomain();
                 if (domain instanceof EnumDomain<?>) {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
+    
+    public boolean hasRangeDomainMetaInfo(int col, int row) {
+        boolean result = false;
+
+        ICell cell = getCell(col, row);
+        if (cell != null) {
+            CellMetaInfo cellMetaInfo = cell.getMetaInfo();
+            IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
+            if (dataType != null) {
+                if (ClassUtils.isAssignable(dataType.getInstanceClass(), INumberRange.class, true)) {
                     result = true;
                 }
             }

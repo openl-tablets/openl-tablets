@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.base-pom</artifactId>
-		<version>5.9.4.1</version>
+		<version>5.10.0</version>
 		<relativePath>../../../BasePom/trunk/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
 	</parent>
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.dev-pom</artifactId>
-	<version>5.9.4.1</version>
+	<version>5.10.0</version>
 	<packaging>pom</packaging>
 	<name>OpenL - DEV</name>
 	<description>OpenL Tablets rules engine and related frameworks</description>
@@ -38,36 +38,6 @@
 		<module>../org.openl.rules.test</module>
 
 	</modules>
-
-	<repositories>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<id>local-dev-repo</id>
-			<url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<id>local-dev-plugin-repo</id>
-			<url>file://${basedir}/../org.openl.rules.dev-pom/m2_repo</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<reporting>
 		<plugins>

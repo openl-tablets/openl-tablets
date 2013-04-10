@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.base-pom</artifactId>
-		<version>5.9.4.1</version>
+		<version>5.10.0</version>
 		<relativePath>../../../BasePom/trunk/org.openl.rules.base-pom</relativePath><!-- TODO make correct projects hierarchy, base pom should be root folder. -->
 	</parent>
 
 	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.eclipse-pom</artifactId>
-	<version>5.9.4.1</version>
+	<version>5.10.0</version>
 	<packaging>pom</packaging>
 	<name>OpenL - Eclipse</name>
 	<description>Eclipse related projects</description>
@@ -45,36 +45,6 @@
 		<module>../org.openl.rules.webstudio.eclipse.feature</module>
 		<module>../org.openl.rules.ruleservice.eclipse.feature</module>
 	</modules>
-
-	<repositories>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-       			<id>local-eclipse-repo</id>
-			<url>file://${basedir}/../org.openl.rules.eclipse-pom/m2_repo</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-			</snapshots>
-			<id>local-eclipse-plugin-repo</id>
-			<url>file://${basedir}/../org.openl.rules.eclipse-pom/m2_repo</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<reporting>
 		<plugins>
@@ -388,7 +358,19 @@
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.variation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.project</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.demo</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -405,6 +387,11 @@
 				<version>${project.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!--SOURCES -->
 			<!-- DEV -->
@@ -473,11 +460,11 @@
 			</dependency>
 
 			<dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.webstudio</artifactId>
-                <classifier>sources</classifier>
-                <version>${project.version}</version>
-            </dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.webstudio</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
@@ -544,7 +531,21 @@
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.variation</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.project</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.demo</artifactId>
 				<classifier>sources</classifier>
 				<version>${project.version}</version>
 			</dependency>
@@ -560,6 +561,13 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice.ws</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
 				<classifier>sources</classifier>
 				<version>${project.version}</version>
 			</dependency>
@@ -605,12 +613,12 @@
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
 				<version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.openl.rules</groupId>
-                        <artifactId>org.openl.lib.poi.dev</artifactId>
-                    </exclusion>
-                </exclusions>
+				<exclusions>
+					<exclusion>
+						<groupId>org.openl.rules</groupId>
+						<artifactId>org.openl.lib.poi.dev</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
 		</dependencies>

@@ -27,6 +27,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -64,6 +66,8 @@ public class ShowTableBean {
 
     private String uri;
     private IOpenLTable table;
+    private boolean editable;
+    private boolean copyable;
 
     private List<OpenLMessage> errors;
     private List<OpenLMessage> warnings;
@@ -98,6 +102,11 @@ public class ShowTableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {*/
+            editable = model.isEditable() && !isDispatcherValidationNode();
+            copyable = editable && table.isCanContainProperties()
+                    && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
+                    && isGranted(PRIVILEGE_CREATE_TABLES);
+
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
                     || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
@@ -107,7 +116,7 @@ public class ShowTableBean {
             initProblems();
             initTests(model);        
             initParams();
-            
+
             //Save last visited table
             WebStudioUtils.getProjectModel().getRecentlyVisitedTables().setLastVisitedTable(table);
             //Check the save table parameter
@@ -190,13 +199,37 @@ public class ShowTableBean {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
-                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri().equals(uri)) {
+                if (syntaxNode instanceof TableSyntaxNode
+                        && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
                     warnings.add(warning);
                 }
             }
         }
     }
 
+    public String getTableName (IOpenLTable table) {
+        String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+        ITableProperties tableProps = table.getProperties();
+        String dimension = "";
+        String tableName = table.getName();
+        if (tableProps != null) {
+            for (int i=0; i < dimensionProps.length; i++) {
+                String propValue = tableProps.getPropertyValueAsString(dimensionProps[i]);
+                
+                if (propValue != null && !propValue.isEmpty()) {
+                    dimension += (dimension.isEmpty() ? "" : ", ") + dimensionProps[i] + " = " +propValue;
+                }
+            }
+        }
+        if (!dimension.isEmpty()) {
+            return tableName +" ["+ dimension +"]";
+        } else {
+            return tableName;
+        }
+        
+        
+    }
+    
     public boolean isDispatcherValidationNode() {
         return table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
@@ -298,13 +331,6 @@ public class ShowTableBean {
         return targetTables;
     }
 
-    public boolean isCopyable() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && table.isCanContainProperties()
-                && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
-                && isGranted(PRIVILEGE_CREATE_TABLES); 
-    }
-
     /**
      * 
      * @return true if it is possible to create tests for current table.
@@ -314,8 +340,11 @@ public class ShowTableBean {
     }    
 
     public boolean isEditable() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.isEditable() && !isDispatcherValidationNode();
+        return editable;
+    }
+
+    public boolean isCopyable() {
+        return copyable;
     }
 
     public boolean isHasErrors() {
@@ -397,11 +426,6 @@ public class ShowTableBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTableUri(newUri);
         studio.rebuildModel();
-    }
-
-    public String getTreeNodeId() {
-        final ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.getTreeNodeId(getUri());
     }
 
     public void setShowFormulas() {

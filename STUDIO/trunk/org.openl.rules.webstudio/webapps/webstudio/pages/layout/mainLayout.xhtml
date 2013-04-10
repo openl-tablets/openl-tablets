@@ -15,7 +15,7 @@
         #{mainBean.init}
 
         <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
 
         <link href="#{contextPath}/css/common.css" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
@@ -23,12 +23,7 @@
         <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
         <link href="#{contextPath}/css/rulesDependencies.css" rel="stylesheet" />
 
-        <link href="#{contextPath}/faces/tableEditor/css/common.css" rel="stylesheet" />
-        <link href="#{contextPath}/faces/tableEditor/css/tooltip.css" rel="stylesheet" />
-        <link href="#{contextPath}/faces/tableEditor/css/datepicker.css" rel="stylesheet" />
-        <link href="#{contextPath}/faces/tableEditor/css/multiselect.css" rel="stylesheet" />
-        <link href="#{contextPath}/faces/tableEditor/css/colorPicker.css" rel="stylesheet" />
-        <link href="#{contextPath}/faces/tableEditor/css/popup.css" rel="stylesheet" />
+        <link href="#{contextPath}/faces/tableEditor/css/tableeditor.min.css" rel="stylesheet" />
 
         <script src="#{contextPath}/javascript/common.js"></script>
         <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
@@ -37,7 +32,6 @@
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
         <script src="#{contextPath}/javascript/bomjs.js"></script>
-        <script src="#{contextPath}/javascript/check_uncheck.js"></script>
         <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script>
@@ -49,6 +43,7 @@
             var loadingPanel;
 
             $j.ajaxSetup({
+                handleLoginPage: true,
                 cache: false,
                 beforeSend: showLoader,
                 success: hideLoader,
@@ -56,6 +51,27 @@
                 error: function(response, message, error) {
                     hideLoader();
                     handleError(response.status);
+                }
+            });
+
+            $j.ajaxPrefilter(function( options, _, jqXHR ) {
+                if (options.handleLoginPage) {
+                     var deferredRequest = $j.Deferred();
+
+                     jqXHR.done(
+                         function (data) {
+                             if (typeof(data) == "string" && data.indexOf("OPENL_LOGIN_PAGE") != -1) {
+                                 location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                             } else {
+                                 deferredRequest.resolveWith(this, arguments);
+                             }
+                         }
+                     );
+
+                     deferredRequest.promise(jqXHR);
+
+                     jqXHR.success = jqXHR.done;
+                     jqXHR.error = jqXHR.fail;
                 }
             });
 
@@ -87,11 +103,11 @@
                 if (errorMessage) {
                     // TODO Create mechanism to disable editing in UI when Excel file is opened.
                     if (errorMessage.indexOf(".xls") > -1) {
-                        message("Failed to save changes. Please close module Excel file and try again.");
+                        message("Failed to save changes. Please close module Excel file and try again.", 7000);
                     } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                         reloadCurrent();
                     } else {
-                        message(errorMessage);
+                        message(errorMessage, 7000);
                     }
                     return;
                 }
@@ -129,7 +145,8 @@
                     west__size: 230,
                     east__size: 230,
                     east__initHidden: true,
-                    slidable: false
+                    slidable: false,
+                    enableCursorHotkey: false
                 });
                 mainLayout.addCloseBtn("#west-closer", "west");
                 mainLayout.addCloseBtn("#east-closer", "east");
@@ -139,7 +156,8 @@
                     spacing_closed: 17,
                     minSize: 57,
                     south__size: 110,
-                    slidable: false
+                    slidable: false,
+                    enableCursorHotkey: false
                 });
                 centerLayout.addCloseBtn("#south-closer", "south");
 
@@ -262,7 +280,7 @@
                     if (page.indexOf("showTable.xhtml") > -1) {
                         mainLayout.show("east");
                         $j("#tableProperties").load(
-                                urlRewrite.prefix + "tableProperties.xhtml?"
+                                urlRewrite.prefix + "tableDetailsData.xhtml?"
                                 + $location.utils.getParamsQuery(page));
                         openTreeNode(page);
                     } else {
@@ -284,7 +302,7 @@
                         tableLink.parents(".rf-tr-nd-colps").each(function() {
                             var node = $j(this);
                             node.toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
-                            node.find(".rf-trn-hnd-colps").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
+                            node.find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp");
                         });
                         // Select node
                         $j("#rulesTree .rf-trn-sel").removeClass("rf-trn-sel");

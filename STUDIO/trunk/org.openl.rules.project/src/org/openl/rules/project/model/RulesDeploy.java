@@ -1,11 +1,14 @@
 package org.openl.rules.project.model;
 
+import java.util.Map;
+
 public class RulesDeploy {
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
-    private String name;
+    private String serviceName;
     private String serviceClass;
     private String url;
+    private Map<String, Object> configuration;
 
     public Boolean isProvideRuntimeContext() {
         return isProvideRuntimeContext;
@@ -23,12 +26,12 @@ public class RulesDeploy {
         this.isProvideVariations = isProvideVariations;
     }
 
-    public String getName() {
-        return name;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getServiceClass() {
@@ -47,4 +50,11 @@ public class RulesDeploy {
         this.url = url;
     }
 
+    public Map<String, Object> getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Map<String, Object> configuration) {
+        this.configuration = configuration;
+    }
 }

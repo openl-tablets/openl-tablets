@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets
 Bundle-SymbolicName: org.openl.rules
-Bundle-Version: 5.9.4.1
+Bundle-Version: 5.10.0
 Bundle-Localization: plugin
 Require-Bundle: org.openl.core;visibility:=reexport,
  org.openl.lib,
@@ -91,6 +91,7 @@ Export-Package: org.apache.poi.hwpf.usermodel,
  org.openl.rules.validation,
  org.openl.rules.validation.properties.dimentional,
  org.openl.rules.validator,
+ org.openl.rules.vm,
  org.openl.rules.word,
  org.openl.tablets,
  org.openl.xls

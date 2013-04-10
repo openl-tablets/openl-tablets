@@ -1,5 +1,8 @@
 package org.openl.rules.testmethod;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.openl.exception.OpenlNotCheckedException;
@@ -68,14 +71,23 @@ public class TestUnitResultComparator {
         
     }
     
-    @SuppressWarnings("unchecked")
     public boolean compareResult(Object actualResult, Object expectedResult) {
 
         if (actualResult == expectedResult) {
             return true;
         }
+        
+        if (expectedResult == null) {
+            if ((actualResult instanceof Object[] && ((Object[]) actualResult).length == 0)
+                    || (actualResult instanceof Collection && ((Collection<?>) actualResult).isEmpty())
+                    || (actualResult instanceof Map && ((Map<?, ?>) actualResult).isEmpty())
+                    || (actualResult instanceof String && ((String) actualResult).isEmpty())) {
+                return true;
+            }
+            return false;
+        }
 
-        if (actualResult == null || expectedResult == null) {
+        if (actualResult == null) {
             return false;
         }
         

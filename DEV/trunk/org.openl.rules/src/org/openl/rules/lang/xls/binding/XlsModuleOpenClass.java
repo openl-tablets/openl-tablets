@@ -6,8 +6,6 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,8 +13,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -24,10 +20,11 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenSchema;
+import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.MethodKey;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
@@ -38,247 +35,119 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
     private IDataBase dataBase = null;
 
     /**
-     * Set of dependencies for current module.
-     * 
-     * NOTE!!!
-     * Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it
-     * throws errors when there are any ones in {@link CompiledOpenClass}.
-     * Check if there are errors: {@link CompiledOpenClass#hasErrors()} 
-     * 
-     */
-    private Set<CompiledOpenClass> usingModules = new HashSet<CompiledOpenClass>();
-
-    /**
      * Whether DecisionTable should be used as a dispatcher for overloaded
      * tables. By default(this flag equals false) dispatching logic will be
      * performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
-	
-    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl,
-            IDataBase dbase, boolean useDescisionTableDispatcher) {
+
+    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase,
+            boolean useDescisionTableDispatcher) {
         this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher);
     }
-    
-	/**
-	 * Constructor for module with dependent modules
-	 *
-	 */
-    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase, 
+
+    private static ThreadLocal<IOpenClass> topOpenClass = new ThreadLocal<IOpenClass>();
+
+    public static void setTopOpenClass(IOpenClass top) {
+        topOpenClass.set(top);
+    }
+
+    public IOpenClass getTopOpenClassOrThis() {
+
+        IOpenClass top = topOpenClass.get();
+
+        return top == null ? this : top;
+    }
+
+    public class TopField extends AOpenField {
+
+        protected TopField() {
+            super("top", getTopOpenClassOrThis());
+        }
+
+        public Object get(Object target, IRuntimeEnv env) {
+            return target;
+        }
+
+        public void set(Object target, Object value, IRuntimeEnv env) {
+            throw new RuntimeException("Can not assign to 'top'");
+        }
+
+    }
+
+    /**
+     * Constructor for module with dependent modules
+     * 
+     */
+    public XlsModuleOpenClass(IOpenSchema schema, String name, XlsMetaInfo metaInfo, OpenL openl, IDataBase dbase,
             Set<CompiledOpenClass> usingModules, boolean useDescisionTableDispatcher) {
-          super(schema, name, openl);
-          this.dataBase = dbase;
-          this.metaInfo = metaInfo;
-          this.useDescisionTableDispatcher = useDescisionTableDispatcher;
-          if (usingModules != null) {
-              this.usingModules = new HashSet<CompiledOpenClass>(usingModules);
-              try {
-                  initDependencies();
-              } catch (OpenLCompilationException e) {
-                  throw new OpenlNotCheckedException("Can`t add datatype", e);
-              }
-          }
-      }
-
-    /**
-     * Populate current module fields with data from dependent modules. 
-     */
-    private void initDependencies() throws OpenLCompilationException {    
-        for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                // commented as there is no need to add each datatype to upper module.
-                // as now it`s will be impossible to validate from which module the datatype is.
-                //
-                //addTypes(dependency);
-                addMethods(dependency);
-            }            
-        }
-    }
-      
-	
-    /**
-     * Add methods form dependent modules to current one.
-     * 
-     * @param dependency compiled dependency module
-     */
-    private void addMethods(CompiledOpenClass dependency) {
-        for (IOpenMethod depMethod : dependency.getOpenClass().getMethods()) {
-            // filter constructor and getOpenClass methods of dependency modules
-            //
-            if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
-                addMethod(depMethod);
-            }
-        }
+        super(schema, name, openl, usingModules);
+        this.dataBase = dbase;
+        this.metaInfo = metaInfo;
+        this.useDescisionTableDispatcher = useDescisionTableDispatcher;
+        addField(new TopField());
     }
 
-    /**
-     * Overriden to add the possibility for overriding fields from dependent modules.<br>
-     * At first tries to get the field from current module, if can`t search in dependencies.
-     */
-    @Override
-    public IOpenField getField(String fname, boolean strictMatch) {
-        // try to get field from own field map
-        //
-        IOpenField field = super.getField(fname, strictMatch);
-        if (field != null) {
-            return field;
-        } else {
-            // if can`t find, search in dependencies.
-            //
-            for (CompiledOpenClass dependency : usingModules) {
-                if (!dependency.hasErrors()) {
-                    field = dependency.getOpenClass().getField(fname, strictMatch);
-                    if (field != null) {
-                        return field;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-        
-    @Override
-    public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
-
-        // get fields from dependencies
-        //
-        for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                fields.putAll(dependency.getOpenClass().getFields());
-            }            
-        }
-
-        // get own fields. if current module has duplicated fields they will
-        // override the same from dependencies.
-        //
-        fields.putAll(super.getFields());
-
-        return fields;
-    }
-    
-    /**
-     * Set compiled module dependencies for current module.
-     * 
-     * @param moduleDependencies
-     */
-    public void setDependencies(Set<CompiledOpenClass> moduleDependencies){
-        if (moduleDependencies != null) {
-            this.usingModules = new HashSet<CompiledOpenClass>(moduleDependencies);
-        }
-    }
-    
-    /**
-     * Gets compiled module dependencies for current module.
-     * @return compiled module dependencies for current module.
-     */
-    public Set<CompiledOpenClass> getDependencies() {
-        return new HashSet<CompiledOpenClass>(usingModules);
-    }
-    
-    /**
-     * Return the whole map of internal types. Where the key is namespace of the type, 
-     * the value is {@link IOpenClass}.
-     * 
-     * @return map of internal types 
-     */
-    @Override
-    public Map<String, IOpenClass> getTypes() {
-        Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(super.getTypes());
-        for (CompiledOpenClass dependency : usingModules) {
-            if (!dependency.hasErrors()) {
-                currentModuleDatatypes.putAll(dependency.getTypes());
-            }
-        }
-        
-        return currentModuleDatatypes;
-    }
-    
-    /**
-     * Finds type with given name in internal type list. If type with given name
-     * exists in list it will be returned; <code>null</code> - otherwise.
-     * 
-     * @param typeName
-     *            name of type to search
-     * @return {@link IOpenClass} instance or <code>null</code>
-     */
-    @Override
-    public IOpenClass findType(String namespace, String typeName) {
-        // it will contain types from current module.
-        IOpenClass type = super.findType(namespace, typeName);
-        
-        
-        if (type == null) {
-            // try to find type which is declared in dependency module
-            for (CompiledOpenClass dependency : usingModules) {
-                if (!dependency.hasErrors()) {
-                    type = dependency.getOpenClass().findType(namespace, typeName);
-                    if (type != null) {
-                        break;
-                    }
-                }
-            }
-        }
-        return type;
-    }
-    
     // TODO: should be placed to ModuleOpenClass
-	public IDataBase getDataBase() {
-		return dataBase;
-	}
-	
-	public XlsMetaInfo getXlsMetaInfo() {
-		return (XlsMetaInfo) metaInfo;
-	}
-	
-	/**
-	 * Adds method to <code>XlsModuleOpenClass</code>.
-	 * 
-	 * @param method
-	 *            method object
-	 */
-	@Override
-	public void addMethod(IOpenMethod method) {
-	    if(method instanceof OpenMethodDispatcher){
-	        addDispatcherMethod((OpenMethodDispatcher)method);
+    public IDataBase getDataBase() {
+        return dataBase;
+    }
+
+    public XlsMetaInfo getXlsMetaInfo() {
+        return (XlsMetaInfo) metaInfo;
+    }
+
+    /**
+     * Adds method to <code>XlsModuleOpenClass</code>.
+     * 
+     * @param method method object
+     */
+    @Override
+    public void addMethod(IOpenMethod method) {
+        if (method instanceof OpenMethodDispatcher) {
+            addDispatcherMethod((OpenMethodDispatcher) method);
             return;
-	    }
-		
-		// Get method key.
-		//
-		MethodKey key = new MethodKey(method);
-		
-		Map<MethodKey, IOpenMethod> methods = methodMap();
-		
-		// Checks that method aleready exists in method map. If it already
-		// exists then "overload" it using decorator; otherwise - just add to
-		// method map.
-		//
-		if (methods.containsKey(key)) {
-			
-			// Gets the existed method from map.
-			// 
-			IOpenMethod existedMethod = methods.get(key);
-			
+        }
+
+        // Get method key.
+        //
+        MethodKey key = new MethodKey(method);
+
+        Map<MethodKey, IOpenMethod> methods = methodMap();
+
+        // Checks that method aleready exists in method map. If it already
+        // exists then "overload" it using decorator; otherwise - just add to
+        // method map.
+        //
+        if (methods.containsKey(key)) {
+
+            // Gets the existed method from map.
+            //
+            IOpenMethod existedMethod = methods.get(key);
+
             if (!existedMethod.getType().equals(method.getType())) {
                 throw new DuplicatedMethodException(
-                    String.format("Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
-                        method.getName(), method.getType().getDisplayName(0), existedMethod.getType().getDisplayName(0)), method);
+                        String.format(
+                                "Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
+                                method.getName(), method.getType().getDisplayName(0), existedMethod.getType()
+                                        .getDisplayName(0)), method);
             }
-			
-			// Checks the instance of existed method. If it's the
-			// OpenMethodDecorator then just add the method-candidate to
-			// decorator; otherwise - replace existed method with new instance
-			// of OpenMethodDecorator for existed method and add new one.
-			//
-			if (existedMethod instanceof OpenMethodDispatcher) {
-				OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-				decorator.addMethod(method);
-		} else {
+
+            // Checks the instance of existed method. If it's the
+            // OpenMethodDecorator then just add the method-candidate to
+            // decorator; otherwise - replace existed method with new instance
+            // of OpenMethodDecorator for existed method and add new one.
+            //
+            if (existedMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
+                decorator.addMethod(method);
+            } else {
                 boolean differentVersionsOfTheTable = false;
                 if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
-                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) existedMethod);
-                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) method);
+                    DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(
+                            (ExecutableRulesMethod) existedMethod);
+                    DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(
+                            (ExecutableRulesMethod) method);
                     differentVersionsOfTheTable = newMethodPropertiesKey.equals(existedMethodPropertiesKey);
                 }
                 if (differentVersionsOfTheTable) {
@@ -286,14 +155,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 } else {
                     createMethodDispatcher(method, key, existedMethod);
                 }
-			}
-		} else {
-			
-			// Just add original method.
-			//
-			methodMap().put(key, method);
-		}
-	}
+            }
+        } else {
+
+            // Just add original method.
+            //
+            methodMap().put(key, method);
+        }
+    }
 
     /**
      * Dispatcher method should be added by adding all candidates of the
@@ -304,8 +173,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * Previously there was problems because dispatcher from dependency was
      * either added to dispatcher of current module(dispatcher as a candidate in
      * another dispatcher) or added to current module and was modified during
-     * the current module processing.
-     * FIXME
+     * the current module processing. FIXME
      * 
      * @param dispatcher Dispatcher methods to add.
      */
@@ -323,8 +191,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
      */
-    public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod,
-            ExecutableRulesMethod newMethod,
+    public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod, ExecutableRulesMethod newMethod,
             MethodKey key) {
         if (new TableVersionComparator().compare(existedMethod, newMethod) < 0) {
             methodMap().put(key, existedMethod);
@@ -347,7 +214,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         OpenMethodDispatcher decorator;
         if (useDescisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(existedMethod, this);
-        } else {            
+        } else {
             decorator = new MatchingOpenMethodDispatcher(existedMethod, this);
         }
 
@@ -358,11 +225,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         // Replace existed method with decorator using the same key.
         //
         methodMap().put(key, decorator);
-    }    
+    }
 
     @Override
-	public void clearOddDataForExecutionMode() {
-	    super.clearOddDataForExecutionMode();
-	    dataBase = null;
+    public void clearOddDataForExecutionMode() {
+        super.clearOddDataForExecutionMode();
+        dataBase = null;
     }
 }

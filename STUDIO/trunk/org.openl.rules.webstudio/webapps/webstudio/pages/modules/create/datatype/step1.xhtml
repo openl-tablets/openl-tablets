@@ -1,10 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/pages/layout/wizardStep.xhtml">
 
-    <ui:include src="/pages/modules/create/businessFields.xhtml">
-        <ui:param name="prev" value="step0.xhtml" />
-        <ui:param name="next" value="datatype/step2.xhtml" />
-    </ui:include>
+    <ui:define name="header">Enter name</ui:define>
+
+    <ui:define name="data">
+        <h:form>
+            <h:panelGrid columns="3" cellspacing="5">
+                <h:outputText value="Name" styleClass="required" />
+                <h:inputText id="technicalName" value="#{wizard.technicalName}" 
+                validator="#{wizard.validateTechnicalName}" immediate="true" />
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="technicalName" styleClass="error" />
+                </a4j:outputPanel>
+
+                <h:outputText value="Parent type" rendered="#{wizard.definedDatatypesLength > 1}"/>
+                <h:selectOneMenu value="#{wizard.parent}" rendered="#{wizard.definedDatatypesLength > 1}">
+                    <f:selectItems value="#{wizard.definedDatatypes}" />
+                </h:selectOneMenu>
+
+            </h:panelGrid>
+            <br />
+            <hr />
+
+            <a4j:commandButton value="Prev" action="#{tableCreatorWizardManager.prev}" immediate="true"
+                oncomplete="go('step0.xhtml')" />
+            <a4j:commandButton value="Next" action="#{tableCreatorWizardManager.next}"
+                data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) go('datatype/step2.xhtml')" />
+            <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
+                oncomplete="goTo('create/index.xhtml')" />
+
+        </h:form>
+
+    </ui:define>
 
 </ui:composition>

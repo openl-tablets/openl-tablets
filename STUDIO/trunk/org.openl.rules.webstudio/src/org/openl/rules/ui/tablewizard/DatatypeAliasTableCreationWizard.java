@@ -24,7 +24,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Andrei Astrouski
  */
-public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizard {
+public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message="Can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
@@ -93,7 +93,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
         reset();
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass(), false);
-        Collection<String> allClasses = domainTree.getAllClasses(true);
+        Collection<String> allClasses = domainTree.getAllClasses();
         domainTypes = FacesUtils.createSelectItems(allClasses);
         
         if (!CollectionUtils.isEmpty(allClasses) && CollectionUtils.contains(allClasses.iterator(), "String")) {
@@ -139,7 +139,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
     @Override
     protected void onStepFirstVisit(int step) {
         switch (step) {
-            case 4:
+            case 3:
                 initWorkbooks();
                 break;
         }
@@ -149,8 +149,7 @@ public class DatatypeAliasTableCreationWizard extends BusinessTableCreationWizar
         values.add(new AliasValue());
     }
 
-    public void removeValue() {
-        AliasValue value = (AliasValue) valuesTable.getRowData();
+    public void removeValue(AliasValue value) {
         values.remove(value);
     }
 

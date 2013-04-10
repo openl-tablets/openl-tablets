@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.base.INamedThing;
+import org.openl.meta.number.NumberValue.ValueType;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.ui.tree.AbstractTreeBuilder;
 import org.openl.util.tree.ITreeElement;
@@ -40,7 +41,9 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
             ITreeElement<?> child = (ITreeElement<?>) pi.next();
             TreeNode rfChild = toRFNode(child);
             dest.addChild(index, rfChild);
-            addNodes(rfChild, child);
+            if (child != null) {
+                addNodes(rfChild, child);
+            }
             index++;
         }
     }
@@ -50,6 +53,9 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
     }
 
     private TreeNode toRFNode(ITreeElement<?> node) {
+        if (node == null) {
+            return createNullNode();
+        }
         TreeNode rfNode = new TreeNode(node.isLeaf());
         setNodeData(node, rfNode);
         return rfNode;
@@ -60,6 +66,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         String title = getDisplayName(source, INamedThing.REGULAR);
         String url = getUrl(source);
         int state = getState(source);
+        int numErrors = getNumErrors(source);
         String type = getType(source);
         boolean active = isActive(source);
 
@@ -67,6 +74,7 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         dest.setTitle(title);
         dest.setUrl(url);
         dest.setState(state);
+        dest.setNumErrors(numErrors);
         dest.setType(type);
         dest.setActive(active);
     }
@@ -102,4 +110,16 @@ public class TreeBuilder extends AbstractTreeBuilder<TreeNode> {
         return 0;
     }
 
+    protected int getNumErrors(ITreeElement<?> element) {
+        return 0;
+    }
+
+    private TreeNode createNullNode() {
+        TreeNode dest = new TreeNode(true);
+        dest.setName("null");
+        dest.setTitle("null");
+        dest.setUrl(getUrl(null));
+        dest.setType(ValueType.SINGLE_VALUE.toString());
+        return dest;
+    }
 }

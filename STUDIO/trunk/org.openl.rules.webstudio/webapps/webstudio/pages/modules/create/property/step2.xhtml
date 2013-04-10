@@ -9,13 +9,21 @@
     xmlns:oh="http://openl-tablets.sf.net/jsf/html"
     template="/pages/layout/wizardStep.xhtml">
 
-    <ui:define name="header">Select Properties</ui:define>
+    <ui:define name="header">Input name and properties</ui:define>
 
     <ui:define name="data">
+        <style>
+            .addButton {
+                background: url(#{contextPath}/webresource/images/add_obj.gif) no-repeat 2px;
+                padding: 3px 5px 3px 21px;
+                text-decoration: none;
+                vertical-align: middle;
+            }
+        </style>
         <c:set var="propertiesManager" value="#{wizard.propertiesManager}" />
 
-        <h:form>
-            <h:outputLabel value="Table Name " for="techName" />
+        <h:form id="propertiesForm">
+            <h:outputLabel value="Name " for="techName"  styleClass="required" style="margin-right:3px" />
             <h:inputText id="techName" value="#{wizard.tableName}" 
             validator="#{wizard.validateTechnicalName}" immediate="true"/>
             <a4j:outputPanel ajaxRendered="true">
@@ -27,39 +35,53 @@
             <br />
             <br />
             <h:panelGroup id="propertiesTable">
-                <table cellpadding="2">
-                    <a4j:repeat value="#{propertiesManager.properties}" var="prop">
-                        <tr>
+                <table cellpadding="2" >
+                    <a4j:repeat id="property" value="#{propertiesManager.properties}" var="prop">
+                        <tr >
                             <td>
                                 <h:outputText value="#{prop.displayName}" />
                             </td>
-                            <td style="width: 156px">
-                                <rich:calendar value="#{prop.value}" datePattern="#{prop.format}"
-                                    rendered="#{prop.dateType}" />
+                            <td>
+                                <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
+                                    rendered="#{prop.dateType}" required="true" requiredMessage="Can not be empty " />
 
-                                <h:selectBooleanCheckbox value="#{prop.value}" rendered="#{prop.booleanType}" />
+                                <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 
                                 <oh:multiselect items="#{prop.enumArrayItems}"
-                                    selected="#{prop.enumArrayValue}" rendered="#{prop.enumArray}" />
+                                    selected="#{prop.enumArrayValue}" rendered="#{prop.enumArray}" required="true" requiredMessage="Please select anything"/>
 
-                                <h:inputText value="#{prop.value}"
-                                    rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}" />
+                                <h:inputText id="inputText" value="#{prop.value}" validator="#{wizard.validatePropsName}"
+                                    rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}"/>
+
+                                <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
+                                    <f:selectItems value="#{prop.enumArrayItems}" />
+                                </h:selectOneMenu> 
                             </td>
                             <td>
                                 <a4j:commandLink action="#{propertiesManager.removeProperty}"
-                                    render="propertiesTable newPropertySelect">
+                                    render="propertiesTable newPropertySelect" execute="@this">
                                     <h:graphicImage value="/images/delete.png" title="Remove property" />
                                     <f:setPropertyActionListener value="#{prop}"
                                         target="#{propertiesManager.propToRemove}" />
                                 </a4j:commandLink>
+                            </td>
+                            <td>
+                                <a4j:outputPanel ajaxRendered="true"  >
+                                    <h:message for="date"
+                                        styleClass="error" />
+                                    <h:message for="inputText"
+                                        styleClass="error" />
+                                    <h:message for="multiselect-select"
+                                        styleClass="error" />
+                                </a4j:outputPanel>
                             </td>
                         </tr>
                     </a4j:repeat>
                 </table>
             </h:panelGroup>
 
-            <a4j:commandLink oncomplete="#{rich:component('newPropertyDlg')}.show();">
-                <h:graphicImage value="/images/add_obj.gif" alt="Add property" title="Add property" />
+            <a4j:commandLink oncomplete="if(!event.data)  #{rich:component('newPropertyDlg')}.show();" data="#{facesContext.maximumSeverity}" title="Add more" styleClass="addButton">
+                <h:outputText value="Add Property" />
             </a4j:commandLink>
             <br />
             <br />

@@ -2,15 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tomcat Plug-in
 Bundle-SymbolicName: org.openl.rules.tomcat.lib
-Bundle-Version: 5.9.4.1
+Bundle-Version: 5.10.0
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL Tablets
-Bundle-ClassPath: apache-tomcat-7.0.8/lib/jsp-api.jar,
- apache-tomcat-7.0.8/lib/servlet-api.jar,
- apache-tomcat-7.0.8/bin/bootstrap.jar,
- apache-tomcat-7.0.8/lib/el-api.jar,
- apache-tomcat-7.0.8/lib/annotations-api.jar,
- apache-tomcat-7.0.8/bin/tomcat-juli.jar
+Bundle-ClassPath: apache-tomcat/lib/jsp-api.jar,
+ apache-tomcat/lib/servlet-api.jar,
+ apache-tomcat/bin/bootstrap.jar,
+ apache-tomcat/lib/el-api.jar,
+ apache-tomcat/lib/annotations-api.jar,
+ apache-tomcat/bin/tomcat-juli.jar
 Export-Package: javax.annotation,
  javax.annotation.security,
  javax.ejb,

@@ -20,12 +20,24 @@ import org.openl.rules.runtime.BaseRulesFactory;
  * @author pudalau
  */
 public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
+	
     private final Log log = LogFactory.getLog(LazyMultiModuleInstantiationStrategy.class);
 
     private LazyMultiModuleEngineFactory factory;
+    private String openlName;
+    
+    
+    public String getOpenlName() {
+		return openlName;
+	}
 
-    public LazyMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
+	public void setOpenlName(String openlName) {
+		this.openlName = openlName;
+	}
+
+	public LazyMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager, String openlName) {
         super(modules, dependencyManager);
+        this.openlName = openlName;
     }
 
     @Override
@@ -82,7 +94,7 @@ public class LazyMultiModuleInstantiationStrategy extends MultiModuleInstantiati
 		if (factory == null
 				|| (serviceClass != null && !factory.getInterfaceClass()
 						.equals(serviceClass))) {
-            factory = new LazyMultiModuleEngineFactory(getModules());
+            factory = new LazyMultiModuleEngineFactory(getModules(), openlName);
 
             //Information for interface generation, if generation required.
             // Information for interface generation, if generation required.

@@ -4,7 +4,8 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:oh="http://openl-tablets.sf.net/jsf/html">
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
+     xmlns:f="http://java.sun.com/jsf/core">
 
     <style>
         #searchInput {
@@ -145,7 +146,7 @@
         </span>
         <div id="advancedSearch">
             <div>
-                <label>Table Types</label>
+                <label>Table Type</label>
                 <oh:multiselect items="#{searchBean.tableTypeItems}" selected="#{searchBean.tableTypes}" />
             </div>
 
@@ -172,6 +173,9 @@
                                 <h:inputText value="#{prop.value}" 
                                     rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray || prop.name == 'version')}" />
                                 <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
+                                <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
+                                    <f:selectItems value="#{prop.enumArrayItems}" />
+                                </h:selectOneMenu>
                             </td>
                             <td style="padding-left: 5px">
                                 <a href="javascript:void(0)" id="removePropBtn1" title="Remove" class="removeBtn"

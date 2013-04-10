@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
@@ -22,6 +24,8 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.workspace.WorkspaceUser;
 
 public class ADeploymentProject extends UserWorkspaceProject {
+    private final Log log = LogFactory.getLog(ADeploymentProject.class);
+
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deployment configuration)*/
@@ -68,9 +72,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found", name));
     }
 
-    
-    
-    
     public void openVersion(CommonVersion version) throws ProjectException {
         modifiedDescriptors = false;
         FolderAPI openedProjectVersion = getAPI().getVersion(version);
@@ -109,7 +110,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     public void save(CommonUser user) throws ProjectException {
         if (CollectionUtils.isEmpty(descriptors)) {
             if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                getArtefact(ArtefactProperties.DESCRIPTORS_FILE).delete();
+                deleteArtefact(ArtefactProperties.DESCRIPTORS_FILE);
             }
         } else {
             String descriptorsAsString = ProjectDescriptorHelper.serialize(descriptors);
@@ -124,8 +125,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 }
                 resource.commit(user);
             } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                if (log.isErrorEnabled()) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
         
@@ -174,7 +176,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getMessage(), e);
+                    }
                 } finally {
                     IOUtils.closeQuietly(content);
                 }

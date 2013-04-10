@@ -6,6 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn"
     template="/pages/layout/view.xhtml">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
@@ -89,7 +90,7 @@
                             <a4j:repeat value="#{project.modules}" var="module">
                             <li>
                                 <a4j:commandLink action="#{mainBean.selectModule}" onclick="selectModule(this)"
-                                    oncomplete="goTo('module.xhtml?' + encodeURIComponent('#{project.name}') + '/' + encodeURIComponent('#{module.name}'), true)">
+                                    oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
                                     #{module.name}
                                     <f:param name="project" value="#{module.project.id}" />
                                     <f:param name="module" value="#{module.name}" />
@@ -141,7 +142,7 @@
                     Please go to the
                     <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
                         title="Repository"><h:outputText value="Repository" /></a>
-                    to create (import) a new project
+                    to create a new project
                 </c:if>
             </h:panelGroup>
         </h:form>

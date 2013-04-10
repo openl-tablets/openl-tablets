@@ -22,9 +22,8 @@ public abstract class DependencyManager implements IDependencyManager {
         if (compiledDependencies.containsKey(dependencyName)) {
             return compiledDependencies.get(dependencyName);
         }
-        
-        List<IDependencyLoader> dependencyLoaders = getDependencyLoaders();
-        CompiledDependency compiledDependency = loadDependency(dependencyName, dependencyLoaders);
+
+        CompiledDependency compiledDependency = handleLoadDependency(dependency);
 
         if (compiledDependency == null) {
             throw new OpenLCompilationException(String.format("Dependency with name '%s' is not found", dependencyName), 
@@ -35,7 +34,7 @@ public abstract class DependencyManager implements IDependencyManager {
 
         return compiledDependency;
     }
-    
+
     public void reset(IDependency dependency) {
         String dependencyName = dependency.getNode().getIdentifier();
         if (compiledDependencies.containsKey(dependencyName)) {
@@ -62,6 +61,22 @@ public abstract class DependencyManager implements IDependencyManager {
     }
 
     public abstract List<IDependencyLoader> getDependencyLoaders();
+
+    /**
+     * Handles loading dependent modules. This method should not cache
+     * dependencies (method {@link #loadDependency(IDependency)} already uses
+     * caching) Default implementation uses dependency loaders to load the
+     * dependency. Can be overriden to redefine behavior.
+     * 
+     * @param dependency dependency to load
+     * @return loaded and compiled dependency
+     * @throws OpenLCompilationException if exception during compilation is
+     *             occured
+     */
+    protected CompiledDependency handleLoadDependency(IDependency dependency) throws OpenLCompilationException {
+        List<IDependencyLoader> dependencyLoaders = getDependencyLoaders();
+        return loadDependency(dependency.getNode().getIdentifier(), dependencyLoaders);
+    }
     
     private CompiledDependency loadDependency(String dependencyName, List<IDependencyLoader> loaders) {
         

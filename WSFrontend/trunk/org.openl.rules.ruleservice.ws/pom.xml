@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-		<version>5.9.4.1</version>
+		<version>5.10.0</version>
 		<relativePath>../org.openl.rules.ruleservice-pom</relativePath>
 	</parent>
 
@@ -30,6 +30,7 @@
 					<warSourceDirectory>webapps</warSourceDirectory>
 					<warName>${war.name}-${project.version}</warName>
 					<packagingExcludes>
+						WEB-INF/lib/commons-logging*.jar,
 						WEB-INF/lib/geronimo-servlet*.jar,
 						WEB-INF/lib/poi-2.5.1-*.jar,
 						WEB-INF/lib/org.openl.lib-*.jar,
@@ -105,12 +106,6 @@
 					<include>**/*.xml</include>
 				</includes>
 			</resource>
-			<resource>
-				<directory>binding-conf/aegis</directory>
-			</resource>
-			<resource>
-				<directory>binding-conf/jaxb</directory>
-			</resource>
 		</resources>
 
 		<testResources>
@@ -149,6 +144,11 @@
 			<artifactId>org.openl.rules.ruleservice</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+		</dependency>
+
 		<!-- Other -->
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -180,10 +180,10 @@
 			<artifactId>cxf-rt-databinding-aegis</artifactId>
 		</dependency>
 
-		<dependency>
+	        <dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-		</dependency>
+			<artifactId>javax.servlet-api</artifactId>
+	        </dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -209,6 +209,12 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

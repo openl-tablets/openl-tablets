@@ -12,10 +12,10 @@ import org.openl.conf.NameSpacedLibraryConfiguration;
 import org.openl.conf.NameSpacedTypeConfiguration;
 import org.openl.conf.NoAntOpenLTask;
 import org.openl.conf.NodeBinderFactoryConfiguration;
+import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
 import org.openl.conf.OpenFactoryConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
-import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
 import org.openl.grammar.bexgrammar.BExGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
 
@@ -65,6 +65,14 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "op.index", org.openl.binding.impl.IndexNodeBinder.class.getName(), 
                 "selectfirst.index", org.openl.binding.impl.SelectFirstIndexNodeBinder.class.getName(), 
                 "selectall.index", org.openl.binding.impl.SelectAllIndexNodeBinder.class.getName(), 
+                "orderby.index", org.openl.binding.impl.OrderByIndexNodeBinder.class.getName(), 
+                "orderdecreasingby.index", org.openl.binding.impl.OrderByIndexNodeBinder.class.getName(), 
+                "splitby.index", org.openl.binding.impl.SplitByIndexNodeBinder.class.getName(), 
+
+                "transform.index", org.openl.binding.impl.TransformIndexNodeBinder.class.getName(), 
+                "transformunique.index", org.openl.binding.impl.TransformIndexNodeBinder.class.getName(), 
+                "index.parameter.declaration", org.openl.binding.impl.IndexParameterDeclarationBinder.class.getName(),
+                
                 "op.ternary.qmark", org.openl.binding.impl.QMarkNodeBinder.class.getName(), 
                 "type.cast", org.openl.binding.impl.TypeCastBinder.class.getName(),
                 "local.var.declaration", org.openl.binding.impl.LocalVarBinder.class.getName(),

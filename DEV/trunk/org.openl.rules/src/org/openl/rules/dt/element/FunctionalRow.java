@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -309,13 +310,30 @@ public abstract class FunctionalRow implements IDecisionRow {
                     ota,
                     paramIndexed[j]);
             } catch (SyntaxNodeException error) {
-                errors.add(error);
+                // Avoid repeating error messages for same cell in Lookup tables.
+                if (!haveSameError(errors, error)) {
+                    errors.add(error);
+                }
             }
             valueAry[j] = loadedValue;
 
             fromHeight += gridHeight;
         }
         return valueAry;
+    }
+
+    private boolean haveSameError(ArrayList<SyntaxNodeException> errors, SyntaxNodeException error) {
+        boolean errorAddedAlready = false;
+        for (SyntaxNodeException e : errors) {
+            if (StringUtils.equals(e.getMessage(), error.getMessage()) && 
+                    e.getSourceModule() != null &&
+                    error.getSourceModule() != null &&
+                    StringUtils.equals(e.getSourceModule().getUri(0), error.getSourceModule().getUri(0))) {
+                errorAddedAlready = true;
+                break;
+            }
+        }
+        return errorAddedAlready;
     }
 
     private boolean[] getParamIndexed(IParameterDeclaration[] paramDecl) {

@@ -34,13 +34,9 @@
 }
 
 .corner_all {
-    border-radius: 2px;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
+    border-radius: 1px;
 }
 
 .shadow_all {
-    box-shadow: 3px 3px 3px #DDDDDD;
-    -moz-box-shadow: 3px 3px 3px #DDDDDD;
-    -webkit-box-shadow: 3px 3px 3px #DDDDDD;
+    box-shadow: 2px 2px 3px #eee;
 }

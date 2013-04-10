@@ -21,6 +21,8 @@ import java.util.List;
 @ManagedBean(name="localUpload")
 @RequestScoped
 public class LocalUploadController {
+    private boolean selectAll = false;
+
     public static class UploadBean {
         private String projectName;
 
@@ -110,7 +112,7 @@ public class LocalUploadController {
                     try {
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
                         FacesUtils.addInfoMessage("Project " + bean.getProjectName()
-                                        + " was created succesfully");
+                                        + " was created successfully");
                     } catch (Exception e) {
                         String msg = "Failed to create the project '" + bean.getProjectName() + "'!";
                         log.error(msg, e);
@@ -121,5 +123,13 @@ public class LocalUploadController {
         }
 
         return null;
+    }
+
+    public boolean isSelectAll() {
+        return false;
+    }
+
+    public void setSelectAll(boolean selectAll) {
+        this.selectAll = selectAll;
     }
 }

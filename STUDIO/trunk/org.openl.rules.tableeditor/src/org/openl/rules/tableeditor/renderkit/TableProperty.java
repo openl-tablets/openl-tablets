@@ -29,6 +29,7 @@ public class TableProperty {
 
     private String group;
     private String format;
+    private String deprecation;
     private Constraints constraints;
     private String description;
     private boolean system;
@@ -43,6 +44,7 @@ public class TableProperty {
         this.type = propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass();
         this.group = propDefinition.getGroup();
         this.format = propDefinition.getFormat();
+        this.deprecation = propDefinition.getDeprecation();
         this.constraints = propDefinition.getConstraints();
         this.description = propDefinition.getDescription();
         this.system = propDefinition.isSystem();
@@ -56,6 +58,7 @@ public class TableProperty {
         this.type = builder.type;
         this.group = builder.group;
         this.format = builder.format;
+        this.deprecation = builder.deprecation;
         this.constraints = builder.constraints;
         this.description = builder.description;
         this.system = builder.system;
@@ -70,6 +73,14 @@ public class TableProperty {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public String getDeprecation() {
+        return deprecation;
+    }
+
+    public void setDeprecation(String deprecation) {
+        this.deprecation = deprecation;
     }
 
     public String getName() {
@@ -175,13 +186,17 @@ public class TableProperty {
 
     public List<SelectItem> getEnumArrayItems() {
         List<SelectItem> items = new ArrayList<SelectItem>();
+        String[] values = null;
+        String[] displayValues = null;
 
         if (isEnumType() || isEnumArray()) {
-            Class<?> instanceClass = type.getComponentType();
+            Class<?> instanceClass = type.getComponentType() != null ? type.getComponentType() : type;
 
-            String[] values = EnumUtils.getNames(instanceClass);
-            String[] displayValues = EnumUtils.getValues(instanceClass);
+            values = EnumUtils.getNames(instanceClass);
+            displayValues = EnumUtils.getValues(instanceClass);
+        }
 
+        if(values != null) {
             for (int i = 0; i < values.length; i++) {
                 items.add(new SelectItem(values[i], displayValues[i]));
             }
@@ -324,6 +339,7 @@ public class TableProperty {
         private Object value;        
         private String group;
         private String format;
+        private String deprecation;
         private Constraints constraints;
         private String description;
         private boolean system;
@@ -353,6 +369,11 @@ public class TableProperty {
 
         public TablePropertyBuilder format(String val) {
             format = val;
+            return this;
+        }
+
+        public TablePropertyBuilder deprecation(String val) {
+            deprecation = val;
             return this;
         }
 

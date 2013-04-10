@@ -1,19 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <h:panelGroup layout="block">
         <div>
             <div class="view_header">
-                <span>Navigator</span>
+                <span>
+                    <a4j:commandLink id="designRepoLink" value="Design" oncomplete="goToRepo('design', 'production')"
+                    render="projectTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency"
+                    action="#{repositoryTreeState.rulesRepositorySelection}"
+                    styleClass="view-header-link" title="Design Repository" />
+                </span>
+                <span>-</span>
+                <span><a4j:commandLink id="productionRepoLink" value="Production" oncomplete="goToRepo('production', 'design')"
+                    render="prodTree nodeView nodeTabPanel content modalOpenProjectData modalOpenVersionData modalCloseProjectData modalEditProjectData modalSaveData modalCopyProjectData modalCopyDeploymentProjectData modalDeleteNodeData modalSmartRedeployData modalExportVersionData modalNewDependency" title="Production Repository"
+                    action="#{productionRepositoriesTreeController.tabChange('production')}"
+                    styleClass="view-header-link view-header-link-inactive" /></span>
             </div>
-            <div>
-                <div>
-                    <ui:include src="/pages/modules/repository/tree.xhtml" />
-                </div>
+            <div id="designRepo">
+                <ui:include src="/pages/modules/repository/tree.xhtml" />
+            </div>
+            <div id="productionRepo" style="display: none">
+                <ui:include src="/pages/modules/repository/productionTree.xhtml" />
             </div>
         </div>
     </h:panelGroup>
+
+    <script>
+      //<![CDATA[
+        function goToRepo(repo, repoHide) {
+            $j("#" + repoHide + "RepoLink").addClass("view-header-link-inactive");
+            $j("#" + repo + "RepoLink").removeClass("view-header-link-inactive");
+
+            $j("#" + repo + "Repo").show();
+            $j("#" + repoHide + "Repo").hide();
+
+            $j("#" + repo + "RepoRefresh").show();
+            $j("#" + repoHide + "RepoRefresh").hide();
+
+            initRepoFilter(repo);
+        }
+
+        var FILTER_PATTERN_ITEM = "filterPattern";
+
+        function initRepoFilter(repo) {
+            var filterPattern = sessionStorage.getItem(FILTER_PATTERN_ITEM);
+
+            if (filterPattern) {
+                var filterId = (repo == "design" ? "#nameFilter" : "#prodNameFilter");
+                $j(filterId + " input").val(filterPattern);
+                filterRepoProjects(repo, filterPattern);
+            }
+        }
+
+        function filterRepoProjects(repo, pattern) {
+            sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
+
+            var treeId = (repo == "design" ? "#projectTree" : "#prodTree");
+            var projects = $j(treeId + " > div > div.rf-tr-nd");
+
+            projects.each(function() {
+                var projectName = $j(this).find(".rf-trn-lbl").text();
+                $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+            });
+        }
+
+        function initFilter() {
+            initRepoFilter("design");
+        }
+
+        function initProdFilter() {
+            initRepoFilter("production");
+        }
+
+        function filterProjects(pattern) {
+            filterRepoProjects("design", pattern);
+        }
+
+        function prodFilterProjects(pattern) {
+            filterRepoProjects("production", pattern);
+        }
+
+        initFilter();
+
+        var productionFlag = #{repositorySelectNodeStateHolder.isProductionNode()};
+        if(productionFlag) {
+            goToRepo('production', 'design');
+        } else {
+            goToRepo('design', 'production')
+        }
+
+      //]]>
+    </script>
 
 </ui:composition>

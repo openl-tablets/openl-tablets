@@ -9,7 +9,7 @@ import org.openl.rules.ui.copy.TableNamesCopier;
 
 @ManagedBean
 @SessionScoped
-public class TableCopierWizardManager extends TableWizard {
+public class TableCopierWizardManager extends BaseTableWizardManager {
 
     static enum CopyType {
         CHANGE_NAMES,

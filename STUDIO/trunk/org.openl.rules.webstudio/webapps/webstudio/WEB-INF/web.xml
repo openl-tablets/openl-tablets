@@ -14,23 +14,11 @@
   <description>OpenL Tablets WebStudio</description>
 
   <context-param>
-    <description>WebStudio working directory by default</description>
-    <param-name>webstudio.home</param-name>
-    <param-value>/openl</param-value>
-  </context-param>
-
-  <context-param>
-    <description>User mode ('single', 'multi' or 'sso')</description>
-    <param-name>user.mode</param-name>
-    <param-value>single</param-value>
-  </context-param>
-
-  <context-param>
     <description>
       Location of the XML file that defines the root application context, applied by ContextLoaderListener.
     </description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/spring/*-beans.xml</param-value>
+    <param-value>/WEB-INF/spring/webstudio-beans.xml</param-value>
   </context-param>
 
   <context-param>
@@ -92,6 +80,32 @@
   </context-param>
 
   <filter>
+      <filter-name>InstallerFilter</filter-name>
+      <filter-class>org.openl.rules.webstudio.filter.InstallerFilter</filter-class>
+      <init-param>
+        <param-name>wizardRoot</param-name>
+        <param-value>/faces/pages/modules/install/</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+      <filter-name>InstallerFilter</filter-name>
+      <url-pattern>*.xhtml</url-pattern>
+  </filter-mapping>
+
+  <filter>
+      <filter-name>SecurityFilter</filter-name>
+      <filter-class>org.openl.rules.webstudio.filter.SecurityFilter</filter-class>
+      <init-param>
+          <param-name>targetBeanName</param-name>
+          <param-value>filterChainProxy</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+      <filter-name>SecurityFilter</filter-name>
+      <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
       <filter-name>CharacterEncodingFilter</filter-name>
       <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
       <init-param>
@@ -111,20 +125,6 @@
 
   <filter-mapping>
     <filter-name>WebResourceFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-    <filter-name>SecurityFilterProxy</filter-name>
-    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    <init-param>
-      <param-name>targetBeanName</param-name>
-      <param-value>filterChainProxy</param-value>
-    </init-param>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>SecurityFilterProxy</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
@@ -166,10 +166,6 @@
     <listener-class>org.openl.rules.webstudio.web.servlet.StartupListener</listener-class>
   </listener>
 
-  <!--listener>
-    <listener-class>com.sun.faces.config.ConfigureListener</listener-class>
-  </listener-->
-
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
@@ -209,6 +205,16 @@
     <url-pattern>/action/launch</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>TablePropertyValues</servlet-name>
+    <servlet-class>org.openl.rules.webstudio.web.servlet.TablePropertyValues</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>TablePropertyValues</servlet-name>
+    <url-pattern>/action/prop_values</url-pattern>
+  </servlet-mapping>
+
   <welcome-file-list>
     <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
   </welcome-file-list>
@@ -216,6 +222,11 @@
   <error-page>
     <error-code>403</error-code>
     <location>/faces/pages/accessDenied.xhtml</location>
+  </error-page>
+  
+  <error-page>
+    <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+    <location>/faces/pages/sessionExpired.xhtml</location>
   </error-page>
 
 </web-app>

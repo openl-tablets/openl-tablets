@@ -30,7 +30,7 @@ public class TestUndoable extends TestCase {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestUndo.xls");
 
-        FileSourceCodeModule source = new FileSourceCodeModule(url.getPath(), null);
+        FileSourceCodeModule source = new FileSourceCodeModule(url.toURI().getPath(), null);
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
         Workbook wb = wbSrc.getWorkbook();
 
@@ -67,7 +67,7 @@ public class TestUndoable extends TestCase {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestUndo.xls");
 
-        FileSourceCodeModule source = new FileSourceCodeModule(url.getPath(), null);
+        FileSourceCodeModule source = new FileSourceCodeModule(url.toURI().getPath(), null);
 
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
@@ -95,7 +95,7 @@ public class TestUndoable extends TestCase {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestCopy.xls");
 
-        FileSourceCodeModule source = new FileSourceCodeModule(url.getPath(), null);
+        FileSourceCodeModule source = new FileSourceCodeModule(url.toURI().getPath(), null);
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
         Workbook wb = wbSrc.getWorkbook();
 

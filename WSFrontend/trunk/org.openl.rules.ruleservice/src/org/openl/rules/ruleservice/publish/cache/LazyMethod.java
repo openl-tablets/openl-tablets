@@ -3,8 +3,10 @@ package org.openl.rules.ruleservice.publish.cache;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -22,8 +24,17 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     private String methodName;
 
     private Class<?>[] argTypes;
+    private ModuleOpenClass topModule;
 
-    public LazyMethod(String methodName, Class<?>[] argTypes, IDependencyManager dependencyManager,
+    public ModuleOpenClass getTopModule() {
+		return topModule;
+	}
+
+	public void setTopModule(ModuleOpenClass topModule) {
+		this.topModule = topModule;
+	}
+
+	public LazyMethod(String methodName, Class<?>[] argTypes, IDependencyManager dependencyManager,
             boolean executionMode, ClassLoader classLoader, IOpenMethod original, Map<String, Object> externalParameters) {
         super(dependencyManager, executionMode, classLoader, original, externalParameters);
         this.methodName = methodName;
@@ -37,11 +48,12 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 getDependencyManager(),
                 getClassLoader());
             instantiationStrategy.setExternalParameters(getExternalParameters());
+            XlsModuleOpenClass.setTopOpenClass(topModule);
             CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy field.", e);
+            throw new OpenlNotCheckedException("Failed to load lazy method.", e);
         }
     }
 

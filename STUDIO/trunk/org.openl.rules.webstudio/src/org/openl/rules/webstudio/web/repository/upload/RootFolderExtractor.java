@@ -2,6 +2,9 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.openl.rules.workspace.filter.PathFilter;
+
 /**
  * Ectractor for folder name paths from the top root folder.
  * 
@@ -9,12 +12,13 @@ import java.util.Set;
  *
  */
 public class RootFolderExtractor {
-    
     private Set<String> folderNames;
     private String rootName;
+    private PathFilter filter;
     
-    public RootFolderExtractor(Set<String> folderNames) {        
+    public RootFolderExtractor(Set<String> folderNames, PathFilter filter) {        
         this.folderNames = folderNames;
+        this.filter = filter;
         initRootFolderPath();
     }
     
@@ -52,7 +56,7 @@ public class RootFolderExtractor {
         }
         return folderName;
     }
-    
+
     /**
      * Check if there is a single root folder in the set of folder names.
      * Algorithm: if there is only one folder path which contains first found symbol '/', and it`s number
@@ -61,18 +65,43 @@ public class RootFolderExtractor {
      * @return true if there is a single root folder in the set of folder names
      */
     private boolean needToExtract() {
-        int cnt = 0;        
+        String firstFolderName = null;
+
         for (String name : folderNames) {
-            if (name.indexOf('/') == (name.length() - 1)) {
-                cnt++;
+            int ind = name.indexOf('/');
+
+            if (ind > -1 && isValidFolderName(name)) {
+                String secondFolderName = getFolderName(name);
+                firstFolderName = !StringUtils.isEmpty(firstFolderName) ? firstFolderName : secondFolderName;
+
+                if (!firstFolderName.equals(secondFolderName)) {
+                    return false;
+                }
             }
         }
-        if (cnt > 1) {
-            return false;
-        } else {
+
+        if (!StringUtils.isEmpty(firstFolderName)) {
             return true;
         }
+
+        return false;
     }
 
+    private boolean isValidFolderName(String name) {
+        if (filter != null) {
+            return filter.accept(getFolderName(name));
+        }
+
+        return true;
+    }
+
+    private String getFolderName(String path) {
+        int ind = path.indexOf("/");
+        if (ind > -1) {
+            return path.substring(0, ind);
+        }
+
+        return "";
+    }
 
 }

@@ -1,3 +1,4 @@
+// @Deprecated
 var PopupMenu = {
 	showChild: function (id, show)
 	{

@@ -26,16 +26,15 @@ public interface ProjectDependency {
             arg1.startNode("projectName");
             arg1.setValue(dep.getProjectName());
             arg1.endNode();
-            ;
+
             arg1.startNode("lowerLimit");
             arg2.convertAnother(dep.getLowerLimit());
             arg1.endNode();
-            ;
+
             if (dep.hasUpperLimit()) {
                 arg1.startNode("upperLimit");
                 arg2.convertAnother(dep.getUpperLimit());
                 arg1.endNode();
-                ;
             }
         }
 

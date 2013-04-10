@@ -221,7 +221,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         return;
         
     }
-    
+
     private boolean isProductionRepository() {
         Session systemSession = null;
         try {
@@ -240,9 +240,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             }
         }
     }
-    
+
     @Override
-    protected RRepository createRepository() throws RRepositoryException {
+    public RRepository createRepository() throws RRepositoryException {
         if(convert){
             convert();
             convert = false;
@@ -250,7 +250,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         // TODO Auto-generated method stub
         return super.createRepository();
     }
-    
+
     /** {@inheritDoc} */
     @Override
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Ruleservice Plug-in
 Bundle-SymbolicName: org.openl.rules.ruleservice;singleton:=true
-Bundle-Version: 5.9.4.1
+Bundle-Version: 5.10.0
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.ruleservice.lib;visibility:=reexport,
@@ -11,6 +11,7 @@ Require-Bundle: org.openl.rules.ruleservice.lib;visibility:=reexport,
  org.openl.rules.repository;visibility:=reexport,
  org.openl.core;visibility:=reexport,
  org.openl.rules.repository.jcr.jackrabbit;visibility:=reexport,
+  org.openl.rules.variation;visibility:=reexport,
  org.openl.rules.project;visibility:=reexport
 Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.conf,
@@ -22,6 +23,7 @@ Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.management,
  org.openl.rules.ruleservice.managment,
  org.openl.rules.ruleservice.multimodule,
+ org.openl.rules.ruleservice.multimodule.top,
  org.openl.rules.ruleservice.publish,
  org.openl.rules.ruleservice.publish.cache,
  org.openl.rules.ruleservice.publish.cache.dispatcher,

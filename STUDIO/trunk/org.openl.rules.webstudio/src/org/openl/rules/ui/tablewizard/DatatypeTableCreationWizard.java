@@ -22,11 +22,12 @@ import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.OpenClassDelegator;
 
 /**
  * @author Andrei Astrouski
  */
-public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
+public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message="Can not be empty")
     @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid name")
@@ -39,6 +40,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
     private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
     private String parent;
+    private int definedDatatypesLength;
 
     private HtmlDataTable parametersTable;
 
@@ -89,6 +91,14 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         this.parametersTable = parametersTable;
     }
 
+    public int getDefinedDatatypesLength() {
+        return definedDatatypes.length;
+    }
+
+    public void setDefinedDatatypesLength(int definedDatatypesLength) {
+        this.definedDatatypesLength = definedDatatypesLength;
+    }
+
     @Override
     public String getName() {
         return "newDatatypeTable";
@@ -118,9 +128,13 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         }
         
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
-        Collection<String> allClasses = domainTree.getAllClasses(true);
+        Collection<String> allClasses = domainTree.getAllClasses();
         for (IOpenClass type : importedClasses) {
-            allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            if (type instanceof OpenClassDelegator) {
+                allClasses.add(type.getName());
+            } else {
+                allClasses.add(type.getDisplayName(INamedThing.SHORT));
+            }
         }
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
@@ -167,7 +181,7 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
     @Override
     protected void onStepFirstVisit(int step) {
         switch (step) {
-            case 4:
+            case 3:
                 initWorkbooks();
                 break;
         }
@@ -199,6 +213,17 @@ public class DatatypeTableCreationWizard extends BusinessTableCreationWizard {
         setNewTableUri(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
         super.onFinish();
+    }
+
+    public boolean containsRemoveLink(Map<String, String> params) {
+        if (params == null)
+            return false;
+        for (String param : params.keySet()) {
+            if (param.endsWith("removeLink")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

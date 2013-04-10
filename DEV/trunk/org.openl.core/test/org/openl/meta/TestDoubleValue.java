@@ -39,6 +39,9 @@ public class TestDoubleValue {
     	v1 = null;
     	v2 = null;
     	assertNull(DoubleValue.add(v1, v2));
+
+        assertEquals("0.0", DoubleValue.add(null, DoubleValue.ZERO).toString());
+        assertEquals("0.0", DoubleValue.add(DoubleValue.ZERO, null).toString());
     }
     
     @Test
@@ -176,6 +179,24 @@ public class TestDoubleValue {
         value1 = new DoubleValue(12.513456789);
         
         assertEquals("13.0", DoubleValue.round(value1, 0).toString());
+        
+        /**/
+        DoubleValue v1 = new DoubleValue(0.7);
+        DoubleValue v2 = new DoubleValue(0.75);
+        
+        DoubleValue res = DoubleValue.multiply(v1, v2);
+        
+        assertEquals("0.53", DoubleValue.round(res, 2).toString());
+        
+        value1 = new DoubleValue(12.6666667);
+        assertEquals("12.67", DoubleValue.round(value1, 2).toString());
+        
+        value1 = new DoubleValue(12.9999999);        
+        assertEquals("13.0", DoubleValue.round(value1, 2).toString());
+        
+        value1 = new DoubleValue(12.6466667);
+        assertEquals("12.65", DoubleValue.round(value1, 2).toString());
+ 
     }
 
     @Test

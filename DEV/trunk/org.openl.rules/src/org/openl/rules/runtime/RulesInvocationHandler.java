@@ -7,11 +7,10 @@ import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.runtime.AEngineFactory;
-import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
-public class RulesInvocationHandler extends OpenLInvocationHandler implements IRulesRuntimeContextProvider {
+public class RulesInvocationHandler extends OpenLRulesInvocationHandler implements IRulesRuntimeContextProvider {
 
     public RulesInvocationHandler(Object openlInstance,
             AEngineFactory engineFactory,

@@ -54,38 +54,12 @@ public class HTMLRenderer {
             List<ActionLink> actionLinks, String errorCell) {
         StringBuilder result = new StringBuilder();
         result.append("<div>")
-            .append(renderCSS("css/common.css"))
-            .append(renderCSS("css/tooltip.css"));
+            .append(renderCSS("css/tableeditor.min.css"));
 
-        if (editor.isEditable()) {
-            result
-                .append(renderCSS("css/datepicker.css"))
-                .append(renderCSS("css/multiselect.css"))
-                .append(renderCSS("css/colorPicker.css"))
-                .append(renderCSS("css/popup.css"));
-        }
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
         }
-        result.append(renderJS("js/tooltip.js"))
-            .append(renderJS("js/ScriptLoader.js"))
-            .append(renderJS("js/TableEditor.js"))
-            .append(renderJS("js/popup/popupmenu.js"));
-
-            if (editor.isEditable()) {
-                result.append(renderJS("js/BaseEditor.js"))
-                    .append(renderJS("js/BaseTextEditor.js"))
-                    .append(renderJS("js/datepicker.packed.js"))
-                    .append(renderJS("js/TextEditor.js"))
-                    .append(renderJS("js/MultiLineEditor.js"))
-                    .append(renderJS("js/NumericEditor.js"))
-                    .append(renderJS("js/DropdownEditor.js"))
-                    .append(renderJS("js/FormulaEditor.js"))
-                    .append(renderJS("js/BooleanEditor.js"))
-                    .append(renderJS("js/DateEditor.js"))
-                    .append(renderJS("js/MultiselectEditor.js"))
-                    .append(renderJS("js/ArrayEditor.js"));
-            }
+        result.append(renderJS("js/tableeditor.min.js"));
 
         result.append("<div id='").append(editor.getId()).append("' class='te_'>");
 
@@ -95,9 +69,8 @@ public class HTMLRenderer {
            // Name of js variable can't contain ':' symbol
           .replaceAll(":", "_");
 
-        result.append(renderEditorToolbar(editor.getId(), editorJsVar, mode))
-            .append(renderJS("js/colorPicker.js"))
-            .append(renderJS("js/popup.js"));
+        result.append(renderEditorToolbar(editor.getId(), editorJsVar, mode));
+
         result.append("<div id='" + editor.getId() + Constants.TABLE_EDITOR_WRAPPER_PREFIX + "' class='te_editor_wrapper'></div>");
 
         if (editor.getTable() != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
@@ -254,9 +227,9 @@ public class HTMLRenderer {
                 + " class=\"item_separator\"></img>";
 
         result.append("<div style=\"" + (mode == null || mode.equals(Constants.MODE_VIEW) ? "display:none" : "") + "\" class=\"te_toolbar\">")
-            .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save"))
-            .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo"))
-            .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo"))
+            .append(renderEditorToolbarItem(editorId + "_save_all", editorJsVar, "img/Save.gif", "save()", "Save changes"))
+            .append(renderEditorToolbarItem(editorId + "_undo", editorJsVar, "img/Undo.gif", "undoredo()", "Undo changes"))
+            .append(renderEditorToolbarItem(editorId + "_redo", editorJsVar, "img/Redo.gif", "undoredo(true)", "Redo changes"))
 
             .append(toolbarItemSeparator)
 
@@ -275,27 +248,27 @@ public class HTMLRenderer {
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_align_left", editorJsVar, "img/alLeft.gif",
-                    "setAlignment('left')", "Align left"))
+                    "setAlignment('left', this)", "Align the text to the left"))
             .append(renderEditorToolbarItem(editorId + "_align_center", editorJsVar, "img/alCenter.gif",
-                    "setAlignment('center')", "Align center"))
+                    "setAlignment('center', this)", "Center the text"))
             .append(renderEditorToolbarItem(editorId + "_align_right", editorJsVar, "img/alRight.gif",
-                    "setAlignment('right')", "Align right"))
+                    "setAlignment('right', this)", "Align the text to the right"))
 
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_font_bold", editorJsVar, "img/bold.png",
-                    "setFontBold('" + editorId + "_font_bold" + "')", "Bold"))
+                    "setFontBold('" + editorId + "_font_bold" + "')", "Make the text bold"))
             .append(renderEditorToolbarItem(editorId + "_font_italic", editorJsVar, "img/italic.png",
-                    "setFontItalic('" + editorId + "_font_italic" + "')", "Italic"))
+                    "setFontItalic('" + editorId + "_font_italic" + "')", "Italicize the text"))
             .append(renderEditorToolbarItem(editorId + "_font_underline", editorJsVar, "img/underline.png",
-                    "setFontUnderline('" + editorId + "_font_underline" + "')", "Underline"))
+                    "setFontUnderline('" + editorId + "_font_underline" + "')", "Underline the text"))
 
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_fill_color", editorJsVar, "img/fillColor.png",
-                    "selectFillColor('" + editorId + "_fill_color" + "')", "Fill color"))
+                    "selectFillColor('" + editorId + "_fill_color" + "')", "Color the cell background"))
             .append(renderEditorToolbarItem(editorId + "_font_color", editorJsVar, "img/fontColor.png",
-                    "selectFontColor('" + editorId + "_font_color" + "')", "Font color"))
+                    "selectFontColor('" + editorId + "_font_color" + "')", "Color the cell background"))
 
             .append(toolbarItemSeparator)
 
@@ -303,11 +276,6 @@ public class HTMLRenderer {
                     "indent('-1')", "Decrease indent"))
             .append(renderEditorToolbarItem(editorId + "_increase_indent", editorJsVar, "img/indent_right.gif",
                     "indent('1')", "Increase indent"))
-
-            .append(toolbarItemSeparator)
-
-            .append(renderEditorToolbarItem(editorId + "_help", null, "img/help.gif", "window.open('"
-                                + WebUtil.internalPath("docs/help.html") + "');", "Help"))
 
             .append("</div>");
 
@@ -450,7 +418,7 @@ public class HTMLRenderer {
                 s.append("<div class='te_bigtable_mes'>")
                 .append("<div class='te_bigtable_mes_header'>The table is displayed partially (the first "
                         + tableModel.getNumRowsToDisplay() + " rows).</div>")
-                .append("<div>To view the full table, use 'Edit In Excel'.</div>")
+                .append("<div>To view the full table, use 'Open In Excel'.</div>")
                 .append("</div>");
             }
 

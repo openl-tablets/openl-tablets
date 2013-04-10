@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Tablets Test
 Bundle-SymbolicName: org.openl.rules.test
-Bundle-Version: 5.9.4.1
+Bundle-Version: 5.10.0
 Bundle-Localization: plugin
 Bundle-Vendor: OpenL
 Require-Bundle: org.openl.rules,
@@ -11,7 +11,6 @@ Require-Bundle: org.openl.rules,
 Export-Package: com.exigen.rules.openl.integrator,
  com.exigen.srp.idat,
  org.openl.binding,
- org.openl.rules.helpers,
  org.openl.rules.lang.xls,
  org.openl.rules.table,
  org.openl.rules.test

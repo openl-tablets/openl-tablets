@@ -1,0 +1,14 @@
+#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
+        constraints.put("$tablePropertyDefinition.PropertyVar", new IntersectionConstraint<$tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass)>() { 
+
+            @Override
+            protected $tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) getPropertyValue(ITableProperties properties) {
+                return properties.get$tool.formatAccessorName($tablePropertyDefinition.PropertyVar)();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls($tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) firstValue, $tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) secondValue) {
+                return intersectionFor${tablePropertyDefinition.Operation}(firstValue, secondValue);
+            }
+        });
+#end

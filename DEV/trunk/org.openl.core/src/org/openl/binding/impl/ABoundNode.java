@@ -9,7 +9,6 @@ package org.openl.binding.impl;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IBoundNodeVisitor;
-import org.openl.binding.impl.ControlSignal;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.vm.IRuntimeEnv;
@@ -18,6 +17,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  * 
  */
+@SuppressWarnings("deprecation")
 public abstract class ABoundNode implements IBoundNode {
 
     protected ISyntaxNode syntaxNode;

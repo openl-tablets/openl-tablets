@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
@@ -23,6 +28,7 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
@@ -34,6 +40,9 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @ManagedBean
 @SessionScoped
 public class SystemSettingsBean {
+    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    private ProductionRepositoriesTreeController productionRepositoriesTreeController;
+    
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
@@ -76,7 +85,7 @@ public class SystemSettingsBean {
         PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "production-repository.remote.webdav.url");
     };
 
-    private ConfigurationManager configManager = WebStudioUtils.getWebStudio().getSystemConfigManager();
+    private ConfigurationManager configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
@@ -88,11 +97,11 @@ public class SystemSettingsBean {
     private DeploymentManager deploymentManager;
 
     public String getUserWorkspaceHome() {
-        return configManager.getStringProperty(USER_WORKSPACE_HOME);
+        return configManager.getPath(USER_WORKSPACE_HOME);
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
-        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
+        configManager.setPath(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -112,11 +121,11 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
+        return configManager.getPath(PROJECT_HISTORY_HOME);
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
-        configManager.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
+        configManager.setPath(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public String getDesignRepositoryType() {
@@ -139,33 +148,30 @@ public class SystemSettingsBean {
 
     public String getDesignRepositoryPath() {
         String type = getDesignRepositoryType();
-        return configManager.getStringProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        return configManager.getPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
 
     public void setDesignRepositoryPath(String path) {
         String type = getDesignRepositoryType();
-        configManager.setProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
+        configManager.setPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
     }
 
     public boolean isDesignRepositoryPathSystem() {
         String type = getDesignRepositoryType();
-        return configManager.isSystemProperty(
-                DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        return configManager.isSystemProperty(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
-    
+
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
         if (productionRepositoryConfigurations.isEmpty()) {
             initProductionRepositoryConfigurations();
         }
-        
+
         return productionRepositoryConfigurations;
     }
 
     private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
-        
+
         String[] repositoryConfigNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
@@ -195,17 +201,17 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
                 validate(prodConfig);
             }
-            
+
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
                 prodConfig.delete();
             }
             deletedConfigurations.clear();
-    
+
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
                 productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
             }
-    
+
             saveSystemConfig();
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -244,7 +250,7 @@ public class SystemSettingsBean {
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
-    
+
     public void setDeploymentManager(DeploymentManager deploymentManager) {
         this.deploymentManager = deploymentManager;
     }
@@ -257,22 +263,22 @@ public class SystemSettingsBean {
             String templateName = template.getName();
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
-            
+
             String templatePath = template.getPath();
             String[] paths = new String[productionRepositoryConfigurations.size()];
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 paths[i] = productionRepositoryConfigurations.get(i).getPath();
             }
-            
+
             String newNum = String.valueOf(maxNumber + 1);
             String newConfigName = getConfigName(templateName + newNum);
             RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
-            
+
             configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
-            
+
             productionRepositoryConfigurations.add(newConfig);
 //            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
         } catch (Exception e) {
@@ -297,10 +303,12 @@ public class SystemSettingsBean {
                 if (prodConfig.getConfigName().equals(configName)) {
                     deletedConfigurations.add(prodConfig);
                     it.remove();
+                    /*Delete Production repo from tree*/
+                    productionRepositoriesTreeController.deleteProdRepo(prodConfig.getName());
                     break;
                 }
             }
-    
+
 //            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -339,7 +347,10 @@ public class SystemSettingsBean {
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
             throw new RepositoryValidationException(msg);
-        }
+        } 
+        
+        //workingDirValidator(prodConfig.getPath(), "Production Repository directory");
+        
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
@@ -404,7 +415,7 @@ public class SystemSettingsBean {
     private ConfigurationManager getProductionConfigManager(String configName) {
         return productionConfigManagerFactory.getConfigurationManager(configName);
     }
-    
+
     private String getConfigName(String repositoryName) {
         String configName = "rules-";
         if (repositoryName != null) {
@@ -422,9 +433,9 @@ public class SystemSettingsBean {
     private long getMaxTemplatedPath(String[] configNames, String templateName) {
         return getMaxNumberOfTemplatedNames(configNames, templateName, "", "");
     }
-    
+
     private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName, String prefix, String suffix) {
-        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName.toLowerCase() + "\\E\\d+\\Q" + suffix + "\\E");
+        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName + "\\E\\d+\\Q" + suffix + "\\E", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         
         int startPosition = (prefix + templateName).length();
         int suffixLength = suffix.length();
@@ -446,4 +457,109 @@ public class SystemSettingsBean {
         }
         return maxNumber;
     }
+
+    public void dateFormatValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String inputDate = (String) value;
+
+        isPathNull(inputDate, "Date format");
+
+    }
+
+    public void workSpaceDirValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String directoryType = "Workspace Directory";
+        isPathNull(value, directoryType);
+        setUserWorkspaceHome((String) value);
+        workingDirValidator(getUserWorkspaceHome(), directoryType);
+
+    }
+
+    public void historyDirValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String directoryType = "History Directory";
+        isPathNull(value, directoryType);
+        setProjectHistoryHome((String) value);
+        workingDirValidator(getProjectHistoryHome(), directoryType);
+
+    }
+    
+    public void designRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String directoryType = "Design Repository directory";
+        isPathNull(value, directoryType);
+        setDesignRepositoryPath((String)value);
+        workingDirValidator(getDesignRepositoryPath(), directoryType);
+    }
+    
+    public void productionRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String directoryType = "Production Repositories directory";
+        isPathNull(value, directoryType);
+        workingDirValidator((String)value, directoryType);
+    }
+
+    public void workingDirValidator(String value, String folderType) {
+        File studioWorkingDir;
+        File tmpFile = null;
+        boolean hasAccess;
+        
+        try {
+
+            studioWorkingDir = new File(value);
+
+            if (studioWorkingDir.exists()) {
+                tmpFile = new File(studioWorkingDir.getAbsolutePath() + File.separator + "tmp");
+
+                hasAccess = tmpFile.mkdir();
+
+                if (!hasAccess) {
+                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value + 
+                        " '    Please, contact to your system administrator."));
+                }
+            } else {
+                if (studioWorkingDir.mkdirs() == false) {
+                    throw new ValidatorException(new FacesMessage("Incorrect " + folderType + " '" + value + "'"));
+                } else {
+                    deleteFolder(value);
+                }
+            }
+        } catch (Exception e) {
+            FacesUtils.addErrorMessage(e.getMessage());
+            throw new ValidatorException(new FacesMessage(e.getMessage()));
+
+        } finally {
+            if (tmpFile != null && tmpFile.exists()) {
+                tmpFile.delete();
+            }
+        }
+    }
+
+    private boolean isPathNull (Object value, String folderType) {
+        boolean isNull = StringUtils.isBlank((String)value);
+        String errorMessage = folderType + "  could not be empty";
+       
+        if (isNull) {
+            FacesUtils.addErrorMessage(errorMessage);
+            throw new ValidatorException(new FacesMessage(errorMessage));
+        }
+        return isNull;
+    }
+
+    /* Deleting the folder which were created for validating folder permissions */
+    private void deleteFolder(String folderPath) {
+        File workFolder = new File(folderPath);
+        File parent = workFolder.getParentFile();
+
+        while (parent != null) {
+            workFolder.delete();
+            parent = workFolder.getParentFile();
+            workFolder = parent;
+        }
+    }
+    
+    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
+        return productionRepositoriesTreeController;
+    }
+
+    public void setProductionRepositoriesTreeController(
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
 }

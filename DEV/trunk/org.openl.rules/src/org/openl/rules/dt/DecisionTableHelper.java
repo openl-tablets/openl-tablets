@@ -11,7 +11,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.RulesCommons;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
@@ -20,7 +19,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -189,16 +187,16 @@ public class DecisionTableHelper {
             int numberOfHcondition) throws OpenLCompilationException {
         IWritableGrid virtualGrid = createVirtualGrid();
         writeVirtualHeadersForSimpleDecisionTable(virtualGrid, originalTable, decisionTable, numberOfHcondition);
-        
+
         //If the new table header size bigger than the size of the old table we use the new table size
         int sizeOfVirtualGridTable = virtualGrid.getMaxColumnIndex(0) < originalTable.getSource().getWidth() ?
                 originalTable.getSource().getWidth() - 1 : virtualGrid.getMaxColumnIndex(0) - 1;
         GridTable virtualGridTable = 
             new GridTable(0, 0, IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, 
                     sizeOfVirtualGridTable/*originalTable.getSource().getWidth() - 1*/, virtualGrid);
-    
+
         IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
-        
+
         //If the new table header size bigger than the size of the old table we use the new table size
         int sizeofGrid = virtualGridTable.getWidth() < originalTable.getSource().getWidth() ?
                 originalTable.getSource().getWidth() - 1 : virtualGridTable.getWidth() - 1;
@@ -207,18 +205,18 @@ public class DecisionTableHelper {
                 + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1, 
                 sizeofGrid /*originalTable.getSource().getWidth() - 1*/, grid));
     }
-    
+
     private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable,
             DecisionTable decisionTable, int numberOfHcondition) throws OpenLCompilationException {
         int columnsForConditions = 0;
-        
+
         // number of physical columns for conditions(including merged)
         //
         columnsForConditions = writeConditions(grid, originalTable, decisionTable, numberOfHcondition);
-        
+
         // write return
         //
-        writeReturn(grid, originalTable, decisionTable, columnsForConditions, numberOfHcondition > 0 ? true : false);
+        writeReturn(grid, originalTable, decisionTable, columnsForConditions, numberOfHcondition > 0);
     }
 
     private static void writeReturn(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
@@ -236,7 +234,7 @@ public class DecisionTableHelper {
         grid.setCellValue(columnsForConditions, 0, (DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1").intern());
         
         if (!isLookupTable && !(originalTable.getWidth() <= getNumberOfConditions(decisionTable))) {
-            int mergedColumnsCounts = mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
+            int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
             
             if (mergedColumnsCounts > 1) {
                 for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
@@ -261,6 +259,7 @@ public class DecisionTableHelper {
             // write headers
             //
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
+            boolean lastCondition = i + 1 == numberOfConditions;
 
             if (isThatVCondition) {
                 vColumnCounter++;
@@ -277,25 +276,34 @@ public class DecisionTableHelper {
 
             //Set type of condition values(for Ranges and Array)
             grid.setCellValue(column, 2,
-                    checkTypeOfValues(originalTable, column, decisionTable.getSignature().getParameterTypes()[i].getDisplayName(0)/* getParameterType(i) .getTypes()getName()*/, isThatVCondition, vColumnCounter) );
+                    checkTypeOfValues(originalTable, i, 
+                            decisionTable.getSignature().getParameterTypes()[i].getName(),
+                            isThatVCondition, lastCondition, vColumnCounter) );
 
             //merge columns
-            int mergedColumnsCounts = originalTable.getColumnWidth(i);
+            if (isThatVCondition || lastCondition) {
+                int mergedColumnsCounts = isThatVCondition ? originalTable.getColumnWidth(i) : originalTable
+                        .getSource().getCell(vColumnCounter, i - vColumnCounter).getWidth();
 
-            if (mergedColumnsCounts > 1) {
-                for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                    grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
+                if (mergedColumnsCounts > 1) {
+                    for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                        grid.addMergedRegion(new GridRegion(row, column, row, column + mergedColumnsCounts - 1));
+                    }
                 }
+    
+                column += mergedColumnsCounts;
+            } else {
+                column++;
             }
-
-            column += mergedColumnsCounts;
         }
         return column;
     }
+
     
+
     /**
      * Check type of condition values. If condition values are complex(Range, Array) 
-     * than types of complex values will be returned 
+     * then types of complex values will be returned 
      * 
      * @param originalTable The original body of simple Decision Table.
      * @param column The number of a condition 
@@ -306,34 +314,37 @@ public class DecisionTableHelper {
      * @return type of condition values
      */
     private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
-            boolean isThatVCondition, int vColumnCounter) {
-        final List<String> intType = Arrays.asList("byte","short","int","Byte","Short","Int",
-                "ByteValue","ShortValue","IntValue","BigIntegerValue", "Integer", "IntegerValue");
-        final List<String> doubleType = Arrays.asList("long","float","double","Long","Float","Double",
-                "LongValue","FloatValue","DoubleValue","BigDecimalValue");
+            boolean isThatVCondition, boolean lastCondition, int vColumnCounter) {
+        final List<String> intType = Arrays.asList("byte","short","int","java.lang.Byte",
+                "org.openl.meta.ByteValue","org.openl.meta.ShortValue","org.openl.meta.IntValue",
+                "org.openl.meta.BigIntegerValue", "java.lang.Integer", "org.openl.meta.IntegerValue");
+        final List<String> doubleType = Arrays.asList("long","float","double","java.lang.Long","java.lang.Float",
+                "java.lang.Double", "org.openl.meta.LongValue","org.openl.meta.FloatValue","org.openl.meta.DoubleValue",
+                "org.openl.meta.BigDecimalValue");
         ILogicalTable decisionValues;
         int width = 0;
-        
+
         if (isThatVCondition) {
             decisionValues = originalTable.getColumn(column);
             width = decisionValues.getHeight();
         } else {
-            //The first cell of SimpleLookupTable merge rows and column of vertical and horizontal conditions
-            ICell mergedCell = originalTable.getSource().getCell(0, 0);
             int numOfHRow = column - vColumnCounter;
-            
+
             decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(numOfHRow));
             width = decisionValues.getWidth();
         }
-        
-        int mergedColumnsCounts = originalTable.getColumnWidth(column);
-        boolean isMerged = mergedColumnsCounts > 1 ? true : false;
-        
-        //if the name row is merged than we have Array
-        if (isMerged) {
-            return typeName+"[]";
+
+        if (isThatVCondition || lastCondition) {
+            int mergedColumnsCounts = isThatVCondition ? originalTable.getColumnWidth(column) : originalTable
+                    .getSource().getCell(vColumnCounter, column - vColumnCounter).getWidth();
+            boolean isMerged = mergedColumnsCounts > 1;
+
+            //if the name row is merged then we have Array
+            if (isMerged) {
+                return typeName+"[]";
+            }
         }
-        
+
         for (int valueNum = 1; valueNum < width; valueNum++) {
             ILogicalTable cellValue;
             
@@ -342,12 +353,11 @@ public class DecisionTableHelper {
             } else {
                 cellValue = decisionValues.getColumn(valueNum);
             }
-            
-            
+
             if (cellValue.getSource().getCell(0, 0).getStringValue() == null) {
                 continue;
             }
-            
+
             if (RuleRowHelper.isCommaSeparatedArray(cellValue)) {
                 return typeName+"[]";
             } else if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
@@ -357,7 +367,7 @@ public class DecisionTableHelper {
                 if (intType.contains(typeName)) {
                     try {
                         range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
-                        
+
                         /**Return name of a class without a package prefix**/
                         return range.getClass().getSimpleName();
                     } catch(Exception e) {
@@ -383,26 +393,6 @@ public class DecisionTableHelper {
         Pattern p = Pattern.compile(".*(more|less|[;<>\\[\\(+\\.-]).*");
         Matcher m = p.matcher(cellValue);
         
-        return m.matches();
-    }
-    
-    /**
-     * Check range values
-     * 
-     * @param cellValue The string value of the cell
-     * @return boolean
-     */
-    private static boolean isRangeValue(String cellValue) {
-        String valuePattern = "-?\\$?[0-9]+\\.?[0-9]*[KMB]?";// -$67M 
-        Pattern p = Pattern.compile("(\\s*"+valuePattern+"\\s(\\.\\.|\\.\\.\\.|-)\\s"+valuePattern+"\\s*)|" +// -1 .. 13K
-                                    "(\\s*[<>]{1}[=\\s]*"+valuePattern+"\\s*)|" +//<-$4K
-                                    "(\\s*"+valuePattern+"\\s*\\+\\s*)|" +//"0.67B+
-                                    "(\\s*(\\[|\\()"+valuePattern+"\\s*(;|\\.\\.)\\s*"+valuePattern+"(\\]|\\))\\s*)|" +//[6.000; $12)
-                                    "(\\s*"+valuePattern+" and more\\s*)|" +
-                                    "\\s*more than "+valuePattern+"\\s*|" +
-                                    "\\s*less than "+valuePattern+"\\s*");
-        Matcher m = p.matcher(cellValue);
-
         return m.matches();
     }
 

@@ -10,20 +10,20 @@ import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Policy;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.project.instantiation.variation.ArgumentReplacementVariation;
-import org.openl.rules.project.instantiation.variation.DeepCloningVariaion;
-import org.openl.rules.project.instantiation.variation.JXPathVariation;
-import org.openl.rules.project.instantiation.variation.NoVariation;
-import org.openl.rules.project.instantiation.variation.Variation;
-import org.openl.rules.project.instantiation.variation.VariationDescription;
 import org.openl.rules.project.instantiation.variation.VariationsEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationsEnhancerHelper;
-import org.openl.rules.project.instantiation.variation.VariationsFactory;
-import org.openl.rules.project.instantiation.variation.VariationsFromRules;
-import org.openl.rules.project.instantiation.variation.VariationsPack;
-import org.openl.rules.project.instantiation.variation.VariationsResult;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.DeepCloningVariaion;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationDescription;
+import org.openl.rules.variation.VariationsFactory;
+import org.openl.rules.variation.VariationsFromRules;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test/resources/dependencies/test4/module/dependency-module1";
@@ -60,7 +60,7 @@ public class VariationsTest {
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
         ProjectDescriptor project = projectResolver.isRulesProject(folder).resolveProject(folder);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
-            .get(0), true, null);
+                .get(0), true, null);
         VariationsEnhancer variationsEnhancerWithWrongInterface = new VariationsEnhancer(instantiationStrategy);
         variationsEnhancerWithWrongInterface.setServiceClass(WrongEnhancedInterface.class);
         try {
@@ -91,29 +91,29 @@ public class VariationsTest {
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
         ProjectDescriptor project = projectResolver.isRulesProject(folder).resolveProject(folder);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
-            .get(0), true, null);
+                .get(0), true, null);
         VariationsEnhancer variationsEnhancer = new VariationsEnhancer(instantiationStrategy);
         variationsEnhancer.setServiceClass(EnhancedInterface2.class);
         EnhancedInterface2 instance = (EnhancedInterface2) variationsEnhancer.instantiate();
         Policy policy = instance.getPolicyProfile1()[0];
-        VariationsPack variations = new VariationsPack(new JXPathVariation("young", 0, "drivers[name = 'Sara']/age", 17));
+        VariationsPack variations = new VariationsPack(
+                new JXPathVariation("young", 0, "drivers[name = 'Sara']/age", 17));
         VariationsResult<SpreadsheetResult> resultsPolicies = instance.processPolicy(policy, variations);
         int variationsCount = policy.getDrivers().length + 2/*
                                                              * original
                                                              * calculation
                                                              * +young
                                                              */;
-        assertEquals(variationsCount, resultsPolicies.getAllProcessedVariationIDs().size());
+        assertEquals(variationsCount, resultsPolicies.getAllProcessedVariationIDs().length);
         assertTrue(resultsPolicies.getVariationFailures().isEmpty());
-        assertEquals(resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"),
-            new DoubleValue(1390));
-        assertEquals(resultsPolicies.getResultForVariation("variaitionForDriver2").getFieldValue("$Value$Premium"),
-            new DoubleValue(990));
-        assertEquals(resultsPolicies.getResultForVariation("variaitionForDriver1").getFieldValue("$Value$Premium"),
-            new DoubleValue(1290));
-        assertEquals(resultsPolicies.getResultForVariation(NoVariation.ORIGIANAL_CALCULATION)
-            .getFieldValue("$Value$Premium"),
-            new DoubleValue(1090));
+        assertEquals(new DoubleValue(1390),
+                resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"));
+        assertEquals(new DoubleValue(990),
+                resultsPolicies.getResultForVariation("variaitionForDriver2").getFieldValue("$Value$Premium"));
+        assertEquals(new DoubleValue(1290), resultsPolicies.getResultForVariation("variaitionForDriver1")
+                .getFieldValue("$Value$Premium"));
+        assertEquals(new DoubleValue(1090), resultsPolicies.getResultForVariation(NoVariation.ORIGINAL_CALCULATION)
+                .getFieldValue("$Value$Premium"));
         for (String id : resultsPolicies.getCalculatedVariationIDs()) {
             System.out.println(id + " : " + resultsPolicies.getResultForVariation(id).getFieldValue("$Value$Premium"));
         }
@@ -125,24 +125,24 @@ public class VariationsTest {
         variationsEnhancer.setServiceClass(EnhancedInterface.class);
         EnhancedInterface instance = (EnhancedInterface) variationsEnhancer.instantiate();
         Driver[] drivers = instance.getDriverProfiles1();
-        VariationsResult<String> resultsDrivers = instance.driverAgeType(drivers[0],
-            new VariationsPack(new JXPathVariation("young", 0, "age", 18), new JXPathVariation("senior", 0, "age", 71)));
+        VariationsResult<String> resultsDrivers = instance.driverAgeType(drivers[0], new VariationsPack(
+                new JXPathVariation("young", 0, "age", 18), new JXPathVariation("senior", 0, "age", 71)));
         assertTrue(resultsDrivers.getVariationFailures().isEmpty());
         assertEquals(resultsDrivers.getResultForVariation("young"), YOUNG);
         assertEquals(resultsDrivers.getResultForVariation("senior"), SENOIR);
-        assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGIANAL_CALCULATION), STANDART);
+        assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), STANDART);
         Policy[] policies = instance.getPolicyProfile1();
-        VariationsResult<SpreadsheetResult> resultsPolicies = instance.processPolicy(policies[0],
-            new VariationsPack(new JXPathVariation("young", 0, "drivers[name = 'Sara']/age", 17),
-                new JXPathVariation("senior", 0, "drivers[name = 'Sara']/age", 88)));
+        VariationsResult<SpreadsheetResult> resultsPolicies = instance.processPolicy(policies[0], new VariationsPack(
+                new JXPathVariation("young", 0, "drivers[name = 'Sara']/age", 17), new JXPathVariation("senior", 0,
+                        "drivers[name = 'Sara']/age", 88)));
         assertTrue(resultsPolicies.getVariationFailures().isEmpty());
-        assertEquals(resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"),
-            new DoubleValue(1390));
-        assertEquals(resultsPolicies.getResultForVariation("senior").getFieldValue("$Value$Premium"),
-            new DoubleValue(1290));
-        assertEquals(resultsPolicies.getResultForVariation(NoVariation.ORIGIANAL_CALCULATION)
-            .getFieldValue("$Value$Premium"),
-            new DoubleValue(1090));
+        assertEquals(resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"), new DoubleValue(
+                1390));
+        assertEquals(resultsPolicies.getResultForVariation("senior").getFieldValue("$Value$Premium"), new DoubleValue(
+                1290));
+        assertEquals(
+                resultsPolicies.getResultForVariation(NoVariation.ORIGINAL_CALCULATION)
+                        .getFieldValue("$Value$Premium"), new DoubleValue(1090));
     }
 
     @Test
@@ -151,11 +151,11 @@ public class VariationsTest {
         variationsEnhancer.setServiceClass(EnhancedInterface.class);
         EnhancedInterface instance = (EnhancedInterface) variationsEnhancer.instantiate();
         Driver[] drivers = instance.getDriverProfiles1();
-        VariationsResult<String> variationsResult = instance.driverAgeType(drivers[0],
-            new VariationsPack(new ArgumentReplacementVariation("young", 0, drivers[1])));
+        VariationsResult<String> variationsResult = instance.driverAgeType(drivers[0], new VariationsPack(
+                new ArgumentReplacementVariation("young", 0, drivers[1])));
         assertTrue(variationsResult.getVariationFailures().isEmpty());
         assertEquals(variationsResult.getResultForVariation("young"), YOUNG);
-        assertEquals(variationsResult.getResultForVariation(NoVariation.ORIGIANAL_CALCULATION), STANDART);
+        assertEquals(variationsResult.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), STANDART);
     }
 
     public static interface EnhancedInterface {

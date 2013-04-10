@@ -16,6 +16,7 @@
         </style>
 
         <h:form prependId="false">
+        <table><tr><td>
             <h:panelGrid columns="2" cellspacing="5">
                 <h:outputText value="Scope" styleClass="required" />
                 <h:selectOneMenu id="scopeType" value="#{wizard.scopeType}"
@@ -23,30 +24,22 @@
                     <f:selectItems value="#{wizard.scopeTypes}" />
                 </h:selectOneMenu>
             </h:panelGrid>
-
-            <br/>
-
-            <fieldset id="categoryNameModule" style="display: none;">
-                <legend>Category Name</legend>
+            </td></tr>
+            <tr><td>
+            <div id="categoryNameModule" style="display: none; padding-left: 6px">
+                <span>Target Category</span>
                 <h:panelGrid columns="2">
                     <h:selectOneRadio id="categoryNameSelector" value="#{wizard.categoryNameSelector}"
                         layout="pageDirection" onchange="updateCategoryNameControls()">
-                        <f:selectItem itemValue="existing" itemLabel="Existing" />
-                        <f:selectItem itemValue="new" itemLabel="New" />
-                        <f:selectItem itemValue="sheetName" itemLabel="As sheet name" />
+                        <f:selectItem itemValue="destination" itemLabel="As Destination" />
+                        <f:selectItem itemValue="specific" itemLabel="Specific" />
                     </h:selectOneRadio>
-                    <h:panelGrid columns="2">
-                        <h:selectOneMenu id="categoryNamesList" value="#{wizard.categoryName}">
-                            <f:selectItems value="#{wizard.categoryNamesList}" />
-                        </h:selectOneMenu>
-                        <h:outputText value="" />
-                        <h:inputText id="newCategoryName" value="#{wizard.newCategoryName}" />
-                        <a4j:outputPanel ajaxRendered="true">
-                            <h:message for="newCategoryName" styleClass="error" />
-                        </a4j:outputPanel>
-                    </h:panelGrid>
+                    <h:selectOneMenu id="categoryNamesList" value="#{wizard.categoryName}" style="margin-top: 25px">
+                        <f:selectItems value="#{wizard.specificCategoryNameList}" />
+                    </h:selectOneMenu>
                 </h:panelGrid>
-            </fieldset>
+            </div>
+            </td></tr></table>
 
             <hr />
             <br />
@@ -67,14 +60,12 @@
               categoryNameModule.show();
           } else {
               categoryNameModule.hide();
-              $j('#newCategoryName').attr("disabled", true);
           }
       }
 
       function updateCategoryNameControls() {
           var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
-          $j('#categoryNamesList').attr("disabled", selectorCheckedValue != 'existing');
-          $j('#newCategoryName').attr("disabled", selectorCheckedValue != 'new');
+          $j('#categoryNamesList').attr("disabled", selectorCheckedValue != 'specific');
       }
 
       updateCategoryNameModule();

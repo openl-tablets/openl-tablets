@@ -106,13 +106,13 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         ProjectVersion max = versions.get(versions.size() - 1);
         return max;
     }
-    
+
     public ProjectVersion getFirstVersion() {
         List<ProjectVersion> versions = getVersions();
         if (versions.size() == 0) {
             return new RepositoryProjectVersionImpl(0, null);
         }
-        
+
         try {
             ProjectVersion min = versions.get(1);
             return min;
@@ -136,9 +136,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         }*/
         try {
             getAPI().removeAllProperties();
-            
+
             setProps(artefact.getProps());
-            
+
             // set all properties
             for (Property property : artefact.getProperties()) {
                 addProperty(property);
@@ -147,7 +147,26 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
             // TODO log
             e.printStackTrace();
         }
-        
+
+        artefact.impl.clearModifyStatus();
+        refresh();
+    }
+
+    public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
+        try {
+            getAPI().removeAllProperties();
+
+            setProps(artefact.getProps());
+
+            // set all properties
+            for (Property property : artefact.getProperties()) {
+                addProperty(property);
+            }
+        } catch (PropertyException e) {
+            // TODO log
+            e.printStackTrace();
+        }
+
         artefact.impl.clearModifyStatus();
         refresh();
     }
@@ -175,7 +194,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 // TODO log
                 e.printStackTrace();
             }
-            
+
             artefact.impl.clearModifyStatus();
             refresh();
         }
@@ -183,6 +202,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     protected void commit(CommonUser user) throws ProjectException {
         getAPI().commit(user, getProject().getVersion().getRevision() + 1);
+    }
+
+    protected void commit(CommonUser user, int revision) throws ProjectException {
+        getAPI().commit(user, revision);
     }
 
     public void refresh() {
@@ -227,7 +250,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
         //addProperty(new PropertyImpl(ArtefactProperties.VERSION_COMMENT, versionComment));
         getProps().put(ArtefactProperties.VERSION_COMMENT, versionComment);
     }
-    
+
     public String getVersionComment() {
         /*
         try {
