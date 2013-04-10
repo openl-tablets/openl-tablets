@@ -148,12 +148,22 @@ public class SystemSettingsBean {
 
     public String getDesignRepositoryPath() {
         String type = getDesignRepositoryType();
-        return configManager.getPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
+        String propName = DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
+
+        return "local".equals(type) ?
+                configManager.getPath(propName) : configManager.getStringProperty(propName);
     }
 
     public void setDesignRepositoryPath(String path) {
         String type = getDesignRepositoryType();
-        configManager.setPath(DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type), path);
+        String propName = DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
+        String normalizedPath = StringUtils.trimToEmpty(path);
+
+        if ("local".equals(type)) {
+            configManager.setPath(propName, normalizedPath);
+        } else {
+            configManager.setProperty(propName, normalizedPath);
+        }
     }
 
     public boolean isDesignRepositoryPathSystem() {
