@@ -28,7 +28,7 @@
             border-bottom: 2px solid #4af;
         }
     </style>
-
+  
     <div>
         <div style="position: absolute; left: 11px; top: 4px">
             <a href="#{contextPath}" style="text-decoration: none">
@@ -40,9 +40,13 @@
             <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                 title="Launch OpenL Tablets online help">Help</a>
             <c:if test="#{systemConfig['user.mode'] != 'single'}">
+
             <span id="userName" title="Current user" style="margin: 0 1px 0 9px">
-                <authz:authentication operation="username" />
+                <a href="javascript:void(0)" onclick="editUserDetails();" title="Edit user details">
+                    <authz:authentication operation="username" />
+                </a>
             </span>
+
             <a href="#{contextPath}/security_logout" title="Sign out"
                 onclick="return confirm('Are you sure you want to sign out?')">Sign out</a>
             </c:if>
@@ -56,7 +60,12 @@
             <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
                 <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="Manage system settings and users">Administration</a>
             </h:panelGroup>
+
+            <span style=" position: relative;">
+                <h:panelGroup >
+                    <ui:include src="/pages/modules/userAccount.xhtml" />
+                </h:panelGroup>
+            </span>
         </div>
     </div>
-
 </ui:composition>
