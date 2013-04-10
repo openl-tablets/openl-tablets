@@ -258,6 +258,10 @@ public class RepositoryDiffController extends AbstractDiffController {
         File excelFile2 = downloadExelFile(excelArtefact2);
 
         try {
+            // The Diff Tree can be huge. As far as we don't need the
+            // previous instance anymore, we should clear it before any
+            // further calculations.
+            setDiffTree(null);
             XlsDiff2 x = new XlsDiff2();
             DiffTreeNode diffTree = x.diffFiles(excelFile1.getAbsolutePath(), excelFile2.getAbsolutePath());
             setDiffTree(diffTree);

@@ -45,12 +45,7 @@ public abstract class ASourceCodeRulesEngineFactory extends ASourceCodeEngineFac
 
     @Override
     protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-                return new SimpleRulesVM().getRuntimeEnv();
-            }
-        };
+        return new RuntimeEnvHolder();
 
     }
     
@@ -58,5 +53,14 @@ public abstract class ASourceCodeRulesEngineFactory extends ASourceCodeEngineFac
     protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
         return new OpenLRulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+    }
+
+    // ThreadLocals can be cached by servlet container. RuntimeEnvHolder should
+    // be nested class, not inner class - otherwise we get memory leak
+    private static final class RuntimeEnvHolder extends ThreadLocal<org.openl.vm.IRuntimeEnv> {
+        @Override
+        protected org.openl.vm.IRuntimeEnv initialValue() {
+            return new SimpleRulesVM().getRuntimeEnv();
+        }
     }
 }
