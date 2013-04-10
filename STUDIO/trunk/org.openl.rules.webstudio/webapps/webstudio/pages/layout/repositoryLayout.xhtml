@@ -14,11 +14,12 @@
 
     <h:head>
         <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
         <link href="#{contextPath}/css/common.css" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/numberrange.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
 
         <script src="#{contextPath}/javascript/common.js"></script>
@@ -67,7 +68,7 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else {
-                    alert("Sorry! Something went wrong. Please, try to refresh WebStudio!");
+                    alert("Sorry! Something went wrong. Please, try to refresh the page!");
                 }
             }
 

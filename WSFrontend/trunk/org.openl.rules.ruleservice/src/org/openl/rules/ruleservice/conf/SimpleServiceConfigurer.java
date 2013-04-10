@@ -35,7 +35,7 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
     /** {@inheritDoc} */
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
         Collection<ServiceDescription> serviceDescriptions = new ArrayList<ServiceDescription>();
-        if (loader.getDeployments().size() > 0) {
+        if (loader.getDeployments().size() > 1) {
             if (log.isErrorEnabled()) {
                 log.error("This configurer can be used only in case with one deployment.");
             }

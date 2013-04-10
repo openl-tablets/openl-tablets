@@ -1,26 +1,30 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.WorkspaceException;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+
 @ManagedBean(name="localUpload")
 @RequestScoped
 public class LocalUploadController {
+    private boolean selectAll = false;
+
     public static class UploadBean {
         private String projectName;
 
@@ -112,14 +116,28 @@ public class LocalUploadController {
                         FacesUtils.addInfoMessage("Project " + bean.getProjectName()
                                         + " was created successfully");
                     } catch (Exception e) {
-                        String msg = "Failed to create the project '" + bean.getProjectName() + "'!";
-                        log.error(msg, e);
-                        FacesUtils.addErrorMessage(msg, e.getMessage());
+                        if (!NameChecker.checkName(bean.getProjectName())) {
+                            String msg = "Failed to create the project '" + bean.getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
+                            FacesUtils.addErrorMessage(msg);
+                        } else {
+                            String msg = "Failed to create the project '" + bean.getProjectName() + "'!";
+                            log.error(msg, e);
+                            FacesUtils.addErrorMessage(msg, e.getMessage());
+                        }
+                        
                     }
                 }
             }
         }
 
         return null;
+    }
+
+    public boolean isSelectAll() {
+        return false;
+    }
+
+    public void setSelectAll(boolean selectAll) {
+        this.selectAll = selectAll;
     }
 }

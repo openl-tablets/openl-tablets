@@ -30,8 +30,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -51,6 +49,8 @@ public class SystemSettingsBean {
 
     private static final String USER_WORKSPACE_HOME = "user.workspace.home";
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
+    private static final String PROJECT_HISTORY_COUNT = "project.history.count";
+    private static final String PROJECT_HISTORY_UNLIMITED = "project.history.unlimited";
     private static final String DATE_PATTERN = "data.format.date";
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
 
@@ -130,6 +130,26 @@ public class SystemSettingsBean {
         configManager.setPath(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
+    public String getProjectHistoryCount() {
+        if (isUnlimitHistory()) {
+            return null;
+        } else {
+            return Integer.toString(configManager.getIntegerProperty(PROJECT_HISTORY_COUNT));
+        }
+    }
+
+    public void setProjectHistoryCount(String count) {
+        configManager.setProperty(PROJECT_HISTORY_COUNT, Integer.parseInt(count));
+    }
+
+    public boolean isUnlimitHistory() {
+        return configManager.getBooleanProperty(PROJECT_HISTORY_UNLIMITED);
+    }
+
+    public void setUnlimitHistory(boolean unlimited) {
+        configManager.setProperty(PROJECT_HISTORY_UNLIMITED, unlimited);
+    }
+
     public String getDesignRepositoryType() {
         String factory = configManager.getStringProperty(DESIGN_REPOSITORY_FACTORY);
         return (String) DESIGN_REPOSITORY_TYPE_FACTORY_MAP.getKey(factory);
@@ -203,17 +223,17 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
                 validate(prodConfig);
             }
-            
+
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
                 prodConfig.delete();
             }
             deletedConfigurations.clear();
-    
+
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
                 productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
             }
-    
+
             saveSystemConfig();
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -227,9 +247,6 @@ public class SystemSettingsBean {
         boolean saved = configManager.save();
         if (saved) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
-            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-                    .getWebApplicationContext(FacesUtils.getServletContext());
-            context.refresh();
         }
     }
 
@@ -247,9 +264,6 @@ public class SystemSettingsBean {
         boolean restored = configManager.restoreDefaults();
         if (restored) {
             WebStudioUtils.getWebStudio().setNeedRestart(true);
-            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-                    .getWebApplicationContext(FacesUtils.getServletContext());
-            context.refresh();
         }
 
         initProductionRepositoryConfigurations();
@@ -488,7 +502,21 @@ public class SystemSettingsBean {
         workingDirValidator(getProjectHistoryHome(), directoryType);
 
     }
-    
+
+    public void historyCountValidator (FacesContext context, UIComponent toValidate, Object value) {
+        String errorMessage = null;
+        String count = (String)value;
+        isPathNull(count, "The maximum count of saved changes");
+        if (!Pattern.matches("[0-9]+", count)) {
+            errorMessage = "The maximum count of saved changes should be positive integer";
+        }
+
+        if (errorMessage != null) {
+            FacesUtils.addErrorMessage(errorMessage);
+            throw new ValidatorException(new FacesMessage(errorMessage));
+        }
+    }
+
     public void designRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Design Repository directory";
         isPathNull(value, directoryType);
@@ -569,7 +597,5 @@ public class SystemSettingsBean {
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
-   
-    
-    
+
 }

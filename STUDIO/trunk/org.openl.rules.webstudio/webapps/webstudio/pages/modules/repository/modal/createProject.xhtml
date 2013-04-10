@@ -70,7 +70,7 @@
                             <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                         </td>
                             <td><h:inputText id="projectName"
-                                    size="35" maxlength="50"
+                                    size="35" maxlength="70"
                                     value="#{repositoryTreeController.projectName}"
                                     onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtTemplates')});" />
                             </td>
@@ -144,14 +144,14 @@
 
             <rich:tab header="Workspace">
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
-                    <div style="max-height: 286px; overflow:auto" id="uploadPrjFromLocalDiv">
+                    <h:panelGrid style="max-height: 286px; overflow:auto; width: 100%" id="uploadPrjFromLocalDiv">
                         <rich:dataTable value="#{localUpload.projects4Upload}"
                             rendered="#{not empty localUpload.projects4Upload}"
                             var="item" styleClass="table table-striped" id="uploadPrjFromLocalTable" style="width: 98%">
                             <f:facet name="header">
                                 <rich:columnGroup>
                                     <rich:column>
-                                        <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'"
+                                        <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" value="#{localUpload.selectAll}"
                                         onclick="changeStatus(this);"/>
                                     </rich:column>
                                     <rich:column>
@@ -167,18 +167,18 @@
                                 <h:outputText value="#{item.projectName}" />
                             </rich:column>
                         </rich:dataTable>
-                    </div>
-
-                    <h:outputText value="All projects are already in repository"
-                        rendered="#{empty localUpload.projects4Upload}" />
-
+                    </h:panelGrid>
+                    <h:panelGrid style="max-height: 286px; overflow:auto" id="uploadPrjFromLocalMessageDiv">
+	                    <h:outputText value="All projects are already in repository"
+	                        rendered="#{empty localUpload.projects4Upload}" />
+                    </h:panelGrid>
                     <hr style="margin-bottom: 15px" />
 
-                    <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
+                    <h:panelGrid id="localUploadButtonPanel" columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">
                         <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary" 
                         rendered="#{not empty localUpload.projects4Upload}" process="@form" value="Create"
-                        oncomplete="uncheckSelectAllProject(); hideNewProjectDialog()"
-                        render="uploadWorkspaceProjectForm"/>
+                        oncomplete="hideNewProjectDialog()"
+                        render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </h:panelGrid>
                 </h:form>
