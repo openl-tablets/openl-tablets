@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:authz="http://rules.openl.org/taglibs/acegi"
+    xmlns:c="http://java.sun.com/jsp/jstl/core" >
+
+    <rich:popupPanel id="modalUserDetails" width="410" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="User details" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                onclick="hideEditUserDetails()" alt="Close" />
+        </f:facet>
+
+        <h:form id="userDetailsForm">
+        <div style="max-height: 370px; overflow: auto;">
+            <h:panelGrid columns="3" cellspacing="5">
+                <label>Username</label>
+                <h:outputText id="username" style="font-weight: bold" value="#{userDetailsBean.user.username}"/>
+                <h:inputHidden id="usernameHidden" value="#{userDetailsBean.user.username}" />
+
+                <h:outputText value="" />
+                <h:outputText value="" />
+                <h:outputText value="" />
+
+                <label>First Name </label>
+                <h:inputText id="firstName" value="#{userDetailsBean.firstName}" />
+                <a4j:outputPanel ajaxRendered="false" id="firstNameError">
+                    <h:message for="firstName" styleClass="error" />
+                </a4j:outputPanel>
+
+                <label>Last Name</label>
+                <h:inputText id="lastName" value="#{userDetailsBean.lastName}" />
+                <a4j:outputPanel ajaxRendered="true" id="lastNameError">
+                    <h:message for="lastName" styleClass="error" />
+                </a4j:outputPanel>
+
+                <h:outputText value="" />
+                <h:outputText value="" />
+                <h:outputText value="" />
+
+                <label class="required">Current password</label>
+                <h:inputSecret  id="currentPassword" value="#{userDetailsBean.password}" validator="#{userDetailsBean.currentPassValidator}" 
+                    required="true" requiredMessage="Enter your password" />
+                <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
+                    <h:message for="currentPassword" styleClass="error" />
+                </a4j:outputPanel>
+
+                <label>New password</label>
+                <h:inputSecret  id="newPassword" value="#{userDetailsBean.newPassword}" validator="#{userDetailsBean.passwordsValidator}" >
+                    <f:attribute name="confirmPassword" value="#{confirmPassword}" />
+                </h:inputSecret>
+                <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
+                    <h:message for="newPassword" styleClass="error" />
+                </a4j:outputPanel>
+
+                <label>Confirm password</label>
+                <h:inputSecret  id="confirmPassword" value="#{userDetailsBean.confirmPassword}" binding="#{confirmPassword}" />
+                <a4j:outputPanel ajaxRendered="true" id="confirmPasswordError">
+                    <h:message for="confirmPassword" styleClass="error" />
+                </a4j:outputPanel>
+
+            </h:panelGrid>
+            </div>
+
+            <br />
+            <br />
+
+            <a4j:commandButton value="Save" action="#{userDetailsBean.editUser}" data="#{facesContext.maximumSeverity}"
+                oncomplete="if(!event.data) hideEditUserDetails()" render=":userDetailsForm" styleClass="button-primary" />
+            <input type="button" value="Cancel" onclick="hideEditUserDetails()" />
+        </h:form>
+
+    </rich:popupPanel>
+
+<script>
+    //<![CDATA[
+
+    function  editUserDetails() {
+        RichFaces.$("modalUserDetails").show();
+    }
+
+    function hideEditUserDetails() {
+        RichFaces.$("modalUserDetails").hide();
+
+        $j("#userDetailsForm\\:firstNameError,#userDetailsForm\\:lastNameError,#userDetailsForm\\:currentPasswordError, #userDetailsForm\\:newPasswordError, #userDetailsForm\\:confirmPasswordError").text("");
+        $j("#userDetailsForm")[0].reset();
+    }
+
+    //]]>
+</script>
+
+</ui:composition>
