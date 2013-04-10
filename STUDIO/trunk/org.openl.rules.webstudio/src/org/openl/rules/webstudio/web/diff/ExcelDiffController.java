@@ -32,8 +32,12 @@ public class ExcelDiffController extends AbstractDiffController {
             File file2 = filesToCompare.get(1);
             filesToCompare.clear();
 
-            XlsDiff2 x = new XlsDiff2();
             try {
+                // The Diff Tree can be huge. As far as we don't need the
+                // previous instance anymore, we should clear it before any
+                // further calculations.
+                setDiffTree(null);
+                XlsDiff2 x = new XlsDiff2();
                 DiffTreeNode diffTree = x.diffFiles(
                         file1.getAbsolutePath(), file2.getAbsolutePath());
                 setDiffTree(diffTree);
