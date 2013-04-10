@@ -169,12 +169,9 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     
     @Override
     protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>(){
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-              return getOpenL().getVm().getRuntimeEnv();
-            }
-          };
+        ThreadLocal<IRuntimeEnv> runtimeEnvHolder = new ThreadLocal<IRuntimeEnv>();
+        runtimeEnvHolder.set(getOpenL().getVm().getRuntimeEnv());
+        return runtimeEnvHolder;
     }
 
     @SuppressWarnings("unchecked")

@@ -4982,6 +4982,7 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
     separatorEscaper: null,
     destroyed: null,
     onBlur: null,
+    selectAllButton: null,
 
     editor_initialize: function(param) {
         var self = this;
@@ -5000,6 +5001,8 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
 
         buttonContainer.innerHTML = '<input type="button" value="Select All"> <input type="button" value="Done">'
         var b1 = buttonContainer.down(), b2 = b1.next();
+        self.selectAllButton = b1;
+
         b1.onclick = function() {
             self.setAllCheckBoxes(this.value == "Select All");
             this.value = (this.value == "Select All" ? "Deselect All" : "Select All");
@@ -5064,6 +5067,12 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
                 }
             }
         });
+
+        if (isAllBoxesChecked()) {
+            this.selectAllButton.value = "Deselect All";
+        };
+
+        this.changeSelectAllBtnName(this.selectAllButton);
 
         Event.observe(document, 'click', this.documentClickListener);
     },
@@ -5165,13 +5174,65 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
             } while (element = element.parentNode);
         }
         return false;
+    },
+
+    changeSelectAllBtnName: function(val) {
+        var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+
+        allCheckBoxes.each (function (e) {
+            e.observe ('change', function(e) {
+                val.value = "Select All";
+                if (isAllBoxesUnchecked()) {
+                    val.value = "Select All";
+                }
+                if (isAllBoxesChecked()) {
+                    val.value = "Deselect All";
+                }
+            }); 
+         }); 
     }
 
 });
 
 if (BaseEditor.isTableEditorExists()) {
 	TableEditor.Editors["multiselect"] = MultiselectEditor;
-}/**
+}
+
+function isAllBoxesChecked()  {
+    var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+    var checkedNumber = 0;
+    var isAllChecked = true;
+
+    for (i = 0; i < allCheckBoxes.size(); i++) {
+        if (allCheckBoxes[i].checked) {
+            checkedNumber ++;
+        }
+    }
+
+    if (checkedNumber != allCheckBoxes.size()) {
+        isAllChecked = false;
+    }
+    return isAllChecked;
+}
+
+function isAllBoxesUnchecked () {
+    var allCheckBoxes = $$('div.multiselect_container input:checkbox');
+    var uncheckedNumber = 0;
+    var isAllUnchecked = false;
+
+    for (i = 0; i < allCheckBoxes.size(); i++) {
+        if (!allCheckBoxes[i].checked) {
+            uncheckedNumber ++;
+        }
+    }
+
+    if (uncheckedNumber == allCheckBoxes.size()) {
+        isAllUnchecked = true;
+    }
+
+    return isAllUnchecked;
+}
+/**
  * Array editor.
  * 
  * @requires Prototype v1.6.1+ library
@@ -5221,22 +5282,27 @@ if (BaseEditor.isTableEditorExists()) {
 var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     rangePanel: null,
+    resultContainer: null,
+    btnDone: null,
 
-    // td with checkBoxes and input text elements
+    // TD with checkBoxes and input text elements
     tdCheckboxes: null,
     tdValues: null,
 
-    // checkBoxes and input text elements
+    // CheckBoxes and input text elements
     checkboxes: null,
     values: null,
 
-    // buttons
+    // Buttons
     btns: null,
 
-    // separators
-    generalSeparator: " .. ",
+    // Default separator; <, <=, >, >= also concern to default separators
+    defaultSeparator: " .. ",
+    // Separator changed to default separator only if user change separator's logic
     stableSeparators: ["more than ", "less than ", " and more", " - "],
+    // Separator usually changed to default separator
     unstableSeparators: [" ... ", ";", "+"],
+    // Concern to stableSeparators
     dashSeparator: "-",
     currentSeparator: null,
 
@@ -5250,16 +5316,18 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     editor_initialize: function(param) {
         var self = this;
-        this.createInput();
+        self.createInput();
 
         // Creating containing DIV
-        this.rangePanel = new Element("div");
+        self.rangePanel = new Element("div");
+        self.rangePanel.className = "range";
+        self.rangePanel.setAttribute("align", "center");
 
-        // Creating information DIV
-        var infoContainer = new Element("div");
-        var table = new Element('table', {'class':'hide-on-screen'} );
+        var table = new Element("table");
         
+        // Creating variables with checkbox
         self.tdCheckboxes = new Array(2);
+        self.checkboxes = new Array(2);
         for (var i = 0; i < self.tdCheckboxes.length; i++) {
             self.tdCheckboxes[i] = new Element("td");
             self.tdCheckboxes[i].setAttribute("align", "center");
@@ -5267,76 +5335,71 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         }
         table.appendChild(this.tdCheckboxes[0]);
 
+        // Creating variables with inputText
         self.tdValues = new Array(2);
+        self.values = new Array(2);
         for (var i = 0; i < self.tdValues.length; i++) {
             self.tdValues[i] = new Element("td");
             self.tdValues[i].setAttribute("align", "center");
             self.tdValues[i].setAttribute("valign", "middle");
+            self.values[i] = new Element("input");
+            self.values[i].value = "";
         }
-
         table.appendChild(this.tdValues[0]);
 
+        // Creating td with buttons
         var buttnons = new Element("td")
-                .update('<input type="button" id="btnMore"  title="More than" value=">"/> <br/> <input type="button" id="btnLess"  title="Less than" value="<"/> <br/> <input type="button" id="btnRange"  title="Range" value="-"/> <br/> <input type="button" id="btnEquals" title="Equals" value="="/>');
+                .update('<input type="button" title="More than" value=">"/> <br/> <input type="button" title="Less than" value="<"/> <br/> <input type="button" title="Range" value="-"/> <br/> <input type="button" title="Equals" value="="/>');
         table.appendChild(buttnons);
-
         table.appendChild(this.tdValues[1]);
         table.appendChild(this.tdCheckboxes[1]);
-
-        infoContainer.appendChild(table);
-        self.rangePanel.appendChild(infoContainer);
-
-        self.checkboxes = new Array();
-        self.values = new Array();
+        self.rangePanel.appendChild(table);
+        
+        // Creating variables with buttons
         self.btns = new Array(4);
-        self.values[0] = self.tdValues[0];
-        self.values[0].value = "";
-
         self.btns[0] = buttnons.down();
-
         for (var i = 1; i < self.btns.length; i++) {
             self.btns[i] = self.btns[i - 1].next().next();
         }
-
-        self.values[1] = self.tdValues[1];
-        self.values[1].value = "";
-
         for (var i = 0; i < self.btns.length; i++) {
-            self.btns[i].setAttribute("style", "width: 20px; height: 20px;");
+            self.btns[i].className = "btnRange";
             self.btns[i].onclick = function() {
-                self.currentSeparator = self.generalSeparator;
-                self.changeSign(this.id);
+                self.currentSeparator = self.defaultSeparator;
+                self.createIntervalBorders(self.btns.indexOf(this));
+                self.createResult();
             }
           }
 
         // Creating result DIV
-        var resultContainer = new Element("div");
-        resultContainer.id = "range";
-        this.rangePanel.appendChild(resultContainer);
+        self.resultContainer = new Element("div");
+        this.rangePanel.appendChild(self.resultContainer);
 
-        // Creating button Done DIV
+        // Creating button Done
         var buttonContainer = new Element("div");
-        buttonContainer.innerHTML = '<br/> <input type="button" id="btnDone" value="Done">'
-        var b1 = buttonContainer.down().next();
-        b1.onclick = function() {
+        buttonContainer.innerHTML = '<br/> <input type="button" value="Done">'
+        self.btnDone = buttonContainer.down().next();
+        self.btnDone.className = "btnDone";
+        self.btnDone.onclick = function() {
             self.finishEdit();
         }
         this.rangePanel.appendChild(buttonContainer);
 
-        if (param) this.entryEditor = param.entryEditor;
+        if (param) {
+            this.entryEditor = param.entryEditor;
+        }
 
         this.input.onclick = function(event) {
             self.open();
-        };
+        }
 
         this.input.onkeydown = function(event) {
             self.open();
             return false;
-        };
+        }
 
         this.input.oncontextmenu = function(event) {
             return false;
-        };
+        }
 
         this.eventHandler = this.handleKeyPress.bindAsEventListener(this);
         Event.observe(this.rangePanel, "keypress", this.eventHandler);
@@ -5351,20 +5414,9 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         this.open();
     },
 
-    createInput: function() {
-        this.input = new Element("textarea");
-        this.setDefaultStyle();
-        this.input.setStyle(this.style);
-    },
-
     open: function() {
-        // TODO Move to CSS file
-        this.rangePanel.setAttribute("style", "display: inline-block; padding: 5px; background: #fff; border:1px solid #d2d2d2;box-shadow: 2px 2px 3px #eee;");
-        this.rangePanel.setAttribute("align", "center");
         this.input.up().appendChild(this.rangePanel);
-
         this.destroyed = false;
-
         var value = this.input.value;
         var self = this;
         var values;
@@ -5373,17 +5425,19 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.currentSeparator = separator;
                 values = self.splitValue(value, separator);
                 if (separator == " - ") {
-                    self.disableInputsChecks(2);
+                    // Separator == " - "
+                    self.createIntervalBorders(2);
                     self.values[0].value = values[0];
                     self.values[1].value = values[1];
                     self.checkboxes[0].setAttribute("checked", "checked");
                     self.checkboxes[1].setAttribute("checked", "checked");
                 } else {
-                    if (separator != "less than ") {
-                        self.moreThan = "true";
-                        self.disableInputsChecks(0);
+                    // Separator == "less than " || "more than " || " and more"
+                    if (separator == "less than ") {
+                        self.createIntervalBorders(1);
                     } else {
-                        self.disableInputsChecks(1);
+                        self.moreThan = "true";
+                        self.createIntervalBorders(0);
                     }
                     if (values[0]) {
                         self.values[1].value = values[0];
@@ -5393,55 +5447,63 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                     }
                 }
             }
-        });
+        })
         self.unstableSeparators.each(function(separator) {
             if (value.indexOf(separator) !== -1) {
-                self.currentSeparator = self.generalSeparator;
+                self.currentSeparator = self.defaultSeparator;
                 values = self.splitValue(value, separator);
                 if (separator == ";") {
-                    self.disableInputsChecks(2);
-                    if (values[0].charAt(0) == "[") self.checkboxes[0].setAttribute("checked", "checked");
-                    if (values[1].charAt(values[1].length - 1) == "]") self.checkboxes[1].setAttribute("checked", "checked");
+                    // Separator == ";"
+                    self.createIntervalBorders(2);
+                    if (values[0].charAt(0) == "[") {
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                    }
+                    if (values[1].charAt(values[1].length - 1) == "]") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                    }
                     self.values[0].value = values[0].substring(1);
                     self.values[1].value = values[1].substring(0, values[1].length - 1);
                 } else if (separator == " ... ") {
-                    self.disableInputsChecks(2);
+                    // Separator == " ... "
+                    self.createIntervalBorders(2);
                     self.values[0].value = values[0];
                     self.values[1].value = values[1];
                 } else {
-                    self.disableInputsChecks(0);
+                    // Separator == "+"
+                    self.createIntervalBorders(0);
                     self.moreThan = "true";
                     self.values[1].value = values[0];
                     self.checkboxes[1].setAttribute("checked", "checked");
                 }
             }
         });
-        if ((value.indexOf(self.generalSeparator) != -1) || (value.charAt(0) == "<")||(value.charAt(0) == ">")) {
-            self.currentSeparator = self.generalSeparator;
+        if ((value.indexOf(self.defaultSeparator) != -1) || (value.charAt(0) == "<")||(value.charAt(0) == ">")) {
+            self.currentSeparator = self.defaultSeparator;
             if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
+                // Separator == "<" || "<=" || ">" || ">="
                 if (value.charAt(0) == "<") {
-                    self.disableInputsChecks(1);
-                    if (value.charAt(1) == "=") {
-                        self.checkboxes[1].setAttribute("checked", "checked");
-                        self.values[1].value = value.substring(2);
-                    } else {
-                        self.values[1].value = value.substring(1);
-                    }
+                    self.createIntervalBorders(1);
                 } else {
-                    self.disableInputsChecks(0);
+                    self.createIntervalBorders(0);
                     self.moreThan = "true";
-                    if (value.charAt(1) == "=") {
-                        self.checkboxes[1].setAttribute("checked", "checked");
-                        self.values[1].value = value.substring(2);
-                    } else {
-                        self.values[1].value = value.substring(1);
-                    }
+                }
+                
+                if (value.charAt(1) == "=") {
+                    self.checkboxes[1].setAttribute("checked", "checked");
+                    self.values[1].value = value.substring(2);
+                } else {
+                    self.values[1].value = value.substring(1);
                 }
             } else {
-                self.disableInputsChecks(2);
+                // Separator == " .. "
+                self.createIntervalBorders(2);
                 if ((value.charAt(0) == "[") || (value.charAt(0) == "(")) {
-                    if (value.charAt(0) == "[") self.checkboxes[0].setAttribute("checked", "checked");
-                    if (value.charAt(value.length - 1) == "]") self.checkboxes[1].setAttribute("checked", "checked");
+                    if (value.charAt(0) == "[") {
+                        self.checkboxes[0].setAttribute("checked", "checked");
+                    }
+                    if (value.charAt(value.length - 1) == "]") {
+                        self.checkboxes[1].setAttribute("checked", "checked");
+                    }
                     values = self.splitValue(value.substring(1, value.length - 1), self.currentSeparator);
                 } else {
                     values = self.splitValue(value, self.currentSeparator);
@@ -5456,25 +5518,28 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             self.currentSeparator = self.dashSeparator;
             values = self.splitValue(value, self.currentSeparator);
             if (values[0] && values[1]) {
-                self.disableInputsChecks(2);
+                // Separator = "-"
+                self.createIntervalBorders(2);
                 self.values[0].value = values[0];
                 self.values[1].value = values[1];
                 self.checkboxes[0].setAttribute("checked", "checked");
                 self.checkboxes[1].setAttribute("checked", "checked");
             } else if (!values[0] && !values[1] || values[0] && !self.isValid(values[0])){
+                // Empty cell || invalid character in the cell
                 if (values[0]) {
                     self.input.value = null;
                 }
-                self.currentSeparator = self.generalSeparator;
-                self.values[0] = "";
-                self.values[1] = "";
-                self.disableInputsChecks(2);
+                self.currentSeparator = self.defaultSeparator;
+                self.values[0].value = "";
+                self.values[1].value = "";
+                self.createIntervalBorders(2);
                 self.checkboxes[0].setAttribute("checked", "checked");
                 self.checkboxes[1].setAttribute("checked", "checked");
-                document.getElementById("btnDone").setAttribute("disabled", "disabled");
+                self.btnDone.setAttribute("disabled", "disabled");
             } else {
-                self.currentSeparator = self.generalSeparator;
-                self.disableInputsChecks(3);
+                // Constant in the cell
+                self.currentSeparator = self.defaultSeparator;
+                self.createIntervalBorders(3);
                 if (values[0]) {
                     self.values[1].value = values[0];
                 } else {
@@ -5483,20 +5548,22 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 self.equals = true;
             }
         }
-        self.changeRange();
+        self.createResult();
         Event.observe(document, 'click', self.documentClickListener);
         self.values[1].focus();
     },
 
-    changeRange: function() {
+    // Creates range in result DIV
+    createResult: function() {
         var content = "";
-        if (this.currentSeparator == "more than " || this.currentSeparator == "less than ") {
-            if (this.values[1].value) content = this.currentSeparator + this.values[1].value;
-        } else if (this.currentSeparator == " and more") {
-            if (this.values[1].value) content = this.values[1].value + this.currentSeparator;
+        if (this.values[1].value && (this.currentSeparator == "more than " || this.currentSeparator == "less than ")) {
+            content = this.currentSeparator + this.values[1].value;
+        } else if (this.values[1].value && this.currentSeparator == " and more") {
+            content = this.values[1].value + this.currentSeparator;
         } else if (this.currentSeparator == " - " || this.currentSeparator == "-") {
             content = this.values[0].value + " - " + this.values[1].value;
-        } else if (this.values[0].value || this.range) {
+        } else if (this.range && this.values[0].value != "") {
+            // Current separator == " .. "
             if (this.checkboxes[0].checked && this.checkboxes[1].checked) {
                 content = this.values[0].value + " .. " + this.values[1].value;
             } else {
@@ -5513,134 +5580,128 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                 }
             }
         } else if (this.values[1].value) {
+            // Constant or interval with infinity
             if (!this.equals) {
                 if (this.moreThan) {
                     content = ">";
                 } else {
                     content = "<";
                 }
-                if (this.checkboxes[1].checked) content = content + "=";
+                if (this.checkboxes[1].checked) {
+                    content = content + "=";
+                }
             }
             content = content + this.values[1].value
         }
-        document.getElementById("range").innerHTML = '<br/>' + content;
+        this.resultContainer.innerHTML = '<br/>' + content;
         if (content == "") {
-            document.getElementById("btnDone").setAttribute("disabled", "disabled");
+            this.btnDone.setAttribute("disabled", "disabled");
         } else {
-            document.getElementById("btnDone").removeAttribute("disabled");
+            this.btnDone.removeAttribute("disabled");
         }
     },
 
-    changeSign: function(btnId) {
+    // Creates right and left sides of Range Editor
+    createIntervalBorders: function(btnId) {
         var self = this;
-        if (btnId == "btnRange") {
-            if (self.checkboxes[1]) self.checkboxes[1].removeAttribute("disabled");
-            self.disableInputsChecks(2);
-        } else if (btnId == "btnEquals") {
-            self.disableInputsChecks(3);
-        } else if (btnId == "btnMore") {
-            self.disableInputsChecks(0);
-            self.checkboxes[1].removeAttribute("disabled");
+        self.range = false;
+        if (btnId == 2) {
+            self.range = true;
+            self.tdCheckboxes[0].update('Include <br/> <input type="checkbox"/>');
+            self.tdCheckboxes[0].className = "tdStandard";
+            self.tdValues[0].update('From <br/> <input type="text"/>');
+            var minValue = self.values[0].value;
+            self.values[0] = self.tdValues[0].down().next();
+            self.values[0].className = "tdStandard";
+            self.values[0].value = minValue;
+            var checked = false;
+            if (self.checkboxes[0]) {
+                checked = self.checkboxes[0].checked;
+            }
+            self.checkboxes[0] = self.tdCheckboxes[0].down().next();
+            if (checked) {
+                self.checkboxes[0].setAttribute("checked", "checked");
+            }
+            self.tdValues[1].update('To <br/> <input type="text"/>');
+            self.checkboxes[0].onclick = function() {
+                self.currentSeparator = self.defaultSeparator;
+                self.createResult();
+            }
+            self.values[0].onkeypress = function(event) {return self.keyPressed(event || window.event)};
+            self.values[0].onkeyup = function() {self.createResult()};
+        } else if (btnId == 3) {
+            self.values[0].value = "";
+            self.tdCheckboxes[0].update('');
+            self.tdCheckboxes[0].className = "tdStandard";
+            self.tdValues[0].update('');
+            self.tdValues[0].className = "tdStandard";
+            self.tdValues[1].update('<br/> <input type="text"/>');
+            self.tdValues[1].className = "tdStandard";
+            self.tdCheckboxes[1].update('');
+            self.tdCheckboxes[1].className = "tdStandard";
         } else {
-            self.disableInputsChecks(1);
-            self.checkboxes[1].removeAttribute("disabled");
+            if (btnId == 0) {
+                self.tdValues[1].update('From <br/> <input type="text"/>');
+            } else {
+                self.tdValues[1].update('To <br/> <input type="text"/>');
+            }
+            self.tdCheckboxes[0].update('<span> &infin; </span>');
+            self.tdCheckboxes[0].className = "tdWide";
+            self.tdValues[0].update('');
+            self.tdValues[0].className = "tdNarrow";
+            self.values[0].value = "";
         }
 
-        if (btnId == "btnMore") {
+        self.equals = true;
+        if (btnId != 3) {
+            self.equals = false;
+            self.tdCheckboxes[1].update('Include <br/> <input type="checkbox"/>');
+            self.tdCheckboxes[1].className = "tdStandard";
+            if (self.checkboxes[1] && self.checkboxes[1].checked) {
+                self.tdCheckboxes[1].down().next().setAttribute("checked", "checked");
+            }
+            self.checkboxes[1] = self.tdCheckboxes[1].down().next();
+            self.checkboxes[1].onclick = function() {
+                self.currentSeparator = self.defaultSeparator;
+                self.createResult();
+            }
+        }
+
+        if (btnId == 0) {
             self.moreThan = true;
+            if (self.values[0].value) {
+                self.tdValues[1].down().next().value = self.values[0].value;
+            } else if (self.values[1].value) {
+                self.tdValues[1].down().next().value = self.values[1].value;
+            }
         } else {
             self.moreThan = false;
+            if (self.values[1].value) {
+                self.tdValues[1].down().next().value = self.values[1].value;
+            }
         }
 
-        if (btnId != "btnRange") {
-            self.values[0].value = "";
-            self.range = false;
-        } else {
-            self.range = true;
+        for (var i = 0; i < self.btns.length; i++) {
+            if (i != btnId) {
+                self.btns[i].setAttribute("style", "color: black;");
+            } else {
+                self.btns[i].setAttribute("style", "color: red;");
+            }
         }
 
-        if (btnId == "btnEquals") {
-            self.equals = true;
-        } else {
-            self.equals = false;
+        self.values[1] = self.tdValues[1].down().next();
+        self.values[1].className = "tdStandard";
+        self.values[1].onkeypress = function(event) {
+            return self.keyPressed(event || window.event)
         }
-        self.changeRange();
-     },
+        self.values[1].onkeyup = function() {
+            self.createResult()
+        }
+    },
 
-     disableInputsChecks: function(btnId) {
-         var self = this;
-         if (btnId == 2) {
-             self.tdCheckboxes[0].update('Include <br/> <input type="checkbox"/>');
-             self.tdCheckboxes[0].setAttribute("style", "width: 40px;");
-             self.tdValues[0].update('From <br/> <input type="text" style="width: 40px"/>');
-             self.values[0] = self.tdValues[0].down().next();
-             self.checkboxes[0] = self.tdCheckboxes[0].down().next();
-             self.tdValues[1].update('To <br/> <input type="text" style="width: 40px"/>');
-             self.checkboxes[0].onclick = function() {
-                 self.currentSeparator = self.generalSeparator;
-                 self.changeRange();
-             }
-             self.values[0].onkeypress = function(event) {return self.keyPressed(event || window.event)};
-             self.values[0].onkeyup = function() {self.changeRange()};
-             
-         } else if (btnId == 3) {
-             self.tdCheckboxes[0].update('');
-             self.tdCheckboxes[0].setAttribute("style", "width: 40px;");
-             self.tdValues[0].update('');
-             self.tdValues[0].setAttribute("style", "width: 40px;");
-             self.tdValues[1].update('<br/> <input type="text" style="width: 40px"/>');
-             self.tdCheckboxes[1].update('');
-             self.tdCheckboxes[1].setAttribute("style", "width: 40px;");
-             if (self.checkboxes[1]) self.checkboxes[1].removeAttribute("checked");
-         } else {
-             if (btnId == 0) {
-                 self.tdValues[1].update('From <br/> <input type="text" style="width: 40px"/>');
-             } else {
-                 self.tdValues[1].update('To <br/> <input type="text" style="width: 40px"/>');
-             }
-             self.tdCheckboxes[0].update('<span style="font-size:20px"> &infin; </span>');
-             self.tdCheckboxes[0].setAttribute("style", "width: 80px;");
-             self.tdValues[0].update('');
-             self.tdValues[0].setAttribute("style", "width: 2px;");
-         }
-
-         if (btnId != 3) {
-             self.tdCheckboxes[1].update('Include <br/> <input type="checkbox"/>');
-             self.tdCheckboxes[1].setAttribute("style", "width: 40px;");
-             if (self.checkboxes[1] && self.checkboxes[1].checked) self.tdCheckboxes[1].down().next().setAttribute("checked", "checked");
-             self.checkboxes[1] = self.tdCheckboxes[1].down().next();
-             self.checkboxes[1].onclick = function() {
-                 self.currentSeparator = self.generalSeparator;
-                 self.changeRange();
-             }
-         }
-
-         if (btnId == 0) {
-             if (self.values[0].value) {
-                 self.tdValues[1].down().next().value = self.values[0].value;
-             } else if (self.values[1].value) {
-                 self.tdValues[1].down().next().value = self.values[1].value;
-             }
-         } else {
-             if (self.values[1].value) self.tdValues[1].down().next().value = self.values[1].value;
-         }
-
-         for (var i = 0; i < self.btns.length; i++) {
-             if (i != btnId) {
-                 self.btns[i].setAttribute("style", "color: black; width: 20px; height: 20px;");
-             } else {
-                 self.btns[i].setAttribute("style", "color: red; width: 20px; height: 20px;");
-             }
-         }
-
-         self.values[1] = self.tdValues[1].down().next();
-         self.values[1].onkeypress = function(event) {return self.keyPressed(event || window.event)};
-         self.values[1].onkeyup = function() {self.changeRange()};
-     },
-
-     close: function() {
+    close: function() {
         if (!this.destroyed) {
-            Event.stopObserving(document, 'click', this.documentClickListener);
+            ///Event.stopObserving(document, 'click', this.documentClickListener);
             Element.remove(this.rangePanel);
             this.destroyed = true;
 
@@ -5676,7 +5737,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
 
     finishEdit: function() {
         if (this.isValid(this.values[0].value) && this.isValid(this.values[1].value)) {
-            this.setValue(this.combineValue());
+            this.setValue(this.createFinalResult());
             this.handleF3();
             this.destroy();
         }
@@ -5686,31 +5747,45 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         var valid = true;
         var self = this;
         if ((value.charAt(0) == "<")||(value.charAt(0) == ">")) {
-            value = value.substring(1);
-            if (value.charAt(0) == "=") value = value.substring(1);
+            if (value.charAt(1) == "=") {
+                value = value.substring(2);
+            } else {
+                value = value.substring(1);
+            }
         }
         if ((value.charAt(0) == "(")||(value.charAt(0) == "[")) {
             value = value.substring(1, value.length - 1);
         }
         if (self.entryEditor && value) {
             var values = value.split(self.currentSeparator);
-            if ((values.length == 3) && (self.currentSeparator == self.dashSeparator) && (value.charAt(0) == "-")) values.splice(1,1);
-            if (!values[0]) values.splice(0, 1);
-            if (!values[1]) values.splice(1, 1);
+            if ((values.length == 3) && (self.currentSeparator == self.dashSeparator) && (value.charAt(0) == "-")) {
+                values.splice(1, 1);
+            }
+            if (!values[0]) {
+                values.splice(0, 1);
+            }
+            if (!values[1]) {
+                values.splice(1, 1);
+            }
             values.each(function(v) {
                 if (self.entryEditor == "integer") {
                     var matchInt = v.match(/^-?[0-9]+$/);
-                    if (!matchInt) valid = false;
+                    if (!matchInt) {
+                        valid = false;
+                    }
                 } else {
                     var matchDouble = v.match(/^-?[0-9]+(\.?[0-9]+)?$/);
-                    if (!matchDouble) valid = false;
+                    if (!matchDouble) {
+                        valid = false;
+                    }
                 }
             });
         }
         return valid;
     },
 
-    combineValue: function() {
+    // Generates result after editing
+    createFinalResult: function() {
         var result;
         var values = new Array();
         values[0] = this.values[0].value;
@@ -5725,7 +5800,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
         } else {
             result = values.join("");
         }
-        if ((this.currentSeparator == this.generalSeparator) && (values[0] != values[1])) {
+        if ((this.currentSeparator == this.defaultSeparator) && (values[0] != values[1])) {
             var prefix = "";
             var suffix = "";
             if (values[0] && values[1]){
@@ -5752,10 +5827,18 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
                             prefix = ">";
                         }
                     } else {
-                        if (this.checkboxes[1].checked) {
-                            prefix = "<=";
+                        if (this.range && values[0]) {
+                            if (this.checkboxes[0].checked) {
+                                prefix = ">=";
+                            } else {
+                                prefix = ">";
+                            }
                         } else {
-                            prefix = "<";
+                            if (this.checkboxes[1].checked) {
+                                prefix = "<=";
+                            } else {
+                                prefix = "<";
+                            }
                         }
                     }
                 }
@@ -5778,7 +5861,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
     documentClickHandler: function(e) {
         var element = Event.element(e);
         var abort = false;
-        if (!this.is(element)) {
+        if (!this.is(element) && element != "") {
             this.close();
         }
     },
@@ -5816,19 +5899,22 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             length = this.values[1].value.length;
         }
         if (length > minCharacters) {
-            this.values[0].setAttribute("style", 'width:' + oneLetterWidth * length + 'px');
-            this.values[1].setAttribute("style", 'width:' + oneLetterWidth * length + 'px');
+            this.values[0].style.width = oneLetterWidth * length + "px";
+            this.values[1].style.width = oneLetterWidth * length + "px";
         } else {
-            this.values[0].setAttribute("style", "width: 40px;");
-            this.values[1].setAttribute("style", "width: 40px;");
+            this.values[0].className = "tdStandard";
+            this.values[1].className = "tdStandard";
         }
-        if (event.charCode == 0) return true;
+        if (event.charCode == 0) {
+            return true;
+        }
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
-
-        // minus or point
-        if ((code == 45) || (code == 46)) return true;
-
-        return code >= 48 && code <= 57; // digits (0-9)
+        // Minus or point
+        if ((code == 45) || (code == 46)) {
+            return true;
+        }
+        // Digits (0-9)
+        return code >= 48 && code <= 57;
     }
 
 });

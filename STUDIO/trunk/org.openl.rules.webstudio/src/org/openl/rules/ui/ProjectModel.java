@@ -23,7 +23,6 @@ import org.openl.conf.OpenLConfiguration;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
@@ -390,12 +389,20 @@ public class ProjectModel {
     }
 
     // TODO Cache it
-    public int getModuleErrorsNumber() {
-        ProjectModel model = studio.getModel();
-        List<OpenLMessage> messages = model.getModuleMessages();
-        List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+    public int getErrorNodesNumber() {
+        int count = 0;
+        if (compiledOpenClass != null) {
+            TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
-        return errorMessages.size();
+            for (int i = 0; i < nodes.length; i++) {
+                TableSyntaxNode tsn = nodes[i];
+
+                if (tsn.getErrors() != null) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public Map<String, TableSyntaxNode> getAllTableNodes() {
@@ -1194,8 +1201,10 @@ public class ProjectModel {
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
             String projecthistoryHome = studio.getSystemConfigManager().getStringProperty("project.history.home");
+            Integer maxFilesInStorage = studio.getSystemConfigManager().getIntegerProperty("project.history.count");
+            boolean unlimitedStorage = studio.getSystemConfigManager().getBooleanProperty("project.history.unlimited");
             String storagePath = projecthistoryHome + File.separator + getProject().getName();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath);
+            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }
         return historyManager;
     }

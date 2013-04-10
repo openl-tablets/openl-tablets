@@ -8,6 +8,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -96,8 +97,8 @@ public class OpenLCompileManager extends OpenLHolder {
         }
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
         messages.addMessages(processedCode.getMessagesFromDependencies());
-        if (executionMode) {
-            ((ModuleOpenClass) openClass).clearOddDataForExecutionMode();
+        if (executionMode && openClass instanceof ComponentOpenClass) {
+            ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
         }
         return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
     }

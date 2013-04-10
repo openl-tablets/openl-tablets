@@ -101,8 +101,15 @@ var tableModel = {
         editElem = element.previousSibling;
         editElem.style.display = "";
         var textEditor = editElem.firstChild;
-        var editorWidth = ($j(element).outerWidth() < 50) ?  "100px" : $j(element).outerWidth() + "px";
-        var editorHeight = "20px";
+        var editorCharLength = textEditor.value.length;
+        var editorWidth  = (editorCharLength + 1 ) * 6 + "px";
+        var editorHeight = "22px";
+
+        // When typing a symbol into the text field it's length increases 
+        textEditor.onkeydown = function () {
+
+            this.style.width = $j(this).outerWidth() <  ((this.value.length + 1) * 6) ? ((this.value.length + 1) * 6) + 'px' : $j(this).outerWidth();
+        };
 
         var browserName = navigator.appName;
         if (browserName == "Netscape") { 
@@ -114,7 +121,7 @@ var tableModel = {
                 editorHeight = ($j(element).outerHeight() + 3) + "px";
             }
         } else if (browserName=="Microsoft Internet Explorer") {
-            editorHeight = ($j(element).outerHeight() - 6) + "px";
+            editorHeight = ($j(element).outerHeight() ) + "px";
         }
 
         textEditor.style.width = editorWidth;
@@ -458,6 +465,24 @@ var tableModel = {
                     }
                 }
             }
+        }
+
+        for (var i = 1; i < this.dataRows.length; i++) {
+            var isEmpty = true;
+            var row = this.dataRows[i];
+
+            for (var col = 0; col < row.length; col++) {
+                var cell = row[col];
+
+                if ((cell.getValue() != null) && (cell.getValue()+"" != "")) {
+                    isEmpty = false;
+                }
+            }
+
+            if (isEmpty) {
+                checkingRes.push("Rule row #"+(i)+" is empty. Fill it in.");
+            }
+
         }
     },
 };

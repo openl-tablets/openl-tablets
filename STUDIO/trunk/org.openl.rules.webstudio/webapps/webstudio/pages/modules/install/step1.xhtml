@@ -12,7 +12,7 @@
                     <div class="wizard-block">
                         <h3>Enter a WebStudio working directory:
                             <div class="field-description">
-                                <p>OpenL Tablets uses the #{installWizard.workingDir} folder as a working directory.</p>
+                                <p>OpenL Tablets uses the '#{installWizard.workingDir}' folder as a working directory.</p>
                             </div>
                         </h3>
                         <h:panelGrid >
@@ -23,11 +23,7 @@
                         <div >
                             <h:message for="workingDir" class="error" />
                         </div>
-                            <h:panelGroup rendered="#{installWizard.showErrorMessage == true}" styleClass="info_box" 
-                            layout="block">
-                                <b>Folder name should not contain reserved symbols:</b>
-                                <br />&lt; &gt; &#34; | : / \ ? * &#38;
-                            </h:panelGroup>
+
                         </h:panelGrid>
                     </div>
                     <div class="wizard-buttons">
