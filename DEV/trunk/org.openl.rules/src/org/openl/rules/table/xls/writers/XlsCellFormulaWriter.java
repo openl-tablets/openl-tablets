@@ -8,6 +8,8 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 
 public class XlsCellFormulaWriter extends AXlsCellWriter {
 
+    private final Log log = LogFactory.getLog(XlsCellFormulaWriter.class);
+
     public XlsCellFormulaWriter(XlsSheetGridModel xlsSheetGridModel) {
         super(xlsSheetGridModel);
     }
@@ -29,7 +31,6 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
     }
     
     private void writeExcelFormula(String formula) {
-        final Log log = LogFactory.getLog(XlsCellFormulaWriter.class);
         getCellToWrite().setCellFormula(formula);
 
         try {
