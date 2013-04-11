@@ -65,12 +65,23 @@ public class RepositoryConfiguration {
     }
 
     public String getPath() {
-        return configManager.getPath(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(getType()));
+        String type = getType();
+        String propName = PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
+
+        return "local".equals(type) ?
+                configManager.getPath(propName) : configManager.getStringProperty(propName);
     }
 
     public void setPath(String path) {
-        configManager.setPath(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(getType()),
-                StringUtils.trimToEmpty(path));
+        String type = getType();
+        String propName = PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
+        String normalizedPath = StringUtils.trimToEmpty(path);
+
+        if ("local".equals(type)) {
+            configManager.setPath(propName, normalizedPath);
+        } else {
+            configManager.setProperty(propName, normalizedPath);
+        }
     }
 
     public String getConfigName() {
