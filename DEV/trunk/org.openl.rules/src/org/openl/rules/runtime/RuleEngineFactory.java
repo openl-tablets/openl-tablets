@@ -27,12 +27,7 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
 
     public static final String RULE_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
 
-    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-        @Override
-        protected org.openl.vm.IRuntimeEnv initialValue() {
-            return new org.openl.vm.SimpleVM().getRuntimeEnv();
-        }
-    };
+    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new RuntimeEnvHolder();
 
     /**
      * 
@@ -163,6 +158,15 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
     protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
         return new RulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+    }
+
+    // ThreadLocals can be cached by servlet container. RuntimeEnvHolder should
+    // be nested class, not inner class - otherwise we get memory leak
+    private static final class RuntimeEnvHolder extends ThreadLocal<org.openl.vm.IRuntimeEnv> {
+        @Override
+        protected org.openl.vm.IRuntimeEnv initialValue() {
+            return new org.openl.vm.SimpleVM().getRuntimeEnv();
+        }
     }
 
 }

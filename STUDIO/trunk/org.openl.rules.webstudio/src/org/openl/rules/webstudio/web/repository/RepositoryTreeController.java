@@ -23,6 +23,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -77,6 +78,7 @@ public class RepositoryTreeController {
 
     private static final Date SPECIAL_DATE = new Date(0);
     private static final String TEMPLATES_PATH = "org.openl.rules.demo.";
+    private static final String PROJECT_HISTORY_HOME = "project.history.home";
 
     private final Log log = LogFactory.getLog(RepositoryTreeController.class);
 
@@ -493,6 +495,7 @@ public class RepositoryTreeController {
 
         try {
             project.erase();
+            deleteProjectHistory(project.getName());
             userWorkspace.refresh();
 
             repositoryTreeState.deleteSelectedNodeFromTree();
@@ -507,6 +510,17 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage(msg);
         }
         return null;
+    }
+    
+    public void deleteProjectHistory(String projectName) {
+        try {
+            String projectHistoryPath = studio.getSystemConfigManager().getPath(PROJECT_HISTORY_HOME) + File.separator + projectName;
+            FileUtils.deleteDirectory(new File(projectHistoryPath));
+        } catch (Exception e) {
+            String msg = "Failed to clean history of project '" + projectName + "'!";
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg, e.getMessage());
+        }
     }
 
     public String exportProjectVersion() {

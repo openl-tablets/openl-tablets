@@ -1047,6 +1047,7 @@ public class ProjectModel {
 
         if (reloadType != ReloadType.NO) {
             modulesCache.removeCachedModule(moduleInfo);
+            uriTableCache.clear();
         }
 
         File projectFolder = moduleInfo.getProject().getProjectFolder();
