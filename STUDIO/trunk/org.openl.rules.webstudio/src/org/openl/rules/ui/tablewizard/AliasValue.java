@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -10,7 +9,6 @@ import org.hibernate.validator.constraints.NotBlank;
 public class AliasValue {
 
     @NotBlank(message="Can not be empty")
-    @Pattern(regexp="([a-zA-Z_][a-zA-Z_0-9]*)?", message="Invalid value")
     private String value;
 
     public String getValue() {
