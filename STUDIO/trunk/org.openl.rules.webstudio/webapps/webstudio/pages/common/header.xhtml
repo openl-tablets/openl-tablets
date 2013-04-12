@@ -61,11 +61,9 @@
                 <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="Manage system settings and users">Administration</a>
             </h:panelGroup>
 
-            <span style=" position: relative;">
-                <h:panelGroup >
-                    <ui:include src="/pages/modules/userAccount.xhtml" />
-                </h:panelGroup>
-            </span>
+            <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
+                <ui:include src="/pages/modules/userAccount.xhtml" />
+            </h:panelGroup>
         </div>
     </div>
 </ui:composition>
