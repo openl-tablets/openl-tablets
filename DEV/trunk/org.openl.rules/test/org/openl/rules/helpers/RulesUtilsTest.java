@@ -274,6 +274,15 @@ public class RulesUtilsTest {
 		Object testLastDayOfMonth(Date time);
 		Object testGetMonth(Date time);
 		int testMonthDiff(Date date1, Date date2);
+		Object testYearDiff(Date endDate, Date startDate);
+		Object testWeekDiff(Date endDate, Date startDate);
+		Object testQuarter(Date date);
+		Object testYear(Date date);
+		Object testDayOfWeek(Date date);
+		Object testDayOfYear(Date date);
+		Object testWeekOfYear(Date date);
+		Object testWeekOfMonth(Date date);
+		Object testSecond(Date date);
 		
 		
     }
@@ -2122,15 +2131,113 @@ public class RulesUtilsTest {
     @Test
     public void testMonthDiff(){
     	Calendar cal = Calendar.getInstance();
-    	cal.set(cal.get(Calendar.YEAR), 3, 1);
+    	cal.set(2010, 3, 1);
     	Date startDate = cal.getTime();
-    	cal.set(cal.get(Calendar.YEAR), 5, 1);
+    	cal.set(2011, 5, 1);
     	Date endDate = cal.getTime();
-    	assertEquals(2, instance.testMonthDiff(endDate, startDate));
+    	assertEquals(14, instance.testMonthDiff(endDate, startDate));
     	
-    	cal.set(cal.get(Calendar.YEAR), 3, 10);
+    	cal.set(2012, 3, 10);
     	startDate = cal.getTime();
-    	assertEquals(1, instance.testMonthDiff(endDate, startDate));
+    	assertEquals(-10, instance.testMonthDiff(endDate, startDate));
+    }
+    
+    @Test
+    public void testYearDiff(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2001, 10, 1);
+    	Date startDate = cal.getTime();
+    	cal.set(2013, 10, 1);
+    	Date endDate = cal.getTime();
+    	assertEquals(12, instance.testYearDiff(endDate, startDate));
+    	
+    	cal.set(2015, 10, 10);
+    	startDate = cal.getTime();
+    	assertEquals(-2, instance.testYearDiff(endDate, startDate));
+    }
+    
+    @Test
+    public void testWeekDiff(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 1, 1);
+    	Date startDate = cal.getTime();
+    	cal.set(2013, 2, 1);
+    	Date endDate = cal.getTime();
+    	assertEquals(4, instance.testWeekDiff(endDate, startDate));
+    	
+    	cal.set(2013, 3, 10);
+    	startDate = cal.getTime();
+    	assertEquals(-5, instance.testWeekDiff(endDate, startDate));
+    }
+    
+    @Test
+    public void testQuarter(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 1);
+    	Date date = cal.getTime();
+    	assertEquals(3, instance.testQuarter(date));
+    	cal.set(2013, 0, 1);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testQuarter(date));
+    }
+    
+    @Test
+    public void testYear(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 1);
+    	Date date = cal.getTime();
+    	assertEquals(2013, instance.testYear(date));    	
+    }
+    
+    @Test
+    public void testDayOfWeek(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 9);
+    	Date date = cal.getTime();
+    	assertEquals(2, instance.testDayOfWeek(date));    	
+    }
+    
+    @Test
+    public void testDayOfYear(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 1);
+    	cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    	Date date = cal.getTime();
+    	assertEquals(365, instance.testDayOfYear(date));    	
+    }
+    
+    @Test
+    public void testWeekOfYear(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 0, 1);
+    	cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    	Date date = cal.getTime();
+    	assertEquals(1, instance.testWeekOfYear(date));    	
+    }
+    
+    @Test
+    public void testWeekOfMonth(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1);
+    	cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    	Date date = cal.getTime();
+    	assertEquals(5, instance.testWeekOfMonth(date));
+    	
+    	cal.set(2013, 8, 1);
+    	date = cal.getTime();
+    	assertEquals(1, instance.testWeekOfMonth(date));
+    }
+    
+    @Test
+    public void testSecond(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1, 10, 49, 59);
+    	Date date = cal.getTime();
+    	assertEquals(59, instance.testSecond(date));
+    	
+    	cal.set(2013, 8, 1, 10, 49, 0);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testSecond(date));
     }
     
     @Test
