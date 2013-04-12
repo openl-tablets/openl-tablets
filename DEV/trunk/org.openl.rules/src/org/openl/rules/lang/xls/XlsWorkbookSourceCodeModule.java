@@ -4,14 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -195,7 +197,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
             wl.beforeSave(this);
         }
 
-        FileOutputStream fileOut = new FileOutputStream(fileName);
+        OutputStream fileOut = new DeferredCreateFileOutputStream(fileName);
         workbook.write(fileOut);
         fileOut.close();
 
@@ -224,5 +226,41 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
          * @return true if a workbook is modified
          */
         boolean isModified();
+    }
+
+    /**
+     * Avoids rewriting the file before actual write operation is occurred.
+     * For example if OutOfMemoryError is thrown before actual write operation begins, the file should not be corrupted.
+     * 
+     * @author NSamatov
+     */
+    private static final class DeferredCreateFileOutputStream extends ProxyOutputStream {
+        private final String fileName;
+
+        private DeferredCreateFileOutputStream(String fileName) {
+            super(null);
+            this.fileName = fileName;
+        }
+
+        @Override
+        protected void beforeWrite(int n) throws IOException {
+            if (out == null) {
+                out = new FileOutputStream(fileName);
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            if (out != null) {
+                super.flush();
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (out != null) {
+                super.close();
+            }
+        }
     }
 }

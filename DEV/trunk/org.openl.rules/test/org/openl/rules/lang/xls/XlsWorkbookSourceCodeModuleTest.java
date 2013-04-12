@@ -1,14 +1,26 @@
 package org.openl.rules.lang.xls;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 
-import static org.junit.Assert.*;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.junit.After;
 import org.junit.Test;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
 public class XlsWorkbookSourceCodeModuleTest{
+
+    private static final String TEST_FILE_NAME = "testCorruptedFile.xls";
 
     @Test
     public void testUrlWithWhiteSpaces() {
@@ -19,5 +31,26 @@ public class XlsWorkbookSourceCodeModuleTest{
         } catch (MalformedURLException e) {
             assertFalse(true);
         }
+    }
+
+
+    @Test
+    public void testFileIsNotCorrupted() throws IOException {
+        IOpenSourceCodeModule src = mock(IOpenSourceCodeModule.class);
+        Workbook workbook = mock(Workbook.class);
+        doThrow(new OutOfMemoryError()).when(workbook).write(any(OutputStream.class));
+
+        try {
+            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(src, workbook);
+            module.saveAs(TEST_FILE_NAME);
+        } catch (OutOfMemoryError ignored) {
+        }
+
+        assertFalse("File should not be created or cleared if there are no actual write operations", new File(TEST_FILE_NAME).exists());
+    }
+
+    @After
+    public void tearDown() {
+        FileUtils.deleteQuietly(new File(TEST_FILE_NAME));
     }
 }
