@@ -71,7 +71,7 @@ public class SystemSettingsBean {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
     };
 
-    private static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
+    public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
@@ -367,7 +367,7 @@ public class SystemSettingsBean {
         }
     }
 
-    private void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
+    public void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
             String msg = String.format("Repository name is empty", prodConfig.getName());
             throw new RepositoryValidationException(msg);
@@ -425,7 +425,7 @@ public class SystemSettingsBean {
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
         newConfig.copyContent(prodConfig);
         newConfig.save();
-        
+
         // Rename link to a file in system config
         String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
         for (int i = 0; i < configNames.length; i++) {
@@ -437,10 +437,10 @@ public class SystemSettingsBean {
                 break;
             }
         }
-        
+
         // Delete old config file
         prodConfig.delete();
-        
+
         return newConfig;
     }
 

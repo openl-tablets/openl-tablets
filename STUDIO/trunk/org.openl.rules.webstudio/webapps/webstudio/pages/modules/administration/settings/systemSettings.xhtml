@@ -314,7 +314,7 @@
                                 </td>
                                 <td class="repositoryConfigButton">
                                     <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
-                                        title="Delete Production Repository" styleClass="toolbarButton menuButton"
+                                        title="Delete Production Repository Connection" styleClass="toolbarButton menuButton"
                                         render="repositoryProps" rendered="#{productionRepos.size() > 1}"
                                         onclick="if(!window.confirm('Do you really want to delete repository?')) {return false;}"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -329,13 +329,16 @@
                     </div>
 
                     <div class="addRepositoryConfig">
-                        <a4j:commandLink action="#{systemSettingsBean.addProductionRepository}"
-                            title="Add Production Repository"
+                        <a4j:commandButton onclick="#{rich:component('modalCreateRepo')}.show();return false;"
+                            title="Create local production repository"
                             styleClass="toolbarButton menuButton" render="repositoryProps"
-                            onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                            <h:outputText value="Add Production Repository" />
-                        </a4j:commandLink>
+                            value="Create Production Repository" >
+                        </a4j:commandButton>
+                        <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
+                            title="Add connection to production repository"
+                            styleClass="toolbarButton menuButton" render="repositoryProps"
+                            value="Connect Production Repository">
+                        </a4j:commandButton>
                     </div>
 
                     </section>
@@ -372,7 +375,9 @@
     </div>
 
     </h:form>
-
+    <ui:include src="/pages/modules/administration/modal/addProductionRepoConnection.xhtml"/>
+    <ui:include src="/pages/modules/administration/modal/createProductionRepo.xhtml"/>
     </ui:define>
+
 
 </ui:composition>

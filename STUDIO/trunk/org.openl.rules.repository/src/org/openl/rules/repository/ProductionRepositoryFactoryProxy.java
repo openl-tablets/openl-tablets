@@ -69,12 +69,7 @@ public class ProductionRepositoryFactoryProxy {
         this.configManagerFactory = configManagerFactory;
     }
 
-    private RRepositoryFactory createFactory(String propertiesFileName) throws RRepositoryException {
-        ConfigSet config = new ConfigSet();
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        config.addProperties(configurationManager.getProperties());
-        config.updateProperty(confRepositoryFactoryClass);
-
+    private RRepositoryFactory initRepositoryFactory(ConfigSet config) throws RRepositoryException {
         String className = confRepositoryFactoryClass.getValue();
         // TODO: check that className is not null otherwise throw meaningful
         // exception
@@ -91,5 +86,22 @@ public class ProductionRepositoryFactoryProxy {
             log.error(msg, e);
             throw new RRepositoryException(msg, e);
         }
+    }
+
+    private RRepositoryFactory createFactory(String propertiesFileName) throws RRepositoryException {
+        ConfigSet config = new ConfigSet();
+        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
+        config.addProperties(configurationManager.getProperties());
+        config.updateProperty(confRepositoryFactoryClass);
+
+        return initRepositoryFactory(config);
+    }
+
+    public RRepositoryFactory getFactory(Map<String, Object> props) throws RRepositoryException {
+        ConfigSet config = new ConfigSet();
+        config.addProperties(props);
+        config.updateProperty(confRepositoryFactoryClass);
+
+        return initRepositoryFactory(config);
     }
 }
