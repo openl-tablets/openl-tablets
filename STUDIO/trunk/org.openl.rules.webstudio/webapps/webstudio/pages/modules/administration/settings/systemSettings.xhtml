@@ -85,43 +85,62 @@
           if (#{emptyHistoryDir}) {
               $j("#cleanHistoryHref").hide();
           }
-          if ($j("#history INPUT[type='checkbox']").is(':checked')) {
-              maxNumberHistory = $j("#history INPUT[type='text']")[1];
-              maxNumberHistory.disabled = true;
-          }
+          hideMaxCountInHistory();
       });
-      
-      function enableMaxNumberHistory(enable) {
-          maxNumberHistory = $j("#history INPUT[type='text']")[1];
-          maxNumberHistory.disabled = enable;
-          if (enable) {
-              maxNumberHistory.value = "";
-          } else {
+
+      function showMaxCountInHistory() {
+          maxNumberHistory = $j("#systemSettingsForm\\:history-count");
+          hideMaxCountInHistory();
+          if (!$j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
+              $j("#systemSettingsForm\\:maxCountInHistory").show();
               maxNumberHistory.focus();
+              maxNumberHistory.val("");
           }
       };
+      
+      function hideMaxCountInHistory() {
+          if ($j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
+              $j("#systemSettingsForm\\:maxCountInHistory").hide();
+              $j("#systemSettingsForm\\:history-count").val("0");
+          }
+      }
 
       function changeStatus(element) {
           $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', element.checked);
+          if (element.checked) {
+              $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
+          } else {
+              $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
+          }
       };
 
       function showAvaliableProjectsInHistory(showHistory) {
           if (showHistory) {
               $j("#avaliableProjectsInHistory").show();
+              $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
           } else {
               $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', false);
               $j("#avaliableProjectsInHistory").hide();
           }
+          if (#{emptyHistoryDir}) {
+              $j("#cleanHistoryHref").hide();
+          }
+          hideMaxCountInHistory();
       };
-      
-      function changeAllProjectCheck(element) {
-          checkedCount = $j("#historyCheckboxes INPUT[type='checkbox']:checked").size();
-          allCount = $j("#historyCheckboxes INPUT[type='checkbox']").size();
 
-          if (checkedCount == allCount) {
-              $j("#historyCheckboxesAll INPUT[type='checkbox']").attr('checked', true);
+      function changeAllProjectCheck(element) {
+          checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").size();
+          allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").size() - 1;
+
+          if (checkedCount == allCount && !$j("#systemSettingsForm\\:selectAll").is(':checked')) {
+              $j("#systemSettingsForm\\:selectAll").attr('checked', true);
           } else {
-              $j("#historyCheckboxesAll INPUT[type='checkbox']").attr('checked', false);
+              $j("#systemSettingsForm\\:selectAll").attr('checked', false);
+          }
+          if (element.checked) {
+              $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
+          } else {
+              $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
           }
       };
       //]]>
@@ -181,30 +200,34 @@
                                 <h:inputText value="#{systemSettingsBean.projectHistoryHome}" styleClass="pathInput"
                                     disabled="#{jsffn:isSystemProp('project.history.home')}" 
                                    validator="#{systemSettingsBean.historyDirValidator}"/>
+                            </h:panelGrid>
+                            <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn">
                                 <h:outputText value="The maximum count of saved changes for each project:" />
                                 <h:inputText id="history-count" value="#{systemSettingsBean.projectHistoryCount}"
                                     disabled="#{jsffn:isSystemProp('project.history.count')}" 
                                     validator="#{systemSettingsBean.historyCountValidator}"/>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2" columnClasses="titleColumn">
                                 <h:outputText value="Unlimited numbers of copies" />
-                                <h:selectBooleanCheckbox value="#{systemSettingsBean.unlimitHistory}"
-                                    disabled="#{jsffn:isSystemProp('project.history.unlimited')}" onclick="enableMaxNumberHistory(this.checked)"/>
+                                <h:selectBooleanCheckbox id="unlimitHistory" value="#{systemSettingsBean.unlimitHistory}"
+                                    disabled="#{jsffn:isSystemProp('project.history.unlimited')}" onclick="showMaxCountInHistory()"/>
                             </h:panelGrid>
                             <h:panelGrid rendered="#{!emptyHistoryDir}">
-                                <a href="#" id="cleanHistoryHref" title="Clean history" onclick="showAvaliableProjectsInHistory(true)">Clean history</a>
+                                <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvaliableProjectsInHistory(true)">Clean history</a>
                             </h:panelGrid>
                         </div>
                         <div id="avaliableProjectsInHistory" class="history">
-                            <h:panelGroup layout="block">
+                            <h:panelGroup id="projectsInHistoryPanel" layout="block">
                                 <div class="historyHeader">
                                     <b>Clean projects history</b>
                                 </div>
-                                <div id="historyCheckboxesAll" class="historyCheckAll">
+                                <div class="historyCheckAll">
                                     <h:panelGrid columns="2" >
                                         <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" onclick="changeStatus(this);"/>
                                         <h:outputText value="Name" style="font-weight:bold"/>
                                     </h:panelGrid>
                                 </div>
-                                <div id="historyCheckboxes" class="historyChecks">
+                                <div class="historyChecks">
                                     <ui:repeat value="#{projectsInHistory.projects}" var="project">
                                         <h:panelGrid columns="2">
                                             <h:selectBooleanCheckbox value="#{project.selected}" onclick="changeAllProjectCheck(this)"/>
@@ -215,7 +238,7 @@
                                 <div>
                                     <h:panelGrid columns="2">
                                         <a4j:commandButton id="sbtClean" value="Clean" title="Clean projects history" action="#{projectsInHistory.deleteProjects}"
-                                            render="systemSettingsForm" oncomplete="showAvaliableProjectsInHistory(false)"/>
+                                            render="commonProps" oncomplete="showAvaliableProjectsInHistory(false)"/>
                                         <input type="button" value="Cancel" title="Cancel" onclick="showAvaliableProjectsInHistory(false)"/>
                                     </h:panelGrid>
                                 </div>

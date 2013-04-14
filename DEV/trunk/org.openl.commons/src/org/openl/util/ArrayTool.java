@@ -115,6 +115,9 @@ public class ArrayTool {
      */
 
     public static <T> boolean containsAll(T[] container, T[] testArray) {
+    	if (container == null || testArray == null) {
+            return false;
+        }
         Iterator<T> it = iterator(testArray);
         while (it.hasNext()) {
             if (!contains(container, it.next())) {

@@ -34,7 +34,7 @@ public class ModulesCache {
     /**
      * Memory-sensitive cache.
      */
-    private Map<Module, SingleModuleInstantiationStrategy> moduleInstantiators = new ReferenceMap(AbstractReferenceMap.HARD,
+    private Map<Module, SingleModuleInstantiationStrategy> moduleInstantiators = new ReferenceMap(AbstractReferenceMap.WEAK,
             AbstractReferenceMap.SOFT);
 
     /**
