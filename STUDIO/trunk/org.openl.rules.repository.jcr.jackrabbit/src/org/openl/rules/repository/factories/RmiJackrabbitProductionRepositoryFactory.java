@@ -25,7 +25,7 @@ public class RmiJackrabbitProductionRepositoryFactory extends RmiJackrabbitRepos
     public RProductionRepository createRepository() throws RRepositoryException {
         try {
             // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {

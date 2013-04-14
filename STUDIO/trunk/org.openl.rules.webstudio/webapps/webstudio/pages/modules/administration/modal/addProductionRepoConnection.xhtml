@@ -1,0 +1,71 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <rich:popupPanel id="modalAddRepoConnection" width="400" autosized="true">
+    <f:facet name="header">
+        <h:outputText value="Connect Production Repository" />
+    </f:facet>
+
+    <f:facet name="controls">
+        <a4j:commandLink action="#{connectionProductionRepoController.clearForm}"
+                         render="modalAddRepoConnectionPanel securePanel repositoryProps"
+                         oncomplete="#{rich:component('modalAddRepoConnection')}.hide();">
+	        <h:graphicImage value="/images/close.gif" class="close"
+	            onclick="RichFaces.$('modalAddRepoConnection').hide();" alt="Close">
+	        </h:graphicImage>
+	    </a4j:commandLink>
+    </f:facet>
+
+    <h:form id="modalAddRepoConnectionForm">
+        <h:panelGrid id="modalAddRepoConnectionPanel" columns="2" columnClasses="titleColumn">
+            <h:outputText value="" />
+            <h:panelGroup id="messagePanel">
+                <h:outputText id="errorMessage" styleClass="error" value="#{connectionProductionRepoController.errorMessage}" 
+                    rendered="#{!empty connectionProductionRepoController.errorMessage}"/>
+            </h:panelGroup>
+            <h:outputText value="Name:" />
+            <h:inputText value="#{connectionProductionRepoController.name}" />
+            <h:outputText value="Type:"/>
+            <h:selectOneMenu value="#{connectionProductionRepoController.type}">
+                <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
+                <f:selectItem itemValue="local" itemLabel="Local" />
+                <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+            </h:selectOneMenu>
+            <h:outputText id="productionRepositoryPathTitle"
+                value="#{connectionProductionRepoController.type == 'local' ? 'Directory' : 'URL'}:" />
+            <h:inputText id="productionRepositoryPath"
+                value="#{connectionProductionRepoController.path}" styleClass="pathInput"
+                disabled="#{repository.productionRepositoryPathSystem}"/>
+        </h:panelGrid>
+        <h:panelGrid id="securePanel" columns="2" columnClasses="titleColumn">
+            <h:outputLabel value="Secure connection" for="secureConnection" />
+            <h:selectBooleanCheckbox id="secureConnection" value="#{connectionProductionRepoController.secure}">
+                <f:ajax event="change" render="securePanel" />
+            </h:selectBooleanCheckbox>
+            <h:outputText value="Login:" rendered="#{connectionProductionRepoController.secure}"/>
+            <h:inputText value="#{connectionProductionRepoController.login}" rendered="#{connectionProductionRepoController.secure}"/>
+            <h:outputText value="Password:" rendered="#{connectionProductionRepoController.secure}"/>
+            <h:inputSecret value="#{connectionProductionRepoController.password}" rendered="#{connectionProductionRepoController.secure}"/>
+        </h:panelGrid>
+
+        <hr/>
+
+        <h:panelGrid id="addRepoConnectionButton" columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0" >
+            <a4j:commandButton action="#{connectionProductionRepoController.save}"
+                         styleClass="button-primary" process="@form" value="Connect" render="modalAddRepoConnectionPanel securePanel repositoryProps messagePanel errorMessage"
+                         oncomplete="if(event.data.length == 0) #{rich:component('modalAddRepoConnection')}.hide(); else hideLoader();"
+                         data="#{connectionProductionRepoController.errorMessage}"/>
+            <a4j:commandButton action="#{connectionProductionRepoController.clearForm}"
+                         value="Cancel" render="modalAddRepoConnectionPanel securePanel repositoryProps"
+                         oncomplete="#{rich:component('modalAddRepoConnection')}.hide();"/>
+        </h:panelGrid>
+    </h:form>
+
+  </rich:popupPanel>
+</ui:composition>
