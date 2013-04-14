@@ -46,7 +46,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
                 convert = false;
             }
             // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {
@@ -87,7 +87,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         String tempRepoHome = "/temp/prod_repo/";
         try {
             // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
             //FIXME

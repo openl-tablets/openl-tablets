@@ -4,6 +4,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
+import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.jcr2spi.RepositoryImpl;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
@@ -26,7 +27,9 @@ public class WebDavJacrabbitRepositoryFactory extends AbstractJackrabbitReposito
         try {
             Repository repository;
             try {
+                //FIXME Doesn't work on the secure mode
                 repository = RepositoryImpl.create(new DavexRepositoryConfigImpl(confWebdavUrl.getValue()));
+                //repository = JcrUtils.getRepository(confWebdavUrl.getValue());
             } catch (Exception e) {
                 throw new RepositoryException(e);
             }
