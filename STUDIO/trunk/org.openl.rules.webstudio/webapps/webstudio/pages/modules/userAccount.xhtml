@@ -19,7 +19,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalUserDetails" width="410" autosized="true">
+    <rich:popupPanel id="modalUserDetails" width="425" autosized="true">
         <f:facet name="header">
             <h:outputText value="User Details" />
         </f:facet>
@@ -30,7 +30,7 @@
         </f:facet>
 
         <h:form id="userDetailsForm">
-            <div style="max-height: 370px; overflow: auto;" class="fields">
+            <div style="max-height: 450px; overflow: auto;" class="fields">
                 <section>
                     <h3>Account</h3>
                     <div>
@@ -64,8 +64,7 @@
                     <div>
                         <h:panelGrid columns="3" columnClasses="titleColumn">
                             <label>Current password</label>
-                            <h:inputSecret  id="currentPassword" value="#{userDetailsBean.password}" validator="#{userDetailsBean.currentPassValidator}" 
-                                required="true" requiredMessage="Enter your password" />
+                            <h:inputSecret  id="currentPassword" value="#{userDetailsBean.currentPassword}" binding="#{currentPassword}" />
                             <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
                                 <h:message for="currentPassword" styleClass="error" />
                             </a4j:outputPanel>
@@ -73,6 +72,7 @@
                             <label>New password</label>
                             <h:inputSecret  id="newPassword" value="#{userDetailsBean.newPassword}" validator="#{userDetailsBean.passwordsValidator}" >
                                 <f:attribute name="confirmPassword" value="#{confirmPassword}" />
+                                <f:attribute name="currentPassword" value="#{currentPassword}" />
                             </h:inputSecret>
                             <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
                                 <h:message for="newPassword" styleClass="error" />

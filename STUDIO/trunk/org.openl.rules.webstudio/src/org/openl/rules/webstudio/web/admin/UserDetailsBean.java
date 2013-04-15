@@ -28,6 +28,7 @@ public class UserDetailsBean extends UsersBean {
     private CurrentUserInfo userInfo;
     private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;
+    private String currentPassword;
 
     public UserDetailsBean() {
         super();
@@ -70,10 +71,10 @@ public class UserDetailsBean extends UsersBean {
     public void editUser() {
 
         if (isPasswordValid) {
-            setPassword(newPassword);
+            setCurrentPassword(newPassword);
         }
 
-        simpleUser = new SimpleUser(getFirstName(), getLastName(), getUsername(), getPassword(), getPriveleges());
+        simpleUser = new SimpleUser(getFirstName(), getLastName(), getUsername(), getCurrentPassword(), getPriveleges());
         userManagementService.updateUser(simpleUser);
     }
 
@@ -91,33 +92,22 @@ public class UserDetailsBean extends UsersBean {
         if (!StringUtils.isEmpty(newPassword)) {
             UIInput uiInputConfirmPassword = (UIInput) component.getAttributes().get("confirmPassword");
             String confirmPasswordString = uiInputConfirmPassword.getSubmittedValue().toString();
+            UIInput uiInputPassword = (UIInput) component.getAttributes().get("currentPassword");
+            String passwordString = uiInputPassword.getValue().toString();
+            String userPasswordHash = user.getPassword();
+            String enteredPasswordHash = new Md5PasswordEncoder().encodePassword(passwordString, null);
 
             if (!StringUtils.equals(newPassword, confirmPasswordString)) {
                 throw new ValidatorException(new FacesMessage("Password missmatch"));
             } else {
                 isPasswordValid = true;
             }
-        }
-    }
-
-    /**
-     * Validates the entered password is correct or not
-     * 
-     * @param context
-     * @param toValidate
-     * @param value
-     */
-    public void currentPassValidator(FacesContext context, UIComponent toValidate, Object value) {
-
-        String userPasswordHash = user.getPassword();
-        String enteredPasswordHash = new Md5PasswordEncoder().encodePassword((String) value, null);
-
-        if (StringUtils.isEmpty((String) value)) {
-            throw new ValidatorException(new FacesMessage("Enter your password"));
-        }
-
-        if (!userPasswordHash.equals(enteredPasswordHash)) {
-            throw new ValidatorException(new FacesMessage("Incorect password!"));
+            if (StringUtils.isEmpty(passwordString)) {
+                throw new ValidatorException(new FacesMessage("Enter your password"));
+            }
+            if (!userPasswordHash.equals(enteredPasswordHash)) {
+                throw new ValidatorException(new FacesMessage("Incorect password!"));
+            }
         }
     }
 
@@ -143,6 +133,14 @@ public class UserDetailsBean extends UsersBean {
 
     public void setSimpleUser(org.openl.rules.security.User simpleUser) {
         this.simpleUser = simpleUser;
+    }
+
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
     }
 
 }
