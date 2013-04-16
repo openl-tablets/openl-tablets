@@ -208,7 +208,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         confSet.updateProperty(confDeploymentProjectsLocation);
 
         confSet.updateProperty(login);
-        confSet.updateProperty(password);
+        confSet.updatePasswordProperty(password);
         confSet.updateProperty(repoConfigFile);
 
         this.credencials = new SimpleCredentials(login.getValue(), password.getValue().toCharArray());

@@ -14,6 +14,7 @@ import org.openl.config.ConfigurationManager;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
+    public static final String SECURE_CONFIG_FILE = "/secure-jackrabbit-repository.xml";
 
     private ConfigurationManager configManager;
 
@@ -26,6 +27,8 @@ public class RepositoryConfiguration {
     private static final String PRODUCTION_REPOSITORY_CONFIG_FILE = "production-repository.config";
 
     private static final String PRODUCTION_REPOSITORY_CONNECTION_TYPE = "production-repository.connection.type";
+
+    private boolean secure = false;
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
@@ -138,13 +141,16 @@ public class RepositoryConfiguration {
     }
 
     public String getPassword() {
-        return configManager.getStringProperty(PRODUCTION_REPOSITORY_PASS);
+        return "";
+        //return configManager.getPassword(PRODUCTION_REPOSITORY_PASS);
     }
 
     public void setPassword(String pass) {
-        configManager.setProperty(PRODUCTION_REPOSITORY_PASS, pass);
+        if (!StringUtils.isEmpty(pass)) {
+            configManager.setPassword(PRODUCTION_REPOSITORY_PASS, pass);
+        }
     }
-    
+
     public String getConnectionType() {
         return configManager.getStringProperty(PRODUCTION_REPOSITORY_CONNECTION_TYPE);
     }
@@ -163,6 +169,21 @@ public class RepositoryConfiguration {
 
     public void setConfigFile(String configFile) {
         configManager.setProperty(PRODUCTION_REPOSITORY_CONFIG_FILE, configFile);
+    }
+
+    public boolean isSecure() {
+        return secure || !StringUtils.isEmpty(this.getLogin());
+    }
+
+    public void setSecure(boolean secure) {
+        if (!secure) {
+            configManager.removeProperty(PRODUCTION_REPOSITORY_LOGIN);
+            configManager.removeProperty(PRODUCTION_REPOSITORY_PASS);
+            configManager.removeProperty(PRODUCTION_REPOSITORY_CONFIG_FILE);
+        } else {
+            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIG_FILE, SECURE_CONFIG_FILE);
+        }
+        this.secure = secure;
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {

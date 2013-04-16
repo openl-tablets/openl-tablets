@@ -9,7 +9,7 @@ import java.util.*;
  * @author Aleh Bykhavets
  */
 public class ConfigSet {
-
+    private static String REPO_PASS_KEY = "repository.encode.decode.key";
     private final Log log = LogFactory.getLog(ConfigSet.class);
 
     private Map<String, Object> properties;
@@ -63,6 +63,24 @@ public class ConfigSet {
 
         try {
             prop.setTextValue(objectValue.toString());
+        } catch (Exception e) {
+            log.error("Failed to update ConfigProperty '" + prop.getName()
+                    + "' with value '" + objectValue.toString() + "'!", e);
+        }
+    }
+
+    public void updatePasswordProperty(ConfigProperty<?> prop) {
+        Object objectValue = properties.get(prop.getName());
+
+        if (objectValue == null) {
+            return;
+        }
+
+        String pass = objectValue.toString();
+        String passKey = (String) (this.properties.containsKey(REPO_PASS_KEY) ? this.properties.get(REPO_PASS_KEY) : "");
+
+        try {
+            prop.setTextValue(PassCoder.decode(pass, passKey));
         } catch (Exception e) {
             log.error("Failed to update ConfigProperty '" + prop.getName()
                     + "' with value '" + objectValue.toString() + "'!", e);

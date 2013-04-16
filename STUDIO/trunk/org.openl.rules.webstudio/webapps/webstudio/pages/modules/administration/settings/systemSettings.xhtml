@@ -295,7 +295,7 @@
                                 <table>
                                 <tr>
                                 <td>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
                                     <h:outputText value="Name:" />
                                     <h:inputText value="#{repository.name}" />
                                     <h:outputText value="Type:" />
@@ -310,13 +310,22 @@
                                     <h:inputText id="productionRepositoryPath"
                                         value="#{repository.path}" styleClass="pathInput"
                                         disabled="#{repository.productionRepositoryPathSystem}" />
+                                    <h:outputLabel value="Secure connection" for="secureConnection" />
+                                    <h:selectBooleanCheckbox id="secureConnection" value="#{repository.secure}"
+                                    onclick="if(!$j(this).attr('checked')){if(!window.confirm('Are you want to disable security? Login and password will be deleted')) {return false}}">
+                                        <f:ajax event="change" execute="@form" render="repoInfoPanel" />
+                                    </h:selectBooleanCheckbox>
+                                    <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>
+                                    <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}"/>
+                                    <h:outputText value="Password:" rendered="#{repository.secure || !empty repository.login}"/>
+                                    <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}"/>
                                 </h:panelGrid>
                                 </td>
                                 <td class="repositoryConfigButton">
                                     <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
                                         title="Delete Production Repository Connection" styleClass="toolbarButton menuButton"
                                         render="repositoryProps" rendered="#{productionRepos.size() > 1}"
-                                        onclick="if(!window.confirm('Do you really want to delete repository?')) {return false;}"
+                                        onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" >
                                         <img src="webresource/images/delete.png" alt="Delete Repository" />
@@ -337,7 +346,7 @@
                         <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
                             title="Add connection to production repository"
                             styleClass="toolbarButton menuButton" render="repositoryProps"
-                            value="Connect Production Repository">
+                            value="Connect To Production Repository">
                         </a4j:commandButton>
                     </div>
 

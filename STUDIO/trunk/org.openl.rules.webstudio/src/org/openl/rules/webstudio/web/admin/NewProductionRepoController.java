@@ -57,7 +57,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 }
             } else {
                 RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-                repository.release();
+                //repository.release();
             }
         } catch (RRepositoryException e) {
             Throwable resultException = e;
@@ -70,7 +70,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             return;
         }
 
-        repoConfig.save();
+        //repoConfig.save();
         addProductionRepoToMainConfig(repoConfig);
 
         clearForm();
