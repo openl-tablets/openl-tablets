@@ -31,9 +31,9 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         if (!checkConnection(repoConfig)) {
             return;
         }
-        repoConfig.save();
-        addProductionRepoToMainConfig(repoConfig);
 
+        //repoConfig.save();
+        addProductionRepoToMainConfig(repoConfig);
         clearForm();
     }
 
@@ -55,7 +55,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     private boolean checkRemoteConnection(RepositoryConfiguration repoConfig) {
         try {
             RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-            repository.release();
+            //repository.release();
             return true;
         } catch (RRepositoryException e) {
             Throwable resultException = e;
@@ -109,7 +109,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
 
                 try {
                     RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-                    repository.release();
+                    //repository.release();
                 } catch (RRepositoryException e) {
                     setErrorMessage("Wrong login or password");
                     return false;

@@ -26,6 +26,8 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
@@ -42,7 +44,10 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 public class SystemSettingsBean {
     @ManagedProperty(value="#{productionRepositoriesTreeController}")
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
-    
+
+    @ManagedProperty(value="#{productionRepositoryFactoryProxy}")
+    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
+
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
@@ -56,6 +61,7 @@ public class SystemSettingsBean {
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
+
     /** @deprecated */
     private static final BidiMap DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
@@ -232,6 +238,7 @@ public class SystemSettingsBean {
         try {
             for (RepositoryConfiguration prodConfig : productionRepositoryConfigurations) {
                 validate(prodConfig);
+                validateConnection(prodConfig);
             }
 
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
@@ -349,7 +356,7 @@ public class SystemSettingsBean {
             FacesUtils.addErrorMessage(e.getMessage());
         }
     }
-    
+
     public void saveProductionRepository(String configName) {
         for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
             RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
@@ -376,13 +383,14 @@ public class SystemSettingsBean {
             String msg = String.format("Repository path is empty", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
+
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         } 
-        
+
         //workingDirValidator(prodConfig.getPath(), "Production Repository directory");
-        
+
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
@@ -396,6 +404,31 @@ public class SystemSettingsBean {
                     throw new RepositoryValidationException(msg);
                 }
             }
+        }
+    }
+
+    public void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
+        try {
+            RRepository repository = productionRepositoryFactoryProxy.getFactory(repoConfig.getProperties()).getRepositoryInstance();
+            repository.release();
+        } catch (RRepositoryException e) {
+            Throwable resultException = e;
+
+            while (resultException.getCause() != null) {
+                resultException = resultException.getCause();
+            }
+
+            if (resultException instanceof javax.jcr.LoginException) {
+                if (!repoConfig.isSecure()) {
+                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Connection is secure. Insert login and password");
+                } else {
+                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Check login and password");
+                }
+            } else if (resultException instanceof javax.security.auth.login.FailedLoginException) {
+                throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Check login and password");
+            }
+
+            throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : "+resultException.getMessage());
         }
     }
 
@@ -533,7 +566,7 @@ public class SystemSettingsBean {
         setDesignRepositoryPath((String)value);
         workingDirValidator(getDesignRepositoryPath(), directoryType);
     }
-    
+
     public void productionRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Production Repositories directory";
         isPathNull(value, directoryType);
@@ -544,7 +577,7 @@ public class SystemSettingsBean {
         File studioWorkingDir;
         File tmpFile = null;
         boolean hasAccess;
-        
+
         try {
 
             studioWorkingDir = new File(value);
@@ -579,7 +612,7 @@ public class SystemSettingsBean {
     private boolean isPathNull (Object value, String folderType) {
         boolean isNull = StringUtils.isBlank((String)value);
         String errorMessage = folderType + "  could not be empty";
-       
+
         if (isNull) {
             FacesUtils.addErrorMessage(errorMessage);
             throw new ValidatorException(new FacesMessage(errorMessage));
@@ -598,7 +631,7 @@ public class SystemSettingsBean {
             workFolder = parent;
         }
     }
-    
+
     public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
         return productionRepositoriesTreeController;
     }
@@ -606,6 +639,14 @@ public class SystemSettingsBean {
     public void setProductionRepositoriesTreeController(
             ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
+    }
+
+    public ProductionRepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
+        return productionRepositoryFactoryProxy;
+    }
+
+    public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
+        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
 
 }
