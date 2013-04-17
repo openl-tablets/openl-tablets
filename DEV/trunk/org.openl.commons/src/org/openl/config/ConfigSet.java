@@ -77,7 +77,7 @@ public class ConfigSet {
         }
 
         String pass = objectValue.toString();
-        String passKey = (String) (this.properties.containsKey(REPO_PASS_KEY) ? this.properties.get(REPO_PASS_KEY) : "");
+        String passKey = this.getPassKey();
 
         try {
             prop.setTextValue(PassCoder.decode(pass, passKey));
@@ -85,5 +85,18 @@ public class ConfigSet {
             log.error("Failed to update ConfigProperty '" + prop.getName()
                     + "' with value '" + objectValue.toString() + "'!", e);
         }
+    }
+
+    private String getPassKey() {
+        if (this.properties.containsKey(REPO_PASS_KEY)) {
+            if (this.properties.get(REPO_PASS_KEY) instanceof String[]) {
+                String[] stringMass = (String[]) this.properties.get(REPO_PASS_KEY);
+                return stringMass[0];
+            } else {
+                return (String) this.properties.get(REPO_PASS_KEY);
+            }
+        }
+
+        return "";
     }
 }

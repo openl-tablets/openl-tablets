@@ -267,7 +267,7 @@
                         <h3>Design Repository</h3>
                         <div>
                         <table><tr><td>
-                            <h:panelGrid columns="2" columnClasses="titleColumn">
+                            <h:panelGrid id="designInfoPanel" columns="2" columnClasses="titleColumn">
                                 <h:outputText value="Name:" />
                                 <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
                                 <h:outputText value="Type:" />
@@ -282,6 +282,20 @@
                                 <h:inputText id="designRepositoryPath"
                                     value="#{systemSettingsBean.designRepositoryPath}" styleClass="pathInput"
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
+                                <h:outputLabel value="Secure connection" for="secureConnection" />
+                                <h:selectBooleanCheckbox id="secureConnection" value="#{systemSettingsBean.secureDesignRepo}"
+                                onclick="if(!$j(this).attr('checked')){if(!window.confirm('Are you want to disable security? Login and password will be deleted')) {return false}}">
+                                    <f:ajax event="change" execute="@form" render="designInfoPanel" />
+                                </h:selectBooleanCheckbox>
+                                <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
+                                <h:outputText value="Login:" 
+                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                <h:inputText value="#{systemSettingsBean.designRepositoryLogin}" 
+                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                <h:outputText value="Password:" 
+                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
+                                <h:inputSecret value="#{systemSettingsBean.designRepositoryPass}" 
+                                rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
                             </h:panelGrid>
                         </td></tr></table>
                         </div>

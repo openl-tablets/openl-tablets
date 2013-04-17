@@ -17,7 +17,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class RulesRepositoryFactory {
 
-    public static final String DEFAULT_PROP_FILE = "rules-repository.properties";
+    public static final String DEFAULT_PROP_FILE = "system.properties";//"rules-repository.properties";
 
     public static final String MSG_FAILED = "Failed to initialize RulesRepositoryFactory!";
 
