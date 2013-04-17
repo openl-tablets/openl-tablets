@@ -61,6 +61,11 @@ public class SystemSettingsBean {
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
+    
+    private static final String DESIGN_REPOSITORY_LOGIN = "design-repository.login";
+    private static final String DESIGN_REPOSITORY_PASSWORD = "design-repository.pass";
+    private static final String DESIGN_REPOSITORY_CONFIG_FILE = "design-repository.config";
+    private boolean secureDesignRepo = false;
 
     /** @deprecated */
     private static final BidiMap DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
@@ -207,6 +212,40 @@ public class SystemSettingsBean {
         return productionRepositoryConfigurations;
     }
 
+    public void setDesignRepositoryLogin(String login) {
+        configManager.setProperty(this.DESIGN_REPOSITORY_LOGIN, login);
+    }
+
+    public String getDesignRepositoryLogin() {
+        return configManager.getStringProperty(this.DESIGN_REPOSITORY_LOGIN);
+    }
+
+    public void setDesignRepositoryPass(String pass) {
+        if (!StringUtils.isEmpty(pass)) {
+            configManager.setPassword(this.DESIGN_REPOSITORY_PASSWORD, pass);
+        }
+    }
+
+    public String getDesignRepositoryPass() {
+        return "";
+    }
+
+    public boolean isSecureDesignRepo() {
+        return secureDesignRepo || !StringUtils.isEmpty(this.getDesignRepositoryLogin());
+    }
+
+    public void setSecureDesignRepo(boolean secureDesignRepo) {
+        if (!secureDesignRepo) {
+            configManager.removeProperty(DESIGN_REPOSITORY_LOGIN);
+            configManager.removeProperty(DESIGN_REPOSITORY_PASSWORD);
+            configManager.removeProperty(DESIGN_REPOSITORY_CONFIG_FILE);
+        } else {
+            configManager.setProperty(DESIGN_REPOSITORY_CONFIG_FILE, RepositoryConfiguration.SECURE_CONFIG_FILE);
+        }
+
+        this.secureDesignRepo = secureDesignRepo;
+    }
+
     private void initProductionRepositoryConfigurations() {
         productionRepositoryConfigurations.clear();
 
@@ -298,7 +337,7 @@ public class SystemSettingsBean {
         try {
             String emptyConfigName = "_new_";
             RepositoryConfiguration template = new RepositoryConfiguration(emptyConfigName, getProductionConfigManager(emptyConfigName));
-            
+
             String templateName = template.getName();
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             long maxNumber = getMaxTemplatedConfigName(configNames, templateName);
@@ -335,7 +374,7 @@ public class SystemSettingsBean {
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             configNames = (String[]) ArrayUtils.removeElement(configNames, configName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
-            
+
             Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
             while (it.hasNext()) {
                 RepositoryConfiguration prodConfig = it.next();
@@ -348,7 +387,7 @@ public class SystemSettingsBean {
                 }
             }
 
-//            FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
+//          FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -363,7 +402,7 @@ public class SystemSettingsBean {
             if (prodConfig.getConfigName().equals(configName)) {
                 try {
                     validate(prodConfig);
-    
+
                     productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
                     FacesUtils.addInfoMessage("Repository '" + prodConfig.getName() + "' is saved successfully");
                 } catch (Exception e) {
@@ -387,7 +426,7 @@ public class SystemSettingsBean {
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
             throw new RepositoryValidationException(msg);
-        } 
+        }
 
         //workingDirValidator(prodConfig.getPath(), "Production Repository directory");
 

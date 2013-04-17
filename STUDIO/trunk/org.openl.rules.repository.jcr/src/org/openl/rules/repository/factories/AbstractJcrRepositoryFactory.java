@@ -48,12 +48,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     private SimpleCredentials credencials;
 
-    protected final ConfigPropertyString login = new ConfigPropertyString(
-            "production-repository.login", "user");
-    protected final ConfigPropertyString password = new ConfigPropertyString(
-            "production-repository.pass", "pass");
-    protected final ConfigPropertyString repoConfigFile = new ConfigPropertyString(
-            "production-repository.config", "/jackrabbit-repository.xml");
+    private ConfigPropertyString login;
+    private ConfigPropertyString password;
+    private ConfigPropertyString repoConfigFile;
 
     /**
      * Checks whether the JCR instance is prepared for OpenL. If it is the first
@@ -190,8 +187,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     public RRepository createRepository() throws RRepositoryException {
         try {
-            // FIXME: do not hardcode credential info
-            Session session = createSession();//createSession("user", "pass");
+            Session session = createSession();
 
             RTransactionManager transactionManager = getTrasactionManager(session);
             JcrRepository jri = new JcrRepository(repositoryName, session, transactionManager,
@@ -251,6 +247,18 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     public ConfigPropertyString getRepoConfigFile() {
         return repoConfigFile;
+    }
+
+    public void setLogin(ConfigPropertyString login) {
+        this.login = login;
+    }
+
+    public void setPassword(ConfigPropertyString password) {
+        this.password = password;
+    }
+
+    public void setRepoConfigFile(ConfigPropertyString repoConfigFile) {
+        this.repoConfigFile = repoConfigFile;
     }
 
 }
