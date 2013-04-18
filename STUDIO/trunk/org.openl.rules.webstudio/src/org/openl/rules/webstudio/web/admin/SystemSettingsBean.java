@@ -15,6 +15,8 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.DualHashBidiMap;
@@ -29,9 +31,14 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
+import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter.ConfigurationReloader;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
+import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -299,14 +306,14 @@ public class SystemSettingsBean {
         }
     }
 
-    private void saveSystemConfig() {
+    private void saveSystemConfig() throws ServletException {
         boolean saved = configManager.save();
         if (saved) {
-            WebStudioUtils.getWebStudio().setNeedRestart(true);
+            refreshConfig();
         }
     }
 
-    public void restoreDefaults() {
+    public void restoreDefaults() throws ServletException {
         for (RepositoryConfiguration prodConfig : deletedConfigurations) {
             prodConfig.delete();
         }
@@ -319,7 +326,7 @@ public class SystemSettingsBean {
 
         boolean restored = configManager.restoreDefaults();
         if (restored) {
-            WebStudioUtils.getWebStudio().setNeedRestart(true);
+            refreshConfig();
         }
 
         initProductionRepositoryConfigurations();
@@ -471,7 +478,7 @@ public class SystemSettingsBean {
         }
     }
 
-    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig) {
+    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig) throws ServletException {
         boolean changed = prodConfig.save();
         if (changed) {
             try {
@@ -491,7 +498,7 @@ public class SystemSettingsBean {
         return prodConfig;
     }
 
-    private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) {
+    private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) throws ServletException {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
@@ -688,4 +695,20 @@ public class SystemSettingsBean {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
 
+    private void refreshConfig() throws ServletException {
+        WebStudioUtils.getWebStudio().setNeedRestart(true);
+        final ServletContext servletContext = FacesUtils.getServletContext();
+
+        ReloadableDelegatingFilter.reload(new ConfigurationReloader() {
+
+            @Override
+            public void reload() {
+                XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
+                        .getWebApplicationContext(servletContext);
+                context.refresh();
+
+                SessionListener.getSessionCache(servletContext).invalidateAll();
+            }
+        });
+    }
 }
