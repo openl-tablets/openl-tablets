@@ -11,6 +11,11 @@
         <locale-config>
             <default-locale>en</default-locale>
         </locale-config>
+
+        <resource-bundle>
+            <base-name>org.openl.rules.messages</base-name>
+            <var>msg</var>
+       </resource-bundle>
     </application>
 
     <component>
