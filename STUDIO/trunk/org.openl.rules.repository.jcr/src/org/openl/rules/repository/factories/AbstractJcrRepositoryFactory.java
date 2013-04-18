@@ -46,6 +46,12 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected String repositoryName;
     private RRepository rulesRepository;
 
+    private SimpleCredentials credencials;
+
+    private ConfigPropertyString login;
+    private ConfigPropertyString password;
+    private ConfigPropertyString repoConfigFile;
+
     /**
      * Checks whether the JCR instance is prepared for OpenL. If it is the first
      * time, then there are no openL node types, yet.
@@ -56,7 +62,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         Session systemSession = null;
         try {
             // FIXME: do not hardcode system credentials
-            systemSession = createSession("sys", "secret");
+            systemSession = createSession();
             NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
 
             boolean initNodeTypes = false;
@@ -106,10 +112,8 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @return new JCR session
      * @throws RepositoryException if fails or user credentials are not correct
      */
-    protected Session createSession(String user, String pass) throws RepositoryException {
-        char[] password = pass.toCharArray();
-        SimpleCredentials sc = new SimpleCredentials(user, password);
-        Session session = repository.login(sc);
+    protected Session createSession() throws RepositoryException {
+        Session session = repository.login(credencials);
         return session;
     }
 
@@ -183,8 +187,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     public RRepository createRepository() throws RRepositoryException {
         try {
-            // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
 
             RTransactionManager transactionManager = getTrasactionManager(session);
             JcrRepository jri = new JcrRepository(repositoryName, session, transactionManager,
@@ -197,8 +200,14 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public void initialize(ConfigSet confSet) throws RRepositoryException {
-        confSet.updateProperty(confRulesProjectsLocation);
+        confSet.updateProperty(confRulesProjectsLocation); 
         confSet.updateProperty(confDeploymentProjectsLocation);
+
+        confSet.updateProperty(login);
+        confSet.updatePasswordProperty(password);
+        confSet.updateProperty(repoConfigFile);
+
+        this.credencials = new SimpleCredentials(login.getValue(), password.getValue().toCharArray());
         // TODO: add default path support
         // 1. check path -- create if absent
         // 2. pass as parameter or property to JcrRepository
@@ -233,6 +242,23 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
         checkOnStart();
     }
-    
+
     public abstract RTransactionManager getTrasactionManager(Session session);
+
+    public ConfigPropertyString getRepoConfigFile() {
+        return repoConfigFile;
+    }
+
+    public void setLogin(ConfigPropertyString login) {
+        this.login = login;
+    }
+
+    public void setPassword(ConfigPropertyString password) {
+        this.password = password;
+    }
+
+    public void setRepoConfigFile(ConfigPropertyString repoConfigFile) {
+        this.repoConfigFile = repoConfigFile;
+    }
+
 }

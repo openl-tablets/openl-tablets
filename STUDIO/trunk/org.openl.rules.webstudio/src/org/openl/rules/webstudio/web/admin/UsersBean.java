@@ -16,13 +16,11 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
-
 import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
@@ -63,10 +61,10 @@ public class UsersBean {
     private List<String> groups;
 
     @ManagedProperty(value="#{userManagementService}")
-    private UserManagementService userManagementService;
+    protected UserManagementService userManagementService;
 
     @ManagedProperty(value="#{groupManagementService}")
-    private GroupManagementService groupManagementService;
+    protected GroupManagementService groupManagementService;
 
     /**
      * Validation for existed user

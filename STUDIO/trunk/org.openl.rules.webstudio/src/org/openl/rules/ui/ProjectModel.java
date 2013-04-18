@@ -1047,6 +1047,7 @@ public class ProjectModel {
 
         if (reloadType != ReloadType.NO) {
             modulesCache.removeCachedModule(moduleInfo);
+            uriTableCache.clear();
         }
 
         File projectFolder = moduleInfo.getProject().getProjectFolder();
@@ -1201,8 +1202,10 @@ public class ProjectModel {
     public SourceHistoryManager<File> getHistoryManager() {
         if (historyManager == null) {
             String projecthistoryHome = studio.getSystemConfigManager().getStringProperty("project.history.home");
+            Integer maxFilesInStorage = studio.getSystemConfigManager().getIntegerProperty("project.history.count");
+            boolean unlimitedStorage = studio.getSystemConfigManager().getBooleanProperty("project.history.unlimited");
             String storagePath = projecthistoryHome + File.separator + getProject().getName();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath);
+            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
         }
         return historyManager;
     }

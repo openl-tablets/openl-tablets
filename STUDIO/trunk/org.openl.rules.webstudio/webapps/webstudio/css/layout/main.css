@@ -18,7 +18,7 @@ html, body {
 }
 
 #center {
-    height: -moz-calc(100% - 114px);
+	height: -moz-calc(100% - 114px);
     height: -webkit-calc(100% - 114px);
     height: calc(100% - 114px);
 }

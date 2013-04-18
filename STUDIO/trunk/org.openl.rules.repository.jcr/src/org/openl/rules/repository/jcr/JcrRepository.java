@@ -56,7 +56,7 @@ public class JcrRepository extends BaseJcrRepository {
             // save all at once
             session.save();
         }
-        
+
         session.getWorkspace()
                 .getObservationManager()
                 .addEventListener(this, Event.PROPERTY_CHANGED | Event.NODE_REMOVED, session.getRootNode().getPath(),

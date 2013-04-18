@@ -77,6 +77,20 @@ public class FileStorage {
         return delete(new NameFileFilter(fileNames));
     }
 
+    public synchronized void delete(int count) {
+        File[] files = new File(storagePath).listFiles();
+        if (files != null && files.length > count) {
+            for (int i = 0; i < files.length - count; i++) {
+                File file = files[i];
+                try {
+                    FileUtils.deleteDirectory(file);
+                } catch (Exception e) {
+                    log.error("Can't delete folder " + file.getName(), e);
+                }
+            }
+        }
+    }
+
     public synchronized boolean delete(IOFileFilter fileFilter) {
         Collection<File> filesToDelete = list(fileFilter);
 

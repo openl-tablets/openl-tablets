@@ -35,6 +35,8 @@ public class ConfigurationManager {
     private FileConfiguration defaultConfiguration;
     private CompositeConfiguration compositeConfiguration;
 
+    private static String REPO_PASS_KEY = "repository.encode.decode.key";
+
     public ConfigurationManager(boolean useSystemProperties,
             String propsLocation) {
         this(useSystemProperties, propsLocation, null, false);
@@ -107,6 +109,10 @@ public class ConfigurationManager {
 
     public boolean getBooleanProperty(String key) {
         return compositeConfiguration.getBoolean(key);
+    }
+
+    public int getIntegerProperty(String key) {
+        return compositeConfiguration.getInt(key);
     }
 
     public Map<String, Object> getProperties() {
@@ -217,16 +223,37 @@ public class ConfigurationManager {
 
         return false;
     }
-    
+
     public boolean delete() {
         boolean deleted = false;
-        
+
         if (configurationToSave != null) {
             deleted = configurationToSave.getFile().delete();
             configurationToSave = null;
         }
-        
+
         return deleted;
+    }
+
+    public void setPassword(String key, String pass) {
+        try {
+            setProperty(key, PassCoder.encode(pass, getRepoPassKey()));
+        } catch (Exception e) {
+            log.error("Error when setting password property: " + key, e);
+        }
+    }
+    
+    public String getPassword(String key) {
+        try {
+            return PassCoder.decode(this.getStringProperty(key), getRepoPassKey());
+        } catch (Exception e) {
+            log.error("Error when getting password property: " + key, e);
+            return "";
+        }
+    }
+
+    public String getRepoPassKey() {
+        return compositeConfiguration.containsKey(REPO_PASS_KEY) ? compositeConfiguration.getString(REPO_PASS_KEY) : "";
     }
 
 }

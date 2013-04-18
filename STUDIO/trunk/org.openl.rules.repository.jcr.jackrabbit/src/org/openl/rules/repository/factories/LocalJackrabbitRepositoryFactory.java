@@ -7,11 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -27,6 +25,7 @@ import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
+import org.openl.rules.repository.utils.UserUtil;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -79,7 +78,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             IOUtils.closeQuietly(fileInputStream);
         }
     }
-    
+
     protected static boolean isRepositoryLocked(String repositoryHome) {
         File lockFile = new File(repositoryHome, LOCK_FILE);
         return lockFile.exists() && isFileLocked(lockFile);
@@ -102,7 +101,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
      */
     private void init() throws RepositoryException {
         try {
-            String repConf = "/jackrabbit-repository.xml";
+            String repConf = this.getRepoConfigFile().getValue();//"/jackrabbit-repository.xml";
 
             // obtain real path to repository configuration file
             URL url = this.getClass().getResource(repConf);
@@ -191,8 +190,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         }
         if(isProductionRepository()){
             try {
-                // FIXME: do not hardcode credential info
-                Session session = createSession("user", "pass");
+                Session session = createSession();
 
                 RTransactionManager transactionManager = getTrasactionManager(session);
                 JcrProductionRepository productionRepository = new JcrProductionRepository(repositoryName, session,
@@ -225,8 +223,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
     private boolean isProductionRepository() {
         Session systemSession = null;
         try {
-            // FIXME: do not hardcode system credentials
-            systemSession = createSession("sys", "secret");
+            systemSession = createSession();
             NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
 
             boolean initNodeTypes = false;
@@ -247,7 +244,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             convert();
             convert = false;
         }
-        // TODO Auto-generated method stub
+
         return super.createRepository();
     }
 
@@ -293,6 +290,18 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
 
     public void setConfRepositoryName(ConfigPropertyString confRepositoryName) {
         this.confRepositoryName = confRepositoryName;
+    }
+    
+    public boolean configureJCRForOneUser(String login, String pass) {
+        try {
+            UserUtil userUtil = new UserUtil(repository);
+            userUtil.createNewAdminUser(login, pass);
+            userUtil.disableAnonymous();
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

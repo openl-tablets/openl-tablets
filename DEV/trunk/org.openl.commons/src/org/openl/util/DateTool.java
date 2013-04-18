@@ -96,8 +96,8 @@ public class DateTool {
     }
 
     public static int second(Date d) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(d);
+    	Calendar c = Calendar.getInstance();
+    	c.setTime(d);
         return c.get(Calendar.SECOND);
     }
 

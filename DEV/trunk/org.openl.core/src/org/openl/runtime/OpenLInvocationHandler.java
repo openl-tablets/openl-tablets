@@ -28,17 +28,12 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
         this.methodMap = methodMap;
     }
 
-    private ThreadLocal<IRuntimeEnv> environment = new ThreadLocal<IRuntimeEnv>() {
-        @Override
-        protected IRuntimeEnv initialValue() {
-            return buildRuntimeEnv();
-        }
-    };
-    
+    private ThreadLocal<IRuntimeEnv> environment = new RuntimeEnvHolder(buildRuntimeEnv());
+
     public IRuntimeEnv buildRuntimeEnv(){
         return new SimpleVM().getRuntimeEnv();
     }
-    
+
     public AEngineFactory getFactory() {
         return engineFactory;
     }
@@ -106,4 +101,18 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
         return super.equals(obj);
     }
 
+    // ThreadLocals can be cached by servlet container. RuntimeEnvHolder should
+    // be nested class, not inner class - otherwise we get memory leak
+    private static final class RuntimeEnvHolder extends ThreadLocal<IRuntimeEnv> {
+        private final IRuntimeEnv runtimeEnv;
+
+        public RuntimeEnvHolder(IRuntimeEnv runtimeEnv) {
+            this.runtimeEnv = runtimeEnv;
+        }
+
+        @Override
+        protected IRuntimeEnv initialValue() {
+            return runtimeEnv;
+        }
+    }
 }

@@ -211,6 +211,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         }
         if (success) {
             resetStudio();
+            reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
         }
         return null;
     }
