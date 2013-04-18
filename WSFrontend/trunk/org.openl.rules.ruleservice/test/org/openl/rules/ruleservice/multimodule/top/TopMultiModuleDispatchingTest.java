@@ -63,7 +63,7 @@ public class TopMultiModuleDispatchingTest {
 
         ruleServiceOpenLServiceInstantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         
-         ruleServiceOpenLServiceInstantiationFactory.getInstantiationStrategyFactory();
+        ruleServiceOpenLServiceInstantiationFactory.getInstantiationStrategyFactory();
     }
 
     @Before
@@ -91,7 +91,6 @@ public class TopMultiModuleDispatchingTest {
         		"./test-resources/top-multi-module"));
         service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(SERVICE_NAME, "no_url", null, true,
                 descriptor.getModules());
-        
         
         publisher.deploy(service1);
 
