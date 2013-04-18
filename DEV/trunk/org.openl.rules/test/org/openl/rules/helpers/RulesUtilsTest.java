@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -16,6 +17,7 @@ import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -31,6 +33,8 @@ import org.openl.rules.TestHelper;
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.openl.rules.helpers.RulesUtils;
+import org.openl.rules.search.SearchTableRow;
+import org.openl.rules.testmethod.OpenLUserRuntimeException;
 
 /**
  * Test to check that methods from {@link RulesUtils} and children of
@@ -194,12 +198,101 @@ public class RulesUtilsTest {
 		float[] testSliceFloatType(float[] fs, int i, int j);
 		double[] testSliceDoubleType(double[] ds, int i);
 		double[] testSliceDoubleType(double[] ds, int i, int j);
+		ObjectValue[] testSortObjectValue(ObjectValue[] strValueArray);
+		Date[] testSortDate(Date[] nullDateArrayValue);
+		StringValue[] testSortStringValue(StringValue[] strValueArray);
+		String[] testSortString(String[] strValueArray);
+		BigDecimalValue[] testSortBigDecimalValue(BigDecimalValue[] inputArray);
+		BigIntegerValue[] testSortBigIntegerValue(BigIntegerValue[] inputArray);
+		BigDecimal[] testSortBigDecimal(BigDecimal[] inputArray);
+		BigInteger[] testSortBigInteger(BigInteger[] inputArray);
+		DoubleValue[] testSortDoubleValue(DoubleValue[] inputArray);
+		FloatValue[] testSortFloatValue(FloatValue[] inputArray);
+		LongValue[] testSortLongValue(LongValue[] inputArray);
+		IntValue[] testSortIntegerValue(IntValue[] inputArray);
+		ShortValue[] testSortShortValue(ShortValue[] inputArray);
+		ByteValue[] testSortByteValue(ByteValue[] inputArray);
+		Double[] testSortDouble(Double[] inputArray);
+		Float[] testSortFloat(Float[] inputArray);
+		Long[] testSortLong(Long[] inputArray);
+		Integer[] testSortInteger(Integer[] inputArray);
+		Short[] testSortShort(Short[] inputArray);
+		Byte[] testSortByte(Byte[] inputArray);
+		double[] testSortDoubleType(double[] inputArray);
+		float[] testSortFloatType(float[] inputArray);
+		long[] testSortLongType(long[] inputArray);
+		int[] testSortIntegerType(int[] inputArray);
+		short[] testSortShortType(short[] inputArray);
+		byte[] testSortByteType(byte[] inputArray);
+		boolean testContainsObjectInObjectArr(Object[] searchIn,
+				Object searchFor);
+		boolean testContainsCharArrInCharArr(char[] searchIn, char[] searchFor);
+		boolean testContainsBoolArrInBoolArr(boolean[] searchIn,
+				boolean[] searchFor);
+		boolean testContainsDoubleArrInDoubleArr(double[] searchIn,
+				double[] searchFor);
+		boolean testContainsFloatArrInFloatArr(float[] searchIn,
+				float[] searchFor);
+		boolean testContainsShortArrInShortArr(short[] searchIn,
+				short[] searchFor);
+		boolean testContainsByteArrInByteArr(byte[] searchIn, byte[] searchFor);
+		boolean testContainsLongArrInLongArr(long[] searchIn, long[] searchFor);
+		boolean testContainsIntegerArrInIntegerArr(int[] searchIn,
+				int[] searchFor);
+		boolean testContainsObjectArrInObjectArr(Object[] searchIn,
+				Object[] searchFor);
+		boolean testContainsBoolInBoolArr(boolean[] searchIn, boolean searchFor);
+		boolean testContainsDoubleInDoubleArr(double[] searchIn,
+				double searchFor);
+		boolean testContainsFloatInFloatArr(float[] searchIn, float searchFor);
+		boolean testContainsCharInCharArr(char[] searchIn, char searchFor);
+		boolean testContainsShortInShortArr(short[] searchIn, short searchFor);
+		boolean testContainsByteInByteArr(byte[] searchIn, byte searchFor);
+		boolean testContainsLongInLongArr(long[] searchIn, long searchFor);
+		boolean testContainsIntegerInIntegerArr(int[] searchIn, int searchFor);
+		Object testIndexOfObject(Object[] objects, Object object);
+		Object testIndexOfBool(boolean[] bs, boolean b);
+		Object testIndexOfDouble(double[] ds, double d);
+		Object testIndexOfFloat(float[] fs, float f);
+		Object testIndexOfChar(char[] cs, char c);
+		Object testIndexOfShort(short[] s, short t);
+		Object testIndexOfByte(byte[] bs, byte b);
+		Object testIndexOfLong(long[] ls, long l);
+		Object testIndexOfInteger(int[] is, int i);
+		boolean testNoNullsObject(Object[] objects);
+		void testError(String string);
+		void testErrorThrowable(Throwable ex);
+		Object formatDouble(double d);
+		Object formatDoubleWithFrm(double d, String string);
+		Object[] testIntersectionStringArr(String[] searchIn, String[] searchFor);
+		Object testAbsMonth(Date dateNow);
+		Object testAbsQuarter(Date dateNow);
+		Object testDiffDate(Date date1, Date date2);
+		Object testDayOfMonth(Date date1);
+		Date testFirstDayOfQuarter(int i);
+		Object testLastDayOfQuarter(int i);
+		Object testLastDayOfMonth(Date time);
+		Object testGetMonth(Date time);
+		int testMonthDiff(Date date1, Date date2);
+		Object testYearDiff(Date endDate, Date startDate);
+		Object testWeekDiff(Date endDate, Date startDate);
+		Object testQuarter(Date date);
+		Object testYear(Date date);
+		Object testDayOfWeek(Date date);
+		Object testDayOfYear(Date date);
+		Object testWeekOfYear(Date date);
+		Object testWeekOfMonth(Date date);
+		Object testSecond(Date date);
 		
 		
     }
 
     @Before
     public void init() {
+    	Locale locale = Locale.getDefault(); 
+    	locale = Locale.US;
+    	Locale.setDefault(locale);
+    	
         if (instance == null) {
             File xlsFile = new File(src);
             TestHelper<TestInterf> testHelper;
@@ -1350,6 +1443,802 @@ public class RulesUtilsTest {
 						(double) 6.6, (double) 7.7 }, 2, 5), 0.0001f);
 	}
     
+	@Test
+	public void testByteTypeSort(){
+		byte[] inputArray = { 2, 1, 0 };
+		byte[] nullArray = null;
+		byte[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortByteType(inputArray));
+	}
+	
+	@Test
+	public void testShortTypeSort(){
+		short[] inputArray = { 2, 1, 0 };
+		short[] nullArray = null;
+		short[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortShortType(inputArray));
+	}
+	
+	@Test
+	public void testIntegerTypeSort(){
+		int[] inputArray = { 2, 1, 0 };
+		int[] nullArray = null;
+		int[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortIntegerType(inputArray));
+	}
+	
+	@Test
+	public void testLongTypeSort(){
+		long[] inputArray = { 2, 1, 0 };
+		long[] nullArray = null;
+		long[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortLongType(inputArray));
+	}
+	
+	@Test
+	public void testFloatTypeSort(){
+		float[] inputArray = { 2.1f, 1.1f, -0.4f };
+		float[] nullArray = null;
+		float[] expectedArray = { -0.4f, 1.1f, 2.1f };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortFloatType(inputArray), 0.00001f );
+	}
+	
+	@Test
+	public void testDoubleTypeSort(){
+		double[] inputArray = { 2.1, 1.1, -0.4 };
+		double[] nullArray = null;
+		double[] expectedArray = { -0.4, 1.1, 2.1 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortDoubleType(inputArray), 0.00001f);
+	}
+	
+	@Test
+	public void testByteSort(){
+		Byte[] inputArray = { 2, 1, 0 };
+		Byte[] nullArray = null;
+		Byte[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortByte(inputArray));
+	}
+	
+	@Test
+	public void testShortSort(){
+		Short[] inputArray = { 2, 1, 0 };
+		Short[] nullArray = null;
+		Short[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortShort(inputArray));
+	}
+	
+	@Test
+	public void testIntegerSort(){
+		Integer[] inputArray = { 2, 1, 0 };
+		Integer[] nullArray = null;
+		Integer[] expectedArray = { 0, 1, 2 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortInteger(inputArray));
+	}
+	
+	@Test
+	public void testLongSort(){
+		Long[] inputArray = { 2l, 1l, 0l };
+		Long[] nullArray = null;
+		Long[] expectedArray = { 0l, 1l, 2l };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortLong(inputArray));
+	}
+	
+	@Test
+	public void testFloatSort(){
+		Float[] inputArray = { 2.1f, 1.1f, -0.4f };
+		Float[] nullArray = null;
+		Float[] expectedArray = { -0.4f, 1.1f, 2.1f };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortFloat(inputArray));
+	}
+	
+	@Test
+	public void testDoubleSort(){
+		Double[] inputArray = { 2.1, 1.1, -0.4 };
+		Double[] nullArray = null;
+		Double[] expectedArray = { -0.4, 1.1, 2.1 };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortDouble(inputArray));
+	}
+	
+	
+	@Test
+	public void testByteValueSort(){
+		ByteValue[] inputArray = { new ByteValue("2"), new ByteValue("1"), new ByteValue("0") };
+		ByteValue[] nullArray = null;
+		ByteValue[] expectedArray = { new ByteValue("0"), new ByteValue("1"), new ByteValue("2") };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortByteValue(inputArray));
+	}
+	
+	@Test
+	public void testShortValueSort(){
+		ShortValue[] inputArray = { new ShortValue((short) 2), new ShortValue("1"), new ShortValue("0") };
+		ShortValue[] nullArray = null;
+		ShortValue[] expectedArray = { new ShortValue("0"), new ShortValue("1"), new ShortValue("2") };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortShortValue(inputArray));
+	}
+	
+	@Test
+	public void testIntegerValueSort(){
+		IntValue[] inputArray = { new IntValue(2), new IntValue(1), new IntValue(0) };
+		IntValue[] nullArray = null;
+		IntValue[] expectedArray = { new IntValue(0), new IntValue(1), new IntValue(2) };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortIntegerValue(inputArray));
+	}
+	
+	@Test
+	public void testLongValueSort(){
+		LongValue[] inputArray = { new LongValue(2l), new LongValue(1l), new LongValue(0l) };
+		LongValue[] nullArray = null;
+		LongValue[] expectedArray = { new LongValue(0l), new LongValue(1l), new LongValue(2l) };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortLongValue(inputArray));
+	}
+	
+	@Test
+	public void testFloatValueSort(){
+		FloatValue[] inputArray = { new FloatValue(2.1f), new FloatValue(1.1f), new FloatValue(-0.4f) };
+		FloatValue[] nullArray = null;
+		FloatValue[] expectedArray = { new FloatValue(-0.4f), new FloatValue(1.1f), new FloatValue(2.1f) };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortFloatValue(inputArray));
+	}
+	
+	@Test
+	public void testDoubleValueSort(){
+		DoubleValue[] inputArray = { new DoubleValue(2.1), new DoubleValue(1.1), new DoubleValue(-0.4) };
+		DoubleValue[] nullArray = null;
+		DoubleValue[] expectedArray = { new DoubleValue(-0.4), new DoubleValue(1.1), new DoubleValue(2.1) };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortDoubleValue(inputArray));
+	}
+	
+	@Test
+	public void testBigIntegerSort(){
+		BigInteger[] inputArray = { BigInteger.valueOf(2), BigInteger.valueOf(1), BigInteger.valueOf(-0) };
+		BigInteger[] nullArray = null;
+		BigInteger[] expectedArray = { BigInteger.valueOf(-0), BigInteger.valueOf(1), BigInteger.valueOf(2) };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortBigInteger(inputArray));
+	}
+	
+	@Test
+	public void testBigDecimalSort(){
+		BigDecimal[] inputArray = { BigDecimal.valueOf(2.3), BigDecimal.valueOf(1.9), BigDecimal.valueOf(-0.1) };
+		BigDecimal[] nullArray = null;
+		BigDecimal[] expectedArray = { BigDecimal.valueOf(-0.1), BigDecimal.valueOf(1.9), BigDecimal.valueOf(2.3) };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortBigDecimal(inputArray));
+	}
+	
+	@Test
+	public void testBigIntegerValueSort(){
+		BigIntegerValue[] inputArray = { new BigIntegerValue("2"), new BigIntegerValue("1"), new BigIntegerValue("-0") };
+		BigIntegerValue[] nullArray = null;
+		BigIntegerValue[] expectedArray = { new BigIntegerValue("-0"), new BigIntegerValue("1"), new BigIntegerValue("2") };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortBigIntegerValue(inputArray));
+	}
+	
+	@Test
+	public void testBigDecimalValueSort(){
+		BigDecimalValue[] inputArray = { new BigDecimalValue("2.3"), new BigDecimalValue("1.9"), new BigDecimalValue("-0.1") };
+		BigDecimalValue[] nullArray = null;
+		BigDecimalValue[] expectedArray = { new BigDecimalValue("-0.1"), new BigDecimalValue("1.9"), new BigDecimalValue("2.2") };
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expectedArray, instance.testSortBigDecimalValue(inputArray));
+	}
+		
+	@Test
+    public void testStringSort() {
+
+        String[] nullArray = null;
+        String[] strValueArray = { null, "asd", "ac", null, null };
+        String[] expecteds = { "ac", "asd", null, null, null };
+        String[] actuals = instance.testSortString(strValueArray);
+
+        assertNull(RulesUtils.sort(nullArray));
+        assertArrayEquals(expecteds, actuals);
+
+    }
+	
+	@Test
+    public void testStringValueSort() {
+        StringValue[] strValueArray = { null, new StringValue("asd"), new StringValue("ac"), null, null };
+        StringValue[] expecteds = { new StringValue("ac"), new StringValue("asd"), null, null, null };
+        StringValue[] actuals = instance.testSortStringValue(strValueArray);
+
+        assertArrayEquals(expecteds, actuals);
+
+    }
+
+    @Test
+    public void testDateSort() {
+        
+        int year = 2013;
+        int month = 1;
+        int date = 25;
+        int hour = 15;
+        int min = 3;
+        Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(year, month, date, hour, min);
+
+        Date[] nullDateArray = null;
+        Date[] nullDateArrayValue = { null, c.getTime(), c.getTime() };
+        Date[] actuals = instance.testSortDate(nullDateArrayValue);
+        Date[] expecteds = {c.getTime(), c.getTime(), null };
+        
+        assertNull(RulesUtils.sort(nullDateArray));
+        assertArrayEquals(expecteds, actuals);
+    }
+    
+    @Test
+    public void testObjectValueSort() {
+        ObjectValue[] strValueArray = { null, new ObjectValue("asd"), new ObjectValue("ac"), null, null };
+        ObjectValue[] expecteds = { new ObjectValue("ac"), new ObjectValue("asd"), null, null, null };
+        ObjectValue[] actuals = instance.testSortObjectValue(strValueArray);
+
+        assertArrayEquals(expecteds, actuals);
+    }
+	
+    @Test
+    public void testObjectInObjectArrContains(){
+    	Object searchFor = new ObjectValue("5");
+    	Object searchForFailed = new ObjectValue("666");
+    	Object[] searchIn = {new ObjectValue("1"), new ObjectValue("4"), new ObjectValue("5"), new ObjectValue("7"), new ObjectValue("10")};
+    	
+    	assertFalse(instance.testContainsObjectInObjectArr(null, searchFor));
+    	assertFalse(instance.testContainsObjectInObjectArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsObjectInObjectArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testIntegerInIntegerArrContains(){
+    	int searchFor = 5;
+    	int searchForFailed = 666;
+    	int[] searchIn = {1, 4, 5, 7, 10};
+    	
+    	assertFalse(instance.testContainsIntegerInIntegerArr(null, searchFor));
+    	assertFalse(instance.testContainsIntegerInIntegerArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsIntegerInIntegerArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testLongInLongArrContains(){
+    	long searchFor = 5l;
+    	long searchForFailed = 666l;
+    	long[] searchIn = {1l, 4l, 5l, 7l, 10l};
+    	
+    	assertFalse(instance.testContainsLongInLongArr(null, searchFor));
+    	assertFalse(instance.testContainsLongInLongArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsLongInLongArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testByteInByteArrContains(){
+    	byte searchFor = 5;
+    	byte searchForFailed = 127;
+    	byte[] searchIn = {1, 4, 5, -7, 10};
+    	
+    	assertFalse(instance.testContainsByteInByteArr(null, searchFor));
+    	assertFalse(instance.testContainsByteInByteArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsByteInByteArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testShortInShortArrContains(){
+    	short searchFor = 5;
+    	short searchForFailed = 32767;
+    	short[] searchIn = {1, 4, 5, -7, 10};
+    	
+    	assertFalse(instance.testContainsShortInShortArr(null, searchFor));
+    	assertFalse(instance.testContainsShortInShortArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsShortInShortArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testCharInCharArrContains(){
+    	char searchFor = 'Z';
+    	char searchForFailed = 'X';
+    	char[] searchIn = {'a', 'b', 'c', 'Z', 'P'};
+    	
+    	assertFalse(instance.testContainsCharInCharArr(null, searchFor));
+    	assertFalse(instance.testContainsCharInCharArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsCharInCharArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testFloatInFloatArrContains(){
+    	float searchFor = 5.7f;
+    	float searchForFailed = 32767.321f;
+    	float[] searchIn = {1.01f, 4.0f, 5.7f, -7.7f, 10.3f};
+    	
+    	assertFalse(instance.testContainsFloatInFloatArr(null, searchFor));
+    	assertFalse(instance.testContainsFloatInFloatArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsFloatInFloatArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testDoubleInDoubleArrContains(){
+    	double searchFor = 5.7;
+    	double searchForFailed = 32767.321;
+    	double[] searchIn = {1.01, 4.0, 5.7, -7.7, 10.3};
+    	
+    	assertFalse(instance.testContainsDoubleInDoubleArr(null, searchFor));
+    	assertFalse(instance.testContainsDoubleInDoubleArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsDoubleInDoubleArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testBoolInBoolArrContains(){
+    	boolean searchFor = true;
+    	boolean searchForFailed = false;
+    	boolean[] searchIn = {true, true, true, true, true};
+    	
+    	assertFalse(instance.testContainsBoolInBoolArr(null, searchFor));
+    	assertFalse(instance.testContainsBoolInBoolArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsBoolInBoolArr(searchIn, searchFor));
+    }
+    
+    //@Test
+    public void testObjectArrInObjectArrContains(){
+    	Object[] searchFor = {new ObjectValue("5"), new ObjectValue("1")};
+    	Object[] searchForFailed = {new ObjectValue("666")};
+    	Object[] searchIn = {new ObjectValue("1"), new ObjectValue("4"), new ObjectValue("5"), new ObjectValue("7"), new ObjectValue("10")};
+    	
+    	assertFalse(instance.testContainsObjectArrInObjectArr(searchIn, null));
+    	assertFalse(instance.testContainsObjectArrInObjectArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsObjectArrInObjectArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testIntegerArrInIntegerArrContains(){
+    	int[] searchFor = {5, 1};
+    	int[] searchForFailed = {666};
+    	int[] searchIn = {1, 4, 5, 7, 10};
+    	
+    	assertFalse(instance.testContainsIntegerArrInIntegerArr(searchIn, null));
+    	assertFalse(instance.testContainsIntegerArrInIntegerArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsIntegerArrInIntegerArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testLongArrInLongArrContains(){
+    	long[] searchFor = {5l, 7l};
+    	long[] searchForFailed = {666l};
+    	long[] searchIn = {1l, 4l, 5l, 7l, 10l};
+    	
+    	assertFalse(instance.testContainsLongArrInLongArr(searchIn, null));
+    	assertFalse(instance.testContainsLongArrInLongArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsLongArrInLongArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testByteArrInByteArrContains(){
+    	byte[] searchFor = {5, -7};
+    	byte[] searchForFailed = {127};
+    	byte[] searchIn = {1, 4, 5, -7, 10};
+    	
+    	assertFalse(instance.testContainsByteArrInByteArr(searchIn, null));
+    	assertFalse(instance.testContainsByteArrInByteArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsByteArrInByteArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testShortArrInShortArrContains(){
+    	short[] searchFor = {5, -7};
+    	short[] searchForFailed = {32767};
+    	short[] searchIn = {1, 4, 5, -7, 10};
+    	
+    	assertFalse(instance.testContainsShortArrInShortArr(searchIn, null));
+    	assertFalse(instance.testContainsShortArrInShortArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsShortArrInShortArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testFloatArrInFloatArrContains(){
+    	float[] searchFor = {5.7f, -7.7f};
+    	float[] searchForFailed = {32767.321f};
+    	float[] searchIn = {1.01f, 4.0f, 5.7f, -7.7f, 10.3f};
+    	
+    	assertFalse(instance.testContainsFloatArrInFloatArr(searchIn, null));
+    	assertFalse(instance.testContainsFloatArrInFloatArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsFloatArrInFloatArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testDoubleArrInDoubleArrContains(){
+    	double[] searchFor = {5.7, -7.7};
+    	double[] searchForFailed = {32767.321};
+    	double[] searchIn = {1.01, 4.0, 5.7, -7.7, 10.3};
+    	
+    	assertFalse(instance.testContainsDoubleArrInDoubleArr(searchIn, null));
+    	assertFalse(instance.testContainsDoubleArrInDoubleArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsDoubleArrInDoubleArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testBoolArrInBoolArrContains(){
+    	boolean[] searchFor = {true, true};
+    	boolean[] searchForFailed = {false};
+    	boolean[] searchIn = {true, true, true, true, true};
+    	
+    	assertFalse(instance.testContainsBoolArrInBoolArr(searchIn, null));
+    	assertFalse(instance.testContainsBoolArrInBoolArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsBoolArrInBoolArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testCharArrInCharArrContains(){
+    	char[] searchFor = {'Z', 'P'};
+    	char[] searchForFailed = {'X'};
+    	char[] searchIn = {'a', 'b', 'c', 'Z', 'P'};
+    	
+    	assertFalse(instance.testContainsCharArrInCharArr(searchIn, null));
+    	assertFalse(instance.testContainsCharArrInCharArr(searchIn, searchForFailed));
+    	assertTrue(instance.testContainsCharArrInCharArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testContainsString() {
+        String searchString = "string";
+        char searchChar = 's';
+
+        assertTrue(RulesUtils.contains(str, searchString));
+        assertTrue(RulesUtils.contains(str, searchChar));
+        assertFalse(RulesUtils.contains(nullStr, searchChar));
+        assertFalse(RulesUtils.contains("", searchChar));
+    }
+
+    @Test
+    public void testContainsAny() {
+        char[] searchChars = { 's', 'i', 'g' };
+        String searchStr = "value";
+
+        assertTrue(RulesUtils.containsAny(str, searchChars));
+        assertTrue(RulesUtils.containsAny(str, searchStr));
+        assertFalse(RulesUtils.containsAny(nullStr, searchStr));
+        assertFalse(RulesUtils.containsAny("", searchStr));
+    }
+	
+    @Test
+    public void testObjectIndexOf(){
+    	assertEquals(-1, instance.testIndexOfObject(null, (Object) 3));
+    	assertEquals(-1, instance.testIndexOfObject(new Object[]{1, 2, 3, 4, 5}, (Object) 9));
+    	assertEquals(-1, instance.testIndexOfObject(new Object[]{1, 2, 3, 4, 5}, null));
+    	assertEquals(2, instance.testIndexOfObject(new Object[]{1, 2, 3, 4, 5}, (Object) 3));
+    }
+    
+    @Test
+    public void testIntegerIndexOf(){
+    	assertEquals(-1, instance.testIndexOfInteger(null, 3));
+    	assertEquals(-1, instance.testIndexOfInteger(new int[]{1, 2, 3, 4, 5}, 9));
+    	assertEquals(2, instance.testIndexOfInteger(new int[]{1, 2, 3, 4, 5}, 3));
+    }
+    
+    @Test
+    public void testLongIndexOf(){
+    	assertEquals(-1, instance.testIndexOfLong(null, 3l));
+    	assertEquals(-1, instance.testIndexOfLong(new long[]{1, 2, 3, 4, 5}, 9l));
+    	assertEquals(2, instance.testIndexOfLong(new long[]{1, 2, 3, 4, 5}, 3l));
+    }
+    
+    @Test
+    public void testByteIndexOf(){
+    	assertEquals(-1, instance.testIndexOfByte(null, (byte) 3));
+    	assertEquals(-1, instance.testIndexOfByte(new byte[]{1, 2, 3, 4, 5}, (byte) 9));
+    	assertEquals(2, instance.testIndexOfByte(new byte[]{1, 2, 3, 4, 5}, (byte) 3));
+    }
+    
+    @Test
+    public void testShortIndexOf(){
+    	assertEquals(-1, instance.testIndexOfShort(null, (short) 3));
+    	assertEquals(-1, instance.testIndexOfShort(new short[]{1, 2, 3, 4, 5}, (short) 9));
+    	assertEquals(2, instance.testIndexOfShort(new short[]{1, 2, 3, 4, 5}, (short) 3));
+    }
+    
+    @Test
+    public void testCharIndexOf(){
+    	assertEquals(-1, instance.testIndexOfChar(null, '3'));
+    	assertEquals(-1, instance.testIndexOfChar(new char[]{'1', '2', '3', '4', '5'}, '9'));
+    	assertEquals(2, instance.testIndexOfChar(new char[]{'1', '2', '3', '4', '5'}, '3'));
+    }
+    
+    @Test
+    public void testFloatIndexOf(){
+    	assertEquals(-1, instance.testIndexOfFloat(null, 3f));
+    	assertEquals(-1, instance.testIndexOfFloat(new float[]{1, 2, 3, 4, 5}, 9f));
+    	assertEquals(2, instance.testIndexOfFloat(new float[]{1, 2, 3, 4, 5}, 3f));
+    }
+    
+    @Test
+    public void testDoubleIndexOf(){
+    	assertEquals(-1, instance.testIndexOfDouble(null, 3.3));
+    	assertEquals(-1, instance.testIndexOfDouble(new double[]{1.1, 2.2, 3.3, 4.4, 5.5}, 9.9));
+    	assertEquals(2, instance.testIndexOfDouble(new double[]{1.1, 2.2, 3.3, 4.4, 5.5}, 3.3));
+    }
+    
+    @Test
+    public void testBoolIndexOf(){
+    	assertEquals(-1, instance.testIndexOfBool(null, false));
+    	assertEquals(-1, instance.testIndexOfBool(new boolean[]{true, true, true, true, true}, false));
+    	assertEquals(2, instance.testIndexOfBool(new boolean[]{true, true, false, true, true}, false));
+    }
+    
+    @Test
+    public void testObjectNoNulls(){
+    	assertTrue(instance.testNoNullsObject(new Object[]{1, 2, 3, 5}));
+    	assertFalse(instance.testNoNullsObject(new Object[]{1, null, 3, 5}));
+    	assertFalse(instance.testNoNullsObject(new Object[]{1, 2, 3, null}));
+    	assertFalse(instance.testNoNullsObject(new Object[]{null, 2, 3, 5}));
+    	assertFalse(instance.testNoNullsObject(new Object[]{null}));
+    }
+    
+    
+    @Test (expected = OpenLRuntimeException.class)
+    public void testError(){
+    	instance.testError("Ya oshibka, trololo :)");
+    }
+    
+    @Test (expected = OpenLRuntimeException.class)
+    public void testErrorThrowable() throws Throwable{
+    	instance.testErrorThrowable(new FileNotFoundException());
+    }
+    
+    @Test
+    public void testDoubleFormat(){
+    	assertEquals("5.50", instance.formatDouble(5.5));
+    }
+    
+    @Test
+    public void testDoubleFormatWithFrm(){
+    	assertEquals("5.5000", instance.formatDoubleWithFrm(5.5, "#,####0.0000"));
+    }
+    
+    @Test
+    public void testStringArrIntersection(){
+    	String[] searchIn = new String[] {"abc", "def", "ghi", "jkl"};
+    	String[] searchFor = new String[] {"def", "jkl"};
+    	assertArrayEquals(searchFor, instance.testIntersectionStringArr(searchIn, searchFor));
+    }
+    
+    @Test
+    public void testMonthAbs(){
+    	int year = 2013;
+        int month = 1;
+        int date = 25;
+        int hour = 15;
+        int min = 3;
+        Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(year, month, date, hour, min);
+        
+    	Date dateNow = c.getTime();
+    	assertEquals(24157, instance.testAbsMonth(dateNow));
+    }
+    
+    @Test
+    public void testMonthQuarter(){
+    	int year = 2013;
+        int month = 1;
+        int date = 25;
+        int hour = 15;
+        int min = 3;
+        Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(year, month, date, hour, min);
+        
+    	Date dateNow = c.getTime();
+    	assertEquals(8052, instance.testAbsQuarter(dateNow));
+    }
+    
+    @Test
+    public void testDateDiff(){
+    	Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(2013, 1, 25, 15, 3);
+        Date date1 = c.getTime();
+        c.set(2010, 1, 25, 15, 3);
+        Date date2 = c.getTime();
+        assertEquals(1096, instance.testDiffDate(date1, date2));
+        assertEquals(-1096, instance.testDiffDate(date2, date1));
+    }
+    
+    @Test
+    public void testDayOfMonth(){
+    	Calendar c = Calendar.getInstance();
+        Locale.setDefault(Locale.ENGLISH);
+               
+        c.set(2013, 1, 25, 15, 3);
+        Date date1 = c.getTime();
+        assertEquals(25, instance.testDayOfMonth(date1));
+    }
+    
+    //@Test
+    public void testFirstDayOfQuarter(){
+    	Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, 4, 1);
+                
+        Date date1 = c.getTime();
+        
+        assertEquals(date1, instance.testFirstDayOfQuarter(2));
+    }
+    
+    //@Test
+    public void testLastDayOfQuarter(){
+    	Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, 3, c.getActualMaximum(Calendar.DAY_OF_MONTH));
+                
+        Date date1 = c.getTime();
+        
+        assertEquals(date1, instance.testLastDayOfQuarter(0));
+    }
+    
+    @Test
+    public void testLastDayOfMonth(){
+    	Calendar c = Calendar.getInstance();
+                
+        assertEquals(c.getActualMaximum(Calendar.DAY_OF_MONTH), instance.testLastDayOfMonth(c.getTime()));
+    }
+    
+    @Test
+    public void testGetMonth(){
+    	Calendar c = Calendar.getInstance();
+    	
+    	assertEquals(c.get(Calendar.MONTH), instance.testGetMonth(c.getTime()));
+    }
+    
+    @Test
+    public void testMonthDiff(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2010, 3, 1);
+    	Date startDate = cal.getTime();
+    	cal.set(2011, 5, 1);
+    	Date endDate = cal.getTime();
+    	assertEquals(14, instance.testMonthDiff(endDate, startDate));
+    	
+    	cal.set(2012, 3, 10);
+    	startDate = cal.getTime();
+    	assertEquals(-10, instance.testMonthDiff(endDate, startDate));
+    }
+    
+    @Test
+    public void testYearDiff(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2001, 10, 1);
+    	Date startDate = cal.getTime();
+    	cal.set(2013, 10, 1);
+    	Date endDate = cal.getTime();
+    	assertEquals(12, instance.testYearDiff(endDate, startDate));
+    	
+    	cal.set(2015, 10, 10);
+    	startDate = cal.getTime();
+    	assertEquals(-2, instance.testYearDiff(endDate, startDate));
+    }
+    
+    @Test
+    public void testWeekDiff(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 1, 1);
+    	Date startDate = cal.getTime();
+    	cal.set(2013, 2, 1);
+    	Date endDate = cal.getTime();
+    	assertEquals(4, instance.testWeekDiff(endDate, startDate));
+    	
+    	cal.set(2013, 3, 10);
+    	startDate = cal.getTime();
+    	assertEquals(-5, instance.testWeekDiff(endDate, startDate));
+    }
+    
+    @Test
+    public void testQuarter(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 1);
+    	Date date = cal.getTime();
+    	assertEquals(3, instance.testQuarter(date));
+    	cal.set(2013, 0, 1);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testQuarter(date));
+    }
+    
+    @Test
+    public void testYear(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 1);
+    	Date date = cal.getTime();
+    	assertEquals(2013, instance.testYear(date));    	
+    }
+    
+    @Test
+    public void testDayOfWeek(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 9);
+    	Date date = cal.getTime();
+    	assertEquals(2, instance.testDayOfWeek(date));    	
+    }
+    
+    @Test
+    public void testDayOfYear(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 11, 1);
+    	cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    	Date date = cal.getTime();
+    	assertEquals(365, instance.testDayOfYear(date));    	
+    }
+    
+    @Test
+    public void testWeekOfYear(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 0, 1);
+    	cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    	Date date = cal.getTime();
+    	assertEquals(1, instance.testWeekOfYear(date));    	
+    }
+    
+    @Test
+    public void testWeekOfMonth(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1);
+    	cal.set(2013, 11, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+    	Date date = cal.getTime();
+    	assertEquals(5, instance.testWeekOfMonth(date));
+    	
+    	cal.set(2013, 8, 1);
+    	date = cal.getTime();
+    	assertEquals(1, instance.testWeekOfMonth(date));
+    }
+    
+    @Test
+    public void testSecond(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1, 10, 49, 59);
+    	Date date = cal.getTime();
+    	assertEquals(59, instance.testSecond(date));
+    	
+    	cal.set(2013, 8, 1, 10, 49, 0);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testSecond(date));
+    }
     
     @Test
     public void testOrCallingFromRules() {
@@ -1611,28 +2500,6 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsString() {
-        String searchString = "string";
-        char searchChar = 's';
-
-        assertTrue(RulesUtils.contains(str, searchString));
-        assertTrue(RulesUtils.contains(str, searchChar));
-        assertFalse(RulesUtils.contains(nullStr, searchChar));
-        assertFalse(RulesUtils.contains("", searchChar));
-    }
-
-    @Test
-    public void testContainsAny() {
-        char[] searchChars = { 's', 'i', 'g' };
-        String searchStr = "value";
-
-        assertTrue(RulesUtils.containsAny(str, searchChars));
-        assertTrue(RulesUtils.containsAny(str, searchStr));
-        assertFalse(RulesUtils.containsAny(nullStr, searchStr));
-        assertFalse(RulesUtils.containsAny("", searchStr));
-    }
-
-    @Test
     public void testReplace() {
         String text = "value Teting value string value";
 
@@ -1642,69 +2509,7 @@ public class RulesUtilsTest {
         assertEquals("", RulesUtils.replace("", "value", "text"));
     }
 
-    @Test
-    public void testStringSort() {
-
-        String[] nullArray = null;
-        String[] strValueArray = { null, "asd", "ac", null, null };
-        String[] expecteds = { "ac", "asd", null, null, null };
-        String[] actuals = RulesUtils.sort(strValueArray);
-
-        assertNull(RulesUtils.sort(nullArray));
-        assertArrayEquals(expecteds, actuals);
-
-    }
-
-    @Test
-    public void testDateSort() {
-        
-        int year = 2013;
-        int month = 1;
-        int date = 25;
-        int hour = 15;
-        int min = 3;
-        Calendar c = Calendar.getInstance();
-        Locale.setDefault(Locale.ENGLISH);
-               
-        c.set(year, month, date, hour, min);
-
-        Date[] nullDateArray = null;
-        Date[] nullDateArrayValue = { null, c.getTime(), c.getTime() };
-        Date[] actuals = RulesUtils.sort(nullDateArrayValue);
-        Date[] expecteds = {c.getTime(), c.getTime(), null };
-        
-        assertNull(RulesUtils.sort(nullDateArray));
-        assertArrayEquals(expecteds, actuals);
-    }
-
-    @Test
-    public void testDoubleSort() {
-        double[] doubleArray = { 1.0, 2.0, 0.2 };
-        double[] nullDoubleArray = null;
-        double[] expected = { 0.2, 1.0, 2.0 };
-
-        assertNull(RulesUtils.sort(nullDoubleArray));
-        assertArrayEquals(expected, RulesUtils.sort(doubleArray), 0);
-    }
-
-    @Test
-    public void testStringValueSort() {
-        StringValue[] strValueArray = { null, new StringValue("asd"), new StringValue("ac"), null, null };
-        StringValue[] expecteds = { new StringValue("ac"), new StringValue("asd"), null, null, null };
-        StringValue[] actuals = RulesUtils.sort(strValueArray);
-
-        assertArrayEquals(expecteds, actuals);
-
-    }
-
-    @Test
-    public void testObjectValueSort() {
-        ObjectValue[] strValueArray = { null, new ObjectValue("asd"), new ObjectValue("ac"), null, null };
-        ObjectValue[] expecteds = { new ObjectValue("ac"), new ObjectValue("asd"), null, null, null };
-        ObjectValue[] actuals = RulesUtils.sort(strValueArray);
-
-        assertArrayEquals(expecteds, actuals);
-    }
+    
     
     @SuppressWarnings("deprecation")
     @Test   
@@ -1719,8 +2524,8 @@ public class RulesUtilsTest {
                
         c.set(year, month, date, hour, min);
 
-        System.out.println("Default locale is: " + Locale.getDefault());
-        System.out.println("Locale date format: " + RulesUtils.dateToString(c.getTime()));
+        //System.out.println("Default locale is: " + Locale.getDefault());
+        //System.out.println("Locale date format: " + RulesUtils.dateToString(c.getTime()));
 
         assertEquals("2/25/13", RulesUtils.format(c.getTime()) );
         assertEquals("2/25/13", RulesUtils.dateToString(c.getTime()));
