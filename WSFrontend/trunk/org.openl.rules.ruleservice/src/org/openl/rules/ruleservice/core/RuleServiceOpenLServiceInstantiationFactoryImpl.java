@@ -18,8 +18,10 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesServiceEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationsEnhancer;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnchancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.runtime.IEngineWrapper;
@@ -95,36 +97,73 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
+    
+    
     private void resolveInterface(OpenLService service, RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
                                                                                                          ClassNotFoundException {
         String serviceClassName = service.getServiceClassName();
         Class<?> serviceClass = null;
+        ClassLoader serviceClassLoader = instantiationStrategy.getClassLoader();
         if (serviceClassName != null) {
-            ClassLoader serviceClassLoader = instantiationStrategy.getClassLoader();
             try {
                 serviceClass = serviceClassLoader.loadClass(serviceClassName);
                 instantiationStrategy.setServiceClass(RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
                     serviceClass));
             } catch (Exception e) {
-                e.printStackTrace();
-                if (log.isWarnEnabled()) {
-                    log.warn(String.format("Failed to load service class with name \"%s\"", serviceClassName));
+                if (log.isErrorEnabled()) {
+                    log.error(String.format("Failed to load service class with name \"%s\"", serviceClassName), e);
                 }
-                serviceClass = instantiationStrategy.getInstanceClass();
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
+                            service.getName()));
+                }
+                serviceClass = processGeneratedServiceClass(instantiationStrategy.getInstanceClass(), serviceClassLoader);
             }
         } else {
             if (log.isInfoEnabled()) {
                 log.info(String.format("Service class is undefined of service '%s'. Generated interface will be used.",
                         service.getName()));
             }
-            serviceClass = instantiationStrategy.getInstanceClass();
+            serviceClass = processGeneratedServiceClass(instantiationStrategy.getInstanceClass(), serviceClassLoader);
         }
         service.setServiceClass(serviceClass);
+    }
+
+    private Class<?> processGeneratedServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
+        if (serviceClass == null) {
+            return null; //It shouldn't happen
+        }
+        ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
+        if (serviceDescription == null){
+            if (log.isWarnEnabled()){
+                log.warn("Service description didn't find! Something wrong!");
+            }
+            return serviceClass;
+        }else{
+            String clazzName = serviceDescription.getInterceptorTemplateClassName();
+            if (clazzName != null){
+                try{
+                    Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName);
+                    Class<?> decoratedClass = DynamicInterfaceAnnotationEnchancerHelper.decorate(serviceClass, interceptingTemplateClass, classLoader);
+                    if (log.isInfoEnabled()){
+                        log.info("Interceptor template class \"" + clazzName + "\" was used for service: " + serviceDescription.getName());
+                    }
+                    return decoratedClass;
+                }catch(Exception e){
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format("Failed to load or appling intercepting template class with name \"%s\"", clazzName), e);
+                        log.error("Intercepting template class wasn't used!");
+                    }                    
+                }
+            }
+        }
+        return serviceClass;
     }
 
     /** {@inheritDoc} */
     public OpenLService createService(ServiceDescription serviceDescription)
             throws RuleServiceInstantiationException {
+
         DeploymentRelatedInfo info = getDeploymentRelatedInfo(serviceDescription);
         DeploymentRelatedInfo.setCurrent(info);
 
