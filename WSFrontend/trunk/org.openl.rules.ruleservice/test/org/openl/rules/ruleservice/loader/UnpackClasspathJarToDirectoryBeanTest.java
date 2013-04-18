@@ -6,7 +6,6 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -38,18 +37,17 @@ public class UnpackClasspathJarToDirectoryBeanTest implements ApplicationContext
     private boolean isFolderHasElements(String folderPath) throws IOException {
         File folder = new File(folderPath);
         if (!folder.exists()) {
-            throw new IOException("Folder does not exist. Path: " + folderPath);
+            throw new IOException("Folder doesn't exist. Path: " + folderPath);
         }
 
         if (!folder.isDirectory()) {
-            throw new IOException("Path is'nt a directory on file system. Path: " + folderPath);
+            throw new IOException("Path isn't a directory on the file system. Path: " + folderPath);
         }
 
         return folder.listFiles().length > 0;
     }
 
     @Test
-    @Ignore
     public void test() throws Exception {
         Assert.assertNotNull(applicationContext);
         UnpackClasspathJarToDirectoryBean bean = applicationContext.getBean(UnpackClasspathJarToDirectoryBean.class);
