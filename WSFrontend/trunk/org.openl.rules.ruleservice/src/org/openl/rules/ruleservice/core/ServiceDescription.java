@@ -19,6 +19,7 @@ public final class ServiceDescription {
     private String name;
     private String url;
     private String serviceClassName;
+    private String interceptingTemplateClassName;
     private boolean provideRuntimeContext;
     private boolean provideVariations;
     private Map<String, Object> configuration;
@@ -36,13 +37,14 @@ public final class ServiceDescription {
      * @param provideVariations
      * @param modules
      */
-    ServiceDescription(String name, String url, String serviceClassName, boolean provideRuntimeContext,
+    ServiceDescription(String name, String url, String serviceClassName, String interceptingTemplateClassName, boolean provideRuntimeContext,
             boolean provideVariations, Collection<ModuleDescription> modules, Set<ModuleDescription> modulesInService, Map<String, Object> configuration) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.provideVariations = provideVariations;
+        this.interceptingTemplateClassName = interceptingTemplateClassName;
         if (configuration == null) {
             this.configuration = Collections.emptyMap();
         } else {
@@ -67,10 +69,18 @@ public final class ServiceDescription {
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext,
+        this(builder.name, builder.url, builder.serviceClassName, builder.interceptingTemplateClassName, builder.provideRuntimeContext,
                 builder.provideVariations, builder.modules, builder.modulesInService, builder.configuration);
     }
 
+    /**
+     * Returns interceptor template class name 
+     * @return class name
+     */
+    public String getInterceptorTemplateClassName() {
+        return interceptingTemplateClassName;
+    }
+    
     /**
      * Returns service name.
      * 
@@ -189,12 +199,23 @@ public final class ServiceDescription {
         private String name;
         private String url;
         private String serviceClassName;
+        private String interceptingTemplateClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
         private Map<String, Object> configuration;
         private Collection<ModuleDescription> modules;
         private Set<ModuleDescription> modulesInService;
 
+        /**
+         * Sets intercepting template class name
+         * @param interceptingTemplateClassName
+         */
+        public ServiceDescriptionBuilder setInterceptingTemplateClassName(String interceptingTemplateClassName) {
+            this.interceptingTemplateClassName = interceptingTemplateClassName;
+            return this;
+        }
+        
+        
         /**
          * Sets name to the builder.
          * 

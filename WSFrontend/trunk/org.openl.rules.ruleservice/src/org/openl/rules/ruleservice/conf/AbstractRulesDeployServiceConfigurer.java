@@ -116,6 +116,9 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                             if (rulesDeploy.getConfiguration() != null) {
                                 serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                             }
+                            if (rulesDeploy.getInterceptingTemplateClassName() != null) {
+                                serviceDescriptionBuilder.setInterceptingTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
+                            }
                         }
                     } catch (ProjectException e) {
                     } finally {
