@@ -383,6 +383,11 @@ public class TableBuilder {
                 }
                 ICellStyle style = cell.getStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
+                Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(), currentRow + j + region.getTop(), gridModel.getSheetSource().getSheet());
+                if (cell.getType() != Cell.CELL_TYPE_FORMULA && newCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+                    newCell.setCellType(Cell.CELL_TYPE_STRING);
+                    newCell.setCellValue(cellValue.toString());
+                }
             }
         }
         currentRow += table.getHeight();
