@@ -36,6 +36,8 @@ import org.openl.rules.helpers.RulesUtils;
 import org.openl.rules.search.SearchTableRow;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 /**
  * Test to check that methods from {@link RulesUtils} and children of
  * {@link NumberValue} are visible and executed from excel.
@@ -283,6 +285,53 @@ public class RulesUtilsTest {
 		Object testWeekOfYear(Date date);
 		Object testWeekOfMonth(Date date);
 		Object testSecond(Date date);
+		Object testMinute(Date date);
+		Object testHour(Date date);
+		Object testHourOfDay(Date date);
+		Object testAmPm(Date date);
+		Object testDoubleProduct(Double[] inputArray);
+		double testFloatProduct(Float[] inputArray);
+		Object testLongProduct(Long[] inputArray);
+		Object testIntegerProduct(Integer[] inputArray);
+		Object testBigDecimalProduct(BigDecimal[] inputArray);
+		Object testBigIntegerProduct(BigInteger[] inputArray);
+		Object testShortProduct(Short[] inputArray);
+		Object testByteProduct(Byte[] inputArray);
+		Object testDoubleTypeProduct(double[] inputArray);
+		double testFloatTypeProduct(float[] inputArray);
+		Object testLongTypeProduct(long[] inputArray);
+		Object testIntegerTypeProduct(int[] inputArray);
+		Object testShortTypeProduct(short[] inputArray);
+		Object testByteTypeProduct(byte[] inputArray);
+		boolean testBoolTypeAllTrue(boolean[] inputArray);
+		boolean testBoolAllTrue(Boolean[] inputArray);
+		boolean testBoolTypeXor(boolean[] inputArray);
+		boolean testBoolXor(Boolean[] inputArray);
+		boolean testBoolTypeAnyTrue(boolean[] inputArray);
+		boolean testBoolAnyTrue(Boolean[] inputArray);
+		Object testDoubleTypeRound(double d);
+		Object testFloatTypeRound(float f);
+		Object testDoubleTypeRoundScale(double d, int i);
+		Object testFloatTypeRoundScale(float d, int i);
+		Object testDoubleTypeRoundScaleRoundMethod(double d, int i, int j);
+		Object testFloatTypeRoundScaleRoundMethod(float f, int i, int j);
+		Object testBigDecimalRound(BigDecimal valueOf);
+		Object testBigDecimalScaleRound(BigDecimal valueOf, int i);
+		Object testBigDecimalScaleRoundRoundMethod(BigDecimal valueOf, int i,
+				int j);
+		Object[] testRemoveNulls(Integer[] inputArray);
+		Object testIntegerAbs(int i);
+		Object testLongAbs(long l);
+		Object testFloatAbs(float f);
+		Object testDoubleAbs(double d);
+		Object testAcos(double d);
+		Object testAsin(double d);
+		Object testAtan(double d);
+		Object testAtan2(double d, double e);
+		Object testCbrt(double d);
+		Object testCeil(double d);
+		Object testDoubleCopySign(double d, double e);
+		Object testFloatCopySign(float f, float g);
 		
 		
     }
@@ -2241,10 +2290,479 @@ public class RulesUtilsTest {
     }
     
     @Test
+    public void testMinute(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1, 10, 49, 59);
+    	Date date = cal.getTime();
+    	assertEquals(49, instance.testMinute(date));
+    	
+    	cal.set(2013, 8, 1, 10, 0, 0);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testMinute(date));
+    }
+    
+    @Test
+    public void testHour(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1, 13, 49, 59);
+    	Date date = cal.getTime();
+    	assertEquals(1, instance.testHour(date));
+    	
+    	cal.set(2013, 8, 1, 0, 0, 0);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testHour(date));
+    }
+    
+    @Test
+    public void testHourOfDay(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1, 13, 49, 59);
+    	Date date = cal.getTime();
+    	assertEquals(13, instance.testHourOfDay(date));
+    	
+    	cal.set(2013, 8, 1, 0, 0, 0);
+    	date = cal.getTime();
+    	assertEquals(0, instance.testHourOfDay(date));
+    }
+    
+    @Test
+    public void testAmPm(){
+    	Calendar cal = Calendar.getInstance();
+    	cal.set(2013, 8, 1, 13, 49, 59);
+    	Date date = cal.getTime();
+    	assertEquals("PM", instance.testAmPm(date));
+    	
+    	cal.set(2013, 8, 1, 0, 0, 0);
+    	date = cal.getTime();
+    	assertEquals("AM", instance.testAmPm(date));
+    }
+    
+    @Test
+    public void testProductByteType(){
+    	byte[] inputArray = { (byte) 0, (byte) 9, (byte) 7};
+    	assertEquals(0.0, instance.testByteTypeProduct(inputArray));
+    	inputArray = new byte[]{(byte) 1, (byte) 9, (byte) 7};
+    	assertEquals(63.0, instance.testByteTypeProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductShortType(){
+    	short[] inputArray = { (short) 0, (short) 9, (short) 7};
+    	assertEquals(0.0, instance.testShortTypeProduct(inputArray));
+    	inputArray = new short[]{(short) 1, (short) 9, (short) 7};
+    	assertEquals(63.0, instance.testShortTypeProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductIntegerType(){
+    	int[] inputArray = { 0, 9, 7};
+    	assertEquals(0.0, instance.testIntegerTypeProduct(inputArray));
+    	inputArray = new int[]{1, 9, 7};
+    	assertEquals(63.0, instance.testIntegerTypeProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductLongType(){
+    	long[] inputArray = { (long) 0, (long) 9, (long) 7};
+    	assertEquals(0.0, instance.testLongTypeProduct(inputArray));
+    	inputArray = new long[]{(long) 1, (long) 9, (long) 7};
+    	assertEquals(63.0, instance.testLongTypeProduct(inputArray));
+    }
+  
+    @Test
+    public void testProductFloatType(){
+    	float[] inputArray = { (float) 0.0, (float) 9.1, (float) 7.2};
+    	assertEquals( 0.0, instance.testFloatTypeProduct(inputArray), 1e-15);
+    	inputArray = new float[]{(float) 1.0, (float) 9.1, (float) 7.9};
+    	assertEquals( 71.89, instance.testFloatTypeProduct(inputArray), 0.001f);
+    }
+    
+    @Test
+    public void testProductDoubleType(){
+    	double[] inputArray = { (double) 0.0, (double) 9.1, (double) 7.2};
+    	assertEquals( 0.0, instance.testDoubleTypeProduct(inputArray));
+    	inputArray = new double[]{(double) 1.0, (double) 9.1, (double) 7.9};
+    	assertEquals( 71.89, instance.testDoubleTypeProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductByte(){
+    	Byte[] inputArray = { 0, 9, 7};
+    	assertEquals(0.0, instance.testByteProduct(inputArray));
+    	inputArray = new Byte[]{1, 9, 7};
+    	assertEquals(63.0, instance.testByteProduct(inputArray));
+    	inputArray = new Byte[]{ null, 9, 7};
+    	assertEquals(63.0, instance.testByteProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductShort(){
+    	Short[] inputArray = { 0, 9, 7};
+    	assertEquals(0.0, instance.testShortProduct(inputArray));
+    	inputArray = new Short[]{1, 9, 7};
+    	assertEquals(63.0, instance.testShortProduct(inputArray));
+    	inputArray = new Short[]{ null, 9, 7};
+    	assertEquals(63.0, instance.testShortProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductInteger(){
+    	Integer[] inputArray = { 0, 9, 7};
+    	assertEquals(0.0, instance.testIntegerProduct(inputArray));
+    	inputArray = new Integer[]{1, 9, 7};
+    	assertEquals(63.0, instance.testIntegerProduct(inputArray));
+    	inputArray = new Integer[]{ null, 9, 7};
+    	assertEquals(63.0, instance.testIntegerProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductLong(){
+    	Long[] inputArray = { (long) 0, (long) 9, (long) 7};
+    	assertEquals(0.0, instance.testLongProduct(inputArray));
+    	inputArray = new Long[]{(long) 1, (long) 9, (long) 7};
+    	assertEquals(63.0, instance.testLongProduct(inputArray));
+    	inputArray = new Long[]{ null, (long) 9, (long) 7};
+    	assertEquals(63.0, instance.testLongProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductFloat(){
+    	Float[] inputArray = { (float) 0.0, (float) 9.1, (float) 7.2};
+    	assertEquals( 0.0, instance.testFloatProduct(inputArray), 0.001f);
+    	inputArray = new Float[]{(float) 1.0, (float) 9.1, (float) 7.9};
+    	assertEquals(71.89, instance.testFloatProduct(inputArray), 0.001f);
+    	inputArray = new Float[]{ null, (float) 9.0, (float) 7.4};
+    	assertEquals(66.6, instance.testFloatProduct(inputArray), 0.001f);
+    }
+    
+    @Test
+    public void testProductDouble(){
+    	Double[] inputArray = { (double) 0.0, (double) 9.1, (double) 7.2};
+    	assertEquals((double) 0.0, instance.testDoubleProduct(inputArray));
+    	inputArray = new Double[]{(double) 1.0, (double) 9.1, (double) 7.9};
+    	assertEquals((double) 71.89, instance.testDoubleProduct(inputArray));
+    	inputArray = new Double[]{ null, (double) 9.1, (double) 7.7};
+    	assertEquals(70.07, instance.testDoubleProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductBigInteger(){
+    	BigInteger[] inputArray = { BigInteger.valueOf(0), BigInteger.valueOf(9), BigInteger.valueOf(7)};
+    	assertEquals(BigInteger.valueOf(0), instance.testBigIntegerProduct(inputArray));
+    	inputArray = new BigInteger[]{BigInteger.valueOf(1), BigInteger.valueOf(9), BigInteger.valueOf(7)};
+    	assertEquals(BigInteger.valueOf(63), instance.testBigIntegerProduct(inputArray));
+    	inputArray = new BigInteger[]{ null, BigInteger.valueOf(9), BigInteger.valueOf(7)};
+    	assertEquals(BigInteger.valueOf(63), instance.testBigIntegerProduct(inputArray));
+    }
+    
+    @Test
+    public void testProductBigDecimal(){
+    	BigDecimal[] inputArray = { BigDecimal.valueOf(0), BigDecimal.valueOf(9), BigDecimal.valueOf(7)};
+    	assertEquals(BigDecimal.valueOf(0), instance.testBigDecimalProduct(inputArray));
+    	inputArray = new BigDecimal[]{BigDecimal.valueOf(1), BigDecimal.valueOf(9), BigDecimal.valueOf(7)};
+    	assertEquals(BigDecimal.valueOf(63), instance.testBigDecimalProduct(inputArray));
+    	inputArray = new BigDecimal[]{ null, BigDecimal.valueOf(9), BigDecimal.valueOf(7)};
+    	assertEquals(BigDecimal.valueOf(63), instance.testBigDecimalProduct(inputArray));
+    }
+    
+    @Test
+    public void testAllTrueBoolType(){
+    	boolean[] inputArray = {true, true, true};
+    	assertTrue(instance.testBoolTypeAllTrue(inputArray));
+    	inputArray = new boolean[] {true, false, true};
+    	assertFalse(instance.testBoolTypeAllTrue(inputArray));
+    	inputArray = null;
+    	assertFalse(instance.testBoolTypeAllTrue(inputArray));
+    }
+    
+    @Test
+    public void testAllTrueBool(){
+    	Boolean[] inputArray = {true, true, true};
+    	assertTrue(instance.testBoolAllTrue(inputArray));
+    	inputArray = new Boolean[] {true, false, true};
+    	assertFalse(instance.testBoolAllTrue(inputArray));
+    	inputArray = null;
+    	assertFalse(instance.testBoolAllTrue(inputArray));
+    	inputArray = new Boolean[] {true, null, true};
+    	assertFalse(instance.testBoolAllTrue(inputArray));
+    }
+    
+    @Test (expected = OpenLRuntimeException.class)
+    public void testXorBoolType(){
+    	boolean[] inputArray = {true, true, true};
+    	assertTrue(instance.testBoolTypeXor(inputArray));
+    	inputArray = new boolean[] {true, false, true};
+    	assertFalse(instance.testBoolTypeXor(inputArray));
+    	inputArray = null;
+    	assertFalse(instance.testBoolTypeXor(inputArray));
+    	inputArray = new boolean[] {};
+    	assertFalse(instance.testBoolTypeXor(inputArray));
+    }
+    
+    @Test (expected = OpenLRuntimeException.class)
+    public void testXorBool(){
+    	Boolean[] inputArray = {true, true, true};
+    	assertTrue(instance.testBoolXor(inputArray));
+    	inputArray = new Boolean[] {true, false, true};
+    	assertFalse(instance.testBoolXor(inputArray));
+    	inputArray = null;
+    	assertFalse(instance.testBoolXor(inputArray));
+    	inputArray = new Boolean[] {};
+    	assertFalse(instance.testBoolXor(inputArray));
+    	inputArray = new Boolean[] {true, null, true};
+    	assertFalse(instance.testBoolXor(inputArray));
+    }
+    
+    @Test (expected = OpenLRuntimeException.class)
+    public void testAnyTrueBoolType(){
+    	boolean[] inputArray = {true, true, true};
+    	assertTrue(instance.testBoolTypeAnyTrue(inputArray));
+    	inputArray = new boolean[] {true, false, true};
+    	assertTrue(instance.testBoolTypeAnyTrue(inputArray));
+    	inputArray = null;
+    	assertFalse(instance.testBoolTypeAnyTrue(inputArray));
+    	inputArray = new boolean[] {};
+    	assertFalse(instance.testBoolTypeAnyTrue(inputArray));
+    }
+    
+    @Test (expected = OpenLRuntimeException.class)
+    public void testAnyTrueBool(){
+    	Boolean[] inputArray = {true, true, true};
+    	assertTrue(instance.testBoolAnyTrue(inputArray));
+    	inputArray = new Boolean[] {true, false, true};
+    	assertTrue(instance.testBoolAnyTrue(inputArray));
+    	inputArray = null;
+    	assertFalse(instance.testBoolAnyTrue(inputArray));
+    	inputArray = new Boolean[] {};
+    	assertFalse(instance.testBoolAnyTrue(inputArray));
+    	inputArray = new Boolean[] {true, null, true};
+    	assertFalse(instance.testBoolAnyTrue(inputArray));
+    }
+    
+    @Test
+    public void testRoundDoubleType(){
+    	assertEquals(6l, instance.testDoubleTypeRound(5.67));
+    	assertEquals(0l, instance.testDoubleTypeRound(0.01));
+    	assertEquals(6l, instance.testDoubleTypeRound(5.99));
+    	assertEquals(5l, instance.testDoubleTypeRound(5.3));
+    	assertEquals(-6l, instance.testDoubleTypeRound(-5.9));
+    }
+    
+    @Test
+    public void testRoundFloatType(){
+    	assertEquals(6, instance.testFloatTypeRound(5.67f));
+    	assertEquals(0, instance.testFloatTypeRound(0.01f));
+    	assertEquals(6, instance.testFloatTypeRound(5.99f));
+    	assertEquals(5, instance.testFloatTypeRound(5.3f));
+    	assertEquals(-6, instance.testFloatTypeRound(-5.9f));
+    }
+    
+    @Test
+    public void testRoundScaleDoubleType(){
+    	assertEquals(5.7, instance.testDoubleTypeRoundScale(5.67, 1));
+    	assertEquals(0.0, instance.testDoubleTypeRoundScale(0.0, 4));
+    	assertEquals(5.99, instance.testDoubleTypeRoundScale(5.99, 2));
+    	assertEquals(5.3, instance.testDoubleTypeRoundScale(5.3, 2));
+    	assertEquals(-5.9, instance.testDoubleTypeRoundScale(-5.9, 3));
+    }
+    
+    @Test
+    public void testRoundScaleFloatType(){
+    	assertEquals(5.7f, instance.testFloatTypeRoundScale(5.67f, 1));
+    	assertEquals(0.0f, instance.testFloatTypeRoundScale(0.0f, 4));
+    	assertEquals(5.99f, instance.testFloatTypeRoundScale(5.99f, 2));
+    	assertEquals(5.3f, instance.testFloatTypeRoundScale(5.3f, 2));
+    	assertEquals(-5.9f, instance.testFloatTypeRoundScale(-5.9f, 3));
+    }
+    
+    @Test
+    public void testRoundScaleRoundMethodDoubleType(){
+    	assertEquals(5.7, instance.testDoubleTypeRoundScaleRoundMethod(5.67, 1, 0));
+    	assertEquals(0.0, instance.testDoubleTypeRoundScaleRoundMethod(0.0, 4, 1));
+    	assertEquals(5.99, instance.testDoubleTypeRoundScaleRoundMethod(5.99, 2, 2));
+    	assertEquals(5.3, instance.testDoubleTypeRoundScaleRoundMethod(5.3, 2, 3));
+    	assertEquals(-5.9, instance.testDoubleTypeRoundScaleRoundMethod(-5.9, 3, 4));
+    	assertEquals(5.7, instance.testDoubleTypeRoundScaleRoundMethod(5.67, 1, 5));
+    	assertEquals(0.0, instance.testDoubleTypeRoundScaleRoundMethod(0.0, 4, 6));
+    	assertEquals(5.99, instance.testDoubleTypeRoundScaleRoundMethod(5.99, 2, 7));
+    }
+    
+    @Test
+    public void testRoundScaleRoundMethodFloatType(){
+    	assertEquals(5.7f, instance.testFloatTypeRoundScaleRoundMethod(5.67f, 1, 0));
+    	assertEquals(-0.0001f, instance.testFloatTypeRoundScaleRoundMethod(0.0f, 4, 1));
+    	assertEquals(6.0f, instance.testFloatTypeRoundScaleRoundMethod(5.99f, 2, 2));
+    	assertEquals(5.29f, instance.testFloatTypeRoundScaleRoundMethod(5.3f, 2, 3));
+    	assertEquals(-5.9f, instance.testFloatTypeRoundScaleRoundMethod(-5.9f, 3, 4));
+    	assertEquals(5.7f, instance.testFloatTypeRoundScaleRoundMethod(5.67f, 1, 5));
+    	assertEquals(0.0f, instance.testFloatTypeRoundScaleRoundMethod(0.0f, 4, 6));
+    	assertEquals(5.99f, instance.testFloatTypeRoundScaleRoundMethod(5.99f, 2, 7));
+    }
+    
+    @Test
+    public void testRoundBigDecimal(){
+    	assertEquals(BigDecimal.valueOf(6), instance.testBigDecimalRound(BigDecimal.valueOf(5.67)));
+    	assertEquals(BigDecimal.valueOf(0), instance.testBigDecimalRound(BigDecimal.valueOf(0.01)));
+    	assertEquals(BigDecimal.valueOf(6), instance.testBigDecimalRound(BigDecimal.valueOf(5.99)));
+    	assertEquals(BigDecimal.valueOf(5), instance.testBigDecimalRound(BigDecimal.valueOf(5.3)));
+    	assertEquals(BigDecimal.valueOf(-6), instance.testBigDecimalRound(BigDecimal.valueOf(-5.9)));
+    }
+    
+    @Test
+    public void testRoundScaleBigDecimal(){
+    	assertEquals(BigDecimal.valueOf(5.7), instance.testBigDecimalScaleRound(BigDecimal.valueOf(5.67), 1));
+    	assertEquals(new BigDecimal("0.0100"), instance.testBigDecimalScaleRound(BigDecimal.valueOf(0.01), 4));
+    	assertEquals(BigDecimal.valueOf(5.99), instance.testBigDecimalScaleRound(BigDecimal.valueOf(5.99), 2));
+    	assertEquals(new BigDecimal("5.30"), instance.testBigDecimalScaleRound(BigDecimal.valueOf(5.3), 2));
+    	assertEquals(new BigDecimal("-5.900"), instance.testBigDecimalScaleRound(BigDecimal.valueOf(-5.9), 3));
+    }
+    
+    @Test
+    public void testRoundScaleRoundMethodBigDecimal(){
+    	assertEquals(BigDecimal.valueOf(5.7), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(5.67), 1, 0));
+    	assertEquals(new BigDecimal("0.0100"), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(0.01), 4, 1));
+    	assertEquals(BigDecimal.valueOf(5.99), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(5.99), 2, 2));
+    	assertEquals(new BigDecimal("5.30"), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(5.3), 2, 3));
+    	assertEquals(new BigDecimal("-5.900"), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(-5.9), 3, 4));
+    	assertEquals(BigDecimal.valueOf(5.7), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(5.67), 1, 5));
+    	assertEquals(new BigDecimal("0.0100"), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(0.01), 4, 6));
+    	assertEquals(BigDecimal.valueOf(5.99), instance.testBigDecimalScaleRoundRoundMethod(BigDecimal.valueOf(5.99), 2, 7));
+    }
+    
+    @Test
+    public void testRemoveNulls(){
+    	Integer[] inputArray = {1, 3, 4, 5};
+    	assertArrayEquals(inputArray, instance.testRemoveNulls(inputArray));
+    	inputArray = new Integer[] {1, 3, 4, null};
+    	assertArrayEquals(new Integer[] {1, 3, 4}, instance.testRemoveNulls(inputArray));
+    	inputArray = new Integer[] {null, 3, 4, null};
+    	assertArrayEquals(new Integer[] {3, 4}, instance.testRemoveNulls(inputArray));
+    	inputArray = new Integer[] {null, null, null, null};
+    	assertArrayEquals(new Integer[] {}, instance.testRemoveNulls(inputArray));
+    }
+    
+    @Test
+    public void testAbsDouble(){
+    	assertEquals(5.5, instance.testDoubleAbs(-5.5));
+    	assertEquals(0.0, instance.testDoubleAbs(-0.0));
+    	assertEquals(0.0, instance.testDoubleAbs(0.0));
+    	assertEquals(5.5, instance.testDoubleAbs(5.5));
+    	assertEquals(5.9, instance.testDoubleAbs(-5.9));
+    }
+    
+    @Test
+    public void testAbsFloat(){
+    	assertEquals(5.5f, instance.testFloatAbs(-5.5f));
+    	assertEquals(0.0f, instance.testFloatAbs(-0.0f));
+    	assertEquals(0.0f, instance.testFloatAbs(0.0f));
+    	assertEquals(5.5f, instance.testFloatAbs(5.5f));
+    	assertEquals(5.9f, instance.testFloatAbs(-5.9f));
+    }
+    
+    @Test
+    public void testAbsLong(){
+    	assertEquals(5l, instance.testLongAbs(-5l));
+    	assertEquals(0l, instance.testLongAbs(-0l));
+    	assertEquals(0l, instance.testLongAbs(0l));
+    	assertEquals(5l, instance.testLongAbs(5l));
+    	assertEquals(5l, instance.testLongAbs(-5l));
+    }
+    
+    @Test
+    public void testAbsInteger(){
+    	assertEquals(5, instance.testIntegerAbs(-5));
+    	assertEquals(0, instance.testIntegerAbs(-0));
+    	assertEquals(0, instance.testIntegerAbs(0));
+    	assertEquals(5, instance.testIntegerAbs(5));
+    	assertEquals(5, instance.testIntegerAbs(-5));
+    }
+    @Test
+    public void testAcos(){
+    	assertEquals(1.5707963267948966, instance.testAcos(0.0));
+    	assertEquals(0.0, instance.testAcos(1.0));
+    	assertEquals(1.0471975511965979, instance.testAcos(0.5));
+    	assertEquals(1.5707963267948966, instance.testAcos(-0.0));
+    	assertEquals(2.0943951023931957, instance.testAcos(-0.5));
+    	assertEquals(3.141592653589793, instance.testAcos(-1.0));
+    }
+    
+    @Test
+    public void testAsin(){
+    	assertEquals(0.0, instance.testAsin(0.0));
+    	assertEquals(1.5707963267948966, instance.testAsin(1.0));
+    	assertEquals(0.5235987755982989, instance.testAsin(0.5));
+    	assertEquals(-0.0, instance.testAsin(-0.0));
+    	assertEquals(-0.5235987755982989, instance.testAsin(-0.5));
+    	assertEquals(-1.5707963267948966, instance.testAsin(-1.0));
+    }
+    
+    @Test
+    public void testAtan(){
+    	assertEquals(0.0, instance.testAtan(0.0));
+    	assertEquals(0.7853981633974483, instance.testAtan(1.0));
+    	assertEquals(0.4636476090008061, instance.testAtan(0.5));
+    	assertEquals(-0.0, instance.testAtan(-0.0));
+    	assertEquals(-0.4636476090008061, instance.testAtan(-0.5));
+    	assertEquals(-0.7853981633974483, instance.testAtan(-1.0));
+    }
+    
+    @Test
+    public void testAtan2(){
+    	assertEquals(0.0,  instance.testAtan2(0.0, 0.0));
+    	assertEquals(0.0,  instance.testAtan2(0.0, 1.0));
+    	assertEquals(1.5707963267948966,  instance.testAtan2(1.0, 0.0));
+    	assertEquals(-1.5707963267948966,  instance.testAtan2(-1.0, 0.0));
+    	assertEquals(1.5707963267948966,  instance.testAtan2(1.0, -0.0));
+    	assertEquals(-1.5707963267948966,  instance.testAtan2(-1.0, -0.0));
+    	assertEquals(-0.0,  instance.testAtan2(-0.0, 1.0));
+    	assertEquals(3.141592653589793,  instance.testAtan2(0.0, -1.0));
+    	assertEquals(-3.141592653589793,  instance.testAtan2(-0.0, -1.0));
+    }
+    
+    @Test
+    public void testCbrt(){
+    	assertEquals(0.0, instance.testCbrt(0.0));
+    	assertEquals(1.0, instance.testCbrt(1.0));
+    	assertEquals(1.2599210498948732, instance.testCbrt(2.0));
+    	assertEquals(-1.0, instance.testCbrt(-1.0));
+    }
+    
+    @Test
+    public void testCeil(){
+    	assertEquals(0.0, instance.testCeil(0.0));
+    	assertEquals(2.0, instance.testCeil(1.3));
+    	assertEquals(-0.0, instance.testCeil(-0.8));
+    	assertEquals(-1.0, instance.testCeil(-1.3));
+    	assertEquals(100.0, instance.testCeil(99.99));
+    }
+    
+    @Test
+    public void testCopySignDouble(){
+    	assertEquals(0.0, instance.testDoubleCopySign(0.0, 1.0));
+    	assertEquals(1.0, instance.testDoubleCopySign(1.0, 1.0));
+    	assertEquals(1.0, instance.testDoubleCopySign(1.0, 2.0));
+    	assertEquals(2.4, instance.testDoubleCopySign(2.4, 1.0));
+    	assertEquals(2.4, instance.testDoubleCopySign(2.4, 0.2));
+    	assertEquals(2.4, instance.testDoubleCopySign(-2.4, 0.2));
+    	assertEquals(-2.4, instance.testDoubleCopySign(-2.4, -0.2));
+    }
+    
+    @Test
+    public void testCopySignFloat(){
+    	assertEquals(0.0f, instance.testFloatCopySign(0.0f, 1.0f));
+    	assertEquals(1.0f, instance.testFloatCopySign(1.0f, 1.0f));
+    	assertEquals(1.0f, instance.testFloatCopySign(1.0f, 2.0f));
+    	assertEquals(2.4f, instance.testFloatCopySign(2.4f, 1.0f));
+    	assertEquals(2.4f, instance.testFloatCopySign(2.4f, 0.2f));
+    	assertEquals(2.4f, instance.testFloatCopySign(-2.4f, 0.2f));
+    	assertEquals(-2.4f, instance.testFloatCopySign(-2.4f, -0.2f));
+    }
+    
+    @Test
     public void testOrCallingFromRules() {
         assertTrue(instance.checkOr());
     }
-
+    
     @Test
     public void testXOR3arguments() {
         assertFalse(callXor(false, false, false));
