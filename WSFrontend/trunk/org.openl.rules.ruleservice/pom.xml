@@ -59,7 +59,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<additionalClasspathElements>
-						<additionalClasspathElement>test-resources/jarpackedproject.jar</additionalClasspathElement>
+						<additionalClasspathElement>${basedir}/test-resources/jarpackedproject.jar</additionalClasspathElement>
 					</additionalClasspathElements>
 				</configuration>
 			</plugin>
