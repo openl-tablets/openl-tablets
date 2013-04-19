@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -32,15 +31,15 @@
 
     <div class="content" style="margin: 11px 14px">
         <h:panelGrid columns="2" cellspacing="6" columnClasses="">
-            <h:outputText value="Project Name: " style="font-weight: bold" />
+            <h:outputText value="#{msg['ws.module.project.name']}: " style="font-weight: bold" />
             <h:outputText value="#{studio.currentModule.project.name}"  />
-            <h:outputText value="Module Name: " style="font-weight: bold" />
+            <h:outputText value="#{msg['ws.module.name']}: " style="font-weight: bold" />
             <h:outputText value="#{studio.currentModule.name}"  />
 
-            <h:outputText value="Number of Tables: " style="font-weight: bold" />
+            <h:outputText value="#{msg['ws.module.tables']}: " style="font-weight: bold" />
             <h:panelGroup>
                 <h:outputText value="#{fn:length(studio.model.tableSyntaxNodes)}" />
-                <h:outputText value="#{studio.model.errorNodesNumber} failed" styleClass="badge badge-error"
+                <h:outputText value="#{studio.model.errorNodesNumber} #{msg['ws.module.tables.failed']}" styleClass="badge badge-error"
                     rendered="#{studio.model.errorNodesNumber > 0}" style="margin-left: 7px" />
 
             </h:panelGroup>
@@ -51,7 +50,7 @@
       </h:panelGrid>
 
 	  <h:panelGroup rendered="#{modulePageBean.dependencies.size() > 0}" layout="block" styleClass="module-imports">
-           <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">Project Dependencies:</div>
+           <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">#{msg['ws.module.dependencies']}:</div>
           <div>
               <ul>
                   <a4j:repeat value="#{modulePageBean.dependencies}" var="keys" >
@@ -62,7 +61,7 @@
       </h:panelGroup>
 
 	  <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}" layout="block" styleClass="module-imports">
-	      <div style="font-weight: bold; margin-left: 7px;">Included modules:</div>
+	      <div style="font-weight: bold; margin-left: 7px;">#{msg['ws.module.includes']}:</div>
 	      <div>
 	          <ul>
 	           <a4j:repeat value="#{modulePageBean.includes}" var="keys">
@@ -73,7 +72,7 @@
 	   </h:panelGroup>
 
 	   <h:panelGroup rendered="#{modulePageBean.imports.size() > 0}" layout="block" styleClass="module-imports">
-	       <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">Imported Libraries and Packages:</div>
+	       <div style="font-weight: bold; margin-left: 7px; margin-top: 7px;">#{msg['ws.module.imports']}:</div>
  	      <div>
 	          <ul>
 	              <a4j:repeat value="#{modulePageBean.imports}" var="keys" >
