@@ -12,24 +12,28 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
+        <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
         <link href="#{contextPath}/css/common.css" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
-        <h:outputScript name="jquery.js" />
-        <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
-        <script src="#{contextPath}/javascript/jquery.layout.js"></script>
+
+        <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
+        <script src="#{contextPath}/javascript/bootstrap.min.js"></script>
         <h:outputScript name="jsf.js" library="javax.faces" />
+
         <script src="#{contextPath}/javascript/jquery.easytabs.min.js"></script>
 
         <style>
-            .ui-layout-resizer {
-                display: none !important;
-            }
             #header {
-                height: 31px !important;
                 border-bottom: 1px solid #f3f3f3;
             }
+            #center {
+                height: -moz-calc(100% - 64px);
+                height: -webkit-calc(100% - 64px);
+                height: calc(100% - 64px);
+            }
             .simpleView_workspace {
-                top: 38px;
+                top: 70px;
+                bottom: 32px;
             }
             .rf-tab-lbl {
                 font-size: 110% !important;
@@ -57,10 +61,9 @@
 
             .tab-panel-vertical ul {
                 position: fixed;
-                top: 72px;
-                bottom: 0;
+                top: 71px;
                 left: 0;
-                height: 100%;
+                height: calc(100% - 104px);
             }
 
             .tab-panel-vertical ul li {
@@ -94,20 +97,13 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else if (code == 404) { // File Not Found
-                    message("Sorry! Page Not Found!", 7000);
+                    message("#{msg['ws.common.error.404']}", 7000);
                 } else {
-                    message("Sorry! Something went wrong. Please, try to refresh the page!", 7000);
+                    message("#{msg['ws.common.error.500']}", 7000);
                 }
             }
 
             $j(function () {
-                $j('body').layout({
-                    closable: false,
-                    resizable: false,
-                    slidable: false,
-                    spacing_open: 1
-                });
-
                 loadingPanel = $j("#loadingPanel");
 
                 $j("body").css({"visibility": "visible"});
@@ -169,14 +165,14 @@
     </h:head>
 
     <h:body style="visibility: hidden">
-        <div id="header" class="ui-layout-north">
+        <div id="header">
             <ui:insert name="header">
                 <ui:include src="/pages/common/header.xhtml">
                     <ui:param name="menu" value="admin" />
                 </ui:include>
             </ui:insert>
         </div>
-        <div id="center" class="ui-layout-center">
+        <div id="center">
             <a4j:outputPanel ajaxRendered="true">
                 <h:panelGroup styleClass="messages" layout="block"
                     rendered="#{!empty facesContext.maximumSeverity}">
@@ -184,13 +180,13 @@
                         showSummary="false" tooltip="true" globalOnly="true" />
                 </h:panelGroup>
             </a4j:outputPanel>
-            <div id="content" class="ui-layout-center" style="padding-top: 11px; position: static">
+            <div id="content" style="padding-top: 11px">
                 <div>
                     <ui:insert name="content" />
                 </div>
             </div>
         </div>
-        <div id="footer" class="ui-layout-south">
+        <div id="footer">
             <ui:insert name="footer">
                 <ui:include src="/pages/common/footer.xhtml" />
             </ui:insert>

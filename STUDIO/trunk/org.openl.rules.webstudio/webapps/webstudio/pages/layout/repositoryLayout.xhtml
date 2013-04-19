@@ -16,6 +16,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
+        <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
         <link href="#{contextPath}/css/common.css" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
@@ -24,6 +25,7 @@
 
         <script src="#{contextPath}/javascript/common.js"></script>
         <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
+        <script src="#{contextPath}/javascript/bootstrap.min.js"></script>
         <script src="#{contextPath}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
         <script src="#{contextPath}/javascript/jquery.layout.js"></script>
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
@@ -68,7 +70,7 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else {
-                    alert("Sorry! Something went wrong. Please, try to refresh the page!");
+                    alert("#{msg['ws.common.error.500']}");
                 }
             }
 
@@ -121,7 +123,7 @@
 
             <div id="center">
                 <div id="left" class="ui-layout-west">
-                    <span id="west-closer" class="pane-closer" title="Close" />
+                    <span id="west-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
                     <ui:insert name="left" />
                 </div>
                 <div id="content" class="ui-layout-center">

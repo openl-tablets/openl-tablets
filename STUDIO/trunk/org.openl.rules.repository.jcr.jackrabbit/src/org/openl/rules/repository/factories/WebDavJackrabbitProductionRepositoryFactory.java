@@ -16,16 +16,25 @@ public class WebDavJackrabbitProductionRepositoryFactory extends WebDavJacrabbit
 
     private ConfigPropertyString confWebdavUrl = new ConfigPropertyString(
             "production-repository.remote.webdav.url", "http://localhost:8080/jcr/server/");
+    private final ConfigPropertyString login = new ConfigPropertyString(
+            "production-repository.login", "user");
+    private final ConfigPropertyString password = new ConfigPropertyString(
+            "production-repository.pass", "pass");
+    private final ConfigPropertyString repoConfigFile = new ConfigPropertyString(
+            "production-repository.config", "/jackrabbit-repository.xml");
 
     public WebDavJackrabbitProductionRepositoryFactory() {
         setConfWebdavUrl(confWebdavUrl);
+        setLogin(login);
+        setPassword(password);
+        setRepoConfigFile(repoConfigFile);
     }
 
     @Override
     public RProductionRepository createRepository() throws RRepositoryException {
         try {
             // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {

@@ -305,7 +305,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     public void notifyChanges() throws RRepositoryException {
         synchronized (lock) {
             try {
-                deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
+                if (deployLocation.hasProperty(JcrProductionRepository.PROPERTY_NOTIFICATION)) {
+                    deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, (String) null);
+                }
                 deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, "1");
                 deployLocation.save();
             } catch (RepositoryException e) {
