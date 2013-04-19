@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionEvent;
@@ -12,6 +13,8 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
+    private static final String SERVLET_CONTEXT_KEY = "SessionCache";
+
     private final Log log = LogFactory.getLog(SessionListener.class);
 
     private RulesUserSession getUserRules(HttpSession session) {
@@ -44,6 +47,8 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         log.debug("sessionCreated: " + session);
         printSession(session);
 
+        getSessionCache(event).add(session);
+
         Object obj = getUserRules(session);
         if (obj == null) {
             log.debug("no rulesUserSession");
@@ -56,6 +61,8 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         HttpSession session = event.getSession();
         log.debug("sessionDestroyed: " + session);
         printSession(session);
+
+        getSessionCache(event).remove(session);
 
         RulesUserSession obj = getUserRules(session);
         if (obj == null) {
@@ -93,5 +100,21 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         if (rulesUserSession != null) {
             rulesUserSession.sessionWillPassivate();
         }
+    }
+
+    public static SessionCache getSessionCache(ServletContext context) {
+        return (SessionCache) context.getAttribute(SERVLET_CONTEXT_KEY);
+    }
+
+    private SessionCache getSessionCache(HttpSessionEvent event) {
+        ServletContext servletContext = event.getSession().getServletContext();
+        SessionCache cache = getSessionCache(servletContext);
+
+        if (cache == null) {
+            cache = new SessionCache();
+            servletContext.setAttribute(SERVLET_CONTEXT_KEY, cache);
+        }
+
+        return cache;
     }
 }

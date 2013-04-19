@@ -14,11 +14,21 @@ import org.openl.config.ConfigurationManager;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
-    
+    public static final String SECURE_CONFIG_FILE = "/secure-jackrabbit-repository.xml";
+
     private ConfigurationManager configManager;
 
     private static final String PRODUCTION_REPOSITORY_FACTORY = "production-repository.factory";
     private static final String PRODUCTION_REPOSITORY_NAME = "production-repository.name";
+
+    private static final String PRODUCTION_REPOSITORY_LOGIN = "production-repository.login";
+    private static final String PRODUCTION_REPOSITORY_PASS = "production-repository.pass";
+    
+    private static final String PRODUCTION_REPOSITORY_CONFIG_FILE = "production-repository.config";
+
+    private static final String PRODUCTION_REPOSITORY_CONNECTION_TYPE = "production-repository.connection.type";
+
+    private boolean secure = false;
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
@@ -121,10 +131,64 @@ public class RepositoryConfiguration {
         String type = getType();
         return configManager.isSystemProperty(PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type));
     }
-    
+
+    public String getLogin() {
+        return configManager.getStringProperty(PRODUCTION_REPOSITORY_LOGIN);
+    }
+
+    public void setLogin(String login) {
+        configManager.setProperty(PRODUCTION_REPOSITORY_LOGIN, login);
+    }
+
+    public String getPassword() {
+        return "";
+        //return configManager.getPassword(PRODUCTION_REPOSITORY_PASS);
+    }
+
+    public void setPassword(String pass) {
+        if (!StringUtils.isEmpty(pass)) {
+            configManager.setPassword(PRODUCTION_REPOSITORY_PASS, pass);
+        }
+    }
+
+    public String getConnectionType() {
+        return configManager.getStringProperty(PRODUCTION_REPOSITORY_CONNECTION_TYPE);
+    }
+
+    public void setConnectionType(String connectionType) {
+        configManager.setProperty(PRODUCTION_REPOSITORY_CONNECTION_TYPE, connectionType);
+    }
+
+    public Map<String, Object> getProperties() {
+        return configManager.getProperties();
+    }
+
+    public String getConfigFile() {
+        return configManager.getStringProperty(PRODUCTION_REPOSITORY_CONFIG_FILE);
+    }
+
+    public void setConfigFile(String configFile) {
+        configManager.setProperty(PRODUCTION_REPOSITORY_CONFIG_FILE, configFile);
+    }
+
+    public boolean isSecure() {
+        return secure || !StringUtils.isEmpty(this.getLogin());
+    }
+
+    public void setSecure(boolean secure) {
+        if (!secure) {
+            configManager.removeProperty(PRODUCTION_REPOSITORY_LOGIN);
+            configManager.removeProperty(PRODUCTION_REPOSITORY_PASS);
+            configManager.removeProperty(PRODUCTION_REPOSITORY_CONFIG_FILE);
+        } else {
+            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIG_FILE, SECURE_CONFIG_FILE);
+        }
+        this.secure = secure;
+    }
+
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {
         private static final Pattern pattern = Pattern.compile("([^\\d]*+)(\\d*+)");
-        
+
         @Override
         public int compare(RepositoryConfiguration o1, RepositoryConfiguration o2) {
             Matcher m1 = pattern.matcher(o1.getName());

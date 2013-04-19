@@ -7,7 +7,7 @@
     template="/pages/layout/simpleLayout.xhtml">
 
     <ui:define name="content">
-        <input type="hidden" id="OPENL_LOGIN_PAGE"/>
+        <input type="hidden" id="OPENL_LOGIN_PAGE" />
 
         <table style="width: 100%">
             <tr>
@@ -15,7 +15,7 @@
                     <div align="center">
                         <!-- possible error messages -->
                         <c:if test="#{not empty SPRING_SECURITY_LAST_EXCEPTION}">
-                            <p class="error">Wrong username or/and password</p>
+                            <p class="error">#{msg['ws.login.wrong']}</p>
                             <c:set var="SPRING_SECURITY_LAST_EXCEPTION" value="#{null}" />
                         </c:if>
                         <div>
@@ -24,7 +24,7 @@
                                 <table id="loginForm" style="text-align: left;">
                                     <tr>
                                         <td align="right">
-                                            <label for="loginName">Username:</label>
+                                            <label for="loginName">#{msg['ws.login.username']}:</label>
                                         </td>
                                         <td>
                                             <input type="text" name="j_username" id="loginName" style="width: 120px" />
@@ -32,7 +32,7 @@
                                     </tr>
                                     <tr>
                                         <td align="right">
-                                            <label for="loginPassword">Password:</label>
+                                            <label for="loginPassword">#{msg['ws.login.password']}:</label>
                                         </td>
                                         <td>
                                             <input type="password" name="j_password" id="loginPassword" style="width: 120px" />
@@ -41,7 +41,7 @@
                                     <c:if test="#{!param.noRemember}">
                                     <tr>
                                         <td align="right">
-                                            <label for="rememberMe">Remember me</label>
+                                            <label for="rememberMe">#{msg['ws.login.remember']}</label>
                                         </td>
                                         <td>
                                             <input type="checkbox" class="transparency" name="rememberMe" id="rememberMe" />
@@ -51,7 +51,7 @@
                                     <tr>
                                         <td>&#160;</td>
                                         <td>
-                                            <input type="submit" id="loginSubmit" value="Sign in" />
+                                            <input type="submit" id="loginSubmit" value="#{msg['ws.login.signin']}" />
                                         </td>
                                     </tr>
                                 </table>

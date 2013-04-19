@@ -1315,6 +1315,10 @@ public class RepositoryTreeController {
 
         try {
             Resource[] templates = resourceResolver.getResources(url + "/*");
+            if (templates.length == 0) {
+                resourceResolver = new EncodedJarPathResourcePatternResolver();
+                templates = resourceResolver.getResources(url + "/*");
+            }
             for (Resource resource : templates) {
                 templateFiles.add(new ProjectFile(resource.getFilename(), resource.getInputStream()));
             }

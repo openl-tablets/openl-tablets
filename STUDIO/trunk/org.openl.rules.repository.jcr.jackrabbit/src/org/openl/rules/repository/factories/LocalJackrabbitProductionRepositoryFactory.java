@@ -28,11 +28,20 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             "production-repository.jcr.nodetypes", DEFAULT_NODETYPE_FILE);
     private final ConfigPropertyString confRepositoryName = new ConfigPropertyString(
             "production-repository.name", "Local Jackrabbit");
+    private final ConfigPropertyString login = new ConfigPropertyString(
+            "production-repository.login", "user");
+    private final ConfigPropertyString password = new ConfigPropertyString(
+            "production-repository.pass", "pass");
+    private final ConfigPropertyString repoConfigFile = new ConfigPropertyString(
+            "production-repository.config", "/jackrabbit-repository.xml");
 
     public LocalJackrabbitProductionRepositoryFactory() {
         setConfRepositoryHome(confRepositoryHome);
         setConfNodeTypeFile(confNodeTypeFile);
         setConfRepositoryName(confRepositoryName);
+        setLogin(login);
+        setPassword(password);
+        setRepoConfigFile(repoConfigFile);
     }
 
     /**
@@ -46,7 +55,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
                 convert = false;
             }
             // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             return new JcrProductionRepository(repositoryName, session, transactionManager);
         } catch (RepositoryException e) {
@@ -87,7 +96,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         String tempRepoHome = "/temp/prod_repo/";
         try {
             // FIXME: do not hardcode credential info
-            Session session = createSession("user", "pass");
+            Session session = createSession();
             RTransactionManager transactionManager = getTrasactionManager(session);
             repositoryInstance = new JcrProductionRepository(repositoryName, session, transactionManager);
             //FIXME
