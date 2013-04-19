@@ -268,7 +268,7 @@ public class HTMLRenderer {
             .append(renderEditorToolbarItem(editorId + "_fill_color", editorJsVar, "img/fillColor.png",
                     "selectFillColor('" + editorId + "_fill_color" + "')", "Color the cell background"))
             .append(renderEditorToolbarItem(editorId + "_font_color", editorJsVar, "img/fontColor.png",
-                    "selectFontColor('" + editorId + "_font_color" + "')", "Color the cell background"))
+                    "selectFontColor('" + editorId + "_font_color" + "')", "Color the cell text"))
 
             .append(toolbarItemSeparator)
 

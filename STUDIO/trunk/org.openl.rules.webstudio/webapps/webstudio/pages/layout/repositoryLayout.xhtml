@@ -70,7 +70,7 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else {
-                    alert("Sorry! Something went wrong. Please, try to refresh the page!");
+                    alert("#{msg['ws.common.error.500']}");
                 }
             }
 
@@ -123,7 +123,7 @@
 
             <div id="center">
                 <div id="left" class="ui-layout-west">
-                    <span id="west-closer" class="pane-closer" title="Close" />
+                    <span id="west-closer" class="pane-closer" title="#{msg['ws.common.icon.close']}" />
                     <ui:insert name="left" />
                 </div>
                 <div id="content" class="ui-layout-center">

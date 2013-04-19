@@ -97,9 +97,9 @@
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else if (code == 404) { // File Not Found
-                    message("Sorry! Page Not Found!", 7000);
+                    message("#{msg['ws.common.error.404']}", 7000);
                 } else {
-                    message("Sorry! Something went wrong. Please, try to refresh the page!", 7000);
+                    message("#{msg['ws.common.error.500']}", 7000);
                 }
             }
 
