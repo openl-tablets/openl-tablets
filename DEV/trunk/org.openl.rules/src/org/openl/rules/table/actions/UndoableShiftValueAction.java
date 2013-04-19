@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
@@ -50,6 +51,11 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellValue(getCol(), getRow(), getPrevValue());
         grid.setCellStyle(getCol(), getRow(), getPrevStyle());
         grid.setCellComment(getCol(), getRow(), getPrevComment());
+
+        ICell newCell = grid.getCell(getCol(), getRow());
+        if (cell != null && cell.getType() == Cell.CELL_TYPE_STRING && newCell.getType() == Cell.CELL_TYPE_FORMULA) {
+            grid.setCellStringValue(getCol(), getRow(), cell.getObjectValue().toString());
+        }
     }
 
     // Save value from destination cell -> move region back -> set value to
