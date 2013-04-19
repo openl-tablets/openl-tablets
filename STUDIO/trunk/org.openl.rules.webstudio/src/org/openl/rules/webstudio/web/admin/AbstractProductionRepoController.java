@@ -35,7 +35,7 @@ public abstract class AbstractProductionRepoController {
     @ManagedProperty(value="#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    private String secureConfiguration = "/secure-jackrabbit-repository.xml";
+    private String secureConfiguration = RepositoryConfiguration.SECURE_CONFIG_FILE;
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
         String[] configNames = configManager.getStringArrayProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS);

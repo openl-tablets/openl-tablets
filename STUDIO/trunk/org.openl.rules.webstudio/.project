@@ -35,4 +35,11 @@
 		<nature>org.eclipse.wst.common.modulecore.ModuleCoreNature</nature>
 		<nature>org.jboss.tools.jst.web.kb.kbnature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>test/home.properties</name>
+			<type>1</type>
+			<location>D:/java/_workspaces/exigen-hg/openl-tablets/STUDIO/trunk/org.openl.rules.webstudio/src/org/openl/rules/messages.properties</location>
+		</link>
+	</linkedResources>
 </projectDescription>

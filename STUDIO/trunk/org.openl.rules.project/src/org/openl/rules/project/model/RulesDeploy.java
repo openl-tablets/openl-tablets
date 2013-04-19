@@ -6,6 +6,7 @@ public class RulesDeploy {
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
     private String serviceName;
+    private String interceptingTemplateClassName;
     private String serviceClass;
     private String url;
     private Map<String, Object> configuration;
@@ -17,6 +18,8 @@ public class RulesDeploy {
     public void setProvideRuntimeContext(Boolean isProvideRuntimeContext) {
         this.isProvideRuntimeContext = isProvideRuntimeContext;
     }
+    
+   
 
     public Boolean isProvideVariations() {
         return isProvideVariations;
@@ -56,5 +59,13 @@ public class RulesDeploy {
 
     public void setConfiguration(Map<String, Object> configuration) {
         this.configuration = configuration;
+    }
+    
+    public String getInterceptingTemplateClassName() {
+        return interceptingTemplateClassName;
+    }
+    
+    public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
+        this.interceptingTemplateClassName = interceptingTemplateClassName;
     }
 }

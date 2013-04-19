@@ -26,21 +26,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      * @author PUdalau
      */
     private static class ResultConvertorsSupportClassVisitor extends ClassAdapter {
-        private Set<String> methods;
-
-        /**
-         * Constructs instanse with delegated {@link ClassVisitor} and set of
-         * methods to be changed in the form of method descriptors.
-         * 
-         * @param visitor delegated {@link ClassVisitor}.
-         * @param methods String descriptions of methods where to change return
-         *            type.{@see
-         *            org.objectweb.asm.Type.getMethodDescriptor(Method)}
-         */
-        public ResultConvertorsSupportClassVisitor(ClassVisitor visitor, Set<String> methods) {
-            super(visitor);
-            this.methods = methods;
-        }
+        private Collection<Method> methods;
 
         /**
          * Constructs instanse with delegated {@link ClassVisitor} and set of
@@ -50,24 +36,24 @@ public abstract class RuleServiceInstantiationFactoryHelper {
          * @param methods Methods where to change return type.
          */
         public ResultConvertorsSupportClassVisitor(ClassVisitor visitor, Collection<Method> methods) {
-            this(visitor, convertToSignatureDescriptions(methods));
-        }
-
-        private static Set<String> convertToSignatureDescriptions(Collection<Method> methods) {
-            Set<String> signatureDescriptions = new HashSet<String>();
-            for (Method method : methods) {
-                signatureDescriptions.add(Type.getMethodDescriptor(method));
-            }
-            return signatureDescriptions;
+            super(visitor);
+            this.methods = methods;
         }
 
         @Override
         public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            if (!methods.contains(arg2)) {
-                return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
-            } else {
+            boolean contains = false;
+            for (Method method : methods){
+                if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))){
+                    contains = true;
+                    break;
+                }
+            }
+            
+            if (contains) {
                 return super.visitMethod(arg0, arg1, convertReturnType(arg2), arg3, arg4);
-
+            } else {
+                return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
             }
         }
 
@@ -98,9 +84,9 @@ public abstract class RuleServiceInstantiationFactoryHelper {
         if (!hasChangedReturnType) {
             return serviceClass;
         } else {
-            Set<Method> changedReturnType = getMethodsWithAfterInterceptors(serviceClass);
+            Set<Method> methodsWithAfterInterceptors = getMethodsWithAfterInterceptors(serviceClass);
             ClassWriter classWriter = new ClassWriter(0);
-            ClassVisitor classVisitor = new ResultConvertorsSupportClassVisitor(classWriter, changedReturnType);
+            ClassVisitor classVisitor = new ResultConvertorsSupportClassVisitor(classWriter, methodsWithAfterInterceptors);
             String className = serviceClass.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
             InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, className);
             transformer.accept(classVisitor);
