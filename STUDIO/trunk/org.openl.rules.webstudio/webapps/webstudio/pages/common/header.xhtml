@@ -50,24 +50,24 @@
                     <authz:authentication operation="username" /><b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu">
-                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserDetails();">User details</a></li>
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserDetails();">#{msg['ws.header.user_details']}</a></li>
                     <li class="divider"></li>
-                    <li><a tabindex="-1" href="#{contextPath}/security_logout" title="Sign out"
-                            onclick="return confirm('Are you sure you want to sign out?')">Sign out</a></li>
+                    <li><a tabindex="-1" href="#{contextPath}/security_logout" title="#{msg['ws.header.signout.title']}"
+                            onclick="return confirm('#{msg['ws.header.signout.confirm']}')">#{msg['ws.header.signout']}</a></li>
                 </ul>
             </h:panelGroup>
 
             <a href="#" onclick="window.open('http://openl-tablets.sourceforge.net/docs/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide/index.html','help','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                title="Launch OpenL Tablets online help">Help</a>
+                title="#{msg['ws.header.help.title']}">#{msg['ws.header.help']}</a>
         </div>
 
         <div id="ll" style="position: absolute; top: 8px; right: 355px;">
-            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}" title="Switch to Rules editor">Rules Editor</a>
-            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}" title="Switch to Repository editor">Repository</a>
+            <a href="#{contextPath}" class="#{menu=='rules' ? 'active' : ''}" onclick="#{menu=='rules' ? 'return false' : ''}" title="#{msg['ws.header.editor.title']}">#{msg['ws.header.editor']}</a>
+            <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml" class="#{menu=='repository' ? 'active' : ''}" onclick="#{menu=='repository' ? 'return false' : repositoryTreeState.clearSelectPrj()}" title="#{msg['ws.header.repo.title']}">#{msg['ws.header.repo']}</a>
 
             <c:set var="adminUrl" value="/faces/pages/modules/administration/settings/index.xhtml" />
             <h:panelGroup rendered="#{authz:hasAccessTo(adminUrl)}">
-                <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="Manage system settings and users">Administration</a>
+                <a href="#{contextPath}#{adminUrl}" class="#{menu=='admin' ? 'active' : ''}" onclick="#{menu=='admin' ? 'return false' : ''}" title="#{msg['ws.header.admin.title']}">#{msg['ws.header.admin']}</a>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}" style="position: relative">
