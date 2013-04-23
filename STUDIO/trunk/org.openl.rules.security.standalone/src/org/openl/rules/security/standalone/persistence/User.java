@@ -6,12 +6,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -58,8 +60,8 @@ public class User extends PersistentObject {
 
     @Override
     @Id
-    @GeneratedValue(generator = "nativeId")
-    @GenericGenerator(name = "nativeId", strategy = "native")
+    @GeneratedValue(
+        strategy=GenerationType.AUTO)
     @Column(name = "UserID")
     @Type(type = "java.lang.Long")
     public Long getId() {

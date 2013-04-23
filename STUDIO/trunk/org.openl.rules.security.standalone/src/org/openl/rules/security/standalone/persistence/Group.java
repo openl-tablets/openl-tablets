@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -47,8 +48,8 @@ public class Group extends PersistentObject {
 
     @Override
     @Id
-    @GeneratedValue(generator = "nativeId")
-    @GenericGenerator(name = "nativeId", strategy = "native")
+    @GeneratedValue(
+        strategy=GenerationType.AUTO)
     @Column(name = "GroupID")
     @Type(type = "java.lang.Long")
     public Long getId() {
