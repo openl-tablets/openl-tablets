@@ -80,7 +80,7 @@
 
                 var tooltipData = elem.find(".propEditor .propDescription").html();
                 if (tooltipData) {
-                    var tooltipElemId = elem.find(".propEditor input").attr("id");
+                    var tooltipElemId = elem.find(".propEditor input,.propEditor select").attr("id");
                     new Tooltip(tooltipElemId, tooltipData, {skin:'blue', position: 'top_left', maxWidth: '150px'});
                 }
             }
