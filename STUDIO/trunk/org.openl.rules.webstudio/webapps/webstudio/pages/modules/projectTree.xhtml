@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core"
@@ -32,7 +31,7 @@
         </style>
         <h:panelGroup rendered="#{not empty studio.allProjects}" layout="block">
             <span id="nameFilter">
-                <input type="text" onkeyup="filterProjects(this.value)" placeholder="Filter by Name" />
+                <input type="text" onkeyup="filterProjects(this.value)" placeholder="#{msg['ws.projects.filter']}" />
                 <img src="webresource/images/close.gif" onclick="$j('#nameFilter input').val(''); filterProjects('')" />
             </span>
         </h:panelGroup>
@@ -136,13 +135,13 @@
             </h:panelGroup>
 
             <h:panelGroup rendered="#{empty studio.allProjects}">
-                <h:outputText value="No Projects in the Workspace" style="color:red; font-weight: bold" />
+                <h:outputText value="#{msg['ws.projects.no']}" style="color:red; font-weight: bold" />
                 <br />
                 <c:if test="true">
-                    Please go to the
+                    #{msg['ws.projects.no.goto1']}
                     <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
-                        title="Repository"><h:outputText value="Repository" /></a>
-                    to create a new project
+                        title="Repository">#{msg['ws.projects.no.goto2']}</a>
+                    #{msg['ws.projects.no.goto3']}
                 </c:if>
             </h:panelGroup>
         </h:form>
