@@ -117,13 +117,6 @@ public class InstallWizard {
                 boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
                 appMode = innerDb ? "demo" : "production";
 
-                /*ConfigurationManager defaultDbConfig = !innerDb ? dbConfig : externalDBConfig;
-                dbUrl = defaultDbConfig.getStringProperty("db.url").split("//")[1];
-                dbPrefix = defaultDbConfig.getStringProperty("db.url").split("//")[0] + "//";
-                dbUsername = defaultDbConfig.getStringProperty("db.user");
-                dbPassword = defaultDbConfig.getStringProperty("db.password");
-                dbDriver = defaultDbConfig.getStringProperty("db.driver");
-                dbVendor = defaultDbConfig.getStringProperty("db.vendor");*/
             }
         }
         return PAGE_PREFIX + step + PAGE_POSTFIX;
@@ -223,14 +216,12 @@ public class InstallWizard {
     }
 
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String dbURLString = (String) dbURLInput.getLocalValue();
-        String dbLoginString = (String) dbLoginInput.getLocalValue();
         String dbPasswordString = (String) dbPasswordInput.getSubmittedValue();
 
-        if (StringUtils.isBlank(dbURLString)) {
+        if (StringUtils.isBlank(dbUrl)) {
             throw new ValidatorException(new FacesMessage("Database URL can not be blank"));
         } else {
-            testDBConnection(dbURLString, dbLoginString, dbPasswordString);
+            testDBConnection(dbUrl, dbUsername, dbPasswordString);
         }
     }
 
@@ -337,7 +328,7 @@ public class InstallWizard {
      */
     public Collection<File> getDBPropetiesFiles() {
         File dbPropFolder = new File(System.getProperty("webapp.root") + "/WEB-INF/conf/db");
-        Collection<File> dbPropFiles = new ArrayList<File>(); 
+        Collection<File> dbPropFiles = new ArrayList<File>();
 
         if (dbPropFolder.isDirectory()) {
             for (File file : dbPropFolder.listFiles()) {
@@ -378,8 +369,7 @@ public class InstallWizard {
      * @param e ajax event
      */
     public void dbVendorChanged(AjaxBehaviorEvent e) {
-        UIInput uiInput = (UIInput)e.getComponent();
-        
+        UIInput uiInput = (UIInput) e.getComponent();
 
         if (uiInput.getValue() != null) {
             String propertyFilePath = uiInput.getValue().toString();
@@ -395,6 +385,28 @@ public class InstallWizard {
             setDbDriver(dbDriver);
             this.dbPrefix = prefix;
         }
+    }
+
+    /**
+     * Ajax event for changing database url.
+     * 
+     * @param e AjaxBehavior event
+     */
+    public void urlChanged(AjaxBehaviorEvent e) {
+        UIInput uiInput = (UIInput) e.getComponent();
+        String url = uiInput.getValue().toString();
+        setDbUrl(url);
+    }
+
+    /**
+     * Ajax event for changing database username
+     * 
+     * @param e AjaxBehavior event
+     */
+    public void usernameChanged(AjaxBehaviorEvent e) {
+        UIInput uiInput = (UIInput) e.getComponent();
+        String username = uiInput.getValue().toString();
+        setDbUsername(username);
     }
 
     public ConfigurationManager getExternalDBConfig() {

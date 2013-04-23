@@ -79,8 +79,9 @@
                                 <tr>
                                     <td><label>Database URL</label></td>
                                     <td>
-                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}"
-                                        binding="#{installWizard.dbURLInput}" rendered="true"/>
+                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}">
+                                        <f:ajax  listener="#{installWizard.urlChanged}" />
+                                        </h:inputText>
                                     </td>
                                 </tr>
                                 <tr><td></td></tr>
@@ -89,8 +90,9 @@
                                     <td><label>Username</label></td>
                                         <td>
                                            <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" 
-                                           binding="#{installWizard.dbLoginInput}"
-                                           required="true"/>
+                                           required="true" >
+                                           <f:ajax  listener="#{installWizard.usernameChanged}" />
+                                           </h:inputText>
                                          </td>
                                 </tr>
                                 <tr>
