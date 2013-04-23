@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -137,26 +136,26 @@
 
     <h:outputLink value="javascript:void(0)" style="margin-right: 1px"
         onclick="showPopupMenu(event, 'advancedSearch', $j(this).next(), {'offsetTop': 4, 'closeIcon': true})">
-        <h:graphicImage url="/webresource/images/arrow_down.png" title="Advanced Search" />
+        <h:graphicImage url="/webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" />
     </h:outputLink>
     <form style="display: inline;" onsubmit="doSearch(); return false;">
         <span id="searchInput">
-            <input type="text" id="searchQuery" placeholder="Search..." />
-            <input type="image" src="webresource/images/search.png" />
+            <input type="text" id="searchQuery" placeholder="#{msg['ws.search.input']}" />
+            <input type="image" src="webresource/images/search.png" title="#{msg['ws.search.search']}" />
         </span>
         <div id="advancedSearch">
             <div>
-                <label>Table Type</label>
+                <label>#{msg['ws.search.table.type']}</label>
                 <oh:multiselect items="#{searchBean.tableTypeItems}" selected="#{searchBean.tableTypes}" />
             </div>
 
             <div>
-                <label>Header contains</label>
+                <label>#{msg['ws.search.table.header']}</label>
                 <input type="text" id="tableHeader" />
             </div>
 
             <div>
-                <label>Table Properties</label>
+                <label>#{msg['ws.search.table.properties']}</label>
                 <div id="propertiesTable">
                     <table>
                         <a4j:repeat value="#{searchBean.properties}" var="prop">
@@ -178,7 +177,7 @@
                                 </h:selectOneMenu>
                             </td>
                             <td style="padding-left: 5px">
-                                <a href="javascript:void(0)" id="removePropBtn1" title="Remove" class="removeBtn"
+                                <a href="javascript:void(0)" id="removePropBtn1" title="#{msg['ws.common.icon.remove']}" class="removeBtn"
                                     onclick="removeProperty($j(this).parent().prev().find('input:first').val());"><img
                                     src="webresource/images/close.gif" /></a>
                             </td>
@@ -192,14 +191,14 @@
                             <option value="#{prop.name}">#{prop.displayName}</option>
                         </ui:repeat>
                     </select>
-                    <input type="button" value="Add"
+                    <input type="button" value="#{msg['ws.search.table.properties.add']}"
                         onclick="addProperty($j('#propertyItems option:selected').val());"
                         style="margin-left: 9px; padding: 2px 6px" />
                 </div>
             </div>
 
             <div style="margin-top: 20px">
-                <input type="submit" value="Search" class="button-primary" />
+                <input type="submit" value="#{msg['ws.search.search']}" class="button-primary" />
             </div>
         </div>
     </form>

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
@@ -11,7 +10,7 @@
     <ui:define name="toolbar">     
          <h:panelGrid id="backButtonGrid">
                 <h:panelGroup layout="block">
-                     <h:outputLink title="Return to the module tree" styleClass="imageButton"
+                     <h:outputLink title="#{msg['ws.tables.visited.return']}" styleClass="imageButton"
                         style="background:url('webresource/images/back.png'); border: 0; background-color: transparent !important"
                         onclick="sessionStorage.removeItem(SHOW_HISTORY_ITEM); reloadLeft(); return false;" />
                  </h:panelGroup>
@@ -57,7 +56,7 @@
         </h:dataTable>
         
         <h:panelGroup rendered="#{empty recentlyVisitedTables}">
-            <h:outputText value="There are no tables in the list." />
+            <h:outputText value="#{msg['ws.tables.visited.no']}" />
         </h:panelGroup>
     </ui:define>
 
