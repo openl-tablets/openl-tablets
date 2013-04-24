@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -450,6 +451,22 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String unlockNode() {
+        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
+        try {
+            projectArtefact.unlock(userWorkspace.getUser());
+            repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
+
+            FacesUtils.addInfoMessage("File was unlocked successfully.");
+        } catch (ProjectException e) {
+            log.error("Failed to unlock node.", e);
+            FacesUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
+        }
+
+        return null;
+    }
+
     public String deleteRulesProject() {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
@@ -478,6 +495,22 @@ public class RepositoryTreeController {
         }
         return null;
     }
+
+    public String unlockProject() {
+        String projectName = FacesUtils.getRequestParameter("projectName");
+
+        try {
+            RulesProject project = userWorkspace.getProject(projectName);
+            project.unlock(userWorkspace.getUser());
+            resetStudioModel();
+        } catch (ProjectException e) {
+            log.error("Cannot unlock rules project '" + projectName + "'.", e);
+            FacesUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
+        }
+        return null;
+    }
+
+    
 
     public String eraseProject() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
@@ -1331,6 +1364,10 @@ public class RepositoryTreeController {
 
     public boolean getCanDelete() {
         return isGranted(PRIVILEGE_DELETE_PROJECTS);
+    }
+
+    public boolean getCanUnlock() {
+        return isGranted(PRIVILEGE_UNLOCK_PROJECTS);
     }
 
     public boolean getCanDeleteDeployment() {
