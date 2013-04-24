@@ -68,8 +68,8 @@
               &#160;
               <h:commandLink immediate="true"
                   action="#{repositoryTreeController.unlockProject}"
-                  onclick="if(!window.confirm('Are you sure you want to unlock the project?')) {return false;}"
-                  title="Mark project as unlocked">
+                  onclick="if(!window.confirm('All unsaved user changes will be lost during unlock. Do you want to proceed?')) {return false;}"
+                  title="Unlock project">
                   <f:param name="projectName" value="#{prj.name}" />
                   <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
               </h:commandLink>
@@ -79,7 +79,7 @@
               <h:commandLink immediate="true"
                   action="#{repositoryTreeController.deleteRulesProject}"
                   onclick="if(!window.confirm('Are you sure you want to delete the project?')) {return false;}"
-                  title="Mark project as deleted">
+                  title="Archive project">
                   <f:param name="projectName" value="#{prj.name}" />
                   <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete"/>
               </h:commandLink>
