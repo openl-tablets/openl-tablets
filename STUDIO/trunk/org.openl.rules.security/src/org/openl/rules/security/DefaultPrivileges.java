@@ -14,6 +14,7 @@ public enum DefaultPrivileges implements Privilege {
     PRIVILEGE_EDIT_PROJECTS ("Edit Projects"),
     PRIVILEGE_ERASE_PROJECTS ("Erase Projects"),
     PRIVILEGE_DELETE_PROJECTS ("Delete Projects"),
+    PRIVILEGE_UNLOCK_PROJECTS ("Unlock Projects"),
 
     PRIVILEGE_DEPLOY_PROJECTS ("Deploy Projects"),
 

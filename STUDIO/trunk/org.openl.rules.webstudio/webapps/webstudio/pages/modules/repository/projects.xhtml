@@ -64,6 +64,16 @@
               onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Create a new project in Design Repository with a different project name but the same content">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
           </h:commandLink>
+          <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
+              &#160;
+              <h:commandLink immediate="true"
+                  action="#{repositoryTreeController.unlockProject}"
+                  onclick="if(!window.confirm('Are you sure you want to unlock the project?')) {return false;}"
+                  title="Mark project as unlocked">
+                  <f:param name="projectName" value="#{prj.name}" />
+                  <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
+              </h:commandLink>
+          </h:panelGroup>
           <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
               &#160;
               <h:commandLink immediate="true"
