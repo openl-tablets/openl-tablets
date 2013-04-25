@@ -1,0 +1,33 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalUnlockNode" width="400" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="Confirm Unlock" />
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/close.gif" class="close"
+        onclick="RichFaces.$('modalUnlockNode').hide();" alt="Close" />
+    </f:facet>
+
+    <h:form id="unlockNodeForm">
+      <h:panelGroup id="modalUnlockNodeData">
+        <h:outputText value="All unsaved user changes will be lost during unlock. Do you want to proceed?" />
+      </h:panelGroup>
+
+      <hr />
+
+      <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="4" cellspacing="0">
+        <h:commandButton value="Unlock" action="#{repositoryTreeController.unlockNode}" />
+        <input type="button" value="Cancel" onclick="#{rich:component('modalUnlockNode')}.hide();" />
+      </h:panelGrid>
+    </h:form>
+
+  </rich:popupPanel>
+
+</ui:composition>
