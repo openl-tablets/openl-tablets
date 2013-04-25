@@ -678,5 +678,7 @@ public interface IWritableGrid extends IGrid {
 
     void setCellValue(int col, int row, Object value);
 
+    void setCellStringValue(int col, int row, String value);
+
     void setCellFormula(int col, int row, String formula);
 }

@@ -267,11 +267,11 @@ public class SystemSettingsBean {
     public boolean isCustomSpreadsheetType() {
         return OpenLSystemProperties.isCustomSpreadsheetType(configManager.getProperties());
     }
-    
+
     public void setCustomSpreadsheetType(boolean customSpreadsheetType) {
         configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
-    
+
     public String getRulesDispatchingMode() {
         return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
     }
