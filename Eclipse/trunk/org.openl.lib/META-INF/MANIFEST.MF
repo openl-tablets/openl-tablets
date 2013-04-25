@@ -263,7 +263,7 @@ Bundle-ClassPath: lib/asm-3.3.jar,
  lib/commons-math-2.1.jar,
  lib/jgrapht-jdk1.5-0.7.3.jar,
  lib/joda-time-1.6.2.jar,
- lib/junit-4.6.jar,
+ lib/junit-4.11.jar,
  lib/mockito-all-1.8.5.jar,
  lib/velocity-1.6.2.jar,
  lib/commons-configuration-1.6.jar
