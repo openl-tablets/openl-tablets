@@ -67,7 +67,7 @@
                                 <tr>
                                     <td><label>Database type</label></td>
                                     <td>
-                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true" >
+                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true" style="width:236px;">
                                             <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
                                             <f:selectItems value="#{installWizard.DBVendors}" />
                                             <f:ajax  listener="#{installWizard.dbVendorChanged}" />
@@ -79,7 +79,7 @@
                                 <tr>
                                     <td><label>Database URL</label></td>
                                     <td>
-                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}">
+                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40">
                                         <f:ajax  listener="#{installWizard.urlChanged}" />
                                         </h:inputText>
                                     </td>
@@ -89,7 +89,7 @@
                                 <tr>
                                     <td><label>Username</label></td>
                                         <td>
-                                           <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" 
+                                           <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" size="40"
                                            required="true" >
                                            <f:ajax  listener="#{installWizard.usernameChanged}" />
                                            </h:inputText>
@@ -98,7 +98,7 @@
                                 <tr>
                                     <td><label>Password</label></td>
                                     <td>
-	                                    <h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}"
+	                                    <h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}" size="40"
 	                                    binding="#{installWizard.dbPasswordInput}"
 	                                    validator="#{installWizard.dbValidator}"/>
                                     </td>
