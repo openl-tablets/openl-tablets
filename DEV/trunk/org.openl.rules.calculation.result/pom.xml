@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.dev-pom</artifactId>
+		<version>5.11.0-SNAPSHOT</version>
+		<relativePath>../org.openl.rules.dev-pom</relativePath>
+	</parent>
+
+	<groupId>org.openl.rules</groupId>
+	<artifactId>org.openl.rules.calculation.result</artifactId>
+	<packaging>jar</packaging>
+	<name>OpenL - DEV - Rules - Calculation Result</name>
+	<description>The heart of OpenL</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<includes>
+					<include>**/*.xls</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

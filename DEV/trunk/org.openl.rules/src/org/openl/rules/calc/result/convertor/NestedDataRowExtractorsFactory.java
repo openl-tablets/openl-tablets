@@ -8,6 +8,7 @@ package org.openl.rules.calc.result.convertor;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class NestedDataRowExtractorsFactory<Simple extends CodeStep, Compound extends CompoundStep> {
     
     /** row extractor for simple rows*/

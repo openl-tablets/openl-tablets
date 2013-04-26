@@ -4910,7 +4910,6 @@ public class RulesUtils {
      * @param array2 the second array whose elements are added to the new array.
      * @return The new boolean[] array.
      */
-   
     public static boolean[] addAll(boolean[] array1, boolean[] array2) {
         return ArrayUtils.addAll(array1, array2);
     }

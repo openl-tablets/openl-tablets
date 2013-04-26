@@ -7,6 +7,7 @@ package org.openl.rules.calc.result.convertor;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class SimpleStep extends CodeStep {
     
     private static final long serialVersionUID = 3906469763279262117L;

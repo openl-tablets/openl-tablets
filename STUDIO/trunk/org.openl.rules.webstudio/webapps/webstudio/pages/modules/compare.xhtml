@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
@@ -8,7 +7,7 @@
     xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
     template="/pages/layout/simpleLayout.xhtml">
 
-    <ui:define name="title">Excel Structured Diff</ui:define>
+    <ui:define name="title">#{msg['ws.compare.header']}</ui:define>
 
     <ui:define name="content">
 
@@ -17,24 +16,24 @@
         <h:form id="diffForm" rendered="#{!param.disableUpload}">
             <div id="diffFormPanel">
                 <h:panelGrid columns="2">
-                    <h:outputText value="Select 2 Excel Files" />
+                    <h:outputText value="#{msg['ws.compare.select']}" />
 
                     <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
                         acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
                     </rich:fileUpload>
 
-                    <h:outputText value="Show equal elements" />
+                    <h:outputText value="#{msg['ws.compare.equals']}" />
                     <h:selectBooleanCheckbox value="#{uploadExcelDiffController.showEqualElements}" />
 
-                    <h:commandButton id="compareButton" value="Compare" action="#{uploadExcelDiffController.compare}"
+                    <h:commandButton id="compareButton" value="#{msg['ws.compare.compare']}" action="#{uploadExcelDiffController.compare}"
                         disabled="#{uploadExcelDiffController.uploadsSize != 2}" />
                 </h:panelGrid>
             </div>
             <div style="text-align: right; padding: 0 13px 5px">
                 <img src="webresource/images/arrow_close.png"
-                    onclick="$j('#diffFormPanel').toggle('fast');this.src=(this.title == 'Hide Panel' ? 'webresource/images/arrow_open.png' : 'webresource/images/arrow_close.png');this.title=(this.title == 'Hide Panel' ? 'Show Panel' : 'Hide Panel');"
-                    style="cursor: pointer;" title="Hide Panel" />
+                    onclick="$j('#diffFormPanel').toggle('fast');this.src=(this.title == '#{msg['ws.compare.panel.hide']}' ? 'webresource/images/arrow_open.png' : 'webresource/images/arrow_close.png');this.title=(this.title == '#{msg['ws.compare.panel.hide']}' ? '#{msg['ws.compare.panel.show']}' : '#{msg['ws.compare.panel.hide']}');"
+                    style="cursor: pointer;" title="#{msg['ws.compare.panel.hide']}" />
             </div>
         </h:form>
 
@@ -54,8 +53,8 @@
 
             <table style="width: 100%">
                 <tr>
-                    <td>File 1 fragment</td>
-                    <td>File 2 fragment</td>
+                    <td>#{msg['ws.compare.file1']}</td>
+                    <td>#{msg['ws.compare.file2']}</td>
                 </tr>
                 <tr>
                     <td valign="top">
