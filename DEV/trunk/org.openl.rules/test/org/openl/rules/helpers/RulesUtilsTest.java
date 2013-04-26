@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -33,17 +32,8 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.meta.number.NumberValue;
 import org.openl.rules.TestHelper;
-import org.junit.*;
-import static org.junit.Assert.*;
-
-import org.openl.rules.data.OpenlBasedDataTableModel;
 import org.openl.rules.helpers.RulesUtils;
-import org.openl.rules.search.SearchTableRow;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.util.ArrayTool;
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 /**
  * Test to check that methods from {@link RulesUtils} and children of
