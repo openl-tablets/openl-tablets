@@ -2,29 +2,30 @@ package org.openl.engine;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openl.util.BooleanUtils;
 
 public class OpenLSystemProperties {
-    
-    public static final String CUSTOM_SPREADSHEET_TYPE_PROPERTY = "custom.spreadsheet.type";           
+
+    public static final String CUSTOM_SPREADSHEET_TYPE_PROPERTY = "custom.spreadsheet.type";
     public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
-    public static final String DISPATCHING_MODE_JAVA = "java";        
+    public static final String DISPATCHING_MODE_JAVA = "java";
     public static final String DISPATCHING_MODE_DT = "dt";
-    
+
     private OpenLSystemProperties(){}
-    
+
     public static boolean isJavaDispatchingMode() {
         String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA);
     }
-    
+
     public static boolean isDTDispatchingMode() {
         String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_DT);
     }
-    
+
     public static boolean isCustomSpreadsheetType() {
-        String customSpreadsheetType = System.getProperty(CUSTOM_SPREADSHEET_TYPE_PROPERTY);        
+        String customSpreadsheetType = System.getProperty(CUSTOM_SPREADSHEET_TYPE_PROPERTY);
         return BooleanUtils.toBoolean(customSpreadsheetType);
     }
 
@@ -37,7 +38,7 @@ public class OpenLSystemProperties {
         }
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_JAVA);
     }
-    
+
     public static boolean isDTDispatchingMode(Map<String, Object> externalParameters) {
         String dispatchingMode = null;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_MODE_PROPERTY)) {
@@ -47,7 +48,7 @@ public class OpenLSystemProperties {
         }
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_DT);
     }
-    
+
     public static String getDispatchingMode(Map<String, Object> externalParameters) {
         String dispatchingMode = null;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_MODE_PROPERTY)) {
@@ -65,6 +66,11 @@ public class OpenLSystemProperties {
         } else {
             customSpreadsheetType = System.getProperty(CUSTOM_SPREADSHEET_TYPE_PROPERTY);
         }
+
+        if (StringUtils.isEmpty(customSpreadsheetType)) {
+            return true;
+        }
+
         return BooleanUtils.toBoolean(customSpreadsheetType);
     }
 }

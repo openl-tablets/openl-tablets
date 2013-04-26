@@ -442,10 +442,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE_PROJECTS);
     }
 
-    public boolean getCanExport() {
-        return getCanOpen();
-    }
-
     public boolean getCanOpen() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isOpened()) {

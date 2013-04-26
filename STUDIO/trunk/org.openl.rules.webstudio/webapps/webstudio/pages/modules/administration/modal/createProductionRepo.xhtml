@@ -34,11 +34,9 @@
                 value="Directory:" />
             <h:inputText id="productionRepositoryPath"
                 value="#{newProductionRepoController.path}" styleClass="pathInput"/>
-        </h:panelGrid>
-        <h:panelGrid id="securePanel" columns="2" columnClasses="titleColumn">
             <h:outputLabel value="Secure connection" for="secureConnection" />
             <h:selectBooleanCheckbox id="secureConnection" value="#{newProductionRepoController.secure}">
-                <f:ajax event="change" render="securePanel" />
+                <f:ajax event="change" execute="@form" render="modalCreateRepoPanel" />
             </h:selectBooleanCheckbox>
             <h:outputText value="Login:" rendered="#{newProductionRepoController.secure}"/>
             <h:inputText value="#{newProductionRepoController.login}" rendered="#{newProductionRepoController.secure}"/>

@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,6 +57,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.impl.FileExportHelper;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
@@ -450,6 +452,22 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String unlockNode() {
+        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
+        try {
+            projectArtefact.unlock(userWorkspace.getUser());
+            repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
+
+            FacesUtils.addInfoMessage("File was unlocked successfully.");
+        } catch (ProjectException e) {
+            log.error("Failed to unlock node.", e);
+            FacesUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
+        }
+
+        return null;
+    }
+
     public String deleteRulesProject() {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
@@ -478,6 +496,22 @@ public class RepositoryTreeController {
         }
         return null;
     }
+
+    public String unlockProject() {
+        String projectName = FacesUtils.getRequestParameter("projectName");
+
+        try {
+            RulesProject project = userWorkspace.getProject(projectName);
+            project.unlock(userWorkspace.getUser());
+            resetStudioModel();
+        } catch (ProjectException e) {
+            log.error("Cannot unlock rules project '" + projectName + "'.", e);
+            FacesUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
+        }
+        return null;
+    }
+
+    
 
     public String eraseProject() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
@@ -545,6 +579,33 @@ public class RepositoryTreeController {
             facesContext.responseComplete();
 
             zipFile.delete();
+        }
+        return null;
+    }
+
+    public String exportFileVersion() {
+        File file = null;
+        String fileName = null;
+        try {
+            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                new CommonVersionImpl(version));
+            TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+            file = new FileExportHelper().export(userWorkspace.getUser(), forExport, selectedNode.getName());
+            fileName = selectedNode.getName();
+        } catch (ProjectException e) {
+            String msg = "Failed to export file version.";
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg, e.getMessage());
+        }
+
+        if (file != null) {
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            writeOutContent(response, file, fileName);
+            facesContext.responseComplete();
+
+            file.delete();
         }
         return null;
     }
@@ -1315,6 +1376,10 @@ public class RepositoryTreeController {
 
         try {
             Resource[] templates = resourceResolver.getResources(url + "/*");
+            if (templates.length == 0) {
+                resourceResolver = new EncodedJarPathResourcePatternResolver();
+                templates = resourceResolver.getResources(url + "/*");
+            }
             for (Resource resource : templates) {
                 templateFiles.add(new ProjectFile(resource.getFilename(), resource.getInputStream()));
             }
@@ -1327,6 +1392,10 @@ public class RepositoryTreeController {
 
     public boolean getCanDelete() {
         return isGranted(PRIVILEGE_DELETE_PROJECTS);
+    }
+
+    public boolean getCanUnlock() {
+        return isGranted(PRIVILEGE_UNLOCK_PROJECTS);
     }
 
     public boolean getCanDeleteDeployment() {

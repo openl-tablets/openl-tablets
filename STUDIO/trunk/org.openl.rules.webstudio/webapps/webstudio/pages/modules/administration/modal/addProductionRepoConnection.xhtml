@@ -28,7 +28,7 @@
                 <h:outputText id="errorMessage" styleClass="error" value="#{connectionProductionRepoController.errorMessage}" 
                     rendered="#{!empty connectionProductionRepoController.errorMessage}"/>
             </h:panelGroup>
-            <h:outputText value="Name:" />
+            <h:outputText value="Name:"/>
             <h:inputText value="#{connectionProductionRepoController.name}" />
             <h:outputText value="Type:"/>
             <h:selectOneMenu value="#{connectionProductionRepoController.type}">
@@ -42,11 +42,10 @@
             <h:inputText id="productionRepositoryPath"
                 value="#{connectionProductionRepoController.path}" styleClass="pathInput"
                 disabled="#{repository.productionRepositoryPathSystem}"/>
-        </h:panelGrid>
-        <h:panelGrid id="securePanel" columns="2" columnClasses="titleColumn">
+        
             <h:outputLabel value="Secure connection" for="secureConnection" />
             <h:selectBooleanCheckbox id="secureConnection" value="#{connectionProductionRepoController.secure}">
-                <f:ajax event="change" render="securePanel" />
+                <f:ajax event="change" execute="@form" render="modalAddRepoConnectionPanel" />
             </h:selectBooleanCheckbox>
             <h:outputText value="Login:" rendered="#{connectionProductionRepoController.secure}"/>
             <h:inputText value="#{connectionProductionRepoController.login}" rendered="#{connectionProductionRepoController.secure}"/>
