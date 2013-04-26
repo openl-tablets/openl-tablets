@@ -99,19 +99,12 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                 return false;
             }
 
-            if (checker.isRepoThere() && (!StringUtils.isEmpty(repoConfig.getLogin()) && 
-                    !StringUtils.isEmpty(repoConfig.getPassword()))) {
-                if (StringUtils.isEmpty(repoConfig.getLogin()) ||
-                        StringUtils.isEmpty(repoConfig.getPassword())) {
-                    setErrorMessage("Wrong login or password");
-                    return false;
-                }
-
+            if (checker.isRepoThere() && !StringUtils.isEmpty(repoConfig.getLogin())) {
                 try {
                     RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
                     //repository.release();
                 } catch (RRepositoryException e) {
-                    setErrorMessage("Wrong login or password");
+                    setErrorMessage("Invalid login or password. Check login and password");
                     return false;
                 }
             }

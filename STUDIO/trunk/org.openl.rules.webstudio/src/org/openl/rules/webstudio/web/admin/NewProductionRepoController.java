@@ -46,7 +46,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 try {
                     if (repoFactory instanceof LocalJackrabbitRepositoryFactory) {
                         if (!((LocalJackrabbitRepositoryFactory) repoFactory).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
-                            setErrorMessage("Repository user creation eror");
+                            setErrorMessage("Repository user creation error");
                             return;
                         }
                     }
