@@ -15,6 +15,7 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
  *
  * @param <T>
  */
+@Deprecated
 public abstract class RowExtractor<T extends CodeStep> {
     
     /** extractors for columns*/

@@ -30,6 +30,7 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
  * @param <Simple> class that will be populated with values, when extracting rows without compound results.
  * @param <Compound> class that will be populated with values, when extracting rows wit compound results.
  */
+@Deprecated
 public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound extends CompoundStep> {
     
     private final Log log = LogFactory.getLog(NestedSpreadsheetResultConverter.class);

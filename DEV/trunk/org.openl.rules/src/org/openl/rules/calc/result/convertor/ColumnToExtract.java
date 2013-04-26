@@ -7,6 +7,7 @@ package org.openl.rules.calc.result.convertor;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class ColumnToExtract {
     
     private String columnName;
