@@ -113,7 +113,7 @@ public abstract class AbstractProductionRepoController {
 
             if (this.secure) {
                 if (StringUtils.isEmpty(this.login) || StringUtils.isEmpty(this.password)) {
-                    throw new RepositoryValidationException("Invalid login or password. Check login and password");
+                    throw new RepositoryValidationException("Invalid login or password. Please, check login and password");
                 }
             }
 

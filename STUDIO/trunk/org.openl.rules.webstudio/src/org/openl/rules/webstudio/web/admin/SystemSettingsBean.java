@@ -422,16 +422,16 @@ public class SystemSettingsBean {
 
     public void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = String.format("Repository name is empty", prodConfig.getName());
+            String msg = String.format("Repository name is empty. Please, enter repository name", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
         if (StringUtils.isEmpty(prodConfig.getPath())) {
-            String msg = String.format("Repository path is empty", prodConfig.getName());
+            String msg = String.format("Repository path is empty. Please, enter repository path", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
-            String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
+            String msg = String.format("Repository name '%s' contains illegal characters. Please, correct repository name", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
@@ -441,12 +441,12 @@ public class SystemSettingsBean {
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists", prodConfig.getName());
+                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one", prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
                 if (prodConfig.getPath().equals(other.getPath())) {
-                    String msg = String.format("Repository path '%s' already exists", prodConfig.getPath());
+                    String msg = String.format("Repository path '%s' already exists. Please, insert a new one", prodConfig.getPath());
                     throw new RepositoryValidationException(msg);
                 }
             }
@@ -466,12 +466,12 @@ public class SystemSettingsBean {
 
             if (resultException instanceof javax.jcr.LoginException) {
                 if (!repoConfig.isSecure()) {
-                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Connection is secure. Insert login and password");
+                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Connection is secure. Please, insert login and password");
                 } else {
-                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Check login and password");
+                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Please, check login and password");
                 }
             } else if (resultException instanceof javax.security.auth.login.FailedLoginException) {
-                throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Check login and password");
+                throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Please, check login and password");
             }
 
             throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : "+resultException.getMessage());

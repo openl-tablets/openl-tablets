@@ -66,10 +66,10 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
 
             if (resultException instanceof javax.jcr.LoginException) {
                 if (!this.isSecure()) {
-                    setErrorMessage("Connection is secure. Insert login and password");
+                    setErrorMessage("Connection is secure. Please, insert login and password");
                     return false;
                 } else {
-                    setErrorMessage("Invalid login or password. Check login and password");
+                    setErrorMessage("Invalid login or password. Please, check login and password");
                     return false;
                 }
             }
@@ -89,13 +89,13 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                 try {
                     checker.check(files[i].getCanonicalPath());
                 } catch (IOException e) {
-                    setErrorMessage("There is no repository in such folder");
+                    setErrorMessage("There is no repository in this folder. Please, correct folder path");
                     return false;
                 }
             }
 
             if(!checker.isRepoThere()) {
-                setErrorMessage("There is no repository in such folder");
+                setErrorMessage("There is no repository in this folder. Please, correct folder path");
                 return false;
             }
 
@@ -104,12 +104,12 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                     RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
                     //repository.release();
                 } catch (RRepositoryException e) {
-                    setErrorMessage("Invalid login or password. Check login and password");
+                    setErrorMessage("Invalid login or password. Please, check login and password");
                     return false;
                 }
             }
         } else {
-            setErrorMessage("There is no repository in such folder");
+            setErrorMessage("There is no repository in this folder. Please, correct folder path");
             return false;
         }
 
