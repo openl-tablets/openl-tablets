@@ -56,9 +56,13 @@
     <c:set var="copyMessage" value="Create a new project in Design Repository with a different project name but the same content " />
 
   <h:panelGroup rendered="#{node.type == 'file'}">
-    <h:panelGrid columns="2" cellpadding="3" cellspacing="0">
+    <h:panelGrid columns="3" cellpadding="3" cellspacing="0">
       <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="openUpdateFileDialog();return false;">
           <rich:tooltip showDelay="500">Upload the updated file</rich:tooltip>
+      </h:commandButton>
+
+      <h:commandButton id="exportId" rendered="#{repositoryTreeState.canModify}" value="Export file" onclick="openExportFileDialog();return false;">
+          <rich:tooltip showDelay="500">Export file</rich:tooltip>
       </h:commandButton>
 
       <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;">
