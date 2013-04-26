@@ -407,8 +407,8 @@ public class DefaultPropertyDefinitions
 		definitions[29].setSystem(false);
 		definitions[29].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
 		definitions[30] = new TablePropertyDefinition();
-		definitions[30].setDescription("Defines whether to use cache by input parameters in recalculation of the table f"
-		 + "or a variation");
+		definitions[30].setDescription("Defines whether or not to use cache while recalculating the table for a variatio"
+		 + "n, depending on the rule input");
 		definitions[30].setDimensional(false);
 		definitions[30].setDisplayName("Cacheable");
 		definitions[30].setGroup("Dev");
