@@ -358,6 +358,12 @@
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.calculation.result</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.variation</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -532,6 +538,13 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.variation</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.calculation.result</artifactId>
 				<classifier>sources</classifier>
 				<version>${project.version}</version>
 			</dependency>
