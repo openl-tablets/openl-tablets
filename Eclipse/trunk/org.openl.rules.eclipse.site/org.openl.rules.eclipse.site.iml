@@ -110,6 +110,7 @@
     <orderEntry type="module" module-name="org.openl.rules.project" />
     <orderEntry type="library" name="Maven: commons-jxpath:commons-jxpath:1.3" level="project" />
     <orderEntry type="module" module-name="org.openl.rules.variation" />
+    <orderEntry type="module" module-name="org.openl.rules.calculation.result" />
     <orderEntry type="module" module-name="org.openl.rules.demo" />
     <orderEntry type="module" module-name="org.openl.rules.diff" />
     <orderEntry type="library" name="Maven: org.hibernate:hibernate-validator:4.2.0.Final" level="project" />
@@ -240,6 +241,7 @@
     <orderEntry type="module" module-name="org.openl.rules.security.standalone" />
     <orderEntry type="module" module-name="org.openl.rules.diff" />
     <orderEntry type="module" module-name="org.openl.rules.variation" />
+    <orderEntry type="module" module-name="org.openl.rules.calculation.result" />
     <orderEntry type="module" module-name="org.openl.rules.project" />
     <orderEntry type="module" module-name="org.openl.rules.demo" />
     <orderEntry type="module" module-name="org.openl.rules.ruleservice" />
