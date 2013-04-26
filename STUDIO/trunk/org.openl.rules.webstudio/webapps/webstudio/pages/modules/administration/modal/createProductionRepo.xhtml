@@ -12,13 +12,9 @@
     </f:facet>
 
     <f:facet name="controls">
-	    <a4j:commandLink action="#{newProductionRepoController.clearForm}"
-                         render="modalCreateRepoPanel securePanel"
-                         oncomplete="#{rich:component('modalCreateRepo')}.hide();">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="RichFaces.$('modalCreateRepo').hide();" alt="Close">
-            </h:graphicImage>
-        </a4j:commandLink>
+        <h:graphicImage value="/images/close.gif" class="close"
+            onclick="$j('#modalCreateRepoForm\\:cancelButton').click()" alt="Close">
+        </h:graphicImage>
     </f:facet>
 
     <h:form id="modalCreateRepoForm">
@@ -51,7 +47,7 @@
                          process="@form" value="Create" render="modalCreateRepoPanel securePanel repositoryProps messagePanel errorMessage"
                          oncomplete="if(event.data.length == 0) #{rich:component('modalCreateRepo')}.hide(); else hideLoader();"
                          data="#{newProductionRepoController.errorMessage}"/>
-            <a4j:commandButton action="#{newProductionRepoController.clearForm}" onclick="#{rich:component('modalCreateRepo')}.hide();"
+            <a4j:commandButton id="cancelButton" action="#{newProductionRepoController.clearForm}" onclick="#{rich:component('modalCreateRepo')}.hide();"
                             process="@form" value="Cancel" render="modalCreateRepoPanel securePanel" />
         </h:panelGrid>
     </h:form>
