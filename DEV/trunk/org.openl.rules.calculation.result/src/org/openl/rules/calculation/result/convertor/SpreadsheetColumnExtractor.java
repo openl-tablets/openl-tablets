@@ -1,4 +1,4 @@
-package org.openl.rules.calc.result.convertor;
+package org.openl.rules.calculation.result.convertor;
 
 import java.lang.reflect.Method;
 
@@ -9,7 +9,6 @@ import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.util.StringTool;
 
-@Deprecated
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
     private final Log log = LogFactory.getLog(SpreadsheetColumnExtractor.class);
