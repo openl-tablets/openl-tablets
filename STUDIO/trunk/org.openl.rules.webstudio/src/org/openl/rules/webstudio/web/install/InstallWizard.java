@@ -142,6 +142,8 @@ public class InstallWizard {
                 dbConfig.setProperty("db.driver", externalDBConfig.getStringProperty("db.driver"));
                 dbConfig.setProperty("db.hibernate.dialect", externalDBConfig.getStringProperty("db.hibernate.dialect"));
                 dbConfig.setProperty("db.hibernate.hbm2ddl.auto", externalDBConfig.getStringProperty("db.hibernate.hbm2ddl.auto"));
+                dbConfig.setProperty("db.schema", externalDBConfig.getStringProperty("db.schema"));
+                dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
                 dbConfig.save();
 
             } else {
@@ -374,16 +376,21 @@ public class InstallWizard {
         if (uiInput.getValue() != null) {
             String propertyFilePath = uiInput.getValue().toString();
             externalDBConfig = new ConfigurationManager(false, propertyFilePath);
-            String dbUrlSeparator = externalDBConfig.getStringProperty("db.url.separator");
-            String dbUrl = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[1];
-            String prefix = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[0] + dbUrlSeparator;
-            String dbLogin = externalDBConfig.getStringProperty("db.user");
-            String dbDriver = externalDBConfig.getStringProperty("db.driver");
 
-            setDbUrl(dbUrl);
-            setDbUsername(dbLogin);
-            setDbDriver(dbDriver);
-            this.dbPrefix = prefix;
+            String url = externalDBConfig.getStringProperty("db.url");
+
+            if (!StringUtils.isEmpty(url)) {
+                String dbUrlSeparator = externalDBConfig.getStringProperty("db.url.separator");
+                String dbUrl = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[1];
+                String prefix = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[0] + dbUrlSeparator;
+                String dbLogin = externalDBConfig.getStringProperty("db.user");
+                String dbDriver = externalDBConfig.getStringProperty("db.driver");
+
+                setDbUrl(dbUrl);
+                setDbUsername(dbLogin);
+                setDbDriver(dbDriver);
+                this.dbPrefix = prefix;
+            }
         }
     }
 

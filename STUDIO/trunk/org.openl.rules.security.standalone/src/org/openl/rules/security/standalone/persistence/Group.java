@@ -1,10 +1,5 @@
 package org.openl.rules.security.standalone.persistence;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -18,6 +13,10 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Type;
 
 /**
  * Group.
@@ -93,7 +92,7 @@ public class Group extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "Privileges", length = 500)
+    @Column(name = "UserPrivileges", length = 500) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
         return privileges;
     }

@@ -13,11 +13,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 /**
@@ -93,7 +91,7 @@ public class User extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "Privileges", length = 200)
+    @Column(name = "UserPivileges", length = 200) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
         return privileges;
     }
