@@ -283,7 +283,7 @@
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                                 <h:outputLabel value="Secure connection" for="secureConnection" />
                                 <h:selectBooleanCheckbox id="secureConnection" value="#{systemSettingsBean.secureDesignRepo}"
-                                onclick="if(!$j(this).attr('checked')){if(!window.confirm('Are you want to disable security? Login and password will be deleted')) {return false}}">
+                                onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
                                     <f:ajax event="change" execute="@form" render="designInfoPanel" />
                                 </h:selectBooleanCheckbox>
                                 <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
@@ -325,7 +325,7 @@
                                         disabled="#{repository.productionRepositoryPathSystem}" />
                                     <h:outputLabel value="Secure connection" for="secureConnection" />
                                     <h:selectBooleanCheckbox id="secureConnection" value="#{repository.secure}"
-                                    onclick="if(!$j(this).attr('checked')){if(!window.confirm('Are you want to disable security? Login and password will be deleted')) {return false}}">
+                                    onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
                                         <f:ajax event="change" execute="@form" render="repoInfoPanel" />
                                     </h:selectBooleanCheckbox>
                                     <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>

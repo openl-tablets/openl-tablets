@@ -5,6 +5,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import javax.faces.bean.ManagedProperty;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
@@ -109,6 +110,13 @@ public abstract class AbstractProductionRepoController {
     public boolean isInputParamValid(RepositoryConfiguration prodConfig) {
         try {
             systemSettingsBean.validate(prodConfig);
+
+            if (this.secure) {
+                if (StringUtils.isEmpty(this.login) || StringUtils.isEmpty(this.password)) {
+                    throw new RepositoryValidationException("Invalid login or password. Check login and password");
+                }
+            }
+
             return true;
         } catch (RepositoryValidationException e) {
             this.errorMessage = e.getMessage();
