@@ -10,6 +10,7 @@ import java.util.List;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class CompoundStep extends CodeStep {
 	
     private static final long serialVersionUID = -7072660266573768559L;
