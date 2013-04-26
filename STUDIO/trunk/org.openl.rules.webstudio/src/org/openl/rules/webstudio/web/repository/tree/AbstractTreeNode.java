@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.faces.model.SelectItem;
+
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -307,6 +309,16 @@ public abstract class AbstractTreeNode implements TreeNode {
         } else {
             return new LinkedList<ProjectVersion>();
         }
+    }
+
+    public SelectItem[] getSelectedFileVersions() {
+        Collection<ProjectVersion> versions = getVersions();
+
+        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        for (ProjectVersion version : versions) {
+            selectItems.add(new SelectItem(version.getVersionName()));
+        }
+        return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
     public boolean isLeafOnly() {

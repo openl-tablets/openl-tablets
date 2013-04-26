@@ -57,6 +57,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.impl.FileExportHelper;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
@@ -578,6 +579,33 @@ public class RepositoryTreeController {
             facesContext.responseComplete();
 
             zipFile.delete();
+        }
+        return null;
+    }
+
+    public String exportFileVersion() {
+        File file = null;
+        String fileName = null;
+        try {
+            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                new CommonVersionImpl(version));
+            TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+            file = new FileExportHelper().export(userWorkspace.getUser(), forExport, selectedNode.getName());
+            fileName = selectedNode.getName();
+        } catch (ProjectException e) {
+            String msg = "Failed to export file version.";
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg, e.getMessage());
+        }
+
+        if (file != null) {
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            writeOutContent(response, file, fileName);
+            facesContext.responseComplete();
+
+            file.delete();
         }
         return null;
     }
