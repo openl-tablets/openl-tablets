@@ -55,7 +55,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     private boolean checkRemoteConnection(RepositoryConfiguration repoConfig) {
         try {
             RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-            //repository.release();
+            repository.release();
             return true;
         } catch (RRepositoryException e) {
             Throwable resultException = e;
@@ -102,7 +102,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
             if (checker.isRepoThere() && !StringUtils.isEmpty(repoConfig.getLogin())) {
                 try {
                     RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-                    //repository.release();
+                    repository.release();
                 } catch (RRepositoryException e) {
                     setErrorMessage("Invalid login or password. Please, check login and password");
                     return false;
