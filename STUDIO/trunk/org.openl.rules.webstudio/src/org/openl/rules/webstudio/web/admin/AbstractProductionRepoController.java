@@ -37,6 +37,7 @@ public abstract class AbstractProductionRepoController {
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private String secureConfiguration = RepositoryConfiguration.SECURE_CONFIG_FILE;
+    private RepositoryConfiguration defaultRepoConfig;
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
         String[] configNames = configManager.getStringArrayProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS);
@@ -96,6 +97,14 @@ public abstract class AbstractProductionRepoController {
         return repoConfig;
     }
 
+    protected RepositoryConfiguration getDefaultRepositoryConfiguration() {
+        if (defaultRepoConfig == null) {
+            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"));
+        }
+        
+        return defaultRepoConfig;
+    }
+
     public void clearForm() {
         name = "";
         type = "local";
@@ -143,6 +152,11 @@ public abstract class AbstractProductionRepoController {
     }
 
     public String getPath() {
+        if (StringUtils.isEmpty(path)) {
+            this.getDefaultRepositoryConfiguration().setType(this.getType());
+            return this.getDefaultRepositoryConfiguration().getPath();
+        }
+
         return path;
     }
 
