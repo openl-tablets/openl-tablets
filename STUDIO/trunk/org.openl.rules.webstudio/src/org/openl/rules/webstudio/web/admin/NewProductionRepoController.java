@@ -51,13 +51,14 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                         }
                     }
                 } finally {
-                    if (repository != null) {
-                        repository.release();
+                    if (repoFactory != null) {
+                        repoFactory.release();
                     }
                 }
             } else {
-                RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-                //repository.release();
+                RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties());
+                RRepository repository = repoFactory.getRepositoryInstance();
+                repository.release();
             }
         } catch (RRepositoryException e) {
             Throwable resultException = e;
