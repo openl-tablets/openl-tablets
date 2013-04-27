@@ -52,13 +52,16 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                     }
                 } finally {
                     if (repoFactory != null) {
-                        repoFactory.release();
+                        repository.release();
+                        this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
                     }
                 }
             } else {
                 RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties());
                 RRepository repository = repoFactory.getRepositoryInstance();
+                /*Close repo connection*/
                 repository.release();
+                this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
             }
         } catch (RRepositoryException e) {
             Throwable resultException = e;
@@ -71,7 +74,6 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             return;
         }
 
-        //repoConfig.save();
         addProductionRepoToMainConfig(repoConfig);
 
         clearForm();

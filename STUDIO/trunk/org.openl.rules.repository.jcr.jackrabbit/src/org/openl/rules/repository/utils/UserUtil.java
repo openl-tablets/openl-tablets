@@ -11,12 +11,10 @@ import javax.jcr.security.Privilege;
 
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
-import org.apache.jackrabbit.api.security.user.Authorizable;
 import org.apache.jackrabbit.api.security.user.User;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.security.principal.PrincipalImpl;
-import org.openl.config.ConfigSet;
 
 public class UserUtil {
     private TransientRepository repository;
@@ -70,11 +68,25 @@ public class UserUtil {
         try {
             Session session = getSession();
             UserManager userManager = ((JackrabbitSession) session).getUserManager();
-
             User authorizable = (User) userManager.getAuthorizable("anonymous");
 
-            //authorizable.remove();
             authorizable.disable("prevent anonymous login");
+
+            session.save();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean changeAdminPass(String pass) {
+        try {
+            Session session = getSession();
+            UserManager userManager = ((JackrabbitSession) session).getUserManager();
+            User authorizable = (User) userManager.getAuthorizable("admin");
+
+            authorizable.changePassword(pass);
 
             session.save();
             return true;
