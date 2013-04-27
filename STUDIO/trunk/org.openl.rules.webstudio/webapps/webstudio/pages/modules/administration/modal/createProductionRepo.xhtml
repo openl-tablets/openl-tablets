@@ -25,7 +25,7 @@
                     rendered="#{!empty newProductionRepoController.errorMessage}"/>
             </h:panelGroup>
             <h:outputText value="Name:" />
-            <h:inputText value="#{newProductionRepoController.name}" />
+            <h:inputText value="#{newProductionRepoController.name}" styleClass="repoFieldWidth"/>
             <h:outputText id="productionRepositoryPathTitle"
                 value="Directory:" />
             <h:inputText id="productionRepositoryPath"
@@ -35,9 +35,11 @@
                 <f:ajax event="change" execute="@form" render="modalCreateRepoPanel" />
             </h:selectBooleanCheckbox>
             <h:outputText value="Login:" rendered="#{newProductionRepoController.secure}"/>
-            <h:inputText value="#{newProductionRepoController.login}" rendered="#{newProductionRepoController.secure}"/>
+            <h:inputText value="#{newProductionRepoController.login}" rendered="#{newProductionRepoController.secure}"
+            styleClass="repoFieldWidth"/>
             <h:outputText value="Password:" rendered="#{newProductionRepoController.secure}"/>
-            <h:inputSecret value="#{newProductionRepoController.password}" rendered="#{newProductionRepoController.secure}"/>
+            <h:inputSecret value="#{newProductionRepoController.password}" rendered="#{newProductionRepoController.secure}"
+            styleClass="repoFieldWidth"/>
         </h:panelGrid>
 
         <hr/>
