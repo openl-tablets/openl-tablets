@@ -61,6 +61,7 @@ public class InstallWizard {
     private String dbPrefix;
     private String dbVendor;
     private String sqlErrorsFilePath = "db/sql-errors.properties";
+    private String dbSchema;
 
     private UIInput dbURLInput;
     private UIInput dbLoginInput;
@@ -142,7 +143,7 @@ public class InstallWizard {
                 dbConfig.setProperty("db.driver", externalDBConfig.getStringProperty("db.driver"));
                 dbConfig.setProperty("db.hibernate.dialect", externalDBConfig.getStringProperty("db.hibernate.dialect"));
                 dbConfig.setProperty("db.hibernate.hbm2ddl.auto", externalDBConfig.getStringProperty("db.hibernate.hbm2ddl.auto"));
-                dbConfig.setProperty("db.schema", externalDBConfig.getStringProperty("db.schema"));
+                dbConfig.setProperty("db.schema", this.dbSchema);
                 dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
                 dbConfig.save();
 
@@ -220,11 +221,18 @@ public class InstallWizard {
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
         String dbPasswordString = (String) dbPasswordInput.getSubmittedValue();
 
-        if (StringUtils.isBlank(dbUrl)) {
-            throw new ValidatorException(new FacesMessage("Database URL can not be blank"));
-        } else {
-            testDBConnection(dbUrl, dbUsername, dbPasswordString);
+        if (!"demo".equals(appMode)) {
+            if (StringUtils.isBlank(dbVendor)) {
+                throw new ValidatorException(new FacesMessage("Select database type"));
+
+            } else if (StringUtils.isEmpty(dbUrl)) {
+                throw new ValidatorException(new FacesMessage("Database URL can not be blank"));
+            }
+            else {
+                testDBConnection(dbUrl, dbUsername, dbPasswordString);
+            }
         }
+
     }
 
     /**
@@ -373,7 +381,7 @@ public class InstallWizard {
     public void dbVendorChanged(AjaxBehaviorEvent e) {
         UIInput uiInput = (UIInput) e.getComponent();
 
-        if (uiInput.getValue() != null) {
+        if (uiInput.getLocalValue() != null) {
             String propertyFilePath = uiInput.getValue().toString();
             externalDBConfig = new ConfigurationManager(false, propertyFilePath);
 
@@ -390,7 +398,16 @@ public class InstallWizard {
                 setDbUsername(dbLogin);
                 setDbDriver(dbDriver);
                 this.dbPrefix = prefix;
+
+                // For Oracle database schema is a username
+                if (StringUtils.containsIgnoreCase (dbVendor, "oracle")) {
+                    this.dbSchema = externalDBConfig.getStringProperty("db.username");
+                }
             }
+        }else {
+            // Reset database url and dtabase user name when no database type is selected
+            this.dbUrl = "";
+            this.dbUsername = "";
         }
     }
 
@@ -414,6 +431,16 @@ public class InstallWizard {
         UIInput uiInput = (UIInput) e.getComponent();
         String username = uiInput.getValue().toString();
         setDbUsername(username);
+    }
+
+    /**
+     * Ajax event for changing application mode: demo or production
+     * 
+     * @param e AjaxBehavior event
+     */
+    public void appmodeChanged(AjaxBehaviorEvent e) {
+        UIInput uiInput = (UIInput) e.getComponent();
+        appMode = uiInput.getValue().toString();
     }
 
     public ConfigurationManager getExternalDBConfig() {
@@ -530,4 +557,13 @@ public class InstallWizard {
     public void setExternalDBConfig(ConfigurationManager externalDBConfig) {
         this.externalDBConfig = externalDBConfig;
     }
+
+    public String getDbSchema() {
+        return dbSchema;
+    }
+
+    public void setDbSchema(String dbSchema) {
+        this.dbSchema = dbSchema;
+    }
+
 }
