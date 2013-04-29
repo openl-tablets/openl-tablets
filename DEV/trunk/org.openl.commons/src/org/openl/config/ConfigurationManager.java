@@ -242,7 +242,7 @@ public class ConfigurationManager {
             log.error("Error when setting password property: " + key, e);
         }
     }
-    
+
     public String getPassword(String key) {
         try {
             return PassCoder.decode(this.getStringProperty(key), getRepoPassKey());

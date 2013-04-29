@@ -297,6 +297,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             UserUtil userUtil = new UserUtil(repository);
             userUtil.createNewAdminUser(login, pass);
             userUtil.disableAnonymous();
+            userUtil.changeAdminPass(pass);
 
             return true;
         } catch (Exception e) {
