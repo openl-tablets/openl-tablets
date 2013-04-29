@@ -46,18 +46,22 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 try {
                     if (repoFactory instanceof LocalJackrabbitRepositoryFactory) {
                         if (!((LocalJackrabbitRepositoryFactory) repoFactory).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
-                            setErrorMessage("Repository user creation eror");
+                            setErrorMessage("Repository user creation error");
                             return;
                         }
                     }
                 } finally {
-                    if (repository != null) {
+                    if (repoFactory != null) {
                         repository.release();
+                        this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
                     }
                 }
             } else {
-                RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
-                //repository.release();
+                RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties());
+                RRepository repository = repoFactory.getRepositoryInstance();
+                /*Close repo connection*/
+                repository.release();
+                this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
             }
         } catch (RRepositoryException e) {
             Throwable resultException = e;
@@ -70,7 +74,6 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             return;
         }
 
-        //repoConfig.save();
         addProductionRepoToMainConfig(repoConfig);
 
         clearForm();
