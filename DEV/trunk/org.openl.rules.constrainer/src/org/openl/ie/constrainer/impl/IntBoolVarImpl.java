@@ -373,4 +373,13 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
     }
 
+    
+	public void removeValue(int value) throws Failure {
+		if (value == 1)
+			setMax(0);
+		else
+			setMin(1);
+	}
+
+    
 } // ~IntBoolVarImpl
