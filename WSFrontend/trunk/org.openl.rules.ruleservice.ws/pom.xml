@@ -105,6 +105,16 @@
 					<include>**/*.properties</include>
 					<include>**/*.xml</include>
 				</includes>
+				<excludes>
+					<exclude>openl-ruleservice-datasource-beans.xml</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>customDataSourceBeans</directory>
+				<includes>
+					<include>**/*.xml</include>
+					
+				</includes>
 			</resource>
 		</resources>
 
@@ -125,7 +135,26 @@
 			</testResource>
 		</testResources>
 	</build>
-
+<profiles>
+    <profile>
+      <id>ws-frontend</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>tomcat-maven-plugin</artifactId>
+            <configuration>
+              <url>http://openl.internal.corp:8088/manager/text</url>
+              <server>openl-tomcat-frontend-server</server>
+              <path>/ws-frontend</path>
+              <warFile>target/${war.name}-${project.version}.war</warFile>
+              <update>true</update>
+            </configuration>
+          </plugin>
+	    </plugins>
+      </build>
+    </profile>
+  </profiles>
 	<dependencies>
 		<!-- STUDIO -->
 		<dependency>

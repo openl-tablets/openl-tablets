@@ -44,6 +44,7 @@
                             <h:selectOneRadio value="#{installWizard.appMode}" layout="pageDirection" immediate="true">
                                 <f:selectItem itemValue="production" itemLabel="Production" />
                                 <f:selectItem itemValue="demo" itemLabel="Demo" />
+                                <f:ajax  listener="#{installWizard.appmodeChanged}" />
                             </h:selectOneRadio>
                         </div>
                     </div>
@@ -79,7 +80,7 @@
                                 <tr>
                                     <td><label>Database URL</label></td>
                                     <td>
-                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40">
+                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40" >
                                         <f:ajax  listener="#{installWizard.urlChanged}" />
                                         </h:inputText>
                                     </td>
