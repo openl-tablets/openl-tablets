@@ -13,6 +13,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.util.PassCoder;
 
 /**
  * Configuration manager.
@@ -242,7 +243,7 @@ public class ConfigurationManager {
             log.error("Error when setting password property: " + key, e);
         }
     }
-    
+
     public String getPassword(String key) {
         try {
             return PassCoder.decode(this.getStringProperty(key), getRepoPassKey());

@@ -9,12 +9,12 @@
   <OpenLUser UserId="6" LoginName="u4" Password="7b8d62fd2f0f5b2e3ba5437e5b983128" />
   <OpenLUser UserId="7" LoginName="a1" Password="8a8bb7cd343aa2ad99b7d762030857a2" />
 
-  <UserGroup GroupId="1" GroupName="Viewers" Description="[null]" Privileges="PRIVILEGE_VIEW_PROJECTS" />
-  <UserGroup GroupId="2" GroupName="Developers" Description="[null]" Privileges="PRIVILEGE_CREATE_PROJECTS,PRIVILEGE_EDIT_PROJECTS,PRIVILEGE_ERASE_PROJECTS,PRIVILEGE_DELETE_PROJECTS,PRIVILEGE_CREATE_TABLES,PRIVILEGE_EDIT_TABLES,PRIVILEGE_REMOVE_TABLES" />
-  <UserGroup GroupId="3" GroupName="Deployers" Description="[null]" Privileges="PRIVILEGE_DEPLOY_PROJECTS,PRIVILEGE_EDIT_DEPLOYMENT,PRIVILEGE_CREATE_DEPLOYMENT,PRIVILEGE_DELETE_DEPLOYMENT,PRIVILEGE_ERASE_DEPLOYMENT" />
-  <UserGroup GroupId="4" GroupName="Testers" Description="[null]" Privileges="PRIVILEGE_RUN,PRIVILEGE_TRACE,PRIVILEGE_BENCHMARK" />
-  <UserGroup GroupId="5" GroupName="Analysts" Description="[null]" Privileges="" />
-  <UserGroup GroupId="6" GroupName="Administrators" Description="[null]" Privileges="PRIVILEGE_ALL" />
+  <UserGroup GroupId="1" GroupName="Viewers" Description="[null]" UserPrivileges="PRIVILEGE_VIEW_PROJECTS" />
+  <UserGroup GroupId="2" GroupName="Developers" Description="[null]" UserPrivileges="PRIVILEGE_CREATE_PROJECTS,PRIVILEGE_EDIT_PROJECTS,PRIVILEGE_ERASE_PROJECTS,PRIVILEGE_DELETE_PROJECTS,PRIVILEGE_CREATE_TABLES,PRIVILEGE_EDIT_TABLES,PRIVILEGE_REMOVE_TABLES" />
+  <UserGroup GroupId="3" GroupName="Deployers" Description="[null]" UserPrivileges="PRIVILEGE_DEPLOY_PROJECTS,PRIVILEGE_EDIT_DEPLOYMENT,PRIVILEGE_CREATE_DEPLOYMENT,PRIVILEGE_DELETE_DEPLOYMENT,PRIVILEGE_ERASE_DEPLOYMENT" />
+  <UserGroup GroupId="4" GroupName="Testers" Description="[null]" UserPrivileges="PRIVILEGE_RUN,PRIVILEGE_TRACE,PRIVILEGE_BENCHMARK" />
+  <UserGroup GroupId="5" GroupName="Analysts" Description="[null]" UserPrivileges="" />
+  <UserGroup GroupId="6" GroupName="Administrators" Description="[null]" UserPrivileges="PRIVILEGE_ALL" />
 
   <Group2Group GroupId="2" IncludedGroupId="1" />
   <Group2Group GroupId="3" IncludedGroupId="1" />
