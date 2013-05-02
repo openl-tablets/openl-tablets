@@ -62,6 +62,13 @@
                 <section>
                     <h3>Change Password</h3>
                     <div>
+                    
+                    <div style="text-align: center; margin: 2px;">
+                      <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
+                        <h:message for="newPassword" styleClass="error" ajaxRendered="true" />          
+                       </a4j:outputPanel>
+                    </div>
+
                         <h:panelGrid columns="3" columnClasses="titleColumn">
                             <label>Current password</label>
                             <h:inputSecret  id="currentPassword" value="#{userDetailsBean.currentPassword}" binding="#{currentPassword}" />
@@ -74,9 +81,7 @@
                                 <f:attribute name="confirmPassword" value="#{confirmPassword}" />
                                 <f:attribute name="currentPassword" value="#{currentPassword}" />
                             </h:inputSecret>
-                            <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
-                                <h:message for="newPassword" styleClass="error" />
-                            </a4j:outputPanel>
+                           <h:outputText value="" />
             
                             <label>Confirm password</label>
                             <h:inputSecret  id="confirmPassword" value="#{userDetailsBean.confirmPassword}" binding="#{confirmPassword}" />

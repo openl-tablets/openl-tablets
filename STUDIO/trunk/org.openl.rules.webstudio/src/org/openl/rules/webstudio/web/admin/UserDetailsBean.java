@@ -119,16 +119,18 @@ public class UserDetailsBean extends UsersBean {
             String userPasswordHash = user.getPassword();
             String enteredPasswordHash = new Md5PasswordEncoder().encodePassword(passwordString, null);
 
-            if (!StringUtils.equals(newPassword, confirmPasswordString)) {
-                throw new ValidatorException(new FacesMessage("Password missmatch"));
-            } else {
-                isPasswordValid = true;
-            }
             if (StringUtils.isEmpty(passwordString)) {
                 throw new ValidatorException(new FacesMessage("Enter your password"));
             }
+
+            if (!StringUtils.equals(newPassword, confirmPasswordString)) {
+                throw new ValidatorException(new FacesMessage("New password and confirm password do not match."));
+            } else {
+                isPasswordValid = true;
+            }
+
             if (!userPasswordHash.equals(enteredPasswordHash)) {
-                throw new ValidatorException(new FacesMessage("Incorect password!"));
+                throw new ValidatorException(new FacesMessage("Incorect current password!"));
             }
         }
     }
