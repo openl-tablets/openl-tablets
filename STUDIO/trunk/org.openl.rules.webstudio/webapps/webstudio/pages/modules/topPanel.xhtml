@@ -5,6 +5,9 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j">
 
+    <ui:include src="/pages/modules/updateModule.xhtml" />
+    <ui:include src="/pages/modules/exportModule.xhtml" />
+    
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rProject" value="#{studio.currentProject}" />
 
@@ -52,7 +55,17 @@
 						<h:commandLink action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
 							style="background:url('webresource/images/refresh.png')" />
 
-						<h:commandLink action="#{mainBean.saveProject}"
+                        <h:commandLink onclick="openUpdateModuleDialog();return false;"
+                            title="Update module to imported module"
+                            rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
+                            styleClass="imageButton"
+                            style="background:url('webresource/images/repository/update.png')"/>
+                        <h:commandLink onclick="openExportModuleDialog();return false;"
+                            title="Export module"
+                            rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
+                            styleClass="imageButton"
+                            style="background:url('webresource/images/repository/export.png')"/>
+                        <h:commandLink action="#{mainBean.saveProject}"
 							title="Save the project to the Design Repository"
 							rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
 							styleClass="imageButton"
