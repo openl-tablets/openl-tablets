@@ -46,13 +46,13 @@
                     <div>
                         <h:panelGrid columns="3" columnClasses="titleColumn">
                             <label>First Name </label>
-                            <h:inputText id="firstName" value="#{userDetailsBean.firstName}" />
+                            <h:inputText id="firstName" value="#{userDetailsBean.firstName}" valueChangeListener="#{userDetailsBean.firstNameListener}" />
                             <a4j:outputPanel ajaxRendered="false" id="firstNameError">
                                 <h:message for="firstName" styleClass="error" />
                             </a4j:outputPanel>
             
                             <label>Last Name</label>
-                            <h:inputText id="lastName" value="#{userDetailsBean.lastName}" />
+                            <h:inputText id="lastName" value="#{userDetailsBean.lastName}" valueChangeListener="#{userDetailsBean.lastNameListener}"/>
                             <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                                 <h:message for="lastName" styleClass="error" />
                             </a4j:outputPanel>
