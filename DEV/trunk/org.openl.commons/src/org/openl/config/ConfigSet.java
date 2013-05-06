@@ -2,6 +2,7 @@ package org.openl.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.util.PassCoder;
 
 import java.util.*;
 
