@@ -107,12 +107,13 @@
 				</includes>
 				<excludes>
 					<exclude>openl-ruleservice-datasource-beans.xml</exclude>
+                                        <exclude>rules-production.properties</exclude>
 				</excludes>
 			</resource>
 			<resource>
 				<directory>customDataSourceBeans</directory>
 				<includes>
-					<include>**/*.xml</include>
+					<include>**/*.*</include>
 					
 				</includes>
 			</resource>
