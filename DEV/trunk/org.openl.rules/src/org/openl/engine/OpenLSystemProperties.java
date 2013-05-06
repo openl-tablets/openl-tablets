@@ -2,7 +2,6 @@ package org.openl.engine;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.util.BooleanUtils;
 
 public class OpenLSystemProperties {
@@ -67,7 +66,7 @@ public class OpenLSystemProperties {
             customSpreadsheetType = System.getProperty(CUSTOM_SPREADSHEET_TYPE_PROPERTY);
         }
 
-        if (StringUtils.isEmpty(customSpreadsheetType)) {
+        if (customSpreadsheetType == null || customSpreadsheetType.equals("")) {
             return true;
         }
 

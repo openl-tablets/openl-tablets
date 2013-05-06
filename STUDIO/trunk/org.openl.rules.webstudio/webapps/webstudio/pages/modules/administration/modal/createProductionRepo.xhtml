@@ -12,13 +12,9 @@
     </f:facet>
 
     <f:facet name="controls">
-	    <a4j:commandLink action="#{newProductionRepoController.clearForm}"
-                         render="modalCreateRepoPanel securePanel"
-                         oncomplete="#{rich:component('modalCreateRepo')}.hide();">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="RichFaces.$('modalCreateRepo').hide();" alt="Close">
-            </h:graphicImage>
-        </a4j:commandLink>
+        <h:graphicImage value="/images/close.gif" class="close"
+            onclick="$j('#modalCreateRepoForm\\:cancelButton').click()" alt="Close">
+        </h:graphicImage>
     </f:facet>
 
     <h:form id="modalCreateRepoForm">
@@ -29,7 +25,7 @@
                     rendered="#{!empty newProductionRepoController.errorMessage}"/>
             </h:panelGroup>
             <h:outputText value="Name:" />
-            <h:inputText value="#{newProductionRepoController.name}" />
+            <h:inputText value="#{newProductionRepoController.name}" styleClass="repoFieldWidth"/>
             <h:outputText id="productionRepositoryPathTitle"
                 value="Directory:" />
             <h:inputText id="productionRepositoryPath"
@@ -39,9 +35,11 @@
                 <f:ajax event="change" execute="@form" render="modalCreateRepoPanel" />
             </h:selectBooleanCheckbox>
             <h:outputText value="Login:" rendered="#{newProductionRepoController.secure}"/>
-            <h:inputText value="#{newProductionRepoController.login}" rendered="#{newProductionRepoController.secure}"/>
+            <h:inputText value="#{newProductionRepoController.login}" rendered="#{newProductionRepoController.secure}"
+            styleClass="repoFieldWidth"/>
             <h:outputText value="Password:" rendered="#{newProductionRepoController.secure}"/>
-            <h:inputSecret value="#{newProductionRepoController.password}" rendered="#{newProductionRepoController.secure}"/>
+            <h:inputSecret value="#{newProductionRepoController.password}" rendered="#{newProductionRepoController.secure}"
+            styleClass="repoFieldWidth"/>
         </h:panelGrid>
 
         <hr/>
@@ -51,7 +49,7 @@
                          process="@form" value="Create" render="modalCreateRepoPanel securePanel repositoryProps messagePanel errorMessage"
                          oncomplete="if(event.data.length == 0) #{rich:component('modalCreateRepo')}.hide(); else hideLoader();"
                          data="#{newProductionRepoController.errorMessage}"/>
-            <a4j:commandButton action="#{newProductionRepoController.clearForm}" onclick="#{rich:component('modalCreateRepo')}.hide();"
+            <a4j:commandButton id="cancelButton" action="#{newProductionRepoController.clearForm}" onclick="#{rich:component('modalCreateRepo')}.hide();"
                             process="@form" value="Cancel" render="modalCreateRepoPanel securePanel" />
         </h:panelGrid>
     </h:form>

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -15,7 +16,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 /**
@@ -58,8 +58,8 @@ public class User extends PersistentObject {
 
     @Override
     @Id
-    @GeneratedValue(generator = "nativeId")
-    @GenericGenerator(name = "nativeId", strategy = "native")
+    @GeneratedValue(
+        strategy=GenerationType.AUTO)
     @Column(name = "UserID")
     @Type(type = "java.lang.Long")
     public Long getId() {
@@ -91,7 +91,7 @@ public class User extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "Privileges", length = 200)
+    @Column(name = "UserPivileges", length = 200) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
         return privileges;
     }
