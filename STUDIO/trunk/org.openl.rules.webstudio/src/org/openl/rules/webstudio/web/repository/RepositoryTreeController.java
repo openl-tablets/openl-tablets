@@ -6,8 +6,6 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJEC
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,12 +24,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.commons.web.util.WebTool;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
@@ -48,6 +44,7 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
+import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -57,6 +54,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.impl.FileExportHelper;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
@@ -574,10 +572,43 @@ public class RepositoryTreeController {
         if (zipFile != null) {
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            writeOutContent(response, zipFile, zipFileName);
+            ExportModule.writeOutContent(response, zipFile, zipFileName, "zip");
             facesContext.responseComplete();
 
             zipFile.delete();
+        }
+        return null;
+    }
+
+    public String exportFileVersion() {
+        File file = null;
+        String fileName = null;
+        try {
+            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
+                new CommonVersionImpl(version));
+            TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+            fileName = selectedNode.getName();
+            file = new FileExportHelper().export(userWorkspace.getUser(), forExport, fileName);
+        } catch (ProjectException e) {
+            String msg = "Failed to export file version.";
+            log.error(msg, e);
+            FacesUtils.addErrorMessage(msg, e.getMessage());
+        }
+
+        if (file != null) {
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            String fileType;
+            if (fileName.endsWith("xls")) {
+                fileType = "xls";
+            } else {
+                fileType = "xlsx";
+            }
+            ExportModule.writeOutContent(response, file, fileName, fileType);
+            facesContext.responseComplete();
+
+            file.delete();
         }
         return null;
     }
@@ -1271,34 +1302,6 @@ public class RepositoryTreeController {
 
     private void clearUploadedFiles() {
         uploadedFiles.clear();
-    }
-
-    private void writeOutContent(final HttpServletResponse res, final File content, final String theFilename) {
-        if (content == null) {
-            return;
-        }
-        FileInputStream input = null;
-        try {
-            res.setHeader("Pragma", "no-cache");
-            res.setDateHeader("Expires", 0);
-            res.setContentType("application/zip");
-            WebTool.setContentDisposition(res, theFilename);
-
-            input = new FileInputStream(content);
-            IOUtils.copy(input, res.getOutputStream());
-        } catch (final IOException e) {
-            String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response!";
-            log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    log.error("Failed to close content stream.", e);
-                }
-            }
-        }
     }
 
     public String getNewProjectTemplate() {

@@ -1,15 +1,15 @@
 package org.openl.rules.security.standalone.persistence;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Type;
 
 /**
  * AccessControlEntry.
@@ -32,8 +32,8 @@ public class AccessControlEntry extends PersistentObject {
 
     @Override
     @Id
-    @GeneratedValue(generator = "nativeId")
-    @GenericGenerator(name = "nativeId", strategy = "native")
+    @GeneratedValue(
+        strategy=GenerationType.AUTO)
     @Column(name = "ACEID")
     @Type(type = "java.lang.Long")
     public Long getId() {

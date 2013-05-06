@@ -5,6 +5,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import javax.faces.bean.ManagedProperty;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
@@ -36,6 +37,7 @@ public abstract class AbstractProductionRepoController {
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private String secureConfiguration = RepositoryConfiguration.SECURE_CONFIG_FILE;
+    private RepositoryConfiguration defaultRepoConfig;
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
         String[] configNames = configManager.getStringArrayProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS);
@@ -95,6 +97,14 @@ public abstract class AbstractProductionRepoController {
         return repoConfig;
     }
 
+    protected RepositoryConfiguration getDefaultRepositoryConfiguration() {
+        if (defaultRepoConfig == null) {
+            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"));
+        }
+        
+        return defaultRepoConfig;
+    }
+
     public void clearForm() {
         name = "";
         type = "local";
@@ -109,6 +119,13 @@ public abstract class AbstractProductionRepoController {
     public boolean isInputParamValid(RepositoryConfiguration prodConfig) {
         try {
             systemSettingsBean.validate(prodConfig);
+
+            if (this.secure) {
+                if (StringUtils.isEmpty(this.login) || StringUtils.isEmpty(this.password)) {
+                    throw new RepositoryValidationException("Invalid login or password. Please, check login and password");
+                }
+            }
+
             return true;
         } catch (RepositoryValidationException e) {
             this.errorMessage = e.getMessage();
@@ -135,6 +152,11 @@ public abstract class AbstractProductionRepoController {
     }
 
     public String getPath() {
+        if (StringUtils.isEmpty(path)) {
+            this.getDefaultRepositoryConfiguration().setType(this.getType());
+            return this.getDefaultRepositoryConfiguration().getPath();
+        }
+
         return path;
     }
 

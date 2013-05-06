@@ -71,6 +71,10 @@
             margin-top: 2px;
         }
 
+        .repoFieldWidth {
+            width: 125px !important;
+        }
+
     </style>
 
     <script>
@@ -268,7 +272,7 @@
                         <table><tr><td>
                             <h:panelGrid id="designInfoPanel" columns="2" columnClasses="titleColumn">
                                 <h:outputText value="Name:" />
-                                <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" />
+                                <h:inputText value="#{systemSettingsBean.designRepositoryName}" disabled="true" styleClass="repoFieldWidth"/>
                                 <h:outputText value="Type:" />
                                 <h:selectOneMenu value="#{systemSettingsBean.designRepositoryType}">
                                     <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
@@ -283,17 +287,17 @@
                                         disabled="#{systemSettingsBean.designRepositoryPathSystem}" />
                                 <h:outputLabel value="Secure connection" for="secureConnection" />
                                 <h:selectBooleanCheckbox id="secureConnection" value="#{systemSettingsBean.secureDesignRepo}"
-                                onclick="if(!$j(this).attr('checked')){if(!window.confirm('Are you want to disable security? Login and password will be deleted')) {return false}}">
+                                onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
                                     <f:ajax event="change" execute="@form" render="designInfoPanel" />
                                 </h:selectBooleanCheckbox>
                                 <ui:param name="productionRepos" value="#{systemSettingsBean.productionRepositoryConfigurations}" />
                                 <h:outputText value="Login:" 
                                 rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
-                                <h:inputText value="#{systemSettingsBean.designRepositoryLogin}" 
+                                <h:inputText value="#{systemSettingsBean.designRepositoryLogin}" styleClass="repoFieldWidth"
                                 rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
                                 <h:outputText value="Password:" 
                                 rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
-                                <h:inputSecret value="#{systemSettingsBean.designRepositoryPass}" 
+                                <h:inputSecret value="#{systemSettingsBean.designRepositoryPass}" styleClass="repoFieldWidth"
                                 rendered="#{systemSettingsBean.secureDesignRepo || !empty systemSettingsBean.designRepositoryLogin}"/>
                             </h:panelGrid>
                         </td></tr></table>
@@ -310,7 +314,7 @@
                                 <td>
                                 <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
                                     <h:outputText value="Name:" />
-                                    <h:inputText value="#{repository.name}" />
+                                    <h:inputText value="#{repository.name}" styleClass="repoFieldWidth"/>
                                     <h:outputText value="Type:" />
                                     <h:selectOneMenu value="#{repository.type}">
                                         <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
@@ -325,13 +329,13 @@
                                         disabled="#{repository.productionRepositoryPathSystem}" />
                                     <h:outputLabel value="Secure connection" for="secureConnection" />
                                     <h:selectBooleanCheckbox id="secureConnection" value="#{repository.secure}"
-                                    onclick="if(!$j(this).attr('checked')){if(!window.confirm('Are you want to disable security? Login and password will be deleted')) {return false}}">
+                                    onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
                                         <f:ajax event="change" execute="@form" render="repoInfoPanel" />
                                     </h:selectBooleanCheckbox>
                                     <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>
-                                    <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}"/>
+                                    <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
                                     <h:outputText value="Password:" rendered="#{repository.secure || !empty repository.login}"/>
-                                    <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}"/>
+                                    <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}" styleClass="repoFieldWidth"/>
                                 </h:panelGrid>
                                 </td>
                                 <td class="repositoryConfigButton">
