@@ -107,9 +107,10 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
-
-        log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
-
+        if (log.isDebugEnabled()){
+            log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        }
+        
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();
 
@@ -163,7 +164,7 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
                     e);
             }
         } else {
-            throw new OpenlNotCheckedException("Failed to set service class to enhancer. Service shoud have IRulesRuntimeContext as the first argument of each method.");
+            throw new OpenlNotCheckedException("Failed to set service class to enhancer. Service should have IRulesRuntimeContext as the first argument of each method.");
         }
     }
     
