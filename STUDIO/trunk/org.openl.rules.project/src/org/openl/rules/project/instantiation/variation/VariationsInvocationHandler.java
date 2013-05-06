@@ -35,6 +35,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 class VariationsInvocationHandler implements InvocationHandler {
 
+    private static final String GET_RUNTIME_ENVIRONMENT_METHOD = "getRuntimeEnvironment";
+
     private final Log log = LogFactory.getLog(VariationsInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
@@ -73,6 +75,9 @@ class VariationsInvocationHandler implements InvocationHandler {
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method member = methodsMap.get(method);
+        if (member == null){
+            return method.invoke(serviceClassInstance, args);
+        }
         if (VariationsEnhancerHelper.isEnhancedMethod(method)) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Invoking service class method with variations: %s -> %s", method.toString(),
@@ -110,7 +115,7 @@ class VariationsInvocationHandler implements InvocationHandler {
             if (serviceClassInstance instanceof IEngineWrapper) {
                 runtimeEnv = ((IEngineWrapper) serviceClassInstance).getRuntimeEnv();
             } else {
-                runtimeEnv = (IRuntimeEnv) serviceClassInstance.getClass().getMethod("getRuntimeEnvironment")
+                runtimeEnv = (IRuntimeEnv) serviceClassInstance.getClass().getMethod(GET_RUNTIME_ENVIRONMENT_METHOD)
                         .invoke(serviceClassInstance);
             }
 
@@ -121,6 +126,10 @@ class VariationsInvocationHandler implements InvocationHandler {
                 simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
                 simpleRulesRuntimeEnv.setOriginalCalculation(true);
                 simpleRulesRuntimeEnv.setIgnoreRecalculate(false);
+            }else{
+                if (log.isErrorEnabled()){
+                    log.error("Runtime env should be SimpleRulesRuntimeEnv.class");
+                }
             }
             calculateSingleVariation(member, variationsResults, arguments, new NoVariation());
             if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
