@@ -48,14 +48,14 @@ class RulesServiceEnhancerInvocationHandler implements InvocationHandler {
 
         if (IEngineWrapper.class.isAssignableFrom(serviceClass)) {
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Applying runtime context: %s thru IEngineWrapper instance", context.toString()));
+                log.debug(String.format("Applying runtime context: %s through IEngineWrapper instance", context.toString()));
             }
 
             IEngineWrapper wrapper = (IEngineWrapper) serviceInstance;
             wrapper.getRuntimeEnv().setContext(context);
         } else if (IRulesRuntimeContextConsumer.class.isAssignableFrom(serviceClass)) {
             if (log.isDebugEnabled()) {
-                log.debug(String.format("Applying runtime context: %s thru IRulesRuntimeContextConsumer instance",
+                log.debug(String.format("Applying runtime context: %s through IRulesRuntimeContextConsumer instance",
                         context.toString()));
             }
 
