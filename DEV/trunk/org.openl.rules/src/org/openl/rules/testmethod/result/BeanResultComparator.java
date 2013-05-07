@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod.result;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenlNotCheckedException;
@@ -10,7 +11,7 @@ import org.openl.util.StringTool;
 
 public class BeanResultComparator implements TestResultComparator {
     private List<String> fieldsToCompare;
-    private List<ComparedResult> comparisonResults;
+    private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
     
     public BeanResultComparator(List<String> fieldsToCompare) {
         if (fieldsToCompare != null) {
@@ -53,6 +54,7 @@ public class BeanResultComparator implements TestResultComparator {
                 } else {
                     fieldComparisonResults.setStatus(TestStatus.TR_OK);
                 }
+                comparisonResults.add(fieldComparisonResults);
             }
             return success;
         }
