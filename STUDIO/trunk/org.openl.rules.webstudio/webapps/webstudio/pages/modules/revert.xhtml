@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
@@ -17,7 +16,7 @@
         }
     </style>
 
-    <div class="view_header">Revert Changes</div>
+    <div class="view_header">#{msg['ws.revert.header']}</div>
 
     <div class="content">
 
@@ -25,7 +24,7 @@
 
     <h:panelGroup rendered="#{empty history}">
         <h:panelGrid>
-            <p class="info_box">Module has no changes</p>
+            <p class="info_box">#{msg['ws.revert.no']}</p>
         </h:panelGrid>
     </h:panelGroup>
 
@@ -49,9 +48,9 @@
                 </rich:column>
                 <rich:column>
                     <f:facet name="header">
-                        <h:outputText value="Modified On" />
+                        <h:outputText value="#{msg['ws.revert.modifiedon']}" />
                     </f:facet>
-                    <h:outputText value="#{historyItem.disabled ? 'Initial' : historyItem.modifiedOn}"
+                    <h:outputText value="#{historyItem.disabled ? msg['ws.revert.initial'] : historyItem.modifiedOn}"
                         style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
                 </rich:column>
                 <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
@@ -65,7 +64,7 @@
                 </c:forEach>
                 <rich:column>
                     <f:facet name="header">
-                        <h:outputText value="Compare" />
+                        <h:outputText value="#{msg['ws.revert.compare']}" />
                     </f:facet>
                     <h:selectBooleanCheckbox
                         onclick="return checkVersionToCompare(this, #{historyItem.version})" />
@@ -76,11 +75,11 @@
             <input type="hidden" id="versionToRevert" name="toRevert" value=""  />
             <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
             <a4j:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
-                onclick="if(!confirm('Do you really want to revert these changes?'))return false;"
-                oncomplete="message('Reverting changes was successful!', 4000); reloadCurrent()"
+                onclick="if(!confirm('#{msg['ws.revert.confirm']}'))return false;"
+                oncomplete="message('#{msg['ws.revert.successful']}', 4000); reloadCurrent()"
                 styleClass="button-primary" />
-            <a4j:commandButton id="compareBtn" value="Compare" action="#{revertProjectChangesBean.compare}"
-                oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','Compare','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
+            <a4j:commandButton id="compareBtn" value="#{msg['ws.revert.compare']}" action="#{revertProjectChangesBean.compare}"
+                oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.revert.compare']}','width=1000,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
         </h:form>
 
         <script>
@@ -128,7 +127,7 @@
                 // Check
                 if (checkbox.checked) {
                     if (versionsToCompare.length >= 2) {
-                        message("Ooops, maximum number of versions to compare is 2", 4000);
+                        message("#{msg['ws.revert.compare.max']}", 4000);
                         return false;
                     }
                     versionsToCompare.push(version);

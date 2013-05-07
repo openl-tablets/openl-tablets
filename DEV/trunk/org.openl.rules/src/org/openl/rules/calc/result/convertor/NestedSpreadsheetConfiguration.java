@@ -14,6 +14,7 @@ import java.util.Map;
  * @param <Simple> class that will be populated with values, when extracting rows without compound results.
  * @param <Compound> class that will be populated with values, when extracting rows wit compound results.
  */
+@Deprecated
 public abstract class NestedSpreadsheetConfiguration<Simple extends CodeStep, Compound extends CompoundStep> {
     
     /** Map of columns that gonna be extracted on each level of extracting**/

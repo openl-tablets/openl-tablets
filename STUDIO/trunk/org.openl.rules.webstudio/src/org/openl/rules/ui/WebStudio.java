@@ -1,16 +1,21 @@
 package org.openl.rules.ui;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +23,8 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ResolvingRulesProjectDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
@@ -32,10 +39,14 @@ import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.web.admin.SystemSettingsBean;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.impl.FileExportHelper;
+import org.richfaces.event.FileUploadEvent;
+import org.richfaces.model.UploadedFile;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -88,6 +99,8 @@ public class WebStudio {
     private ConfigurationManager userSettingsManager;
 
     private boolean needRestart = false;
+
+    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
 
     public WebStudio(HttpSession session) {
         systemConfigManager = (ConfigurationManager) WebApplicationContextUtils.getWebApplicationContext(
@@ -209,6 +222,37 @@ public class WebStudio {
             } catch (Exception e) {
                 log.error("Error when trying to get current project", e);
             }
+        }
+        return null;
+    }
+
+    public String exportModule() {
+        File file = null;
+        String fileType = null;
+        String moduleName = null;
+        try {
+            AProject selectedProject = getCurrentProject();
+            moduleName = currentModule.getName();
+            if (selectedProject.hasArtefact(moduleName + ".xlsx")) {
+                fileType = "xlsx";
+            } else if (selectedProject.hasArtefact(moduleName + ".xls")) {
+                fileType = "xls";
+            }
+            if (fileType == null) {
+                throw new ProjectException("Exporting module is not excel file");
+            }
+            file = new FileExportHelper().export(WebStudioUtils.getUserWorkspace(FacesUtils.getSession()).getUser(), selectedProject, moduleName + "." + fileType);
+        } catch (ProjectException e) {
+            log.error("Failed to export module", e);
+            // TODO Display message - e.getMessage()
+        }
+
+        if (file != null) {
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            ExportModule.writeOutContent(response, file, moduleName + "." + fileType, fileType);
+            facesContext.responseComplete();
+            file.delete();
         }
         return null;
     }
@@ -335,7 +379,35 @@ public class WebStudio {
             setCurrentModule(getAllProjects().get(0).getModules().get(0));
         }
     }
+    
+    public String updateModule() {
+        if (getLastUploadedFile() == null) {
+            // TODO Display message - e.getMessage()
+            return null;
+        }
 
+        try {
+            Module module = getCurrentModule();
+            OutputStream outputStream = new FileOutputStream(module.getRulesRootPath().getPath());
+            IOUtils.copy(getLastUploadedFile().getInputStream(), outputStream);
+            IOUtils.closeQuietly(getLastUploadedFile().getInputStream());
+        } catch (Exception e) {
+            log.error("Error updating file in user workspace.", e);
+            // TODO Display message - e.getMessage()
+        }
+        reset(ReloadType.FORCED);
+        rebuildModel();
+        uploadedFiles.clear();
+        return null;
+    }
+
+    private UploadedFile getLastUploadedFile() {
+        if (!uploadedFiles.isEmpty()) {
+            return uploadedFiles.get(uploadedFiles.size() - 1);
+        }
+        return null;
+    }
+    
     public ProjectDescriptor getProject(final String id) {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
             public boolean evaluate(Object project) {
@@ -450,6 +522,11 @@ public class WebStudio {
 
     public boolean isNeedRestart() {
         return needRestart;
+    }
+
+    public void uploadListener(FileUploadEvent event) {
+        UploadedFile file = event.getUploadedFile();
+        uploadedFiles.add(file);
     }
     
     public void destroy() {

@@ -78,15 +78,15 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         JcrProductionSearchParams params = new JcrProductionSearchParams();
         params.setLowerEffectiveDate(EFF_DATE2);
         Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
-        /*FIXME entityCollection.size() will be 3*/
-        assertEquals(4, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2", "folder1"));
-/*
+
+        assertEquals(3, entityCollection.size());
+        assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2"));
+
         params.setUpperEffectiveDate(EFF_DATE3);
         entityCollection = instance.findNodes(params);
         assertEquals(2, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "f1", "f2"));
-
+/*
         params.setUpperEffectiveDate(new Date(EFF_DATE3.getTime() - 1));
         entityCollection = instance.findNodes(params);
         assertEquals(1, entityCollection.size());
@@ -96,7 +96,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     public void _testExpirationDate() throws RRepositoryException {
         JcrProductionSearchParams params = new JcrProductionSearchParams();
         params.setLowerExpirationDate(EXP_DATE2);
-        /*
+       
         Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
         assertEquals(3, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2"));
@@ -105,7 +105,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         entityCollection = instance.findNodes(params);
         assertEquals(2, entityCollection.size());
         assertTrue(check(entities2names(entityCollection), "f1", "f2"));
-
+/*
         params.setUpperExpirationDate(new Date(EXP_DATE3.getTime() - 1));
         entityCollection = instance.findNodes(params);
         assertEquals(1, entityCollection.size());
@@ -168,9 +168,9 @@ public class JcrProductionRepositoryTestCase extends TestCase {
 
         params.setUpperExpirationDate(EXP_DATE3);
         entityCollection = instance.findNodes(params);
-        //FIXME will be entityCollection.size() = 1
-        assertEquals(0, entityCollection.size());
-        //assertTrue(check(entities2names(entityCollection), "f1"));
+
+        assertEquals(01, entityCollection.size());
+        assertTrue(check(entities2names(entityCollection), "f1"));
     }
 
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {

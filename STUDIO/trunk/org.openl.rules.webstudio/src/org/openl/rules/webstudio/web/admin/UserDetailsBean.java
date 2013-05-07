@@ -9,7 +9,9 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.security.Privilege;
@@ -22,6 +24,8 @@ import org.springframework.security.core.GrantedAuthority;
 @ManagedBean
 @RequestScoped
 public class UserDetailsBean extends UsersBean {
+    public static final String VALIDATION_MAX = "Must be less than 25";
+
     private User user;
     private String newPassword;
     private String confirmPassword;
@@ -29,6 +33,13 @@ public class UserDetailsBean extends UsersBean {
     private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;
     private String currentPassword;
+    private String userPassword;
+
+    @Size(max=25, message=VALIDATION_MAX)
+    private String userFirstName;
+
+    @Size(max=25, message=VALIDATION_MAX)
+    private String userLastName;
 
     public UserDetailsBean() {
         super();
@@ -45,7 +56,7 @@ public class UserDetailsBean extends UsersBean {
         user = userManagementService.loadUserByUsername(userInfo.getUser().getUsername());
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
-
+        setCurrentPassword(user.getPassword());
         return user;
     }
 
@@ -71,10 +82,21 @@ public class UserDetailsBean extends UsersBean {
     public void editUser() {
 
         if (isPasswordValid) {
-            setCurrentPassword(newPassword);
+            String encodedPassword = new Md5PasswordEncoder().encodePassword(newPassword, null);
+            setCurrentPassword(encodedPassword);
+        } else {
+            setCurrentPassword(getUser().getPassword());
         }
 
-        simpleUser = new SimpleUser(getFirstName(), getLastName(), getUsername(), getCurrentPassword(), getPriveleges());
+        if (userFirstName == null) {
+            userFirstName = getFirstName();
+        }
+
+        if (userLastName == null) {
+            userLastName = getLastName();
+        }
+
+        simpleUser = new SimpleUser(getUserFirstName(), getUserLastName(), getUsername(), currentPassword, getPriveleges());
         userManagementService.updateUser(simpleUser);
     }
 
@@ -97,18 +119,30 @@ public class UserDetailsBean extends UsersBean {
             String userPasswordHash = user.getPassword();
             String enteredPasswordHash = new Md5PasswordEncoder().encodePassword(passwordString, null);
 
-            if (!StringUtils.equals(newPassword, confirmPasswordString)) {
-                throw new ValidatorException(new FacesMessage("Password missmatch"));
-            } else {
-                isPasswordValid = true;
-            }
             if (StringUtils.isEmpty(passwordString)) {
                 throw new ValidatorException(new FacesMessage("Enter your password"));
             }
+
+            if (!StringUtils.equals(newPassword, confirmPasswordString)) {
+                throw new ValidatorException(new FacesMessage("New password and confirm password do not match."));
+            } else {
+                isPasswordValid = true;
+            }
+
             if (!userPasswordHash.equals(enteredPasswordHash)) {
-                throw new ValidatorException(new FacesMessage("Incorect password!"));
+                throw new ValidatorException(new FacesMessage("Incorect current password!"));
             }
         }
+    }
+
+    public void firstNameListener(ValueChangeEvent e) {
+        UIInput uiInput = (UIInput) e.getComponent();
+        setUserFirstName(uiInput.getValue().toString());
+    }
+
+    public void lastNameListener(ValueChangeEvent e) {
+        UIInput uiInput = (UIInput) e.getComponent();
+        setUserLastName(uiInput.getValue().toString());
     }
 
     public String getNewPassword() {
@@ -141,6 +175,30 @@ public class UserDetailsBean extends UsersBean {
 
     public void setCurrentPassword(String currentPassword) {
         this.currentPassword = currentPassword;
+    }
+
+    public String getUserPassword() {
+        return userPassword;
+    }
+
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+
+    public String getUserFirstName() {
+        return userFirstName;
+    }
+
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
     }
 
 }

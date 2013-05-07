@@ -10,6 +10,7 @@ import org.openl.rules.calc.SpreadsheetResult;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor<CompoundStep> {
     
 	/**

@@ -12,6 +12,8 @@ import java.io.Serializable;
  * @author Andrey Naumenko
  */
 public abstract class PersistentObject implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     protected Long id;
 
     public PersistentObject() {

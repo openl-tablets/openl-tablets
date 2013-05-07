@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProductionDeployment;
@@ -26,6 +27,8 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -47,8 +50,28 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 }else{
                     sb.append(" AND ");
                 }
-                sb.append('[').append(propertyName).append(']').append(condition).append(date.getTime());
+
+                sb.append('[').append(propertyName).append(']').append(condition).append(getDateString(date, condition));
             }
+        }
+
+        private String getDateString(Date date, String condition) {
+            DateFormat format = null;
+            
+            if (condition.indexOf(">") > -1) {
+                format = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00.000'Z'");
+            } else if (condition.indexOf("<") > -1) {
+                format = new SimpleDateFormat("yyyy-MM-dd'T'23:59:59.999'Z'");
+            } else {
+                format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            }
+
+            String dateString = format.format(date);
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("CAST('").append(dateString).append("' AS DATE)");
+            return sb.toString();
         }
 
         public String buildQuery(SearchParams params) {
@@ -64,10 +87,10 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 sb.append("[" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "]").append("=\"").append(params.getLineOfBusiness()).append("\"");
             }
 
-            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getLowerEffectiveDate(), " >= ", sb);
-            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getUpperEffectiveDate(), " <= ", sb);
-            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getLowerExpirationDate(), " >= ", sb);
-            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getUpperExpirationDate(), " <= ", sb);
+            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getLowerEffectiveDate(), ">=", sb);
+            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getUpperEffectiveDate(), "<=", sb);
+            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getLowerExpirationDate(), ">=", sb);
+            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getUpperExpirationDate(), "<=", sb);
 
             return sb.toString();
         }

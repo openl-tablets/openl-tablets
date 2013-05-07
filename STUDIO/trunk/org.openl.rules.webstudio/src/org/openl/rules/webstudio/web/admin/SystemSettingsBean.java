@@ -30,6 +30,7 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RRepository;
+import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter.ConfigurationReloader;
@@ -41,18 +42,18 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
- * TODO Remove property getters/setters when migrating to EL 2.2
- * TODO Move methods for production repository to another class
+ * TODO Remove property getters/setters when migrating to EL 2.2 TODO Move
+ * methods for production repository to another class
  * 
  * @author Andrei Astrouski
  */
 @ManagedBean
 @SessionScoped
 public class SystemSettingsBean {
-    @ManagedProperty(value="#{productionRepositoriesTreeController}")
+    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value="#{productionRepositoryFactoryProxy}")
+    @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
@@ -68,7 +69,7 @@ public class SystemSettingsBean {
 
     private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
     private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
-    
+
     private static final String DESIGN_REPOSITORY_LOGIN = "design-repository.login";
     private static final String DESIGN_REPOSITORY_PASSWORD = "design-repository.pass";
     private static final String DESIGN_REPOSITORY_CONFIG_FILE = "design-repository.config";
@@ -77,9 +78,12 @@ public class SystemSettingsBean {
     /** @deprecated */
     private static final BidiMap DESIGN_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
-        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("local", "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory");
-        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("rmi", "org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory");
-        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("webdav", "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory");
+        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("local",
+                "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory");
+        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("rmi",
+                "org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory");
+        DESIGN_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
+                "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory");
     };
     /** @deprecated */
     private static final Map<String, String> DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
@@ -93,9 +97,12 @@ public class SystemSettingsBean {
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local", "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("rmi", "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory");
-        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav", "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
+        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("local",
+                "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory");
+        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("rmi",
+                "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory");
+        PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP.put("webdav",
+                "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory");
     };
     /** @deprecated */
     private static final Map<String, String> PRODUCTION_REPOSITORY_TYPE_PATH_PROPERTY_MAP = new HashMap<String, String>();
@@ -109,11 +116,11 @@ public class SystemSettingsBean {
 
     private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
     private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
-    
-    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+
+    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
-    @ManagedProperty(value="#{deploymentManager}")
+    @ManagedProperty(value = "#{deploymentManager}")
     private DeploymentManager deploymentManager;
 
     public String getUserWorkspaceHome() {
@@ -174,8 +181,7 @@ public class SystemSettingsBean {
     }
 
     public void setDesignRepositoryType(String type) {
-        configManager.setProperty(
-                DESIGN_REPOSITORY_FACTORY, DESIGN_REPOSITORY_TYPE_FACTORY_MAP.get(type));
+        configManager.setProperty(DESIGN_REPOSITORY_FACTORY, DESIGN_REPOSITORY_TYPE_FACTORY_MAP.get(type));
     }
 
     public String getDesignRepositoryName() {
@@ -190,8 +196,7 @@ public class SystemSettingsBean {
         String type = getDesignRepositoryType();
         String propName = DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.get(type);
 
-        return "local".equals(type) ?
-                configManager.getPath(propName) : configManager.getStringProperty(propName);
+        return "local".equals(type) ? configManager.getPath(propName) : configManager.getStringProperty(propName);
     }
 
     public void setDesignRepositoryPath(String path) {
@@ -267,11 +272,11 @@ public class SystemSettingsBean {
     public boolean isCustomSpreadsheetType() {
         return OpenLSystemProperties.isCustomSpreadsheetType(configManager.getProperties());
     }
-    
+
     public void setCustomSpreadsheetType(boolean customSpreadsheetType) {
         configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
-    
+
     public String getRulesDispatchingMode() {
         return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
     }
@@ -290,6 +295,7 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
                 prodConfig.delete();
             }
+
             deletedConfigurations.clear();
 
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
@@ -343,7 +349,8 @@ public class SystemSettingsBean {
     public void addProductionRepository() {
         try {
             String emptyConfigName = "_new_";
-            RepositoryConfiguration template = new RepositoryConfiguration(emptyConfigName, getProductionConfigManager(emptyConfigName));
+            RepositoryConfiguration template = new RepositoryConfiguration(emptyConfigName,
+                    getProductionConfigManager(emptyConfigName));
 
             String templateName = template.getName();
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
@@ -357,7 +364,8 @@ public class SystemSettingsBean {
 
             String newNum = String.valueOf(maxNumber + 1);
             String newConfigName = getConfigName(templateName + newNum);
-            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
+            RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
+                    getProductionConfigManager(newConfigName));
             newConfig.setName(templateName + newNum);
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
 
@@ -365,7 +373,8 @@ public class SystemSettingsBean {
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
 
             productionRepositoryConfigurations.add(newConfig);
-//            FacesUtils.addInfoMessage("Repository '" + newConfig.getName() + "' is added successfully");
+            // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +
+            // "' is added successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -377,7 +386,7 @@ public class SystemSettingsBean {
     public void deleteProductionRepository(String configName) {
         try {
             deploymentManager.removeRepository(configName);
-            
+
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             configNames = (String[]) ArrayUtils.removeElement(configNames, configName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
@@ -388,13 +397,14 @@ public class SystemSettingsBean {
                 if (prodConfig.getConfigName().equals(configName)) {
                     deletedConfigurations.add(prodConfig);
                     it.remove();
-                    /*Delete Production repo from tree*/
+                    /* Delete Production repo from tree */
                     productionRepositoriesTreeController.deleteProdRepo(prodConfig.getName());
                     break;
                 }
             }
 
-//          FacesUtils.addInfoMessage("Repository '" + repositoryName + "' is deleted successfully");
+            // FacesUtils.addInfoMessage("Repository '" + repositoryName +
+            // "' is deleted successfully");
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -422,31 +432,36 @@ public class SystemSettingsBean {
 
     public void validate(RepositoryConfiguration prodConfig) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = String.format("Repository name is empty", prodConfig.getName());
+            String msg = String.format("Repository name is empty. Please, enter repository name", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
         if (StringUtils.isEmpty(prodConfig.getPath())) {
-            String msg = String.format("Repository path is empty", prodConfig.getName());
+            String msg = String.format("Repository path is empty. Please, enter repository path", prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
-            String msg = String.format("Repository name '%s' contains illegal characters", prodConfig.getName());
+            String msg = String.format(
+                    "Repository name '%s' contains illegal characters. Please, correct repository name",
+                    prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
-        //workingDirValidator(prodConfig.getPath(), "Production Repository directory");
+        // workingDirValidator(prodConfig.getPath(),
+        // "Production Repository directory");
 
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists", prodConfig.getName());
+                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one",
+                            prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
                 if (prodConfig.getPath().equals(other.getPath())) {
-                    String msg = String.format("Repository path '%s' already exists", prodConfig.getPath());
+                    String msg = String.format("Repository path '%s' already exists. Please, insert a new one",
+                            prodConfig.getPath());
                     throw new RepositoryValidationException(msg);
                 }
             }
@@ -455,8 +470,17 @@ public class SystemSettingsBean {
 
     public void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
         try {
-            RRepository repository = productionRepositoryFactoryProxy.getFactory(repoConfig.getProperties()).getRepositoryInstance();
+            /**Close connection to jcr before checking connection*/
+            this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
+            RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(
+                    repoConfig.getProperties());
+            repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(
+                    repoConfig.getProperties());
+
+            RRepository repository = repoFactory.getRepositoryInstance();
+            /*Close repo connection after validation*/
             repository.release();
+            this.getProductionRepositoryFactoryProxy().releaseRepository(repoConfig.getConfigName());
         } catch (RRepositoryException e) {
             Throwable resultException = e;
 
@@ -466,19 +490,24 @@ public class SystemSettingsBean {
 
             if (resultException instanceof javax.jcr.LoginException) {
                 if (!repoConfig.isSecure()) {
-                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Connection is secure. Insert login and password");
+                    throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
+                            + "\" : Connection is secure. Please, insert login and password");
                 } else {
-                    throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Check login and password");
+                    throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
+                            + "\" : Invalid login or password. Please, check login and password");
                 }
             } else if (resultException instanceof javax.security.auth.login.FailedLoginException) {
-                throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : Invalid login or password. Check login and password");
+                throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
+                        + "\" : Invalid login or password. Please, check login and password");
             }
 
-            throw new RepositoryValidationException("Repository \""+repoConfig.getName()+"\" : "+resultException.getMessage());
+            throw new RepositoryValidationException("Repository \"" + repoConfig.getName() + "\" : "
+                    + resultException.getMessage());
         }
     }
 
-    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig) throws ServletException {
+    private RepositoryConfiguration saveProductionRepository(RepositoryConfiguration prodConfig)
+            throws ServletException {
         boolean changed = prodConfig.save();
         if (changed) {
             try {
@@ -501,7 +530,8 @@ public class SystemSettingsBean {
     private RepositoryConfiguration renameConfigName(RepositoryConfiguration prodConfig) throws ServletException {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
-        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName, getProductionConfigManager(newConfigName));
+        RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
+                getProductionConfigManager(newConfigName));
         newConfig.copyContent(prodConfig);
         newConfig.save();
 
@@ -533,7 +563,7 @@ public class SystemSettingsBean {
             configName += repositoryName.toLowerCase();
         }
         configName += ".properties";
-        
+
         return configName;
     }
 
@@ -546,21 +576,23 @@ public class SystemSettingsBean {
     }
 
     private long getMaxNumberOfTemplatedNames(String[] configNames, String templateName, String prefix, String suffix) {
-        Pattern pattern = Pattern.compile("\\Q"+ prefix + templateName + "\\E\\d+\\Q" + suffix + "\\E", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-        
+        Pattern pattern = Pattern.compile("\\Q" + prefix + templateName + "\\E\\d+\\Q" + suffix + "\\E",
+                Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
         int startPosition = (prefix + templateName).length();
         int suffixLength = suffix.length();
-        
+
         long maxNumber = 0;
         for (String configName : configNames) {
             if (pattern.matcher(configName).matches()) {
                 long sequenceNumber;
                 try {
-                    sequenceNumber = Long.parseLong(configName.substring(startPosition, configName.length() - suffixLength));
+                    sequenceNumber = Long.parseLong(configName.substring(startPosition, configName.length()
+                            - suffixLength));
                 } catch (NumberFormatException ignore) {
                     continue;
                 }
-                
+
                 if (sequenceNumber > maxNumber) {
                     maxNumber = sequenceNumber;
                 }
@@ -569,7 +601,7 @@ public class SystemSettingsBean {
         return maxNumber;
     }
 
-    public void dateFormatValidator (FacesContext context, UIComponent toValidate, Object value) {
+    public void dateFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
         String inputDate = (String) value;
 
         isPathNull(inputDate, "Date format");
@@ -584,7 +616,7 @@ public class SystemSettingsBean {
 
     }
 
-    public void historyDirValidator (FacesContext context, UIComponent toValidate, Object value) {
+    public void historyDirValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "History Directory";
         isPathNull(value, directoryType);
         setProjectHistoryHome((String) value);
@@ -592,9 +624,9 @@ public class SystemSettingsBean {
 
     }
 
-    public void historyCountValidator (FacesContext context, UIComponent toValidate, Object value) {
+    public void historyCountValidator(FacesContext context, UIComponent toValidate, Object value) {
         String errorMessage = null;
-        String count = (String)value;
+        String count = (String) value;
         isPathNull(count, "The maximum count of saved changes");
         if (!Pattern.matches("[0-9]+", count)) {
             errorMessage = "The maximum count of saved changes should be positive integer";
@@ -606,17 +638,17 @@ public class SystemSettingsBean {
         }
     }
 
-    public void designRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
+    public void designRepositoryValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Design Repository directory";
         isPathNull(value, directoryType);
-        setDesignRepositoryPath((String)value);
+        setDesignRepositoryPath((String) value);
         workingDirValidator(getDesignRepositoryPath(), directoryType);
     }
 
-    public void productionRepositoryValidator (FacesContext context, UIComponent toValidate, Object value) {
+    public void productionRepositoryValidator(FacesContext context, UIComponent toValidate, Object value) {
         String directoryType = "Production Repositories directory";
         isPathNull(value, directoryType);
-        workingDirValidator((String)value, directoryType);
+        workingDirValidator((String) value, directoryType);
     }
 
     public void workingDirValidator(String value, String folderType) {
@@ -634,8 +666,8 @@ public class SystemSettingsBean {
                 hasAccess = tmpFile.mkdir();
 
                 if (!hasAccess) {
-                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value + 
-                        " '    Please, contact to your system administrator."));
+                    throw new ValidatorException(new FacesMessage("Can't get access to the folder ' " + value
+                            + " '    Please, contact to your system administrator."));
                 }
             } else {
                 if (studioWorkingDir.mkdirs() == false) {
@@ -655,8 +687,8 @@ public class SystemSettingsBean {
         }
     }
 
-    private boolean isPathNull (Object value, String folderType) {
-        boolean isNull = StringUtils.isBlank((String)value);
+    private boolean isPathNull(Object value, String folderType) {
+        boolean isNull = StringUtils.isBlank((String) value);
         String errorMessage = folderType + "  could not be empty";
 
         if (isNull) {

@@ -114,16 +114,8 @@ public class JcrLock implements RLock {
             }
 
             if (lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY)) {
-                String whoLocked = lockNode.getProperty(ArtefactProperties.PROP_LOCKED_BY).getString();
-                String whoUnlocks = user.getUserName();
-
-                if (!whoLocked.equals(whoUnlocks)) {
-                    throw new RRepositoryException("Lock that was set by ''{0}'' cannot be removed by ''{1}''.", null,
-                            whoLocked, whoUnlocks);
-                }else{
-                    lockNode.remove();
-                    forNode.getParent().save();
-                }
+                lockNode.remove();
+                forNode.getParent().save();
             }
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to remove lock.", e);
