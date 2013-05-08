@@ -39,8 +39,7 @@ public class DataBase implements IDataBase {
 
         return table;
     }
-    
-    
+
     protected ITable makeNewTable(String tableName, TableSyntaxNode tsn)
     {
     	return new Table(tableName, tsn);
