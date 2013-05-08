@@ -461,6 +461,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener{
         return false;
     }
 
+    public boolean getCanExport() {
+        return !getSelectedProject().isLocalOnly();
+    }
+
     public boolean getCanCompare() {
         if (getSelectedProject().isLocalOnly()) {
             return false;
