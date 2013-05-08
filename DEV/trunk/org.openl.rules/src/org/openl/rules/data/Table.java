@@ -263,7 +263,7 @@ public class Table implements ITable {
 
     protected void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException 
         {
-        
+
         boolean constructor = isConstructor();
         Object literal = null;
 
@@ -293,10 +293,10 @@ public class Table implements ITable {
 
     protected Object processColumn(OpenlToolAdaptor openlAdapter, boolean constructor, int rowNum, Object literal,
             int columnNum) throws SyntaxNodeException {
-        
+
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
-        
+
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
                 literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getSubtable(columnNum,
@@ -304,7 +304,7 @@ public class Table implements ITable {
                     1,
                     1), openlAdapter);
             } else {
-            	
+
                 try {
 					columnDescriptor.populateLiteral(literal,
 					    logicalTable.getSubtable(columnNum, rowNum, 1, 1),
