@@ -12,11 +12,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
-import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.table.Point;
@@ -33,6 +33,7 @@ import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 
 /**
@@ -42,6 +43,8 @@ import org.openl.types.IParameterDeclaration;
 @ManagedBean
 @RequestScoped
 public class RunAllTestsBean {
+    private final Log log = LogFactory.getLog(RunAllTestsBean.class);
+
     private TestUnitsResults[] ranResults;
 
     /**
@@ -217,16 +220,18 @@ public class RunAllTestsBean {
         
         try {
             if (spreadsheetResult != null) {
-                Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit);
+                Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
         } catch (Exception e) {
-            
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
         return StringUtils.EMPTY;
     }
 
-    private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit) {
+    private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit, SpreadsheetResult spreadsheetResult) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
         TestUnit testUnit = (TestUnit) objTestUnit;
         TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator().getComparator();
@@ -237,11 +242,11 @@ public class RunAllTestsBean {
         BeanResultComparator comparator = (BeanResultComparator) testUnitResultComparator;
         List<ComparedResult> fieldsToTest = comparator.getComparisonResults();
 
-        SpreadsheetOpenClass spreadsheetOpenClass = ((Spreadsheet)testUnit.getTest().getTestedMethod()).getSpreadsheetType();
-
         if (fieldsToTest != null) {
+            Map<String, Point> coordinates = DefaultResultBuilder.getAbsoluteSpreadsheetFieldCoordinates(spreadsheetResult);
+
             for (ComparedResult fieldToTest : fieldsToTest) {
-                Point fieldCoordinates = DefaultResultBuilder.getAbsoluteSpreadsheetFieldCoordinates(spreadsheetOpenClass.getField(fieldToTest.getFieldName()));
+                Point fieldCoordinates = coordinates.get(fieldToTest.getFieldName());
                 if (fieldCoordinates != null) {
                     fieldsCoordinates.put(fieldCoordinates, fieldToTest);
                 }
