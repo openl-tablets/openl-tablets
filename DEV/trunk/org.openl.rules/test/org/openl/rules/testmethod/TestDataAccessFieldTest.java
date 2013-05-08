@@ -14,7 +14,7 @@ import org.openl.rules.TestHelper;
 
 public class TestDataAccessFieldTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
-
+/*
     public interface ITest {
         TestUnitsResults returnPolicyTestTestAll();
         TestUnitsResults returnPolicyQuoteDateTestTestAll();
@@ -50,4 +50,5 @@ public class TestDataAccessFieldTest {
         TestUnitsResults result = instance.returnBrokerDiscountTestTestAll();
         assertEquals(2, result.getNumberOfFailures());
     }
+*/
 }
