@@ -145,6 +145,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.calculation.result</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.openl</groupId>
 				<artifactId>org.openl.core</artifactId>
 				<version>${project.version}</version>
