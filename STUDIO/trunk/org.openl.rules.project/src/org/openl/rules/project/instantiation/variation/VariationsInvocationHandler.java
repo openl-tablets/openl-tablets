@@ -23,6 +23,7 @@ import org.openl.rules.variation.VariationsFromRules;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -75,7 +76,7 @@ class VariationsInvocationHandler implements InvocationHandler {
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method member = methodsMap.get(method);
-        if (member == null){
+        if (member == null) {
             return method.invoke(serviceClassInstance, args);
         }
         if (VariationsEnhancerHelper.isEnhancedMethod(method)) {
@@ -124,10 +125,11 @@ class VariationsInvocationHandler implements InvocationHandler {
                 simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_WRITE);
                 simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(true);
                 simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
+                simpleRulesRuntimeEnv.resetMethodArgumentsCache();
                 simpleRulesRuntimeEnv.setOriginalCalculation(true);
                 simpleRulesRuntimeEnv.setIgnoreRecalculate(false);
-            }else{
-                if (log.isErrorEnabled()){
+            } else {
+                if (log.isErrorEnabled()) {
                     log.error("Runtime env should be SimpleRulesRuntimeEnv.class");
                 }
             }
@@ -211,8 +213,8 @@ class VariationsInvocationHandler implements InvocationHandler {
                     log.warn("Failed to calculate \"" + variation.getVariationID() + "\"", e);
                 }
                 Throwable e1 = e;
-                if (e instanceof InvocationTargetException && e.getCause() != null){
-                   e1 = e.getCause();
+                if (e instanceof InvocationTargetException && e.getCause() != null) {
+                    e1 = e.getCause();
                 }
                 variationsResults.registerFailure(variation.getVariationID(), e1.getMessage());
             }
