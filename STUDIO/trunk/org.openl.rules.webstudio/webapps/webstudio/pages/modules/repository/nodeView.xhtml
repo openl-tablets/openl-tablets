@@ -168,7 +168,7 @@
             <rich:tooltip showDelay="500">#{uploadFileMessage}</rich:tooltip>
         </h:commandButton>
         
-        <h:commandButton id="exportVersionId" value="Export" onclick="openExportVersionDialog();return false;">
+        <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export" onclick="openExportVersionDialog();return false;">
             <rich:tooltip showDelay="500">Download project as zip archive</rich:tooltip>
         </h:commandButton>
       </h:panelGrid>
