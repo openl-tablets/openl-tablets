@@ -90,7 +90,7 @@ public class TestUnitResultComparator {
         if (actualResult == null) {
             return false;
         }
-        
+
         return resultComparator.compareResult(actualResult, expectedResult);
     }
     

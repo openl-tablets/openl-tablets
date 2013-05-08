@@ -148,7 +148,7 @@ public class ShowTableBean {
 
     private void initTests(final ProjectModel model) {
         initRunnableTestMethods(model);
-        
+
         allTests = model.getTestAndRunMethods(uri);
         tests = model.getTestMethods(uri);
     }

@@ -130,9 +130,9 @@ public abstract class BaseOpenlBuilderHelper {
     
     protected Object invokeMethod(String methodName, IOpenClass[] params, Object[] paramValues) {
         IOpenMethod testMethod = getMethod(methodName, params);
-        
+
         Assert.assertNotNull(String.format("Method with name \"%s\" does not exists", methodName), testMethod);
-        
+
         return invokeMethod(testMethod, paramValues);
     }
     
