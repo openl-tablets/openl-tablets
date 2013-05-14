@@ -1,7 +1,9 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,15 +22,16 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 public class CellsHeaderExtractor {
     private String[] rowNames;
     private String[] columnNames;
+    private Set<String> dependentSpreadsheetTypes;
     
     /** table representing column section in the spreadsheet **/
-    private ILogicalTable columnNamesTable;
+    private final ILogicalTable columnNamesTable;
 
     /** table representing row section in the spreadsheet **/
-    private ILogicalTable rowNamesTable;
+    private final ILogicalTable rowNamesTable;
 
     /** Spreadsheet signature */
-    private String spreadsheetSignature;
+    private final String spreadsheetSignature;
     
     // regex that represents the next line:
     // [any_symbols] : SpreadsheetResult<custom_spreadsheet_result_name>
@@ -85,11 +88,13 @@ public class CellsHeaderExtractor {
         return columnNames.clone();
     }
     
-    public List<String> getDependentSpreadsheetTypes() {
-        List<String> dependentSpreadsheetTypes = new ArrayList<String>();
-        dependentSpreadsheetTypes.addAll(getSignatureDependencies(spreadsheetSignature));
-        dependentSpreadsheetTypes.addAll(getDependencies(columnNames));
-        dependentSpreadsheetTypes.addAll(getDependencies(rowNames));
+    public Set<String> getDependentSpreadsheetTypes() {
+        if (dependentSpreadsheetTypes == null) {
+            dependentSpreadsheetTypes = new HashSet<String>();
+            dependentSpreadsheetTypes.addAll(getSignatureDependencies(spreadsheetSignature));
+            dependentSpreadsheetTypes.addAll(getDependencies(columnNames));
+            dependentSpreadsheetTypes.addAll(getDependencies(rowNames));
+        }
         return dependentSpreadsheetTypes;
     }
     
