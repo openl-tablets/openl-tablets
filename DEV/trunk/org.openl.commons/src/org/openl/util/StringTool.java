@@ -184,7 +184,7 @@ public class StringTool {
     /**
      * Create hexadecimal string representation of a specified number of bytes
      * from array (padded with 0s)
-     *
+     * 
      * @param src source byte array
      * @param off offset
      * @param len length
@@ -200,16 +200,19 @@ public class StringTool {
             out.append(s);
         }
         return out.toString();
-    }    
+    }
 
     /**
-     * See examples below: 
-     * 1) Assert.assertEquals("url", StringTool.decapitalizeName("URL", "_")); 
-     * 2) Assert.assertEquals("driver", StringTool.decapitalizeName("Driver", "_"));
-     * 3) Assert.assertEquals("test_url", StringTool.decapitalizeName("TestURL", "_")); 
-     * 4) Assert.assertEquals("testurl", StringTool.decapitalizeName("testURL", null));
-     * 5) Assert.assertEquals("test_url_code", StringTool.decapitalizeName("TestURLCode", "_"));
-     * 6) Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode", "_"));
+     * See examples below: 1) Assert.assertEquals("url",
+     * StringTool.decapitalizeName("URL", "_")); 2)
+     * Assert.assertEquals("driver", StringTool.decapitalizeName("Driver",
+     * "_")); 3) Assert.assertEquals("test_url",
+     * StringTool.decapitalizeName("TestURL", "_")); 4)
+     * Assert.assertEquals("testurl", StringTool.decapitalizeName("testURL",
+     * null)); 5) Assert.assertEquals("test_url_code",
+     * StringTool.decapitalizeName("TestURLCode", "_")); 6)
+     * Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode",
+     * "_"));
      */
 
     public static String decapitalizeName(String capitalized, String separator) {
@@ -262,15 +265,14 @@ public class StringTool {
         return buf;
     }
 
-     // TODO Move to URLUtils class
-     public static String encodeURL(String url) {
+    // TODO Move to URLUtils class
+    public static String encodeURL(String url) {
         String encodedUrl = null;
         if (StringUtils.isBlank(url)) {
             return url;
         }
         try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8")
-                .replaceAll("\\+", "%20");
+            encodedUrl = URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -364,7 +366,8 @@ public class StringTool {
         return macroSubst(src, macros, macroDelim, mkh, new StringBuffer()).toString();
     }
 
-    public static StringBuffer macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh, StringBuffer buf) {
+    public static StringBuffer macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh,
+            StringBuffer buf) {
         MacroSubst ms = new MacroSubst(macros, macroDelim, mkh);
         return ms.transform(src, buf);
     }
@@ -505,21 +508,21 @@ public class StringTool {
         return buf.toString();
     }
 
-    static public String getFileNameOfJavaClass(Class<?> c)
-    {
-        return c.getName().replace('.', '/') +  ".java";
+    static public String getFileNameOfJavaClass(Class<?> c) {
+        return c.getName().replace('.', '/') + ".java";
     }
-    
+
     /**
-     * Split the string by the symbolToSplit. To avoid splitting symbolToEscape is used.
-     * Trims the splitted result. For examples see tests.
+     * Split the string by the symbolToSplit. To avoid splitting symbolToEscape
+     * is used. Trims the splitted result. For examples see tests.
      * 
      * @param src source to process. Can`t be <code>null</code>.
      * @param symbolToSplit the delimiting symbol. Can`t be <code>null</code>.
-     * @param symbolToEscape the escaper, that is used to break splitting by symbolToSplit. If <code>null</code>, 
-     * the symbolToSplit array will be returned.
-     * @return the array of strings computed by splitting this string around matches of the given symbolToSplit and 
-     * escaped by escaper.
+     * @param symbolToEscape the escaper, that is used to break splitting by
+     *            symbolToSplit. If <code>null</code>, the symbolToSplit array
+     *            will be returned.
+     * @return the array of strings computed by splitting this string around
+     *         matches of the given symbolToSplit and escaped by escaper.
      */
     public static String[] splitAndEscape(String src, String symbolToSplit, String symbolToEscape) {
         String[] result = null;
@@ -527,45 +530,45 @@ public class StringTool {
         List<String> resultList = new ArrayList<String>();
         StringBuffer buf = new StringBuffer();
         if (symbolToEscape != null) {
-            for (int i=0; i<tokens.length; i++) {                
-                if (tokens[i].endsWith(symbolToEscape)) {    
+            for (int i = 0; i < tokens.length; i++) {
+                if (tokens[i].endsWith(symbolToEscape)) {
                     tokens[i] = tokens[i].trim();
-                    String tokenWithoutEscaper = tokens[i].substring(0,tokens[i].length()-1);
-                    buf.append(tokenWithoutEscaper).append(symbolToSplit);                
+                    String tokenWithoutEscaper = tokens[i].substring(0, tokens[i].length() - 1);
+                    buf.append(tokenWithoutEscaper).append(symbolToSplit);
                 } else {
                     if (buf.length() == 0) {
                         tokens[i] = tokens[i].trim();
                         resultList.add(tokens[i]);
-                    } else {                        
+                    } else {
                         buf.append(tokens[i]);
                         resultList.add(buf.toString());
                         buf.delete(0, buf.length());
-                    }                 
+                    }
                 }
             }
-            result = (String[]) resultList.toArray(new String[0]); 
+            result = (String[]) resultList.toArray(new String[0]);
         } else {
             result = tokens;
         }
-        
-        return result; 
+
+        return result;
     }
-    
+
     public static String insertStringToString(String baseStr, String strToInsertBefore, String insertion) {
         String src = baseStr;
         String[] tokens = src.split(strToInsertBefore);
         StringBuffer strBuf = new StringBuffer();
-        for (int i=0; i<tokens.length; i++) {
+        for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
             strBuf.append(token);
-            if (!(i == tokens.length-1)) {
+            if (!(i == tokens.length - 1)) {
                 strBuf.append(insertion);
-                strBuf.append(strToInsertBefore);                
+                strBuf.append(strToInsertBefore);
             }
         }
         return strBuf.toString();
     }
-    
+
     public static String arrayToStringThroughSymbol(Object[] values, String symbol) {
         if (ArrayUtils.isNotEmpty(values)) {
             List<String> objectStrings = new ArrayList<String>();
@@ -576,7 +579,7 @@ public class StringTool {
         }
         return null;
     }
-    
+
     public static String listToStringThroughSymbol(List<String> values, String symbol) {
         String result = StringUtils.EMPTY;
         if (values != null && !values.isEmpty()) {
@@ -590,34 +593,34 @@ public class StringTool {
                 }
             }
             result = strBuf.toString();
-        } 
+        }
         return result;
     }
-    
+
     /**
-     * Returns the setter name, by adding set, to the field name,
-     * and upper case the first field name symbol.
+     * Returns the setter name, by adding set, to the field name, and upper case
+     * the first field name symbol.
      * 
      * @param fieldName
      * @return setFieldName
      */
     public static String getSetterName(String fieldName) {
-        return String.format("set%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
+        return String.format("set%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1));
     }
-    
+
     public static String getGetterName(String fieldName) {
-        return String.format("get%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
+        return String.format("get%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1));
     }
-    
+
     /**
      * Builds the type name with namespace.
      * 
      * @param namespace for typeName
-     * @param typeName 
+     * @param typeName
      * @return namespace::typeName
      */
     public static final String buildTypeName(String namespace, String typeName) {
         return String.format("%s::%s", namespace, typeName);
     }
-    
+
 }

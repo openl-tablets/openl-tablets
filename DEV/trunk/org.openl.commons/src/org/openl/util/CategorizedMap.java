@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class CategorizedMap {
 
@@ -58,6 +58,7 @@ public class CategorizedMap {
         }
 
     }
+
     protected HashMap<String, Category> categories = new HashMap<String, Category>();
 
     protected HashMap<String, Object> all = new HashMap<String, Object>();
@@ -75,7 +76,7 @@ public class CategorizedMap {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.util.Map#get(java.lang.Object)
      */
     public Object get(Object key) {
@@ -84,7 +85,7 @@ public class CategorizedMap {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.env.IResourceProvider#getResource(java.lang.Object)
      */
     public Object getCategorized(String category) {
@@ -134,7 +135,7 @@ public class CategorizedMap {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.util.Map#put(java.lang.Object, java.lang.Object)
      */
 

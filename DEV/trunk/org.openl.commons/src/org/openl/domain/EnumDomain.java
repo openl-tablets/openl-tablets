@@ -29,6 +29,7 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
         }
 
     }
+
     private BitSet bits;
 
     private Enum<T> enumeration;

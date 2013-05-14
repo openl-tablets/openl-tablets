@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IOpenIterator<T> extends Iterator<T> {
 
@@ -29,7 +29,7 @@ public interface IOpenIterator<T> extends Iterator<T> {
 
     /**
      * Legacy (Smalltalk) name, same as convert
-     *
+     * 
      * @param col
      * @return
      */
@@ -37,7 +37,7 @@ public interface IOpenIterator<T> extends Iterator<T> {
 
     /**
      * Same as collect
-     *
+     * 
      * @param col
      * @return
      */

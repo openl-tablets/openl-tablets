@@ -8,10 +8,10 @@ package org.openl.util;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface ISelector<T> {
-    
+
     ISelector<T> and(ISelector<T> isel);
 
     ISelector<T> not();

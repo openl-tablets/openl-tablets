@@ -13,7 +13,7 @@ public class ExportRow implements IExportRow {
     /**
      * Returns array of <code>String</code>s. The returned array must have
      * length equal to the value returned by {@link #size()} method.
-     *
+     * 
      * @return data array
      */
     public String[] record() {
@@ -22,7 +22,7 @@ public class ExportRow implements IExportRow {
 
     /**
      * Returns number of elements this row contains.
-     *
+     * 
      * @return length of the array returned by {@link #record()}
      */
     public int size() {

@@ -26,7 +26,9 @@ public class PassCoder {
     static IvParameterSpec ivspec = new IvParameterSpec(iv);
     static private String encoding = "UTF-8";
 
-    public static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+    public static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
+            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
+            UnsupportedEncodingException, InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
         SecretKeySpec secretKey = getKey(privateKey);
@@ -35,7 +37,9 @@ public class PassCoder {
         return encryptedString;
     }
 
-    public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+    public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
+            NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
+            UnsupportedEncodingException, InvalidAlgorithmParameterException {
         byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         IvParameterSpec ivspec = new IvParameterSpec(iv);
 
@@ -46,7 +50,8 @@ public class PassCoder {
         return decryptedString;
     }
 
-    private static SecretKeySpec getKey(String privateKey) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    private static SecretKeySpec getKey(String privateKey) throws UnsupportedEncodingException,
+            NoSuchAlgorithmException {
         byte[] key = privateKey.getBytes(encoding);
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
         key = sha.digest(key);

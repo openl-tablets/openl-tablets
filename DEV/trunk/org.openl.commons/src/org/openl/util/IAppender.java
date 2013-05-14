@@ -13,7 +13,7 @@ package org.openl.util;
 public interface IAppender<T> {
 
     /**
-     *
+     * 
      * @param obj Object to add
      * @return false if there is no more room left
      */

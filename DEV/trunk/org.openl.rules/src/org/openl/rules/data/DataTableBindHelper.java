@@ -14,7 +14,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -426,13 +425,13 @@ public class DataTableBindHelper {
         return columnDescriptors;
     }
 
-    private static IdentifierNode[] getLinkedObject(IdentifierNode foreignKeyTable) throws OpenLCompilationException {
+    /*private static IdentifierNode[] getLinkedObject(IdentifierNode foreignKeyTable) throws OpenLCompilationException {
         String fTableIdentifier = foreignKeyTable.getIdentifier();
 
         return Tokenizer.tokenize((IOpenSourceCodeModule) foreignKeyTable.getModule(), LINK_DELIMETERS);
-    }
+    }*/
 
-    private static IdentifierNode[] getLinkTokens(IBindingContext bindingContext, ILogicalTable descriptorRows,
+    /*private static IdentifierNode[] getLinkTokens(IBindingContext bindingContext, ILogicalTable descriptorRows,
             int columnNum) throws OpenLCompilationException {
         ILogicalTable logicalRegion = descriptorRows.getSubtable(columnNum, 1, 1, 1);
         GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(
@@ -441,7 +440,7 @@ public class DataTableBindHelper {
         // Should be in format
         // "> reference_table_name [reference_table_key_column]"
         return Tokenizer.tokenize(indexRowSourceModule, LINK_DELIMETERS);
-    }
+    }*/
 
     /**
      * 

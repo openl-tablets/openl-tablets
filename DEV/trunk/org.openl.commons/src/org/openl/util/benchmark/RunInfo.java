@@ -25,7 +25,7 @@ public class RunInfo {
     }
 
     public double avgTimesSec() {
-        return  (double) times * 1000 / ms ;
+        return (double) times * 1000 / ms;
     }
 
     @Override
@@ -37,24 +37,20 @@ public class RunInfo {
     long memoryDirtyAfter;
     long memoryCleanAfter;
 
-    public double bytesPerRun()
-    {
-        return (memoryDirtyAfter - memoryBefore)/(double)times;
-    }
-    
-    public double leakedBytesPerRun()
-    {
-        return (memoryCleanAfter - memoryBefore)/(double)times;
+    public double bytesPerRun() {
+        return (memoryDirtyAfter - memoryBefore) / (double) times;
     }
 
-    public double usedBytes()
-    {
+    public double leakedBytesPerRun() {
+        return (memoryCleanAfter - memoryBefore) / (double) times;
+    }
+
+    public double usedBytes() {
         return (memoryDirtyAfter - memoryBefore);
     }
 
-    public double leakedBytes()
-    {
+    public double leakedBytes() {
         return (memoryCleanAfter - memoryBefore);
     }
-    
+
 }

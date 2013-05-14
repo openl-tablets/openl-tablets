@@ -39,14 +39,14 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         if (storagePath == null) {
             throw new IllegalArgumentException();
         }
-        this.projectModel = projectModel;
-        storage = new FileStorage(storagePath, true);
-        this.unlimitedStorage = unlimitedStorage;
         if (!unlimitedStorage && maxFilesInStorage == null) {
             throw new IllegalArgumentException();
         }
+        this.projectModel = projectModel;
+        this.storage = new FileStorage(storagePath, true);
+        this.unlimitedStorage = unlimitedStorage;
         this.maxFilesInStorage = maxFilesInStorage;
-        if (!unlimitedStorage) {
+        if (!this.unlimitedStorage) {
             delete();
         }
     }

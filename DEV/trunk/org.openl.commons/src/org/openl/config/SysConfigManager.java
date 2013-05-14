@@ -4,7 +4,7 @@ package org.openl.config;
  * SysConfigManager is static oriented class.
  * <p>
  * It should be used for old-style or complicated cases only.
- *
+ * 
  * @author Aleh Bykhavets
  */
 public class SysConfigManager {
@@ -22,7 +22,7 @@ public class SysConfigManager {
      * Returns system config manager.
      * <p>
      * It is one for all classes within current class loader and its scope.
-     *
+     * 
      * @return system config manager
      */
     public static ConfigManager getConfigManager() {
@@ -31,7 +31,7 @@ public class SysConfigManager {
 
     /**
      * Replace default ConfigManager with supplied one.
-     *
+     * 
      * @param manager new config manager
      */
     public static void setConfigManager(ConfigManager manager) {

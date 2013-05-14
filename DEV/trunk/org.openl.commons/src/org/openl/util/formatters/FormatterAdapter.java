@@ -6,10 +6,10 @@ import org.openl.util.print.Formatter;
 /**
  * 
  * Wrapper to adapt {@link Formatter} functionality to {@link IFormatter}.
- * Supports only format operation. 
+ * Supports only format operation.
  * 
  * @author DLiauchuk
- *
+ * 
  */
 public class FormatterAdapter implements IFormatter {
 

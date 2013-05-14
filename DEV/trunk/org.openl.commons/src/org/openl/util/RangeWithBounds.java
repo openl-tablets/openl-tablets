@@ -87,15 +87,15 @@ public class RangeWithBounds {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if(leftBoundType == BoundType.INCLUDING){
+        if (leftBoundType == BoundType.INCLUDING) {
             builder.append('[');
-        } else{
+        } else {
             builder.append('(');
         }
         builder.append(min + ".." + max);
-        if(rightBoundType == BoundType.INCLUDING){
+        if (rightBoundType == BoundType.INCLUDING) {
             builder.append(']');
-        } else{
+        } else {
             builder.append(')');
         }
         return builder.toString();

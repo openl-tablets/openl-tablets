@@ -10,59 +10,61 @@ import org.apache.commons.lang.ClassUtils;
 /**
  * Java class generator for Custom Spreadsheet Results.
  * 
- * Currently is not used anywhere. Don`t delete it. 
+ * Currently is not used anywhere. Don`t delete it.
  * 
  * @author DLiauchuk
- *
+ * 
  */
 public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
-    
+
     public static final String SPREADSHEET_METHOD = "getFieldValue";
-    
+
     public CustomSpreadsheetResultJavaGenerator(Class<?> customSpreadsheetResultClass) {
         super(customSpreadsheetResultClass);
     }
-    
-    public String generateJavaClass() {        
+
+    public String generateJavaClass() {
         StringBuffer buf = new StringBuffer(10000);
-        
+
         addComment(buf);
-        
+
         addPackage(buf);
-        
+
         addImports(buf);
-        
-        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassNameForGeneration()), ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
-        
+
+        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassNameForGeneration()),
+                ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
+
         buf.append(JavaClassGeneratorHelper.getUUID());
-        
+
         addConstructors(buf);
-        
+
         addMethods(buf);
-        
+
         buf.append("\n}");
-        
+
         return buf.toString();
     }
-    
-    private void addMethods(StringBuffer buf) {        
+
+    private void addMethods(StringBuffer buf) {
         for (Method method : getClassForGeneration().getDeclaredMethods()) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
                 addDecoratorGetter(buf, method);
             }
         }
     }
-    
+
     private void addDecoratorGetter(StringBuffer buf, Method method) {
-        String fieldName = getFieldName(method.getName());        
-        buf.append(JavaClassGeneratorHelper.getGetterWithCastMethod(method.getReturnType(), SPREADSHEET_METHOD,  fieldName));
+        String fieldName = getFieldName(method.getName());
+        buf.append(JavaClassGeneratorHelper.getGetterWithCastMethod(method.getReturnType(), SPREADSHEET_METHOD,
+                fieldName));
     }
-        
+
     public String getFieldName(String methodName) {
-        /** skip first 3 letters ('get')*/
-        return methodName.substring(3);        
+        /** skip first 3 letters ('get') */
+        return methodName.substring(3);
     }
-        
+
     private void addConstructors(StringBuffer buf) {
         for (Constructor<?> constructor : getClassForGeneration().getSuperclass().getConstructors()) {
             Map<String, Class<?>> superClassFields = new LinkedHashMap<String, Class<?>>();
@@ -71,10 +73,11 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
                 superClassFields.put("par" + i, superClassFieldType);
                 i++;
             }
-            
-            String constructorStr = JavaClassGeneratorHelper.getConstructorWithFields(getClassForGeneration().getSimpleName(), superClassFields, constructor.getParameterTypes().length);
-            buf.append(constructorStr);            
+
+            String constructorStr = JavaClassGeneratorHelper.getConstructorWithFields(getClassForGeneration()
+                    .getSimpleName(), superClassFields, constructor.getParameterTypes().length);
+            buf.append(constructorStr);
         }
-    } 
+    }
 
 }
