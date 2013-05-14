@@ -13,20 +13,20 @@ import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
 
 /**
- * Default format to convert <code>Object</code> values to <code>String</code> representations.
- * Supports:<br>
- *           - <code>null</code> objects<br>
- *           - arrays (Object and primitives)<br>
- *           - object that are instances of {@link Collection}<br>
- *           - maps of objects.
+ * Default format to convert <code>Object</code> values to <code>String</code>
+ * representations. Supports:<br>
+ * - <code>null</code> objects<br>
+ * - arrays (Object and primitives)<br>
+ * - object that are instances of {@link Collection}<br>
+ * - maps of objects.
  * 
  * @author snshor
- *
+ * 
  */
 public class DefaultFormat implements IFormat {
 
     public DefaultFormat() {
-        super();        
+        super();
     }
 
     public StringBuffer format(Object obj, int mode, StringBuffer buf) {
@@ -42,8 +42,8 @@ public class DefaultFormat implements IFormat {
             return formatCollection((Collection<?>) obj, mode, buf);
         }
 
-        if (obj instanceof Map<?,?>) {
-            return formatMap((Map<?,?>) obj, mode, buf);
+        if (obj instanceof Map<?, ?>) {
+            return formatMap((Map<?, ?>) obj, mode, buf);
         }
 
         if (!isPrimitive(obj.getClass())) {
@@ -117,7 +117,7 @@ public class DefaultFormat implements IFormat {
         return buf;
     }
 
-    protected StringBuffer formatMap(Map<?,?> map, int mode, StringBuffer buf) {
+    protected StringBuffer formatMap(Map<?, ?> map, int mode, StringBuffer buf) {
         return formatCollection(map.keySet(), mode, buf);
     }
 

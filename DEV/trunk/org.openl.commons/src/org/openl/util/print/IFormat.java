@@ -5,7 +5,7 @@ package org.openl.util.print;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IFormat {
     StringBuffer format(Object obj, int mode, StringBuffer buf);

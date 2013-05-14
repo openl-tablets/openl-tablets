@@ -5,7 +5,7 @@ package org.openl.util.print;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class PrintContext {
 

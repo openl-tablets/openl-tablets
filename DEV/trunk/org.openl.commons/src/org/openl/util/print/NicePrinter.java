@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class NicePrinter {
 
@@ -97,7 +97,7 @@ public class NicePrinter {
         }
 
         if (obj instanceof Map) {
-            adaptor.printMap((Map<Object,Object>) obj, null, this);
+            adaptor.printMap((Map<Object, Object>) obj, null, this);
             return;
         }
 
