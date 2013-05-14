@@ -29,8 +29,16 @@ class RulesServiceEnhancerInvocationHandler implements InvocationHandler {
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
         Method member = methodsMap.get(method);
+        
+        if (member == null) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Invoking not service class method: %s -> %s", method.toString(), method.toString()));
+            }
+     
+            return method.invoke(serviceClassInstance, args);
+        }
+        
         if (log.isDebugEnabled()) {
             log.debug(String.format("Invoking service class method: %s -> %s", method.toString(), member.toString()));
         }
