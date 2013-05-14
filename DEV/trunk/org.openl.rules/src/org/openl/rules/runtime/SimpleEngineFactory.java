@@ -16,6 +16,7 @@ import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * Simple engine factory requiring only source of rules and generates interface
@@ -115,26 +116,20 @@ public class SimpleEngineFactory extends ASourceCodeRulesEngineFactory {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
 
-    /*@Override
-    protected ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-                return getOpenL().getVm().getRuntimeEnv();
-            }
-        };
-    }*/
-
     @Override
-    public Object makeInstance() {
+    public Object makeInstance(IRuntimeEnv runtimeEnv) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-
-            Object openClassInstance = openClass.newInstance(getRuntimeEnv());
+            Object openClassInstance;
+            if (runtimeEnv == null){
+                openClassInstance = openClass.newInstance(makeDefaultRuntimeEnv());
+            }else{
+                openClassInstance = openClass.newInstance(runtimeEnv);
+            }
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass()
                     .getClassLoader());
 
         } catch (Exception ex) {

@@ -26,6 +26,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyField;
 import org.openl.rules.ruleservice.publish.cache.LazyMethod;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -88,26 +89,20 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
         return new Class[] { getInterfaceClass(), IEngineWrapper.class };
     }
 
-    /*@Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-                return getOpenL().getVm().getRuntimeEnv();
-            }
-        };
-    }*/
-
     @Override
-    public Object makeInstance() {
+    public Object innerMakeInstance(SimpleRulesRuntimeEnv runtimeEnv) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-
-            Object openClassInstance = openClass.newInstance(getRuntimeEnv());
+            Object openClassInstance;
+            if (runtimeEnv == null){
+                openClassInstance = openClass.newInstance(makeDefaultRuntimeEnv());
+            }else{
+                openClassInstance = openClass.newInstance(runtimeEnv);
+            }
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass()
                     .getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
