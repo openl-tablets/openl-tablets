@@ -279,7 +279,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     }
 
-    static final public EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
+    public static final EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
 
     public static <T> List<T> asList(Iterator<T> it) {
         int size = size(it);

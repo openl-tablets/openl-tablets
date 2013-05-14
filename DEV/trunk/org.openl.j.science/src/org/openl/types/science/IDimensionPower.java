@@ -8,11 +8,11 @@ package org.openl.types.science;
 
 /**
  * @author snshor
- *
- * Interface for providing rational dimension powers
+ * 
+ *         Interface for providing rational dimension powers
  */
 public interface IDimensionPower {
-    
+
     IDimension getDimension();
 
     int getPower();

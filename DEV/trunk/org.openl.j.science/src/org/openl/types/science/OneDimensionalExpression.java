@@ -9,11 +9,10 @@ package org.openl.types.science;
 import java.util.Iterator;
 
 import org.openl.util.AOpenIterator;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class OneDimensionalExpression extends AMultiplicativeExpression implements IDimensionPower {
     double scalar;
@@ -30,7 +29,7 @@ public class OneDimensionalExpression extends AMultiplicativeExpression implemen
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.types.science2.IDimensionPower#getDimension()
      */
     public IDimension getDimension() {
@@ -45,13 +44,13 @@ public class OneDimensionalExpression extends AMultiplicativeExpression implemen
         return id == dimension ? this : null;
     }
 
-    public Iterator getDimensionsPowers() {
-        return AOpenIterator.single(this);
+    public Iterator<IDimensionPower> getDimensionsPowers() {
+        return AOpenIterator.single((IDimensionPower) this);
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.types.science2.IDimensionPower#getPower()
      */
     public int getPower() {

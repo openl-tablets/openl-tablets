@@ -22,9 +22,11 @@ public class Dimension implements IDimension {
     private Dimension(String name) {
         this.name = name;
     }
+
     public String getDisplayName(int mode) {
         return name;
     }
+
     public String getName() {
         return name;
     }

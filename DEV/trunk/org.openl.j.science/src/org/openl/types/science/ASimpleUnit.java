@@ -10,11 +10,10 @@ import java.util.Iterator;
 
 import org.openl.base.INamedThing;
 import org.openl.util.AOpenIterator;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class ASimpleUnit extends AMultiplicativeExpression implements IUnit, IDimensionPower, INamedThing {
     IDimension dimension;
@@ -25,7 +24,7 @@ public abstract class ASimpleUnit extends AMultiplicativeExpression implements I
      * dimension. Based on convention certainly, so in metric system normal
      * values are meter, second and kilogramm. Based on this unit of length cm
      * will have to have normalized function 0.01 * value.
-     *
+     * 
      * @param value
      * @return
      */
@@ -41,8 +40,9 @@ public abstract class ASimpleUnit extends AMultiplicativeExpression implements I
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.types.science2.IMultiplicativeExpression#getDimensionCount()
+     * 
+     * @see
+     * org.openl.types.science2.IMultiplicativeExpression#getDimensionCount()
      */
     public int getDimensionCount() {
         return 1;
@@ -52,8 +52,8 @@ public abstract class ASimpleUnit extends AMultiplicativeExpression implements I
         return id == dimension ? this : null;
     }
 
-    public Iterator getDimensionsPowers() {
-        return AOpenIterator.single(this);
+    public Iterator<IDimensionPower> getDimensionsPowers() {
+        return AOpenIterator.single((IDimensionPower) this);
     }
 
     public String getDisplayName(int mode) {

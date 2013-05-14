@@ -8,7 +8,7 @@ package org.openl.types.science;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class DistanceUnit extends ZeroBasedUnit {
 
