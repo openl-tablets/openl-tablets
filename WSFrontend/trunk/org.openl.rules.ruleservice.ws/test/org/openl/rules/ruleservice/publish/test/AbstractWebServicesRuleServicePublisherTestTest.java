@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish.test;
 
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +38,7 @@ public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWeb
         Object result = method.invoke(client);
         assertTrue(result instanceof String[]);
         String[] coverages = (String[]) result;
-        assertEquals(2, coverages.length);
+        assertEquals(2, (long)coverages.length);
     }
 
     @Test
