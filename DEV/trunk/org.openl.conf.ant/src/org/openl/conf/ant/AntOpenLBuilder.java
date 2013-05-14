@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Stack;
 
-import org.apache.commons.logging.LogFactory;
 import org.openl.ICompileContext;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;

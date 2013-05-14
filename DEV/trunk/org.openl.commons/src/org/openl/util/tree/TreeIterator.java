@@ -13,7 +13,7 @@ import org.openl.util.AOpenIterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TreeIterator<N> extends AOpenIterator<N> {
 
@@ -21,6 +21,7 @@ public class TreeIterator<N> extends AOpenIterator<N> {
         N node;
 
         Iterator<N> children;
+
         NodeInfo(N node, Iterator<N> children) {
             this.node = node;
             this.children = children;
@@ -29,7 +30,7 @@ public class TreeIterator<N> extends AOpenIterator<N> {
 
     public interface TreeAdaptor<N> {
         /**
-         *
+         * 
          * @param node parent node
          * @param mode inthis case only, left-right or right-left is relevant
          * @return iterator over children collection, null or empty iterator if
@@ -38,8 +39,12 @@ public class TreeIterator<N> extends AOpenIterator<N> {
         Iterator<N> children(N node);
     }
 
-    public static final int DEFAULT = 0, // top-bottom, left-right, all nodes included
-        LEAVES_ONLY = 1, RIGHT_TO_LEFT = 2, NO_LEAVES = 4, BOTTOM_TOP = 8; // iterate over children first
+    public static final int DEFAULT = 0, // top-bottom, left-right, all nodes
+                                         // included
+            LEAVES_ONLY = 1, RIGHT_TO_LEFT = 2, NO_LEAVES = 4, BOTTOM_TOP = 8; // iterate
+                                                                               // over
+                                                                               // children
+                                                                               // first
 
     N currentNode;
     TreeAdaptor<N> adaptor;
