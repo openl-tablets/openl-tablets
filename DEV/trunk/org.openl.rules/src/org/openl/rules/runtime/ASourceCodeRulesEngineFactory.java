@@ -44,19 +44,13 @@ public abstract class ASourceCodeRulesEngineFactory extends ASourceCodeEngineFac
     }
 
     @Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-                return new SimpleRulesVM().getRuntimeEnv();
-            }
-        };
-
+    protected IRuntimeEnv makeDefaultRuntimeEnv() {
+        return new SimpleRulesVM().getRuntimeEnv();
     }
-    
+
     @Override
     protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new OpenLRulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+        return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }
