@@ -49,7 +49,7 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
     private String getMethodName(TableSyntaxNode table) {
         String methodName = StringUtils.EMPTY;
 
-        String[] tokens = table.getHeader().getHeaderToken().getModule().getCode().split(" ");
+        String[] tokens = getSignature(table).split(" ");
         if (tokens != null && tokens.length > 2) {
             try {
                 methodName = tokens[2].substring(0, tokens[2].indexOf("("));
@@ -58,6 +58,10 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
             }
         }
         return methodName;
+    }
+
+    private String getSignature(TableSyntaxNode table) {
+        return table.getHeader().getHeaderToken().getModule().getCode();
     }
 
     private boolean isSpreadsheet(TableSyntaxNode o1) {
@@ -72,7 +76,7 @@ public class SpreadsheetNodeComparator implements Comparator<TableSyntaxNode> {
         extractor = ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader()).getCellHeadersExtractor();
 
         if (extractor == null) {
-            extractor = new CellsHeaderExtractor(tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
+            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode), tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
                     tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
             extractor.extract();
 
