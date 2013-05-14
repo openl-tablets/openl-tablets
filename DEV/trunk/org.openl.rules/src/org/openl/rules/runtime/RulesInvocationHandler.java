@@ -6,18 +6,21 @@ import java.util.Map;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.runtime.AEngineFactory;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
 public class RulesInvocationHandler extends OpenLRulesInvocationHandler implements IRulesRuntimeContextProvider {
 
     public RulesInvocationHandler(Object openlInstance,
-            AEngineFactory engineFactory,
             IRuntimeEnv openlEnv,
             Map<Method, IOpenMember> methodMap) {
+        super(openlInstance, openlEnv, methodMap);
+    }
 
-        super(openlInstance, engineFactory, openlEnv, methodMap);
+    public RulesInvocationHandler(Object openlInstance,
+            Map<Method, IOpenMember> methodMap) {
+
+        super(openlInstance, methodMap);
     }
 
     public IRulesRuntimeContext getRuntimeContext() {

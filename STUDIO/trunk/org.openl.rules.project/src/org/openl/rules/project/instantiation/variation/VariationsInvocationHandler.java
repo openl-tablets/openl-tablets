@@ -23,7 +23,6 @@ import org.openl.rules.variation.VariationsFromRules;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
-import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 
