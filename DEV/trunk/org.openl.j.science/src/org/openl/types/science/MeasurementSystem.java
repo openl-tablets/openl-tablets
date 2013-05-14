@@ -8,17 +8,18 @@ package org.openl.types.science;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
     static class MetricSystem extends MeasurementSystem {
-        
+
         public MetricSystem() {
             super("metric", KG, M, S, new MassUnit[] { T, KG, G, MG }, new DistanceUnit[] { KM, M, CM, MM },
                     new TimeUnit[] { WEEK, DAY, H, MIN, S, MS, MKS });
         }
 
     }
+
     public static final MeasurementSystem METRIC = new MetricSystem();
     private String name;
     private MassUnit baseMassUnit;
@@ -45,11 +46,11 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
     public DistanceUnit getBaseDistanceUnit() {
         return baseDistanceUnit;
     }
-    
+
     public MassUnit getBaseMassUnit() {
         return baseMassUnit;
     }
-    
+
     public TimeUnit getBaseTimeUnit() {
         return baseTimeUnit;
     }
@@ -57,15 +58,15 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
     public String getDisplayName(int mode) {
         return name;
     }
-    
+
     public DistanceUnit[] getDistanceUnits() {
         return distanceUnits;
     }
-    
+
     public MassUnit[] getMassUnits() {
         return massUnits;
     }
-    
+
     public String getName() {
         return name;
     }
