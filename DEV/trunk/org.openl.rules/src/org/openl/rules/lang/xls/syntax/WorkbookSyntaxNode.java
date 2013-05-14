@@ -9,8 +9,11 @@ import org.openl.syntax.impl.NaryNode;
 
 public class WorkbookSyntaxNode extends NaryNode {
 
-    public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes, XlsWorkbookSourceCodeModule module) {
+    private TableSyntaxNode[] mergedTableParts;
+
+	public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes, TableSyntaxNode[] mergedTableParts, XlsWorkbookSourceCodeModule module) {
         super(XlsNodeTypes.XLS_WORKBOOK.toString(), null, nodes, module);
+        this.mergedTableParts = mergedTableParts;
     }
     
     public TableSyntaxNode[] getTableSyntaxNodes() {
@@ -23,6 +26,10 @@ public class WorkbookSyntaxNode extends NaryNode {
                 tnodes.add(tsn);
             }
         }        
+        
+        for (TableSyntaxNode tnode : mergedTableParts) {
+			tnodes.add(tnode);
+		}
         return tnodes.toArray(new TableSyntaxNode[0]);
     }
     
