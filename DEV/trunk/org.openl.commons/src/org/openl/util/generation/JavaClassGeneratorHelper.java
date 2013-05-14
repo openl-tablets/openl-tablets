@@ -14,59 +14,64 @@ import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 
 public class JavaClassGeneratorHelper {
-    
-    private JavaClassGeneratorHelper(){}
-    
+
+    private JavaClassGeneratorHelper() {
+    }
+
     public static String filterTypeName(Class<?> type) {
         if (type != null) {
             if (!type.isPrimitive() && !(type.isArray() && ArrayTool.getLowerComponentType(type).isPrimitive())) {
                 // for not primitives
                 //
                 return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
-            } else {            
+            } else {
                 return ClassUtils.getShortClassName(type);
             }
         }
         return StringUtils.EMPTY;
     }
-    
+
     /**
      * TODO: check the income package for valid value.
      */
     public static String getPackageText(String packageStr) {
-        
+
         if (packageStr != null) {
-            return String.format("package %s;\n\n", packageStr);            
+            return String.format("package %s;\n\n", packageStr);
         } else {
             return StringUtils.EMPTY;
         }
     }
-    
+
     /**
-     * TODO: check comment string for valid symbols(escape special comment symbols inside)
+     * TODO: check comment string for valid symbols(escape special comment
+     * symbols inside)
      */
     public static String getCommentText(String comment) {
         return String.format("/*\n * %s \n*/\n\n", comment);
     }
-    
+
     public static String getPackage(String classNameWithNamespace) {
         int idx = classNameWithNamespace.lastIndexOf('.');
         if (idx > 0) {
-            return  classNameWithNamespace.substring(0, idx);
+            return classNameWithNamespace.substring(0, idx);
         } else {
             return null;
         }
     }
-    
+
     /**
      * 
-     * @param classNameWithNamespace name of the class with namespace, symbols '/' or '.' are supported to be a separator<br> 
-     * (e.g. <code>my/test/TestClass</code> or <code>my.test.TestClass</code>)
+     * @param classNameWithNamespace name of the class with namespace, symbols
+     *            '/' or '.' are supported to be a separator<br>
+     *            (e.g. <code>my/test/TestClass</code> or
+     *            <code>my.test.TestClass</code>)
      * 
-     * @return name of the class file without package (e.g. <code>TestClass</code>) if no one of the 
-     * supported symbols found, returns classNameWithNamespace. 
+     * @return name of the class file without package (e.g.
+     *         <code>TestClass</code>) if no one of the supported symbols found,
+     *         returns classNameWithNamespace.
      */
-    public static String getShortClassName(String classNameWithNamespace) {         
+    public static String getShortClassName(String classNameWithNamespace) {
         if (classNameWithNamespace.contains("/")) {
             String[] path = classNameWithNamespace.split("/");
             return path[path.length - 1];
@@ -75,37 +80,38 @@ public class JavaClassGeneratorHelper {
         }
         return classNameWithNamespace;
     }
-    
+
     public static String getImportText(String importStr) {
-        return String.format("import %s;\n", importStr);        
+        return String.format("import %s;\n", importStr);
     }
-    
+
     public static String getSimplePublicClassDeclaration(String className) {
         return String.format("\npublic class %s", className);
     }
-    
-    public static String addExtendingClassDeclaration(String className, String extendableClass) {        
+
+    public static String addExtendingClassDeclaration(String className, String extendableClass) {
         return String.format("%s extends %s", getSimplePublicClassDeclaration(className), extendableClass);
     }
-    
+
     public static String addImplementingInterfToClassDeclaration(String classDeclaration, String[] implementsInterfaces) {
         String interfaces = StringUtils.join(implementsInterfaces, ",");
         return String.format("%s implements %s", classDeclaration, interfaces);
     }
-    
+
     public static String getProtectedFieldDeclaration(String fieldType, String fieldName) {
         return String.format("  protected %s %s;\n\n", fieldType, fieldName);
     }
-    
+
     public static String getProtectedFieldInitialzation(String fieldType, String fieldName, String fieldValue) {
         return String.format("  protected %s %s = %s;\n\n", fieldType, fieldName, fieldValue);
     }
-    
+
     public static String getDefaultConstructor(String simpleClassName) {
         return String.format("\npublic %s() {\n    super();\n}\n", simpleClassName);
     }
 
-    public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields, int numberOfParamsForSuperConstructor) {
+    public static String getConstructorWithFields(String simpleClassName, Map<String, Class<?>> fields,
+            int numberOfParamsForSuperConstructor) {
         StringBuilder buf = new StringBuilder();
         buf.append(String.format("\npublic %s(", simpleClassName));
         Iterator<Entry<String, Class<?>>> fieldsIterator = fields.entrySet().iterator();
@@ -133,49 +139,51 @@ public class JavaClassGeneratorHelper {
         buf.append("}\n");
         return buf.toString();
     }
-    
+
     public static String getPublicGetterMethod(String fieldType, String fieldName) {
-        return String.format("  public %s %s() {\n   return %s;\n}\n", fieldType, StringTool.getGetterName(fieldName), fieldName);
+        return String.format("  public %s %s() {\n   return %s;\n}\n", fieldType, StringTool.getGetterName(fieldName),
+                fieldName);
     }
-    
+
     /**
-     * Gets the type name for cast from Object to given class.
-     * Support cast to wrapper type of the primitive
+     * Gets the type name for cast from Object to given class. Support cast to
+     * wrapper type of the primitive
      * 
      * @param clazz
      * @return canonical type name for cast to given class
      */
-    public static String getTypeNameForCastFromObject(Class<?> clazz) {        
+    public static String getTypeNameForCastFromObject(Class<?> clazz) {
         String canonicalClassName = filterTypeName(clazz);
         if (clazz != null && clazz.isPrimitive()) {
             Class<?> wrapperType = NumberUtils.getWrapperType(canonicalClassName);
             canonicalClassName = filterTypeName(wrapperType);
         }
-        
+
         return canonicalClassName;
     }
-    
+
     public static String getGetterWithCastMethod(Class<?> methodType, String methodToDecorate, String fieldName) {
-        return String.format("  public %s %s() {\n   %s\n}\n", filterTypeName(methodType), 
-            StringTool.getGetterName(fieldName), getDecoratorBody(methodType, methodToDecorate, fieldName));
+        return String.format("  public %s %s() {\n   %s\n}\n", filterTypeName(methodType),
+                StringTool.getGetterName(fieldName), getDecoratorBody(methodType, methodToDecorate, fieldName));
     }
-    
+
     public static String getDecoratorBody(Class<?> methodType, String methodToDecorate, String fieldName) {
         StringBuffer buf = new StringBuffer(300);
         buf.append("return ");
         if (methodType.isPrimitive()) {
             buf.append("(");
         }
-        buf.append(String.format("(%s)%s(\"%s\")", getTypeNameForCastFromObject(methodType), methodToDecorate, fieldName));
-        
+        buf.append(String.format("(%s)%s(\"%s\")", getTypeNameForCastFromObject(methodType), methodToDecorate,
+                fieldName));
+
         if (methodType.isPrimitive()) {
             buf.append(String.format(").%s", getWrapperMethod(methodType)));
         }
-        
+
         buf.append(";");
-        return buf.toString();        
+        return buf.toString();
     }
-    
+
     public static Object getWrapperMethod(Class<?> primitiveMethodType) {
         if (primitiveMethodType != null && primitiveMethodType.isPrimitive()) {
             return String.format("%sValue()", primitiveMethodType.getCanonicalName());
@@ -184,8 +192,8 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getPublicSetterMethod(String fieldType, String fieldName) {
-        return String.format("  public void %s(%s %s) {\n   this.%s = %s;\n}\n", StringTool.getSetterName(fieldName), 
-            fieldType, fieldName, fieldName, fieldName);
+        return String.format("  public void %s(%s %s) {\n   this.%s = %s;\n}\n", StringTool.getSetterName(fieldName),
+                fieldType, fieldName, fieldName, fieldName);
     }
 
     public static String getEqualsMethod(String simpleClassName, Set<String> fields) {
@@ -250,30 +258,35 @@ public class JavaClassGeneratorHelper {
         return String.format("  public static %s %s;\n\n", fieldType, fieldName);
     }
 
-    public static String getStaticPublicFieldInitialization(String fieldType, String fieldName, String initializationValue) {
+    public static String getStaticPublicFieldInitialization(String fieldType, String fieldName,
+            String initializationValue) {
         return String.format("  public static %s %s = %s;\n\n", fieldType, fieldName, initializationValue);
     }
-    
+
     /**
      * 
-     * @param name name of the class with package, symbol '/' is used as separator<br> 
-     * (e.g. <code>my/test/TestClass</code>)
+     * @param name name of the class with package, symbol '/' is used as
+     *            separator<br>
+     *            (e.g. <code>my/test/TestClass</code>)
      * 
-     * @return class name without package with <code>.java</code> suffix (e.g. <code>TestClass.java</code>)
+     * @return class name without package with <code>.java</code> suffix (e.g.
+     *         <code>TestClass.java</code>)
      */
     public static String getClassFileName(String name) {
         String className = JavaClassGeneratorHelper.getShortClassName(name);
 
         return String.format("%s.java", className);
     }
-    
+
     /**
      * Generate the Java type corresponding to the given canonical type name.
-     * Support array types.<br> 
+     * Support array types.<br>
      * (e.g. <code>my.test.Vehicle[][]</code>)
      * 
-     * @param canonicalTypeName name of the type (e.g. <code>my.test.TestClass</code>) 
-     * @return Java type corresponding to the given type name. (e.g. <code>Lmy/test/TestClass;</code>)
+     * @param canonicalTypeName name of the type (e.g.
+     *            <code>my.test.TestClass</code>)
+     * @return Java type corresponding to the given type name. (e.g.
+     *         <code>Lmy/test/TestClass;</code>)
      */
     public static String getJavaType(String canonicalTypeName) {
         if (isArray(canonicalTypeName)) {
@@ -282,15 +295,18 @@ public class JavaClassGeneratorHelper {
             return getJavaTypeWithPrefix(canonicalTypeName);
         }
     }
-    
+
     /**
-     * Gets the corresponding java type name by the given canonical type name(without array brackets).<br>
+     * Gets the corresponding java type name by the given canonical type
+     * name(without array brackets).<br>
      * Supports primitives.
      * 
-     * @param canonicalTypeName name of the type (e.g. <code>my.test.TestClass</code>) 
-     * @return Java type corresponding to the given type name. (e.g. <code>Lmy/test/TestClass;</code>)
+     * @param canonicalTypeName name of the type (e.g.
+     *            <code>my.test.TestClass</code>)
+     * @return Java type corresponding to the given type name. (e.g.
+     *         <code>Lmy/test/TestClass;</code>)
      */
-    public static String getJavaTypeWithPrefix(String canonicalTypeName) {        
+    public static String getJavaTypeWithPrefix(String canonicalTypeName) {
         if (NumberUtils.isPrimitive(canonicalTypeName)) {
             if ("byte".equals(canonicalTypeName)) {
                 return "B";
@@ -315,7 +331,7 @@ public class JavaClassGeneratorHelper {
         }
         return StringUtils.EMPTY;
     }
-    
+
     /**
      * Gets the Java array type corresponding to income array type name.
      * 
@@ -326,14 +342,14 @@ public class JavaClassGeneratorHelper {
         if (StringUtils.isNotBlank(canonicalArrayTypeName)) {
             String[] tokens = canonicalArrayTypeName.split("\\[");
             StringBuffer strBuf = new StringBuffer();
-            for (int i = 0; i< tokens.length - 1; i++) {
+            for (int i = 0; i < tokens.length - 1; i++) {
                 strBuf.append("[");
             }
             return String.format("%s%s", strBuf.toString(), getJavaTypeWithPrefix(tokens[0]));
-        } 
+        }
         return null;
     }
-    
+
     public static int getDimension(String arrayTypeName) {
         if (StringUtils.isNotBlank(arrayTypeName)) {
             if (isArray(arrayTypeName)) {
@@ -345,59 +361,60 @@ public class JavaClassGeneratorHelper {
         }
         return -1;
     }
-    
+
     public static String getNameWithoutBrackets(String arrayTypeName) {
-    	if (StringUtils.isNotBlank(arrayTypeName)) {
+        if (StringUtils.isNotBlank(arrayTypeName)) {
             if (isArray(arrayTypeName)) {
                 String[] tokens = arrayTypeName.split("\\[");
                 return tokens[0];
             } else {
-            	return arrayTypeName;
+                return arrayTypeName;
             }
-    	}
+        }
         return StringUtils.EMPTY;
     }
-    
+
     public static String getArrayName(String domainName, int dimension) {
-    	if (StringUtils.isNotBlank(domainName)) {
-    		String array = "[]";
+        if (StringUtils.isNotBlank(domainName)) {
+            String array = "[]";
             StringBuffer buf = new StringBuffer();
             buf.append(domainName);
             for (int i = 0; i < dimension; i++) {
-            	buf.append(array);	
+                buf.append(array);
             }
-    		return buf.toString();
-    	} else {
-    		return StringUtils.EMPTY;
-    	}
-	}
+            return buf.toString();
+        } else {
+            return StringUtils.EMPTY;
+        }
+    }
 
     public static boolean isArray(String arrayTypeName) {
         return StringUtils.contains(arrayTypeName, "[");
     }
-    
+
     public static String replaceDots(String canonicalTypeName) {
         return canonicalTypeName.replace('.', '/');
     }
-    
+
     /**
      * Gets the type name without square brackets.
      * 
-     * @param arrayType type name with square brackets (e.g. org.my.test.Hello[])
+     * @param arrayType type name with square brackets (e.g.
+     *            org.my.test.Hello[])
      * 
      * @return type name without square brackets (e.g. org.my.test.Hello)
      */
-    public static String cleanTypeName(String arrayType) {        
+    public static String cleanTypeName(String arrayType) {
         if (StringUtils.isNotBlank(arrayType)) {
             if (arrayType.indexOf("[") >= 0) {
                 return arrayType.substring(0, arrayType.indexOf("["));
             } else {
                 return arrayType;
             }
-        } 
-        return null; 
+        }
+        return null;
     }
-    
+
     public static Constructor<?> getBeanConstructorWithAllFields(Class<?> beanClass, int beanFieldsCount) {
         for (Constructor<?> constructor : beanClass.getConstructors()) {
             if (constructor.getParameterTypes().length == beanFieldsCount) {
@@ -406,17 +423,19 @@ public class JavaClassGeneratorHelper {
         }
         return null;
     }
-    
+
     public static String getUUID() {
-        /** The most significant half of UUID contains 58 bits of randomness, which means in average we
-           need to generate 2^29 UUIDs to get a collision (compared to 2^61 for the full UUID).
-           It is rather safe.*/
+        /**
+         * The most significant half of UUID contains 58 bits of randomness,
+         * which means in average we need to generate 2^29 UUIDs to get a
+         * collision (compared to 2^61 for the full UUID). It is rather safe.
+         */
         long uuid = UUID.randomUUID().getMostSignificantBits();
-        
-        return String.format("private static final long serialVersionUID = %sL;", String.valueOf(uuid));        
+
+        return String.format("private static final long serialVersionUID = %sL;", String.valueOf(uuid));
     }
 
     public static Object getInterfaceDeclaration(String className) {
-        return String.format("\npublic interface %s", className);        
+        return String.format("\npublic interface %s", className);
     }
 }

@@ -62,7 +62,6 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
     }
 
     public IType getElementType() {
-        // TODO Auto-generated method stub
         return null;
     }
 

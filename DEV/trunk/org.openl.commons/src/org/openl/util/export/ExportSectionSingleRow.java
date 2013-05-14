@@ -1,10 +1,10 @@
 package org.openl.util.export;
 
 /**
- * A simple implementation of <code>IExportSection</code> which is just a
- * named section with a single row.
- *
- *
+ * A simple implementation of <code>IExportSection</code> which is just a named
+ * section with a single row.
+ * 
+ * 
  * @author Aliaksandr Antonik.
  */
 public class ExportSectionSingleRow implements IExportSection<ExportSectionSingleRow> {
@@ -18,17 +18,17 @@ public class ExportSectionSingleRow implements IExportSection<ExportSectionSingl
 
     /**
      * Returns the java class this section represents.
-     *
+     * 
      * @return a class
      */
     @SuppressWarnings("unchecked")
-    public Class getExportedClass() {
-        return getClass();
+    public Class<ExportSectionSingleRow> getExportedClass() {
+        return (Class<ExportSectionSingleRow>) this.getClass();
     }
 
     /**
      * Returns section name.
-     *
+     * 
      * @return name
      */
     public String getName() {
@@ -37,7 +37,7 @@ public class ExportSectionSingleRow implements IExportSection<ExportSectionSingl
 
     /**
      * Return array of rows - section data. Can be <code>null</code>.
-     *
+     * 
      * @return section rows.
      */
     public IExportRow[] getRows() {
@@ -46,11 +46,10 @@ public class ExportSectionSingleRow implements IExportSection<ExportSectionSingl
 
     /**
      * Returns array of subsections of this section. Can be <code>null</code>.
-     *
+     * 
      * @return child sections
      */
-    @SuppressWarnings("unchecked")
-    public IExportSection[] getSubSections() {
+    public IExportSection<ExportSectionSingleRow>[] getSubSections() {
         return null;
     }
 }

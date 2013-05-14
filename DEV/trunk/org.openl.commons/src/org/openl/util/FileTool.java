@@ -486,7 +486,7 @@ public final class FileTool {
      * @param dir
      */
     private static void removeChildren(File dir) {
-    	final Log log = LogFactory.getLog(FileTool.class);
+        final Log log = LogFactory.getLog(FileTool.class);
         File[] file = dir.listFiles();
         for (int i = 0; i < file.length; i++) {
             if (file[i].isDirectory()) {
@@ -494,8 +494,8 @@ public final class FileTool {
             }
             if (file[i].delete() == false) {
                 log.warn("Cant delete file/dir: " + file[i].getAbsolutePath());
-            // else
-            // Log.warn("Deleted: "+file[i].getAbsolutePath());
+                // else
+                // Log.warn("Deleted: "+file[i].getAbsolutePath());
             }
         }
     }
@@ -524,6 +524,7 @@ public final class FileTool {
             }
         }
     }
+
     public static void saveFile(String fname, byte[] src) throws Exception {
         File file = new File(fname);
         File parentFile = file.getParentFile();
@@ -542,11 +543,13 @@ public final class FileTool {
             }
         }
     }
+
     public static void saveFile(String fname, String s) throws Exception {
         saveFile(fname, s, false);
     }
+
     public static void saveFile(String fname, String s, boolean compareBeforeSave) throws Exception {
-    	final Log log = LogFactory.getLog(FileTool.class);
+        final Log log = LogFactory.getLog(FileTool.class);
         try {
             if (compareBeforeSave && compareFileSource(fname, s) == 0) {
                 return;
@@ -606,7 +609,7 @@ public final class FileTool {
     }
 
     public static File toFile(InputStream source, String pathName) {
-    	final Log log = LogFactory.getLog(FileTool.class);
+        final Log log = LogFactory.getLog(FileTool.class);
         File file = null;
         try {
             file = new File(pathName);
@@ -618,7 +621,7 @@ public final class FileTool {
     }
 
     public static File toTempFile(InputStream source, String fileName) {
-    	final Log log = LogFactory.getLog(FileTool.class);
+        final Log log = LogFactory.getLog(FileTool.class);
         File file = null;
         try {
             file = File.createTempFile(fileName, null);

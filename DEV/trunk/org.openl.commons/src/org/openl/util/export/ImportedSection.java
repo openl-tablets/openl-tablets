@@ -15,7 +15,7 @@ public class ImportedSection implements IImportedSection {
     /**
      * Returns section id to be used for traversal object tree with
      * {@link IImporter}.
-     *
+     * 
      * @return section id
      */
     public Object getId() {
@@ -24,7 +24,7 @@ public class ImportedSection implements IImportedSection {
 
     /**
      * Returns section name
-     *
+     * 
      * @return name
      */
     public String getName() {

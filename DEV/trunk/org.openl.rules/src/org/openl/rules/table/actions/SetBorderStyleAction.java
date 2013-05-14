@@ -1,12 +1,8 @@
 package org.openl.rules.table.actions;
 
-import org.openl.rules.table.Cell;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class SetBorderStyleAction extends AUndoableCellAction {

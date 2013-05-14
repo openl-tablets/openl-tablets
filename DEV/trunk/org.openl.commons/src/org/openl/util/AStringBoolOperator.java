@@ -9,11 +9,11 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.base.NamedThing;
 
 /**
- * Abstract class for comparison two strings. Its children implement
- * different operations for string comparison.
- *  
+ * Abstract class for comparison two strings. Its children implement different
+ * operations for string comparison.
+ * 
  * @author snshor
- *
+ * 
  */
 public abstract class AStringBoolOperator extends NamedThing implements IStringBoolOperator {
 
@@ -78,7 +78,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
     }
 
     public static class Holder {
-        
+
         private AStringBoolOperator operator;
         private String name = "equals";
         private String sample = "";
@@ -90,6 +90,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
         public Holder(String opType, String value2) {
             setName(opType);
         }
+
         public String getName() {
             return name;
         }
@@ -200,7 +201,7 @@ public abstract class AStringBoolOperator extends NamedThing implements IStringB
     public boolean isMatching(String test) {
         return isMatching(sampleStr, test);
     }
-    
+
     public abstract boolean isMatching(String op1, String op2);
 
     public boolean opReverse(String test) {

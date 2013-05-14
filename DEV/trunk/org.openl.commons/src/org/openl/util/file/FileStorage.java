@@ -146,8 +146,7 @@ public class FileStorage {
     public synchronized Collection<File> list(IOFileFilter fileFilter) {
         File storageDir = getStorageDir();
         if (storageDir.exists()) {
-            return FileUtils.listFiles(
-                    storageDir, fileFilter, TrueFileFilter.TRUE);
+            return FileUtils.listFiles(storageDir, fileFilter, TrueFileFilter.TRUE);
         }
         return Collections.emptyList();
     }

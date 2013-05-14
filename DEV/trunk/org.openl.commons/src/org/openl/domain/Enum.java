@@ -48,7 +48,7 @@ public class Enum<T> {
     public T[] getAllObjects() {
         return allObjects;
     }
-    
+
     /**
      * 
      * @param obj

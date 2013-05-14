@@ -8,7 +8,7 @@ package org.openl.util.export;
 public interface IExportable<T> {
     /**
      * Returns class main section.
-     *
+     * 
      * @return IExportSection
      */
     IExportSection<T> mainSection();

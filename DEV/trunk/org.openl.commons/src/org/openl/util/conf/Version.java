@@ -14,7 +14,7 @@ public class Version implements Comparable<Version> {
 
     public interface IVersionStartPatternFinder {
         /**
-         *
+         * 
          * @param s
          * @param previousStart index of previously found start or -1 if this is
          *            first
@@ -80,6 +80,7 @@ public class Version implements Comparable<Version> {
         }
 
     }
+
     static final public int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
 
     static public final String JAVA_VERSION_PATTERN = ".._";

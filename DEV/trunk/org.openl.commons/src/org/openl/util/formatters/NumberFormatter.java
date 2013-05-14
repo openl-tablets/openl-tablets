@@ -25,12 +25,11 @@ public class NumberFormatter implements IFormatter {
     }
 
     public NumberFormatter(Locale locale) {
-        this(NumberFormat.getInstance(
-                locale == null ? Locale.getDefault() : locale));
+        this(NumberFormat.getInstance(locale == null ? Locale.getDefault() : locale));
     }
 
     public NumberFormatter(NumberFormat format) {
-        this.format = format;        
+        this.format = format;
     }
 
     public NumberFormatter(String format) {

@@ -5,7 +5,7 @@ package org.openl.base;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class NameSpacedThing extends NamedThing implements INameSpacedThing {
 

@@ -8,13 +8,14 @@ package org.openl.util;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class IdMap {
 
     public interface IdAdaptor {
         int getId(Object obj);
     }
+
     static public class IdObjectAdaptor implements IdAdaptor {
 
         public int getId(Object obj) {
@@ -96,12 +97,12 @@ public class IdMap {
     }
 
     /**
-     * Returns index of either next available empty slot or slot with object.id ==
-     * id
-     *
+     * Returns index of either next available empty slot or slot with object.id
+     * == id
+     * 
      * In a rare case when all slots are busy and no object is found it returns
      * -1. It may happen if ratio == 1 (generally bad idea)
-     *
+     * 
      * @param id
      * @return
      */

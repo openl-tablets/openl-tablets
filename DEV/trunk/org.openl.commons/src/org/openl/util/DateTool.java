@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-
 public class DateTool {
 
     public static final int MONTHS_IN_YEAR = 12;
@@ -23,7 +22,7 @@ public class DateTool {
         return year(d) * QUARTERS_IN_YEAR + quarter(d);
     }
 
-    public static int dayDiff(Date endDate, Date startDate) {        
+    public static int dayDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInDays(endDate, startDate);
     }
 
@@ -96,8 +95,8 @@ public class DateTool {
     }
 
     public static int second(Date d) {
-    	Calendar c = Calendar.getInstance();
-    	c.setTime(d);
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
         return c.get(Calendar.SECOND);
     }
 
@@ -138,21 +137,23 @@ public class DateTool {
         c.setTime(d);
         return c.get(Calendar.YEAR);
     }
-    
+
     public static String amPm(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
-        
-        if( c.get(Calendar.AM_PM) == Calendar.AM ) {
+
+        if (c.get(Calendar.AM_PM) == Calendar.AM) {
             return "AM";
         } else {
             return "PM";
         }
     }
-    /** 
+
+    /**
      * Converts a date to the String value according the dateFormat
+     * 
      * @param date a date which should be converted
-     * @param dateFormat 
+     * @param dateFormat
      * @return String date format
      */
     public static String dateToString(Date date, String dateFormat) throws Exception {
@@ -171,13 +172,14 @@ public class DateTool {
         return stringDate;
     }
 
-    /** 
-     * Converts a date to the String value according the default locale. 
+    /**
+     * Converts a date to the String value according the default locale.
+     * 
      * @param date
      * @return String date format
-     * @throws Exception 
+     * @throws Exception
      */
-    public static String dateToString (Date date) throws Exception {
+    public static String dateToString(Date date) throws Exception {
         return dateToString(date, null);
     }
 }

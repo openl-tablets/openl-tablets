@@ -7,7 +7,7 @@ package org.openl.util.export;
 public interface IExporter {
     /**
      * Persists an exportable object.
-     *
+     * 
      * @param exportable an object to export
      * @throws ExportException if an error while persisting occurs.
      */
