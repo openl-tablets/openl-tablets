@@ -551,7 +551,6 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
     public static String fieldMethodPart(IOpenField field) {
         String name = field.getName();
         return StringUtils.capitalize(name);
-
     }
 
     private String getFieldFieldName(IOpenField field) {

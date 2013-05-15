@@ -44,5 +44,5 @@ public class EnumHelper {
 
         return descriptor;
     }
-    
+
 }
