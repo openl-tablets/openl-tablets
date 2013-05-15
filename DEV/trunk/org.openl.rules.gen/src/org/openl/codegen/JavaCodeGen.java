@@ -273,8 +273,8 @@ public class JavaCodeGen implements ICodeGen {
      */
     public StringBuilder genInitFixedSizeArrayVar(String name, String className, int size, StringBuilder sb) {
 
-        sb.append(name).append(" = ").append("new ").append(className).append('[').append(size).append(']').append(
-                END_OF_EXPR);
+        sb.append(name).append(" = ").append("new ").append(className).append('[').append(size).append(']')
+                .append(END_OF_EXPR);
 
         return sb;
     }
@@ -464,17 +464,17 @@ public class JavaCodeGen implements ICodeGen {
     public StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb) {
         return sb.append(InheritanceLevel.class.getSimpleName()).append(".").append(value.name());
     }
-    
+
     public StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb) {
-        return sb.append("new ").append(MatchingExpression.class.getName()).append("(\"").append(value.getMatchExpressionStr())
-        .append("\")");        
+        return sb.append("new ").append(MatchingExpression.class.getName()).append("(\"")
+                .append(value.getMatchExpressionStr()).append("\")");
     }
 
     public StringBuilder genLiteralTableType(XlsNodeTypes value, StringBuilder sb) {
-        return sb.append(XlsNodeTypes.class.getSimpleName()).append(".").append(value.name());        
+        return sb.append(XlsNodeTypes.class.getSimpleName()).append(".").append(value.name());
     }
 
-	public StringBuilder genLiteralErrorSeverity(Severity value, StringBuilder sb) {
+    public StringBuilder genLiteralErrorSeverity(Severity value, StringBuilder sb) {
         return sb.append(Severity.class.getSimpleName()).append(".").append(value.name());
-	}
+    }
 }

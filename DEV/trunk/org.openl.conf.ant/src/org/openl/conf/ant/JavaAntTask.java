@@ -7,13 +7,12 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
@@ -37,8 +36,6 @@ import org.openl.util.StringTool;
 import org.openl.util.generation.SimpleBeanJavaGenerator;
 
 public abstract class JavaAntTask extends Task {
-
-    private final Log log = LogFactory.getLog(JavaAntTask.class);
 
     protected static final String GOAL_MAKE_WRAPPER = "make wrapper";
     protected static final String GOAL_UPDATE_PROPERTIES = "update properties";
@@ -154,7 +151,6 @@ public abstract class JavaAntTask extends Task {
         StringBuilder buf = new StringBuilder(300);
 
         for (int i = 0; i < tokens.length; i++) {
-            // System.out.println(tokens[i]);
             if (tokens[i].matches(classpathExclude)) {
                 continue;
             }
@@ -306,18 +302,17 @@ public abstract class JavaAntTask extends Task {
         OpenClassJavaWrapper jwrapper = null;
         try {
             IDependencyManager dependencyManager = instantiateDependencyManager();
-
             jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile, false, dependencyManager);
         } finally {
             long end = System.currentTimeMillis();
-            System.out.println("Loaded " + srcFile + " in " + (end - start) + " ms");
+            log("Loaded " + srcFile + " in " + (end - start) + " ms");
         }
         List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(
                 ((CompiledOpenClass) jwrapper.getCompiledClass()).getMessages(), Severity.ERROR);
         if (errorMessages != null && !errorMessages.isEmpty()) {
             String message = getErrorMessage(errorMessages);
             // throw new OpenLCompilationException(message);
-            System.err.println(message);
+            log(message, Project.MSG_ERR);
         } // else {
         return jwrapper.getOpenClass();
         // }
@@ -343,7 +338,7 @@ public abstract class JavaAntTask extends Task {
                 Constructor<?> constructor = depManagerClass.getConstructor();
                 dependecyManager = (IDependencyManager) constructor.newInstance();
             } catch (Exception e) {
-                log.debug(e);
+                log(e, Project.MSG_DEBUG);
             }
         }
         return dependecyManager;
@@ -376,12 +371,13 @@ public abstract class JavaAntTask extends Task {
 
         String[] tokens = StringTool.tokenize(cp, File.pathSeparator);
 
-        System.out.println("Making WEB-INF...");
+        log("Making WEB-INF...");
+
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].matches(web_inf_exclude) && !tokens[i].matches(web_inf_include)) {
                 continue;
             }
-            System.out.println(tokens[i]);
+            log(tokens[i]);
 
             File f = new File(tokens[i]);
 
@@ -474,12 +470,12 @@ public abstract class JavaAntTask extends Task {
         if (vocabularyClass != null) {
             try {
                 Class<?> c = Class.forName(vocabularyClass);
-                Object instance = c.newInstance();
-                @SuppressWarnings("unused")
-                IVocabulary vocabulary = (IVocabulary) instance;
+                c.newInstance();
+                if (IVocabulary.class.isAssignableFrom(c)){
+                    throw new ClassCastException(vocabularyClass + " doesn't implements IVocabulary.");
+                }
             } catch (Throwable t) {
-                System.err.println("Error occured while trying instantiate vocabulary class:" + vocabularyClass);
-                t.printStackTrace();
+                log("Error occured while trying instantiate vocabulary class:" + vocabularyClass, t, Project.MSG_ERR);
             }
 
             p.put(targetClass + OpenLProjectPropertiesLoader.VOCABULARY_CLASS_SUFFIX, vocabularyClass);

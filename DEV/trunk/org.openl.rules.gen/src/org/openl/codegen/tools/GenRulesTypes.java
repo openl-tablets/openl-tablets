@@ -37,8 +37,8 @@ public class GenRulesTypes {
 
         List<EnumerationDescriptor> descriptors = new ArrayList<EnumerationDescriptor>();
 
-        RuleEngineFactory<IEmptyLoader> rulesFactory = new RuleEngineFactory<IEmptyLoader>(CodeGenConstants.DEFINITIONS_XLS,
-                IEmptyLoader.class);
+        RuleEngineFactory<IEmptyLoader> rulesFactory = new RuleEngineFactory<IEmptyLoader>(
+                CodeGenConstants.DEFINITIONS_XLS, IEmptyLoader.class);
 
         IOpenClass openClass = rulesFactory.getOpenClass();
         IRuntimeEnv env = rulesFactory.getOpenL().getVm().getRuntimeEnv();
@@ -69,7 +69,8 @@ public class GenRulesTypes {
     private void generateEnumeration(EnumerationDescriptor descriptor) throws Exception {
 
         String enumName = EnumHelper.getEnumName(descriptor.getEnumName());
-        String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + CodeGenConstants.ENUMS_PACKAGE_PATH + enumName + ".java";
+        String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + CodeGenConstants.ENUMS_PACKAGE_PATH + enumName
+                + ".java";
 
         Map<String, Object> variables = new HashMap<String, Object>();
 
