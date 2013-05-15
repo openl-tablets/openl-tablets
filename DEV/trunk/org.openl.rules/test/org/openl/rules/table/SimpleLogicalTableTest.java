@@ -1,7 +1,7 @@
 package org.openl.rules.table;
 
 import static org.junit.Assert.*;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;

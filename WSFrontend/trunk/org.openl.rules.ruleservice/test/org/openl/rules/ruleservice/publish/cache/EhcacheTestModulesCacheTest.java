@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.publish.cache;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.lang.reflect.Array;
