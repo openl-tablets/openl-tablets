@@ -30,11 +30,6 @@ public class FileCodeGen {
     public FileCodeGen(String inFileLocation, String outFileLocation) {
         this.inFileLocation = inFileLocation;
         this.outFileLocation = outFileLocation == null ? inFileLocation : outFileLocation;
-        if (inFileLocation.equals(this.outFileLocation)){
-            System.out.println("Processing " + inFileLocation);
-        }else{
-            System.out.println("Processing " + inFileLocation + " into " + this.outFileLocation);
-        }
         this.insertTag = insertTag == null ? DEFAULT_INSERT_TAG : insertTag;
 
     }
@@ -44,6 +39,11 @@ public class FileCodeGen {
     }
 
     public void processFile(ICodeGenAdaptor cga) throws IOException {
+        if (inFileLocation.equals(outFileLocation)){
+            System.out.println("Processing " + inFileLocation);
+        }else{
+            System.out.println("Processing " + inFileLocation + " into " + outFileLocation);
+        }
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder(10000);
         IOException ex = null;
