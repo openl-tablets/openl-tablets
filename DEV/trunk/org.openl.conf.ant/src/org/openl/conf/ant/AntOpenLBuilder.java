@@ -10,8 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.Properties;
-import java.util.Stack;
 
 import org.openl.ICompileContext;
 import org.openl.OpenL;
@@ -33,15 +34,11 @@ import org.openl.vm.SimpleVM;
  */
 public class AntOpenLBuilder extends BaseOpenLBuilder {
 
-    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
-
-        /**
-         *
-         */
+    static class UserContextStack extends ThreadLocal<Deque<IUserContext>> {
 
         @Override
-        protected Stack<IUserContext> initialValue() {
-            return new Stack<IUserContext>();
+        protected Deque<IUserContext> initialValue() {
+            return new LinkedList<IUserContext>();
         }
 
         public IUserContext pop() {
@@ -52,7 +49,7 @@ public class AntOpenLBuilder extends BaseOpenLBuilder {
             stack().push(ucxt);
         }
 
-        protected Stack<IUserContext> stack() {
+        protected Deque<IUserContext> stack() {
             return get();
         }
 

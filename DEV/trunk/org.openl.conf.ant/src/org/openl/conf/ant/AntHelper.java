@@ -18,7 +18,7 @@ import org.apache.tools.ant.ProjectHelper;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class AntHelper {
     Project project;
@@ -28,10 +28,6 @@ public class AntHelper {
     }
 
     public AntHelper(String antFile, String targetName, Properties props) {
-        // if (Project.class.getClassLoader() !=
-        // AntHelper.class.getClassLoader())
-        // throw new RuntimeException("Ant Library Configuration error");
-
         project = new Project();
         project.init();
         project.addBuildListener(createLogger());
@@ -39,12 +35,11 @@ public class AntHelper {
 
         if (props != null) {
             for (Iterator<Map.Entry<Object, Object>> iter = props.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry<Object, Object> element =  iter.next();
+                Map.Entry<Object, Object> element = iter.next();
                 project.setProperty((String) element.getKey(), (String) element.getValue());
             }
         }
 
-        // ProjectHelper.configureProject(project, new File(antFile));
         ProjectHelper helper = ProjectHelper.getProjectHelper();
         project.addReference("ant.projectHelper", helper);
         helper.parse(project, new File(antFile));
@@ -54,7 +49,6 @@ public class AntHelper {
     }
 
     BuildLogger createLogger() {
-
         BuildLogger logger = new DefaultLogger();
 
         logger.setMessageOutputLevel(Project.MSG_WARN);
