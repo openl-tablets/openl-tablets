@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.Vector;
 
 /**
  * This list is made for fast removal of externally cached nodes. It is based on the cloning of the Java 1.6 LinkedList and keeps 
