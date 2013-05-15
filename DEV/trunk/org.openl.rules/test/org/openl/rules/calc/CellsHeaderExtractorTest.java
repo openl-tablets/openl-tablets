@@ -1,6 +1,10 @@
 package org.openl.rules.calc;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.core.Is.is;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -19,5 +23,23 @@ public class CellsHeaderExtractorTest {
         
         String cellName4 = "ColumnName : SpreadsheetResult sdfsdf";
         assertFalse(cellName4.matches(CellsHeaderExtractor.DEPENDENT_CSR_REGEX));
+    }
+
+    @Test
+    public void testGetSignatureDependencies() {
+        List<String> dependencies = CellsHeaderExtractor.getSignatureDependencies("Spreadsheet SpreadsheetResultCalcForTests_v10 calcTotalsTrace(TestHelperDataBean_v10 testdata)");
+        assertEquals(Arrays.asList("CalcForTests_v10"), dependencies);
+
+        dependencies = CellsHeaderExtractor.getSignatureDependencies("Spreadsheet SpreadsheetResultCalcForTests calcTotalsTrace(SpreadsheetResultParam1 p1,int p2,SpreadsheetResultParam3 SpreadsheetResult3)");
+        assertEquals(Arrays.asList("CalcForTests", "Param1", "Param3"), dependencies);
+
+        dependencies = CellsHeaderExtractor.getSignatureDependencies("Spreadsheet SpreadsheetResult calcTotalsTrace ( SpreadsheetResult SpreadsheetResult1, SpreadsheetResultParam2[] p2 )");
+        assertEquals(Arrays.asList("Param2"), dependencies);
+
+        dependencies = CellsHeaderExtractor.getSignatureDependencies("Spreadsheet SpreadsheetResultCalcForTests[] calcTotalsTrace");
+        assertEquals(Arrays.asList("CalcForTests"), dependencies);
+
+        dependencies = CellsHeaderExtractor.getSignatureDependencies("Spreadsheet ASpreadsheetResultCalcForTests calcTotalsTrace");
+        assertTrue(dependencies.isEmpty());
     }
 }
