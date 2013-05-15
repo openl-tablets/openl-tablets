@@ -57,7 +57,7 @@ public abstract class ALogicalTable implements ILogicalTable {
 
     @Override
     public String toString() {
-        StringBuffer tableVisualization = new StringBuffer();     
+        StringBuilder tableVisualization = new StringBuilder();     
         tableVisualization.append(super.toString()).append("\n");
         
         int height = getHeight();

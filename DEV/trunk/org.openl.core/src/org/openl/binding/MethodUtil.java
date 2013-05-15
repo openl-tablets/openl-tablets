@@ -22,12 +22,12 @@ import org.openl.util.print.Formatter;
  */
 public class MethodUtil {
 
-    public static StringBuffer printMethod(IOpenMethod method, StringBuffer buf) {
+    public static StringBuilder printMethod(IOpenMethod method, StringBuilder buf) {
         return printMethod(method.getName(), method.getSignature(), buf);
     }
 
     public static String printMethod(IOpenMethodHeader methodHeader, int mode, boolean printType) {
-        StringBuffer buf = new StringBuffer(100);
+        StringBuilder buf = new StringBuilder(100);
 
         if (printType) {
             buf.append(methodHeader.getType().getDisplayName(mode)).append(' ');
@@ -47,10 +47,10 @@ public class MethodUtil {
     }
 
     public static String printMethod(String name, Class<?>[] params) {
-        return printMethod(name, params, new StringBuffer()).toString();
+        return printMethod(name, params, new StringBuilder()).toString();
     }
 
-    public static StringBuffer printMethod(String name, Class<?>[] params, StringBuffer buf) {
+    public static StringBuilder printMethod(String name, Class<?>[] params, StringBuilder buf) {
         startPrintingMethodName(name, buf);
         
         for (int i = 0; i < params.length; i++) {
@@ -61,7 +61,7 @@ public class MethodUtil {
         return buf;
     }
 
-    public static StringBuffer printMethod(String name, IMethodSignature signature, StringBuffer buf) {
+    public static StringBuilder printMethod(String name, IMethodSignature signature, StringBuilder buf) {
         startPrintingMethodName(name, buf);
         
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
@@ -73,10 +73,10 @@ public class MethodUtil {
     }
 
     public static String printMethod(String name, IOpenClass[] params) {
-        return printMethod(name, params, new StringBuffer()).toString();
+        return printMethod(name, params, new StringBuilder()).toString();
     }
 
-    public static StringBuffer printMethod(String name, IOpenClass[] params, StringBuffer buf) {
+    public static StringBuilder printMethod(String name, IOpenClass[] params, StringBuilder buf) {
         startPrintingMethodName(name, buf);
         
         for (int i = 0; i < params.length; i++) {
@@ -86,7 +86,7 @@ public class MethodUtil {
         return buf;
     }
 
-    public static StringBuffer printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode, StringBuffer buf) {
+    public static StringBuilder printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode, StringBuilder buf) {
         startPrintingMethodName(method.getName(), buf);
 
         IMethodSignature signature = method.getSignature();
@@ -100,21 +100,21 @@ public class MethodUtil {
     }
     
     public static String printMethodWithParameterValues(IOpenMethod method, Object[] params, int mode) {
-        return printMethodWithParameterValues(method, params, mode, new StringBuffer()).toString();
+        return printMethodWithParameterValues(method, params, mode, new StringBuilder()).toString();
     }
     
-    private static void startPrintingMethodName(String name, StringBuffer buf) {
+    private static void startPrintingMethodName(String name, StringBuilder buf) {
         buf.append(name).append('(');
     }
     
-    private static void endPrintingMethodName(StringBuffer buf) {
+    private static void endPrintingMethodName(StringBuilder buf) {
         buf.append(')');
     }
-    private static void printParameterInfo(String type, String name, boolean isFirst, StringBuffer buf){
+    private static void printParameterInfo(String type, String name, boolean isFirst, StringBuilder buf){
         printParameterInfo(type, name, null, isFirst, 0, buf);
     }
     
-    private static void printParameterInfo(String type, String name, Object value, boolean isFirst, int displayMode, StringBuffer buf){
+    private static void printParameterInfo(String type, String name, Object value, boolean isFirst, int displayMode, StringBuilder buf){
         if (!isFirst){
             buf.append(", ");
         }

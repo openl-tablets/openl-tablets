@@ -14,7 +14,7 @@ import org.openl.util.print.Formatter;
 public class FormatterAdapter implements IFormatter {
 
     public String format(Object obj) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         return Formatter.format(obj, INamedThing.REGULAR, buf).toString();
     }
 

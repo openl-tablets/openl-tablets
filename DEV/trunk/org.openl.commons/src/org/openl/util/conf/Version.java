@@ -339,7 +339,7 @@ public class Version implements Comparable<Version> {
 
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         for (int i = 0; i < version.length; i++) {
             if (version[i] >= 0) {

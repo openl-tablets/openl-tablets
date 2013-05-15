@@ -142,7 +142,7 @@ public class TableViewer {
 
     private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
         int nextSymbolIndex = 0;
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         if (isShowLinks()) {
             for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
                 int pstart = methodUsage.getStart();

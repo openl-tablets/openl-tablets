@@ -35,7 +35,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
     @Override
     public String generateJava() {
-        StringBuffer buf = new StringBuffer(1000);
+        StringBuilder buf = new StringBuilder(1000);
 
         // Add comment
         buf.append(JavaClassGeneratorHelper.getCommentText("This class has been generated."));
@@ -61,7 +61,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         return buf.toString();
     }
 
-    private void addMethods(StringBuffer buf) {
+    private void addMethods(StringBuilder buf) {
         for (IOpenMethod method : moduleOpenClass.getMethods()) {            
             if (!JavaWrapperGenerator.shouldBeGenerated(method, methodsToGenerate, moduleOpenClass.getName(), 
                 ignoreNonJavaTypes, ignoreTestMethods)) {
@@ -73,7 +73,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         }
     }
     
-    private void addFieldMethods(StringBuffer buf) {
+    private void addFieldMethods(StringBuilder buf) {
         for (IOpenField field : moduleOpenClass.getFields().values()) {            
             if (!JavaWrapperGenerator.shouldBeGenerated(field, fieldsToGenerate, ignoreNonJavaTypes, ignoreTestMethods)) {
                 continue;
@@ -82,7 +82,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         }
     }
     
-    private void addFieldAccessor(IOpenField field, StringBuffer buf) {
+    private void addFieldAccessor(IOpenField field, StringBuilder buf) {
 
         IOpenClass type = field.getType();
 

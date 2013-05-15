@@ -395,7 +395,7 @@ public final class FileTool {
     }
 
     public synchronized static String loadFile(InputStream fs) throws Exception {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         BufferedReader bis = null;
         try {
             bis = new BufferedReader(new InputStreamReader(fs, DEFAULT_CHARACTER_ENCODING));
@@ -413,7 +413,7 @@ public final class FileTool {
     }
 
     public static String loadFile(Reader reader) throws Exception {
-        StringBuffer buf = new StringBuffer(DEFAULT_READ_BUFFER_SIZE);
+        StringBuilder buf = new StringBuilder(DEFAULT_READ_BUFFER_SIZE);
 
         char[] c = new char[DEFAULT_READ_BUFFER_SIZE];
         int n;

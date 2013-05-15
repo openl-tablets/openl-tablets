@@ -21,14 +21,14 @@ public class OutputFilter {
      * @return
      */
 
-    public StringBuffer transform(CharSequence src, StringBuffer buf) {
+    public StringBuilder transform(CharSequence src, StringBuilder buf) {
         for (int i = 0; i < src.length(); i++) {
             transformCharacter(src.charAt(i), buf);
         }
         return buf;
     }
 
-    public StringBuffer transformCharacter(char x, StringBuffer buf) {
+    public StringBuilder transformCharacter(char x, StringBuilder buf) {
         return buf.append(x);
     }
 

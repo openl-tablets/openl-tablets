@@ -19,13 +19,13 @@ public class Formatter {
         return OutputFilter.class.getName();
     }
 
-    public static StringBuffer format(Object obj, int mode, StringBuffer buf) {
+    public static StringBuilder format(Object obj, int mode, StringBuilder buf) {
         Object key = obj == null ? (Object) "null" : (Object) obj.getClass();
 
         return format(obj, mode, buf, key);
     }
 
-    public static StringBuffer format(Object obj, int mode, StringBuffer buf, Object key) {
+    public static StringBuilder format(Object obj, int mode, StringBuilder buf, Object key) {
 
         IFormat format = (IFormat) CategorizedSearchContext.current().find(key, formatCategory());
 

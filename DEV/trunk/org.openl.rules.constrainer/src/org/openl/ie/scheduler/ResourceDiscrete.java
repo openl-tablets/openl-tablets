@@ -166,7 +166,7 @@ public class ResourceDiscrete implements Resource {
      * @return String representation
      */
     public String mapString() {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
         s.append("[");
         for (int i = 0; i < _duration; i++) {
             s.append("." + _caps.get(i).max());

@@ -35,21 +35,21 @@ public abstract class JavaGenerator {
         return classForGeneration.getName();
     }
 
-    public void addComment(StringBuffer buf) {
+    public void addComment(StringBuilder buf) {
         buf.append(JavaClassGeneratorHelper.getCommentText("This class has been generated. Do not change it."));
     }
 
-    public void addPackage(StringBuffer buf) {
+    public void addPackage(StringBuilder buf) {
         buf.append(JavaClassGeneratorHelper.getPackageText(ClassUtils.getPackageName(classForGeneration)));
     }
 
-    public void addImports(StringBuffer buf) {
+    public void addImports(StringBuilder buf) {
         for (String importStr : gatherImports()) {
             addImport(buf, importStr);
         }
     }
 
-    public void addImport(StringBuffer buf, String importStr) {
+    public void addImport(StringBuilder buf, String importStr) {
         buf.append(JavaClassGeneratorHelper.getImportText(importStr));
     }
 
@@ -100,7 +100,7 @@ public abstract class JavaGenerator {
         }
     }
 
-    public void addClassDeclaration(StringBuffer buf, String className, String superClass) {
+    public void addClassDeclaration(StringBuilder buf, String className, String superClass) {
         buf.append(JavaClassGeneratorHelper.getSimplePublicClassDeclaration(className));
         if (superClass != null && !"Object".equals(superClass)) {
             buf.append(" extends ");
@@ -109,7 +109,7 @@ public abstract class JavaGenerator {
         buf.append(JavaClassGeneratorHelper.getOpenBracket());
     }
 
-    public void addGetter(StringBuffer buf, Method method, Set<String> allDatatypeFieldNames) {
+    public void addGetter(StringBuilder buf, Method method, Set<String> allDatatypeFieldNames) {
         String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
         if (StringUtils.isNotBlank(fieldName)) {
             buf.append(JavaClassGeneratorHelper.getPublicGetterMethod(
@@ -117,7 +117,7 @@ public abstract class JavaGenerator {
         }
     }
 
-    public void addSetter(StringBuffer buf, Method method, Set<String> allDatatypeFieldNames) {
+    public void addSetter(StringBuilder buf, Method method, Set<String> allDatatypeFieldNames) {
         String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
         if (StringUtils.isNotBlank(fieldName)) {
             buf.append(JavaClassGeneratorHelper.getPublicSetterMethod(

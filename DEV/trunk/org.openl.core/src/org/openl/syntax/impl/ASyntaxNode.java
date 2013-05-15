@@ -30,7 +30,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     private ILocation location;    
 
-    private static void printSpace(int level, StringBuffer buf) {
+    private static void printSpace(int level, StringBuilder buf) {
         for (int j = 0; j < level; j++) {
             buf.append("  ");
         }
@@ -89,7 +89,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         return type;
     }
 
-    public void print(int level, StringBuffer buf) {
+    public void print(int level, StringBuilder buf) {
         int nkids = getNumberOfChildren();
 
         printMySelf(level, buf);
@@ -105,7 +105,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         }
     }
 
-    protected void printMySelf(int level, StringBuffer buf) {
+    protected void printMySelf(int level, StringBuilder buf) {
         printSpace(level, buf);
         buf.append(getType());
 
@@ -120,7 +120,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         print(0, buf);
         return buf.toString();
     }

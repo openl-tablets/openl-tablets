@@ -205,7 +205,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
         String start = String.format("%s %s %s(", IXlsTableNames.DECISION_TABLE2, 
             returnColumn.getReturnType().getDisplayName(0), tableName);
-        StringBuffer strBuf = new StringBuffer();
+        StringBuilder strBuf = new StringBuilder();
         strBuf.append(start);
         strBuf.append(returnColumn.paramsThroughComma());
         strBuf.append(")");

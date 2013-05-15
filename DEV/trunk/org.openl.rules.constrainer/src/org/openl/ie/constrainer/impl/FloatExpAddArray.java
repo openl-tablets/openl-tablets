@@ -73,7 +73,7 @@ public final class FloatExpAddArray extends FloatExpImpl {
         String sum_name = "";
 
         if (constrainer().showInternalNames()) {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder();
             s.append("(");
             for (int i = 0; i < data.length; i++) {
                 if (i != 0) {

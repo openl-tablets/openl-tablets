@@ -3,7 +3,7 @@ package org.openl.rules.table.xls;
 public final class XlsUtil {
 
     public static String xlsCellPresentation(int x, int y) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int div = 'Z' - 'A' + 1;
 
         int xx = x;

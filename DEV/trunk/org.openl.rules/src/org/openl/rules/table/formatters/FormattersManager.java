@@ -115,7 +115,7 @@ public class FormattersManager {
         if (value != null) {
             int scale = NumberUtils.getScale((Number)value);
             
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append("#.");
             for (int i = 0; i < scale; i++) {
                 buf.append("#");

@@ -158,7 +158,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
         if (methodCaller == null) {
 
-            StringBuffer buf = new StringBuffer("Method ");
+            StringBuilder buf = new StringBuilder("Method ");
             MethodUtil.printMethod(methodName, types, buf);
             buf.append(" not found in '" + target.getType().getName() + "'");
 
