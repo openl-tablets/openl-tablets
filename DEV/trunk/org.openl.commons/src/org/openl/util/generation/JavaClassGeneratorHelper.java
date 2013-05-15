@@ -168,7 +168,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getDecoratorBody(Class<?> methodType, String methodToDecorate, String fieldName) {
-        StringBuffer buf = new StringBuffer(300);
+        StringBuilder buf = new StringBuilder(300);
         buf.append("return ");
         if (methodType.isPrimitive()) {
             buf.append("(");
@@ -341,7 +341,7 @@ public class JavaClassGeneratorHelper {
     public static String getJavaArrayType(String canonicalArrayTypeName) {
         if (StringUtils.isNotBlank(canonicalArrayTypeName)) {
             String[] tokens = canonicalArrayTypeName.split("\\[");
-            StringBuffer strBuf = new StringBuffer();
+            StringBuilder strBuf = new StringBuilder();
             for (int i = 0; i < tokens.length - 1; i++) {
                 strBuf.append("[");
             }
@@ -377,7 +377,7 @@ public class JavaClassGeneratorHelper {
     public static String getArrayName(String domainName, int dimension) {
         if (StringUtils.isNotBlank(domainName)) {
             String array = "[]";
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append(domainName);
             for (int i = 0; i < dimension; i++) {
                 buf.append(array);

@@ -58,7 +58,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
 
     public String generateJavaClass() {
 
-        StringBuffer buf = new StringBuffer(10000);
+        StringBuilder buf = new StringBuilder(10000);
 
         addComment(buf);
 
@@ -80,7 +80,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         return buf.toString();
     }
 
-    private void addMethods(StringBuffer buf) {
+    private void addMethods(StringBuilder buf) {
         Method[] methods = getClassForGeneration().getDeclaredMethods();
         Arrays.sort(methods, new Comparator<Method>() {
             @Override
@@ -106,7 +106,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         }
     }
 
-    private void addConstructors(StringBuffer buf) {
+    private void addConstructors(StringBuilder buf) {
         /** Write default constructor */
         buf.append(JavaClassGeneratorHelper.getDefaultConstructor(getClassForGeneration().getSimpleName()));
 
@@ -148,7 +148,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 fieldsForConstructor, numberOfParamsForSuperConstructor));
     }
 
-    private void addFieldsDeclaration(StringBuffer buf) {
+    private void addFieldsDeclaration(StringBuilder buf) {
         Object datatypeInstance = null;
         try {
             datatypeInstance = getClassForGeneration().newInstance();

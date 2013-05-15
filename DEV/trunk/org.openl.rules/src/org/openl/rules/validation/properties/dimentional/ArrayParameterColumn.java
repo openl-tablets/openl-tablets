@@ -33,7 +33,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
         
         // array values can have only "contains" operation  
         //
-        StringBuffer codeExpression = new StringBuffer();
+        StringBuilder codeExpression = new StringBuilder();
         
         if (matchExpression != null) {
             

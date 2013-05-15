@@ -24,7 +24,7 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
     }
 
     public String generateJavaClass() {
-        StringBuffer buf = new StringBuffer(10000);
+        StringBuilder buf = new StringBuilder(10000);
 
         addComment(buf);
 
@@ -46,7 +46,7 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
         return buf.toString();
     }
 
-    private void addMethods(StringBuffer buf) {
+    private void addMethods(StringBuilder buf) {
         for (Method method : getClassForGeneration().getDeclaredMethods()) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
                 addDecoratorGetter(buf, method);
@@ -54,7 +54,7 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
         }
     }
 
-    private void addDecoratorGetter(StringBuffer buf, Method method) {
+    private void addDecoratorGetter(StringBuilder buf, Method method) {
         String fieldName = getFieldName(method.getName());
         buf.append(JavaClassGeneratorHelper.getGetterWithCastMethod(method.getReturnType(), SPREADSHEET_METHOD,
                 fieldName));
@@ -65,7 +65,7 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
         return methodName.substring(3);
     }
 
-    private void addConstructors(StringBuffer buf) {
+    private void addConstructors(StringBuilder buf) {
         for (Constructor<?> constructor : getClassForGeneration().getSuperclass().getConstructors()) {
             Map<String, Class<?>> superClassFields = new LinkedHashMap<String, Class<?>>();
             int i = 1;

@@ -93,7 +93,7 @@ public class Tokenizer {
             int startToken = 0;
             int position = -1;
             int character;
-            StringBuffer buffer = null;
+            StringBuilder buffer = null;
 
             do {
                 character = reader.read();
@@ -112,7 +112,7 @@ public class Tokenizer {
                 } else {
 					if (character != EOF && !isDelimiter(character)) {
 						if (buffer == null) {
-							buffer = new StringBuffer();
+							buffer = new StringBuilder();
 							startToken = position;
 						}
 
@@ -149,7 +149,7 @@ public class Tokenizer {
             }
 
             int character;
-            StringBuffer buffer = null;
+            StringBuilder buffer = null;
             boolean continueLooping = false;
 
             do {
@@ -170,7 +170,7 @@ public class Tokenizer {
                 } else {
                     if (!isDelimiter(character)){
                         if (buffer == null) {
-                            buffer = new StringBuffer();
+                            buffer = new StringBuilder();
                             startToken = position;
                         }
                         buffer.append((char) character);

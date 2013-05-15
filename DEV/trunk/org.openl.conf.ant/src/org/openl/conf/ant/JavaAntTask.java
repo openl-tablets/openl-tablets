@@ -151,7 +151,7 @@ public abstract class JavaAntTask extends Task {
 
         String[] tokens = StringTool.tokenize(cp, File.pathSeparator);
 
-        StringBuffer buf = new StringBuffer(300);
+        StringBuilder buf = new StringBuilder(300);
 
         for (int i = 0; i < tokens.length; i++) {
             // System.out.println(tokens[i]);
@@ -350,7 +350,7 @@ public abstract class JavaAntTask extends Task {
     }
     
     private String getErrorMessage(List<OpenLMessage> errorMessages) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("There are critical errors in wrapper:\n");
         for(int i = 0; i < errorMessages.size(); i++) {
             if (errorMessages.get(i) instanceof OpenLErrorMessage) {

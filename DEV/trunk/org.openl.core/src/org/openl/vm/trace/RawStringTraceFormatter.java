@@ -7,7 +7,7 @@ public class RawStringTraceFormatter implements TraceFormatter {
 
     public String format(ITracerObject[] tracerObjects) {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         
         for (ITracerObject tracerObject : tracerObjects) {
             buffer.append(print(tracerObject, 0));
@@ -18,7 +18,7 @@ public class RawStringTraceFormatter implements TraceFormatter {
 
     private String print(ITracerObject tracerObject, int level) {
         
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         String indent = getIndent(level);
         
         buffer.append(indent);
@@ -39,7 +39,7 @@ public class RawStringTraceFormatter implements TraceFormatter {
     
     private String getIndent(int level) {
         
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         
         for (int i = 0; i < level; i++) {
             buffer.append("\t");

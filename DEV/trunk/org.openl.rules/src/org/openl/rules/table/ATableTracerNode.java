@@ -48,7 +48,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
     
     protected String asString(IOpenMethod method, int mode) {
-        StringBuffer buf = new StringBuffer(64);
+        StringBuilder buf = new StringBuilder(64);
         buf.append(method.getType().getDisplayName(mode)).append(' ');
        
         buf.append(resultAsString(method));
@@ -59,7 +59,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     protected String resultAsString(IOpenMethod method) {
-        StringBuffer buf = new StringBuffer(64);
+        StringBuilder buf = new StringBuilder(64);
         if (!isVoid(method)) {                        
             if (hasError()) {
                 // append error of any
@@ -76,7 +76,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
 
     protected String parametersAsString(IOpenMethod method, int mode) {
-        StringBuffer buf = new StringBuffer(64);
+        StringBuilder buf = new StringBuilder(64);
         buf.append(method.getName()).append('(');
 
         IOpenClass[] paramTypes = method.getSignature().getParameterTypes();
@@ -155,7 +155,7 @@ public abstract class ATableTracerNode extends SimpleTracerObject implements ITa
     }
     
     protected String getFormattedValue(Object value, IOpenMethod method) {
-        StringBuffer buf = new StringBuffer(28);
+        StringBuilder buf = new StringBuilder(28);
         // add '=' symbol if not void
         //
         buf.append("= ");

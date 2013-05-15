@@ -34,12 +34,12 @@ public class FormatterTest {
     }
 
     private String printBusView(Object value) {
-        StringBuffer strBuf = new StringBuffer();
+        StringBuilder strBuf = new StringBuilder();
         return Formatter.format(value, INamedThing.REGULAR, strBuf).toString();
     }
 
     private String printDevView(Object value) {
-        StringBuffer strBuf = new StringBuffer();
+        StringBuilder strBuf = new StringBuilder();
         return Formatter.format(value, INamedThing.SHORT, strBuf).toString();
     }
 

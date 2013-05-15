@@ -82,7 +82,7 @@ public class ArrayTool {
     }
 
     public static String asString(Object ary, int maxLength) {
-        StringBuffer buf = new StringBuffer(100);
+        StringBuilder buf = new StringBuilder(100);
 
         print(ary, buf, maxLength);
 
@@ -369,7 +369,7 @@ public class ArrayTool {
         Array.set(array, index + delta, value);
     }
 
-    static void print(Object obj, StringBuffer buf, int maxLength) {
+    static void print(Object obj, StringBuilder buf, int maxLength) {
         if (obj == null) {
             buf.append("null");
         } else if (obj instanceof String) {
@@ -383,7 +383,7 @@ public class ArrayTool {
         }
     }
 
-    static void printArray(Object ary, StringBuffer buf, int maxLength) {
+    static void printArray(Object ary, StringBuilder buf, int maxLength) {
         int size = Array.getLength(ary);
 
         buf.append('[');

@@ -37,7 +37,7 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         buf.append("Method ");
         MethodUtil.printMethod(methodName, pars, buf);

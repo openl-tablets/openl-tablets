@@ -112,7 +112,7 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
             return AMultiplicativeExpression.print(im, expr, "", doubleDigits);
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         if (posCount == 0) {
             buf.append("1");
