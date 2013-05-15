@@ -28,9 +28,13 @@ public class FileCodeGen {
     private String insertTag;
 
     public FileCodeGen(String inFileLocation, String outFileLocation) {
-        System.out.println("Processing " + inFileLocation + " into " + this.outFileLocation);
         this.inFileLocation = inFileLocation;
         this.outFileLocation = outFileLocation == null ? inFileLocation : outFileLocation;
+        if (inFileLocation.equals(this.outFileLocation)){
+            System.out.println("Processing " + inFileLocation);
+        }else{
+            System.out.println("Processing " + inFileLocation + " into " + this.outFileLocation);
+        }
         this.insertTag = insertTag == null ? DEFAULT_INSERT_TAG : insertTag;
 
     }
