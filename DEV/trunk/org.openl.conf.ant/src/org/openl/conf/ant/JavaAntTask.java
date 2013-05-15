@@ -338,7 +338,7 @@ public abstract class JavaAntTask extends Task {
                 Constructor<?> constructor = depManagerClass.getConstructor();
                 dependecyManager = (IDependencyManager) constructor.newInstance();
             } catch (Exception e) {
-                log(e, Project.MSG_ERR);
+                log(e, Project.MSG_DEBUG);
             }
         }
         return dependecyManager;
