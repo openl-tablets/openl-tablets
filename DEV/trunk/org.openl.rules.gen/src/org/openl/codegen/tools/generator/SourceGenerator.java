@@ -59,7 +59,7 @@ public class SourceGenerator {
 
         os.close();
     }
-    
+
     public String generateSource(String templateName, Map<String, Object> variables) throws Exception {
         return generator.generate(templateName, variables);
     }

@@ -11,16 +11,16 @@ public class VelocityTool {
     public int length(Object[] array) {
         return array.length;
     }
-    
+
     public String getTypeName(Class<?> clazz) {
-        
+
         if (clazz.isArray()) {
             return String.format("%s[]", clazz.getComponentType().getName());
         }
-        
+
         return clazz.getName();
     }
-    
+
     public boolean hasConstructorWithoutParams(Class<?> clazz) {
         if (ConstructorUtils.getAccessibleConstructor(clazz, new Class<?>[] {}) != null) {
             return true;
@@ -41,21 +41,20 @@ public class VelocityTool {
         }
         return false;
     }
-    
+
     public String formatAccessorName(String name) {
-        
+
         StringBuilder builder = new StringBuilder();
-        
-        builder.append(name.substring(0,1).toUpperCase())
-            .append(name.substring(1));
-        
+
+        builder.append(name.substring(0, 1).toUpperCase()).append(name.substring(1));
+
         return builder.toString();
     }
-    
+
     public boolean isNotPrimitiveDouble(Class<?> clazz) {
         return !double.class.equals(clazz);
     }
-    
+
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
         return NumberUtils.getNumericPrimitive(wrapperClass);
     }
