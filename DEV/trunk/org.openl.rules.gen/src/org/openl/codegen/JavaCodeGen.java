@@ -56,7 +56,6 @@ public class JavaCodeGen implements ICodeGen {
 
     // private String comment;
 
-    private ICodeGenContext cxt;
     private int genLevel = 0;
     private int dprecision = 4;
     private DecimalFormat format = new DecimalFormat("#.0###", new DecimalFormatSymbols(new Locale("en")));
@@ -205,18 +204,6 @@ public class JavaCodeGen implements ICodeGen {
     public StringBuilder genModuleStart(IOpenClass ioc, StringBuilder sb) {
         sb.append("package ").append(jpackage).append(END_OF_EXPR);
         return sb;
-    }
-
-    public StringBuilder genBeanAttribute(IOpenField f, String comment, StringBuilder sb) {
-        String name = f.getName();
-        String type = cxt.addReferredType(f.getType());
-        String cmt = "Bean Attribute: " + name;
-
-        genMultiLineComment(comment, sb);
-
-        startLine(sb);
-
-        return null;
     }
 
     public StringBuilder genEscapedChar(char c, StringBuilder sb) {
