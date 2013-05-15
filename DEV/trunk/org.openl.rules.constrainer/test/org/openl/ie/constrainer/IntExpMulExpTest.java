@@ -19,7 +19,7 @@ import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.impl.IntExpMulExp;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 

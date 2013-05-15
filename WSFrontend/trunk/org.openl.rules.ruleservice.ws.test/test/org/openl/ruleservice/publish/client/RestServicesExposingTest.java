@@ -1,6 +1,6 @@
 package org.openl.ruleservice.publish.client;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;

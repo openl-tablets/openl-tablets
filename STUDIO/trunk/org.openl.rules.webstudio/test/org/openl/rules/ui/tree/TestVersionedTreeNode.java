@@ -1,6 +1,6 @@
 package org.openl.rules.ui.tree;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
