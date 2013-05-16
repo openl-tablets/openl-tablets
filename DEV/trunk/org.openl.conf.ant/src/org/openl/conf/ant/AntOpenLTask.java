@@ -26,7 +26,7 @@ import org.openl.syntax.grammar.IGrammar;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class AntOpenLTask extends Task {
 
@@ -87,7 +87,7 @@ public class AntOpenLTask extends Task {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.apache.tools.ant.Task#execute()
      */
     @Override
@@ -113,8 +113,8 @@ public class AntOpenLTask extends Task {
 
             IOpenLConfiguration extendsConfiguration = null;
             if (extendsCategory != null) {
-                if ((extendsConfiguration = OpenLConfiguration.getInstance(extendsCategory, AntOpenLBuilder.userCxt
-                        .top())) == null) {
+                if ((extendsConfiguration = OpenLConfiguration.getInstance(extendsCategory,
+                        AntOpenLBuilder.userCxt.top())) == null) {
                     throw new OpenConfigurationException("The extended category " + extendsCategory
                             + " must have been loaded first", getUri(), null);
                 }
@@ -140,9 +140,6 @@ public class AntOpenLTask extends Task {
         }
     }
 
-    /**
-     * @return
-     */
     public String getCategory() {
         return category;
     }
@@ -164,9 +161,6 @@ public class AntOpenLTask extends Task {
         return new ConfigurableResourceContext(myClassLoader, conf);
     }
 
-    /**
-     * @return
-     */
     public String getExtendsCategory() {
         return extendsCategory;
     }
@@ -176,9 +170,6 @@ public class AntOpenLTask extends Task {
         return loc == null ? null : loc.toString();
     }
 
-    /**
-     * @return
-     */
     public boolean isShared() {
         return shared;
     }
@@ -187,31 +178,18 @@ public class AntOpenLTask extends Task {
         lastConfiguration = conf;
     }
 
-    /**
-     * @param string
-     */
-
     public void setCategory(String string) {
         category = string;
     }
 
-    /**
-     * @param string
-     */
     public void setClasspath(String string) {
         classpath = string;
     }
 
-    /**
-     * @param string
-     */
     public void setExtendsCategory(String string) {
         extendsCategory = string;
     }
 
-    /**
-     * @param b
-     */
     public void setShared(boolean b) {
         shared = b;
     }

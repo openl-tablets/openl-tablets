@@ -24,7 +24,7 @@ public class TablePropertyDefinitionWrappers {
     public List<TablePropertyDefinitionWrapper> asList() {
         return new ArrayList<TablePropertyDefinitionWrapper>(wrappers);
     }
-    
+
     public List<TablePropertyDefinitionWrapper> getDimensionalProperties() {
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();
@@ -35,7 +35,7 @@ public class TablePropertyDefinitionWrappers {
                 dimensionalTablePropertyDefinitions.add(wrapper);
             }
         }
-        
+
         return dimensionalTablePropertyDefinitions;
     }
 }

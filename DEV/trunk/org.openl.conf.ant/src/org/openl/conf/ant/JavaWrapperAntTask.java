@@ -11,17 +11,17 @@ import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 
 /**
- * @author 
+ * @author
  * 
  */
 public class JavaWrapperAntTask extends JavaAntTask {
-    
+
     private String[] implementsInterfaces = new String[] { OpenLWrapper.class.getName(),
-            IRulesRuntimeContextProvider.class.getName() , IRulesRuntimeContextConsumer.class.getName()};    
-    
+            IRulesRuntimeContextProvider.class.getName(), IRulesRuntimeContextConsumer.class.getName() };
+
     public String[] getImplementsInterfaces() {
         return implementsInterfaces;
-    }    
+    }
 
     public void setImplementsInterfaces(String[] implementsInterfaces) {
         List<String> interfaces = new ArrayList<String>(Arrays.asList(this.implementsInterfaces));
@@ -36,8 +36,8 @@ public class JavaWrapperAntTask extends JavaAntTask {
 
     @Override
     protected OpenLToJavaGenerator getJavaGenerator() {
-        return new JavaWrapperGenerator(getOpenClass(), getTargetClass(), getExtendsClass(), 
-            getImplementsInterfaces(), getOpenlName(), getDeplSrcFile(), getSrcFile(), getSrcModuleClass(), 
-            getUserHome(), getDeplUserHome(), getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes());
+        return new JavaWrapperGenerator(getOpenClass(), getTargetClass(), getExtendsClass(), getImplementsInterfaces(),
+                getOpenlName(), getDeplSrcFile(), getSrcFile(), getSrcModuleClass(), getUserHome(), getDeplUserHome(),
+                getRulesFolder(), getFields(), getMethods(), isIgnoreNonJavaTypes());
     }
 }

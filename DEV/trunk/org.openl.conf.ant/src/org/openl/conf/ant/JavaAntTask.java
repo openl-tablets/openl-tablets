@@ -7,13 +7,12 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.types.FileSet;
@@ -37,14 +36,12 @@ import org.openl.util.StringTool;
 import org.openl.util.generation.SimpleBeanJavaGenerator;
 
 public abstract class JavaAntTask extends Task {
-    
-    private final Log log = LogFactory.getLog(JavaAntTask.class);
-    
-    protected static final String GOAL_MAKE_WRAPPER = "make wrapper";    
+
+    protected static final String GOAL_MAKE_WRAPPER = "make wrapper";
     protected static final String GOAL_UPDATE_PROPERTIES = "update properties";
     protected static final String GOAL_MAKE_WEBINF = "make WEB-INF";
     protected static final String GOAL_ALL = "all";
-    protected static final String GOAL_GENERATE_DATATYPES = "generate datatypes";    
+    protected static final String GOAL_GENERATE_DATATYPES = "generate datatypes";
 
     private IOpenClass openClass;
 
@@ -66,7 +63,7 @@ public abstract class JavaAntTask extends Task {
     private String userHome = ".";
     private String deplUserHome;
 
-    private String srcFile; 
+    private String srcFile;
     private String deplSrcFile;
 
     private String srcModuleClass;
@@ -81,18 +78,18 @@ public abstract class JavaAntTask extends Task {
 
     private String s_package;
     private String s_class;
-    
+
     private String rulesFolder = "rules";
 
     private String extendsClass = null;
-    
+
     private String dependencyManagerClass;
 
     /*
      * Full or relative path to directory where properties will be saved
      */
     private String classpathPropertiesOutputDir = ".";
-    
+
     @Override
     public void execute() throws BuildException {
         try {
@@ -101,7 +98,7 @@ public abstract class JavaAntTask extends Task {
             throw new BuildException(e);
         }
     }
-    
+
     protected void run() throws Exception {
         if (getIgnoreFields() != null) {
             setFields(StringTool.tokenize(getIgnoreFields(), ", "));
@@ -114,17 +111,17 @@ public abstract class JavaAntTask extends Task {
         if (getGoal().equals(GOAL_ALL) || getGoal().contains(GOAL_UPDATE_PROPERTIES)) {
             saveProjectProperties();
         }
-        
+
         setOpenClass(makeOpenClass());
-        
+
         OpenLToJavaGenerator javaGenerator = getJavaGenerator();
-        
-        writeJavaWrapper(javaGenerator);        
-        
+
+        writeJavaWrapper(javaGenerator);
+
         if (getGoal().equals(GOAL_ALL) || getGoal().contains(GOAL_GENERATE_DATATYPES)) {
             writeDatatypeBeans(getOpenClass().getTypes());
         }
-        
+
         writeSpecific();
 
         if (getGoal().contains(GOAL_MAKE_WEBINF)) {
@@ -143,7 +140,7 @@ public abstract class JavaAntTask extends Task {
     }
 
     protected abstract void writeSpecific();
-    
+
     protected abstract OpenLToJavaGenerator getJavaGenerator();
 
     private String filterClassPath() throws IOException {
@@ -154,7 +151,6 @@ public abstract class JavaAntTask extends Task {
         StringBuilder buf = new StringBuilder(300);
 
         for (int i = 0; i < tokens.length; i++) {
-            // System.out.println(tokens[i]);
             if (tokens[i].matches(classpathExclude)) {
                 continue;
             }
@@ -164,7 +160,7 @@ public abstract class JavaAntTask extends Task {
         }
         return buf.toString();
     }
-    
+
     public String getClasspathExclude() {
         return classpathExclude;
     }
@@ -208,10 +204,10 @@ public abstract class JavaAntTask extends Task {
     public String getIgnoreMethods() {
         return ignoreMethods;
     }
-    
+
     public String[] getMethods() {
         return methods;
-    }    
+    }
 
     public String getOpenlName() {
         return openlName;
@@ -221,10 +217,10 @@ public abstract class JavaAntTask extends Task {
         String file = targetSrcDir + "/" + targetClass.replace('.', '/') + ".java";
         return file;
     }
-    
+
     public String getRulesFolder() {
         return rulesFolder;
-    }    
+    }
 
     public String getS_class() {
         return s_class;
@@ -232,7 +228,7 @@ public abstract class JavaAntTask extends Task {
 
     public String getS_package() {
         return s_package;
-    }    
+    }
 
     public String getSrcFile() {
         return srcFile;
@@ -272,7 +268,7 @@ public abstract class JavaAntTask extends Task {
 
     public String getWeb_inf_path() {
         return web_inf_path;
-    }    
+    }
 
     public boolean isIgnoreNonJavaTypes() {
         return ignoreNonJavaTypes;
@@ -285,15 +281,15 @@ public abstract class JavaAntTask extends Task {
     public void setDependencyManager(String dependencyManagerClass) {
         this.dependencyManagerClass = dependencyManagerClass;
     }
-    
+
     protected void setOpenClass(IOpenClass openClass) {
         this.openClass = openClass;
     }
-    
+
     protected IOpenClass getOpenClass() {
         return openClass;
     }
-    
+
     protected IOpenClass makeOpenClass() throws Exception {
 
         ClassLoader applicationClassLoader = getApplicationClassLoader();
@@ -306,18 +302,17 @@ public abstract class JavaAntTask extends Task {
         OpenClassJavaWrapper jwrapper = null;
         try {
             IDependencyManager dependencyManager = instantiateDependencyManager();
-
             jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile, false, dependencyManager);
         } finally {
             long end = System.currentTimeMillis();
-            System.out.println("Loaded " + srcFile + " in " + (end - start) + " ms");
+            log("Loaded " + srcFile + " in " + (end - start) + " ms");
         }
         List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(
-            ((CompiledOpenClass) jwrapper.getCompiledClass()).getMessages(), Severity.ERROR);
+                ((CompiledOpenClass) jwrapper.getCompiledClass()).getMessages(), Severity.ERROR);
         if (errorMessages != null && !errorMessages.isEmpty()) {
             String message = getErrorMessage(errorMessages);
             // throw new OpenLCompilationException(message);
-            System.err.println(message);
+            log(message, Project.MSG_ERR);
         } // else {
         return jwrapper.getOpenClass();
         // }
@@ -326,7 +321,7 @@ public abstract class JavaAntTask extends Task {
     private UserContext getUserContext(ClassLoader cl) throws Exception {
         return new UserContext(cl, userHome);
     }
-    
+
     private ClassLoader getApplicationClassLoader() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (userClassPath != null) {
@@ -337,35 +332,35 @@ public abstract class JavaAntTask extends Task {
 
     private IDependencyManager instantiateDependencyManager() {
         IDependencyManager dependecyManager = null;
-        if (StringUtils.isNotBlank(dependencyManagerClass)) {            
+        if (StringUtils.isNotBlank(dependencyManagerClass)) {
             try {
                 Class<?> depManagerClass = Class.forName(dependencyManagerClass);
                 Constructor<?> constructor = depManagerClass.getConstructor();
                 dependecyManager = (IDependencyManager) constructor.newInstance();
             } catch (Exception e) {
-                log.debug(e);
+                log(e, Project.MSG_DEBUG);
             }
-        }        
+        }
         return dependecyManager;
     }
-    
+
     private String getErrorMessage(List<OpenLMessage> errorMessages) {
         StringBuilder buf = new StringBuilder();
         buf.append("There are critical errors in wrapper:\n");
-        for(int i = 0; i < errorMessages.size(); i++) {
+        for (int i = 0; i < errorMessages.size(); i++) {
             if (errorMessages.get(i) instanceof OpenLErrorMessage) {
-                OpenLErrorMessage openlError = (OpenLErrorMessage)errorMessages.get(i);
-                buf.append(openlError.getError().toString());     
+                OpenLErrorMessage openlError = (OpenLErrorMessage) errorMessages.get(i);
+                buf.append(openlError.getError().toString());
                 buf.append("\n\n");
             } else {
                 // shouldn`t happen
-                buf.append(String.format("[%s] %s", i+1, errorMessages.get(i).getSummary()));     
+                buf.append(String.format("[%s] %s", i + 1, errorMessages.get(i).getSummary()));
                 buf.append("\n");
             }
         }
         return buf.toString();
     }
-    
+
     protected void makeWebInfPath() {
         String targetFolder = web_inf_path;
 
@@ -376,12 +371,13 @@ public abstract class JavaAntTask extends Task {
 
         String[] tokens = StringTool.tokenize(cp, File.pathSeparator);
 
-        System.out.println("Making WEB-INF...");
+        log("Making WEB-INF...");
+
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].matches(web_inf_exclude) && !tokens[i].matches(web_inf_include)) {
                 continue;
             }
-            System.out.println(tokens[i]);
+            log(tokens[i]);
 
             File f = new File(tokens[i]);
 
@@ -404,15 +400,15 @@ public abstract class JavaAntTask extends Task {
             }
         }
     }
-    
+
     protected void writeJavaWrapper(OpenLToJavaGenerator javaGenerator) throws IOException {
         if (javaGenerator != null) {
             String content = javaGenerator.generateJava();
             String fileName = getOutputFileName();
             writeContentToFile(content, fileName);
-        }        
+        }
     }
- 
+
     private void writeContentToFile(String content, String fileName) throws IOException {
         FileWriter fw = null;
         try {
@@ -430,9 +426,10 @@ public abstract class JavaAntTask extends Task {
         if (types != null) {
             for (Entry<String, IOpenClass> datatype : types.entrySet()) {
 
-                // Skip java code generation for types what is defined 
-                // thru DomainOpenClass (skip java code generation for alias types).
-                // 
+                // Skip java code generation for types what is defined
+                // thru DomainOpenClass (skip java code generation for alias
+                // types).
+                //
                 IOpenClass datatypeOpenClass = datatype.getValue();
                 if (!(datatypeOpenClass instanceof DomainOpenClass)) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
@@ -446,7 +443,7 @@ public abstract class JavaAntTask extends Task {
             }
         }
     }
-    
+
     private Map<String, Class<?>> getFieldsDescription(Map<String, IOpenField> fields) {
         Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
         for (Entry<String, IOpenField> field : fields.entrySet()) {
@@ -473,12 +470,12 @@ public abstract class JavaAntTask extends Task {
         if (vocabularyClass != null) {
             try {
                 Class<?> c = Class.forName(vocabularyClass);
-                Object instance = c.newInstance();
-                @SuppressWarnings("unused")
-                IVocabulary vocabulary = (IVocabulary) instance;
+                c.newInstance();
+                if (IVocabulary.class.isAssignableFrom(c)){
+                    throw new ClassCastException(vocabularyClass + " doesn't implements IVocabulary.");
+                }
             } catch (Throwable t) {
-                System.err.println("Error occured while trying instantiate vocabulary class:" + vocabularyClass);
-                t.printStackTrace();
+                log("Error occured while trying instantiate vocabulary class:" + vocabularyClass, t, Project.MSG_ERR);
             }
 
             p.put(targetClass + OpenLProjectPropertiesLoader.VOCABULARY_CLASS_SUFFIX, vocabularyClass);
@@ -534,7 +531,7 @@ public abstract class JavaAntTask extends Task {
     public void setIgnoreNonJavaTypes(boolean ignoreNonJavaTypes) {
         this.ignoreNonJavaTypes = ignoreNonJavaTypes;
     }
-    
+
     public void setMethods(String[] methods) {
         this.methods = methods;
     }

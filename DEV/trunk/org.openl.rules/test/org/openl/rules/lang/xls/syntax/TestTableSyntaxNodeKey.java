@@ -1,6 +1,6 @@
 package org.openl.rules.lang.xls.syntax;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;

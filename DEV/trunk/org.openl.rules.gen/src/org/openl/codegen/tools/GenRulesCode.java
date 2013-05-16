@@ -160,7 +160,7 @@ public class GenRulesCode {
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcherHelper.class);
         processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcherHelper.vm", variables);
     }
-    
+
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -215,11 +215,11 @@ public class GenRulesCode {
 
         for (TablePropertyDefinitionWrapper wrapper : tablePropertyDefinitionWrappers.asList()) {
 
-            if (wrapper.isEnum() ) {
+            if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
                 String enumName = EnumHelper.getEnumName(name);
                 String fullEnumName = "org.openl.rules.enumeration." + enumName;
-                
+
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
 
                 JavaOpenClass enumOpenClass = CodeGenTools.getJavaOpenClass(fullEnumName, isArray);
@@ -245,8 +245,8 @@ public class GenRulesCode {
 
     }
 
-    protected void processSourceCode(String sourceFilePath, final String templateName, final Map<String, Object> variables)
-            throws IOException {
+    protected void processSourceCode(String sourceFilePath, final String templateName,
+            final Map<String, Object> variables) throws IOException {
 
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
