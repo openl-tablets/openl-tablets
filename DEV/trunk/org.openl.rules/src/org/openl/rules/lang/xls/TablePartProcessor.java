@@ -14,6 +14,8 @@ import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.table.openl.GridTableSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
 	
@@ -26,8 +28,8 @@ public class TablePartProcessor {
 
 	Map<String, TreeSet<TablePart>> parts = new HashMap<String, TreeSet<TablePart>>();
 	
-	synchronized private void addToParts(TablePart tpart) {
-		String key = tpart.getPartName();
+	synchronized private void addToParts(TablePart tablePart) throws OpenLCompilationException {
+		String key = tablePart.getPartName();
 		TreeSet<TablePart> set = parts.get(key);
 		if (set == null)
 		{
@@ -35,15 +37,21 @@ public class TablePartProcessor {
 			parts.put(key, set);
 		}
 		
-		set.add(tpart);
+		boolean res = set.add(tablePart);
+		if (!res)
+		{
+        	String message = "Duplicated TablePart part # = " + tablePart.getPart();
+			throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+			
+		}	
 	}
 
 
 	Pattern pattern = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
 
-	private void parseHeader(TablePart tpart) throws OpenLCompilationException {
+	private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
 		
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(tpart.getTable());
+        GridCellSourceCodeModule src = new GridCellSourceCodeModule(tablePart.getTable());
         
         String header = src.getCode();
         
@@ -52,7 +60,7 @@ public class TablePartProcessor {
         if (!m.matches())
         {
         	String message = "Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>";
-        	throw new OpenLCompilationException(message);
+			throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
         }
         
         String tableId = m.group(1);
@@ -61,10 +69,10 @@ public class TablePartProcessor {
         String totalParts = m.group(4);
         
         
-        tpart.setPartName(tableId);
-        tpart.setPart(Integer.parseInt(npart));
-        tpart.setSize(Integer.parseInt(totalParts));
-        tpart.setVertical(colOrRow.equals("row"));
+        tablePart.setPartName(tableId);
+        tablePart.setPart(Integer.parseInt(npart));
+        tablePart.setSize(Integer.parseInt(totalParts));
+        tablePart.setVertical(colOrRow.equals("row"));
 		
 	}
 	
@@ -107,13 +115,13 @@ public class TablePartProcessor {
 			if (tablePart.getPart() != cnt + 1)
 			{
 				String message = "TablePart number " + tablePart.getPart() + " is out of order";
-				throw new OpenLCompilationException(message);
+				throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
 			}	
 			
 			if (tablePart.getSize() != n)
 			{
-				String message = "TablePart number " + tablePart.getPart() + " has wrong number of parts: " + tablePart.getSize();
-				throw new OpenLCompilationException(message);
+				String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong number of parts: " + tablePart.getSize() + ". There are " + n + " parts with the same name";
+				throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
 			}	
 			
 			IGridTable table = tablePart.getTable().getRows(1);
@@ -131,13 +139,13 @@ public class TablePartProcessor {
 				if (myVert != vertical)
 				{
 					String message = "TablePart number " + tablePart.getPart() + " must use " + (vertical ? "row" : "column");
-					throw new OpenLCompilationException(message);
+					throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
 				}
 		
 				if (myDim != dimension)
 				{
 					String message = "TablePart number " + tablePart.getPart() + " has " + (vertical ? "width" : "height") + " = " + myDim  + " instead of " + dimension;
-					throw new OpenLCompilationException(message);
+					throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
 					
 				}	
 				
@@ -160,6 +168,9 @@ public class TablePartProcessor {
 	
 	
 	
-	
+	IOpenSourceCodeModule makeSourceModule(IGridTable table)
+	{
+		return new GridTableSourceCodeModule(table);
+	}
 
 }
