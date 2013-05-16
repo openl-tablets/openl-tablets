@@ -8,7 +8,7 @@ package org.openl.util;
 
 import java.util.Iterator;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 /**

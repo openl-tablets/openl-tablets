@@ -2,7 +2,7 @@ package org.openl.rules;
 
 import java.util.Map.Entry;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.openl.OpenL;

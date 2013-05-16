@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.io.File;
 import java.util.Date;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

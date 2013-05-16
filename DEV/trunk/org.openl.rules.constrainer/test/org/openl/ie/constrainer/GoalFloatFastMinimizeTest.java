@@ -23,7 +23,7 @@ import org.openl.ie.constrainer.GoalGenerate;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 public class GoalFloatFastMinimizeTest extends TestCase {

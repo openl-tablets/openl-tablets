@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
 import junit.framework.AssertionFailedError;

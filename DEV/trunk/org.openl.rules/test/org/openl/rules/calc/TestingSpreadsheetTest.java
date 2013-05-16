@@ -14,19 +14,19 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
 
     public TestingSpreadsheetTest() {
     }
-    
+
     @Before
     public void before() {
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "true");
     }
-    
+
     @After
     public void after() {
         // set to default 'false' to avoid impact on other tests
         //
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "false");
     }
-    
+
     @Test
     public void testingSpreadsheet() throws ClassNotFoundException {
         build(__src);
@@ -35,7 +35,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
-    
+
     @Test
     public void testingChainCall() throws ClassNotFoundException {
         build(__src);
@@ -44,7 +44,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
-    
+
     @Test
     public void testingCustomSpreadsheetResultCall() throws ClassNotFoundException {
         build(__src);
@@ -53,7 +53,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
-    
+
     @Test
     public void testOldCellAccess() throws ClassNotFoundException {
         build(__src);
