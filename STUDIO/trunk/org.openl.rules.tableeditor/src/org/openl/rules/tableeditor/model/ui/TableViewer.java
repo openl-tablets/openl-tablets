@@ -53,7 +53,7 @@ public class TableViewer {
 
         switch (style.getVerticalAlignment()) {
             case ICellStyle.VERTICAL_BOTTOM:
-                cm.setValign("bottom");
+                // Left by default
                 break;
             case ICellStyle.VERTICAL_CENTER:
                 cm.setValign("center");
@@ -278,6 +278,8 @@ public class TableViewer {
                 break;
             default:
                 Log.warn("Unknown border style: " + xlsStyle);
+                bs.setWidth(1);
+                bs.setStyle("solid");
         }
         return bs;
     }
