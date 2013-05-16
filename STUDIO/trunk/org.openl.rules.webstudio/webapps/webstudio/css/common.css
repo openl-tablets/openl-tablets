@@ -239,6 +239,7 @@ fieldset {
 .table td {
     border: 1px dotted #ccc;
     padding: 4px 7px;
+    line-height: 15px;
 }
 
 .table-striped tbody tr:nth-child(2n+1) td {
@@ -624,6 +625,49 @@ form.standard table.buttonPanel {
     border-top: 1px solid #ddd;
     margin-top: 50px;
     padding-top: 15px;
+}
+
+.test {
+    margin-bottom: 31px;
+}
+
+.test .table > tbody > tr > th {
+    min-width: 91px;
+}
+
+.testSuccess,
+.testError {
+    text-decoration: none;
+    border-bottom: 1px dashed #ccc;
+}
+
+.testSuccess {
+    color: #2a1;
+}
+
+.testError {
+    color: #f23;
+}
+
+.case-success,
+.case-error {
+    padding: 1px 11px;
+}
+
+.case-success {
+    background: url(webresource/images/ok.png) no-repeat;
+}
+
+.case-error {
+    background: url(webresource/images/error.png) no-repeat;
+}
+
+.case-result {
+    display: inline-block;
+}
+
+.spreadsheet .rf-trn-ico-lf {
+    display: none;
 }
 
 /* RichFaces styles */
