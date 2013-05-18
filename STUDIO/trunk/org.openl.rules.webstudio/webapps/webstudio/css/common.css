@@ -96,6 +96,17 @@ a.button-primary {
     background-color: #fbfbfb !important;
 }
 
+.button + .dropdown-menu,
+.button-primary + .dropdown-menu {
+    margin-top: 7px;
+    margin-left: 2px;
+}
+
+.button > .caret,
+.button-primary > .caret {
+    margin-left: 4px;
+}
+
 .buttonPanel .button,
 .buttonPanel .button-primary,
 .buttonPanel .imageButton {
@@ -810,12 +821,18 @@ form.standard table.buttonPanel {
 
 .dropdown-menu {
     border-radius: 1px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.1);
     min-width: 100px;
 }
 
 .dropdown-menu > li > a {
     color: #444;
+    text-decoration: none;
+}
+
+.dropdown-menu > li > a > input[type="checkbox"] {
+    vertical-align: bottom;
+    margin-right: 5px;
 }
 
 .dropdown-menu .divider {
@@ -849,6 +866,12 @@ form.standard table.buttonPanel {
 
 .dropdown-submenu.pull-left > .dropdown-menu {
     border-radius: 1px 0 1px 1px;
+}
+
+.dropdown .dropdown-menu .nav-header {
+    padding: 6px 20px;
+    color: #888;
+    white-space: nowrap;
 }
 
 .typeahead {
