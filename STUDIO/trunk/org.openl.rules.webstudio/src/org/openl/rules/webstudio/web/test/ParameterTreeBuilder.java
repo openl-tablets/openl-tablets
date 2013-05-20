@@ -156,7 +156,7 @@ public class ParameterTreeBuilder {
                                 TableRenderer(TableModel.initializeTableModel((GridTable)singleValue, numRows));
 
                         returnString = new StringBuilder().append(returnString)
-                                                        .append(tableRenderer.render(null, false, null, "testId"))
+                                                        .append(tableRenderer.render(false, null, "testId"))
                                                         .append("<br/>")
                                                         .toString();
                     } else if (singleValue instanceof SubGridTable) {
@@ -167,7 +167,7 @@ public class ParameterTreeBuilder {
                                 TableRenderer(TableModel.initializeTableModel(gridTable, numRows));
 
                         returnString = new StringBuilder().append(returnString)
-                                .append(tableRenderer.render(null, false, null, "testId"))
+                                .append(tableRenderer.render(false, null, "testId"))
                                 .append("<br/>")
                                 .toString();
                     }

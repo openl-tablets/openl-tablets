@@ -1,14 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich">
-        <style>
-            .spreadsheet .rf-trn-ico-lf {
-                display: none;
-            }
-        </style>
     <h:panelGroup rendered="#{not empty parameter and parameter.type.simple}">
         <h:outputText value="#{parameter.value}"
             rendered="#{!parameterTreeBuilder.isDateParameter(parameter.value)}" />

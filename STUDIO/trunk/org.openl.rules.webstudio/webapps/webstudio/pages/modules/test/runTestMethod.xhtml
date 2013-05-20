@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
@@ -10,9 +9,9 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <script>
-        function open_explain_win(url) {
+        function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
-               + '&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+               + '&amp;header=Explanation&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
         }
     </script>
 
@@ -51,16 +50,15 @@
                         </h:panelGroup>
                         <td><c:set var="errors" value="#{runTestMethodBean.errors}" /> <h:panelGroup
                                 rendered="#{empty errors}">
-                                
-                                <!-- Show tree for not explanable values, e.g. java beans -->
+
                                 <h:panelGroup rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}">
 		                      		<ui:include src="/pages/modules/test/parameter.xhtml">
 		                          		<ui:param name="parameter" value="#{runTestMethodBean.result}" />
 		                           	</ui:include>	                                
                                 </h:panelGroup>
-                                                                
+
                                 <h:outputLink
-                                    value="javascript: open_explain_win('?rootID=#{runTestMethodBean.explanatorId}&amp;header=Explanation')"
+                                    value="javascript: explain('?rootID=#{runTestMethodBean.explanatorId}')"
                                     rendered="#{not empty runTestMethodBean.explanationValueResult}">
                                     <h:outputText value="#{runTestMethodBean.formattedExplanationValueResult}" />
                                 </h:outputLink>
