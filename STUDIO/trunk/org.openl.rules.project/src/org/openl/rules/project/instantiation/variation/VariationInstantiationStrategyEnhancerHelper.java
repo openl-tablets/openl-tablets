@@ -23,31 +23,34 @@ import org.openl.util.generation.InterfaceTransformer;
 /**
  * Utility methods related to the variations injection into interface of rules.
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
-public abstract class VariationsEnhancerHelper {
+public final class VariationInstantiationStrategyEnhancerHelper {
+
+    private VariationInstantiationStrategyEnhancerHelper() {
+    }
 
     /**
-     * Suffix of enhanced class name.
+     * Suffix of decorated class name.
      */
-    private static final String UNDECORATED_CLASS_NAME_SUFFIX = "$WithoutVariations";
+    private static final String UNDECORATED_CLASS_NAME_SUFFIX = "$VariationsUndecorated";
     /**
-     * Suffix of enhanced class name.
+     * Suffix of undecorated class name.
      */
-    private static final String ENHANCED_CLASS_NAME_SUFFIX = "$VariationsEnhanced";
+    private static final String DECORATED_CLASS_NAME_SUFFIX = "$VariationsDecorated";
 
     /**
      * Checks whether the specified interface was enhanced with variations or
      * not(if there exists at least one enhanced method).
      * 
-     * @param rulesInterface Interface to check.
+     * @param clazz Interface to check.
      * @return <code>true</code> if at least one method of interface is method
      *         for calculations with variations and <code>false</code>
      *         otherwise.
      */
-    public static boolean isEnhancedClass(Class<?> rulesInterface) {
-        for (Method method : rulesInterface.getMethods()) {
-            if (isEnhancedMethod(method)) {
+    public static boolean isDecoratedClass(Class<?> clazz) {
+        for (Method method : clazz.getMethods()) {
+            if (isDecoratedMethod(method)) {
                 return true;
             }
         }
@@ -62,10 +65,10 @@ public abstract class VariationsEnhancerHelper {
      *         last parameter and returns {@link VariationsResult} and
      *         <code>false</code> otherwise.
      */
-    public static boolean isEnhancedMethod(Method method) {
+    public static boolean isDecoratedMethod(Method method) {
         int paramsLength = method.getParameterTypes().length;
-        if (paramsLength == 0 || method.getParameterTypes()[paramsLength - 1] != VariationsPack.class || !method.getReturnType()
-            .equals(VariationsResult.class)) {
+        if (paramsLength == 0 || method.getParameterTypes()[paramsLength - 1] != VariationsPack.class
+                || !method.getReturnType().equals(VariationsResult.class)) {
             return false;
         } else {
             return true;
@@ -84,19 +87,25 @@ public abstract class VariationsEnhancerHelper {
      * @return new class with undecorated methods signatures
      * @throws Exception
      */
-    public static Class<?> undecorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-    	final Log log = LogFactory.getLog(VariationsEnhancerHelper.class);
-    	
+    public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
+        if (!clazz.isInterface()){
+            throw new IllegalArgumentException("Supports only interface classes!!!");
+        }
+        
+        final Log log = LogFactory.getLog(VariationInstantiationStrategyEnhancerHelper.class);
+
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating proxy interface without runtime context for '%s' class", clazz.getName()));
+            log.debug(String.format("Generating interface without variations for '%s' class",
+                    clazz.getName()));
         }
 
-        return undecorateInterface(className, clazz, classLoader);
+        return innerUndecorateInterface(className, clazz, classLoader);
     }
 
-    private static Class<?> undecorateInterface(String className, Class<?> original, ClassLoader classLoader) throws Exception {
+    private static Class<?> innerUndecorateInterface(String className, Class<?> original, ClassLoader classLoader)
+            throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
@@ -141,17 +150,17 @@ public abstract class VariationsEnhancerHelper {
      * @return new class with decorated methods signatures
      * @throws Exception
      */
-    public static Class<?> decorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-    	final Log log = LogFactory.getLog(VariationsEnhancerHelper.class);
-    	
+    public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
+        final Log log = LogFactory.getLog(VariationInstantiationStrategyEnhancerHelper.class);
+
         Method[] methods = clazz.getMethods();
         List<RuleInfo> rules = getRulesDecorated(methods);
 
-        String className = clazz.getName() + ENHANCED_CLASS_NAME_SUFFIX;
+        String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
+            log.debug(String.format("Generating interface for '%s' class", clazz.getName()));
         }
 
         return RulesFactory.generateInterface(className, rulesArray, classLoader);
@@ -196,31 +205,31 @@ public abstract class VariationsEnhancerHelper {
      * interface.
      * 
      * @param simpleClass Class without variations injection.
-     * @param enhancedMethod Method enhanced with variations.
+     * @param decoratedMethod Method enhanced with variations.
      * @return Corresponding method in original interface for method from
      *         enhanced interface.
      * @throws Exception Possible exception from java reflection caused wrong
      *             method accessing.
      */
-    public static Method getMethodForEnhanced(Class<?> simpleClass, Method enhancedMethod) throws Exception {
-        Class<?>[] parameterTypes = enhancedMethod.getParameterTypes();
-        if (VariationsEnhancerHelper.isEnhancedMethod(enhancedMethod)) {
-            return simpleClass.getMethod(enhancedMethod.getName(),
-                Arrays.copyOf(parameterTypes, parameterTypes.length - 1));
+    public static Method getMethodForDecoration(Class<?> simpleClass, Method decoratedMethod) throws Exception {
+        Class<?>[] parameterTypes = decoratedMethod.getParameterTypes();
+        if (VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(decoratedMethod)) {
+            return simpleClass.getMethod(decoratedMethod.getName(),
+                    Arrays.copyOf(parameterTypes, parameterTypes.length - 1));
         } else {
-            return simpleClass.getMethod(enhancedMethod.getName(), parameterTypes);
+            return simpleClass.getMethod(decoratedMethod.getName(), parameterTypes);
         }
     }
 
-    // FIXME skip enhanced methods
+    // FIXME skip decorated methods
     /**
-     * {@link ClassWriter} for creation undecorated class: 
-     * all enhanced with variations methods will be removed from interface.
+     * {@link ClassWriter} for creation undecorated class: all decorated with
+     * variations methods will be removed from interface.
      * 
      * @author PUdalau
      */
     private static class UndecoratingClassWriter extends ClassAdapter {
-
+        // *TODO
         private static final String VARIATIONS_PACK_TYPE = "Lorg/openl/rules/variation/VariationsPack;";
         private static final String VARIATIONS_RESULT_TYPE = "Lorg/openl/rules/variation/VariationsResult;";
         private String className;
@@ -237,15 +246,15 @@ public abstract class VariationsEnhancerHelper {
 
         @Override
         public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            //write only unenhanced method
-            if (!isEnhancedMethod(arg2)) {
+            // write only undecorated method
+            if (!isDecoratedMethod(arg2)) {
                 return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
             } else {
-                return null;//null means skip this method
+                return null;// null means skip this method
             }
         }
-        
-        private boolean isEnhancedMethod(String signature){
+
+        private boolean isDecoratedMethod(String signature) {
             return signature.contains(VARIATIONS_PACK_TYPE) && signature.endsWith(VARIATIONS_RESULT_TYPE);
         }
 

@@ -1,5 +1,5 @@
 <project>
-	<id>multi-module_overloaded</id>
+	<id>multi-module-overloaded</id>
 	<name>Multi module overloading test</name>
 
 	<!-- OpenL project includes one or more modules.  -->

@@ -80,7 +80,7 @@ public class MultiModuleInstantiationTest {
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
@@ -207,7 +207,7 @@ public class MultiModuleInstantiationTest {
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

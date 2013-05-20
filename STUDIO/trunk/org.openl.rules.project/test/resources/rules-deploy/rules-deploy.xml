@@ -1,7 +1,9 @@
 <rules-deploy>
   <isProvideRuntimeContext>false</isProvideRuntimeContext>
   <isProvideVariations>true</isProvideVariations>
+  <useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
   <serviceName>rulesDeployName</serviceName>
   <serviceClass>java.lang.String</serviceClass>
+  <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
   <url>someURL</url>
 </rules-deploy>
