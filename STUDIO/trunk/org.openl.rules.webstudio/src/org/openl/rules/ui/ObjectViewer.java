@@ -129,7 +129,7 @@ public class ObjectViewer {
 
         public static String getURL(ExplanationNumberValue<?> dv) {
             int rootID = Explanator.getCurrent().getUniqueId(dv);
-            return "javascript: open_explain_win(\'?rootID=" + rootID + "&header=Explanation')";
+            return "javascript: explain(\'?rootID=" + rootID + "')";
         }
 
         public boolean selectCoords(int col, int row) {
