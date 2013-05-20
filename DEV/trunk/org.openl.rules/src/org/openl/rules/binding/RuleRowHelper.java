@@ -187,8 +187,7 @@ public class RuleRowHelper {
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
         ICell theCell = table.getSource().getCell(0, 0);
-        
-                
+
         if (paramType.getInstanceClass().equals(String.class)) {
             // if param type is of type String, load as String
             String src = theCell.getStringValue();
