@@ -10,8 +10,8 @@
     <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean id="openlDataSource"
-    class="org.apache.commons.dbcp.BasicDataSource">
-      <property name="driverClassName" value="#{dbConfig['db.driver']}"/>
+    class="org.apache.commons.dbcp.BasicDataSource" depends-on="flywayFactory">
+      <property name="driverClassName" value="#{dbConfig['db.driver']}" />
       <property name="url" value="#{dbConfig['db.url']}"/>
       <property name="username" value="#{dbConfig['db.user']}"/>
       <property name="password" value="#{dbConfig['db.password']}"/>
@@ -44,7 +44,7 @@
       <property name="testOnBorrow" value="true" />
     </bean>
 
-    <bean id="dataBase" class="org.openl.rules.security.common.spring.db.HsqlServerBean">
+    <bean id="dataBase" class="org.openl.rules.security.common.spring.db.HsqlServerBean" >
       <property name="enabled">
         <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
           <property name="testValue" value="#{dbConfig['db.hibernate.dialect']}"/>
