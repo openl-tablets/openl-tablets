@@ -172,6 +172,11 @@
 
     <dependency>
       <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.context</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     </dependency>
 
@@ -407,6 +412,12 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.ruleservice</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.ruleservice.context</artifactId>
       <classifier>sources</classifier>
     </dependency>
 
