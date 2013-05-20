@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         foreignKeyIndex,
                         valuesTable,
                         token);
-                    values.add(res);
+
+                    setResValues(values, res);
                 }
             }
         } else {
@@ -135,11 +137,28 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
-                values.add(res);
+
+                setResValues(values, res);
             }
         }
 
         return values;
+    }
+
+    private void setResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
+        if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
+            ResultChainObject chainRes = getChainObject(res, getFieldChainTokens());
+
+            res = chainRes.getValue();
+        }
+
+        if (res.getClass().isArray()) {
+            for (int i = 0; i < Array.getLength(res); i++) {
+                values.add(Array.get(res, i));
+            }
+        } else {
+            values.add(res);
+        }
     }
 
     /**
@@ -346,7 +365,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                             if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
                                 ResultChainObject chainRes = getChainObject(res, getFieldChainTokens());
 
-                                resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, chainRes.getInstanceClass().getSimpleName());
+                                if (chainRes.instanceClass.isArray()) {
+                                    String message = String.format("Wrong types: Field '%s' has type [%s], but tried to convert into [%s]",
+                                            getField().getName(),
+                                            fieldType,
+                                            chainRes.instanceClass.getSimpleName());
+                                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                                } else {
+                                    resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, chainRes.getInstanceClass().getSimpleName());
+                                }
+
                                 res = chainRes.getValue();
                             }
 

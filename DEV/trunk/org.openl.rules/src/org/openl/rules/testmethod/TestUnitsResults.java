@@ -73,6 +73,7 @@ public class TestUnitsResults implements INamedThing {
     public TestUnit updateTestUnit(TestUnit testUnit) {
         ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
         List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
+
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptor()) {
             if (columnDescriptor != null) {

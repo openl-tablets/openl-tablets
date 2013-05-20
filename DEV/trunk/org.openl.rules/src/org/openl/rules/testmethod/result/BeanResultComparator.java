@@ -28,26 +28,32 @@ public class BeanResultComparator implements TestResultComparator {
     public List<ComparedResult> getComparisonResults(){
         return comparisonResults;
     }
-    
+
     public boolean compareResult(Object actualResult, Object expectedResult) {
         if (actualResult == null || expectedResult == null) {
-        	return actualResult == expectedResult;
+            return actualResult == expectedResult;
         } else {
-        	boolean success = true;
-        	for (String fieldToCompare : fieldsToCompare) {
-        	    ComparedResult fieldComparisonResults = new ComparedResult();
-        	    fieldComparisonResults.setFieldName(fieldToCompare);
+            boolean success = true;
+            for (String fieldToCompare : fieldsToCompare) {
+                ComparedResult fieldComparisonResults = new ComparedResult();
+                fieldComparisonResults.setFieldName(fieldToCompare);
 
-        	    Object actualFieldValue = getFieldValue(actualResult, fieldToCompare);
+                Object actualFieldValue = getFieldValue(actualResult, fieldToCompare);
                 Object expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
 
                 fieldComparisonResults.setActualValue(actualFieldValue);
                 fieldComparisonResults.setExpectedValue(expectedFieldValue);
-                
-                TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue, expectedFieldValue);
+
+                TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
+                        expectedFieldValue);
                 boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
-                
-                
+
+                if (compare && actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
+                    comparator = new ArrayComparator();
+
+                    compare = comparator.compareResult(actualResult, expectedResult);
+                }
+
                 if (!compare) {
                     fieldComparisonResults.setStatus(TestStatus.TR_NEQ);
                     success = false;
@@ -58,9 +64,9 @@ public class BeanResultComparator implements TestResultComparator {
             }
             return success;
         }
-        
+
     }
-    
+
     protected Object getFieldValue(Object target, String fieldName) {
         Object res = null;
         Class<?> targetClass = target.getClass();
