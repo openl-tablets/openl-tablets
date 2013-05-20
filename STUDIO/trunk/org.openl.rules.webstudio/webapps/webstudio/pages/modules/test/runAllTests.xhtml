@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
@@ -7,24 +6,10 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <style>
-        .testSuccess,
-        .testError {
-            text-decoration: none;
-            border-bottom: 1px dashed #ccc;
-        }
-        .testSuccess {
-            color: #2a1;
-        }
-        .testError {
-            color: #f23;
-        }
-    </style>
-
     <script>
-        function open_explain_win(url) {
+        function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
-               + '&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+               + '&amp;header=Explanation&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
         }
     </script>
 
@@ -52,7 +37,7 @@
 
         <h:panelGroup rendered="#{not runAllTestsBean.expired}">
             <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
-            <div style="margin-bottom: 31px">
+            <div class="test">
                 <h1>
                     <h:outputLink value="#showTable.xhtml"
                         styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
@@ -78,11 +63,10 @@
                     <ui:repeat value="#{testUnitsResults.testUnits}" var="testUnit">
                         <tr>
                             <ui:repeat value="#{runAllTestsBean.getParamDescriptions(testUnit)}" var="parameter">
-                            <td width="100 px" >
+                            <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
-                                </ui:include>
-                            </td>
+                                </ui:include></td>
                             </ui:repeat>
                             <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
                                 <td><h:outputText value="#{testUnit.getDescription()}" /></td>
@@ -90,7 +74,6 @@
 
                             <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
                                 <td>
-                                    <!-- Show tree for not explainable values, e.g. java beans -->
                                     <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueExpected(testUnit)}">
                                         <ui:repeat value="#{runAllTestsBean.getExpectedParameter(testUnit)}" var="expParam">
                                             <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -99,28 +82,21 @@
                                         </ui:repeat>
                                     </h:panelGroup>
 
-                                    <!-- Show link to explanation number value -->     
-                                    <h:outputLink value="javascript: open_explain_win('?rootID=#{runAllTestsBean.getExpectedExplanatorId(testUnit)}&amp;header=Explanation')"
+                                    <h:outputLink value="javascript: explain('?rootID=#{runAllTestsBean.getExpectedExplanatorId(testUnit)}')"
                                         rendered="#{not empty runAllTestsBean.getExplanationValueExpected(testUnit)}">                                     
                                         <h:outputText value="#{runAllTestsBean.getFormattedExplanationValueExpected(testUnit)}" />                                    	
-                                    </h:outputLink>
-                                </td>
+                                    </h:outputLink></td>
                             </h:panelGroup>
                             <td>
                                 <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
 
                                 <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
                                     <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
-                                        <span style="vertical-align: top">
-                                            <h:graphicImage value="webresource/images/ok.png" rendered="#{compareResult == 0}" />
-                                            <h:graphicImage value="webresource/images/error.png" rendered="#{compareResult == 1}" />
-                                        </span>
-                                        <h:outputText value=" " />
+                                        <span class="#{compareResult == 0 ? 'case-success' : 'case-error'}"></span>
                                     </h:panelGroup>
 
-                                    <!-- Show tree for not explanable values, e.g. java beans -->
                                     <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueActual(testUnit) and empty runAllTestsBean.getSpreadsheetResult(testUnit)}">
-                                        <div style="display: inline-block;">
+                                        <div class="case-result">
                                             <h:panelGroup rendered="#{not runAllTestsBean.isResultThrowable(testUnit)}">
                                                 <ui:repeat value="#{runAllTestsBean.getActualParameter(testUnit)}" var="actualParam">
                                                     <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -136,13 +112,11 @@
                                                         <h:outputText id="summary" value="#{actualParam.summary}" />
                                                     </div>
                                                 </ui:repeat>
-                                            </h:panelGroup>
-                                        </div>
+                                            </h:panelGroup></div>
                                     </h:panelGroup>
 
-                                    <!-- Show link to explanation number value -->
                                     <h:outputLink
-                                        value="javascript: open_explain_win('?rootID=#{runAllTestsBean.getActualExplanatorId(testUnit)}&amp;header=Explanation')"
+                                        value="javascript: explain('?rootID=#{runAllTestsBean.getActualExplanatorId(testUnit)}')"
                                         rendered="#{not empty runAllTestsBean.getExplanationValueActual(testUnit)}">
                                         <h:outputText value="#{runAllTestsBean.getFormattedExplanationValueActual(testUnit)}" />
                                     </h:outputLink>
@@ -154,8 +128,7 @@
                                         <ui:param name="messages" value="#{runAllTestsBean.getErrors(testUnit)}" />
                                         <ui:param name="editable" value="#{studio.model.editable}" />
                                     </ui:include>
-                                </h:panelGroup>
-                           </td>
+                                </h:panelGroup></td>
                         </tr>
                     </ui:repeat>
                 </table>
