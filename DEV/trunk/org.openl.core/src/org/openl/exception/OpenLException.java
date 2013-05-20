@@ -6,8 +6,9 @@ import org.openl.util.text.ILocation;
 public interface OpenLException {
 
     String getMessage();
+
     Throwable getCause();
-    
+
     /**
      * Gets error cause location.
      * 

@@ -11,7 +11,7 @@ import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesServiceEnhancer;
+import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
@@ -92,7 +92,7 @@ public class DependencyMethodDispatchingTest {
 		ApiBasedInstantiationStrategy s = new ApiBasedInstantiationStrategy(
 				descr.getModules().get(0), executionMode, dependencyManager);
 
-		RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
+		RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(s);
 
 		Class<?> interfaceClass = null;
 		try {

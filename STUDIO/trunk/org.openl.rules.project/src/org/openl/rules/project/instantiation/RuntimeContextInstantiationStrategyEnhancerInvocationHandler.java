@@ -13,17 +13,17 @@ import org.openl.runtime.IEngineWrapper;
 
 /**
  * The implementation of {@link InvocationHandler} which used by
- * {@link RulesServiceEnhancer} class to construct proxy of service class.
+ * {@link RuntimeContextInstantiationStrategyEnhancer} class to construct proxy of service class.
  * 
  */
-class RulesServiceEnhancerInvocationHandler implements InvocationHandler {
+class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements InvocationHandler {
 
-    private final Log log = LogFactory.getLog(RulesServiceEnhancerInvocationHandler.class);
+    private final Log log = LogFactory.getLog(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Object serviceClassInstance;
 
-    public RulesServiceEnhancerInvocationHandler(Map<Method, Method> methodsMap, Object serviceClassInstance) {
+    public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap, Object serviceClassInstance) {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
     }

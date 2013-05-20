@@ -15,7 +15,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 public class RulesServiceEnhancerHelperTest {
     @Test
     public void testServiceClassDecoration() throws Exception {
-        Class<?> enhanced = RulesServiceEnhancerHelper.decorateMethods(SimpleInterface.class, Thread.currentThread()
+        Class<?> enhanced = RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class, Thread.currentThread()
             .getContextClassLoader());
         checkEnhancement(enhanced, SimpleInterface.class, false);
     }
@@ -46,21 +46,21 @@ public class RulesServiceEnhancerHelperTest {
 
     @Test
     public void testServiceClassUndecoration() throws Exception {
-        Class<?> undecorated = RulesServiceEnhancerHelper.undecorateMethods(Enhanced.class, Thread.currentThread()
+        Class<?> undecorated = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced.class, Thread.currentThread()
             .getContextClassLoader());
         checkEnhancement(Enhanced.class, undecorated, true);
-        Class<?> undecorated2 = RulesServiceEnhancerHelper.undecorateMethods(Enhanced2.class, Thread.currentThread()
+        Class<?> undecorated2 = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced2.class, Thread.currentThread()
             .getContextClassLoader());
         checkEnhancement(Enhanced2.class, undecorated2, true);
     }
 
     @Test
     public void testServiceClassRecognition() {
-        assertTrue(RulesServiceEnhancerHelper.isEnhancedClass(Enhanced.class));
-        assertTrue(RulesServiceEnhancerHelper.isEnhancedClass(Enhanced2.class));
-        assertFalse(RulesServiceEnhancerHelper.isEnhancedClass(SimpleInterface.class));
-        assertFalse(RulesServiceEnhancerHelper.isEnhancedClass(Mixed.class));
-        assertFalse(RulesServiceEnhancerHelper.isEnhancedClass(Mixed2.class));
+        assertTrue(RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(Enhanced.class));
+        assertTrue(RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(Enhanced2.class));
+        assertFalse(RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(SimpleInterface.class));
+        assertFalse(RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(Mixed.class));
+        assertFalse(RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(Mixed2.class));
     }
 
     private static interface Enhanced {

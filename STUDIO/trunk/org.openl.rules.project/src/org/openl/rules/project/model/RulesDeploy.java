@@ -5,6 +5,7 @@ import java.util.Map;
 public class RulesDeploy {
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
+    private Boolean useRuleServiceRuntimeContext;
     private String serviceName;
     private String interceptingTemplateClassName;
     private String serviceClass;
@@ -19,7 +20,13 @@ public class RulesDeploy {
         this.isProvideRuntimeContext = isProvideRuntimeContext;
     }
     
-   
+    public void setUseRuleServiceRuntimeContext(Boolean useRuleServiceRuntimeContext) {
+        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
+    }
+    
+    public Boolean isUseRuleServiceRuntimeContext() {
+        return useRuleServiceRuntimeContext;
+    }
 
     public Boolean isProvideVariations() {
         return isProvideVariations;

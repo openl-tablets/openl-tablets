@@ -1,6 +1,9 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 
@@ -10,8 +13,8 @@ import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Policy;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.project.instantiation.variation.VariationsEnhancer;
-import org.openl.rules.project.instantiation.variation.VariationsEnhancerHelper;
+import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
+import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.variation.ArgumentReplacementVariation;
@@ -43,15 +46,15 @@ public class VariationsTest {
     @Test
     public void testEnhancement() throws Exception {
         // without interface
-        VariationsEnhancer variationsEnhancer = new VariationsEnhancer(instantiationStrategy);
-        assertTrue(VariationsEnhancerHelper.isEnhancedClass(variationsEnhancer.getInstanceClass()));
-        assertFalse(VariationsEnhancerHelper.isEnhancedClass(instantiationStrategy.getInstanceClass()));
+        VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
+        assertTrue(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(variationsEnhancer.getInstanceClass()));
+        assertFalse(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(instantiationStrategy.getInstanceClass()));
 
         // with correct interface
-        VariationsEnhancer variationsEnhancerWithInterface = new VariationsEnhancer(instantiationStrategy);
+        VariationInstantiationStrategyEnhancer variationsEnhancerWithInterface = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
         variationsEnhancerWithInterface.setServiceClass(EnhancedInterface.class);
-        assertTrue(VariationsEnhancerHelper.isEnhancedClass(variationsEnhancerWithInterface.getInstanceClass()));
-        assertFalse(VariationsEnhancerHelper.isEnhancedClass(instantiationStrategy.getInstanceClass()));
+        assertTrue(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(variationsEnhancerWithInterface.getInstanceClass()));
+        assertFalse(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(instantiationStrategy.getInstanceClass()));
 
         // with wrong interface
         // we use simple api instantiation strategy because wrapper
@@ -61,7 +64,7 @@ public class VariationsTest {
         ProjectDescriptor project = projectResolver.isRulesProject(folder).resolveProject(folder);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
                 .get(0), true, null);
-        VariationsEnhancer variationsEnhancerWithWrongInterface = new VariationsEnhancer(instantiationStrategy);
+        VariationInstantiationStrategyEnhancer variationsEnhancerWithWrongInterface = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
         variationsEnhancerWithWrongInterface.setServiceClass(WrongEnhancedInterface.class);
         try {
             variationsEnhancerWithWrongInterface.instantiate();
@@ -92,7 +95,7 @@ public class VariationsTest {
         ProjectDescriptor project = projectResolver.isRulesProject(folder).resolveProject(folder);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
                 .get(0), true, null);
-        VariationsEnhancer variationsEnhancer = new VariationsEnhancer(instantiationStrategy);
+        VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
         variationsEnhancer.setServiceClass(EnhancedInterface2.class);
         EnhancedInterface2 instance = (EnhancedInterface2) variationsEnhancer.instantiate();
         Policy policy = instance.getPolicyProfile1()[0];
@@ -121,7 +124,7 @@ public class VariationsTest {
 
     @Test
     public void testJXPathVariation() throws Exception {
-        VariationsEnhancer variationsEnhancer = new VariationsEnhancer(instantiationStrategy);
+        VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
         variationsEnhancer.setServiceClass(EnhancedInterface.class);
         EnhancedInterface instance = (EnhancedInterface) variationsEnhancer.instantiate();
         Driver[] drivers = instance.getDriverProfiles1();
@@ -147,7 +150,7 @@ public class VariationsTest {
 
     @Test
     public void testArgumentReplacementVariation() throws Exception {
-        VariationsEnhancer variationsEnhancer = new VariationsEnhancer(instantiationStrategy);
+        VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
         variationsEnhancer.setServiceClass(EnhancedInterface.class);
         EnhancedInterface instance = (EnhancedInterface) variationsEnhancer.instantiate();
         Driver[] drivers = instance.getDriverProfiles1();

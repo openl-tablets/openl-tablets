@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openl.rules.project.instantiation.variation.VariationsEnhancerHelper;
+import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 
@@ -17,7 +17,7 @@ public class VariationsEnhancerHelperTest {
     private void checkEnhancement(Class<?> enhanced, Class<?> simple, boolean checkAnnotations) throws Exception {
         // check methods
         for (Method method : enhanced.getMethods()) {
-            assertNotNull(VariationsEnhancerHelper.getMethodForEnhanced(simple, method));
+            assertNotNull(VariationInstantiationStrategyEnhancerHelper.getMethodForDecoration(simple, method));
         }
         if (checkAnnotations) {
             // check annotations: all annotations should remain after
@@ -26,8 +26,8 @@ public class VariationsEnhancerHelperTest {
             // supported.
             assertArrayEquals(enhanced.getAnnotations(), simple.getAnnotations());
             for (Method method : simple.getMethods()) {
-                if (!VariationsEnhancerHelper.isEnhancedMethod(method)) {
-                    assertArrayEquals(VariationsEnhancerHelper.getMethodForEnhanced(simple, method).getAnnotations(),
+                if (!VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(method)) {
+                    assertArrayEquals(VariationInstantiationStrategyEnhancerHelper.getMethodForDecoration(simple, method).getAnnotations(),
                         method.getAnnotations());
                 }
             }
@@ -36,10 +36,10 @@ public class VariationsEnhancerHelperTest {
 
     @Test
     public void testServiceClassDecoration() throws Exception {
-        Class<?> enhanced = VariationsEnhancerHelper.decorateMethods(SimpleInterface.class, Thread.currentThread()
+        Class<?> enhanced = VariationInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class, Thread.currentThread()
             .getContextClassLoader());
         checkEnhancement(enhanced, SimpleInterface.class, false);
-        Class<?> enhanced2 = VariationsEnhancerHelper.decorateMethods(SimpleInterface2.class, Thread.currentThread()
+        Class<?> enhanced2 = VariationInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface2.class, Thread.currentThread()
             .getContextClassLoader());
         checkEnhancement(enhanced2, SimpleInterface2.class, false);
         checkEnhancement(InterfaceFullyEnhanced.class, SimpleInterface.class, true);
@@ -50,28 +50,28 @@ public class VariationsEnhancerHelperTest {
 
     @Test
     public void testServiceClassUndecoration() throws Exception {
-        Class<?> undecorateFully1 = VariationsEnhancerHelper.undecorateMethods(InterfaceFullyEnhanced.class,
+        Class<?> undecorateFully1 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(InterfaceFullyEnhanced.class,
             Thread.currentThread().getContextClassLoader());
         checkEnhancement(InterfaceFullyEnhanced.class, undecorateFully1, true);
-        Class<?> undecoratePartially1 = VariationsEnhancerHelper.undecorateMethods(InterfacePartiallyEnhanced.class,
+        Class<?> undecoratePartially1 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(InterfacePartiallyEnhanced.class,
             Thread.currentThread().getContextClassLoader());
         checkEnhancement(InterfacePartiallyEnhanced.class, undecoratePartially1, true);
-        Class<?> undecorateFully2 = VariationsEnhancerHelper.undecorateMethods(Interface2FullyEnhanced.class,
+        Class<?> undecorateFully2 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(Interface2FullyEnhanced.class,
             Thread.currentThread().getContextClassLoader());
         checkEnhancement(Interface2FullyEnhanced.class, undecorateFully2, true);
-        Class<?> undecoratePartially2 = VariationsEnhancerHelper.undecorateMethods(Interface2PartiallyEnhanced.class,
+        Class<?> undecoratePartially2 = VariationInstantiationStrategyEnhancerHelper.undecorateClass(Interface2PartiallyEnhanced.class,
             Thread.currentThread().getContextClassLoader());
         checkEnhancement(Interface2PartiallyEnhanced.class, undecoratePartially2, true);
     }
 
     @Test
     public void testVariationsRecognition() {
-        assertTrue(VariationsEnhancerHelper.isEnhancedClass(InterfaceFullyEnhanced.class));
-        assertTrue(VariationsEnhancerHelper.isEnhancedClass(InterfacePartiallyEnhanced.class));
-        assertTrue(VariationsEnhancerHelper.isEnhancedClass(Interface2FullyEnhanced.class));
-        assertTrue(VariationsEnhancerHelper.isEnhancedClass(Interface2PartiallyEnhanced.class));
-        assertFalse(VariationsEnhancerHelper.isEnhancedClass(SimpleInterface.class));
-        assertFalse(VariationsEnhancerHelper.isEnhancedClass(SimpleInterface2.class));
+        assertTrue(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(InterfaceFullyEnhanced.class));
+        assertTrue(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(InterfacePartiallyEnhanced.class));
+        assertTrue(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(Interface2FullyEnhanced.class));
+        assertTrue(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(Interface2PartiallyEnhanced.class));
+        assertFalse(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(SimpleInterface.class));
+        assertFalse(VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(SimpleInterface2.class));
     }
 
     private static interface SimpleInterface {
