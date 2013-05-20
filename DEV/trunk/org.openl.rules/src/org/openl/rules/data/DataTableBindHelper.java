@@ -1,6 +1,5 @@
 package org.openl.rules.data;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +36,6 @@ public class DataTableBindHelper {
     private static final String CODE_DELIMETERS = ". \n\r";
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
     private static final String LINK_DELIMETERS = ".";
-    private static final String ARRAY_ACCESS_DELIMETERS = "[]";
 
     // patter for field like addressArry[0]
     private static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
