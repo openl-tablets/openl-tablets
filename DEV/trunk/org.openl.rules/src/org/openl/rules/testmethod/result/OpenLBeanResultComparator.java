@@ -17,7 +17,6 @@ import org.openl.vm.SimpleVM;
  */
 public class OpenLBeanResultComparator extends BeanResultComparator {
     private Map<String, IOpenField> fieldMap;
-    private Map<String, IOpenField> arrayElementField;
 
     public OpenLBeanResultComparator(List<IOpenField> fields) {
         super(new ArrayList<String>(makeFieldMap(fields).keySet()));
