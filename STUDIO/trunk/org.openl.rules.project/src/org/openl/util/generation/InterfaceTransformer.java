@@ -85,7 +85,9 @@ public class InterfaceTransformer {
                         }
                     }
                 } catch (Exception e) {
-                    log.error("Failed to process field '" + field.getName() + "'.",e);
+                    if (log.isErrorEnabled()){
+                        log.error("Failed to process field '" + field.getName() + "'.",e);
+                    }
                 }
             }
         }

@@ -52,4 +52,14 @@ public enum LanguagesEnum {
 	public String toString() {
 		return displayName;
 	}
+	
+	public static LanguagesEnum fromString(String displayName) {
+		for (LanguagesEnum v : LanguagesEnum.values()) {
+			if (displayName.equalsIgnoreCase(v.displayName)) {
+				return v;
+			}
+		}
+		
+		throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+  	}
 }

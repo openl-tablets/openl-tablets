@@ -18,7 +18,7 @@ public class CodeGenTools {
     public static String getClassSourcePathInCommonsModule(Class<?> clazz) {
         return getClassSourcePath(CodeGenConstants.COMMONS_SOURCE_LOCATION, clazz);
     }
-
+    
     private static String getClassSourcePath(String modulePath, Class<?> clazz) {
         return modulePath + StringTool.getFileNameOfJavaClass(clazz);
     }

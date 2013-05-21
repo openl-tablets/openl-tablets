@@ -18,19 +18,27 @@ import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.runtime.RulesFactory;
 import org.openl.util.generation.InterfaceTransformer;
 
-public abstract class RulesServiceEnhancerHelper {
+/**
+ * 
+ * @author PUdalau, Marat Kamalov
+ * 
+ */
+public final class RuntimeContextInstantiationStrategyEnhancerHelper {
+
+    private RuntimeContextInstantiationStrategyEnhancerHelper() {
+    }
 
     /**
-     * Suffix of enhanced class name.
+     * Suffix of undecorated class name.
      */
-    private static final String UNDECORATED_CLASS_NAME_SUFFIX = "$Undecorated";
+    private static final String UNDECORATED_CLASS_NAME_SUFFIX = "$RuntimeContextUndecorated";
     /**
-     * Suffix of enhanced class name.
+     * Suffix of decorated class name.
      */
-    private static final String ENHANCED_CLASS_NAME_SUFFIX = "$RulesEnhanced";
+    private static final String DECORATED_CLASS_NAME_SUFFIX = "$RuntimeContextDecorated";
 
-    public static boolean isEnhancedClass(Class<?> rulesInterface) {
-        for (Method method : rulesInterface.getMethods()) {
+    public static boolean isDecoratedClass(Class<?> clazz) {
+        for (Method method : clazz.getMethods()) {
             if (method.getParameterTypes().length == 0 || method.getParameterTypes()[0] != IRulesRuntimeContext.class) {
                 return false;
             }
@@ -39,9 +47,9 @@ public abstract class RulesServiceEnhancerHelper {
     }
 
     /**
-     * Undecorates methods signatures of given clazz.
+     * Undecorates methods signatures of given class.
      * 
-     * @param clazz class to undecorate
+     * @param clazz interface to undecorate
      * @param classLoader The classloader where generated class should be
      *            placed.
      * @return new class with undecorated methods signatures: removed
@@ -49,20 +57,24 @@ public abstract class RulesServiceEnhancerHelper {
      *         method.
      * @throws Exception
      */
-    public static Class<?> undecorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        final Log log = LogFactory.getLog(RulesServiceEnhancerHelper.class);
+    public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
+        if (!clazz.isInterface()){
+            throw new IllegalArgumentException("Supports only interface classes!!!");
+        }
+        
+        final Log log = LogFactory.getLog(RuntimeContextInstantiationStrategyEnhancerHelper.class);
 
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating proxy interface without runtime context for '%s' class",
+            log.debug(String.format("Generating interface without runtime context for '%s' class",
                     clazz.getName()));
         }
 
-        return undecorateInterface(className, clazz, classLoader);
+        return innerUndecorateInterface(className, clazz, classLoader);
     }
 
-    private static Class<?> undecorateInterface(String className, Class<?> original, ClassLoader classLoader)
+    private static Class<?> innerUndecorateInterface(String className, Class<?> original, ClassLoader classLoader)
             throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
@@ -107,17 +119,17 @@ public abstract class RulesServiceEnhancerHelper {
      *         method.
      * @throws Exception
      */
-    public static Class<?> decorateMethods(Class<?> clazz, ClassLoader classLoader) throws Exception {
-        final Log log = LogFactory.getLog(RulesServiceEnhancerHelper.class);
+    public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
+        final Log log = LogFactory.getLog(RuntimeContextInstantiationStrategyEnhancerHelper.class);
 
         Method[] methods = clazz.getMethods();
         List<RuleInfo> rules = getRulesDecorated(methods);
 
-        String className = clazz.getName() + ENHANCED_CLASS_NAME_SUFFIX;
+        String className = clazz.getName() + DECORATED_CLASS_NAME_SUFFIX;
         RuleInfo[] rulesArray = rules.toArray(new RuleInfo[rules.size()]);
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Generating proxy interface for '%s' class", clazz.getName()));
+            log.debug(String.format("Generating interface for '%s' class", clazz.getName()));
         }
 
         return RulesFactory.generateInterface(className, rulesArray, classLoader);
@@ -161,7 +173,7 @@ public abstract class RulesServiceEnhancerHelper {
      * 
      * @author PUdalau
      */
-    private static class UndecoratingClassWriter extends ClassAdapter {
+    static class UndecoratingClassWriter extends ClassAdapter {
 
         private static final String RUNTIME_CONTEXT = "Lorg/openl/rules/context/IRulesRuntimeContext;";
         private String className;

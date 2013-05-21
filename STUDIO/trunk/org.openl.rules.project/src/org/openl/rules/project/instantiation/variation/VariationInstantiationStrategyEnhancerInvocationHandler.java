@@ -33,18 +33,18 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author PUdalau, Marat Kamalov
  */
-class VariationsInvocationHandler implements InvocationHandler {
+class VariationInstantiationStrategyEnhancerInvocationHandler implements InvocationHandler {
 
     private static final String GET_RUNTIME_ENVIRONMENT_METHOD = "getRuntimeEnvironment";
 
-    private final Log log = LogFactory.getLog(VariationsInvocationHandler.class);
+    private final Log log = LogFactory.getLog(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
     private Map<Method, Method> variationsFromRules;
     private Object serviceClassInstance;
 
-    public VariationsInvocationHandler(Map<Method, Method> methodsMap, Object serviceClassInstance)
-            throws OpenLCompilationException {
+    public VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
+            Object serviceClassInstance) throws OpenLCompilationException {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
         initVariationFromRules(methodsMap, serviceClassInstance);
@@ -64,7 +64,7 @@ class VariationsInvocationHandler implements InvocationHandler {
                 if (variationsGetter != null) {
                     variationsFromRules.put(method, variationsGetter);
                 } else {
-                    throw new OpenLCompilationException("Can not find variation from rules getter for method "
+                    throw new OpenLCompilationException("Can't find variation from rules getter for method "
                             + MethodUtil.printMethod(method.getName(), method.getParameterTypes())
                             + ". Make sure you have method " + MethodUtil.printMethod(ruleName, parameterTypes)
                             + " in service class.");
@@ -78,7 +78,7 @@ class VariationsInvocationHandler implements InvocationHandler {
         if (member == null) {
             return method.invoke(serviceClassInstance, args);
         }
-        if (VariationsEnhancerHelper.isEnhancedMethod(method)) {
+        if (VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(method)) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Invoking service class method with variations: %s -> %s", method.toString(),
                         member.toString()));
@@ -133,28 +133,31 @@ class VariationsInvocationHandler implements InvocationHandler {
                 }
             }
             calculateSingleVariation(member, variationsResults, arguments, new NoVariation());
-            if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
-                simpleRulesRuntimeEnv.setOriginalCalculation(false);
-            }
-            if (variationsPack != null) {
-                for (Variation variation : variationsPack.getVariations()) {
-                    if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                        ((SimpleRulesRuntimeEnv) runtimeEnv).initCurrentStep();
+            try {
+                if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
+                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                    simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
+                    simpleRulesRuntimeEnv.setOriginalCalculation(false);
+                }
+                if (variationsPack != null) {
+                    for (Variation variation : variationsPack.getVariations()) {
+                        if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
+                            ((SimpleRulesRuntimeEnv) runtimeEnv).initCurrentStep();
+                        }
+                        calculateSingleVariation(member, variationsResults, arguments, variation);
                     }
-                    calculateSingleVariation(member, variationsResults, arguments, variation);
+                }
+                return variationsResults;
+            } finally {
+                if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
+                    SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
+                    simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
+                    simpleRulesRuntimeEnv.setOriginalCalculation(true);
+                    simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
+                    simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(false);
+                    simpleRulesRuntimeEnv.resetMethodArgumentsCache();
                 }
             }
-            if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
-                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
-                simpleRulesRuntimeEnv.setOriginalCalculation(true);
-                simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
-                simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(false);
-                simpleRulesRuntimeEnv.resetMethodArgumentsCache();
-            }
-            return variationsResults;
         } else {
             if (log.isErrorEnabled()) {
                 log.error("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");

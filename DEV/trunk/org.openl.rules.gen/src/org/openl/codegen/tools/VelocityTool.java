@@ -17,7 +17,6 @@ public class VelocityTool {
         if (clazz.isArray()) {
             return String.format("%s[]", clazz.getComponentType().getName());
         }
-
         return clazz.getName();
     }
 
