@@ -95,9 +95,7 @@ public class TestUnitsResults implements INamedThing {
             }
         }
         if (fieldsToTest.size() > 0) {
-            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(testUnit.getActualResult(),
-                testUnit.getExpectedResult(),
-                fieldsToTest);
+            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(fieldsToTest);
             testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
         }
         return testUnit;

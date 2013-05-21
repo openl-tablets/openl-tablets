@@ -27,12 +27,11 @@ public class TestResultComparatorFactory {
         return new DefaultComparator();
     }
     
-    public static TestResultComparator getBeanComparator(Object actualResult, Object expectedResult, List<String> fieldsToTest) {
+    public static TestResultComparator getBeanComparator(List<String> fieldsToTest) {
         return new BeanResultComparator(fieldsToTest);
     }
 
-    public static TestResultComparator getOpenLBeanComparator(Object actualResult,
-            Object expectedResult,
+    public static TestResultComparator getOpenLBeanComparator(
             List<IOpenField> fieldsToTest) {
         return new OpenLBeanResultComparator(fieldsToTest);
     }
