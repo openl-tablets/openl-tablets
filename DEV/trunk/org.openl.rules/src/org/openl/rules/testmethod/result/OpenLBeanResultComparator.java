@@ -1,6 +1,7 @@
 package org.openl.rules.testmethod.result;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,5 +38,9 @@ public class OpenLBeanResultComparator extends BeanResultComparator {
         IOpenField field = fieldMap.get(fieldName);
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         return field.get(target, env);
+    }
+
+    public Collection<IOpenField> getFields() {
+        return fieldMap.values();
     }
 }
