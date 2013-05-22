@@ -23,6 +23,7 @@
    	</scm>
 
 	<modules>
+		<module>../org.openl.rules.ruleservice.context</module>
 		<module>../org.openl.rules.ruleservice</module>
 		<module>../org.openl.rules.ruleservice.ws.databinding</module>
 		<module>../org.openl.rules.ruleservice.ws</module>
@@ -134,6 +135,12 @@
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.context</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

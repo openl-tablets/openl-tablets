@@ -17,4 +17,14 @@ public enum RegionsEnum {
 	public String toString() {
 		return displayName;
 	}
+	
+	public static RegionsEnum fromString(String displayName) {
+		for (RegionsEnum v : RegionsEnum.values()) {
+			if (displayName.equalsIgnoreCase(v.displayName)) {
+				return v;
+			}
+		}
+		
+		throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+  	}
 }

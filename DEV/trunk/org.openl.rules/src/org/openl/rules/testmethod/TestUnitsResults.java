@@ -73,6 +73,7 @@ public class TestUnitsResults implements INamedThing {
     public TestUnit updateTestUnit(TestUnit testUnit) {
         ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
         List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
+
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptor()) {
             if (columnDescriptor != null) {
@@ -101,9 +102,7 @@ public class TestUnitsResults implements INamedThing {
             }
         }
         if (fieldsToTest.size() > 0) {
-            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(testUnit.getActualResult(),
-                testUnit.getExpectedResult(),
-                fieldsToTest);
+            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(fieldsToTest);
             testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
         }
         return testUnit;
