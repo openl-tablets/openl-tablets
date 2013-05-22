@@ -37,9 +37,9 @@ public class ExpectedResultFilter extends AGridFilter {
     private String getImage(ComparedResult result) {
         String image = null;
         if (result.getStatus().equals(TestStatus.TR_OK)) {
-            image = "<span class=\"case-success\"></span>";
+            image = "<i class=\"case-success\"></i>";
         } else {
-            image = "<span class=\"case-error\"></span>";
+            image = "<i class=\"case-error\"></i>";
         }
         return image;
     }

@@ -45,6 +45,8 @@
 
             var loadingPanel;
 
+            var reqs = 0;
+
             $j.ajaxSetup({
                 handleLoginPage: true,
                 cache: false,
@@ -373,13 +375,13 @@
             }
 
             function showLoader() {
-                if (loadingPanel.is(":hidden")) {
+                if (reqs++ == 0) {
                     loadingPanel.show();
                 }
             }
 
             function hideLoader() {
-                if (loadingPanel.is(":visible")) {
+                if (reqs-- == 1) {
                     loadingPanel.hide();
                 }
             }
