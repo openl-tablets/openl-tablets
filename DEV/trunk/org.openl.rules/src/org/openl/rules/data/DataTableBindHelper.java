@@ -20,6 +20,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.impl.DatatypeArrayElementField;
 import org.openl.util.ArrayTool;
 
 public class DataTableBindHelper {
@@ -35,6 +36,9 @@ public class DataTableBindHelper {
     private static final String CODE_DELIMETERS = ". \n\r";
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
     private static final String LINK_DELIMETERS = ".";
+
+    // patter for field like addressArry[0]
+    private static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
 
     /**
      * Foreign keys row is optional for data table. It consists reference for
@@ -359,21 +363,7 @@ public class DataTableBindHelper {
 
                 // indicates if field is a constructor.
                 boolean constructorField = false;
-/*
-                if (fieldAccessorChainTokens.length == 1) {
-                    // process single field in chain, e.g. driver;
-                    IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
 
-                    if (CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {                        
-                        constructorField = true;                        
-                    } else {
-                        descriptorField = getWritableField(fieldNameNode, table, type);                        
-                    }
-                } else { 
-                    // process the chain of fields, e.g. driver.homeAdress.street;
-                    descriptorField = processFieldsChain(table, type, fieldAccessorChainTokens);
-                }
-*/
                 IdentifierNode foreignKeyTable = null;
                 IdentifierNode foreignKey = null;
                 IdentifierNode[] accessorChainTokens = null;
@@ -387,7 +377,7 @@ public class DataTableBindHelper {
                     } else {
                         descriptorField = getWritableField(fieldNameNode, table, type);
                     }
-                } else { 
+                } else {
                     // process the chain of fields, e.g. driver.homeAdress.street;
                     descriptorField = processFieldsChain(table, type, fieldAccessorChainTokens);
                 }
@@ -471,7 +461,7 @@ public class DataTableBindHelper {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     processError(table, error);
                 }
-                
+
                 if (contains(identifiers, fieldAccessorChainTokens)) {
                     String message = String.format("Found duplicate of field \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
@@ -512,7 +502,7 @@ public class DataTableBindHelper {
         }
         return currentColumnDescriptor;
     }
-    
+
     /**
      * Process the chain of fields, e.g. driver.homeAdress.street;
      *
@@ -527,23 +517,51 @@ public class DataTableBindHelper {
         // driver.name it will be array consisting of two fields:
         // 1st for driver, 2nd for name     
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
+        boolean hasAccessByArrayId = false;
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
-            IOpenField fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
+            IOpenField fieldInChain = null;
+            boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
+
+            if (arrayAccess) {
+                hasAccessByArrayId = arrayAccess;
+                fieldInChain = getWritableArrayElement(getArrayName(fieldNameNode), table, loadedFieldType, getArrayIndex(fieldNameNode), fieldNameNode);
+            } else {
+                fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
+            }
+
             if (fieldInChain == null) {
                 // in this case current field and all the followings in fieldAccessorChain will be nulls.
                 //
                 break;
-            } 
-            loadedFieldType = fieldInChain.getType();
+            }
+
+            if (fieldInChain.getType().isArray() && arrayAccess) {
+                loadedFieldType = fieldInChain.getType().getComponentClass();
+            } else {
+                loadedFieldType = fieldInChain.getType();
+            }
+
             fieldAccessorChain[fieldIndex] = fieldInChain;
         }
         if (!ArrayTool.contains((fieldAccessorChain), null)) { // check successful loading of all  
                                                                 // fields in fieldAccessorChain.
-            chainField = new FieldChain(type, fieldAccessorChain);
+            chainField = new FieldChain(type, fieldAccessorChain, fieldAccessorChainTokens, hasAccessByArrayId);
         }
         return chainField;
+    }
+
+    private static int getArrayIndex(IdentifierNode fieldNameNode) {
+        String fieldName = fieldNameNode.getIdentifier();
+        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
+
+        return Integer.parseInt(txtIndex);
+    }
+
+    private static String getArrayName(IdentifierNode fieldNameNode) {
+        String fieldName = fieldNameNode.getIdentifier();
+        return fieldName.substring(0,fieldName.indexOf("["));
     }
 
     private static void processError(ITable table, SyntaxNodeException error) {
@@ -590,7 +608,7 @@ public class DataTableBindHelper {
     private static IOpenField getWritableField(IdentifierNode currentFieldNameNode,
             ITable table,
             IOpenClass loadedFieldType) {
-        
+
         String fieldName = currentFieldNameNode.getIdentifier();
         IOpenField field = DataTableBindHelper.findField(fieldName, table, loadedFieldType);
 
@@ -611,8 +629,22 @@ public class DataTableBindHelper {
         return field;
     }
 
-    private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
+    private static IOpenField getWritableArrayElement(String arrayName, ITable table, IOpenClass loadedFieldType,
+            int arrayIndex, IdentifierNode currentFieldNameNode) {
+        IOpenField field = DataTableBindHelper.findField(arrayName, table, loadedFieldType);
+        IOpenField arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
 
+        if (!arrayAccessField.isWritable()) {
+            String message = String.format("Field '%s' is not writable in %s", arrayName, loadedFieldType.getName());
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+            processError(table, error);
+            return null;
+        }
+
+        return arrayAccessField;
+    }
+
+    private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
         for (IdentifierNode[] existIdentifier : identifiers) {
             if (isEqualsIdentifier(existIdentifier, identifier)) {
                 return true;

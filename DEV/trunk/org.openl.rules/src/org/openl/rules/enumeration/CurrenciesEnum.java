@@ -83,4 +83,14 @@ public enum CurrenciesEnum {
 	public String toString() {
 		return displayName;
 	}
+	
+	public static CurrenciesEnum fromString(String displayName) {
+		for (CurrenciesEnum v : CurrenciesEnum.values()) {
+			if (displayName.equalsIgnoreCase(v.displayName)) {
+				return v;
+			}
+		}
+		
+		throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+  	}
 }

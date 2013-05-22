@@ -180,6 +180,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.ruleservice.context.source"
+         download-size="0"
+         install-size="0"
+         version="5.11.0"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.ruleservice.ws.source"
          download-size="0"
          install-size="0"

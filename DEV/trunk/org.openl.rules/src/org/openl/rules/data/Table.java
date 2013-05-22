@@ -296,7 +296,6 @@ public class Table implements ITable {
 
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
-
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
                 literal = columnDescriptor.getLiteral(dataModel.getType(), logicalTable.getSubtable(columnNum,
