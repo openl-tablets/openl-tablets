@@ -2,7 +2,8 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
@@ -16,9 +17,56 @@
     <h:panelGroup rendered="#{runAllTestsBean.numberOfTests > 1}">
     <div class="view_header">
         <span>Number of Tests: #{runAllTestsBean.numberOfTests}</span>
-        <h:outputText value="#{runAllTestsBean.numberOfFailedTests} tests failed"
+        <h:outputText value="#{runAllTestsBean.numberOfFailedTests} failed"
             rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
-            styleClass="badge badge-error" style="margin-left: 5px" />
+            styleClass="badge badge-error" style="margin-left: 4px" />
+
+        <c:set var="interval" value="5" />
+        <c:set var="curPage" value="#{runAllTestsBean.page}" />    
+        <c:set var="maxPage" value="#{runAllTestsBean.lastPage}" />
+        <c:set var="firstPage" value="#{curPage > interval ? (curPage - interval + 1) : '1'}" />
+        <c:set var="lastPage" value="#{(firstPage + interval - 1) > maxPage ? maxPage : (firstPage + interval - 1)}" />
+        <c:set var="perPage" value="#{runAllTestsBean.testsPerPage}" />
+
+        <c:set var="pageUri" value="#test/runAllTests.xhtml" />
+        <c:set var="pageUriExtra" value="#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}" />
+        <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{pageUriExtra}" />
+
+        <span class="dropdown" style="position:absolute;top:7px;margin-left:45px">
+            <a class="dropdown-toggle link-dropdown" data-toggle="dropdown" href="#">#{perPage == -1 ? 'All' : perPage}</a>
+            per page
+            <ul class="dropdown-menu link-dropdown-menu" role="menu">
+                <li><a tabindex="-1" href="#{pageUri}?pp=1#{pageUriExtra}">1</a></li>
+                <li><a tabindex="-1" href="#{pageUri}?pp=5#{pageUriExtra}">5</a></li>
+                <li><a tabindex="-1" href="#{pageUri}?pp=20#{pageUriExtra}">20</a></li>
+                <li class="divider"></li>
+                <li><a tabindex="-1" href="#{pageUri}?pp=-1#{pageUriExtra}">All</a></li>
+            </ul>
+        </span>
+        <h:panelGroup class="pagination pagination-mini" rendered="#{maxPage > 1}" style="position:absolute;top:4px;margin-left:130px">
+            <ul>
+                <li><a href="#{pageUri}?p=1#{pageUriPagerExtra}">«</a></li>
+                <c:if test="#{curPage == 1}">
+                <li class="disabled"><span>Prev</span></li>
+                </c:if>
+                <c:if test="#{curPage > 1}">
+                <li><a href="#{pageUri}?p=#{curPage - 1}#{pageUriPagerExtra}">Prev</a></li>
+                </c:if>
+                <c:forEach begin="#{firstPage}" end="#{lastPage}" var="page">
+                <li class="#{curPage == page ? 'active': ''}"><a href="#{pageUri}?p=#{page}#{pageUriPagerExtra}">#{page}</a></li>
+                </c:forEach>
+                <c:if test="#{maxPage > interval and maxPage > curPage}">
+                <li><a href="#{pageUri}?p=#{lastPage + 1}#{pageUriPagerExtra}">...</a></li>
+                </c:if>
+                <c:if test="#{curPage == maxPage}">
+                <li class="disabled"><span>Next</span></li>
+                </c:if>
+                <c:if test="#{curPage != maxPage}">
+                <li><a href="#{pageUri}?p=#{curPage + 1}#{pageUriPagerExtra}">Next</a></li>
+                </c:if>
+                <li><a href="#{pageUri}?p=#{maxPage}#{pageUriPagerExtra}">»</a></li>
+            </ul>
+        </h:panelGroup>
     </div>
     </h:panelGroup>
 
@@ -33,9 +81,9 @@
     </h:panelGroup>
 
     <div class="content">
-        <h:outputText value="View expired. Test data is no more available." rendered="#{runAllTestsBean.expired}" />
+        <h:outputText value="View expired. Test data is no more available." rendered="#{runAllTestsBean.numberOfTests == 1 and runAllTestsBean.expired}" />
 
-        <h:panelGroup rendered="#{not runAllTestsBean.expired}">
+        <h:panelGroup rendered="#{runAllTestsBean.numberOfTests > 1 or !runAllTestsBean.expired}">
             <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
             <div class="test">
                 <h1>
@@ -45,6 +93,7 @@
                         <h:outputText value="#{runAllTestsBean.getTestTableName(testUnitsResults)}" />
                     </h:outputLink>
                     <span class="badge">#{runAllTestsBean.getTestTableInfo(testUnitsResults)}</span>
+                    <h:panelGroup rendered="#{testUnitsResults.numberOfFailures > 0}" class="badge badge-error" style="margin-left:3px">#{testUnitsResults.numberOfFailures} failed</h:panelGroup>
                 </h1>
                 <table class="table">
                     <tr>
@@ -92,7 +141,7 @@
 
                                 <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
                                     <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
-                                        <span class="#{compareResult == 0 ? 'case-success' : 'case-error'}"></span>
+                                        <i class="#{compareResult == 0 ? 'case-success' : 'case-error'}"></i>
                                     </h:panelGroup>
 
                                     <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueActual(testUnit) and empty runAllTestsBean.getSpreadsheetResult(testUnit)}">

@@ -142,6 +142,21 @@ a {
     color: #1199ee;
 }
 
+.link-dropdown {
+    color: #1199ee;
+    text-decoration: none;
+    border-bottom: 1px dashed #1199ee;
+    padding: 1px 2px;
+}
+
+.link-dropdown-menu {
+    margin: 6px 0 0 -9px;
+}
+
+.link-dropdown-menu > li > a {
+    padding: 2px 12px;
+}
+
 form {
     margin: 0;
 }
@@ -639,7 +654,7 @@ form.standard table.buttonPanel {
 }
 
 .test {
-    margin-bottom: 31px;
+    margin-bottom: 33px;
 }
 
 .test .table > tbody > tr > th {
@@ -876,4 +891,32 @@ form.standard table.buttonPanel {
 
 .typeahead {
     border-radius: 1px;
+}
+
+.pagination,
+.pagination > ul {
+    margin: 0;
+}
+
+.pagination > ul {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+
+.pagination-mini ul > li:first-child > a,
+.pagination-mini ul > li:first-child > span {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.pagination-mini ul > li:last-child > a,
+.pagination-mini ul > li:last-child > span {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.pagination ul > .active > a,
+.pagination ul > .active > span {
+    font-weight: bold;
 }

@@ -276,7 +276,7 @@ var TableEditor = Class.create({
     initialize: function(editorId, url, editCell, actions, mode, editable) {
         this.mode = mode || this.Modes.VIEW;
         this.editorId = editorId;
-        this.cellIdPrefix = this.editorId + "_cell-";
+        this.cellIdPrefix = this.editorId + "_c-";
         this.menuId = this.editorId + "_menu";
         this.tableContainer = $(editorId + "_table");
         this.actions = actions;

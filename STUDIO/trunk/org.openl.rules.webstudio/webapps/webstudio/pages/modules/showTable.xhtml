@@ -341,15 +341,12 @@
 
                 <c:if test="#{showTableBean.hasTests}">
                     <td>
-                        <h:form>
-                            <a4j:commandLink styleClass="toolbarButton" title="Run Tests"
-                                rendered="#{showTableBean.canRun}"
-                                action="#{showTableBean.runAllTestsForTable}"
-                                oncomplete="goTo('test/runAllTests.xhtml?uri=#{showTableBean.encodedUri}')">
-                                <img src="webresource/images/test_ok.gif" />
-                                <span>Test</span>
-                            </a4j:commandLink>
-                        </h:form>
+                        <h:outputLink value="#test/runAllTests.xhtml" title="Run Tests" styleClass="toolbarButton"
+                            rendered="#{showTableBean.canRun}"  >
+                            <f:param name="uri" value="#{showTableBean.uri}" />
+                            <img src="webresource/images/test_ok.gif" />
+                            <span>Test</span>
+                        </h:outputLink>
                     </td>
                 </c:if>
 
@@ -465,7 +462,7 @@
                 <input type="hidden" name="uri" value="" />
             </form>
 
-            <rules:tableEditor id="showTableId" table="#{showTableBean.table}" view="#{studio.tableView}"
+            <rules:tableEditor id="t" table="#{showTableBean.table}" view="#{studio.tableView}"
                 linkBase="#showTable.xhtml" mode="#{showTableBean.mode}" editable="#{showTableBean.canEdit}"
                 showFormulas="#{studio.showFormulas}"
                 beforeSaveAction="#{showTableBean.beforeSaveAction}" afterSaveAction="#{showTableBean.afterSaveAction}"
@@ -531,7 +528,7 @@
 
         function canLeavePage() {
             // TODO: add "var='myVar'" parameter to rules:tableEditor tag instead of hardcoded variable name and id of a table
-            var t = _teshowTableId_te; // variable name of a table, is generated from it's editorId te_toolbar
+            var t = _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
             
             if (t.hasChanges) {
                 var isOk = confirm('Table is not saved. Do you want to save all changes?');

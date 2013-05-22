@@ -33,7 +33,6 @@ import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 
 /**
@@ -47,6 +46,11 @@ public class RunAllTestsBean {
 
     private TestUnitsResults[] ranResults;
 
+    private final static int DEFAULT_PAGE = 1;
+    private int page = DEFAULT_PAGE;
+    private int lastPage = DEFAULT_PAGE;
+    private int testsPerPage = 5;
+
     /**
      * URI of tested table
      */
@@ -54,22 +58,77 @@ public class RunAllTestsBean {
 
     public RunAllTestsBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+
         TestResultsHelper.initExplanator();
         testAll();
+
+        initPagination();
+    }
+
+    private void initPagination() {
+        String perPageParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PERPAGE);
+        if (StringUtils.isNotBlank(perPageParam)) {
+            try {
+                int initPerPage = Integer.valueOf(perPageParam);
+                if (initPerPage == -1 || initPerPage > 0) {
+                    testsPerPage = initPerPage;
+                }
+            } catch (Exception e) {
+                log.warn(e);
+            }
+        }
+
+        if (ranResults != null && ranResults.length > 0) {
+            lastPage = testsPerPage == -1 ? DEFAULT_PAGE : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+        }
+
+        String pageParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PAGE);
+        if (StringUtils.isNotBlank(pageParam)) {
+            try {
+                int initPage = Integer.valueOf(pageParam);
+                if (initPage > DEFAULT_PAGE && initPage <= lastPage) {
+                    page = initPage;
+                }
+            } catch (Exception e) {
+                log.warn(e);
+            }
+        }
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public int getLastPage() {
+        return lastPage;
+    }
+
+    public int getTestsPerPage() {
+        return testsPerPage;
+    }
+
+    public void setTestsPerPage(int testsPerPage) {
+        this.testsPerPage = testsPerPage;
     }
 
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (!model.hasTestSuitesToRun() && uri == null) {
-            ranResults = model.runAllTests();
-        } else {
+
+        if (model.hasTestSuitesToRun()) {
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
             while(model.hasTestSuitesToRun()){
                 TestSuite testSuite = model.popLastTest();
                 results.add(model.runTestSuite(testSuite));
             }
             ranResults = new TestUnitsResults[results.size()];
-            ranResults = results.toArray(ranResults);            
+            ranResults = results.toArray(ranResults);
+
+        } else {
+            if (uri != null) {
+                ranResults = model.runAllTests(uri);
+            } else {
+                ranResults = model.runAllTests();
+            }
         }
     }
 
@@ -90,11 +149,17 @@ public class RunAllTestsBean {
         };
         Arrays.sort(ranResults, c);
 
-        return ranResults;
+        int startPos = (page - 1) * testsPerPage;
+        int endPos = startPos + testsPerPage;
+        if (endPos >= ranResults.length || testsPerPage == -1) {
+            endPos = ranResults.length;
+        }
+
+        return Arrays.copyOfRange(ranResults, startPos, endPos);
     }
 
     public int getNumberOfTests() {
-        return ranResults.length;
+        return ranResults!= null ? ranResults.length : 0;
     }
 
     public int getNumberOfFailedTests() {
