@@ -105,7 +105,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         if (valuesHeight == 1) {
 
             multiValue = true;
-            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+            if(!bindingContext.isExecutionMode())
+            	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
 
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
@@ -130,12 +131,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
-                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                    if(!bindingContext.isExecutionMode())
+                    	RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                     values.add(null);
                     continue;
                 }
 
-                RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                if(!bindingContext.isExecutionMode())
+                	RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
 
                 setResValues(values, res);
@@ -356,10 +359,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                     if (s == null || s.length() == 0) {
                         // Set meta info for empty cells
-                        RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        if(!cxt.isExecutionMode())
+                        	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                     } else {
                         if (s.length() > 0) {
-                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            if(!cxt.isExecutionMode())
+                            	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                             Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
 
                             if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
