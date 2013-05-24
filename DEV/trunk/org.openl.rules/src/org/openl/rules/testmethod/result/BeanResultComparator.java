@@ -12,7 +12,7 @@ import org.openl.util.StringTool;
 public class BeanResultComparator implements TestResultComparator {
     private List<String> fieldsToCompare;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
-    
+
     public BeanResultComparator(List<String> fieldsToCompare) {
         if (fieldsToCompare != null) {
             this.fieldsToCompare = fieldsToCompare;
@@ -29,7 +29,7 @@ public class BeanResultComparator implements TestResultComparator {
         return comparisonResults;
     }
 
-    public boolean compareResult(Object actualResult, Object expectedResult) {
+    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;
         } else {
@@ -46,12 +46,12 @@ public class BeanResultComparator implements TestResultComparator {
 
                 TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
                         expectedFieldValue);
-                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
+                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue, delta);
 
                 if (compare && actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
                     comparator = new ArrayComparator();
 
-                    compare = comparator.compareResult(actualResult, expectedResult);
+                    compare = comparator.compareResult(actualResult, expectedResult, delta);
                 }
 
                 if (!compare) {
