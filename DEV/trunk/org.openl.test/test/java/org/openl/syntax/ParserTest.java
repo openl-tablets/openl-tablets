@@ -9,7 +9,7 @@ package org.openl.syntax;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import org.openl.OpenL;

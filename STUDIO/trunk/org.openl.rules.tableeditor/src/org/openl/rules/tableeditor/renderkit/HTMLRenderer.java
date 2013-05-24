@@ -88,17 +88,11 @@ public class HTMLRenderer {
                     editor.getLinkBase(), editor.getLinkTarget());
 
             if (tableModel != null) {
-                
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
                 String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;
 
                 result.append("<div id=\"").append(tableId).append("\">");
-                if (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks)) {
-                    String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
-                    result.append(tableRenderer.renderWithMenu(editor, menuId, errorCell));
-                } else {
-                    result.append(tableRenderer.render(null, editor.isShowFormulas(), null, editor.getId()));
-                }
+                result.append(tableRenderer.render(editor.isShowFormulas(), errorCell, editor.getId()));
                 result.append("</div>");
 
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
@@ -349,20 +343,16 @@ public class HTMLRenderer {
         }
 
         public String render(boolean showFormulas) {
-            return render(null, showFormulas, null, "");
+            return render(showFormulas, null, "");
         }
 
-        public String render(String extraTDText, boolean showFormulas, String errorCell, String editorId) {
+        public String render(boolean showFormulas, String errorCell, String editorId) {
             String tdPrefix = "<td";
-            if (extraTDText != null) {
-                tdPrefix += " ";
-                tdPrefix += extraTDText;
-            }
 
             IGridTable table = tableModel.getGridTable();
 
             StringBuilder s = new StringBuilder();
-            s.append("<table class=\"te_table\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n");
+            s.append("<table class=\"te_table\">\n");
 
             for (int row = 0; row < tableModel.getCells().length; row++) {
                 s.append("<tr>\n");
@@ -423,12 +413,6 @@ public class HTMLRenderer {
             }
 
             return s.toString();
-        }
-
-        public String renderWithMenu(TableEditor editor, String menuId, String errorCell) {
-            menuId = menuId == null ? "" : menuId;
-            String eventHandlers = "oncontextmenu=\"openMenu('" + menuId + "',event)\"";
-            return render(eventHandlers, editor.isShowFormulas(), errorCell, editor.getId());
         }
     }
 

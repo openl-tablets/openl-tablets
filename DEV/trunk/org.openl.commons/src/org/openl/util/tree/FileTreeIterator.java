@@ -13,7 +13,7 @@ import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class FileTreeIterator extends TreeIterator<File> {
 

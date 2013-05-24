@@ -10,7 +10,7 @@ import java.util.Collection;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class TopoSortCycleException extends RuntimeException {
 
@@ -33,7 +33,7 @@ public class TopoSortCycleException extends RuntimeException {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see java.lang.Throwable#getMessage()
      */
     @Override

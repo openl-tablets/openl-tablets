@@ -56,7 +56,7 @@ public class TBasicOperationTraceObject extends ATBasicTraceObjectLeaf {
      * @return
      */
     private String getFieldValuesAsString() {
-        StringBuffer fields = new StringBuffer();
+        StringBuilder fields = new StringBuilder();
 
         for (String fieldName : fieldValues.keySet()) {
             fields.append(fieldName).append(" = ").append(fieldValues.get(fieldName)).append(", ");

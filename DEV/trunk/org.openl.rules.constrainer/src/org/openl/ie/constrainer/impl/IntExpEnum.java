@@ -129,7 +129,7 @@ public final class IntExpEnum extends IntExpImpl {
 
     @Override
     public String domainToString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         int min = _index.min();
         int max = _index.max();

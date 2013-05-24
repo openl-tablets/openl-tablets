@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.text.AbsolutePosition;
+import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -92,7 +93,7 @@ public class Tokenizer {
             int startToken = 0;
             int position = -1;
             int character;
-            StringBuffer buffer = null;
+            StringBuilder buffer = null;
 
             do {
                 character = reader.read();
@@ -111,7 +112,7 @@ public class Tokenizer {
                 } else {
 					if (character != EOF && !isDelimiter(character)) {
 						if (buffer == null) {
-							buffer = new StringBuffer();
+							buffer = new StringBuilder();
 							startToken = position;
 						}
 
@@ -129,8 +130,7 @@ public class Tokenizer {
         }
     }
 
-    public IdentifierNode[] parse(IOpenSourceCodeModule source) throws OpenLCompilationException {
-
+    public IdentifierNode[] parse(IOpenSourceCodeModule source, ILocation textLocation) throws OpenLCompilationException {
         List<IdentifierNode> nodes = new ArrayList<IdentifierNode>();
 
         try {
@@ -138,8 +138,19 @@ public class Tokenizer {
 
             int startToken = 0;
             int position = -1;
+
+            if (textLocation != null) {
+                startToken = textLocation.getStart().getAbsolutePosition(null);
+                position = textLocation.getStart().getAbsolutePosition(null) - 1;
+
+                for (int i = 0; i < startToken; i++) {
+                    reader.read();
+                }
+            }
+
             int character;
-            StringBuffer buffer = null;
+            StringBuilder buffer = null;
+            boolean continueLooping = false;
 
             do {
                 character = reader.read();
@@ -157,16 +168,37 @@ public class Tokenizer {
                         buffer = null;
                     }
                 } else {
-                	if (!isDelimiter(character)){
-						if (buffer == null) {
-							buffer = new StringBuffer();
-							startToken = position;
-						}
-						buffer.append((char) character);
-                	}
+                    if (!isDelimiter(character)){
+                        if (buffer == null) {
+                            buffer = new StringBuilder();
+                            startToken = position;
+                        }
+                        buffer.append((char) character);
+                    }
                 }
 
-            } while (character != EOF);
+                if (textLocation != null) {
+                    if (position < textLocation.getEnd().getAbsolutePosition(null)) {
+                        continueLooping = character != EOF;
+                    } else {
+                        /*if end of token then save last token*/
+                        if (buffer != null) {
+                            String value = buffer.toString().trim();
+                            if (!value.isEmpty()) {
+                                TextInterval location = new TextInterval(new AbsolutePosition(startToken),
+                                        new AbsolutePosition(position));
+                                IdentifierNode node = new IdentifierNode(TOKEN_TYPE, location, value, source);
+                                nodes.add(node);
+                            }
+                            buffer = null;
+                        }
+
+                        continueLooping = false;
+                    }
+                } else {
+                    continueLooping = character != EOF;
+                }
+            } while (continueLooping);
 
         } catch (IOException e) {
             throw new OpenLCompilationException("Parsing error", e, null, source);
@@ -182,7 +214,7 @@ public class Tokenizer {
 
     public static IdentifierNode[] tokenize(IOpenSourceCodeModule source, String delimiter)
             throws OpenLCompilationException {
-        return getTokenizer(delimiter).parse(source);
+        return getTokenizer(delimiter).parse(source, null);
     }
 
     private static Tokenizer getTokenizer(String delimeter) {
@@ -195,6 +227,10 @@ public class Tokenizer {
         }
 
         return tokenizer;
+    }
+
+    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source, String delimiter, ILocation location) throws OpenLCompilationException {
+        return getTokenizer(delimiter).parse(source, location);
     }
 
 }

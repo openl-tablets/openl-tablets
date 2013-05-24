@@ -55,7 +55,7 @@ public class SpreadsheetComponentsBuilder {
         this.tableSyntaxNode = tableSyntaxNode;
         CellsHeaderExtractor extractor = ((SpreadsheetHeaderNode)tableSyntaxNode.getHeader()).getCellHeadersExtractor();
         if (extractor == null) {
-            extractor = new CellsHeaderExtractor(tableSyntaxNode.getTableBody().getRow(0).getColumns(1), 
+            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode), tableSyntaxNode.getTableBody().getRow(0).getColumns(1), 
                 tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
         }
         this.cellsHeaderExtractor = extractor; 
@@ -404,5 +404,9 @@ public class SpreadsheetComponentsBuilder {
             }
         }
         return resultBuilder;
+    }
+
+    private String getSignature(TableSyntaxNode table) {
+        return table.getHeader().getHeaderToken().getModule().getCode();
     }
 }

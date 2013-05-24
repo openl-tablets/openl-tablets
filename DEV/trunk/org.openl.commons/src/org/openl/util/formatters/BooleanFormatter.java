@@ -25,5 +25,5 @@ public class BooleanFormatter implements IFormatter {
         }
         return boolValue;
     }
-    
+
 }

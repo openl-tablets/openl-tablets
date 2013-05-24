@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.EngineFactoryDefinition;
 import org.openl.source.IOpenSourceCodeModule;
@@ -26,8 +27,6 @@ import org.openl.vm.IRuntimeEnv;
 public class RuleEngineFactory<T> extends EngineFactory<T> {
 
     public static final String RULE_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
-
-    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env = new RuntimeEnvHolder();
 
     /**
      * 
@@ -145,28 +144,18 @@ public class RuleEngineFactory<T> extends EngineFactory<T> {
         List<Class<?>> interfaces = new ArrayList<Class<?>>();
         interfaces.addAll(Arrays.asList(super.getInstanceInterfaces()));
         interfaces.add(IRulesRuntimeContextProvider.class);
-
         return interfaces.toArray(new Class<?>[interfaces.size()]);
     }
 
     @Override
-    protected IRuntimeEnv getRuntimeEnv() {
-        return __env.get();
+    protected IRuntimeEnv makeDefaultRuntimeEnv() {
+        return new SimpleRulesVM().getRuntimeEnv();
     }
-
+    
     @Override
     protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new RulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
-    }
-
-    // ThreadLocals can be cached by servlet container. RuntimeEnvHolder should
-    // be nested class, not inner class - otherwise we get memory leak
-    private static final class RuntimeEnvHolder extends ThreadLocal<org.openl.vm.IRuntimeEnv> {
-        @Override
-        protected org.openl.vm.IRuntimeEnv initialValue() {
-            return new org.openl.vm.SimpleVM().getRuntimeEnv();
-        }
+        return new RulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 
 }

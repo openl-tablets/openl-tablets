@@ -5,7 +5,7 @@ package org.openl.base;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class NamedThing implements INamedThing {
 

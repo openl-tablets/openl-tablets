@@ -5,7 +5,7 @@ package org.openl.base;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface INameSpacedThing extends INamedThing {
     String getNameSpace();

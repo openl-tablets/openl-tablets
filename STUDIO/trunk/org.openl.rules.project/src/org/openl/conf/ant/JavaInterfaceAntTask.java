@@ -5,8 +5,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.Project;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
@@ -14,8 +13,6 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 public class JavaInterfaceAntTask extends JavaAntTask {
-    
-    private final Log log = LogFactory.getLog(JavaInterfaceAntTask.class);
     
     private static final String RULES_XML = "rules.xml";    
     private static final String DEFAULT_CLASSPATH = "./bin";
@@ -85,7 +82,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
-                log.error("Error while reading previously created rules.xml", e);
+                log("Error while reading previously created rules.xml", e, Project.MSG_ERR);
             }
         } else {
             // Create new project and add new module
@@ -98,7 +95,7 @@ public class JavaInterfaceAntTask extends JavaAntTask {
             FileOutputStream fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
-            log.error("Error while writing rules.xml", e);
+            log("Error while writing rules.xml", e, Project.MSG_ERR);
         }
     }
     

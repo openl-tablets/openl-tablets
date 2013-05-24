@@ -304,7 +304,7 @@ public class TableBuilder {
                 }
                 style = workbook.createCellStyle();
                 try {
-                    style.cloneStyleFrom(cellStyle);                    
+                    style.cloneStyleFrom(cellStyle);
                 } catch (IllegalArgumentException ex) {
                     // FIXME: remove try.. catch
                 }
@@ -340,8 +340,6 @@ public class TableBuilder {
                 && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2
                 .getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
     }
-    
-    
 
     /**
      * Writes cell.

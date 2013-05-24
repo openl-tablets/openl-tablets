@@ -26,6 +26,7 @@ import org.openl.rules.runtime.BaseRulesFactory;
 import org.openl.rules.runtime.IRulesFactory;
 import org.openl.rules.runtime.SimpleEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -144,26 +145,20 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
 
-    /*@Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-                return getOpenL().getVm().getRuntimeEnv();
-            }
-        };
-    }*/
-
     @Override
-    public Object makeInstance() {
+    public Object innerMakeInstance(SimpleRulesRuntimeEnv runtimeEnv) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-
-            Object openClassInstance = openClass.newInstance(getRuntimeEnv());
+            Object openClassInstance;
+            if (runtimeEnv == null){
+                openClassInstance = openClass.newInstance(makeDefaultRuntimeEnv());
+            }else{
+                openClassInstance = openClass.newInstance(runtimeEnv);
+            }
             Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass()
                     .getClassLoader());
         } catch (Exception ex) {
             String errorMessage = "Cannot instantiate engine instance";
@@ -171,7 +166,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
                 log.error(errorMessage, ex);
             }
             throw new OpenlNotCheckedException(errorMessage, ex);
-        }
+        } 
     }
 
     /* package */Module getModuleForMember(IOpenMember member) {
@@ -259,10 +254,6 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
 
     private void postProcess(IOpenClass openClass) {
         ModuleOpenClass topOpenClass = (ModuleOpenClass) openClass;
-        for (IOpenMethod method : openClass.getMethods()){
-            
-        }
-        
         for (CompiledOpenClass dep : topOpenClass.getDependencies()) {
             for (IOpenMethod m : dep.getOpenClass().getMethods()) {
                 if (m instanceof LazyMethod) {

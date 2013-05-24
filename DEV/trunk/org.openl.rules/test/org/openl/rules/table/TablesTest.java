@@ -1,6 +1,6 @@
 package org.openl.rules.table;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 import org.apache.poi.ss.usermodel.Sheet;

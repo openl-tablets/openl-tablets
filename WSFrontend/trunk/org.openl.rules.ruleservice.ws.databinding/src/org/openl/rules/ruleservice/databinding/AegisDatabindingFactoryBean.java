@@ -70,43 +70,37 @@ public class AegisDatabindingFactoryBean {
         }
 
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
-        loadAegisTypeClassAndRegister(
-                "org.openl.rules.ruleservice.context.RuntimeContextBeanType", typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.RuntimeContextBeanType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.RuleServiceRuntimeContextBeanType.class,
+                typeMapping);
         if (supportVariations) {
-            loadAegisTypeClassAndRegister(
-                    "org.openl.rules.ruleservice.context.VariationsResultType", typeMapping);
-            loadAegisTypeClassAndRegister(
-                    "org.openl.rules.ruleservice.context.JXPathVariationType", typeMapping);
-            loadAegisTypeClassAndRegister(
-                    "org.openl.rules.ruleservice.context.ArgumentReplacementVariationType",
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.VariationsResultType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.JXPathVariationType.class, typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.ArgumentReplacementVariationType.class,
                     typeMapping);
-            loadAegisTypeClassAndRegister(
-                    "org.openl.rules.ruleservice.context.DeepCloningVariationType",
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DeepCloningVariationType.class,
                     typeMapping);
-            loadAegisTypeClassAndRegister(
-                    "org.openl.rules.ruleservice.context.ComplexVariationType", typeMapping);
+            loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.ComplexVariationType.class, typeMapping);
         }
-        loadAegisTypeClassAndRegister("org.openl.rules.ruleservice.context.IntRangeBeanType",
-                typeMapping);
-        loadAegisTypeClassAndRegister("org.openl.rules.ruleservice.context.DoubleRangeBeanType",
-                typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.IntRangeBeanType.class, typeMapping);
+        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.context.DoubleRangeBeanType.class, typeMapping);
 
         loadAegisTypeClassAndRegister("org.openl.meta.ShortValue",
-                "org.openl.rules.ruleservice.context.ShortValueType", XMLSchemaQNames.XSD_SHORT, typeMapping);
-        loadAegisTypeClassAndRegister("org.openl.meta.LongValue", "org.openl.rules.ruleservice.context.LongValueType",
-                XMLSchemaQNames.XSD_LONG, typeMapping);
-        loadAegisTypeClassAndRegister("org.openl.meta.IntValue", "org.openl.rules.ruleservice.context.IntValueType",
-                XMLSchemaQNames.XSD_INT, typeMapping);
+                org.openl.rules.ruleservice.context.ShortValueType.class, XMLSchemaQNames.XSD_SHORT, typeMapping);
+        loadAegisTypeClassAndRegister("org.openl.meta.LongValue",
+                org.openl.rules.ruleservice.context.LongValueType.class, XMLSchemaQNames.XSD_LONG, typeMapping);
+        loadAegisTypeClassAndRegister("org.openl.meta.IntValue",
+                org.openl.rules.ruleservice.context.IntValueType.class, XMLSchemaQNames.XSD_INT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.FloatValue",
-                "org.openl.rules.ruleservice.context.FloatValueType", XMLSchemaQNames.XSD_FLOAT, typeMapping);
+                org.openl.rules.ruleservice.context.FloatValueType.class, XMLSchemaQNames.XSD_FLOAT, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.DoubleValue",
-                "org.openl.rules.ruleservice.context.DoubleValueType", XMLSchemaQNames.XSD_DOUBLE, typeMapping);
-        loadAegisTypeClassAndRegister("org.openl.meta.ByteValue", "org.openl.rules.ruleservice.context.ByteValueType",
-                XMLSchemaQNames.XSD_BYTE, typeMapping);
+                org.openl.rules.ruleservice.context.DoubleValueType.class, XMLSchemaQNames.XSD_DOUBLE, typeMapping);
+        loadAegisTypeClassAndRegister("org.openl.meta.ByteValue",
+                org.openl.rules.ruleservice.context.ByteValueType.class, XMLSchemaQNames.XSD_BYTE, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigIntegerValue",
-                "org.openl.rules.ruleservice.context.BigIntegerValueType", XMLSchemaQNames.XSD_INTEGER, typeMapping);
+                org.openl.rules.ruleservice.context.BigIntegerValueType.class, XMLSchemaQNames.XSD_INTEGER, typeMapping);
         loadAegisTypeClassAndRegister("org.openl.meta.BigDecimalValue",
-                "org.openl.rules.ruleservice.context.BigDecimalValueType", XMLSchemaQNames.XSD_DECIMAL, typeMapping);
+                org.openl.rules.ruleservice.context.BigDecimalValueType.class, XMLSchemaQNames.XSD_DECIMAL, typeMapping);
 
         return aegisDatabinding;
     }
@@ -124,12 +118,23 @@ public class AegisDatabindingFactoryBean {
         }
     }
 
-    protected void loadAegisTypeClassAndRegister(String typeClassName, String aegisTypeClassName, QName qName,
+    protected void loadAegisTypeClassAndRegister(Class<?> aegisTypeClass, TypeMapping typeMapping) {
+        try {
+            Constructor<?> constructor = aegisTypeClass.getConstructor();
+            AegisType aegisType = (AegisType) constructor.newInstance();
+            typeMapping.register(aegisType);
+        } catch (Exception e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Aegis type \"" + aegisTypeClass.getName() + "\" registration failed!", e);
+            }
+        }
+    }
+
+    protected void loadAegisTypeClassAndRegister(String typeClassName, Class<?> aegisTypeClass, QName qName,
             TypeMapping typeMapping) {
         try {
             Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(typeClassName);
-            Class<?> aegisTypeClazz = Thread.currentThread().getContextClassLoader().loadClass(aegisTypeClassName);
-            Constructor<?> constructor = aegisTypeClazz.getConstructor();
+            Constructor<?> constructor = aegisTypeClass.getConstructor();
             AegisType aegisType = (AegisType) constructor.newInstance();
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {

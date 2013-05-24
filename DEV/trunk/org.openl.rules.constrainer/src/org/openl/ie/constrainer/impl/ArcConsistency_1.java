@@ -98,7 +98,7 @@ public class ArcConsistency_1 implements ArcConsistency {
         }
 
         String printIntervals() {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (int i = _min; i <= _max;) {
                 if (i != _min) {
                     buf.append(" ");

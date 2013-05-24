@@ -18,13 +18,13 @@ import java.util.Map;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class NicePrinterAdaptor {
 
-    static class MapEntryComparator<K,V> implements Comparator<Map.Entry<K,V>> {
+    static class MapEntryComparator<K, V> implements Comparator<Map.Entry<K, V>> {
 
-        public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
+        public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
 
             String key1 = String.valueOf(e1.getKey());
             String key2 = String.valueOf(e2.getKey());
@@ -139,16 +139,14 @@ public class NicePrinterAdaptor {
     }
 
     @SuppressWarnings("unchecked")
-    public void  printMap(Map map, Comparator<Map.Entry<Object, Object>> mapEntryComparator, NicePrinter printer) {
+    public void printMap(Map map, Comparator<Map.Entry<Object, Object>> mapEntryComparator, NicePrinter printer) {
         int len = map.size();
 
         if (len == 0) {
             printer.getBuffer().append("[]");
             return;
         }
-
         Map.Entry<Object, Object>[] entries = new Map.Entry[len];
-
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
         for (int i = 0; it.hasNext(); i++) {
             entries[i] = (Map.Entry<Object, Object>) it.next();

@@ -31,7 +31,7 @@ public class RulesServiceEnhancerTest {
         module.setClassname(ITest.class.getName());
         EngineFactoryInstantiationStrategy strategy = new EngineFactoryInstantiationStrategy(module, false, null);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
@@ -60,7 +60,7 @@ public class RulesServiceEnhancerTest {
 
         WrapperAdjustingInstantiationStrategy strategy = new WrapperAdjustingInstantiationStrategy(module, false, null);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
@@ -90,7 +90,7 @@ public class RulesServiceEnhancerTest {
 
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
         
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 

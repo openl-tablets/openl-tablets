@@ -39,17 +39,17 @@ public class TestUnitResultComparator {
             }
        }
     }
-    
+
     private TestResultComparator resultComparator;
-    
+
     public TestUnitResultComparator(TestResultComparator resultComparator) {
         this.resultComparator = resultComparator;
     }
-    
+
     public TestResultComparator getComparator() {
         return resultComparator;
     }
-    
+
     /**
      * Return the comparasion of the expected result and actual one for the test unit. 
      * 
@@ -62,21 +62,20 @@ public class TestUnitResultComparator {
         if (testUnit.getActualResult() instanceof Throwable) {
             return compareExceptionResult(testUnit);
         }
-        
+
         if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult())) {
             return TestStatus.TR_OK.getStatus();
         }
-        
+
         return TestStatus.TR_NEQ.getStatus();
-        
     }
-    
+
     public boolean compareResult(Object actualResult, Object expectedResult) {
 
         if (actualResult == expectedResult) {
             return true;
         }
-        
+
         if (expectedResult == null) {
             if ((actualResult instanceof Object[] && ((Object[]) actualResult).length == 0)
                     || (actualResult instanceof Collection && ((Collection<?>) actualResult).isEmpty())
@@ -90,10 +89,10 @@ public class TestUnitResultComparator {
         if (actualResult == null) {
             return false;
         }
-        
+
         return resultComparator.compareResult(actualResult, expectedResult);
     }
-    
+
     private int compareExceptionResult(TestUnit testUnit) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {

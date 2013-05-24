@@ -30,7 +30,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see org.openl.util.AIndexedIterator#indexedElement(int)
          */
         @Override
@@ -46,6 +46,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
         }
 
     }
+
     static class ArrayIterator<T> extends AIndexedIterator<T> {
         T[] ary;
 
@@ -72,6 +73,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
         }
 
     }
+
     int from = 0;
 
     int step = 1;

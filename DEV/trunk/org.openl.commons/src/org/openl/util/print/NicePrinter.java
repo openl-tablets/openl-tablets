@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class NicePrinter {
 
@@ -23,7 +23,7 @@ public class NicePrinter {
 
     int identStep = 2;
 
-    StringBuffer buffer = null;
+    StringBuilder buffer = null;
 
     int ident = 0;
 
@@ -36,21 +36,21 @@ public class NicePrinter {
     }
 
     static public String print(Object obj) {
-        StringBuffer buf = new StringBuffer(100);
+        StringBuilder buf = new StringBuilder(100);
         print(obj, buf);
         return buf.toString();
     }
 
-    static public void print(Object obj, StringBuffer buf) {
+    static public void print(Object obj, StringBuilder buf) {
         NicePrinter np = new NicePrinter(buf);
         np.print(obj, new NicePrinterAdaptor());
     }
 
     public NicePrinter() {
-        this(new StringBuffer(100));
+        this(new StringBuilder(100));
     }
 
-    public NicePrinter(StringBuffer buf) {
+    public NicePrinter(StringBuilder buf) {
         buffer = buf;
     }
 
@@ -61,7 +61,7 @@ public class NicePrinter {
     /**
      * @return Returns the buffer.
      */
-    public StringBuffer getBuffer() {
+    public StringBuilder getBuffer() {
         return buffer;
     }
 
@@ -97,7 +97,7 @@ public class NicePrinter {
         }
 
         if (obj instanceof Map) {
-            adaptor.printMap((Map<Object,Object>) obj, null, this);
+            adaptor.printMap((Map<Object, Object>) obj, null, this);
             return;
         }
 

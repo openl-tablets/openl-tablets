@@ -15,21 +15,21 @@ import java.util.Set;
 /**
  * @author snshor
  */
-public class SkipList<K,V> implements Map<K,V> {
+public class SkipList<K, V> implements Map<K, V> {
 
-    public interface ISkipListNode<K,V> extends Map.Entry<K,V> {
+    public interface ISkipListNode<K, V> extends Map.Entry<K, V> {
         // SkipListNode previous(int level);
         int getLevel();
 
-        ISkipListNode<K,V> next(int level);
+        ISkipListNode<K, V> next(int level);
 
-        void setNext(ISkipListNode<K,V> node, int level);
+        void setNext(ISkipListNode<K, V> node, int level);
 
     }
 
-    static class SkipListNode<K,V> implements ISkipListNode<K,V> {
+    static class SkipListNode<K, V> implements ISkipListNode<K, V> {
 
-        ISkipListNode<K,V>[] nodes;
+        ISkipListNode<K, V>[] nodes;
         K key;
         V value;
 
@@ -52,11 +52,11 @@ public class SkipList<K,V> implements Map<K,V> {
             return value;
         }
 
-        public ISkipListNode<K,V> next(int level) {
+        public ISkipListNode<K, V> next(int level) {
             return nodes[level];
         }
 
-        public void setNext(ISkipListNode<K,V> node, int level) {
+        public void setNext(ISkipListNode<K, V> node, int level) {
             nodes[level] = node;
         }
 
@@ -65,6 +65,7 @@ public class SkipList<K,V> implements Map<K,V> {
         }
 
     }
+
     Comparator<K> keyComparator;
     double nodeRatio;
 
@@ -72,7 +73,7 @@ public class SkipList<K,V> implements Map<K,V> {
 
     int indexLevel = 0;
 
-    ISkipListNode<K,V> header;
+    ISkipListNode<K, V> header;
 
     int size = 0;
 
@@ -96,24 +97,24 @@ public class SkipList<K,V> implements Map<K,V> {
     }
 
     final int compare(K myKey, K key) {
-        
+
         if (keyComparator == null) {
             return 0;
         }
-        
+
         return myKey == null ? -1 : keyComparator.compare(myKey, key);
     }
 
     @SuppressWarnings("unchecked")
     public boolean containsKey(Object key) {
-        K k = (K)key;
-        ISkipListNode<K,V> inode = findNodeGE(k);
+        K k = (K) key;
+        ISkipListNode<K, V> inode = findNodeGE(k);
         return hasKey(inode, k);
     }
 
     public boolean containsValue(Object value) {
 
-        for (ISkipListNode<K,V> node = header.next(0); node != null; node = node.next(0)) {
+        for (ISkipListNode<K, V> node = header.next(0); node != null; node = node.next(0)) {
             if (value.equals(node.getValue())) {
                 return true;
             }
@@ -125,8 +126,8 @@ public class SkipList<K,V> implements Map<K,V> {
         throw new UnsupportedOperationException();
     }
 
-    ISkipListNode<K,V> findNodeGE(K searchKey) {
-        ISkipListNode<K,V> x = header;
+    ISkipListNode<K, V> findNodeGE(K searchKey) {
+        ISkipListNode<K, V> x = header;
         // loop invariant: x.key < searchKey
         for (int i = indexLevel; i >= 0; --i) {
             while (x.next(i) != null && compare(x.next(i).getKey(), searchKey) < 0) {
@@ -141,9 +142,9 @@ public class SkipList<K,V> implements Map<K,V> {
 
     @SuppressWarnings("unchecked")
     public V get(Object key) {
-        
-        K k = (K)key;
-        ISkipListNode<K,V> inode = findNodeGE(k);
+
+        K k = (K) key;
+        ISkipListNode<K, V> inode = findNodeGE(k);
 
         if (hasKey(inode, k)) {
             return inode.getValue();
@@ -151,7 +152,7 @@ public class SkipList<K,V> implements Map<K,V> {
         return null;
     }
 
-    final boolean hasKey(ISkipListNode<K,V> inode, K key) {
+    final boolean hasKey(ISkipListNode<K, V> inode, K key) {
         return inode == null || inode == header ? false : inode.getKey().equals(key);
     }
 
@@ -163,14 +164,14 @@ public class SkipList<K,V> implements Map<K,V> {
         throw new UnsupportedOperationException();
     }
 
-    protected ISkipListNode<K,V> makeSkipListNode(K key, V value, int level) {
-        return new SkipListNode<K,V>(key, value, level + 1);
+    protected ISkipListNode<K, V> makeSkipListNode(K key, V value, int level) {
+        return new SkipListNode<K, V>(key, value, level + 1);
     }
 
     @SuppressWarnings("unchecked")
     public V put(K searchKey, V newValue) {
-        ISkipListNode<K,V>[] path = new ISkipListNode[maxIndexLevel + 1];
-        ISkipListNode<K,V> x = header;
+        ISkipListNode<K, V>[] path = new ISkipListNode[maxIndexLevel + 1];
+        ISkipListNode<K, V> x = header;
         for (int i = indexLevel; i >= 0; --i) {
             while (x.next(i) != null && compare(x.next(i).getKey(), searchKey) < 0) {
                 x = x.next(i);
@@ -182,7 +183,7 @@ public class SkipList<K,V> implements Map<K,V> {
         if (hasKey(x, searchKey)) {
             V oldValue = x.getValue();
             x.setValue(newValue); // x�key = searchKey then x�value :=
-                                    // newValue
+                                  // newValue
             return oldValue;
         } else {
             ++size;
@@ -202,7 +203,7 @@ public class SkipList<K,V> implements Map<K,V> {
         return null;
     }
 
-    public void putAll(Map<? extends K,? extends V> t) {
+    public void putAll(Map<? extends K, ? extends V> t) {
         throw new UnsupportedOperationException();
     }
 

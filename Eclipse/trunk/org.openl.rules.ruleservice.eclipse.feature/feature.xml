@@ -34,6 +34,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.openl.rules.ruleservice.context"
+         download-size="0"
+         install-size="0"
+         version="5.11.0"
+         unpack="false"/>
+
+   <plugin
          id="org.openl.rules.ruleservice.lib"
          download-size="0"
          install-size="0"

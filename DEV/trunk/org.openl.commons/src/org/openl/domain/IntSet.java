@@ -7,7 +7,7 @@ import java.util.BitSet;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class IntSet implements IIntDomain {
 

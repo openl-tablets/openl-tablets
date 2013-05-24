@@ -96,6 +96,17 @@ a.button-primary {
     background-color: #fbfbfb !important;
 }
 
+.button + .dropdown-menu,
+.button-primary + .dropdown-menu {
+    margin-top: 7px;
+    margin-left: 2px;
+}
+
+.button > .caret,
+.button-primary > .caret {
+    margin-left: 4px;
+}
+
 .buttonPanel .button,
 .buttonPanel .button-primary,
 .buttonPanel .imageButton {
@@ -129,6 +140,21 @@ h3 {
 a {
     outline: none;
     color: #1199ee;
+}
+
+.link-dropdown {
+    color: #1199ee;
+    text-decoration: none;
+    border-bottom: 1px dashed #1199ee;
+    padding: 1px 2px;
+}
+
+.link-dropdown-menu {
+    margin: 6px 0 0 -9px;
+}
+
+.link-dropdown-menu > li > a {
+    padding: 2px 12px;
 }
 
 form {
@@ -239,6 +265,7 @@ fieldset {
 .table td {
     border: 1px dotted #ccc;
     padding: 4px 7px;
+    line-height: 15px;
 }
 
 .table-striped tbody tr:nth-child(2n+1) td {
@@ -626,6 +653,49 @@ form.standard table.buttonPanel {
     padding-top: 15px;
 }
 
+.test {
+    margin-bottom: 33px;
+}
+
+.test .table > tbody > tr > th {
+    min-width: 91px;
+}
+
+.testSuccess,
+.testError {
+    text-decoration: none;
+    border-bottom: 1px dashed #ccc;
+}
+
+.testSuccess {
+    color: #2a1;
+}
+
+.testError {
+    color: #f23;
+}
+
+.case-success,
+.case-error {
+    padding: 1px 11px;
+}
+
+.case-success {
+    background: url(webresource/images/ok.png) no-repeat;
+}
+
+.case-error {
+    background: url(webresource/images/error.png) no-repeat;
+}
+
+.case-result {
+    display: inline-block;
+}
+
+.spreadsheet .rf-trn-ico-lf {
+    display: none;
+}
+
 /* RichFaces styles */
 
 .rf-trn, .rf-tr-nd {
@@ -766,12 +836,18 @@ form.standard table.buttonPanel {
 
 .dropdown-menu {
     border-radius: 1px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.1);
     min-width: 100px;
 }
 
 .dropdown-menu > li > a {
     color: #444;
+    text-decoration: none;
+}
+
+.dropdown-menu > li > a > input[type="checkbox"] {
+    vertical-align: bottom;
+    margin-right: 5px;
 }
 
 .dropdown-menu .divider {
@@ -807,6 +883,40 @@ form.standard table.buttonPanel {
     border-radius: 1px 0 1px 1px;
 }
 
+.dropdown .dropdown-menu .nav-header {
+    padding: 6px 20px;
+    color: #888;
+    white-space: nowrap;
+}
+
 .typeahead {
     border-radius: 1px;
+}
+
+.pagination,
+.pagination > ul {
+    margin: 0;
+}
+
+.pagination > ul {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+
+.pagination-mini ul > li:first-child > a,
+.pagination-mini ul > li:first-child > span {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.pagination-mini ul > li:last-child > a,
+.pagination-mini ul > li:last-child > span {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.pagination ul > .active > a,
+.pagination ul > .active > span {
+    font-weight: bold;
 }

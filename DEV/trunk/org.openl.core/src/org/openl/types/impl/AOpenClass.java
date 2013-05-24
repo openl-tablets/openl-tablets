@@ -139,7 +139,7 @@ public abstract class AOpenClass implements IOpenClass {
         if (ff != null) {
             throw new AmbiguousVarException(fname, ff);
         }
-        
+
         return searchFieldFromSuperClass(fname, strictMatch);
     }
 
@@ -168,53 +168,53 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-        
-    	Map<MethodKey, IOpenMethod> m = methodMap();
+
+        Map<MethodKey, IOpenMethod> m = methodMap();
         MethodKey methodKey = new MethodKey(name, classes);
-		IOpenMethod method = m.get(methodKey);
+        IOpenMethod method = m.get(methodKey);
 
-		// If method is not found try to find it in parent classes.
-		//
+        // If method is not found try to find it in parent classes.
+        //
         if (method == null) {
-			Iterator<IOpenClass> superClasses = superClasses();
+            Iterator<IOpenClass> superClasses = superClasses();
 
-			while (method == null && superClasses.hasNext()) {
-				method = superClasses.next().getMethod(name, classes);
-			}
-		}
+            while (method == null && superClasses.hasNext()) {
+                method = superClasses.next().getMethod(name, classes);
+            }
+        }
 
         if (method != null && hasAliasTypeParams(method)) {
-        	
-        	IOpenClass[] methodParams = method.getSignature().getParameterTypes();
-        	IOpenCast[] typeCasts = new IOpenCast[methodParams.length]; 
-        	
-        	ICastFactory castFactory = new CastFactory();
-        	
-        	for (int i=0 ; i < methodParams.length; i++) {
-        		IOpenClass methodParam = methodParams[i];
-        		IOpenClass param = classes[i];
-        		
-        		IOpenCast castObject = castFactory.getCast(param, methodParam);
-        		typeCasts[i] = castObject;
-        	}
-        	
-        	IMethodCaller methodCaller = new CastingMethodCaller(method, typeCasts);
-        	method = new MethodDelegator(methodCaller);
+
+            IOpenClass[] methodParams = method.getSignature().getParameterTypes();
+            IOpenCast[] typeCasts = new IOpenCast[methodParams.length];
+
+            ICastFactory castFactory = new CastFactory();
+
+            for (int i = 0; i < methodParams.length; i++) {
+                IOpenClass methodParam = methodParams[i];
+                IOpenClass param = classes[i];
+
+                IOpenCast castObject = castFactory.getCast(param, methodParam);
+                typeCasts[i] = castObject;
+            }
+
+            IMethodCaller methodCaller = new CastingMethodCaller(method, typeCasts);
+            method = new MethodDelegator(methodCaller);
         }
-        
+
         return method;
     }
-    
+
     private boolean hasAliasTypeParams(IOpenMethod method) {
-    	IOpenClass[] params = method.getSignature().getParameterTypes();
-    	
-    	for (IOpenClass param : params) {
-    		if (param instanceof DomainOpenClass) {
-    			return true;
-    		}
-    	}
-    	
-    	return false;
+        IOpenClass[] params = method.getSignature().getParameterTypes();
+
+        for (IOpenClass param : params) {
+            if (param instanceof DomainOpenClass) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public String getNameSpace() {
@@ -300,7 +300,7 @@ public abstract class AOpenClass implements IOpenClass {
      */
     public Iterator<IOpenMethod> methods() {
         List<IOpenMethod> methods = getMethods();
-        return methods == null ? null : methods.iterator();        
+        return methods == null ? null : methods.iterator();
     }
     
     public List<IOpenMethod> getMethods() {
@@ -337,42 +337,39 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     /**
-	 * Default implementation.
-	 * 
-	 * @param type
-	 *            IOpenClass instance
-	 * @throws Exception
-	 *             if an error had occurred.
-	 */
-	public void addType(String namespace, IOpenClass type) throws Exception {
+     * Default implementation.
+     * 
+     * @param type IOpenClass instance
+     * @throws Exception if an error had occurred.
+     */
+    public void addType(String namespace, IOpenClass type) throws Exception {
 
-		// Default implementation.
-		// To do nothing. Not everyone has internal types.
-	}
-
-	/**
-	 * Default implementation. Always returns <code>null</code>.
-	 * 
-	 * @param typeName
-	 *            name of type to search
-	 * @return {@link IOpenClass} instance or <code>null</code>
-	 */
-	public IOpenClass findType(String namespace, String typeName) {
-
-		// Default implementation.
-
-		return null;
-	}
-	
-	/**
-	 * Default implementation. Always returns <code>null</code>.
-	 * 
-	 */
-	public Map<String, IOpenClass> getTypes() {
-	    // Default implementation.
+        // Default implementation.
         // To do nothing. Not everyone has internal types.
-	    
-	    return null;        
+    }
+
+    /**
+     * Default implementation. Always returns <code>null</code>.
+     * 
+     * @param typeName name of type to search
+     * @return {@link IOpenClass} instance or <code>null</code>
+     */
+    public IOpenClass findType(String namespace, String typeName) {
+
+        // Default implementation.
+
+        return null;
+    }
+
+    /**
+     * Default implementation. Always returns <code>null</code>.
+     * 
+     */
+    public Map<String, IOpenClass> getTypes() {
+        // Default implementation.
+        // To do nothing. Not everyone has internal types.
+
+        return null;
     }
 
     @Override

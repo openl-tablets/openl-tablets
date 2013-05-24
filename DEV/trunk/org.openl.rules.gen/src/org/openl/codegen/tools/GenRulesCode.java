@@ -53,7 +53,9 @@ public class GenRulesCode {
     }
 
     public void run() throws Exception {
-
+        
+        System.out.println("Generating Rules Code...");
+        
         loadDefinitions();
 
         processTypes();
@@ -71,6 +73,12 @@ public class GenRulesCode {
         generateDefaultPropertiesIntersectionFinderCode();
         generateMatchingOpenMethodDispatcherCode();
         generateMatchingOpenMethodDispatcherHelperCode();
+
+        System.out.println("Generating Rules Service Code...");
+        // RulesService context generation
+        generateIRulesRuntimeContextCodeInRuleServiceModule();
+        generateDefaultRulesRuntimeContextCodeInRuleServiceModule();
+        generateRuntimeContextConvertor();
     }
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
@@ -136,6 +144,45 @@ public class GenRulesCode {
         processSourceCode(sourceFilePath, "IRulesContext-properties.vm", variables);
     }
 
+    private void generateDefaultRulesRuntimeContextCodeInRuleServiceModule() throws IOException {
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put("tool", new VelocityTool());
+        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
+
+        String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION
+                + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_PACKAGE_PATH
+                + CodeGenConstants.RULESERVICE_DEFAULTRULESRUNTIMECONTEXT_CLASSNAME + ".java";
+
+        processSourceCode(sourceFilePath, "RuleService-DefaultRulesContext-properties.vm", variables);
+    }
+    
+    private void generateRuntimeContextConvertor() throws IOException {
+
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put("tool", new VelocityTool());
+        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
+
+        String sourceFilePath = CodeGenConstants.RULESERVICE_SOURCE_LOCATION
+                + CodeGenConstants.RULESERVICE_RUNTIMECONTEXTCONVERTOR_PACKAGE_PATH
+                + CodeGenConstants.RULESERVICE_RUNTIMECONTEXTCONVERTOR_CLASSNAME + ".java";
+
+        processSourceCode(sourceFilePath, "RuleService-RuntimeContextConvertor.vm", variables);
+    }
+    
+    private void generateIRulesRuntimeContextCodeInRuleServiceModule() throws IOException {
+        Map<String, Object> variables = new HashMap<String, Object>();
+        variables.put("tool", new VelocityTool());
+        variables.put("typesPackage", CodeGenConstants.RULESERVICE_ENUMS_PACKAGE);
+        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
+        
+
+        String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION
+                + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_PACKAGE_PATH
+                + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_CLASSNAME + ".java";
+        processSourceCode(sourceFilePath, "RuleServices-IRulesContext-properties.vm", variables);
+    }
+
     private void generateRulesCompileContextCode() throws IOException {
 
         List<TablePropertyValidatorsWrapper> propertyValidatorsWrappers = tablePropertyValidatorsWrappers.asList();
@@ -160,7 +207,7 @@ public class GenRulesCode {
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcherHelper.class);
         processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcherHelper.vm", variables);
     }
-    
+
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -214,12 +261,11 @@ public class GenRulesCode {
     private void processTypes() {
 
         for (TablePropertyDefinitionWrapper wrapper : tablePropertyDefinitionWrappers.asList()) {
-
-            if (wrapper.isEnum() ) {
+            if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
                 String enumName = EnumHelper.getEnumName(name);
-                String fullEnumName = "org.openl.rules.enumeration." + enumName;
-                
+                String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
+
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
 
                 JavaOpenClass enumOpenClass = CodeGenTools.getJavaOpenClass(fullEnumName, isArray);
@@ -233,7 +279,7 @@ public class GenRulesCode {
             if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
                 String enumName = EnumHelper.getEnumName(name);
-                String fullEnumName = "org.openl.rules.enumeration." + enumName;
+                String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
 
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
 
@@ -245,8 +291,8 @@ public class GenRulesCode {
 
     }
 
-    protected void processSourceCode(String sourceFilePath, final String templateName, final Map<String, Object> variables)
-            throws IOException {
+    protected void processSourceCode(String sourceFilePath, final String templateName,
+            final Map<String, Object> variables) throws IOException {
 
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {

@@ -93,7 +93,7 @@ public abstract class BenchmarkUnit {
     /**
      * This is the method you usually want to redefine. There can be cases
      * though when you want to redefine runNtimes.
-     *
+     * 
      * @throws Exception
      */
     protected abstract void run() throws Exception;
@@ -107,9 +107,8 @@ public abstract class BenchmarkUnit {
     public String[] unitName() {
         return new String[] { "Run", "Runs" };
     }
-    
-    public boolean isTestMemory()
-    {
+
+    public boolean isTestMemory() {
         return false;
     }
 

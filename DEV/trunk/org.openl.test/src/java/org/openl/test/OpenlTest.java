@@ -9,8 +9,7 @@ package org.openl.test;
 import java.io.File;
 import java.io.FileReader;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.openl.IOpenParser;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
@@ -45,7 +44,7 @@ public class OpenlTest {
         FileReader reader = new FileReader(filename);
 
         int c;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         while ((c = reader.read()) != -1) {
             buf.append((char) c);
         }
@@ -139,7 +138,7 @@ public class OpenlTest {
         FileReader reader = new FileReader(filename);
 
         int c;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         while ((c = reader.read()) != -1) {
             buf.append((char) c);
         }

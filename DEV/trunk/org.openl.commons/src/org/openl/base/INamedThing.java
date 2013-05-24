@@ -11,8 +11,8 @@ import org.openl.util.AStringConvertor;
 
 /**
  * @author snshor
- *
- * Wow, almost everything has a name.
+ * 
+ *         Wow, almost everything has a name.
  */
 public interface INamedThing {
 
