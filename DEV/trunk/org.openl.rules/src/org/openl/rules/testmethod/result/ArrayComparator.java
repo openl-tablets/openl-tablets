@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 
 public class ArrayComparator implements TestResultComparator {
 
-    public boolean compareResult(Object actualResult, Object expectedResult) {
+    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;
         }
@@ -19,7 +19,7 @@ public class ArrayComparator implements TestResultComparator {
 
             TestResultComparator comp = TestResultComparatorFactory.getComparator(actualArrayResult,
                     expectedArrayResult);
-            if (!comp.compareResult(actualArrayResult, expectedArrayResult)) {
+            if (!comp.compareResult(actualArrayResult, expectedArrayResult, delta)) {
                 return false;
             }
         }

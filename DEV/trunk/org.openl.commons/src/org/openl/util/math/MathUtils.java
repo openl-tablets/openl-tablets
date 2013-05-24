@@ -1613,6 +1613,14 @@ public class MathUtils {
         return Math.abs(x - y) <= Math.ulp(x);
     }
 
+    public static boolean eq(double x, double y, double delta) {
+        if (Double.compare(x, y) == 0)
+            return true;
+        if (Double.isInfinite(x) || Double.isInfinite(y) || Double.isNaN(x) || Double.isNaN(y))
+            return false;
+        return Math.abs(x - y) <= delta;
+    }
+
     public static boolean ne(double x, double y) {
         return !eq(x, y);
     }

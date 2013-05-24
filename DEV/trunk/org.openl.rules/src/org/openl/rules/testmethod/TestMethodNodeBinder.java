@@ -9,13 +9,10 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.data.DataNodeBinder;
-import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -60,7 +57,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         IOpenMethodHeader header = TestMethodHelper.makeHeader(tableName, module);
         TestSuiteMethod testSuite = new TestSuiteMethod(tableName, testedMethod, header, testMethodBoundNode);
         testMethodBoundNode.setTestSuite(testSuite);
-        
+
 //        ILogicalTable horiztableBody = DataTableBindHelper.getTableBody(tsn);
 //        ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horiztableBody);
 //        
