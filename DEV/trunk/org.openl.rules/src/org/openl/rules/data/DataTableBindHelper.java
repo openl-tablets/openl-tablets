@@ -39,6 +39,7 @@ public class DataTableBindHelper {
 
     // patter for field like addressArry[0]
     private static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
+    private static final String PRECISION_PATTERN = "^\\([0-9]+\\)$";
 
     /**
      * Foreign keys row is optional for data table. It consists reference for
@@ -518,11 +519,20 @@ public class DataTableBindHelper {
         // 1st for driver, 2nd for name     
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
         boolean hasAccessByArrayId = false;
+        Double precision = null;
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
             IOpenField fieldInChain = null;
             boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
+
+            if(fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
+                precision = getPrecisionValue(fieldNameNode);
+                fieldAccessorChain = (IOpenField[]) ArrayUtils.remove(fieldAccessorChain, fieldIndex);
+                fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
+                /*Skip creation of IOpenField*/
+                continue;
+            }
 
             if (arrayAccess) {
                 hasAccessByArrayId = arrayAccess;
@@ -550,6 +560,17 @@ public class DataTableBindHelper {
             chainField = new FieldChain(type, fieldAccessorChain, fieldAccessorChainTokens, hasAccessByArrayId);
         }
         return chainField;
+    }
+    
+    private static Double getPrecisionValue(IdentifierNode fieldNameNode) {
+        try {
+            String fieldName = fieldNameNode.getIdentifier();
+            String txtIndex = fieldName.substring(fieldName.indexOf("(") + 1, fieldName.indexOf(")"));
+    
+            return Double.parseDouble(txtIndex);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static int getArrayIndex(IdentifierNode fieldNameNode) {

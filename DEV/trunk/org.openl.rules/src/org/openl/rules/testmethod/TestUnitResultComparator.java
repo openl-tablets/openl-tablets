@@ -58,19 +58,19 @@ public class TestUnitResultComparator {
      * <b>1</b> if the expected result is not equal to the actual one.<br>
      * <b>2</b> if the was an exception, during running, that we didn`t expect.
      */
-    public int getCompareResult(TestUnit testUnit) {
+    public int getCompareResult(TestUnit testUnit, Double delta) {
         if (testUnit.getActualResult() instanceof Throwable) {
-            return compareExceptionResult(testUnit);
+            return compareExceptionResult(testUnit, delta);
         }
 
-        if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult())) {
+        if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult(), delta)) {
             return TestStatus.TR_OK.getStatus();
         }
 
         return TestStatus.TR_NEQ.getStatus();
     }
 
-    public boolean compareResult(Object actualResult, Object expectedResult) {
+    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
 
         if (actualResult == expectedResult) {
             return true;
@@ -90,10 +90,10 @@ public class TestUnitResultComparator {
             return false;
         }
 
-        return resultComparator.compareResult(actualResult, expectedResult);
+        return resultComparator.compareResult(actualResult, expectedResult, delta);
     }
 
-    private int compareExceptionResult(TestUnit testUnit) {
+    private int compareExceptionResult(TestUnit testUnit, Double delta) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
             String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
@@ -112,8 +112,8 @@ public class TestUnitResultComparator {
             if (expectedMessage == null) {
                 expectedMessage = StringUtils.EMPTY;
             }
-            
-            if (compareResult(actualMessage, expectedMessage)) {
+
+            if (compareResult(actualMessage, expectedMessage, delta)) {
                 return TestStatus.TR_OK.getStatus();
             } else {
                 return TestStatus.TR_NEQ.getStatus();
