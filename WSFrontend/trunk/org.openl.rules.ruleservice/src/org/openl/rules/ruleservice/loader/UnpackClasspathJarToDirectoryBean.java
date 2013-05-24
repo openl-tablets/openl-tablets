@@ -90,28 +90,39 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         File newProjectDir = new File(destDir, FilenameUtils.getBaseName(jarFile.getCanonicalPath()));
         newProjectDir.mkdirs();
 
-        JarFile jar = new JarFile(jarFile);
+        JarFile jar = null;
+        try {
+            jar = new JarFile(jarFile);
 
-        Enumeration<JarEntry> e = jar.entries();
-        while (e.hasMoreElements()) {
-            JarEntry file = e.nextElement();
-            File f = new File(newProjectDir, file.getName());
-            if (file.isDirectory()) {
-                f.mkdir();
-                continue;
+            Enumeration<JarEntry> e = jar.entries();
+            while (e.hasMoreElements()) {
+                JarEntry file = e.nextElement();
+                File f = new File(newProjectDir, file.getName());
+                if (file.isDirectory()) {
+                    f.mkdir();
+                    continue;
+                }
+
+                InputStream is = jar.getInputStream(file);
+                InputStream bufferedInputStream = new BufferedInputStream(is);
+
+                FileOutputStream fos = new FileOutputStream(f);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                int data;
+                while ((data = bufferedInputStream.read()) != -1) {
+                    bos.write(data);
+                }
+                bos.close();
+                bufferedInputStream.close();
             }
-
-            InputStream is = jar.getInputStream(file);
-            InputStream bufferedInputStream = new BufferedInputStream(is);
-
-            FileOutputStream fos = new FileOutputStream(f);
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            int data;
-            while ((data = bufferedInputStream.read()) != -1) {
-                bos.write(data);
+        } finally {
+            if (jar != null){
+                try{
+                    jar.close();
+                }catch(IOException e){
+                   
+                }
             }
-            bos.close();
-            bufferedInputStream.close();
         }
     }
 

@@ -1,7 +1,11 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.openl.binding.IBindingContext;
 import org.openl.meta.StringValue;
@@ -18,24 +22,45 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 public class CellsHeaderExtractor {
     private String[] rowNames;
     private String[] columnNames;
+    private Set<String> dependentSpreadsheetTypes;
     
     /** table representing column section in the spreadsheet **/
-    private ILogicalTable columnNamesTable;
+    private final ILogicalTable columnNamesTable;
 
     /** table representing row section in the spreadsheet **/
-    private ILogicalTable rowNamesTable;
+    private final ILogicalTable rowNamesTable;
+
+    /** Spreadsheet signature */
+    private final String spreadsheetSignature;
     
     // regex that represents the next line:
     // [any_symbols] : SpreadsheetResult<custom_spreadsheet_result_name>
     //
     // package scope just for tests
     static final String DEPENDENT_CSR_REGEX = "^.*\\s*:\\s*SpreadsheetResult[^\\s\\[\\]].*";
+
+    /**
+     * Pattern that represents the next line:
+     * Spreadsheet SpreadsheetResult<custom_spreadsheet_result_name> <name_and_params_declaration>
+     */
+    private static final Pattern CSR_IN_RETURN_PATTERN = Pattern.compile("\\s*Spreadsheet\\s*SpreadsheetResult([^\\s\\[\\]]+).+");
+
+    /**
+     * Pattern that represents parameters of the spreadsheet
+     */
+    private static final Pattern PARAMETERS_PATTERN = Pattern.compile("\\((.+)\\)");
+
+    /**
+     * Pattern that represents custom spreadsheet type parameter
+     */
+    private static final Pattern CSR_TYPE_PATTERN = Pattern.compile("\\s*SpreadsheetResult([^\\s\\[\\]]+).+");
     
-    public CellsHeaderExtractor(ILogicalTable columnNamesTable, ILogicalTable rowNamesTable) {
+    public CellsHeaderExtractor(String spreadsheetSignature, ILogicalTable columnNamesTable, ILogicalTable rowNamesTable) {
+        this.spreadsheetSignature = spreadsheetSignature;
         this.columnNamesTable = columnNamesTable;
         this.rowNamesTable = rowNamesTable;
     }
-    
+
     public void extract() {
         extractRowNames();
         extractColumnNames();
@@ -63,10 +88,13 @@ public class CellsHeaderExtractor {
         return columnNames.clone();
     }
     
-    public List<String> getDependentSpreadsheetTypes() {
-        List<String> dependentSpreadsheetTypes = new ArrayList<String>();
-        dependentSpreadsheetTypes.addAll(getDependencies(columnNames));
-        dependentSpreadsheetTypes.addAll(getDependencies(rowNames));
+    public Set<String> getDependentSpreadsheetTypes() {
+        if (dependentSpreadsheetTypes == null) {
+            dependentSpreadsheetTypes = new HashSet<String>();
+            dependentSpreadsheetTypes.addAll(getSignatureDependencies(spreadsheetSignature));
+            dependentSpreadsheetTypes.addAll(getDependencies(columnNames));
+            dependentSpreadsheetTypes.addAll(getDependencies(rowNames));
+        }
         return dependentSpreadsheetTypes;
     }
     
@@ -107,7 +135,30 @@ public class CellsHeaderExtractor {
         }
         return dependentSpreadsheets;
     }
-    
+
+    // package scope just for tests
+    static List<String> getSignatureDependencies(String signature) {
+        List<String> dependentSpreadsheets = new ArrayList<String>();
+
+        Matcher matcher = CSR_IN_RETURN_PATTERN.matcher(signature);
+        if (matcher.matches()) {
+            dependentSpreadsheets.add(matcher.group(1));
+        }
+
+        matcher = PARAMETERS_PATTERN.matcher(signature);
+        if (matcher.find()) {
+            String allParams = matcher.group(1);
+            for (String param : allParams.split("\\s*,\\s*")) {
+                Matcher paramMatcher = CSR_TYPE_PATTERN.matcher(param);
+                if (paramMatcher.matches()) {
+                    dependentSpreadsheets.add(paramMatcher.group(1));
+                }
+            }
+        }
+
+        return dependentSpreadsheets;
+    }
+
     private String[] extractRowNames() {   
         int height = rowNamesTable.getHeight();
         rowNames = new String[height];

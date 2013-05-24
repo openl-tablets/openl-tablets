@@ -149,7 +149,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         //
         if (method == null) {
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append("Method signature: ");
             MethodUtil.printMethod(getName(), getSignature(), sb);
             sb.append("\n");
@@ -184,7 +184,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         } else {
             // Throw appropriate exception.
             //
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             MethodUtil.printMethod(getName(), getSignature(), sb);
             
             throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());

@@ -18,7 +18,7 @@ public abstract class ConfigProperty<T> {
 
     /**
      * Returns default value for the config property.
-     *
+     * 
      * @return default value
      */
     public T getDefault() {
@@ -27,7 +27,7 @@ public abstract class ConfigProperty<T> {
 
     /**
      * Returns name of the config property.
-     *
+     * 
      * @return name of property
      */
     public String getName() {
@@ -37,7 +37,7 @@ public abstract class ConfigProperty<T> {
     /**
      * Returns value of the config property. If <code>value</code> is not
      * defined then <code>default value</code> is returned.
-     *
+     * 
      * @return value of property
      */
     public T getValue() {
@@ -52,14 +52,14 @@ public abstract class ConfigProperty<T> {
      * this method with appropriate code to parse text value into valid config
      * property value. If text value is invalid then
      * {@link IllegalArgumentException} should be thrown.
-     *
+     * 
      * @param s new value of property in text form
      */
     protected abstract void setTextValue(String s);
 
     /**
      * Sets value of the config property.
-     *
+     * 
      * @param value new value
      */
     protected void setValue(T value) {

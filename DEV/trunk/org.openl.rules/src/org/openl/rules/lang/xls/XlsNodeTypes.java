@@ -31,6 +31,7 @@ public enum XlsNodeTypes {
     XLS_OPENL("xls.openl"),
     XLS_ENVIRONMENT("xls.environment"),
     XLS_PERSISTENT("xls.persistent"),
+    XLS_TABLEPART("xls.tablepart"),
     XLS_OTHER("xls.other"),
     XLS_PROPERTIES("xls.properties");
     

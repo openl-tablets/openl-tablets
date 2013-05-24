@@ -13,7 +13,7 @@ public abstract class ConfigLocator implements Comparable<ConfigLocator> {
      * Note: Reversed compare.
      * <p>
      * ConfigLocator with higher priority must be checked first.
-     *
+     * 
      * @param o other ConfigLocator
      * @return reversed compare
      */
@@ -26,7 +26,7 @@ public abstract class ConfigLocator implements Comparable<ConfigLocator> {
      * Returns current priority of the ConfigLocator.
      * <p>
      * Locator with higher priority value will be checked first.
-     *
+     * 
      * @return priority value
      */
     public int getPriority() {
@@ -37,7 +37,7 @@ public abstract class ConfigLocator implements Comparable<ConfigLocator> {
      * Locate resource that contains config data.
      * <p>
      * If resource cannot be found this method returns <code>null</code>.
-     *
+     * 
      * @param fullName full name of resource
      * @return content or <code>null</code>
      */
@@ -50,7 +50,7 @@ public abstract class ConfigLocator implements Comparable<ConfigLocator> {
      * other users.
      * <p>
      * Negative values are allowed too.
-     *
+     * 
      * @param priority new priority
      */
     public void setPriority(int priority) {

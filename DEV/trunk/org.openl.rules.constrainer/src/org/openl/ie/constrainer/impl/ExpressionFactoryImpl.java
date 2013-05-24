@@ -21,6 +21,11 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public final class ExpressionFactoryImpl extends UndoableOnceImpl implements ExpressionFactory, java.io.Serializable {
     /**
+     * 
+     */
+    private static final long serialVersionUID = 7593413055525940597L;
+
+    /**
      * An interface for the unique key of the expression.
      */
     interface ExpressionKey {
@@ -153,7 +158,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
          */
         @Override
         public String toString() {
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder();
             s.append("class: ").append(_clazz.getName()).append(", args:(");
             for (int i = 0; i < _args.length; i++) {
                 if (i != 0) {
@@ -308,7 +313,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      */
     @Override
     public String toString() {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
         Enumeration e = _expressions.keys();
         while (e.hasMoreElements()) {
             ExpressionKey key = (ExpressionKey) e.nextElement();

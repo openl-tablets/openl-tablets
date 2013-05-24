@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IOpenIteratorExtender<E, T> {
 

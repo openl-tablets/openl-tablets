@@ -77,7 +77,7 @@ public class MethodUsagesSearcher {
          * @return String description of the method signature.
          */
         public String getMethodSignature() {
-            StringBuffer buff = new StringBuffer();
+            StringBuilder buff = new StringBuilder();
             MethodUtil.printMethod(method, buff);
             return buff.toString();
         }

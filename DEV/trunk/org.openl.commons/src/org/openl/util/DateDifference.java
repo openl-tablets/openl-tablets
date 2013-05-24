@@ -5,60 +5,65 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * Class with helper methods to find differences in two dates.
- * Supports differences in days, years, weeks and months.
- * Correctly handles date differences between dates before so called "the Epoch", 
- * namely January 1, 1970, 00:00:00 GMT and dates after it.
- *
+ * Class with helper methods to find differences in two dates. Supports
+ * differences in days, years, weeks and months. Correctly handles date
+ * differences between dates before so called "the Epoch", namely January 1,
+ * 1970, 00:00:00 GMT and dates after it.
+ * 
  */
-public class DateDifference {    
+public class DateDifference {
 
     private static final double DAY_MILLIS = 1000 * 60 * 60 * 24.0015;
     private static final double WEEK_MILLIS = DAY_MILLIS * 7;
     private static final double MONTH_MILLIS = DAY_MILLIS * 30.43675;
     private static final double YEAR_MILLIS = WEEK_MILLIS * 52.2;
-    
-    private DateDifference(){}
-    
+
+    private DateDifference() {
+    }
+
     /**
      * Return the difference in days before endDate and startDate.
      * 
      * @param endDate the date that is considered to be the later one
      * @param startDate the date that is considered to be the earlier one
-     * @return positive integer if endDate is greater than startDate, in other case the result will be negative. 
+     * @return positive integer if endDate is greater than startDate, in other
+     *         case the result will be negative.
      */
     public static int getDifferenceInDays(Date endDate, Date startDate) {
         return getDateDiff(Calendar.DATE, endDate, startDate);
     }
-    
+
     /**
      * Return the difference in weeks before endDate and startDate.
      * 
      * @param endDate the date that is considered to be the later one
      * @param startDate the date that is considered to be the earlier one
-     * @return positive integer if endDate is greater than startDate, in other case the result will be negative. 
+     * @return positive integer if endDate is greater than startDate, in other
+     *         case the result will be negative.
      */
     public static int getDifferenceInWeeks(Date endDate, Date startDate) {
         return getDateDiff(Calendar.WEEK_OF_YEAR, endDate, startDate);
     }
-    
+
     /**
      * Return the difference in months before endDate and startDate.
      * 
      * @param endDate the date that is considered to be the later one
      * @param startDate the date that is considered to be the earlier one
-     * @return positive integer if endDate is greater than startDate, in other case the result will be negative. 
+     * @return positive integer if endDate is greater than startDate, in other
+     *         case the result will be negative.
      */
     public static int getDifferenceInMonths(Date endDate, Date startDate) {
         return getDateDiff(Calendar.MONTH, endDate, startDate);
     }
-    
+
     /**
      * Return the difference in years before endDate and startDate.
      * 
      * @param endDate the date that is considered to be the later one
      * @param startDate the date that is considered to be the earlier one
-     * @return positive integer if endDate is greater than startDate, in other case the result will be negative. 
+     * @return positive integer if endDate is greater than startDate, in other
+     *         case the result will be negative.
      */
     public static int getDifferenceInYears(Date endDate, Date startDate) {
         return getDateDiff(Calendar.YEAR, endDate, startDate);
@@ -96,7 +101,7 @@ public class DateDifference {
     private static int getEstDiff(int calUnit, Date d1, Date d2) {
         long diff = d2.getTime() - d1.getTime();
         switch (calUnit) {
-            //case Calendar.DAY_OF_WEEK_IN_MONTH:
+        // case Calendar.DAY_OF_WEEK_IN_MONTH:
             case Calendar.DAY_OF_MONTH:
                 // case Calendar.DATE : // codes to same int as DAY_OF_MONTH
                 return (int) (diff / DAY_MILLIS + .5);
@@ -108,7 +113,7 @@ public class DateDifference {
                 return (int) (diff / YEAR_MILLIS + .5);
             default:
                 return 0;
-        } 
+        }
     }
 
 }

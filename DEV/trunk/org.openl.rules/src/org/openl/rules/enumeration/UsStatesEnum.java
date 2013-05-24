@@ -65,4 +65,14 @@ public enum UsStatesEnum {
 	public String toString() {
 		return displayName;
 	}
+	
+	public static UsStatesEnum fromString(String displayName) {
+		for (UsStatesEnum v : UsStatesEnum.values()) {
+			if (displayName.equalsIgnoreCase(v.displayName)) {
+				return v;
+			}
+		}
+		
+		throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+  	}
 }

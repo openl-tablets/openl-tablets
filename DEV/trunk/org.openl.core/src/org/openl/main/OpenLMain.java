@@ -130,7 +130,7 @@ public class OpenLMain implements SourceCodeURLConstants {
     // FileReader reader = new FileReader(filename);
     //
     // int c;
-    // StringBuffer buf = new StringBuffer();
+    // StringBuilder buf = new StringBuilder();
     // while ((c = reader.read()) != -1)
     // buf.append((char) c);
     //
@@ -203,7 +203,7 @@ public class OpenLMain implements SourceCodeURLConstants {
 
     String methodArgsToString() {
         int size = methodArgs != null ? methodArgs.length : 0;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < size; i++) {
             result.append(quote(methodArgs[i])).append(' ');
         }
@@ -261,7 +261,7 @@ public class OpenLMain implements SourceCodeURLConstants {
      */
     String quote(String s) {
         if (s.indexOf('"') >= 0) {
-            StringBuffer result = new StringBuffer(s.length() * 2);
+            StringBuilder result = new StringBuilder(s.length() * 2);
             for (int i = 0; i < s.length(); i++) {
                 if (s.charAt(i) == '"') {
                     result.append('\\');

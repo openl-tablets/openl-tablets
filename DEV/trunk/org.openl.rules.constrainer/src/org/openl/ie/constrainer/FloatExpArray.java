@@ -324,7 +324,7 @@ public final class FloatExpArray extends ConstrainerObjectImpl {
      */
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         buf.append("[");
 

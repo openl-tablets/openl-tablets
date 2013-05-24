@@ -19,7 +19,6 @@ import org.openl.util.StringTool;
 public class ClasspathCopy extends Task {
 
     static abstract class CopyExecutor {
-
         public abstract void copyDir(String targetDir, File wspaceDir, File relativeFile);
 
         public abstract void copyFile(String targetDir, File wspaceDir, File relativeFile);
@@ -35,7 +34,6 @@ public class ClasspathCopy extends Task {
             cpy.addFileset(fset);
             cpy.setVerbose(true);
             cpy.execute();
-
         }
 
         @Override
@@ -47,6 +45,7 @@ public class ClasspathCopy extends Task {
             cpy.execute();
         }
     }
+
     class CopyWorkspace extends CopyExecutor {
 
         @Override
@@ -72,13 +71,13 @@ public class ClasspathCopy extends Task {
 
     }
 
-    static public final String JAVA_CLASSPATH_PROPERTY = "java.class.path";
+    public static final String JAVA_CLASSPATH_PROPERTY = "java.class.path";
 
-    static public final String COPY_WORKSPACE_MODE = "copy.workspace";
+    public static final String COPY_WORKSPACE_MODE = "copy.workspace";
 
-    static public final String COPY_WEBAPP_MODE = "copy.webapp";
+    public static final String COPY_WEBAPP_MODE = "copy.webapp";
 
-    static public final String[] ALL_MODES = { COPY_WORKSPACE_MODE, COPY_WEBAPP_MODE };
+    public static final String[] ALL_MODES = { COPY_WORKSPACE_MODE, COPY_WEBAPP_MODE };
 
     protected String startupFileName;
 
@@ -241,6 +240,7 @@ public class ClasspathCopy extends Task {
         w.close();
 
     }
+
     private void generateStartupFile(List<File> path) throws IOException {
         String targetPlatform = System.getProperty("os.name");
 
@@ -252,7 +252,6 @@ public class ClasspathCopy extends Task {
     }
 
     private void generateStartupUnixShellFile() {
-        // TODO Auto-generated method stub
 
     }
 

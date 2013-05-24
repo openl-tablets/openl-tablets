@@ -20,7 +20,7 @@ import org.openl.util.PassCoder;
  * 
  * @author Andrei Astrouski
  * 
- * TODO Separate configuration sets from the manager
+ *         TODO Separate configuration sets from the manager
  */
 public class ConfigurationManager {
 
@@ -38,18 +38,16 @@ public class ConfigurationManager {
 
     private static String REPO_PASS_KEY = "repository.encode.decode.key";
 
-    public ConfigurationManager(boolean useSystemProperties,
-            String propsLocation) {
+    public ConfigurationManager(boolean useSystemProperties, String propsLocation) {
         this(useSystemProperties, propsLocation, null, false);
     }
 
-    public ConfigurationManager(boolean useSystemProperties,
-            String propsLocation, String defaultPropsLocation) {
+    public ConfigurationManager(boolean useSystemProperties, String propsLocation, String defaultPropsLocation) {
         this(useSystemProperties, propsLocation, defaultPropsLocation, false);
     }
 
-    public ConfigurationManager(boolean useSystemProperties,
-            String propsLocation, String defaultPropsLocation, boolean autoSave) {
+    public ConfigurationManager(boolean useSystemProperties, String propsLocation, String defaultPropsLocation,
+            boolean autoSave) {
         this.useSystemProperties = useSystemProperties;
         this.propsLocation = propsLocation;
         this.defaultPropsLocation = defaultPropsLocation;
@@ -149,7 +147,7 @@ public class ConfigurationManager {
                 if (defaultValue != null) {
                     if (value instanceof Collection) {
                         @SuppressWarnings("unchecked")
-                        Collection<String> v = (Collection<String>) value; 
+                        Collection<String> v = (Collection<String>) value;
                         value = v.toArray(new String[v.size()]);
                     }
                     if (!defaultValue.equals(value)) {

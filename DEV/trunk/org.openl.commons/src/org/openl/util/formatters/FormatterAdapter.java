@@ -6,15 +6,15 @@ import org.openl.util.print.Formatter;
 /**
  * 
  * Wrapper to adapt {@link Formatter} functionality to {@link IFormatter}.
- * Supports only format operation. 
+ * Supports only format operation.
  * 
  * @author DLiauchuk
- *
+ * 
  */
 public class FormatterAdapter implements IFormatter {
 
     public String format(Object obj) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         return Formatter.format(obj, INamedThing.REGULAR, buf).toString();
     }
 

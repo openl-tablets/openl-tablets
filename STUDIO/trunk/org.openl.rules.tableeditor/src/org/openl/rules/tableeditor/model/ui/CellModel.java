@@ -1,11 +1,12 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.tableeditor.model.ui.util.HTMLHelper;
 
 public class CellModel implements ICellModel {
-
-    public static final short[] WHITE = { 255, 255, 255 };
 
     private int row;
     private int column;
@@ -18,7 +19,20 @@ public class CellModel implements ICellModel {
     private String valign;
     private short[] rgbBackground;
     private BorderStyle[] borderStyle;
-    private int cellPadding = 1;
+
+    private static final Map<String, Object> DEFAULT_CELL_STYLES = new HashMap<String, Object>();
+    static {
+        // tableeditor.all.css
+        DEFAULT_CELL_STYLES.put("padding", 1);
+        DEFAULT_CELL_STYLES.put("font-family", "Franklin Gothic Book");
+        DEFAULT_CELL_STYLES.put("font-size", 12);
+        DEFAULT_CELL_STYLES.put("color", "#000");
+        DEFAULT_CELL_STYLES.put("border-style", "solid");
+        DEFAULT_CELL_STYLES.put("border-width", "1px");
+        DEFAULT_CELL_STYLES.put("border-color", "#bbd");
+        DEFAULT_CELL_STYLES.put("background", "#fff");
+    };
+
     private boolean hasFormula;
     private String formula;
 
@@ -71,30 +85,45 @@ public class CellModel implements ICellModel {
             return;
         }
 
-        buf.append(" border-style: ");
+        String[] bwidth = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            buf.append((borderStyle[i] == null) ? "none" : borderStyle[i].getStyle());
-            buf.append(' ');
+            int width = (borderStyle[i] == null) ? 0 : borderStyle[i].getWidth();
+            bwidth[i] = width + (width != 0 ? "px" : "");
         }
-        buf.append(';');
+        String widthStr = HTMLHelper.boxCSStoString(bwidth);
+        if (!widthStr.equals(DEFAULT_CELL_STYLES.get("border-width"))) {
+            buf.append("border-width:").append(widthStr).append(';');
+        }
 
-        buf.append(" border-width:");
-
+        String[] styles = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            int w = (borderStyle[i] == null) ? 0 : borderStyle[i].getWidth();
-
-            buf.append(' ').append(w).append("px");
+            String style = null;
+            if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
+                style = (borderStyle[1] == null) ? "none" : borderStyle[1].getStyle();
+            } else {
+                style = borderStyle[i].getStyle();
+            }
+            styles[i] = style;
         }
-        buf.append(';');
+        String styleStr = HTMLHelper.boxCSStoString(styles);
+        if (!styleStr.equals(DEFAULT_CELL_STYLES.get("border-style"))) {
+            buf.append("border-style:").append(styleStr).append(';');
+        }
 
-        buf.append(" border-color:");
-
+        String[] colors = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            short[] rgb = (borderStyle[i] == null) ? new short[] { 0, 0, 0 } : borderStyle[i].getRgb();
-
-            buf.append(' ').append(HTMLHelper.toHexColor(rgb));
+            String color = null;
+            if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
+                color = (borderStyle[1] == null) ? "#000" : HTMLHelper.toHexColor(borderStyle[1].getRgb());
+            } else {
+                color = HTMLHelper.toHexColor(borderStyle[i].getRgb());
+            }
+            colors[i] = color;
         }
-        buf.append(';');
+        String colorStr = HTMLHelper.boxCSStoString(colors);
+        if (!colorStr.equals(DEFAULT_CELL_STYLES.get("border-color"))) {
+            buf.append("border-color:").append(colorStr).append(";");
+        }
     }
 
     String convertContent(String content) {
@@ -168,25 +197,25 @@ public class CellModel implements ICellModel {
             sb.append("width:" + width + "px" + ";");
         }
 
-        if (rgbBackground == null) {
-            rgbBackground = WHITE;
+        if (rgbBackground != null) {
+            String rgb = HTMLHelper.toHexColor(rgbBackground);
+            if (!rgb.equals(DEFAULT_CELL_STYLES.get("background"))) {
+                sb.append("background:" + rgb + ";");
+            }
         }
 
-        short[] color = rgbBackground;
-        sb.append("background-color:" + HTMLHelper.toRgbColor(color) + ";");
+        if (selectErrorCell) {
+            sb.append("border: 2px solid red;");
+        } else if (borderStyle != null) {
+            borderToHtml(sb, tm);
+        }
 
-        if (borderStyle != null || font != null) {
-            sb.append("padding:" + String.valueOf(cellPadding) + "px" + ";");
-            if (selectErrorCell) {
-                sb.append(" border: 2px solid red;");
-            } else {
-                borderToHtml(sb, tm);
-            }
+        if (font != null) {
             fontToHtml(font, sb);
         }
 
         if (ident > 0) {
-            sb.append("padding-left:" + (cellPadding * 0.063 + ident) + "em" + ";");
+            sb.append("padding-left:" + ((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + ident) + "em" + ";");
         }
 
         return sb.toString();
@@ -200,26 +229,36 @@ public class CellModel implements ICellModel {
         if (font.isUnderlined() || font.isStrikeout()) {
             buf.append("text-decoration:");
             if (font.isUnderlined()) {
-                buf.append(" underline");
+                buf.append("underline");
             }
             if (font.isStrikeout()) {
-                buf.append(" line-through");
+                buf.append("line-through");
             }
             buf.append(";");
         }
 
-        buf.append("font-family: ").append(font.getName());
-        buf.append("; font-size: ").append(font.getSize() + 2);
+        String fontName = font.getName();
+        if (!fontName.equals(DEFAULT_CELL_STYLES.get("font-family"))) {
+            buf.append("font-family:").append(fontName);
+        }
+        int fontSize = font.getSize() + 2;
+        if (fontSize != (Integer) DEFAULT_CELL_STYLES.get("font-size")) {
+            buf.append(";font-size:").append(fontSize);
+        }
         if (font.isItalic()) {
-            buf.append("; font-style: italic");
+            buf.append(";font-style:italic");
         }
         if (font.isBold()) {
-            buf.append("; font-weight: bold");
+            buf.append(";font-weight:bold");
         }
 
         short[] color = font.getFontColor();
-
-        buf.append("; color: " + HTMLHelper.toHexColor(color) + ";");
+        if (color != null) {
+            String colorStr = HTMLHelper.toHexColor(color);
+            if (!colorStr.equals(DEFAULT_CELL_STYLES.get("color"))) {
+                buf.append(";color:" + colorStr + ";");
+            }
+        }
 
         return buf;
     }

@@ -120,7 +120,7 @@ public final class DomainBits extends DomainImpl {
     }
 
     String printBits() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < _bits.length; ++i) {
             if (_bits[i]) {
                 if (_initial_min + i < _min || _initial_min + i > _max) {
@@ -140,7 +140,7 @@ public final class DomainBits extends DomainImpl {
     }
 
     String printIntervals() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = _min; i <= _max;) {
             if (i != _min) {
                 buf.append(" ");

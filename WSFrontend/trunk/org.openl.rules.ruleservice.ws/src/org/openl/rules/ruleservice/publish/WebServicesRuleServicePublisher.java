@@ -61,7 +61,6 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         svrFactory.setAddress(serviceAddress);
         svrFactory.setServiceClass(service.getServiceClass());
         svrFactory.setServiceBean(service.getServiceBean());
-        
         try {
             Server wsServer = svrFactory.create();
             ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());

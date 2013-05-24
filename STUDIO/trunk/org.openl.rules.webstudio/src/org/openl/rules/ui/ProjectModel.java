@@ -659,11 +659,11 @@ public class ProjectModel {
     /**
      * Gets test methods for method by uri.
      * 
-     * @param tableUri
+     * @param forTable
      * @return test methods
      */
-    public IOpenMethod[] getTestMethods(String tableUri) {
-        IOpenMethod method = getMethod(tableUri);
+    public IOpenMethod[] getTestMethods(String forTable) {
+        IOpenMethod method = getMethod(forTable);
         if (method != null) {
             return ProjectHelper.testers(method);
         }
@@ -977,12 +977,24 @@ public class ProjectModel {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        for(int i = 0 ; i< tests.length; i++){
+        for (int i = 0 ; i < tests.length; i++) {
             results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
         }
         return results;
     }
-    
+
+    public TestUnitsResults[] runAllTests(String forTable) {
+        IOpenMethod[] tests = getTestMethods(forTable);
+        if (tests != null) {
+            TestUnitsResults[] results = new TestUnitsResults[tests.length];
+            for (int i = 0 ; i < tests.length; i++){
+                results[i] = runTestSuite(new TestSuite((TestSuiteMethod) tests[i]));
+            }
+            return results;
+        }
+        return new TestUnitsResults[0];
+    }
+
     public TestUnitsResults runTestSuite(String tableUri){
         TestSuiteMethod testSuiteMethod = (TestSuiteMethod) getMethod(tableUri);
         return runTestSuite(new TestSuite(testSuiteMethod));

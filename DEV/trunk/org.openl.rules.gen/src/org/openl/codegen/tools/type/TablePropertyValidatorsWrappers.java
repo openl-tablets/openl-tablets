@@ -26,7 +26,7 @@ public class TablePropertyValidatorsWrappers {
     public List<TablePropertyValidatorsWrapper> asList() {
         return new ArrayList<TablePropertyValidatorsWrapper>(wrappers.values());
     }
-    
+
     public TablePropertyValidatorsWrapper findWrapper(String propertyName) {
         return wrappers.get(propertyName);
     }

@@ -2,15 +2,6 @@ package org.openl.util;
 
 import static org.junit.Assert.*;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
 import org.junit.Test;
 
 /**
@@ -40,7 +31,7 @@ public class PassCoderTest {
         try {
             decodedPass = PassCoder.decode(codedPass, wrongKey);
         } catch (Exception e) {
-            //skip exception which wrong key
+            // skip exception which wrong key
         }
 
         assertNull(decodedPass);

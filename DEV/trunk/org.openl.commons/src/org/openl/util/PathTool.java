@@ -47,7 +47,7 @@ public class PathTool {
             result.add(pp2[i]);
         }
 
-        StringBuffer buf = new StringBuffer(50);
+        StringBuilder buf = new StringBuilder(50);
 
         if (p1.startsWith("/")) {
             buf.append('/');

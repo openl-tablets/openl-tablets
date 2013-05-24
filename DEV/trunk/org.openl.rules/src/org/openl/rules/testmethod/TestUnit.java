@@ -1,15 +1,26 @@
 package org.openl.rules.testmethod;
 
+import java.math.BigDecimal;
+
+import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
-import org.openl.meta.IMetaHolder;
+import org.openl.meta.FloatValue;
 import org.openl.rules.helpers.NumberUtils;
+import org.openl.rules.testmethod.result.OpenLBeanResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
+import org.openl.types.IOpenField;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 /**
  * Representation of the single test unit in the test.
  * 
  */
 public class TestUnit {
+    // TODO This is a temporary implementation. Delta in doubles compare should
+    // be configurable.
+    private static final int SIGNIFICANT_DIGITS = 12;
 
     private TestDescription test;
 
@@ -68,7 +79,63 @@ public class TestUnit {
             DoubleValue roundedResult = DoubleValue.round(result, scale);
             actualResult = roundedResult;
             return;
-        } 
+        }
+
+        // TODO This is a temporary implementation. Delta for doubles compare
+        // should be configurable.
+        // Implementation should be like this: abs(a - b) < delta.
+        // Note: delta is not ulp. ULP cannot be used here.
+
+        // Round the expected and actual values to have only 12 significant
+        // digits to fix imprecise comparisons for double values.
+        TestResultComparator comparator = testUnitComparator != null ? testUnitComparator.getComparator()
+                                                                    : TestResultComparatorFactory.getComparator(runningResult,
+                                                                        getExpectedResult());
+        if (comparator instanceof OpenLBeanResultComparator) {
+            OpenLBeanResultComparator beanComparator = (OpenLBeanResultComparator) comparator;
+            actualResult = runningResult; // Cannot clone SpreadsheetResult's
+
+            IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+            for (IOpenField field : beanComparator.getFields()) {
+                Object actualField = field.get(actualResult, env);
+                if (NumberUtils.isFloatPointNumber(actualField)) {
+                    Object expectedField = field.get(getExpectedResult(), env);
+                    if (expectedField == null) {
+                        continue;
+                    }
+
+                    DoubleValue actualValue = NumberUtils.convertToDoubleValue(actualField);
+                    DoubleValue expectedValue = NumberUtils.convertToDoubleValue(expectedField);
+
+                    BigDecimal expected = BigDecimal.valueOf(expectedValue.doubleValue());
+                    int scaleForDelta = SIGNIFICANT_DIGITS - (expected.precision() - expected.scale());
+
+                    DoubleValue roundedResult = DoubleValue.round(actualValue, scaleForDelta);
+                    DoubleValue roundedExpected = DoubleValue.round(expectedValue, scaleForDelta);
+
+                    if (actualField instanceof Float) {
+                        field.set(actualResult, Float.valueOf(roundedResult.floatValue()), env);
+                        field.set(expectedResult, Float.valueOf(roundedExpected.floatValue()), env);
+                    } else if (actualField instanceof Double) {
+                        field.set(actualResult, Double.valueOf(roundedResult.doubleValue()), env);
+                        field.set(expectedResult, Double.valueOf(roundedExpected.doubleValue()), env);
+                    } else if (actualField instanceof BigDecimal) {
+                        field.set(actualResult, BigDecimal.valueOf(roundedResult.doubleValue()), env);
+                        field.set(expectedResult, BigDecimal.valueOf(roundedExpected.doubleValue()), env);
+                    } else if (actualField instanceof FloatValue) {
+                        field.set(actualResult, DoubleValue.cast(roundedResult, (FloatValue) null), env);
+                        field.set(expectedResult, DoubleValue.cast(roundedExpected, (FloatValue) null), env);
+                    } else if (actualField instanceof DoubleValue) {
+                        field.set(actualResult, roundedResult, env);
+                        field.set(expectedResult, roundedExpected, env);
+                    } else if (actualField instanceof BigDecimalValue) {
+                        field.set(actualResult, DoubleValue.autocast(roundedResult, (BigDecimalValue) null), env);
+                        field.set(expectedResult, DoubleValue.autocast(roundedExpected, (BigDecimalValue) null), env);
+                    }
+                }
+            }
+            return;
+        }
     
         actualResult = runningResult;
     }

@@ -73,31 +73,36 @@ public class TestUnitsResults implements INamedThing {
     public TestUnit updateTestUnit(TestUnit testUnit) {
         ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
         List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
+
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptor()) {
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
                 if (nodes.length > 1 && TestMethodHelper.EXPECTED_RESULT_NAME.equals(nodes[0].getIdentifier())) {
-                    // get the field name next to _res_ field, e.g.
-                    // "_res_.$Value$Name"
-                    if (nodes.length > 2) {
-                        IOpenField[] fieldSequence = new IOpenField[nodes.length - 1];
-                        IOpenClass currentType = resultType;
-                        for (int i = 0; i < fieldSequence.length; i++) {
-                            fieldSequence[i] = currentType.getField(nodes[i + 1].getIdentifier());
-                            currentType = fieldSequence[i].getType();
+                    if (columnDescriptor.isReference()) {
+                        if (!resultType.isSimple()) {
+                            fieldsToTest.addAll(resultType.getFields().values());
                         }
-                        fieldsToTest.add(new FieldChain(currentType, fieldSequence));
                     } else {
-                        fieldsToTest.add(resultType.getField(nodes[1].getIdentifier()));
+                        // get the field name next to _res_ field, e.g.
+                        // "_res_.$Value$Name"
+                        if (nodes.length > 2) {
+                            IOpenField[] fieldSequence = new IOpenField[nodes.length - 1];
+                            IOpenClass currentType = resultType;
+                            for (int i = 0; i < fieldSequence.length; i++) {
+                                fieldSequence[i] = currentType.getField(nodes[i + 1].getIdentifier());
+                                currentType = fieldSequence[i].getType();
+                            }
+                            fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                        } else {
+                            fieldsToTest.add(resultType.getField(nodes[1].getIdentifier()));
+                        }
                     }
                 }
             }
         }
         if (fieldsToTest.size() > 0) {
-            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(testUnit.getActualResult(),
-                testUnit.getExpectedResult(),
-                fieldsToTest);
+            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(fieldsToTest);
             testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
         }
         return testUnit;

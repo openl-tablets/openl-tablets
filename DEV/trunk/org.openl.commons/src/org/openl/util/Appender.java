@@ -10,7 +10,7 @@ import java.util.Collection;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class Appender<T> implements IAppender<T> {
 
@@ -57,7 +57,7 @@ public class Appender<T> implements IAppender<T> {
 
     /**
      * Stores data in array
-     *
+     * 
      * @param ary
      * @return
      */
@@ -67,7 +67,7 @@ public class Appender<T> implements IAppender<T> {
 
     /**
      * Stores data in array within selected range
-     *
+     * 
      * @param ary
      * @param from
      * @param to

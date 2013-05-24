@@ -1,6 +1,6 @@
 package org.openl.rules.calc;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.junit.Ignore;
@@ -30,10 +30,10 @@ public class Test1 {
         Object o2 = result.getValue(0, 1);
 
         DoubleValue v1 = (DoubleValue) o1;
-        assertEquals(10.0, v1.doubleValue());
+        assertEquals(10.0, v1.doubleValue(), 1e-8);
 
         DoubleValue v2 = (DoubleValue) o2;
-        assertEquals(20.0, v2.doubleValue());
+        assertEquals(20.0, v2.doubleValue(), 1e-8);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class Test1 {
 
         Object o1 = result.getValue(0, 2);
         DoubleValue v1 = (DoubleValue) o1;
-        assertEquals(30.0, v1.doubleValue());
+        assertEquals(30.0, v1.doubleValue(), 1e-8);
     }
 
     @Test

@@ -1,6 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -80,7 +80,7 @@ public class MultiModuleInstantiationTest {
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
@@ -207,7 +207,7 @@ public class MultiModuleInstantiationTest {
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

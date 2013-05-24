@@ -5,13 +5,14 @@ package org.openl.util.benchmark;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class Profiler {
 
     public static abstract class Unit {
         public abstract BenchmarkUnit makeBenchMarkUnit() throws Exception;
     }
+
     int N = 10;
 
     int minms = 10000;

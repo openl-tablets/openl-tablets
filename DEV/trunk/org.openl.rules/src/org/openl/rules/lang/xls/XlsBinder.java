@@ -179,7 +179,7 @@ public class XlsBinder implements IOpenBinder {
         if (parsedCode.getExternalParams() != null) {
             bindingContext.setExternalParams(parsedCode.getExternalParams());
         }
-        
+
         IBoundNode topNode = null;
 
         if (!parsedCode.getCompiledDependencies().isEmpty()) {

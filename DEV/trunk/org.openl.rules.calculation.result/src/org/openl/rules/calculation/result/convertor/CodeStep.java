@@ -22,8 +22,8 @@ public class CodeStep extends CalculationStep {
 
     @Override
     public String toString() {
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("Step_Name: ").append(getStepName()).append(" Code: ").append(getCode());
-        return stringBuffer.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Step_Name: ").append(getStepName()).append(" Code: ").append(getCode());
+        return sb.toString();
     }
 }

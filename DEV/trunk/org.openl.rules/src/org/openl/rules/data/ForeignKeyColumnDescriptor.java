@@ -1,14 +1,17 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -21,11 +24,13 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringTool;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from
@@ -100,7 +105,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         if (valuesHeight == 1) {
 
             multiValue = true;
-            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
+            if(!bindingContext.isExecutionMode())
+            	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, multiValue);
 
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
@@ -112,7 +118,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         foreignKeyIndex,
                         valuesTable,
                         token);
-                    values.add(res);
+
+                    setResValues(values, res);
                 }
             }
         } else {
@@ -124,18 +131,37 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
-                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                    if(!bindingContext.isExecutionMode())
+                    	RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                     values.add(null);
                     continue;
                 }
 
-                RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
+                if(!bindingContext.isExecutionMode())
+                	RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, multiValue);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, valueTable, value);
-                values.add(res);
+
+                setResValues(values, res);
             }
         }
 
         return values;
+    }
+
+    private void setResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
+        if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
+            ResultChainObject chainRes = getChainObject(res, getFieldChainTokens());
+
+            res = chainRes.getValue();
+        }
+
+        if (res.getClass().isArray()) {
+            for (int i = 0; i < Array.getLength(res); i++) {
+                values.add(Array.get(res, i));
+            }
+        } else {
+            values.add(res);
+        }
     }
 
     /**
@@ -277,6 +303,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 String foreignKeyTableName = foreignKeyTable.getIdentifier();
                 ITable foreignTable = db.getTable(foreignKeyTableName);
+                //foreignTable.findObject(columnIndex, key, bindingContext)
 
                 if (foreignTable == null) {
                     String message = String.format("Table '%s' not found", foreignKeyTableName);
@@ -325,28 +352,48 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 boolean valueAnArray = isValuesAnArray(fieldType);
                 boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
+                IOpenClass resType = foreignTable.getDataModel().getType();
 
                 if (!valueAnArray && !isList) {
-
-                    IOpenCast cast = cxt.getCast(foreignTable.getDataModel().getType(),fieldType);
-                    if (cast == null || !cast.isImplicit()) {
-                        String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
-                            getField().getName(),
-                            fieldType,
-                            foreignTable.getDataModel().getType());
-                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                    }
                     String s = getCellStringValue(valuesTable);
 
                     if (s == null || s.length() == 0) {
                         // Set meta info for empty cells
-                        RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        if(!cxt.isExecutionMode())
+                        	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                     } else {
                         if (s.length() > 0) {
-                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            if(!cxt.isExecutionMode())
+                            	RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                             Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, valuesTable, s);
+
+                            if (!ArrayUtils.isEmpty(getFieldChainTokens())) {
+                                ResultChainObject chainRes = getChainObject(res, getFieldChainTokens());
+
+                                if (chainRes.instanceClass.isArray()) {
+                                    String message = String.format("Wrong types: Field '%s' has type [%s], but tried to convert into [%s]",
+                                            getField().getName(),
+                                            fieldType,
+                                            chainRes.instanceClass.getSimpleName());
+                                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                                } else {
+                                    resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, chainRes.getInstanceClass().getSimpleName());
+                                }
+
+                                res = chainRes.getValue();
+                            }
+
                             getField().set(target, res, getRuntimeEnv());
                         }
+                    }
+
+                    IOpenCast cast = cxt.getCast(resType,fieldType);
+                    if (cast == null || !cast.isImplicit()) {
+                        String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                            getField().getName(),
+                            fieldType,
+                            resType);
+                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                     }
                 } else {
                     // processing array or list values.
@@ -409,6 +456,51 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
              * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
              * boolean hasColumnTytleRow)}
              */
+        }
+    }
+
+    private ResultChainObject getChainObject(Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
+        Object resObj = parentObj;
+        Class<?> resInctClass = parentObj.getClass();
+
+        for (int i = 1; i < fieldChainTokens.length; i++) {
+            IdentifierNode token = fieldChainTokens[i];
+            try {
+                Method method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
+                resObj = method.invoke(resObj);
+
+                /*Get null object information from method description*/
+                if (resObj == null) {
+                    resInctClass = method.getReturnType();
+                } else {
+                    resInctClass = resObj.getClass();
+                }
+            } catch (Exception e) {
+                String message = String.format("Incorrect field '%s' in type [%s]",
+                        token.getIdentifier(),
+                        resObj.getClass());
+                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+            }
+        }
+ 
+        return new ResultChainObject(resObj, resInctClass);
+    }
+
+    class ResultChainObject {
+        private Object value;
+        private Class<?> instanceClass;
+
+        ResultChainObject(Object value, Class<?> instanceClass) {
+            this.value = value;
+            this.instanceClass = instanceClass;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public Class<?> getInstanceClass() {
+            return instanceClass;
         }
     }
 }

@@ -55,7 +55,7 @@ public final class Constants {
     public static final String TABLE_EDITOR_WRAPPER_PREFIX = "_editorWrapper";
     public static final String ID_POSTFIX_TABLE = "_table";
     public static final String ID_POSTFIX_MENU = "_menu";
-    public static final String ID_POSTFIX_CELL = "_cell-";
+    public static final String ID_POSTFIX_CELL = "_c-";
 
     public static final String THIRD_PARTY_LIBS_PROTOTYPE = "prototype";
 

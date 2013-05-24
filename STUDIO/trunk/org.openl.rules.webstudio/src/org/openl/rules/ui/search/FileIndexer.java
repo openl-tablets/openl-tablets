@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.main.SourceCodeURLConstants;
@@ -196,7 +195,7 @@ public class FileIndexer {
      */
     public String[] getLetters() {
         Index idx = getIndex();
-        Vector<String> result = new Vector<String>();
+        List<String> result = new ArrayList<String>();
 
         for (Iterator<String> iter = idx.getFirstCharMap().keySet().iterator(); iter.hasNext();) {
             String s = (String) iter.next();
@@ -217,7 +216,7 @@ public class FileIndexer {
     public String[][] getResultsForIndex(String searchQuery) {        
         TokenBucket tb = getIndex().findEqualsTokenBucket(searchQuery);
 
-        Vector<String[]> v = new Vector<String[]>();
+        List<String[]> v = new ArrayList<String[]>();
 
         String[] tokens = new String[tb.getTokens().size()];
         int i = 0;
@@ -257,7 +256,7 @@ public class FileIndexer {
 
         int size = Math.min(maxRes, searchRes.size());
 
-        Vector<String[]> result = new Vector<String[]>(size);
+        List<String[]> result = new ArrayList<String[]>(size);
 
         int cnt = 0;
         for (HitBucket hb : searchRes) {

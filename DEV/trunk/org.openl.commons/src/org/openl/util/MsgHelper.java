@@ -3,7 +3,7 @@ package org.openl.util;
 import java.text.MessageFormat;
 
 /**
- *
+ * 
  * @author Aleh Bykhavets
  */
 public class MsgHelper {

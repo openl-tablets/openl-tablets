@@ -12,11 +12,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.meta.explanation.ExplanationNumberValue;
-import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.table.Point;
@@ -42,7 +42,14 @@ import org.openl.types.IParameterDeclaration;
 @ManagedBean
 @RequestScoped
 public class RunAllTestsBean {
+    private final Log log = LogFactory.getLog(RunAllTestsBean.class);
+
     private TestUnitsResults[] ranResults;
+
+    private final static int DEFAULT_PAGE = 1;
+    private int page = DEFAULT_PAGE;
+    private int lastPage = DEFAULT_PAGE;
+    private int testsPerPage = 5;
 
     /**
      * URI of tested table
@@ -51,22 +58,77 @@ public class RunAllTestsBean {
 
     public RunAllTestsBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+
         TestResultsHelper.initExplanator();
         testAll();
+
+        initPagination();
+    }
+
+    private void initPagination() {
+        String perPageParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PERPAGE);
+        if (StringUtils.isNotBlank(perPageParam)) {
+            try {
+                int initPerPage = Integer.valueOf(perPageParam);
+                if (initPerPage == -1 || initPerPage > 0) {
+                    testsPerPage = initPerPage;
+                }
+            } catch (Exception e) {
+                log.warn(e);
+            }
+        }
+
+        if (ranResults != null && ranResults.length > 0) {
+            lastPage = testsPerPage == -1 ? DEFAULT_PAGE : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+        }
+
+        String pageParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PAGE);
+        if (StringUtils.isNotBlank(pageParam)) {
+            try {
+                int initPage = Integer.valueOf(pageParam);
+                if (initPage > DEFAULT_PAGE && initPage <= lastPage) {
+                    page = initPage;
+                }
+            } catch (Exception e) {
+                log.warn(e);
+            }
+        }
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public int getLastPage() {
+        return lastPage;
+    }
+
+    public int getTestsPerPage() {
+        return testsPerPage;
+    }
+
+    public void setTestsPerPage(int testsPerPage) {
+        this.testsPerPage = testsPerPage;
     }
 
     private void testAll() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        if (!model.hasTestSuitesToRun() && uri == null) {
-            ranResults = model.runAllTests();
-        } else {
+
+        if (model.hasTestSuitesToRun()) {
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
             while(model.hasTestSuitesToRun()){
                 TestSuite testSuite = model.popLastTest();
                 results.add(model.runTestSuite(testSuite));
             }
             ranResults = new TestUnitsResults[results.size()];
-            ranResults = results.toArray(ranResults);            
+            ranResults = results.toArray(ranResults);
+
+        } else {
+            if (uri != null) {
+                ranResults = model.runAllTests(uri);
+            } else {
+                ranResults = model.runAllTests();
+            }
         }
     }
 
@@ -87,11 +149,17 @@ public class RunAllTestsBean {
         };
         Arrays.sort(ranResults, c);
 
-        return ranResults;
+        int startPos = (page - 1) * testsPerPage;
+        int endPos = startPos + testsPerPage;
+        if (endPos >= ranResults.length || testsPerPage == -1) {
+            endPos = ranResults.length;
+        }
+
+        return Arrays.copyOfRange(ranResults, startPos, endPos);
     }
 
     public int getNumberOfTests() {
-        return ranResults.length;
+        return ranResults!= null ? ranResults.length : 0;
     }
 
     public int getNumberOfFailedTests() {
@@ -217,16 +285,18 @@ public class RunAllTestsBean {
         
         try {
             if (spreadsheetResult != null) {
-                Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit);
+                Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return new ObjectViewer().displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
         } catch (Exception e) {
-            
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
         return StringUtils.EMPTY;
     }
 
-    private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit) {
+    private Map<Point, ComparedResult> getFieldsCoordinates(Object objTestUnit, SpreadsheetResult spreadsheetResult) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
         TestUnit testUnit = (TestUnit) objTestUnit;
         TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator().getComparator();
@@ -237,11 +307,11 @@ public class RunAllTestsBean {
         BeanResultComparator comparator = (BeanResultComparator) testUnitResultComparator;
         List<ComparedResult> fieldsToTest = comparator.getComparisonResults();
 
-        SpreadsheetOpenClass spreadsheetOpenClass = ((Spreadsheet)testUnit.getTest().getTestedMethod()).getSpreadsheetType();
-
         if (fieldsToTest != null) {
+            Map<String, Point> coordinates = DefaultResultBuilder.getAbsoluteSpreadsheetFieldCoordinates(spreadsheetResult);
+
             for (ComparedResult fieldToTest : fieldsToTest) {
-                Point fieldCoordinates = DefaultResultBuilder.getAbsoluteSpreadsheetFieldCoordinates(spreadsheetOpenClass.getField(fieldToTest.getFieldName()));
+                Point fieldCoordinates = coordinates.get(fieldToTest.getFieldName());
                 if (fieldCoordinates != null) {
                     fieldsCoordinates.put(fieldCoordinates, fieldToTest);
                 }

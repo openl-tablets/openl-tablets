@@ -10,6 +10,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
 
@@ -40,7 +41,6 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     public synchronized OpenL getOpenL() {
-
         if (openl == null) {
             openl = OpenL.getInstance(openlName, getUserContext());
         }
@@ -49,16 +49,13 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     public synchronized IUserContext getUserContext() {
-
         if (userContext == null) {
             userContext = new UserContext(getDefaultUserClassLoader(), userHome);
         }
-
         return userContext;
     }
     
     protected ClassLoader getDefaultUserClassLoader() {
-
         ClassLoader userClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
 
         try {
@@ -72,10 +69,15 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     @Override
+    protected IRuntimeEnv makeDefaultRuntimeEnv() {
+        return new SimpleVM().getRuntimeEnv();
+    }
+    
+    @Override
     protected InvocationHandler makeInvocationHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+        return new OpenLInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 
 	public String getOpenlName() {

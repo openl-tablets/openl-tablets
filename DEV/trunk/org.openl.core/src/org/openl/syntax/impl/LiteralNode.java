@@ -28,7 +28,7 @@ public class LiteralNode extends TerminalNode implements ILiteralNode {
     }
 
     @Override
-    protected void printMySelf(int level, StringBuffer buf) {
+    protected void printMySelf(int level, StringBuilder buf) {
         super.printMySelf(level, buf);
         buf.append("=" + image);
     }

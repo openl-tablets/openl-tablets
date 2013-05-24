@@ -33,7 +33,7 @@ public class AmbiguousVarException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         buf.append("Variable ").append(varName);
         buf.append(" is ambiguous:\n").append("Matching fieldValues:\n");

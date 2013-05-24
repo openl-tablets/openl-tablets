@@ -25,8 +25,8 @@ public class DateFormatter implements IFormatter {
     }
 
     public DateFormatter(Locale locale) {
-        this(DateFormat.getDateTimeInstance(
-                DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault() : locale));
+        this(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault()
+                : locale));
     }
 
     public DateFormatter(DateFormat format) {
@@ -37,7 +37,9 @@ public class DateFormatter implements IFormatter {
         try {
             this.format = new SimpleDateFormat(format);
         } catch (Exception e) {
-            log.error("Could not create format: " + format);
+            if (log.isErrorEnabled()){
+                log.error("Could not create format: " + format);
+            }
             this.format = new SimpleDateFormat();
         }
     }
@@ -46,7 +48,9 @@ public class DateFormatter implements IFormatter {
         try {
             this.format = new SimpleDateFormat(format, locale);
         } catch (Exception e) {
-            log.error("Could not create format: " + format);
+            if (log.isErrorEnabled()){
+                log.error("Could not create format: " + format);
+            }
             this.format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
                     locale == null ? Locale.getDefault() : locale);
         }
@@ -54,7 +58,9 @@ public class DateFormatter implements IFormatter {
 
     public String format(Object value) {
         if (!(value instanceof Date)) {
-            log.debug("Should be Date: " + value);
+            if (log.isDebugEnabled()){
+                log.debug("Should be Date: " + value);
+            }
             return null;
         }
 
@@ -65,7 +71,9 @@ public class DateFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            log.debug("Could not parse Date: " + value, e);
+            if (log.isDebugEnabled()){
+                log.debug("Could not parse Date: " + value, e);
+            }
             return null;
         }
     }

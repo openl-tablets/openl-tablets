@@ -1,6 +1,6 @@
 package org.openl.rules.validator.dt;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;

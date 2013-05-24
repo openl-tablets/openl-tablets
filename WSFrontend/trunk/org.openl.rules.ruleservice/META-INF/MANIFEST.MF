@@ -11,8 +11,9 @@ Require-Bundle: org.openl.rules.ruleservice.lib;visibility:=reexport,
  org.openl.rules.repository;visibility:=reexport,
  org.openl.core;visibility:=reexport,
  org.openl.rules.repository.jcr.jackrabbit;visibility:=reexport,
-  org.openl.rules.variation;visibility:=reexport,
- org.openl.rules.project;visibility:=reexport
+ org.openl.rules.variation;visibility:=reexport,
+ org.openl.rules.project;visibility:=reexport,
+ org.openl.rules.ruleservice.context;visibility:=reexport
 Export-Package: org.openl.rules.ruleservice,
  org.openl.rules.ruleservice.conf,
  org.openl.rules.ruleservice.core,

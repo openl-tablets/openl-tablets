@@ -11,8 +11,6 @@ import org.openl.domain.IType;
  * @author snshor
  */
 public interface ICollectionMetaInfo {
-    // boolean isReadOnly();
-    // boolean isAddOnly();
 
     double getAddReadRatio();
 
