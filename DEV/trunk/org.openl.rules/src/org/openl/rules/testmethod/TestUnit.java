@@ -25,6 +25,8 @@ public class TestUnit {
 
     private TestUnitResultComparator testUnitComparator;
 
+    private Integer precision = null;
+
     public TestUnit(TestDescription test, Object res, Throwable exception) {
         this.exception = exception;
         this.runningResult = res;
@@ -162,11 +164,11 @@ public class TestUnit {
         String descr = test.getDescription();
         return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
-    
+
     public void setTestUnitResultComparator(TestUnitResultComparator testUnitComparator) {
         this.testUnitComparator = testUnitComparator;
     }
-    
+
     public TestUnitResultComparator getTestUnitResultComparator() {
         if (testUnitComparator == null) {
             testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(getActualResult(), getExpectedResult()));
@@ -208,11 +210,15 @@ public class TestUnit {
     }
 
     private Double getDelta() {
-        Integer precision = this.test.getTestTablePrecision();
+        Integer precision = this.precision != null ? this.precision : this.test.getTestTablePrecision();
 
         if (precision != null) {
             return Math.pow(10.0, -precision);
         }
         return null;
+    }
+
+    public void setPrecision(Integer precision) {
+        this.precision = precision;
     }
 }

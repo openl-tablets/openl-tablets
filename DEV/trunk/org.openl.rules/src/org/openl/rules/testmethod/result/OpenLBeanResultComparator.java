@@ -42,4 +42,8 @@ public class OpenLBeanResultComparator extends BeanResultComparator {
     public Collection<IOpenField> getFields() {
         return fieldMap.values();
     }
+
+    public IOpenField getField(String name) {
+        return fieldMap.get(name);
+    }
 }
