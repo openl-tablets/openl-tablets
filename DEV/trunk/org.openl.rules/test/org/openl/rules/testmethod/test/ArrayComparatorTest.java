@@ -6,16 +6,16 @@ import org.junit.Test;
 import org.openl.rules.testmethod.result.ArrayComparator;
 
 public class ArrayComparatorTest {
-	@Test
-	public void test() {
-		ArrayComparator comparator = new ArrayComparator();
-		
-		assertTrue(comparator.compareResult(null, null));
-		Integer[] intArray = new Integer[]{1, 2};
-		assertFalse(comparator.compareResult(null, intArray));
-		
-		assertFalse(comparator.compareResult(intArray, null));
-		
-		assertTrue(comparator.compareResult(intArray, intArray));
-	}
+    @Test
+    public void test() {
+        ArrayComparator comparator = new ArrayComparator();
+
+        assertTrue(comparator.compareResult(null, null, null));
+        Integer[] intArray = new Integer[] {1, 2};
+        assertFalse(comparator.compareResult(null, intArray, null));
+
+        assertFalse(comparator.compareResult(intArray, null, null));
+
+        assertTrue(comparator.compareResult(intArray, intArray, null));
+    }
 }

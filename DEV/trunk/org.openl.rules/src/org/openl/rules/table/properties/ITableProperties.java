@@ -179,6 +179,8 @@ public interface ITableProperties {
 	void setCacheable(java.lang.Boolean cacheable);
 	org.openl.rules.enumeration.RecalculateEnum getRecalculate();
 	void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
+	java.lang.Integer getPrecision();
+	void setPrecision(java.lang.Integer precision);
 // <<< END INSERT >>>
 	
 	
