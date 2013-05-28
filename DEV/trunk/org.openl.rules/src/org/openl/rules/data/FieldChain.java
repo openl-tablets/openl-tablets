@@ -30,7 +30,7 @@ public class FieldChain extends AOpenField {
         } else {
             name = makeNames(fields);
         }
-        
+
         return name;
     }
 
