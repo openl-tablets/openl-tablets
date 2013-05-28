@@ -133,7 +133,7 @@ public class TableViewer {
     }
 
     private boolean image(String formattedValue) {
-        return formattedValue.matches(".*<img .*>.*");
+        return formattedValue.replaceAll("\n", "").matches(".*<i .*>.*</i>.*");
     }
 
     private boolean link(String formattedValue) {
