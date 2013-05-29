@@ -149,7 +149,7 @@
                         value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                     <h:form prependId="false">
                         <c:set var="runLink"
-                            value="#{showTableBean.table.type == 'xls.run.method' ? 'test/runTestMethod.xhtml' : 'test/runAllTests.xhtml'}?uri=#{showTableBean.encodedUri}" />
+                            value="#{showTableBean.table.type == 'xls.run.method' ? 'test/run.xhtml' : 'test/test.xhtml'}?uri=#{showTableBean.encodedUri}" />
                         <div id="unitsMenu" style="display: none">
                             <c:set var="columnSize" value="#{fn:length(showTableBean.tests[0].executionParams)}" />
                             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px">
@@ -193,7 +193,7 @@
                                 <a4j:commandButton id="benchmarkButton" action="#{showTableBean.makeTestSuite}"
                                     rendered="#{showTableBean.canBenchmark}"
                                     value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
-                                    oncomplete="goTo('test/benchmarkMethod.xhtml')" style="display:none" />
+                                    oncomplete="goTo('test/benchmark.xhtml')" style="display:none" />
                             </div>
                         </div>
                         <table>
@@ -256,7 +256,7 @@
                                         onclick="return isAnyTestSelected();"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        oncomplete="goTo('test/benchmarkMethod.xhtml')"
+                                        oncomplete="goTo('test/benchmark.xhtml')"
                                         style="padding-right: 1px">
                                         <table>
                                             <tr>
@@ -287,7 +287,7 @@
                     <td>
                         <h:form id="inputArgsForm">
                             <c:set var="runLink"
-                                value="test/runTestMethod.xhtml?uri=#{showTableBean.encodedUri}" />
+                                value="test/run.xhtml?uri=#{showTableBean.encodedUri}" />
                             <c:set var="traceUrl"
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;relWidth=70&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true&amp;uri=#{showTableBean.encodedUri}" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{showTableBean.uri}" />
@@ -341,7 +341,7 @@
 
                 <c:if test="#{showTableBean.hasTests}">
                     <td>
-                        <h:outputLink value="#test/runAllTests.xhtml" title="Run Tests" styleClass="toolbarButton"
+                        <h:outputLink value="#test/test.xhtml" title="Run Tests" styleClass="toolbarButton"
                             rendered="#{showTableBean.canRun}"  >
                             <f:param name="uri" value="#{showTableBean.uri}" />
                             <img src="webresource/images/test_ok.gif" />

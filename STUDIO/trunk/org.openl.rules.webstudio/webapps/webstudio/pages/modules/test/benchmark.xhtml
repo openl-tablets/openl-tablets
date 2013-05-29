@@ -10,20 +10,20 @@
 
     <div class="content">
         <h:form id="BMForm">
-            <h:dataTable id="BMTable" value="#{benchmarkMethodBean.benchmarks}" var="item"
-                binding="#{benchmarkMethodBean.htmlDataTableBM}" styleClass="table">
+            <h:dataTable id="BMTable" value="#{benchmarkBean.benchmarks}" var="item"
+                binding="#{benchmarkBean.htmlDataTableBM}" styleClass="table">
                 <h:column>
-                    <h:outputText value="#{benchmarkMethodBean.i}." />
+                    <h:outputText value="#{benchmarkBean.i}." />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Name" />
                     </f:facet>
                     <h:outputLink value="#showTable.xhtml">
-                        <f:param name="uri" value="#{benchmarkMethodBean.uri}" />
-                        <h:outputText value="#{benchmarkMethodBean.tableName}" />
+                        <f:param name="uri" value="#{benchmarkBean.uri}" />
+                        <h:outputText value="#{benchmarkBean.tableName}" />
                     </h:outputLink>
-                    <h:outputText value="#{benchmarkMethodBean.tableInfo}" styleClass="badge"
+                    <h:outputText value="#{benchmarkBean.tableInfo}" styleClass="badge"
                         style="margin-left: 5px" />
                 </h:column>
                 <h:column>
@@ -32,12 +32,12 @@
                     </f:facet>
                     <table>
                         <tr>
-                            <ui:repeat value="#{benchmarkMethodBean.parameters}" var="parameter">
+                            <ui:repeat value="#{benchmarkBean.parameters}" var="parameter">
                                 <th>#{parameter.name}</th>
                             </ui:repeat>
                         </tr>
                         <tr>
-                            <ui:repeat value="#{benchmarkMethodBean.parameters}" var="parameter">
+                            <ui:repeat value="#{benchmarkBean.parameters}" var="parameter">
                                 <td>
                                     <ui:include src="/pages/modules/test/parameter.xhtml">
                                         <ui:param name="parameter" value="#{parameter}" />
@@ -51,53 +51,53 @@
                     <f:facet name="header">
                         <h:outputText value="Runs(ms)" />
                     </f:facet>
-                    <h:outputText value="#{benchmarkMethodBean.msrun}" />
+                    <h:outputText value="#{benchmarkBean.msrun}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Runs/sec" />
                     </f:facet>
-                    <h:outputText value="#{benchmarkMethodBean.runssec}" />
+                    <h:outputText value="#{benchmarkBean.runssec}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Unit Type" />
                     </f:facet>
                     <h:outputText
-                        value="#{benchmarkMethodBean.unitName}" />
+                        value="#{benchmarkBean.unitName}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Units" />
                     </f:facet>
                     <h:outputText
-                        value="#{benchmarkMethodBean.unitRuns}" />
+                        value="#{benchmarkBean.unitRuns}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Unit(ms)" />
                     </f:facet>
                     <h:outputText
-                        value="#{benchmarkMethodBean.msrununit}" />
+                        value="#{benchmarkBean.msrununit}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="Units/sec" />
                     </f:facet>
                     <h:outputText
-                        value="#{benchmarkMethodBean.runsunitsec}" />
+                        value="#{benchmarkBean.runsunitsec}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:selectBooleanCheckbox id="allBenchCheck"
-                            value="#{benchmarkMethodBean.allBencmarkSelected}"
+                            value="#{benchmarkBean.allBencmarkSelected}"
                             title="Check/Uncheck All">
                             <a4j:ajax event="change" execute="@this"
                                 render="@form" />
                         </h:selectBooleanCheckbox>
                     </f:facet>
                     <h:selectBooleanCheckbox id="BM"
-                        value="#{benchmarkMethodBean.bencmarkSelected}">
+                        value="#{benchmarkBean.bencmarkSelected}">
                         <a4j:ajax event="change" execute="@this"
                             render="@form" />
                     </h:selectBooleanCheckbox>
@@ -107,35 +107,35 @@
             <br />
 
             <a4j:commandButton id="compare"
-                action="#{benchmarkMethodBean.compare}" value="Compare"
+                action="#{benchmarkBean.compare}" value="Compare"
                 render="comparedBMTable"
-                disabled="#{!benchmarkMethodBean.anyBencmarkSelected}" />
+                disabled="#{!benchmarkBean.anyBencmarkSelected}" />
             <a4j:commandButton id="delete"
-                action="#{benchmarkMethodBean.delete}" value="Delete"
+                action="#{benchmarkBean.delete}" value="Delete"
                 render="comparedBMTable BMTable compare delete"
-                disabled="#{!benchmarkMethodBean.anyBencmarkSelected}" />
+                disabled="#{!benchmarkBean.anyBencmarkSelected}" />
             <br />
             <br />
-        <h:dataTable id="comparedBMTable" value="#{benchmarkMethodBean.comparedBenchmarks}" var="item"
-            binding="#{benchmarkMethodBean.htmlDataTableBMCompared}" styleClass="table">
+        <h:dataTable id="comparedBMTable" value="#{benchmarkBean.comparedBenchmarks}" var="item"
+            binding="#{benchmarkBean.htmlDataTableBMCompared}" styleClass="table">
             <h:column>
-                <h:outputText value="#{benchmarkMethodBean.comparedI}." />
+                <h:outputText value="#{benchmarkBean.comparedI}." />
             </h:column>
             <h:column>
-                <h:outputText value="#{benchmarkMethodBean.tableName}" />
-            </h:column>
-            <h:column>
-                <h:outputText
-                    value="#{benchmarkMethodBean.comparedRunsunitsec}" />
+                <h:outputText value="#{benchmarkBean.tableName}" />
             </h:column>
             <h:column>
                 <h:outputText
-                    style="#{benchmarkMethodBean.styleForOrder}"
-                    value="#{benchmarkMethodBean.comparedOrder}" />
+                    value="#{benchmarkBean.comparedRunsunitsec}" />
             </h:column>
             <h:column>
                 <h:outputText
-                    value="#{benchmarkMethodBean.comparedRatio}" />
+                    style="#{benchmarkBean.styleForOrder}"
+                    value="#{benchmarkBean.comparedOrder}" />
+            </h:column>
+            <h:column>
+                <h:outputText
+                    value="#{benchmarkBean.comparedRatio}" />
             </h:column>
         </h:dataTable>
 
