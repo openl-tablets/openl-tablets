@@ -14,21 +14,21 @@
         }
     </script>
 
-    <h:panelGroup rendered="#{runAllTestsBean.numberOfTests > 1}">
+    <h:panelGroup rendered="#{!testBean.test}">
     <div class="view_header">
-        <span>Number of Tests: #{runAllTestsBean.numberOfTests}</span>
-        <h:outputText value="#{runAllTestsBean.numberOfFailedTests} failed"
-            rendered="#{runAllTestsBean.numberOfFailedTests > 0}"
+        <span>Number of Tests: #{testBean.numberOfTests}</span>
+        <h:outputText value="#{testBean.numberOfFailedTests} failed"
+            rendered="#{testBean.numberOfFailedTests > 0}"
             styleClass="badge badge-error" style="margin-left: 4px" />
 
         <c:set var="interval" value="5" />
-        <c:set var="curPage" value="#{runAllTestsBean.page}" />    
-        <c:set var="maxPage" value="#{runAllTestsBean.lastPage}" />
+        <c:set var="curPage" value="#{testBean.page}" />    
+        <c:set var="maxPage" value="#{testBean.lastPage}" />
         <c:set var="firstPage" value="#{curPage > interval ? (curPage - interval + 1) : '1'}" />
         <c:set var="lastPage" value="#{(firstPage + interval - 1) > maxPage ? maxPage : (firstPage + interval - 1)}" />
-        <c:set var="perPage" value="#{runAllTestsBean.testsPerPage}" />
+        <c:set var="perPage" value="#{testBean.testsPerPage}" />
 
-        <c:set var="pageUri" value="#test/runAllTests.xhtml" />
+        <c:set var="pageUri" value="#test/test.xhtml" />
         <c:set var="pageUriExtra" value="#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}" />
         <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{pageUriExtra}" />
 
@@ -70,29 +70,29 @@
     </div>
     </h:panelGroup>
 
-    <h:panelGroup rendered="#{runAllTestsBean.numberOfTests le 1 and not empty runAllTestsBean.testedTableUri}">
+    <h:panelGroup rendered="#{testBean.test}">
     <div class="view_header">
         <h:outputText value="Results of running "/>
         <h:outputLink value="#showTable.xhtml">
-            <f:param name="uri" value="#{runAllTestsBean.testedTableUri}" />
-            <h:outputText value="#{runAllTestsBean.testedTableName}" />
+            <f:param name="uri" value="#{testBean.testedTableUri}" />
+            <h:outputText value="#{testBean.testedTableName}" />
         </h:outputLink>
     </div>
     </h:panelGroup>
 
     <div class="content">
-        <h:outputText value="View expired. Test data is no more available." rendered="#{runAllTestsBean.numberOfTests == 1 and runAllTestsBean.expired}" />
+        <h:outputText value="View expired. Test data is no more available." rendered="#{testBean.expired}" />
 
-        <h:panelGroup rendered="#{runAllTestsBean.numberOfTests > 1 or !runAllTestsBean.expired}">
-            <ui:repeat value="#{runAllTestsBean.ranTests}" var="testUnitsResults">
+        <h:panelGroup rendered="#{!testBean.expired}">
+            <ui:repeat value="#{testBean.ranTests}" var="testUnitsResults">
             <div class="test">
                 <h1>
                     <h:outputLink value="#showTable.xhtml"
                         styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
                         <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
-                        <h:outputText value="#{runAllTestsBean.getTestTableName(testUnitsResults)}" />
+                        <h:outputText value="#{testBean.getTestTableName(testUnitsResults)}" />
                     </h:outputLink>
-                    <span class="badge">#{runAllTestsBean.getTestTableInfo(testUnitsResults)}</span>
+                    <span class="badge">#{testBean.getTestTableInfo(testUnitsResults)}</span>
                     <h:panelGroup rendered="#{testUnitsResults.numberOfFailures > 0}" class="badge badge-error" style="margin-left:3px">#{testUnitsResults.numberOfFailures} failed</h:panelGroup>
                 </h1>
                 <table class="table">
@@ -111,7 +111,7 @@
 
                     <ui:repeat value="#{testUnitsResults.testUnits}" var="testUnit">
                         <tr>
-                            <ui:repeat value="#{runAllTestsBean.getParamDescriptions(testUnit)}" var="parameter">
+                            <ui:repeat value="#{testBean.getParamDescriptions(testUnit)}" var="parameter">
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
@@ -123,17 +123,17 @@
 
                             <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
                                 <td>
-                                    <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueExpected(testUnit)}">
-                                        <ui:repeat value="#{runAllTestsBean.getExpectedParameter(testUnit)}" var="expParam">
+                                    <h:panelGroup rendered="#{empty testBean.getExplanationValueExpected(testUnit)}">
+                                        <ui:repeat value="#{testBean.getExpectedParameter(testUnit)}" var="expParam">
                                             <ui:include src="/pages/modules/test/parameter.xhtml">
                                                 <ui:param name="parameter" value="#{expParam}" />
                                             </ui:include>
                                         </ui:repeat>
                                     </h:panelGroup>
 
-                                    <h:outputLink value="javascript: explain('?rootID=#{runAllTestsBean.getExpectedExplanatorId(testUnit)}')"
-                                        rendered="#{not empty runAllTestsBean.getExplanationValueExpected(testUnit)}">                                     
-                                        <h:outputText value="#{runAllTestsBean.getFormattedExplanationValueExpected(testUnit)}" />                                    	
+                                    <h:outputLink value="javascript: explain('?rootID=#{testBean.getExpectedExplanatorId(testUnit)}')"
+                                        rendered="#{not empty testBean.getExplanationValueExpected(testUnit)}">                                     
+                                        <h:outputText value="#{testBean.getFormattedExplanationValueExpected(testUnit)}" />                                    	
                                     </h:outputLink></td>
                             </h:panelGroup>
                             <td>
@@ -144,17 +144,17 @@
                                         <i class="#{compareResult == 0 ? 'case-success' : 'case-error'}"></i>
                                     </h:panelGroup>
 
-                                    <h:panelGroup rendered="#{empty runAllTestsBean.getExplanationValueActual(testUnit) and empty runAllTestsBean.getSpreadsheetResult(testUnit)}">
+                                    <h:panelGroup rendered="#{empty testBean.getExplanationValueActual(testUnit) and empty testBean.getSpreadsheetResult(testUnit)}">
                                         <div class="case-result">
-                                            <h:panelGroup rendered="#{not runAllTestsBean.isResultThrowable(testUnit)}">
-                                                <ui:repeat value="#{runAllTestsBean.getActualParameter(testUnit)}" var="actualParam">
+                                            <h:panelGroup rendered="#{not testBean.isResultThrowable(testUnit)}">
+                                                <ui:repeat value="#{testBean.getActualParameter(testUnit)}" var="actualParam">
                                                     <ui:include src="/pages/modules/test/parameter.xhtml">
                                                         <ui:param name="parameter" value="#{actualParam}" />
                                                     </ui:include>
                                                 </ui:repeat>
                                             </h:panelGroup>
-                                            <h:panelGroup rendered="#{runAllTestsBean.isResultThrowable(testUnit)}">
-                                                <ui:repeat value="#{runAllTestsBean.getResultMessages(testUnit)}" var="actualParam">
+                                            <h:panelGroup rendered="#{testBean.isResultThrowable(testUnit)}">
+                                                <ui:repeat value="#{testBean.getResultMessages(testUnit)}" var="actualParam">
                                                     <c:set var="messageBoxClass"
                                                         value="#{message.severity == 'ERROR' ? 'error_box' : (message.severity == 'WARN' ? 'warning_box' : 'info_box')}" />
                                                     <div class="#{messageBoxClass}">
@@ -165,16 +165,16 @@
                                     </h:panelGroup>
 
                                     <h:outputLink
-                                        value="javascript: explain('?rootID=#{runAllTestsBean.getActualExplanatorId(testUnit)}')"
-                                        rendered="#{not empty runAllTestsBean.getExplanationValueActual(testUnit)}">
-                                        <h:outputText value="#{runAllTestsBean.getFormattedExplanationValueActual(testUnit)}" />
+                                        value="javascript: explain('?rootID=#{testBean.getActualExplanatorId(testUnit)}')"
+                                        rendered="#{not empty testBean.getExplanationValueActual(testUnit)}">
+                                        <h:outputText value="#{testBean.getFormattedExplanationValueActual(testUnit)}" />
                                     </h:outputLink>
-                                    <h:outputText rendered="#{not empty runAllTestsBean.getSpreadsheetResult(testUnit)}"
-                                        value="#{runAllTestsBean.getFormattedSpreadsheetResult(testUnit)}" escape="false" />
+                                    <h:outputText rendered="#{not empty testBean.getSpreadsheetResult(testUnit)}"
+                                        value="#{testBean.getFormattedSpreadsheetResult(testUnit)}" escape="false" />
                                 </h:panelGroup> 
                                 <h:panelGroup rendered="#{compareResult == 2}">
                                     <ui:include src="/pages/modules/messages.xhtml">
-                                        <ui:param name="messages" value="#{runAllTestsBean.getErrors(testUnit)}" />
+                                        <ui:param name="messages" value="#{testBean.getErrors(testUnit)}" />
                                         <ui:param name="editable" value="#{studio.model.editable}" />
                                     </ui:include>
                                 </h:panelGroup></td>
