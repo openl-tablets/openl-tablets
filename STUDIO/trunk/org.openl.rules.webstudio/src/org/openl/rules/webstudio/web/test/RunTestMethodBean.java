@@ -58,7 +58,7 @@ public class RunTestMethodBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         if (testSuite != null) {
-            results = studio.getModel().runTestSuite(testSuite);
+            results = studio.getModel().runTest(testSuite);
         }
     }
 

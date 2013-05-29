@@ -118,7 +118,7 @@ public class RunAllTestsBean {
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
             while(model.hasTestSuitesToRun()){
                 TestSuite testSuite = model.popLastTest();
-                results.add(model.runTestSuite(testSuite));
+                results.add(model.runTest(testSuite));
             }
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);
