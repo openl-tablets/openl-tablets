@@ -275,7 +275,8 @@ public class ShowTableBean {
     public Map<TestDescription, Boolean> getSelectedTests() {
         return selectedTests;
     }
-    
+
+    @Deprecated
     public String makeTestSuite() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         IOpenMethod method = studio.getModel().getMethod(uri);
