@@ -47,11 +47,11 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.StringTool;
 
 /**
- * Request scope managed bean for showTable page.
+ * Request scope managed bean for Table page.
  */
 @ManagedBean
 @RequestScoped
-public class ShowTableBean {
+public class TableBean {
 
 //    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
 
@@ -76,7 +76,7 @@ public class ShowTableBean {
 
     private String paramsWithoutUri;
 
-    public ShowTableBean() {
+    public TableBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
         WebStudio studio = WebStudioUtils.getWebStudio();

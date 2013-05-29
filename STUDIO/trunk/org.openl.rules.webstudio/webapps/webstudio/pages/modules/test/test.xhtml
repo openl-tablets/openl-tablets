@@ -73,7 +73,7 @@
     <h:panelGroup rendered="#{testBean.test}">
     <div class="view_header">
         <h:outputText value="Results of running "/>
-        <h:outputLink value="#showTable.xhtml">
+        <h:outputLink value="#table.xhtml">
             <f:param name="uri" value="#{testBean.testedTableUri}" />
             <h:outputText value="#{testBean.testedTableName}" />
         </h:outputLink>
@@ -87,7 +87,7 @@
             <ui:repeat value="#{testBean.ranTests}" var="testUnitsResults">
             <div class="test">
                 <h1>
-                    <h:outputLink value="#showTable.xhtml"
+                    <h:outputLink value="#table.xhtml"
                         styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
                         <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
                         <h:outputText value="#{testBean.getTestTableName(testUnitsResults)}" />
