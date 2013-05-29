@@ -40,9 +40,9 @@ public abstract class AbstractProductionRepoController {
     private RepositoryConfiguration defaultRepoConfig;
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
-        String[] configNames = configManager.getStringArrayProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS);
+        String[] configNames = configManager.getStringArrayProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
         configNames = (String[]) ArrayUtils.add(configNames, getConfigurationName(repoConf.getConfigName()));
-        configManager.setProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS, configNames);
+        configManager.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS, configNames);
 
         systemSettingsBean.getProductionRepositoryConfigurations().add(repoConf);
     }
