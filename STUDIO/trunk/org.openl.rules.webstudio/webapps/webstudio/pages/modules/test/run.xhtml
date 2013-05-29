@@ -17,30 +17,30 @@
 
     <div class="view_header">
         <h:outputText value="Results of running "/>
-        <h:outputLink value="#showTable.xhtml">
-            <f:param name="uri" value="#{runTestMethodBean.uri}" />
-            <h:outputText value="#{runTestMethodBean.tableName}" />
+        <h:outputLink value="#table.xhtml">
+            <f:param name="uri" value="#{runBean.uri}" />
+            <h:outputText value="#{runBean.tableName}" />
         </h:outputLink>
     </div>
     <div class="content">
-        <h:outputText value="View expired. Test data is no more available." rendered="#{runTestMethodBean.expired}" />
+        <h:outputText value="View expired. Test data is no more available." rendered="#{runBean.expired}" />
 
-        <h:panelGroup rendered="#{not runTestMethodBean.expired}">
-            <h:outputText value="null" rendered="#{empty runTestMethodBean.results}" />
+        <h:panelGroup rendered="#{not runBean.expired}">
+            <h:outputText value="null" rendered="#{empty runBean.results}" />
 
             <table class="table">
                 <tr>
-                    <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-                        <ui:repeat value="#{runTestMethodBean.testDescription.parametersNames}" var="parameterHeader">
+                    <h:panelGroup rendered="#{not empty runBean.testDescription.executionParams}">
+                        <ui:repeat value="#{runBean.testDescription.parametersNames}" var="parameterHeader">
                             <th>#{parameterHeader}</th>
                         </ui:repeat>
                     </h:panelGroup>
                     <th>Result</th>
                 </tr>
-                <a4j:repeat value="#{runTestMethodBean.results}" var="result" binding="#{runTestMethodBean.resultItems}">
+                <a4j:repeat value="#{runBean.results}" var="result" binding="#{runBean.resultItems}">
                     <tr style="vertical-align: top">
-                        <h:panelGroup rendered="#{not empty runTestMethodBean.testDescription.executionParams}">
-                        <ui:repeat value="#{runTestMethodBean.testDescription.executionParams}" var="parameter">
+                        <h:panelGroup rendered="#{not empty runBean.testDescription.executionParams}">
+                        <ui:repeat value="#{runBean.testDescription.executionParams}" var="parameter">
                         <td>
                             <ui:include src="/pages/modules/test/parameter.xhtml">
                                 <ui:param name="parameter" value="#{parameter}" />
@@ -48,22 +48,22 @@
                         </td>
                         </ui:repeat>
                         </h:panelGroup>
-                        <td><c:set var="errors" value="#{runTestMethodBean.errors}" /> <h:panelGroup
+                        <td><c:set var="errors" value="#{runBean.errors}" /> <h:panelGroup
                                 rendered="#{empty errors}">
 
-                                <h:panelGroup rendered="#{empty runTestMethodBean.explanationValueResult and empty runTestMethodBean.spreadsheetResult}">
+                                <h:panelGroup rendered="#{empty runBean.explanationValueResult and empty runBean.spreadsheetResult}">
 		                      		<ui:include src="/pages/modules/test/parameter.xhtml">
-		                          		<ui:param name="parameter" value="#{runTestMethodBean.result}" />
+		                          		<ui:param name="parameter" value="#{runBean.result}" />
 		                           	</ui:include>	                                
                                 </h:panelGroup>
 
                                 <h:outputLink
-                                    value="javascript: explain('?rootID=#{runTestMethodBean.explanatorId}')"
-                                    rendered="#{not empty runTestMethodBean.explanationValueResult}">
-                                    <h:outputText value="#{runTestMethodBean.formattedExplanationValueResult}" />
+                                    value="javascript: explain('?rootID=#{runBean.explanatorId}')"
+                                    rendered="#{not empty runBean.explanationValueResult}">
+                                    <h:outputText value="#{runBean.formattedExplanationValueResult}" />
                                 </h:outputLink>
-                                <h:outputText rendered="#{not empty runTestMethodBean.spreadsheetResult}"
-                                    value="#{runTestMethodBean.formattedSpreadsheetResult}" escape="false" />
+                                <h:outputText rendered="#{not empty runBean.spreadsheetResult}"
+                                    value="#{runBean.formattedSpreadsheetResult}" escape="false" />
                                 <br />
                             </h:panelGroup> <h:panelGroup rendered="#{not empty errors}">
                                 <ui:include src="/pages/modules/messages.xhtml">

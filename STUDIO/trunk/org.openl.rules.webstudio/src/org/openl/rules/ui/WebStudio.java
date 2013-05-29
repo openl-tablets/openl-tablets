@@ -40,7 +40,7 @@ import org.openl.rules.ui.tree.view.FileView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.util.ExportModule;
-import org.openl.rules.webstudio.web.admin.SystemSettingsBean;
+import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -108,7 +108,7 @@ public class WebStudio {
 
         initWorkspace(session);
         initUserSettings(session);
-        updateSystemProperties = systemConfigManager.getBooleanProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES);
+        updateSystemProperties = systemConfigManager.getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
         initDependencyManager();
     }
 
@@ -473,7 +473,7 @@ public class WebStudio {
 
     public void setUpdateSystemProperties(boolean updateSystemProperties) {
         this.updateSystemProperties = updateSystemProperties;
-        systemConfigManager.setProperty(SystemSettingsBean.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
+        systemConfigManager.setProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
     }
 
     public boolean isShowFormulas() {
