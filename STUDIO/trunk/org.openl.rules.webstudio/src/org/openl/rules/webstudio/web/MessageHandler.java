@@ -55,7 +55,7 @@ public class MessageHandler {
 
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
-        url = "#showTable.xhtml?uri=" + StringTool.encodeURL(tableUri);
+        url = "#table.xhtml?uri=" + StringTool.encodeURL(tableUri);
         if (StringUtils.isNotBlank(uriParser.cell)) {
             url += "&errorCell=" + uriParser.cell;
         }

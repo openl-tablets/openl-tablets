@@ -282,7 +282,7 @@
                         toRulesPanel(header);
                     }
 
-                    if (page.indexOf("showTable.xhtml") > -1) {
+                    if (page.indexOf("table.xhtml") > -1) {
                         mainLayout.show("east");
                         $j("#tableProperties").load(
                                 urlRewrite.prefix + "tableDetailsData.xhtml?"
@@ -299,7 +299,7 @@
             function openTreeNode(page) {
                 var page = page || getCurrentPage();
 
-                if (page && page.indexOf("showTable.xhtml") > -1) {
+                if (page && page.indexOf("table.xhtml") > -1) {
                     var tableId = page.split("uri=")[1].split("&")[0];
                     var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
                     if (tableLink.length) { // Firefox has bug with decoding url after refresh
