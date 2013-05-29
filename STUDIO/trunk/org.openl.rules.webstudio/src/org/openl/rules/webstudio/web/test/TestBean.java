@@ -23,6 +23,7 @@ import org.openl.rules.table.Point;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.BeanResultComparator;
@@ -36,13 +37,12 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
 
 /**
- * Request scope managed bean providing logic for 'Run All Tests' page of OpenL
- * Studio.
+ * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
  */
 @ManagedBean
 @RequestScoped
-public class RunAllTestsBean {
-    private final Log log = LogFactory.getLog(RunAllTestsBean.class);
+public class TestBean {
+    private final Log log = LogFactory.getLog(TestBean.class);
 
     private TestUnitsResults[] ranResults;
 
@@ -56,7 +56,7 @@ public class RunAllTestsBean {
      */
     private String uri;
 
-    public RunAllTestsBean() {
+    public TestBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
         TestResultsHelper.initExplanator();
@@ -115,18 +115,21 @@ public class RunAllTestsBean {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
         if (model.hasTestSuitesToRun()) {
+            // Concrete test with cases
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
-            while(model.hasTestSuitesToRun()){
+            while (model.hasTestSuitesToRun()){
                 TestSuite testSuite = model.popLastTest();
-                results.add(model.runTestSuite(testSuite));
+                results.add(model.runTest(testSuite));
             }
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);
 
         } else {
             if (uri != null) {
+                // All tests for table or concrete test 
                 ranResults = model.runAllTests(uri);
             } else {
+                // All module tests
                 ranResults = model.runAllTests();
             }
         }
@@ -320,10 +323,6 @@ public class RunAllTestsBean {
         return fieldsCoordinates;
     }
 
-    public boolean isExpired(){
-        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
-    }
-
     public String getTestedTableUri(){
         return uri;
     }
@@ -339,4 +338,14 @@ public class RunAllTestsBean {
     public String getTestedTableName() {
         return ProjectHelper.getTestName(WebStudioUtils.getProjectModel().getMethod(uri));
     }
+
+    public boolean isTest() {
+        return StringUtils.isNotBlank(uri)
+                && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
+    }
+
+    public boolean isExpired(){
+        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
+    }
+
 }

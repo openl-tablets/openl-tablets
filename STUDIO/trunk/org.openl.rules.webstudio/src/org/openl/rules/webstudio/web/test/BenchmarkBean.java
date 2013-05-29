@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,9 @@ import javax.faces.component.html.HtmlDataTable;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.ui.BenchmarkInfoView;
+import org.openl.rules.ui.ProjectHelper;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.util.benchmark.BenchmarkInfo;
@@ -16,7 +19,7 @@ import org.openl.util.benchmark.BenchmarkOrder;
 
 @ManagedBean
 @SessionScoped
-public class BenchmarkMethodBean {
+public class BenchmarkBean {
     private WebStudio studio;
     private ArrayList<BenchmarkInfoView> benchmarkResults = new ArrayList<BenchmarkInfoView>();
     private BenchmarkInfo[] comparedBenchmarks = new BenchmarkInfo[0];

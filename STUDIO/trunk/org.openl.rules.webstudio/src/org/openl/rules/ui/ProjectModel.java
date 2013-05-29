@@ -988,36 +988,54 @@ public class ProjectModel {
         if (tests != null) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0 ; i < tests.length; i++){
-                results[i] = runTestSuite(new TestSuite((TestSuiteMethod) tests[i]));
+                results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]));
             }
             return results;
         }
         return new TestUnitsResults[0];
     }
 
-    public TestUnitsResults runTestSuite(String tableUri){
-        TestSuiteMethod testSuiteMethod = (TestSuiteMethod) getMethod(tableUri);
-        return runTestSuite(new TestSuite(testSuiteMethod));
+    public TestUnitsResults runTest(String testUri) {
+        TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
+        return runTest(new TestSuite(testMethod));
     }
 
-    public TestUnitsResults runTestSuite(TestSuite testSuite) {
+    public TestUnitsResults runTest(String testUri, int... caseNumbers) {
+        IOpenMethod testMethod = getMethod(testUri);
+        TestSuite test;
+
+        if (testMethod instanceof TestSuiteMethod) {
+            if (caseNumbers == null) {
+                test = new TestSuite((TestSuiteMethod) testMethod);
+            } else {
+                test = new TestSuite((TestSuiteMethod) testMethod, caseNumbers);
+            }
+        } else { // Method without cases
+            test = new TestSuite(new TestDescription(testMethod, new Object[] {}));
+        }
+
+        return runTest(test);
+    }
+
+    public TestUnitsResults runTest(TestSuite test) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        return testSuite.invoke(target, env, 1);
+        return test.invoke(target, env, 1);
     }
 
-    public TestUnit runSingleTestUnit(String tableUri, String testNumber){
-        return runSingleTestUnit(tableUri, Integer.valueOf(testNumber));
+    public TestUnit runTestCase(String testUri, String caseNumber) {
+        return runTestCase(testUri, Integer.valueOf(caseNumber));
     }
 
-    public TestUnit runSingleTestUnit(String tableUri, int testNumber){
-        TestSuiteMethod testSuiteMethod = (TestSuiteMethod) getMethod(tableUri);
-        return runSingleTestUnit(testSuiteMethod.getTest(testNumber));
+    public TestUnit runTestCase(String testUri, int caseNumber) {
+        TestSuiteMethod testMethod = (TestSuiteMethod) getMethod(testUri);
+        return runTestCase(testMethod.getTest(caseNumber));
     }
-    public TestUnit runSingleTestUnit(TestDescription test){
+
+    public TestUnit runTestCase(TestDescription testCase) {
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        return test.runTest(target, env, 1);
+        return testCase.runTest(target, env, 1);
     }
 
     @Deprecated
@@ -1135,7 +1153,7 @@ public class ProjectModel {
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
             try {
-                runTestSuite(testSuite);
+                runTest(testSuite);
             } finally {
                 Tracer.setTracer(null);
             }

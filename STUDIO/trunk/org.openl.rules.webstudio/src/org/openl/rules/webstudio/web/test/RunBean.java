@@ -24,12 +24,11 @@ import org.openl.types.IParameterDeclaration;
 import org.richfaces.component.UIRepeat;
 
 /**
- * Request scope managed bean providing logic for 'Run TestMethod' page of OpenL
- * Studio.
+ * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
  */
 @ManagedBean
 @RequestScoped
-public class RunTestMethodBean {
+public class RunBean {
 
     private TestSuite testSuite;
 
@@ -42,7 +41,7 @@ public class RunTestMethodBean {
      */
     private String uri;
 
-    public RunTestMethodBean() {
+    public RunBean() {
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
@@ -58,7 +57,7 @@ public class RunTestMethodBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
         if (testSuite != null) {
-            results = studio.getModel().runTestSuite(testSuite);
+            results = studio.getModel().runTest(testSuite);
         }
     }
 
