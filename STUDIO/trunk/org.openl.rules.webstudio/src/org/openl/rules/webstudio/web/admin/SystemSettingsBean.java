@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,19 +62,6 @@ public class SystemSettingsBean {
 
     private final Log log = LogFactory.getLog(SystemSettingsBean.class);
 
-    private static final String USER_WORKSPACE_HOME = "user.workspace.home";
-    private static final String PROJECT_HISTORY_HOME = "project.history.home";
-    private static final String PROJECT_HISTORY_COUNT = "project.history.count";
-    private static final String PROJECT_HISTORY_UNLIMITED = "project.history.unlimited";
-    private static final String DATE_PATTERN = "data.format.date";
-    public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
-
-    private static final String DESIGN_REPOSITORY_FACTORY = "design-repository.factory";
-    private static final String DESIGN_REPOSITORY_NAME = "design-repository.name";
-
-    private static final String DESIGN_REPOSITORY_LOGIN = "design-repository.login";
-    private static final String DESIGN_REPOSITORY_PASSWORD = "design-repository.pass";
-    private static final String DESIGN_REPOSITORY_CONFIG_FILE = "design-repository.config";
     private boolean secureDesignRepo = false;
 
     /** @deprecated */
@@ -93,7 +82,6 @@ public class SystemSettingsBean {
         DESIGN_REPOSITORY_TYPE_PATH_PROPERTY_MAP.put("webdav", "design-repository.remote.webdav.url");
     };
 
-    public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
     /** @deprecated */
     private static final BidiMap PRODUCTION_REPOSITORY_TYPE_FACTORY_MAP = new DualHashBidiMap();
     static {
@@ -225,16 +213,16 @@ public class SystemSettingsBean {
     }
 
     public void setDesignRepositoryLogin(String login) {
-        configManager.setProperty(this.DESIGN_REPOSITORY_LOGIN, login);
+        configManager.setProperty(DESIGN_REPOSITORY_LOGIN, login);
     }
 
     public String getDesignRepositoryLogin() {
-        return configManager.getStringProperty(this.DESIGN_REPOSITORY_LOGIN);
+        return configManager.getStringProperty(DESIGN_REPOSITORY_LOGIN);
     }
 
     public void setDesignRepositoryPass(String pass) {
         if (!StringUtils.isEmpty(pass)) {
-            configManager.setPassword(this.DESIGN_REPOSITORY_PASSWORD, pass);
+            configManager.setPassword(DESIGN_REPOSITORY_PASSWORD, pass);
         }
     }
 
