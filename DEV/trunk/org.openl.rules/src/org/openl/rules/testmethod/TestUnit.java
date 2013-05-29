@@ -1,27 +1,14 @@
 package org.openl.rules.testmethod;
 
-import java.math.BigDecimal;
-
-import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
 import org.openl.rules.helpers.NumberUtils;
-import org.openl.rules.testmethod.result.OpenLBeanResultComparator;
-import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
-import org.openl.types.IOpenField;
-import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 
 /**
  * Representation of the single test unit in the test.
  * 
  */
 public class TestUnit {
-    // TODO This is a temporary implementation. Delta in doubles compare should
-    // be configurable.
-    private static final int SIGNIFICANT_DIGITS = 12;
-
     private TestDescription test;
 
     // the result of running test unit if exists
@@ -35,8 +22,10 @@ public class TestUnit {
     private Object actualResult;
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
-    
+
     private TestUnitResultComparator testUnitComparator;
+
+    private Integer precision = null;
 
     public TestUnit(TestDescription test, Object res, Throwable exception) {
         this.exception = exception;
@@ -54,7 +43,7 @@ public class TestUnit {
         }
         expectedResult = test.getExpectedResult();      
     }
-    
+
     /**
      * Check if the exception occured during the execution. 
      * 
@@ -69,7 +58,7 @@ public class TestUnit {
         if (containsException()) {
             actualResult = exception;
             return;
-        } 
+        }
 
         if (NumberUtils.isFloatPointNumber(runningResult) && test.isExpectedResultDefined()) {
             DoubleValue result = NumberUtils.convertToDoubleValue(runningResult);
@@ -80,7 +69,7 @@ public class TestUnit {
             actualResult = roundedResult;
             return;
         }
-
+/*
         // TODO This is a temporary implementation. Delta for doubles compare
         // should be configurable.
         // Implementation should be like this: abs(a - b) < delta.
@@ -88,7 +77,7 @@ public class TestUnit {
 
         // Round the expected and actual values to have only 12 significant
         // digits to fix imprecise comparisons for double values.
-        TestResultComparator comparator = testUnitComparator != null ? testUnitComparator.getComparator()
+        TestResultComparator comparator = o != null ? testUnitComparator.getComparator()
                                                                     : TestResultComparatorFactory.getComparator(runningResult,
                                                                         getExpectedResult());
         if (comparator instanceof OpenLBeanResultComparator) {
@@ -108,7 +97,7 @@ public class TestUnit {
                     DoubleValue expectedValue = NumberUtils.convertToDoubleValue(expectedField);
 
                     BigDecimal expected = BigDecimal.valueOf(expectedValue.doubleValue());
-                    int scaleForDelta = SIGNIFICANT_DIGITS - (expected.precision() - expected.scale());
+                    int scaleForDelta = SIGNIFICANT_DIGITS;// - (expected.precision() - expected.scale());
 
                     DoubleValue roundedResult = DoubleValue.round(actualValue, scaleForDelta);
                     DoubleValue roundedExpected = DoubleValue.round(expectedValue, scaleForDelta);
@@ -136,7 +125,7 @@ public class TestUnit {
             }
             return;
         }
-    
+*/
         actualResult = runningResult;
     }
 
@@ -175,11 +164,11 @@ public class TestUnit {
         String descr = test.getDescription();
         return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
-    
+
     public void setTestUnitResultComparator(TestUnitResultComparator testUnitComparator) {
         this.testUnitComparator = testUnitComparator;
     }
-    
+
     public TestUnitResultComparator getTestUnitResultComparator() {
         if (testUnitComparator == null) {
             testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(getActualResult(), getExpectedResult()));
@@ -193,7 +182,7 @@ public class TestUnit {
      * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit)}
      */
     public int compareResult() {
-        return getTestUnitResultComparator().getCompareResult(this);
+        return getTestUnitResultComparator().getCompareResult(this, getDelta());
     }
 
     /**
@@ -215,8 +204,21 @@ public class TestUnit {
     public Object getRunningResult() {
         return runningResult;
     }
-    
+
     public Throwable getException() {
         return exception;
+    }
+
+    private Double getDelta() {
+        Integer precision = this.precision != null ? this.precision : this.test.getTestTablePrecision();
+
+        if (precision != null) {
+            return Math.pow(10.0, -precision);
+        }
+        return null;
+    }
+
+    public void setPrecision(Integer precision) {
+        this.precision = precision;
     }
 }

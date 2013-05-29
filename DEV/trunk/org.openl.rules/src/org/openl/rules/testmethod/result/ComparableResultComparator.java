@@ -3,7 +3,7 @@ package org.openl.rules.testmethod.result;
 public class ComparableResultComparator implements TestResultComparator {
 
     @SuppressWarnings("unchecked")
-    public boolean compareResult(Object actualResult, Object expectedResult) {    
+    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {    
     	if (actualResult == null || expectedResult == null) {
     		return actualResult == expectedResult;
     	}
