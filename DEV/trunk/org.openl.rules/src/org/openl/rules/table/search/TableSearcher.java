@@ -217,7 +217,8 @@ public class TableSearcher {
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode table : tables) {
-            if (selector.select(table)) {
+            if (!XlsNodeTypes.XLS_TABLEPART.toString().equals(table.getType()) // Exclude TablePart tables
+                    && selector.select(table)) {
                 res.add(table);
             }
         }
