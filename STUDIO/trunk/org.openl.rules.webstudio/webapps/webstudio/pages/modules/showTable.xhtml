@@ -89,7 +89,6 @@
             <tr>
 
                 <!-- First Block -->
-                <c:if test="#{showTableBean.editable}">
                 <td>
                     <h:form prependId="false">
                         <table>
@@ -105,7 +104,7 @@
                                 </td>
                                 <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
-                                        rendered="#{showTableBean.canEdit}"
+                                        rendered="#{showTableBean.canOpenInExel}"
                                         title="Open the table in Excel - #{showTableBean.uri}" 
                                         target="hidden" >
                                         <f:param name="uri" value="#{showTableBean.uri}" />
@@ -135,7 +134,6 @@
                         </table>
                     </h:form>
                 </td>
-                </c:if>
 
                 <!-- Delimeter -->
                 <td class="delimeter"></td>

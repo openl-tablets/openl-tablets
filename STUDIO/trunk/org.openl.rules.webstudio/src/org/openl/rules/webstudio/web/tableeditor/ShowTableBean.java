@@ -67,6 +67,7 @@ public class ShowTableBean {
     private String uri;
     private IOpenLTable table;
     private boolean editable;
+    private boolean canBeOpenInExel;
     private boolean copyable;
 
     private List<OpenLMessage> errors;
@@ -102,7 +103,8 @@ public class ShowTableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {*/
-            editable = model.isEditable() && !isDispatcherValidationNode();
+            editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
+            canBeOpenInExel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table.isCanContainProperties()
                     && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
                     && isGranted(PRIVILEGE_CREATE_TABLES);
@@ -226,10 +228,8 @@ public class ShowTableBean {
         } else {
             return tableName;
         }
-        
-        
     }
-    
+
     public boolean isDispatcherValidationNode() {
         return table.getTechnicalName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
@@ -338,7 +338,7 @@ public class ShowTableBean {
      */
     public boolean isCanCreateTest() {
         return table.isExecutable() && isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
-    }    
+    }
 
     public boolean isEditable() {
         return editable;
@@ -443,8 +443,12 @@ public class ShowTableBean {
         return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
     }
 
+    public boolean isCanOpenInExel() {
+        return canBeOpenInExel;
+    }
+
     public boolean getCanRemove() {
-        return isGranted(PRIVILEGE_REMOVE_TABLES);
+        return isEditable() && isGranted(PRIVILEGE_REMOVE_TABLES);
     }
 
     public boolean getCanRun() {
