@@ -50,7 +50,7 @@
 	<c:set var="openMessage" value="Open project for viewing in rules editor" />
     <c:set var="openVersionMessage" value="Open the latest project revision" />
     <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor" />
-    <c:set var="unlockMessage" value="Unlock the project and make it available for editing in Rules editor" />
+    <c:set var="unlockMessage" value="Unlock the project and make it available for editing" />
     <c:set var="editMessage" value="Make project available for editing in Rules Editor and lock it from editing by other users" />
     <c:set var="saveMessage" value="Save the project changes in Design Repository as a new revision and make it available for editing to other users" />
     <c:set var="copyMessage" value="Create a new project in Design Repository with a different project name but the same content " />
@@ -278,6 +278,11 @@
       <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;">
           <rich:tooltip showDelay="500">#{deleteMessage}</rich:tooltip>
       </h:commandButton>
+      
+      <h:commandButton id="unlockId2" rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}" value="Unlock Deploy Configuration" onclick="#{rich:component('modalUnlockNode')}.show();return false;">
+          <rich:tooltip showDelay="500">#{unlockMessage}</rich:tooltip>
+          <f:ajax render="unlockId2"/>
+       </h:commandButton>
     </h:panelGrid>
 
     <rich:tabPanel switchType="client">
