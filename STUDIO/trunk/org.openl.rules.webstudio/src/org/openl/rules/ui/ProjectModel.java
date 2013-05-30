@@ -773,6 +773,23 @@ public class ProjectModel {
 
         return false;
     }
+
+    public boolean isEditableTable(String uri) {
+        return !isTablePart(uri) && isEditable();
+    }
+
+    /**
+     * Check is the table is partial
+     */
+    public boolean isTablePart(String uri) {
+        IGridTable grid = this.getGridTable(uri);
+
+        if (grid != null && grid.getGrid() instanceof CompositeGrid) {
+            return true;
+        }
+
+        return false;
+    }
     
     public boolean isCanStartEditing() {
         RulesProject project = getProject();
@@ -783,7 +800,11 @@ public class ProjectModel {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }
 
-    public boolean isCanEditTable() {
+    public boolean isCanEditTable(String uri) {
+        return isEditableTable(uri) && isGranted(PRIVILEGE_EDIT_TABLES);
+    }
+
+    public boolean isCanEditProject() {
         return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
     }
 
