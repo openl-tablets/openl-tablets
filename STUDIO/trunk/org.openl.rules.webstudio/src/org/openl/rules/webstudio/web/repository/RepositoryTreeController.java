@@ -4,6 +4,7 @@ import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -508,7 +509,19 @@ public class RepositoryTreeController {
         return null;
     }
 
-    
+    public String unlockDeploymentConfiguration() {
+        String deploymentProjectName = FacesUtils.getRequestParameter("deploymentProjectName");
+
+        try {
+            ADeploymentProject deploymentProject = userWorkspace.getDDProject(deploymentProjectName);
+            deploymentProject.unlock(userWorkspace.getUser());
+            resetStudioModel();
+        } catch (ProjectException e) {
+            log.error("Cannot unlock deployment project '" + deploymentProjectName + "'.", e);
+            FacesUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
+        }
+        return null;
+    }
 
     public String eraseProject() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
@@ -1371,6 +1384,10 @@ public class RepositoryTreeController {
 
     public boolean getCanUnlock() {
         return isGranted(PRIVILEGE_UNLOCK_PROJECTS);
+    }
+
+    public boolean getCanUnlockDeployment() {
+        return isGranted(PRIVILEGE_UNLOCK_DEPLOYMENT);
     }
 
     public boolean getCanDeleteDeployment() {
