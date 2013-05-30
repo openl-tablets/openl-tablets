@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -237,9 +239,36 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator imple
     private static final class DeferredCreateFileOutputStream extends ProxyOutputStream {
         private final String fileName;
 
-        private DeferredCreateFileOutputStream(String fileName) {
+        /**
+         * Create deferred output stream.
+         * 
+         * @param fileName the system-dependent file name
+         * @throws FileNotFoundException if the file exists but is a directory
+         *             rather than a regular file, does not exist but cannot be
+         *             created, or cannot be opened for any other reason.
+         */
+        private DeferredCreateFileOutputStream(String fileName) throws FileNotFoundException {
             super(null);
             this.fileName = fileName;
+            throwExceptionIfNotWritable(fileName);
+        }
+
+        /**
+         * Check that file is writable. File should not be rewritten in this
+         * method.
+         * 
+         * @param fileName the checking file
+         * @throws FileNotFoundException if the file exists but is a directory
+         *             rather than a regular file, does not exist but cannot be
+         *             created, or cannot be opened for any other reason.
+         */
+        private void throwExceptionIfNotWritable(String fileName) throws FileNotFoundException {
+            FileOutputStream os = null;
+            try {
+                os = new FileOutputStream(fileName, true);
+            } finally {
+                IOUtils.closeQuietly(os);
+            }
         }
 
         @Override

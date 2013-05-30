@@ -12,8 +12,18 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  *
  */
 public abstract class ARuleIndex {
+	
+	boolean hasMetaInfo = false;
 
-    protected DecisionTableRuleNode emptyOrFormulaNodes;
+    public boolean isHasMetaInfo() {
+		return hasMetaInfo;
+	}
+
+	public void setHasMetaInfo(boolean hasMetaInfo) {
+		this.hasMetaInfo = hasMetaInfo;
+	}
+
+	protected DecisionTableRuleNode emptyOrFormulaNodes;
 
     public ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
