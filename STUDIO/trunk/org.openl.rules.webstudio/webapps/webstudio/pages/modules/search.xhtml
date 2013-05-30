@@ -23,7 +23,7 @@
                 <br />
                 <span>
                     <img src="webresource/images/viewTable.gif" />
-                    <h:outputLink value="#showTable.xhtml">
+                    <h:outputLink value="#table.xhtml">
                         <f:param name="uri" value="#{table.uri}" />
                         <h:outputText value="#{msg['ws.search.results.view']}" />
                     </h:outputLink>
@@ -40,7 +40,7 @@
 
                 <br /><br />
                 <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
-                    rendered="#{table != null}" linkBase="#showTable.xhtml" />
+                    rendered="#{table != null}" linkBase="#table.xhtml" />
              </c:forEach>
         </div>
 
