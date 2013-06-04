@@ -20,10 +20,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
-    private static String __src = "test/rules/overload/DispatcherTest.xlsx";
+    private static final String SRC = "test/rules/overload/DispatcherTest.xlsx";
 
     public DispatcherTableBuildingTest() {
-        super(__src);
+        super(SRC);
     }
 
     @BeforeClass

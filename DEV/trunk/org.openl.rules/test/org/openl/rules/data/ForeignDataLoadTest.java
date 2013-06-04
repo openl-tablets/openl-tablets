@@ -16,8 +16,7 @@ public class ForeignDataLoadTest {
     @Test
     public void testForeignDataLoad() {
         File xlsFile = new File("test/rules/data/ForeignDataLoadTest.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
 

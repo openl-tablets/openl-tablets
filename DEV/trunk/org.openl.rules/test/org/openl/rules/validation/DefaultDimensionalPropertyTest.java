@@ -1,27 +1,20 @@
 package org.openl.rules.validation;
 
-import org.openl.CompiledOpenClass;
-import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.types.IOpenClass;
-
 import org.junit.Test;
+import org.openl.rules.BaseOpenlBuilderHelper;
 
-public class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper{
+public class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {
 
-    
-    private static String __src = "test/rules/validation/TestPropertyValidation.xls";
+    private static final String SRC = "test/rules/validation/TestPropertyValidation.xls";
 
     public DefaultDimensionalPropertyTest() {
-        super(__src);
+        super(SRC);
     }
-    
+
     @Test
-    public void testError()
-    {
-        CompiledOpenClass coc = getJavaWrapper().getCompiledClass();
-        IOpenClass ioc =  getJavaWrapper().getOpenClass();
+    public void testError() {
+        getJavaWrapper().getCompiledClass();
+        getJavaWrapper().getOpenClass();
     }
-    
-    
 
 }

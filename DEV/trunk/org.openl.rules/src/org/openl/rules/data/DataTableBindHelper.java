@@ -519,7 +519,6 @@ public class DataTableBindHelper {
         // 1st for driver, 2nd for name     
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
         boolean hasAccessByArrayId = false;
-        Double precision = null;
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
@@ -527,7 +526,7 @@ public class DataTableBindHelper {
             boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
 
             if(fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
-                precision = getPrecisionValue(fieldNameNode);
+                //precision = getPrecisionValue(fieldNameNode);
                 fieldAccessorChain = (IOpenField[]) ArrayUtils.remove(fieldAccessorChain, fieldIndex);
                 fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
                 /*Skip creation of IOpenField*/
@@ -562,7 +561,7 @@ public class DataTableBindHelper {
         return chainField;
     }
     
-    private static Double getPrecisionValue(IdentifierNode fieldNameNode) {
+    /*private static Double getPrecisionValue(IdentifierNode fieldNameNode) {
         try {
             String fieldName = fieldNameNode.getIdentifier();
             String txtIndex = fieldName.substring(fieldName.indexOf("(") + 1, fieldName.indexOf(")"));
@@ -571,7 +570,7 @@ public class DataTableBindHelper {
         } catch (Exception e) {
             return null;
         }
-    }
+    }*/
 
     private static int getArrayIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();

@@ -1,6 +1,6 @@
 package org.openl.tablets.tutorial3;
 
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 /**
  * @author snshor
@@ -22,8 +22,8 @@ public class Tutorial3Main {
 	static Tutorial_3RulesInterface tut3;
 	
 	static {
-	    tut3 = new RuleEngineFactory<Tutorial_3RulesInterface>(Tutorial_3RulesInterface.__src, 
-	            Tutorial_3RulesInterface.class).makeInstance();
+	    tut3 = new RulesEngineFactory<Tutorial_3RulesInterface>(Tutorial_3RulesInterface.__src, 
+	            Tutorial_3RulesInterface.class).newEngineInstance();
 	}
 
 	public static void main(String[] args) {

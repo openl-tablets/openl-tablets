@@ -9,10 +9,10 @@ import static org.junit.Assert.*;
 
 public class ArraysInitializationsTest extends BaseOpenlBuilderHelper {
 
-    private static String src = "test/rules/binding/ArraysInitializationsTest.xls";
+    private static final String SRC = "test/rules/binding/ArraysInitializationsTest.xls";
 
     public ArraysInitializationsTest() {
-        super(src);
+        super(SRC);
     }
 
     @Test

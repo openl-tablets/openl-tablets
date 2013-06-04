@@ -24,8 +24,7 @@ public class ActiveMethodFeatureTest {
     @Test
     public void testMethodOverload1() {
         File xlsFile = new File("test/rules/overload/ActiveMethodFeature.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
@@ -51,8 +50,7 @@ public class ActiveMethodFeatureTest {
     @Test
     public void testMethodOverload2() {
         File xlsFile = new File("test/rules/overload/ActiveMethodFeature.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();

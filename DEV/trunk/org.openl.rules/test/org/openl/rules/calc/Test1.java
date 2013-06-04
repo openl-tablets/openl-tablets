@@ -9,23 +9,20 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 
 public class Test1 {
-    interface ITestCalc {
+    public interface ITestCalc {
         SpreadsheetResult calc1(int a, int b);
     }
 
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc1/calc1-1.xls");
-        TestHelper<ITestCalc> testHelper;
-        testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+        TestHelper<ITestCalc> testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
 
-        
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc1(10, 20);
 
         System.out.println(result.printAsTable());
-        
-        
+
         Object o1 = result.getValue(0, 0);
         Object o2 = result.getValue(0, 1);
 

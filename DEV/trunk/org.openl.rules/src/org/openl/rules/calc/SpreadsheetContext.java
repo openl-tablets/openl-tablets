@@ -1,15 +1,12 @@
 package org.openl.rules.calc;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.types.IOpenField;
 
 public class SpreadsheetContext extends ComponentBindingContext {
@@ -19,8 +16,8 @@ public class SpreadsheetContext extends ComponentBindingContext {
     }
 
     @Override
-    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                             FieldNotFoundException {
+    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName)
+            throws AmbiguousVarException, FieldNotFoundException {
 
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;
         IOpenField fstart = findVar(namespace, rangeStartName, true);
@@ -30,7 +27,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
         }
 
         IOpenField fend = findVar(namespace, rangeEndName, true);
-        
+
         if (fend == null) {
             throw new FieldNotFoundException("Can not find range end: ", rangeEndName, null);
         }
@@ -43,7 +40,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
             throw new FieldNotFoundException("Range end must point to the cell: ", rangeEndName, null);
         }
 
-        IOpenField res = new SpreadsheetRangeField(key, (SpreadsheetCellField)fstart, (SpreadsheetCellField)fend);
+        IOpenField res = new SpreadsheetRangeField(key, (SpreadsheetCellField) fstart, (SpreadsheetCellField) fend);
 
         return res;
     }

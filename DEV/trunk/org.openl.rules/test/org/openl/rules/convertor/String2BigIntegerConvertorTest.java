@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class String2BigIntegerConvertorTest {
     
-    private static String BIG_INT = "2000000000";
+    private static final String BIG_INT = "2000000000";
     
     @Test
     public void testParse() {

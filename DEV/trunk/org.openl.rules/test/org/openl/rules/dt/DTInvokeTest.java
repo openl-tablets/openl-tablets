@@ -11,10 +11,10 @@ import org.openl.types.java.JavaOpenClass;
 
 public class DTInvokeTest extends BaseOpenlBuilderHelper {
     
-    public static final String src = "test/rules/dt/DTInvokeTest.xls";
+    public static final String SRC = "test/rules/dt/DTInvokeTest.xls";
     
     public DTInvokeTest() {
-        super(src);
+        super(SRC);
     }
     
     @Test

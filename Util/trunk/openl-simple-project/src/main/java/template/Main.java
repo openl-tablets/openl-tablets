@@ -1,6 +1,6 @@
 package template;
 
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 import java.io.File;
 
@@ -13,9 +13,9 @@ public class Main {
     public static void main(String[] args) {
         File xlsFile = new File("src/main/resources/rules/TemplateRules.xls");
 
-        RuleEngineFactory<Wrapper> engineFactory = new RuleEngineFactory<Wrapper>(xlsFile, Wrapper.class);
+        RulesEngineFactory<Wrapper> engineFactory = new RulesEngineFactory<Wrapper>(xlsFile, Wrapper.class);
 
-        Wrapper instance = engineFactory.makeInstance();
+        Wrapper instance = engineFactory.newEngineInstance();
         instance.hello1(10);
     }
 }

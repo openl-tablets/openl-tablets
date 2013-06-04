@@ -9,7 +9,7 @@ public class RuleInfo {
      * Rule name.
      */
     private String name;
-    
+
     /**
      * Return type of rule.
      */

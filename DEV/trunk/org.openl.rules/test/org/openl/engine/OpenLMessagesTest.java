@@ -1,65 +1,65 @@
 package org.openl.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openl.OpenL;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.runtime.EngineFactory;
-import org.openl.syntax.exception.CompositeOpenlException;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public class OpenLMessagesTest {
-	
-	public static final String src1 = "test/rules/messages/project1.xls";
-	public static final String src2 = "test/rules/messages/project2.xls";
-	
-	@Test
-	public void testInSeriesCompileMessages1() {
-		// test using wrapper generation
-		//
-		BaseOpenlBuilderHelper helper1 = new BaseOpenlBuilderHelper() {};
-		helper1.build(src1);
-		OpenLMessages messages = OpenLMessages.getCurrentInstance();
-		assertEquals("Should be one message from current module", 1, messages.getMessages().size());
-		
-		BaseOpenlBuilderHelper helper2 = new BaseOpenlBuilderHelper() {};
-		helper2.build(src2);
-		OpenLMessages messages1 = OpenLMessages.getCurrentInstance();
-		assertEquals("Messages should be 5, just from current module", 5, messages1.getMessages().size());
-	}
-	
-	public interface Project1Int {
-		String hello(int hour);
-	}
-	
-	public interface Project2Int {
-		int test(int a);
-	}
-	
-	@Test
-	public void testInSeriesCompileMessages2() {
-		// test using engine factory
-		//
-		String sourceType = OpenL.OPENL_JAVA_RULE_NAME;       
 
-        EngineFactory<Project1Int> engineFactory = new EngineFactory<Project1Int>(sourceType, src1, Project1Int.class);
-        engineFactory.setExecutionMode(false);
-        try {
-        	engineFactory.makeInstance();
-        } catch (CompositeOpenlException e) {
-		} 
+    public static final String SRC1 = "test/rules/messages/project1.xls";
+    public static final String SRC2 = "test/rules/messages/project2.xls";
+
+    @Test
+    public void testInSeriesCompileMessages1() {
+        // test using wrapper generation
+        //
+        BaseOpenlBuilderHelper helper1 = new BaseOpenlBuilderHelper() {
+        };
+        helper1.build(SRC1);
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
-		assertEquals("Should be one message from current module", 1, messages.getMessages().size());
-		
-		EngineFactory<Project2Int> engineFactory1 = new EngineFactory<Project2Int>(sourceType, src2, Project2Int.class);
-        engineFactory.setExecutionMode(false);
+        assertEquals("Should be one message from current module", 1, messages.getMessages().size());
+
+        BaseOpenlBuilderHelper helper2 = new BaseOpenlBuilderHelper() {
+        };
+        helper2.build(SRC2);
+        OpenLMessages messages1 = OpenLMessages.getCurrentInstance();
+        assertEquals("Messages should be 5, just from current module", 5, messages1.getMessages().size());
+    }
+
+    public interface Project1Int {
+        String hello(int hour);
+    }
+
+    public interface Project2Int {
+        int test(int a);
+    }
+
+    @Test
+    public void testInSeriesCompileMessages2() {
+        // test using engine factory
+        //
+
+        RulesEngineFactory<Project1Int> engineFactory1 = new RulesEngineFactory<Project1Int>(SRC1, Project1Int.class);
+        engineFactory1.setExecutionMode(false);
         try {
-        	engineFactory1.makeInstance();
-        } catch(CompositeOpenlException ex) {
-        	
+            engineFactory1.newEngineInstance();
+        } catch (OpenlNotCheckedException e) {
+        }
+        OpenLMessages messages = OpenLMessages.getCurrentInstance();
+        assertEquals("Should be one message from current module", 1, messages.getMessages().size());
+
+        RulesEngineFactory<Project2Int> engineFactory2 = new RulesEngineFactory<Project2Int>(SRC2,
+                Project2Int.class);
+        engineFactory2.setExecutionMode(false);
+        try {
+            engineFactory2.newEngineInstance();
+        } catch (OpenlNotCheckedException ex) {
         }
         OpenLMessages messages1 = OpenLMessages.getCurrentInstance();
-		assertEquals("Messages should be 5, just from current module", 5, messages1.getMessages().size());
-	}
+        assertEquals("Messages should be 5, just from current module", 5, messages1.getMessages().size());
+    }
 }

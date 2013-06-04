@@ -1,18 +1,19 @@
 package org.openl.rules.search;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.search.ISearchConstants;
 import org.openl.rules.search.OpenLAdvancedSearchResult.TableAndRows;
 
 public class OpenLAdvancedSearchTest extends BaseOpenlBuilderHelper{
     
-    private static String __src = "test/rules/Tutorial_4_Test.xls";
+    private static final String SRC = "test/rules/Tutorial_4_Test.xls";
     
     public OpenLAdvancedSearchTest() {
-        super(__src);        
+        super(SRC);        
     }    
     private OpenLAdvancedSearch search = new OpenLAdvancedSearch();
     

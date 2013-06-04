@@ -10,7 +10,7 @@ import java.util.Calendar;
 
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.tablets.tutorial10.domain.Address;
 import org.openl.tablets.tutorial10.domain.Car;
@@ -25,14 +25,13 @@ import org.openl.vm.IRuntimeEnv;
  */
 
 public class Tutorial10Main {
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         out.println();
         out.println("* OpenL Tutorial 10\n");
 
         out.println("Getting Interface...\n");
-        Tutorial_10RulesInterface rules = new RuleEngineFactory<Tutorial_10RulesInterface>(Tutorial_10RulesInterface.__src, 
-                Tutorial_10RulesInterface.class).makeInstance();        
+        Tutorial_10RulesInterface rules = new RulesEngineFactory<Tutorial_10RulesInterface>(Tutorial_10RulesInterface.__src, 
+                Tutorial_10RulesInterface.class).newEngineInstance();        
         
         // We should setup runtime context with proper values
         // These values will be used to dispatch call to appropriate rule

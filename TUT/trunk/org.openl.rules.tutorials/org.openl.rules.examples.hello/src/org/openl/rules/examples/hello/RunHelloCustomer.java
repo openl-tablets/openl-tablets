@@ -7,10 +7,7 @@
 package org.openl.rules.examples.hello;
 
 
-import org.openl.main.Engine;
-import org.openl.rules.examples.hello.RunHelloExcelCustomer.IExample;
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 /**
  * A simple Java test for HelloCustomer.xls
@@ -28,8 +25,8 @@ public class RunHelloCustomer
 	{
 		String fileName = "rules/HelloCustomer.xls";
 
-	    EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
-        IExample instance = engineFactory.makeInstance();
+	    RulesEngineFactory<IExample> engineFactory = new RulesEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.newEngineInstance();
 
         System.out.println(
 		"\n============================================\n" +

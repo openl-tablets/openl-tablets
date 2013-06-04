@@ -7,8 +7,8 @@ public class MoreThanConstraint extends AbstractConstraint {
 
     public static final String CONSTRAINT_KEY = ">";
 
-    public static final String CONSTRAINT_MATCH = "^\\s*([_a-zA-Z\\d\\$]+\\s*)?"
-            + CONSTRAINT_KEY + "\\s*[_a-zA-Z\\d\\$]+\\s*$";
+    public static final String CONSTRAINT_MATCH = "^\\s*([_a-zA-Z\\d\\$]+\\s*)?" + CONSTRAINT_KEY
+            + "\\s*[_a-zA-Z\\d\\$]+\\s*$";
 
     private Object[] params;
 
@@ -39,7 +39,7 @@ public class MoreThanConstraint extends AbstractConstraint {
             Object value1 = valuesToCheck[0];
             Object value2 = valuesToCheck[1];
             if (value1 instanceof Comparable && value2 instanceof Comparable) {
-                int compareResult = ((Comparable) value1).compareTo((Comparable) value2);
+                int compareResult = ((Comparable<Object>) value1).compareTo(value2);
                 return compareResult == 1;
             }
         }

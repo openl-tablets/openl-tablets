@@ -17,16 +17,16 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
+import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentRelatedInfo;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
-import org.openl.rules.runtime.BaseRulesFactory;
-import org.openl.rules.runtime.IRulesFactory;
-import org.openl.rules.runtime.SimpleEngineFactory;
+import org.openl.rules.runtime.InterfaceClassGenerator;
+import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -44,9 +44,12 @@ import org.openl.vm.IRuntimeEnv;
  * Prebinds multimodule openclass and creates LazyMethod and LazyField that will
  * compile neccessary modules on demand.
  * 
- * @author PUdalau
+ * @author PUdalau, Marat Kamalov
  */
-public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
+public class LazyMultiModuleEngineFactory<T> extends AOpenLRulesEngineFactory {
+
+    private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
+
     static {
         OpenL.setConfig(new LazyOpenLConfigurator());
     }
@@ -54,22 +57,27 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
     private final Log log = LogFactory.getLog(LazyMultiModuleEngineFactory.class);
 
     private CompiledOpenClass compiledOpenClass;
-    private Class<?> interfaceClass;
+    private Class<T> interfaceClass;
     private Collection<Module> modules;
     private IDependencyManager dependencyManager;
     private Map<String, Object> externalParameters;
 
-    private IRulesFactory rulesFactory = new BaseRulesFactory();
+    private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
 
-    public void setRulesFactory(IRulesFactory rulesFactory) {
-        if (rulesFactory == null) {
-            throw new IllegalArgumentException("rulesFactory argument can't be null");
+    public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
+        if (interfaceClassGenerator == null) {
+            throw new IllegalArgumentException("interfaceClassGenerator argument can't be null");
         }
-        this.rulesFactory = rulesFactory;
+        if (interfaceClass != null) {
+            if (log.isWarnEnabled()) {
+                log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
+            }
+        }
+        this.interfaceClassGenerator = interfaceClassGenerator;
     }
 
-    public IRulesFactory getRulesFactory() {
-        return rulesFactory;
+    public InterfaceClassGenerator getInterfaceClassGenerator() {
+        return interfaceClassGenerator;
     }
 
     /**
@@ -79,13 +87,43 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
      * @param modules
      * @param openlName `
      */
-    public LazyMultiModuleEngineFactory(Collection<Module> modules, String openlName) {
-        super(openlName);
+    public LazyMultiModuleEngineFactory(Collection<Module> modules) {
+        super(RULES_XLS_OPENL_NAME);
         this.modules = modules;
     }
 
-    public void setDependencyManager(IDependencyManager dependencyManager) {
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, IDependencyManager dependencyManager) {
+        this(modules);
         this.dependencyManager = dependencyManager;
+    }
+
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, IDependencyManager dependencyManager,
+            Map<String, Object> externalParameters) {
+        this(modules, dependencyManager);
+        this.externalParameters = externalParameters;
+    }
+
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, Class<T> interfaceClass) {
+        this(modules);
+        this.interfaceClass = interfaceClass;
+    }
+
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, Class<T> interfaceClass,
+            Map<String, Object> externalParameters) {
+        this(modules, interfaceClass);
+        this.externalParameters = externalParameters;
+    }
+
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, IDependencyManager dependencyManager,
+            Class<T> interfaceClass) {
+        this(modules, dependencyManager);
+        this.interfaceClass = interfaceClass;
+    }
+
+    public LazyMultiModuleEngineFactory(Collection<Module> modules, IDependencyManager dependencyManager,
+            Class<T> interfaceClass, Map<String, Object> externalParameters) {
+        this(modules, dependencyManager, interfaceClass);
+        this.externalParameters = externalParameters;
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -93,7 +131,6 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
             OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
-
         return compiledOpenClass;
     }
 
@@ -116,15 +153,15 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
         LazyBinderInvocationHandler.removePrebindHandler();
     }
 
-    public Class<?> getInterfaceClass() {
+    @SuppressWarnings({ "unchecked" })
+    public Class<T> getInterfaceClass() {
         if (interfaceClass == null) {
             CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-            String className = openClass.getName();
-
+            final String className = openClass.getName();
             try {
-                interfaceClass = rulesFactory.generateInterface(className, openClass, getCompiledOpenClass()
-                        .getClassLoader());
+                interfaceClass = (Class<T>) interfaceClassGenerator.generateInterface(className, openClass,
+                        getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
                 String errorMessage = String.format("Failed to create interface : %s", className);
                 if (log.isErrorEnabled()) {
@@ -136,37 +173,28 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
         return interfaceClass;
     }
 
-    public void setInterfaceClass(Class<?> interfaceClass) {
-        this.interfaceClass = interfaceClass;
+    @Override
+    protected Class<?>[] prepareInstanceInterfaces() {
+        return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
     }
 
     @Override
-    protected Class<?>[] getInstanceInterfaces() {
-        return new Class[] { interfaceClass, IEngineWrapper.class };
-    }
-
-    @Override
-    public Object innerMakeInstance(SimpleRulesRuntimeEnv runtimeEnv) {
+    protected Object prepareInstance(IRuntimeEnv runtimeEnv) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-            Object openClassInstance;
-            if (runtimeEnv == null){
-                openClassInstance = openClass.newInstance(makeDefaultRuntimeEnv());
-            }else{
-                openClassInstance = openClass.newInstance(runtimeEnv);
-            }
-            Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
+            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass()
+            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass()
                     .getClassLoader());
         } catch (Exception ex) {
-            String errorMessage = "Cannot instantiate engine instance";
+            String errorMessage = "Can't instantiate engine instance";
             if (log.isErrorEnabled()) {
                 log.error(errorMessage, ex);
             }
             throw new OpenlNotCheckedException(errorMessage, ex);
-        } 
+        }
     }
 
     /* package */Module getModuleForMember(IOpenMember member) {
@@ -185,7 +213,7 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
             }
         }
 
-        throw new RuntimeException("Module not found");
+        throw new OpenlNotCheckedException("Module not found");
     }
 
     private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
@@ -203,7 +231,6 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
                 }
             }
         }
-
         return null;
     }
 
@@ -238,13 +265,11 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
         try {
             prepareOpenL();
             IOpenSourceCodeModule mainModule = createMainModule();
-            SimpleEngineFactory factory = new SimpleEngineFactory(mainModule, AOpenLEngineFactory.DEFAULT_USER_HOME,
-                    getOpenlName());// FIXME
-            factory.setDependencyManager(dependencyManager);
-            factory.setExecutionMode(true);
-
-            CompiledOpenClass result = factory.getCompiledOpenClass();
-
+            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(mainModule,
+                    AOpenLEngineFactory.DEFAULT_USER_HOME, getOpenlName());// FIXME
+            engineFactory.setDependencyManager(dependencyManager);
+            engineFactory.setExecutionMode(true);
+            CompiledOpenClass result = engineFactory.getCompiledOpenClass();
             postProcess(result.getOpenClassWithErrors());
             return result;
         } finally {
@@ -261,7 +286,6 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
                     lm.setTopModule(topOpenClass);
                 }
             }
-
         }
     }
 
@@ -291,8 +315,8 @@ public class LazyMultiModuleEngineFactory extends AOpenLRulesEngineFactory {
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
-
-    public void setExternalParameters(Map<String, Object> parameters) {
-        this.externalParameters = parameters;
+    
+    public IDependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 }

@@ -11,7 +11,7 @@ import org.openl.rules.TestHelper;
 
 public class RelationExpressionTest {
 
-	private static String src = "test/rules/math/RelationExpressionTest.xls";
+	private static String SRC = "test/rules/math/RelationExpressionTest.xls";
 
 	public interface ITest {
 		boolean areEqual1();
@@ -93,7 +93,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testEqualComparison() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -108,7 +108,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testNotEqualComparison() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -123,7 +123,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testLessThanComparison() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -138,7 +138,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testGreaterThanComparison() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -153,7 +153,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testGreaterOrEqualComparison() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -168,7 +168,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testLessOrEqualComparison() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -183,7 +183,7 @@ public class RelationExpressionTest {
 
 	@Test
 	public void testIndexedEvaluator() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 

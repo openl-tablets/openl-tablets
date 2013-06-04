@@ -3,17 +3,15 @@ package org.openl.rules.indexer;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openl.meta.ShortValue;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
 public class ArrayIndexTest extends BaseOpenlBuilderHelper {
-    private static String __src = "./test/rules/ArrayIndexTest.xlsx";
+    private static final String SRC = "./test/rules/ArrayIndexTest.xlsx";
 
     public ArrayIndexTest() {
-        super(__src);
+        super(SRC);
     }
 
     @Test

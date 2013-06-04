@@ -18,10 +18,10 @@ import org.openl.vm.SimpleVM;
 
 public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
-    private static String __src = "test/rules/engine/TestContextManaginFromRules.xlsx";
+    private static final String SRC = "test/rules/engine/TestContextManaginFromRules.xlsx";
 
     public ContextManaginFromRulesTest() {
-        super(__src);
+        super(SRC);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testCurrentContextGetter() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("getContextPropery",
-            new IOpenClass[] { JavaOpenClass.STRING });
+                new IOpenClass[] { JavaOpenClass.STRING });
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
@@ -85,9 +85,9 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
         env.setContext(context);
         assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
     }
-    
+
     @Test
-    public void testTBasicContext(){
+    public void testTBasicContext() {
         IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("tbasicCaller", new IOpenClass[] {});
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object instance = getJavaWrapper().getOpenClass().newInstance(env);

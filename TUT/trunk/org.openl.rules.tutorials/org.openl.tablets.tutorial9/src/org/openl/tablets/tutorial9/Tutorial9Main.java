@@ -4,10 +4,8 @@
  */
 package org.openl.tablets.tutorial9;
 
-import static java.lang.System.out;
-
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 /**
  * Tutorial 9. Example of Spreadsheet tables.
@@ -17,25 +15,25 @@ import org.openl.rules.runtime.RuleEngineFactory;
 
 public class Tutorial9Main {
     public static void main(String[] args) {
-        out.println();
-        out.println("* OpenL Tutorial 9\n");
+        java.lang.System.out.println();
+        java.lang.System.out.println("* OpenL Tutorial 9\n");
 
-        out.println("Getting interface...");
-        Tutorial_9RulesInterface tutorial9 = new RuleEngineFactory<Tutorial_9RulesInterface>(Tutorial_9RulesInterface.__src, 
-                Tutorial_9RulesInterface.class).makeInstance();
+        java.lang.System.out.println("Getting interface...");
+        Tutorial_9RulesInterface tutorial9 = new RulesEngineFactory<Tutorial_9RulesInterface>(
+                Tutorial_9RulesInterface.__src, Tutorial_9RulesInterface.class).newEngineInstance();
 
-        out.println("* Executing OpenL tables...\n");
-        out.println("totalAssets():");
+        java.lang.System.out.println("* Executing OpenL tables...\n");
+        java.lang.System.out.println("totalAssets():");
         SpreadsheetResult result = tutorial9.totalAssets();
 
         FinePrint fine = new FinePrint(result);
         fine.print();
 
-        out.println("incomeForecast(double bonusRate, double sharePrice):");
+        java.lang.System.out.println("incomeForecast(double bonusRate, double sharePrice):");
         result = tutorial9.incomeForecast(0.15, 15.0);
         new FinePrint(result).print();
 
-        out.println("Lower bonusRate but higher sharePrice...");
+        java.lang.System.out.println("Lower bonusRate but higher sharePrice...");
         result = tutorial9.incomeForecast(0.05, 35.0);
         new FinePrint(result).print();
     }
@@ -83,25 +81,25 @@ public class Tutorial9Main {
             initMaxL();
 
             for (int y = 0; y < height; y++) {
-                out.print("\t");
+                java.lang.System.out.print("\t");
                 for (int x = 0; x < width; x++) {
                     if (x > 0) {
-                        out.print(" | ");
+                        java.lang.System.out.print(" | ");
                     }
 
                     String s = cells[y][x];
                     if (s == null)
                         s = "";
-                    out.print(s);
+                    java.lang.System.out.print(s);
 
                     int left = maxL[x] - s.length();
                     for (int i = 0; i < left; i++) {
-                        out.print(' ');
+                        java.lang.System.out.print(' ');
                     }
                 }
-                out.println();
+                java.lang.System.out.println();
             }
-            out.println();
+            java.lang.System.out.println();
         }
 
         private void initMaxL() {

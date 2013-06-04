@@ -1,22 +1,16 @@
 package org.openl.rules.data;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.TestHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.testmethod.TestUnitsResults;
 
 /*
  * @author PTarasevich

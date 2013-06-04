@@ -9,7 +9,7 @@ import org.openl.codegen.tools.generator.SourceGenerator;
 import org.openl.codegen.tools.loader.IEmptyLoader;
 import org.openl.codegen.tools.type.EnumerationDescriptor;
 import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -42,11 +42,11 @@ public class GenRulesTypes {
 
         List<EnumerationDescriptor> descriptors = new ArrayList<EnumerationDescriptor>();
 
-        RuleEngineFactory<IEmptyLoader> rulesFactory = new RuleEngineFactory<IEmptyLoader>(
+        RulesEngineFactory<IEmptyLoader> engineFactory = new RulesEngineFactory<IEmptyLoader>(
                 CodeGenConstants.DEFINITIONS_XLS, IEmptyLoader.class);
 
-        IOpenClass openClass = rulesFactory.getOpenClass();
-        IRuntimeEnv env = rulesFactory.getOpenL().getVm().getRuntimeEnv();
+        IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
+        IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
         Object openClassInstance = openClass.newInstance(env);
 
         List<IOpenField> enumerationFields = EnumHelper.findEnumerationFields(openClass);

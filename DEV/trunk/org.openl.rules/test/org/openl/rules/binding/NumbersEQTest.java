@@ -15,10 +15,10 @@ import org.openl.rules.BaseOpenlBuilderHelper;
  *
  */
 public class NumbersEQTest extends BaseOpenlBuilderHelper {
-    private static final String RULE = "test/rules/binding/NumbersEQTest.xls";
+    private static final String SRC = "test/rules/binding/NumbersEQTest.xls";
     
     public NumbersEQTest() {
-        super(RULE);
+        super(SRC);
     }
     
     @Test

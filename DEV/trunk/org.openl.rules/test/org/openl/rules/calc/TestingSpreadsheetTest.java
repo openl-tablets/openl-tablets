@@ -10,7 +10,7 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.testmethod.TestUnitsResults;
 
 public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
-    private static String __src = "test/rules/calc1/TestingSpreadsheet.xlsx";
+    private static String SRC = "test/rules/calc1/TestingSpreadsheet.xlsx";
 
     public TestingSpreadsheetTest() {
     }
@@ -29,7 +29,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testingSpreadsheet() throws ClassNotFoundException {
-        build(__src);
+        build(SRC);
         assertNotNull(getJavaWrapper().getOpenClass());
         TestUnitsResults res = (TestUnitsResults)invokeMethod("TestSprTestAll");
         assertEquals(1, res.getNumberOfTestUnits());
@@ -38,7 +38,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testingChainCall() throws ClassNotFoundException {
-        build(__src);
+        build(SRC);
         assertNotNull(getJavaWrapper().getOpenClass());
         TestUnitsResults res = (TestUnitsResults)invokeMethod("testing1TestAll");
         assertEquals(1, res.getNumberOfTestUnits());
@@ -47,7 +47,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testingCustomSpreadsheetResultCall() throws ClassNotFoundException {
-        build(__src);
+        build(SRC);
         assertNotNull(getJavaWrapper().getOpenClass());
         TestUnitsResults res = (TestUnitsResults)invokeMethod("testing2TestAll");
         assertEquals(1, res.getNumberOfTestUnits());
@@ -56,7 +56,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testOldCellAccess() throws ClassNotFoundException {
-        build(__src);
+        build(SRC);
         assertNotNull(getJavaWrapper().getOpenClass());
         TestUnitsResults res = (TestUnitsResults)invokeMethod("method4TestTestTestAll");
         assertEquals(1, res.getNumberOfTestUnits());

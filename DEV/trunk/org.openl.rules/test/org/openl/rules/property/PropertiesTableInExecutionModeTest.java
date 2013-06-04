@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
-import org.openl.rules.runtime.SimpleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -24,20 +24,21 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Test for properties recognition in execution mode. 
+ * Test for properties recognition in execution mode.
+ * 
  * @author PUdalau
  */
 public class PropertiesTableInExecutionModeTest {
 
-    private static String __src = "test/rules/PropertyTableTest.xls";
+    private static final String SRC = "test/rules/PropertyTableTest.xls";
 
     @Test
     public void testPropertyTableLoading() {
-        SimpleEngineFactory engineFactory = new SimpleEngineFactory(__src);
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         IOpenMethod method = compiledOpenClass.getOpenClass().getMethod("hello1",
-            new IOpenClass[] { JavaOpenClass.INT });
+                new IOpenClass[] { JavaOpenClass.INT });
         if (method != null) {
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             assertNotNull(tableProperties);
@@ -65,20 +66,21 @@ public class PropertiesTableInExecutionModeTest {
             fail();
         }
     }
-    
+
     @Test
     public void testFielsInOpenClass() {
-        SimpleEngineFactory engineFactory = new SimpleEngineFactory(__src);
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         Map<String, IOpenField> fields = compiledOpenClass.getOpenClass().getFields();
-        //properties table with name will be represented as field
+        // properties table with name will be represented as field
         assertTrue(fields.containsKey("categoryProp"));
-        //properties table without name will not be represented as field
+        // properties table without name will not be represented as field
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
-        for(Entry<String, IOpenField> field: fields.entrySet()){
-            if(field.getValue() instanceof PropertiesOpenField){
-                ITableProperties properties = (ITableProperties)field.getValue().get(compiledOpenClass.getOpenClass().newInstance(env), env);
+        for (Entry<String, IOpenField> field : fields.entrySet()) {
+            if (field.getValue() instanceof PropertiesOpenField) {
+                ITableProperties properties = (ITableProperties) field.getValue().get(
+                        compiledOpenClass.getOpenClass().newInstance(env), env);
                 String scope = properties.getScope();
                 assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));
             }
