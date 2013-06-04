@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.types.IOpenField;
 import org.openl.util.StringTool;
 
 public class BeanResultComparator implements TestResultComparator {
@@ -20,7 +22,7 @@ public class BeanResultComparator implements TestResultComparator {
             throw new IllegalArgumentException("Fields for comparing cannot be null");
         }
     }
-    
+
     public List<String> getFieldsToCompare() {
         return fieldsToCompare;
     }
@@ -35,18 +37,30 @@ public class BeanResultComparator implements TestResultComparator {
         } else {
             boolean success = true;
             for (String fieldToCompare : fieldsToCompare) {
+                Double columnDelta = delta;
                 ComparedResult fieldComparisonResults = new ComparedResult();
                 fieldComparisonResults.setFieldName(fieldToCompare);
 
                 Object actualFieldValue = getFieldValue(actualResult, fieldToCompare);
                 Object expectedFieldValue = getFieldValue(expectedResult, fieldToCompare);
 
+                if (this instanceof OpenLBeanResultComparator) {
+                    IOpenField field = ((OpenLBeanResultComparator)this).getField(fieldToCompare);
+
+                    //Get delta for field if setted
+                    if (field instanceof PrecisionFieldChain) {
+                        if (((PrecisionFieldChain)field).hasDelta()) {
+                            columnDelta = ((PrecisionFieldChain)field).getDelta();
+                        }
+                    }
+                }
+
                 fieldComparisonResults.setActualValue(actualFieldValue);
                 fieldComparisonResults.setExpectedValue(expectedFieldValue);
 
                 TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
                         expectedFieldValue);
-                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue, delta);
+                boolean compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
 
                 if (compare && actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
                     comparator = new ArrayComparator();

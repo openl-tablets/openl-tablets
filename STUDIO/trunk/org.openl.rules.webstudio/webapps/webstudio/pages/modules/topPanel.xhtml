@@ -47,16 +47,16 @@
 							style="background:url('webresource/images/repository/checkout.gif')" />
 					</a4j:ajax>
 
-					<h:outputLink value="#test/runAllTests.xhtml"
+					<h:outputLink value="#test/test.xhtml"
 						title="Run #{treeBean.projectTestsCount} Test(s)"
 						rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}"
 						styleClass="imageButton"
 						style="background:url('webresource/images/test_ok.gif')" />
 
-                    <h:panelGroup style="margin-left: 17px;" rendered="#{studio.model.canCreateTable or studio.model.canEditTable}">
+                    <h:panelGroup style="margin-left: 17px;" rendered="#{studio.model.canCreateTable or studio.model.canEditProject}">
                         <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
                             title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
-                        <h:outputLink rendered="#{studio.model.canEditTable}"
+                        <h:outputLink rendered="#{studio.model.canEditProject}"
                             value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" >Revert</h:outputLink>
                     </h:panelGroup>
 

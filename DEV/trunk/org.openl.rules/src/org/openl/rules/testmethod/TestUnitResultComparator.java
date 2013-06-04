@@ -9,22 +9,22 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.result.TestResultComparator;
 
 public class TestUnitResultComparator {
-    
+
     public static enum TestStatus {
         TR_EXCEPTION(2),
         TR_NEQ(1),
         TR_OK(0);
-        
+
         private int status;
-        
+
         private TestStatus(int status) {
             this.status = status;
         }
-        
+
        public int getStatus() {
            return status;
        }
-       
+
        public TestStatus getConstant(int status) {
             switch (status) {
                 case 0:

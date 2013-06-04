@@ -37,11 +37,11 @@ public class MethodsHelper {
         if (list.size() == 0) {
             throw new MethodNotFoundException(null, name, IOpenClass.EMPTY);
         }
-    
+
         if (list.size() > 1) {
             throw new AmbiguousMethodException(name, IOpenClass.EMPTY, list);
         }
-    
+
         return list.get(0);
     }
 
