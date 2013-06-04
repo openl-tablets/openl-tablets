@@ -1,0 +1,189 @@
+<ui:composition
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+
+    <script>
+        function explain(url) {
+           window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
+               + '&amp;header=Explanation&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1000, height=800")
+        }
+    </script>
+
+    <h:panelGroup rendered="#{!testBean.test}">
+    <div class="view_header">
+        <span>Number of Tests: #{testBean.numberOfTests}</span>
+        <h:outputText value="#{testBean.numberOfFailedTests} failed"
+            rendered="#{testBean.numberOfFailedTests > 0}"
+            styleClass="badge badge-error" style="margin-left: 4px" />
+
+        <c:set var="interval" value="5" />
+        <c:set var="curPage" value="#{testBean.page}" />    
+        <c:set var="maxPage" value="#{testBean.lastPage}" />
+        <c:set var="firstPage" value="#{curPage > interval ? (curPage - interval + 1) : '1'}" />
+        <c:set var="lastPage" value="#{(firstPage + interval - 1) > maxPage ? maxPage : (firstPage + interval - 1)}" />
+        <c:set var="perPage" value="#{testBean.testsPerPage}" />
+
+        <c:set var="pageUri" value="#test/test.xhtml" />
+        <c:set var="pageUriExtra" value="#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}" />
+        <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{pageUriExtra}" />
+
+        <span class="dropdown" style="position:absolute;top:7px;margin-left:45px">
+            <a class="dropdown-toggle link-dropdown" data-toggle="dropdown" href="#">#{perPage == -1 ? 'All' : perPage}</a>
+            per page
+            <ul class="dropdown-menu link-dropdown-menu" role="menu">
+                <li><a tabindex="-1" href="#{pageUri}?pp=1#{pageUriExtra}">1</a></li>
+                <li><a tabindex="-1" href="#{pageUri}?pp=5#{pageUriExtra}">5</a></li>
+                <li><a tabindex="-1" href="#{pageUri}?pp=20#{pageUriExtra}">20</a></li>
+                <li class="divider"></li>
+                <li><a tabindex="-1" href="#{pageUri}?pp=-1#{pageUriExtra}">All</a></li>
+            </ul>
+        </span>
+        <h:panelGroup class="pagination pagination-mini" rendered="#{maxPage > 1}" style="position:absolute;top:4px;margin-left:130px">
+            <ul>
+                <li><a href="#{pageUri}?p=1#{pageUriPagerExtra}">«</a></li>
+                <c:if test="#{curPage == 1}">
+                <li class="disabled"><span>Prev</span></li>
+                </c:if>
+                <c:if test="#{curPage > 1}">
+                <li><a href="#{pageUri}?p=#{curPage - 1}#{pageUriPagerExtra}">Prev</a></li>
+                </c:if>
+                <c:forEach begin="#{firstPage}" end="#{lastPage}" var="page">
+                <li class="#{curPage == page ? 'active': ''}"><a href="#{pageUri}?p=#{page}#{pageUriPagerExtra}">#{page}</a></li>
+                </c:forEach>
+                <c:if test="#{maxPage > interval and maxPage > curPage}">
+                <li><a href="#{pageUri}?p=#{lastPage + 1}#{pageUriPagerExtra}">...</a></li>
+                </c:if>
+                <c:if test="#{curPage == maxPage}">
+                <li class="disabled"><span>Next</span></li>
+                </c:if>
+                <c:if test="#{curPage != maxPage}">
+                <li><a href="#{pageUri}?p=#{curPage + 1}#{pageUriPagerExtra}">Next</a></li>
+                </c:if>
+                <li><a href="#{pageUri}?p=#{maxPage}#{pageUriPagerExtra}">»</a></li>
+            </ul>
+        </h:panelGroup>
+    </div>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{testBean.test}">
+    <div class="view_header">
+        <h:outputText value="Results of running "/>
+        <h:outputLink value="#table.xhtml">
+            <f:param name="uri" value="#{testBean.testedTableUri}" />
+            <h:outputText value="#{testBean.testedTableName}" />
+        </h:outputLink>
+    </div>
+    </h:panelGroup>
+
+    <div class="content">
+        <h:outputText value="View expired. Test data is no more available." rendered="#{testBean.expired}" />
+
+        <h:panelGroup rendered="#{!testBean.expired}">
+            <ui:repeat value="#{testBean.ranTests}" var="testUnitsResults">
+            <div class="test">
+                <h1>
+                    <h:outputLink value="#table.xhtml"
+                        styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
+                        <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
+                        <h:outputText value="#{testBean.getTestTableName(testUnitsResults)}" />
+                    </h:outputLink>
+                    <span class="badge">#{testBean.getTestTableInfo(testUnitsResults)}</span>
+                    <h:panelGroup rendered="#{testUnitsResults.numberOfFailures > 0}" class="badge badge-error" style="margin-left:3px">#{testUnitsResults.numberOfFailures} failed</h:panelGroup>
+                </h1>
+                <table class="table">
+                    <tr>
+                        <ui:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="parameterHeader">
+                            <th>#{parameterHeader}</th>
+                        </ui:repeat>
+                        <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                            <th><h:outputText value="Description" /></th>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
+                            <th><h:outputText value="Expected" /></th>
+                        </h:panelGroup>
+                        <th>Result</th>
+                    </tr>
+
+                    <ui:repeat value="#{testUnitsResults.testUnits}" var="testUnit">
+                        <tr>
+                            <ui:repeat value="#{testBean.getParamDescriptions(testUnit)}" var="parameter">
+                            <td>
+                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{parameter}" />
+                                </ui:include></td>
+                            </ui:repeat>
+                            <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
+                                <td><h:outputText value="#{testUnit.getDescription()}" /></td>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{not testUnitsResults.spreadsheetResultTester}">
+                                <td>
+                                    <h:panelGroup rendered="#{empty testBean.getExplanationValueExpected(testUnit)}">
+                                        <ui:repeat value="#{testBean.getExpectedParameter(testUnit)}" var="expParam">
+                                            <ui:include src="/pages/modules/test/parameter.xhtml">
+                                                <ui:param name="parameter" value="#{expParam}" />
+                                            </ui:include>
+                                        </ui:repeat>
+                                    </h:panelGroup>
+
+                                    <h:outputLink value="javascript: explain('?rootID=#{testBean.getExpectedExplanatorId(testUnit)}')"
+                                        rendered="#{not empty testBean.getExplanationValueExpected(testUnit)}">                                     
+                                        <h:outputText value="#{testBean.getFormattedExplanationValueExpected(testUnit)}" />                                    	
+                                    </h:outputLink></td>
+                            </h:panelGroup>
+                            <td>
+                                <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
+
+                                <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
+                                    <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
+                                        <i class="#{compareResult == 0 ? 'case-success' : 'case-error'}"></i>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{empty testBean.getExplanationValueActual(testUnit) and empty testBean.getSpreadsheetResult(testUnit)}">
+                                        <div class="case-result">
+                                            <h:panelGroup rendered="#{not testBean.isResultThrowable(testUnit)}">
+                                                <ui:repeat value="#{testBean.getActualParameter(testUnit)}" var="actualParam">
+                                                    <ui:include src="/pages/modules/test/parameter.xhtml">
+                                                        <ui:param name="parameter" value="#{actualParam}" />
+                                                    </ui:include>
+                                                </ui:repeat>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{testBean.isResultThrowable(testUnit)}">
+                                                <ui:repeat value="#{testBean.getResultMessages(testUnit)}" var="actualParam">
+                                                    <c:set var="messageBoxClass"
+                                                        value="#{message.severity == 'ERROR' ? 'error_box' : (message.severity == 'WARN' ? 'warning_box' : 'info_box')}" />
+                                                    <div class="#{messageBoxClass}">
+                                                        <h:outputText id="summary" value="#{actualParam.summary}" />
+                                                    </div>
+                                                </ui:repeat>
+                                            </h:panelGroup></div>
+                                    </h:panelGroup>
+
+                                    <h:outputLink
+                                        value="javascript: explain('?rootID=#{testBean.getActualExplanatorId(testUnit)}')"
+                                        rendered="#{not empty testBean.getExplanationValueActual(testUnit)}">
+                                        <h:outputText value="#{testBean.getFormattedExplanationValueActual(testUnit)}" />
+                                    </h:outputLink>
+                                    <h:outputText rendered="#{not empty testBean.getSpreadsheetResult(testUnit)}"
+                                        value="#{testBean.getFormattedSpreadsheetResult(testUnit)}" escape="false" />
+                                </h:panelGroup> 
+                                <h:panelGroup rendered="#{compareResult == 2}">
+                                    <ui:include src="/pages/modules/messages.xhtml">
+                                        <ui:param name="messages" value="#{testBean.getErrors(testUnit)}" />
+                                        <ui:param name="editable" value="#{studio.model.editable}" />
+                                    </ui:include>
+                                </h:panelGroup></td>
+                        </tr>
+                    </ui:repeat>
+                </table>
+            </div>
+            </ui:repeat>
+        </h:panelGroup>
+    </div>
+
+</ui:composition>

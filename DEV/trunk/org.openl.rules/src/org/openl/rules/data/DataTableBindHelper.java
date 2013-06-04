@@ -39,7 +39,7 @@ public class DataTableBindHelper {
 
     // patter for field like addressArry[0]
     private static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
-    private static final String PRECISION_PATTERN = "^\\([0-9]+\\)$";
+    public static final String PRECISION_PATTERN = "^\\([0-9]+\\)$";
 
     /**
      * Foreign keys row is optional for data table. It consists reference for
@@ -416,23 +416,6 @@ public class DataTableBindHelper {
         return columnDescriptors;
     }
 
-    /*private static IdentifierNode[] getLinkedObject(IdentifierNode foreignKeyTable) throws OpenLCompilationException {
-        String fTableIdentifier = foreignKeyTable.getIdentifier();
-
-        return Tokenizer.tokenize((IOpenSourceCodeModule) foreignKeyTable.getModule(), LINK_DELIMETERS);
-    }*/
-
-    /*private static IdentifierNode[] getLinkTokens(IBindingContext bindingContext, ILogicalTable descriptorRows,
-            int columnNum) throws OpenLCompilationException {
-        ILogicalTable logicalRegion = descriptorRows.getSubtable(columnNum, 1, 1, 1);
-        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(
-                logicalRegion.getSource(), bindingContext);
-
-        // Should be in format
-        // "> reference_table_name [reference_table_key_column]"
-        return Tokenizer.tokenize(indexRowSourceModule, LINK_DELIMETERS);
-    }*/
-
     /**
      * 
      * @param bindingContext is used for optimization {@link GridCellSourceCodeModule} in execution mode. Can be <code>null</code>.
@@ -526,10 +509,9 @@ public class DataTableBindHelper {
             boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
 
             if(fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
-                //precision = getPrecisionValue(fieldNameNode);
                 fieldAccessorChain = (IOpenField[]) ArrayUtils.remove(fieldAccessorChain, fieldIndex);
                 fieldAccessorChainTokens = (IdentifierNode[]) ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
-                /*Skip creation of IOpenField*/
+                //Skip creation of IOpenField
                 continue;
             }
 
@@ -560,17 +542,17 @@ public class DataTableBindHelper {
         }
         return chainField;
     }
-    
-    /*private static Double getPrecisionValue(IdentifierNode fieldNameNode) {
+
+    public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
         try {
             String fieldName = fieldNameNode.getIdentifier();
             String txtIndex = fieldName.substring(fieldName.indexOf("(") + 1, fieldName.indexOf(")"));
-    
-            return Double.parseDouble(txtIndex);
+
+            return Integer.parseInt(txtIndex);
         } catch (Exception e) {
             return null;
         }
-    }*/
+    }
 
     private static int getArrayIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();

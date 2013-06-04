@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestHelper;
+import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 
 /*
  * @author PTarasevich
@@ -19,6 +20,7 @@ public class TestDoubleDelta {
     public interface ITestDouble {
         TestUnitsResults testSSTestTestAll();
         TestUnitsResults geTestDoubleTestTestAll();
+        TestUnitsResults geTestDoubleTest2TestAll();
     }
 
     @Before
@@ -32,7 +34,28 @@ public class TestDoubleDelta {
         TestHelper<ITestDouble> testHelper = new TestHelper<ITestDouble>(xlsFile, ITestDouble.class);
 
         ITestDouble instance = testHelper.getInstance();
+        TestUnitsResults result = instance.testSSTestTestAll();
+
+        assertEquals(0, result.getNumberOfFailures());
+    }
+
+    @Test
+    public void testDoubleTest() {
+        File xlsFile = new File(FILE_NAME);
+        TestHelper<ITestDouble> testHelper = new TestHelper<ITestDouble>(xlsFile, ITestDouble.class);
+
+        ITestDouble instance = testHelper.getInstance();
         TestUnitsResults result = instance.geTestDoubleTestTestAll();
         assertEquals(2, result.getNumberOfFailures());
+    }
+
+    @Test
+    public void testDoubleTest2() {
+        File xlsFile = new File(FILE_NAME);
+        TestHelper<ITestDouble> testHelper = new TestHelper<ITestDouble>(xlsFile, ITestDouble.class);
+
+        ITestDouble instance = testHelper.getInstance();
+        TestUnitsResults result = instance.geTestDoubleTest2TestAll();
+        assertEquals(1, result.getNumberOfFailures());
     }
 }
