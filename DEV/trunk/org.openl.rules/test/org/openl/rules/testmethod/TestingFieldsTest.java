@@ -7,10 +7,10 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 
 public class TestingFieldsTest extends BaseOpenlBuilderHelper {
-    private static String __src = "test/rules/testmethod/TestingFieldsTest.xls";
+    private static final String SRC = "test/rules/testmethod/TestingFieldsTest.xls";
 
     public TestingFieldsTest() {
-        super(__src);
+        super(SRC);
     }
 
     @Test

@@ -1,15 +1,14 @@
 package org.openl.rules.project.instantiation;
 
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
-
-import java.io.File;
 
 /**
  * Instantiation strategy for projects with interface. Generates proxy for
@@ -17,31 +16,32 @@ import java.io.File;
  * 
  * @author PUdalau
  */
-public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiationStrategy {
+public class SimpleEngineFactoryInstantiationStrategy extends SingleModuleInstantiationStrategy {
 
-    private EngineFactory<?> engineFactory;
+    private RulesEngineFactory<?> engineFactory;
     
-    public EngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+    public SimpleEngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
         super(module, executionMode, dependencyManager);
     }
     
-    public EngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
+    public SimpleEngineFactoryInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager, ClassLoader classLoader) {
         super(module, executionMode, dependencyManager, classLoader);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public Class<?> getServiceClass() throws ClassNotFoundException{
+    public Class<Object> getServiceClass() throws ClassNotFoundException{
         // Service class for current implementation will be interface provided by user.
         //
         if (!super.isServiceClassDefined()) {
             // Load rules interface and set it to strategy.
             setServiceClass(getClassLoader().loadClass(getModule().getClassname()));
         }
-        return super.getServiceClass();
+        return (Class<Object>)super.getServiceClass();
     }
-
+    
     @SuppressWarnings("unchecked")
-    private EngineFactory<?> getEngineFactory(Class<?> clazz) {
+    private RulesEngineFactory<?> getEngineFactory(Class<?> clazz) {
         if(engineFactory == null){
             File sourceFile = new File(getModule().getRulesRootPath().getPath());
             
@@ -65,9 +65,9 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
                 // {@link org.openl.conf.AUserContext.hashCode()} and {@link org.openl.conf.AUserContext.equals()}
                 //
                 // @author DLiauchuk
-                engineFactory = new RuleEngineFactory(userHome, source, clazz);
+                engineFactory = new RulesEngineFactory<Object>(source, userHome, (Class<Object>)clazz);
             } else {
-                engineFactory = new RuleEngineFactory(source, clazz);
+                engineFactory = new RulesEngineFactory<Object>(source, (Class<Object>)clazz);
             }
             
             engineFactory.setExecutionMode(isExecutionMode());
@@ -102,8 +102,8 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
         }
     }
 
-    private CompiledOpenClass compile(Class<?> clazz) {
-        EngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
+    private CompiledOpenClass compile(Class<Object> clazz) {
+        RulesEngineFactory<?> engineInstanceFactory = getEngineFactory(clazz);
         
         // Ensure that compilation will be done in strategy classLoader
         //
@@ -119,7 +119,7 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
 
     @Override
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
-        EngineFactory<?> engineInstanceFactory = getEngineFactory(rulesClass);
+        RulesEngineFactory<?> engineInstanceFactory = getEngineFactory(rulesClass);
         
         // Ensure that instantiation will be done in strategy classLoader.
         //
@@ -127,7 +127,7 @@ public class EngineFactoryInstantiationStrategy extends SingleModuleInstantiatio
         Thread.currentThread().setContextClassLoader(getClassLoader());
 
         try {
-            return engineInstanceFactory.makeInstance();
+            return engineInstanceFactory.newInstance();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

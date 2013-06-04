@@ -23,10 +23,10 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper{
     private static final String PROPERTY_ACTIVE = "active";
 
 	public TablePropertiesTest() {
-        super(__src);   
+        super(SRC);   
     }
 
-    private static String __src = "test/rules/Tutorial_4_Test.xls";
+    private static final String SRC = "test/rules/Tutorial_4_Test.xls";
     
     private static final String PROPERTY_BUILD_PHASE = "buildPhase";
     private static final String PROPERTY_REGION = "region";

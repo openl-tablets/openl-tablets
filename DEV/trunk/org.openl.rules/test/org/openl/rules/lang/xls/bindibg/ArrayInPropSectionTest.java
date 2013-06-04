@@ -8,15 +8,15 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper{
     
-    private static String __src = "test/rules/TestArrayInPropSection.xls";
+    private static final String SRC = "test/rules/TestArrayInPropSection.xls";
     
     public ArrayInPropSectionTest() {
-        super(__src);        
+        super(SRC);        
     }
     
     @Test
     public void testLoadingArrayInPropertyTableSection() {      
-        String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";        
+        final String tableName = "Rules DoubleValue driverRiskScoreOverloadTest(String driverRisk)";        
         TableSyntaxNode resultTsn = findTable(tableName);
         
         if (resultTsn != null) {

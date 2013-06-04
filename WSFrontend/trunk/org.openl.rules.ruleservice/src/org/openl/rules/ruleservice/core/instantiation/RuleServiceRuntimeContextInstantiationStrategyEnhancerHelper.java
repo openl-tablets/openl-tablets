@@ -15,7 +15,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.openl.rules.ruleservice.context.IRulesRuntimeContext;
 import org.openl.rules.runtime.RuleInfo;
-import org.openl.rules.runtime.RulesFactory;
+import org.openl.rules.runtime.InterfaceGenerator;
 import org.openl.util.generation.InterfaceTransformer;
 /**
  * 
@@ -130,7 +130,7 @@ final class RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper {
             log.debug(String.format("Generating interface for '%s' class", clazz.getName()));
         }
 
-        return RulesFactory.generateInterface(className, rulesArray, classLoader);
+        return InterfaceGenerator.generateInterface(className, rulesArray, classLoader);
     }
 
     /**
@@ -156,7 +156,7 @@ final class RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper {
             Class<?> returnType = method.getReturnType();
             paramTypes[0] = IRulesRuntimeContext.class;
 
-            RuleInfo ruleInfo = RulesFactory.createRuleInfo(methodName, paramTypes, returnType);
+            RuleInfo ruleInfo = InterfaceGenerator.createRuleInfo(methodName, paramTypes, returnType);
 
             rules.add(ruleInfo);
         }

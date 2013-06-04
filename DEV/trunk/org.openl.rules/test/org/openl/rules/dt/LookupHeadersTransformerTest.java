@@ -5,54 +5,53 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public class LookupHeadersTransformerTest {
-    public interface ILookupTableTest {
-        
+    interface ILookupTableTest {
+
         DoubleValue getFirstReturn(String country, String region, String brand, String model);
-        
+
         DoubleValue getSecondReturn(String country, String region, String brand, String model);
-        
+
         DoubleValue getNormalReturn(String country, String region, String brand, String model);
-        
+
         DoubleValue getThreeCond(String country, String region, String brand, String model, int milesNumber);
     }
-    
-    private static String src = "test/rules/dt/lookup/LookupHeadersTransformerTest.xls";
-    
-    private ILookupTableTest test;
-    
+
+    private static final String SRC = "test/rules/dt/lookup/LookupHeadersTransformerTest.xls";
+
+    private ILookupTableTest instance;
+
     @Before
     public void initEngine() {
-        EngineFactory<ILookupTableTest> engineFactory = new EngineFactory<ILookupTableTest>(
-                RuleEngineFactory.RULE_OPENL_NAME, src, ILookupTableTest.class);
-        
-        test = engineFactory.makeInstance();
+        RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<ILookupTableTest>(SRC,
+                ILookupTableTest.class);
+
+        instance = (ILookupTableTest) engineFactory.newEngineInstance();
     }
-    
+
     @Test
     public void testFirstReturn() {
-        DoubleValue result = test.getFirstReturn("Belarus", "Minsk", "BMW", "Z4 sDrive35i");
+        DoubleValue result = instance.getFirstReturn("Belarus", "Minsk", "BMW", "Z4 sDrive35i");
         assertEquals(39655, result.intValue());
     }
-    
+
     @Test
     public void testSecondReturn() {
-        DoubleValue result = test.getSecondReturn("Belarus", "Minsk", "BMW", "Z4 sDrive35i");
+        DoubleValue result = instance.getSecondReturn("Belarus", "Minsk", "BMW", "Z4 sDrive35i");
         assertEquals(39655, result.intValue());
     }
-    
+
     @Test
     public void testNormalReturn() {
-        DoubleValue result = test.getNormalReturn("Belarus", "Minsk", "BMW", "Z4 sDrive35i");
+        DoubleValue result = instance.getNormalReturn("Belarus", "Minsk", "BMW", "Z4 sDrive35i");
         assertEquals(39655, result.intValue());
     }
-    
+
     @Test
     public void testThreeCond() {
-        DoubleValue result = test.getThreeCond("Belarus", "Minsk", "BMW", "Z4 sDrive35i", 2000);
+        DoubleValue result = instance.getThreeCond("Belarus", "Minsk", "BMW", "Z4 sDrive35i", 2000);
         assertEquals(39655, result.intValue());
     }
 

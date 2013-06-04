@@ -22,8 +22,7 @@ public class OverloadTest {
     @Test
     public void testMethodOverload() {
         File xlsFile = new File("test/rules/overload/Overload.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();

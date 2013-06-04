@@ -10,7 +10,7 @@ import org.openl.rules.TestHelper;
 
 
 public class VarArgsMethodBindingTest {
-    private static final String src = "test/rules/binding/VarArgsMethodBindingTest.xlsx";
+    private static final String SRC = "test/rules/binding/VarArgsMethodBindingTest.xlsx";
     
     private static TestInterf instance;
     
@@ -24,7 +24,7 @@ public class VarArgsMethodBindingTest {
     @Before
     public void init() {
         if (instance == null) {
-            File xlsFile = new File(src);
+            File xlsFile = new File(SRC);
             TestHelper<TestInterf> testHelper;
             testHelper = new TestHelper<TestInterf>(xlsFile, TestInterf.class);
             

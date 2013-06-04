@@ -7,10 +7,10 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 
 public class ArraysInSpreadsheetTest extends BaseOpenlBuilderHelper {
     
-    private static String __src = "test/rules/calc1/ArrayInSpreadsheet.xlsx";
+    private static String SRC = "test/rules/calc1/ArrayInSpreadsheet.xlsx";
 
     public ArraysInSpreadsheetTest() {
-        super(__src);
+        super(SRC);
     }
     
     @Test

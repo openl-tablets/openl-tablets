@@ -10,7 +10,7 @@ import org.openl.rules.helpers.IntRange;
 
 public class AliasDatatypeTest {
 
-	private static String src = "test/rules/datatype/AliasDatatypeTest.xlsx";
+	private static final String SRC = "test/rules/datatype/AliasDatatypeTest.xlsx";
 
 	public interface ITest {
 		int test1(String state);
@@ -28,7 +28,7 @@ public class AliasDatatypeTest {
 
 	@Test
 	public void test1() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -39,7 +39,7 @@ public class AliasDatatypeTest {
 	
 	@Test
 	public void test11() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -50,7 +50,7 @@ public class AliasDatatypeTest {
 
 	@Test(expected = RuntimeException.class)
 	public void test2() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -60,7 +60,7 @@ public class AliasDatatypeTest {
 
 	@Test
 	public void test3() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -72,7 +72,7 @@ public class AliasDatatypeTest {
 	
 	@Test
 	public void test31() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -84,7 +84,7 @@ public class AliasDatatypeTest {
 
 	@Test(expected = Exception.class)
 	public void test4() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -94,7 +94,7 @@ public class AliasDatatypeTest {
 	
 	@Test
 	public void test41() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -108,7 +108,7 @@ public class AliasDatatypeTest {
 
 	@Test(expected = RuntimeException.class)
 	public void test5() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -118,7 +118,7 @@ public class AliasDatatypeTest {
 
 	@Test
 	public void test6() {
-		File xlsFile = new File(src);
+		File xlsFile = new File(SRC);
 		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
 				ITest.class);
 
@@ -129,7 +129,7 @@ public class AliasDatatypeTest {
 
     @Test
     public void test7() {
-        File xlsFile = new File(src);
+        File xlsFile = new File(SRC);
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
                 ITest.class);
 
@@ -143,7 +143,7 @@ public class AliasDatatypeTest {
 
     @Test
     public void testArrays() {
-        File xlsFile = new File(src);
+        File xlsFile = new File(SRC);
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
                 ITest.class);
 

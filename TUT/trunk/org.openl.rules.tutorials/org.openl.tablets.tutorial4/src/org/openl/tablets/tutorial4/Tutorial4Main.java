@@ -8,7 +8,7 @@ import org.openl.generated.beans.Driver;
 import org.openl.generated.beans.Policy;
 import org.openl.generated.beans.Vehicle;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.vm.trace.Tracer;
 
 /**
@@ -20,8 +20,8 @@ public class Tutorial4Main {
 	/**
 	 * Tutorial wrapper object instance.
 	 */
-	private Tutorial_4RulesInterface wrapper = new RuleEngineFactory<Tutorial_4RulesInterface>(Tutorial_4RulesInterface.__src, 
-	        Tutorial_4RulesInterface.class).makeInstance();
+	private Tutorial_4RulesInterface wrapper = new RulesEngineFactory<Tutorial_4RulesInterface>(Tutorial_4RulesInterface.__src, 
+	        Tutorial_4RulesInterface.class).newEngineInstance();
 
 	public static void main(String[] args) {
 

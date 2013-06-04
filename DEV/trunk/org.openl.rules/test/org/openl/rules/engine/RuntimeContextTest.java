@@ -22,8 +22,7 @@ public class RuntimeContextTest {
 	public void testEngineRulesContext() {
 		
 	    File xlsFile = new File("test/rules/engine/RulesContextTest.xls");
-		TestHelper<ITestI> testHelper;
-		testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+		TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 		
 		ITestI instance = testHelper.getInstance();
 		IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();

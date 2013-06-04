@@ -21,7 +21,7 @@ public class IntRangeParsingTest {
     public interface ITestI {
         String hello1(int hour);
     }
-    
+
     @Test
     public void testDollarSymbol() {
         assertEquals(new IntRange(13, 200), new IntRange("$13 - 200"));
@@ -30,9 +30,9 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(10, 10), new IntRange("$10"));
         assertEquals(new IntRange(2, Integer.MAX_VALUE), new IntRange("$2 +"));
     }
-    
+
     @Test
-    public void testBrackets(){
+    public void testBrackets() {
         assertEquals(new IntRange(13, 200), new IntRange("[13; 200]"));
         assertEquals(new IntRange(11, 31), new IntRange("(10 .. 32)"));
         assertEquals(new IntRange(3, 4), new IntRange("(2;4]"));
@@ -97,32 +97,26 @@ public class IntRangeParsingTest {
     @Test
     public void testVerbal() {
         assertEquals(new IntRange(-100, Integer.MAX_VALUE), new IntRange("-100 and more"));
-        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange("more than 2"));        
+        assertEquals(new IntRange(3, Integer.MAX_VALUE), new IntRange("more than 2"));
         assertEquals(new IntRange(Integer.MIN_VALUE, -11), new IntRange("less than -10"));
     }
-    
+
     @Test
     public void testRangeSuffixies() {
         IntRange range = new IntRange("6-8");
         assertEquals(8, range.getMax());
         assertEquals(6, range.getMin());
-        
     }
-    
-    
+
     @Test
     public void testInvalidIntRangeParsing1() {
         File xlsFile = new File("test/rules/helpers/IntRangeParsing1.xls");
-        TestHelper<ITestI> testHelper;
-
         try {
-            testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
+            TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
             ITestI instance = testHelper.getInstance();
             instance.hello1(10);
-        } catch (Exception e) {
+        } catch (CompositeOpenlException e) {
             assertTrue(e.toString().contains("IntRangeParsing1.xls?sheet=hello2&cell=C8"));
-            assertEquals(CompositeOpenlException.class, e.getClass());
         }
     }
 }

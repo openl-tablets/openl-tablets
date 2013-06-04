@@ -34,21 +34,21 @@ public class Test3 extends Test0 {
     public void test4() {
         Exception ex = catchEx(new File("test/rules/tbasic0/Algorithm3-4.xls"));
         assertTrue(ex instanceof CompositeSyntaxNodeException);
-//        TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
+        // TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
     }
 
     @Test
     public void test5() {
         Exception ex = catchEx(new File("test/rules/tbasic0/Algorithm3-4.xls"));
         assertTrue(ex instanceof CompositeSyntaxNodeException);
-//        TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
+        // TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
     }
 
     @Test
     public void test6() {
         okRows(new File("test/rules/tbasic0/Algorithm3-6.xls"), 0);
     }
-    
+
     @Test
     public void testDuplicateColumn() {
         Exception ex = catchEx(new File("test/rules/tbasic0/Test_Duplicate_Column_In_TBasic.xls"));

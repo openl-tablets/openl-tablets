@@ -79,15 +79,15 @@ public class NumberUtilsTest {
         assertEquals(0.4, NumberUtils.roundValue(0.36, 1).doubleValue(), 0.01);
 
         assertNull(NumberUtils.roundValue(null, 1));
-}
-    
+    }
+
     @Test
     public void testInfinity() {
         assertEquals(Double.POSITIVE_INFINITY, NumberUtils.roundValue(Double.POSITIVE_INFINITY, 1), 0.01);
         assertEquals(Double.NEGATIVE_INFINITY, NumberUtils.roundValue(Double.NEGATIVE_INFINITY, 1), 0.01);
         assertEquals(Double.NaN, NumberUtils.roundValue(Double.NaN, 1), 0.01);
     }
-    
+
     @Test
     public void testConvertToDouble() {
         assertEquals("20.9", NumberUtils.convertToDouble(20.9d).toString());

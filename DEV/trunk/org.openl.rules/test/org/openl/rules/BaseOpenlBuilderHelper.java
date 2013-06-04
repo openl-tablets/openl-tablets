@@ -36,13 +36,13 @@ public abstract class BaseOpenlBuilderHelper {
 
     }
 
-    public BaseOpenlBuilderHelper(String _src) {
-        build(_src);
+    public BaseOpenlBuilderHelper(String src) {
+        build(src);
     }
 
-    public BaseOpenlBuilderHelper(String _src, IDependencyManager dependencyManager) {
+    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
-        build(_src);
+        build(src);
     }
 
     protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {
@@ -119,9 +119,9 @@ public abstract class BaseOpenlBuilderHelper {
 
     protected Object invokeMethod(IOpenMethod testMethod, Object[] paramValues) {
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
+        Object myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
 
-        return testMethod.invoke(__myInstance, paramValues, environment);
+        return testMethod.invoke(myInstance, paramValues, environment);
     }
 
     protected Object invokeMethod(String methodName) {
@@ -137,8 +137,8 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     protected IOpenMethod getMethod(String methodName, IOpenClass[] params) {
-        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors();
-        return __class.getMatchingMethod(methodName, params);
+        IOpenClass clazz = getJavaWrapper().getOpenClassWithErrors();
+        return clazz.getMatchingMethod(methodName, params);
     }
 
     protected IOpenField getField(String fieldName) {
@@ -148,7 +148,7 @@ public abstract class BaseOpenlBuilderHelper {
     protected Object getFieldValue(String fieldName) {
         IOpenField field = getField(fieldName);
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
-        return field.get(__myInstance, environment);
+        Object myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
+        return field.get(myInstance, environment);
     }
 }

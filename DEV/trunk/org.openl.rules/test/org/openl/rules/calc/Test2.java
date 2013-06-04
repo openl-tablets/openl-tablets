@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.openl.rules.TestHelper;
 
 public class Test2 {
-    interface ITestCalc {
+    public interface ITestCalc {
         SpreadsheetResult calc2();
     }
 

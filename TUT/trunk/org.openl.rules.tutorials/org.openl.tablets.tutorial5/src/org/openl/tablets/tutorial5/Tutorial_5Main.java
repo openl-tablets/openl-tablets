@@ -3,7 +3,7 @@ package org.openl.tablets.tutorial5;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.IBenchmarkableMethod;
 import org.openl.types.impl.MethodsHelper;
@@ -25,14 +25,14 @@ import org.openl.vm.SimpleVM;
  */
 public class Tutorial_5Main {
     
-    public static RuleEngineFactory<Tutorial_5RulesInterface> engineFactory; 
+    public static RulesEngineFactory<Tutorial_5RulesInterface> engineFactory; 
 	//Creates new instance of Java Interface for our lesson
 	public static Tutorial_5RulesInterface tut5;
 	
 	static {
-	    engineFactory = new RuleEngineFactory<Tutorial_5RulesInterface>(Tutorial_5RulesInterface.__src, 
+	    engineFactory = new RulesEngineFactory<Tutorial_5RulesInterface>(Tutorial_5RulesInterface.__src, 
 	            Tutorial_5RulesInterface.class);
-	    tut5 = engineFactory.makeInstance();
+	    tut5 = engineFactory.newEngineInstance();
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -81,7 +81,7 @@ public class Tutorial_5Main {
 	
 	static public BenchmarkInfo benchmarkMethod(final IOpenMethod m, int ms) throws Exception {
 	    final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-	    final Object target = engineFactory.getOpenClass().newInstance(env);
+	    final Object target = engineFactory.newInstance(env);
 
 		final Object[] params = {};
 		BenchmarkUnit bu = null;

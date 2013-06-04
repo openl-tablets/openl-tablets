@@ -22,7 +22,7 @@ import org.openl.codegen.tools.type.TablePropertyValidatorsWrappers;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.properties.ContextPropertyDefinition;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
@@ -325,26 +325,25 @@ public class GenRulesCode {
 
     private TablePropertyDefinition[] loadTablePropertyDefinitions() {
 
-        RuleEngineFactory<ITablePropertyDefinitionLoader> rulesFactory = new RuleEngineFactory<ITablePropertyDefinitionLoader>(
+        RulesEngineFactory<ITablePropertyDefinitionLoader> engineFactory = new RulesEngineFactory<ITablePropertyDefinitionLoader>(
                 CodeGenConstants.DEFINITIONS_XLS, ITablePropertyDefinitionLoader.class);
 
-        return rulesFactory.makeInstance().getDefinitions();
+        return engineFactory.newEngineInstance().getDefinitions();
     }
 
     private ContextPropertyDefinition[] loadContextPropertyDefinitions() {
 
-        RuleEngineFactory<IContextPropertyDefinitionLoader> rulesFactory = new RuleEngineFactory<IContextPropertyDefinitionLoader>(
+        RulesEngineFactory<IContextPropertyDefinitionLoader> engineFactory = new RulesEngineFactory<IContextPropertyDefinitionLoader>(
                 CodeGenConstants.DEFINITIONS_XLS, IContextPropertyDefinitionLoader.class);
 
-        return rulesFactory.makeInstance().getContextDefinitions();
+        return engineFactory.newEngineInstance().getContextDefinitions();
     }
 
     private String[] loadTablePriorityRules() {
-
-        RuleEngineFactory<ITablesPriorityLoader> rulesFactory = new RuleEngineFactory<ITablesPriorityLoader>(
+        RulesEngineFactory<ITablesPriorityLoader> engineFactory = new RulesEngineFactory<ITablesPriorityLoader>(
                 CodeGenConstants.DEFINITIONS_XLS, ITablesPriorityLoader.class);
 
-        return rulesFactory.makeInstance().getTablesPriorityRules();
+        return engineFactory.newEngineInstance().getTablesPriorityRules();
     }
 
 }

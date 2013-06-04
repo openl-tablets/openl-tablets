@@ -16,10 +16,10 @@ import org.openl.types.IOpenField;
 
 public class PropertyTableTest extends BaseOpenlBuilderHelper{    
 
-    private static String __src = "test/rules/PropertyTableTest.xls";
+    private static final String SRC = "test/rules/PropertyTableTest.xls";
     
     public PropertyTableTest() {
-        super(__src);        
+        super(SRC);        
     }
     
     @Test

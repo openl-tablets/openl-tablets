@@ -9,15 +9,16 @@ import org.openl.rules.TestHelper;
 
 public class ArrayLoadTest {
 
+    private static final String SRC = "test/rules/data/MultiRowArrayLoadTest.xls";
+
     public interface ITestI {
         Customer[] getCustomers();
     }
 
     @Test
     public void testMultiRowArrayLoad() {
-        File xlsFile = new File("test/rules/data/MultiRowArrayLoadTest.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        File xlsFile = new File(SRC);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
 

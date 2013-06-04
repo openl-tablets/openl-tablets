@@ -1,16 +1,16 @@
 package org.openl.rules.tbasic;
 
 import org.junit.Ignore;
-import org.openl.OpenL;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 @Ignore("Manual test")
 public class BasicTest {
-    public static void main(String[] args) {
-        EngineFactory<IBasicTest> engineFactory = new EngineFactory<IBasicTest>(OpenL.OPENL_JAVA_RULE_NAME,
-                "test/rules/BasicAlgorithm.xls", IBasicTest.class);
+    private static final String SRC = "test/rules/BasicAlgorithm.xls";
 
-        IBasicTest rule = engineFactory.makeInstance();
+    public static void main(String[] args) {
+        RulesEngineFactory<IBasicTest> engineFactory = new RulesEngineFactory<IBasicTest>(SRC, IBasicTest.class);
+
+        IBasicTest rule = engineFactory.newEngineInstance();
 
         int result = rule.modification(4);
 

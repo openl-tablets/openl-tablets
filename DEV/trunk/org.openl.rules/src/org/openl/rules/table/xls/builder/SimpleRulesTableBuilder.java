@@ -1,9 +1,7 @@
 package org.openl.rules.table.xls.builder;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.ui.ICellStyle;

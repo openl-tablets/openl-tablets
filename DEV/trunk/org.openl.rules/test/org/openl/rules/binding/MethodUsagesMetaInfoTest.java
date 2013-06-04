@@ -21,10 +21,10 @@ import org.openl.types.java.JavaOpenClass;
 import static org.junit.Assert.*;
 
 public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
-    private static String _src = "test/rules/binding/MethodUsagesMetaInfoTest.xlsx";
+    private static final String SRC = "test/rules/binding/MethodUsagesMetaInfoTest.xlsx";
 
     public MethodUsagesMetaInfoTest() {
-        super(_src);
+        super(SRC);
     }
 
     @Test
@@ -51,12 +51,11 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode dispatcherTable = ((MatchingOpenMethodDispatcher) method).getDispatcherTable();
         IAction returnColumn = ((DecisionTable) dispatcherTable.getMember()).getActionRows()[0];
         ICell firstMethodCell = returnColumn.getValueCell(0).getSource().getCell(0, 0);
-        IOpenMethod firstMethodInOveloading = firstMethodCell.getMetaInfo().getUsedMethods().get(0)
-                .getMethod();
+        IOpenMethod firstMethodInOveloading = firstMethodCell.getMetaInfo().getUsedMethods().get(0).getMethod();
         ICell secondMethodCell = returnColumn.getValueCell(1).getSource().getCell(0, 0);
-        IOpenMethod secondMethodInOveloading = secondMethodCell.getMetaInfo().getUsedMethods().get(0)
-                .getMethod();
-        assertNotSame(firstMethodInOveloading.getInfo().getSourceUrl(), secondMethodInOveloading.getInfo().getSourceUrl());
+        IOpenMethod secondMethodInOveloading = secondMethodCell.getMetaInfo().getUsedMethods().get(0).getMethod();
+        assertNotSame(firstMethodInOveloading.getInfo().getSourceUrl(), secondMethodInOveloading.getInfo()
+                .getSourceUrl());
     }
 
     @Test

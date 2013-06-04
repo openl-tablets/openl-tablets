@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessages;
 import org.openl.runtime.IEngineWrapper;
@@ -14,26 +15,26 @@ import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * @deprecated use {@link SimpleEngineFactory}
+ * @deprecated use {@link RulesEngineFactory}
  */
 @Deprecated
 public class ApiBasedRulesEngineFactory extends ASourceCodeRulesEngineFactory {
 
-    public static final String RULE_OPENL_NAME = "org.openl.xls";
-
+    private static final String RULES_XLS_OPENL_NAME = OpenL.OPENL_JAVA_RULE_NAME;
+    
     private CompiledOpenClass compiledOpenClass;
     private Class<?> interfaceClass;
 
     public ApiBasedRulesEngineFactory(String sourceFile) {
-        super(RULE_OPENL_NAME, sourceFile);
+        super(RULES_XLS_OPENL_NAME, sourceFile);
     }
 
     public ApiBasedRulesEngineFactory(File file) {
-        super(RULE_OPENL_NAME, file);
+        super(RULES_XLS_OPENL_NAME, file);
     }
-    
+
     public ApiBasedRulesEngineFactory(IOpenSourceCodeModule source) {
-        super(RULE_OPENL_NAME, source);
+        super(RULES_XLS_OPENL_NAME, source);
     }
 
     public ApiBasedRulesEngineFactory(String openlName, IOpenSourceCodeModule source) {
@@ -46,7 +47,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeRulesEngineFactory {
             interfaceClass = null;
         }
     }
-    
+
     /**
      * Creates java interface for rules project.
      * 
@@ -57,7 +58,8 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeRulesEngineFactory {
             IOpenClass openClass = getCompiledOpenClass().getOpenClass();
             String className = openClass.getName();
             try {
-                interfaceClass = RulesFactory.generateInterface(className, openClass, getCompiledOpenClass().getClassLoader());
+                interfaceClass = InterfaceGenerator.generateInterface(className, openClass, getCompiledOpenClass()
+                        .getClassLoader());
             } catch (Exception e) {
                 throw new OpenLRuntimeException("Failed to create interface : " + className, e);
             }
@@ -66,24 +68,19 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeRulesEngineFactory {
     }
 
     @Override
-    protected Class<?>[] getInstanceInterfaces() {
+    protected Class<?>[] prepareInstanceInterfaces() {
         return new Class[] { interfaceClass, IEngineWrapper.class };
     }
-    
+
     @Override
-    public Object makeInstance(IRuntimeEnv runtimeEnv) {
+    protected Object prepareInstance(IRuntimeEnv runtimeEnv) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-            Object openClassInstance;
-            if (runtimeEnv == null){
-                openClassInstance = openClass.newInstance(makeDefaultRuntimeEnv());
-            }else{
-                openClassInstance = openClass.newInstance(runtimeEnv);
-            }
-            Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
+            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
-            return makeEngineInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
+            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass().getClassLoader());
 
         } catch (Exception ex) {
             throw new OpenLRuntimeException("Cannot instantiate engine instance", ex);
@@ -91,7 +88,7 @@ public class ApiBasedRulesEngineFactory extends ASourceCodeRulesEngineFactory {
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
-        if(compiledOpenClass == null){
+        if (compiledOpenClass == null) {
             OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }

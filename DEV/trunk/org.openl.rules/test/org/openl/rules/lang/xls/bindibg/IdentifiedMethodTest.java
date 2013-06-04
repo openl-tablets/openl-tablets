@@ -29,8 +29,7 @@ public class IdentifiedMethodTest {
     @Test
     public void testCallById() {
         File xlsFile = new File("test/rules/overload/Overload.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();

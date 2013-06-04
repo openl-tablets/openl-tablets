@@ -14,7 +14,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.types.IOpenMethod;
 
 public class TestTableSyntaxNodeKey {
-    private String __src = "test/rules/OverloadedTables_Test.xls";
+    private final static String SRC = "test/rules/OverloadedTables_Test.xls";
     private XlsModuleSyntaxNode xsn = null;
     private List<TableSyntaxNode> driverAgeTypeTables = new ArrayList<TableSyntaxNode>();
     private List<TableSyntaxNode> driverEligibilityTables = new ArrayList<TableSyntaxNode>();
@@ -38,7 +38,7 @@ public class TestTableSyntaxNodeKey {
 
     private OpenClassJavaWrapper getJavaWrapper() {
         UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, __src);
+        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, SRC);
         return wrapper;
     }
 

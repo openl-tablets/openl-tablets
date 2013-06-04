@@ -10,10 +10,10 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
 public class SimpleDTRangeAndArray extends BaseOpenlBuilderHelper {
-    private static String __src = "./test/rules/dt/SimpleDTRangeAndArray.xlsx";
+    private static final String SRC = "./test/rules/dt/SimpleDTRangeAndArray.xlsx";
 
     public SimpleDTRangeAndArray() {
-        super(__src);
+        super(SRC);
     }
     
     @Test

@@ -15,7 +15,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.openl.rules.runtime.RuleInfo;
-import org.openl.rules.runtime.RulesFactory;
+import org.openl.rules.runtime.InterfaceGenerator;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.generation.InterfaceTransformer;
@@ -163,7 +163,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
             log.debug(String.format("Generating interface for '%s' class", clazz.getName()));
         }
 
-        return RulesFactory.generateInterface(className, rulesArray, classLoader);
+        return InterfaceGenerator.generateInterface(className, rulesArray, classLoader);
     }
 
     /**
@@ -190,8 +190,8 @@ public final class VariationInstantiationStrategyEnhancerHelper {
             Class<?>[] newParams = new Class<?>[] { VariationsPack.class };
             Class<?>[] extendedParamTypes = (Class<?>[]) ArrayUtils.addAll(paramTypes, newParams);
 
-            RuleInfo ruleInfoEnhanced = RulesFactory.createRuleInfo(methodName, extendedParamTypes, returnType);
-            RuleInfo ruleInfoOriginal = RulesFactory.createRuleInfo(methodName, paramTypes, method.getReturnType());
+            RuleInfo ruleInfoEnhanced = InterfaceGenerator.createRuleInfo(methodName, extendedParamTypes, returnType);
+            RuleInfo ruleInfoOriginal = InterfaceGenerator.createRuleInfo(methodName, paramTypes, method.getReturnType());
 
             rules.add(ruleInfoEnhanced);
             rules.add(ruleInfoOriginal);

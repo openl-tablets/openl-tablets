@@ -60,7 +60,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         // As inside they are cleaned in EngineFactory
         //
         List<OpenLMessage> oldMessages = new ArrayList<OpenLMessage>(OpenLMessages.getCurrentInstance().getMessages());        
-        rulesWrapperInstance = engineFactory.makeInstance();
+        rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.makeInstance();
         
         // add to the current messages instance old messages
         //

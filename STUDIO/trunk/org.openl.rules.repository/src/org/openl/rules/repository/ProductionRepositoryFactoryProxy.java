@@ -30,13 +30,11 @@ public class ProductionRepositoryFactoryProxy {
     private final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
             "production-repository.factory", null);
     
-
     private Map<String, RRepositoryFactory> factories = new HashMap<String, RRepositoryFactory>();
-    private Object flag = new Object();
     
     public RProductionRepository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
         if (!factories.containsKey(propertiesFileName)) {
-            synchronized (flag) {
+            synchronized (this) {
                 if (!factories.containsKey(propertiesFileName)) {
                     factories.put(propertiesFileName, createFactory(propertiesFileName));
                 }
@@ -47,7 +45,7 @@ public class ProductionRepositoryFactoryProxy {
     }
     
     public void releaseRepository(String propertiesFileName) throws RRepositoryException {
-        synchronized (flag) {
+        synchronized (this) {
             RRepositoryFactory factory = factories.get(propertiesFileName);
             if (factory != null) {
                 factory.release();
@@ -57,7 +55,7 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     public void destroy() throws RRepositoryException {
-        synchronized (flag) {
+        synchronized (this) {
             for (RRepositoryFactory repFactory : factories.values()) {
                 repFactory.release();
             }
@@ -83,7 +81,9 @@ public class ProductionRepositoryFactoryProxy {
             return repFactory;
         } catch (Exception e) {
             String msg = "Failed to initialize ProductionRepositoryFactory!";
-            log.error(msg, e);
+            if (log.isErrorEnabled()){
+                log.error(msg, e);
+            }
             throw new RRepositoryException(msg, e);
         }
     }

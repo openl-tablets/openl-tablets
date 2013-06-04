@@ -26,7 +26,7 @@ import org.openl.types.java.OpenClassHelper;
  * methods (rules) of IOpenClass.
  * 
  */
-public class RulesFactory {
+public class InterfaceGenerator {
 
     public static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT
             + Opcodes.ACC_INTERFACE;

@@ -4,28 +4,28 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public class OptimizedDTConditionBuildingTest {
     public interface DTConditionBuilding {
         String sayHello(int hour, boolean sayGood, Integer caseNumber);
     }
 
-    private static String src = "test/rules/dt/algorithm/OptimizedDTConditionBuildingRules.xls";
+    private static final String SRC = "test/rules/dt/algorithm/OptimizedDTConditionBuildingRules.xls";
 
-    private DTConditionBuilding testInstance;
+    private DTConditionBuilding instance;
 
     @Before
     public void initEngine() {
-        RuleEngineFactory<DTConditionBuilding> engineFactory = new RuleEngineFactory<DTConditionBuilding>(src,
-            DTConditionBuilding.class);
+        RulesEngineFactory<DTConditionBuilding> engineFactory = new RulesEngineFactory<DTConditionBuilding>(SRC,
+                DTConditionBuilding.class);
 
-        testInstance = engineFactory.makeInstance();
+        instance = engineFactory.newEngineInstance();
     }
 
     @Test
     public void testGoodCase() {
-        String result = testInstance.sayHello(13, true, 2);
+        String result = instance.sayHello(13, true, 2);
         assertEquals("Good Afternoon", result);
     }
 

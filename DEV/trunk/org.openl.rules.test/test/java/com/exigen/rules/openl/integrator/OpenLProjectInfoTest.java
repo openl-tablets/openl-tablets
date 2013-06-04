@@ -1,13 +1,5 @@
 package com.exigen.rules.openl.integrator;
 
-import java.net.URL;
-
-import org.openl.OpenL;
-import org.openl.engine.OpenLManager;
-import org.openl.source.impl.FileSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.types.IOpenClass;
-
 import junit.framework.TestCase;
 
 public class OpenLProjectInfoTest extends TestCase {

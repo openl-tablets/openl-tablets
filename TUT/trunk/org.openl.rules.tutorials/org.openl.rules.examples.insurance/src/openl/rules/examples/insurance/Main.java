@@ -6,7 +6,7 @@
 
 package openl.rules.examples.insurance;
 
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.EngineFactory;
 
 
@@ -18,8 +18,8 @@ public class Main {
     
 	public static void main(String[] args) {
 		String fileName = "rules/Insurance.xls";
-		EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
-        IExample instance = engineFactory.makeInstance();
+		EngineFactory<IExample> engineFactory = new RulesEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.newEngineInstance();
 		System.out.println(
 			"\n============================================\n"
 				+ fileName
