@@ -18,6 +18,10 @@ public class XlsUrlUtils {
             return false;
         }
 
+        if (p1.range == null || p2.range == null) {
+            return false;
+        }
+
         return IGridRegion.Tool.intersects(IGridRegion.Tool.makeRegion(p1.range), IGridRegion.Tool
                 .makeRegion(p2.range));
     }
