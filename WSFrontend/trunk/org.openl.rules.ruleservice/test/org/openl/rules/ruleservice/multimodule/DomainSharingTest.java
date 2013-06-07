@@ -35,11 +35,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:domain-sharing/openl-ruleservice-beans.xml" })
 public class DomainSharingTest implements ApplicationContextAware {
-//    public static interface ServiceClass {
-//        String printJavaBean();
-//
-//        String printDatatype();
-//    }
+    // public static interface ServiceClass {
+    // String printJavaBean();
+    //
+    // String printDatatype();
+    // }
 
     public static class TestInitializingListener implements InitializingModuleListener {
         @Override
@@ -60,50 +60,34 @@ public class DomainSharingTest implements ApplicationContextAware {
             Deployment deployment = ruleServiceLoader.getDeployments().iterator().next();
             String deploymentName = deployment.getDeploymentName();
             CommonVersion deploymentVersion = deployment.getCommonVersion();
-            ModuleDescription domainModuleDescription = new ModuleDescriptionBuilder().setDeploymentName(deploymentName)
-                .setDeploymentVersion(deploymentVersion)
-                .setProjectName("domain")
-                .setModuleName("domain")
-                .build();
-            ModuleDescription project1ModuleDescription = new ModuleDescriptionBuilder().setDeploymentName(deploymentName)
-                .setDeploymentVersion(deploymentVersion)
-                .setProjectName("project1")
-                .setModuleName("Module1_1")
-                .build();
-            ModuleDescription project2ModuleDescription = new ModuleDescriptionBuilder().setDeploymentName(deploymentName)
-                .setDeploymentVersion(deploymentVersion)
-                .setProjectName("project2")
-                .setModuleName("Module2_1")
-                .build();
+            ModuleDescription domainModuleDescription = new ModuleDescriptionBuilder()
+                    .setDeploymentName(deploymentName).setDeploymentVersion(deploymentVersion).setProjectName("domain")
+                    .setModuleName("domain").build();
+            ModuleDescription project1ModuleDescription = new ModuleDescriptionBuilder()
+                    .setDeploymentName(deploymentName).setDeploymentVersion(deploymentVersion)
+                    .setProjectName("project1").setModuleName("Module1_1").build();
+            ModuleDescription project2ModuleDescription = new ModuleDescriptionBuilder()
+                    .setDeploymentName(deploymentName).setDeploymentVersion(deploymentVersion)
+                    .setProjectName("project2").setModuleName("Module2_1").build();
             Set<ModuleDescription> modules = new HashSet<ModuleDescription>();
             modules.add(domainModuleDescription);
             modules.add(project1ModuleDescription);
             modules.add(project2ModuleDescription);
             serviceDescriptions.add(new ServiceDescriptionBuilder().addModuleInService(domainModuleDescription)
-                .addModuleInService(project1ModuleDescription)
-                .setModules(modules)
-                .setName("project1")
-                .setProvideRuntimeContext(false)
-//                .setServiceClassName(ServiceClass.class.getName())
-                .setUrl("project1")
-                .build());
+                    .addModuleInService(project1ModuleDescription).setModules(modules).setName("project1")
+                    .setProvideRuntimeContext(false)
+                    // .setServiceClassName(ServiceClass.class.getName())
+                    .setUrl("project1").build());
             serviceDescriptions.add(new ServiceDescriptionBuilder().addModuleInService(domainModuleDescription)
-                .addModuleInService(project2ModuleDescription)
-                .setModules(modules)
-                .setName("project2")
-                .setProvideRuntimeContext(false)
-//                .setServiceClassName(ServiceClass.class.getName())
-                .setUrl("project2")
-                .build());
+                    .addModuleInService(project2ModuleDescription).setModules(modules).setName("project2")
+                    .setProvideRuntimeContext(false)
+                    // .setServiceClassName(ServiceClass.class.getName())
+                    .setUrl("project2").build());
             serviceDescriptions.add(new ServiceDescriptionBuilder().addModuleInService(domainModuleDescription)
-                .addModuleInService(project1ModuleDescription)
-                .addModuleInService(project2ModuleDescription)
-                .setModules(modules)
-                .setName("multimodule")
-                .setProvideRuntimeContext(false)
-//                .setServiceClassName(ServiceClass.class.getName())
-                .setUrl("multimodule")
-                .build());
+                    .addModuleInService(project1ModuleDescription).addModuleInService(project2ModuleDescription)
+                    .setModules(modules).setName("multimodule").setProvideRuntimeContext(false)
+                    // .setServiceClassName(ServiceClass.class.getName())
+                    .setUrl("multimodule").build());
             return serviceDescriptions;
         }
     }
