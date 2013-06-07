@@ -28,7 +28,7 @@ public class TablePartProcessor {
 
 	Map<String, TreeSet<TablePart>> parts = new HashMap<String, TreeSet<TablePart>>();
 	
-	synchronized private void addToParts(TablePart tablePart) throws OpenLCompilationException {
+	private synchronized void addToParts(TablePart tablePart) throws OpenLCompilationException {
 		String key = tablePart.getPartName();
 		TreeSet<TablePart> set = parts.get(key);
 		if (set == null)
