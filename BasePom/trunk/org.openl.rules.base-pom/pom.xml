@@ -64,6 +64,17 @@
 			<timezone>+2</timezone>
 		</developer>
 		<developer>
+			<id>MaratKamalov</id>
+			<name>Marat Kamalov</name>
+			<email>Marat.Kamalov@exigenservices.com</email>
+			<organization>Exigen Services</organization>
+			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+3</timezone>
+		</developer>
+		<developer>
 			<id>PetrUdalau</id>
 			<name>Petr Udalau</name>
 			<email>Petr.Udalau@exigenservices.com</email>
