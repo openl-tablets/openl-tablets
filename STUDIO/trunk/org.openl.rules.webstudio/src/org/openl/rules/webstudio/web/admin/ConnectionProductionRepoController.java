@@ -52,6 +52,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         }
     }
 
+    /*FIXME move to utils class*/
     private boolean checkRemoteConnection(RepositoryConfiguration repoConfig) {
         try {
             RRepository repository = this.getProductionRepositoryFactoryProxy().getFactory(repoConfig.getProperties()).getRepositoryInstance();
