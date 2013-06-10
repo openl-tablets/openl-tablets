@@ -72,6 +72,9 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                     setErrorMessage("Invalid login or password. Please, check login and password");
                     return false;
                 }
+            } else if (resultException instanceof java.net.ConnectException) {
+                setErrorMessage("Connection refused. Please, check repository URL");
+                return false;
             }
 
             setErrorMessage(resultException.getMessage());

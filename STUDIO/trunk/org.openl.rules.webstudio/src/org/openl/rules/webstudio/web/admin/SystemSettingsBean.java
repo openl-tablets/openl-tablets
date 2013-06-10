@@ -493,6 +493,8 @@ public class SystemSettingsBean {
             } else if (resultException instanceof javax.security.auth.login.FailedLoginException) {
                 throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
                         + "\" : Invalid login or password. Please, check login and password");
+            } else if (resultException instanceof java.net.ConnectException) {
+                throw new RepositoryValidationException("Connection refused. Please, check repository URL");
             }
 
             throw new RepositoryValidationException("Repository \"" + repoConfig.getName() + "\" : "
