@@ -434,11 +434,11 @@ public class DefaultPropertyDefinitions
 		definitions[32].setDimensional(false);
 		definitions[32].setDisplayName("Precision");
 		definitions[32].setGroup("Dev");
-		definitions[32].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.TABLE});
+		definitions[32].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[32].setName("precision");
 		definitions[32].setPrimaryKey(false);
 		definitions[32].setSystem(false);
-		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_RUN_METHOD});
+		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_RUN_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Integer.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
