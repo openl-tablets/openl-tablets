@@ -462,6 +462,7 @@ public class SystemSettingsBean {
         }
     }
 
+    /*FIXME move to utils class*/
     public void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
         try {
             /**Close connection to jcr before checking connection*/
