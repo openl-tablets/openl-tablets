@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.eclipse-pom</artifactId>
-    <version>5.10.1</version>
+    <version>5.10.2</version>
     <relativePath>../org.openl.rules.eclipse-pom</relativePath>
   </parent>
 
@@ -147,6 +147,11 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.variation</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.calculation.result</artifactId>
     </dependency>
 
     <dependency>
@@ -377,6 +382,12 @@
     <dependency>
       <groupId>org.openl.rules</groupId>
       <artifactId>org.openl.rules.variation</artifactId>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openl.rules</groupId>
+      <artifactId>org.openl.rules.calculation.result</artifactId>
       <classifier>sources</classifier>
     </dependency>
 

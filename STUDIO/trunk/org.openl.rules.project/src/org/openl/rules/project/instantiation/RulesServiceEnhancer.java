@@ -3,7 +3,9 @@ package org.openl.rules.project.instantiation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -69,8 +71,9 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
     @Override
     public Object instantiate() throws RulesInstantiationException, ClassNotFoundException {
         try {
-            InvocationHandler handler = makeInvocationHandler();
-            return Proxy.newProxyInstance(getClassLoader(), getProxyInterfaces(), handler);
+            Object originalInstance = getOriginalInstantiationStrategy().instantiate();
+            InvocationHandler invocationHandler = makeInvocationHandler(originalInstance);
+            return Proxy.newProxyInstance(getClassLoader(), getProxyInterfaces(originalInstance), invocationHandler);
         } catch (Exception e) {
             throw new RulesInstantiationException(e.getMessage(),e);
         }
@@ -81,10 +84,10 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
-    private InvocationHandler makeInvocationHandler() throws Exception {
+    private InvocationHandler makeInvocationHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
             getOriginalInstantiationStrategy().getInstanceClass());
-        return new RulesServiceEnhancerInvocationHandler(methodsMap, getOriginalInstantiationStrategy().instantiate());
+        return new RulesServiceEnhancerInvocationHandler(methodsMap, instanceObject);
     }
 
     /**
@@ -93,8 +96,16 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
      * @return proxy interfaces
      * @throws Exception
      */
-    private Class<?>[] getProxyInterfaces() throws Exception {
-        return new Class<?>[] { getServiceClass() };
+    private Class<?>[] getProxyInterfaces(Object originalInstance) throws Exception {
+        List<Class<?>> proxyInterfaces = new ArrayList<Class<?>>();
+        proxyInterfaces.add(getServiceClass());
+        Class<?> originalServiceClass = getOriginalInstantiationStrategy().getInstanceClass();
+        for (Class<?> interfaceClass : originalInstance.getClass().getInterfaces()){
+            if (!interfaceClass.equals(originalServiceClass)){
+                proxyInterfaces.add(interfaceClass);
+            }
+        }
+        return proxyInterfaces.toArray(new Class<?>[]{});
     }
 
 
@@ -107,9 +118,10 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
-
-        log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
-
+        if (log.isDebugEnabled()){
+            log.debug(String.format("Creating methods map for classes: %s <-> %s", interfaceClass, serviceClass));
+        }
+        
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();
 
@@ -163,7 +175,7 @@ public class RulesServiceEnhancer extends RulesInstantiationStrategyDelegator {
                     e);
             }
         } else {
-            throw new OpenlNotCheckedException("Failed to set service class to enhancer. Service shoud have IRulesRuntimeContext as the first argument of each method.");
+            throw new OpenlNotCheckedException("Failed to set service class to enhancer. Service should have IRulesRuntimeContext as the first argument of each method.");
         }
     }
     

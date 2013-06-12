@@ -14,14 +14,6 @@ import org.openl.vm.IRuntimeEnv;
 
 public interface IEngineWrapper {
     /**
-     * Reference to the factory that created this wrapper
-     *
-     * @return
-     */
-
-    AEngineFactory getFactory();
-
-    /**
      * Instance of engine object (usually {@link DynamicObject})
      *
      * @return
@@ -35,4 +27,10 @@ public interface IEngineWrapper {
      *         mode.
      */
     IRuntimeEnv getRuntimeEnv();
+    
+    
+    /**
+     * Clears thread attached data.
+     */
+    void release();
 }
