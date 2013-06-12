@@ -430,6 +430,7 @@ public class DefaultPropertyDefinitions
 		definitions[31].setSystem(false);
 		definitions[31].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
 		definitions[32] = new TablePropertyDefinition();
+		definitions[32].setConstraints(new org.openl.rules.table.constraints.Constraints("regexp:(-?[0-9]+)"));
 		definitions[32].setDescription("Precision of comparing the returned results with the expected ones");
 		definitions[32].setDimensional(false);
 		definitions[32].setDisplayName("Precision");
@@ -439,7 +440,7 @@ public class DefaultPropertyDefinitions
 		definitions[32].setPrimaryKey(false);
 		definitions[32].setSystem(false);
 		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_RUN_METHOD, XlsNodeTypes.XLS_PROPERTIES});
-		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Integer.class));
+		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

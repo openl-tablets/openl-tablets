@@ -207,8 +207,8 @@ public class TestDescription {
 
     public Integer getTestTablePrecision() {
         if (this.testTableProps != null) {
-            return this.testTableProps.containsKey(PRECISION_PARAM) ? (Integer) this.testTableProps
-                    .get(PRECISION_PARAM) : null;
+            return this.testTableProps.containsKey(PRECISION_PARAM) ? Integer.parseInt(this.testTableProps
+                    .get(PRECISION_PARAM).toString()) : null;
         }
 
         return null;
