@@ -4,13 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.faces.application.FacesMessage;
@@ -29,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
+import org.openl.rules.db.utils.DBUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
@@ -60,7 +57,6 @@ public class InstallWizard {
     private String dbDriver;
     private String dbPrefix;
     private String dbVendor;
-    private String sqlErrorsFilePath = "db/sql-errors.properties";
     private String dbSchema;
 
     private UIInput dbURLInput;
@@ -70,11 +66,9 @@ public class InstallWizard {
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
-    //private ConfigurationManager dbMySqlConfig;
-    private ConfigurationManager sqlErrorsConfig;
     private ConfigurationManager externalDBConfig;
 
-    private Map<String, Object> dbErrors;
+    private DBUtils dbUtils;
 
     public InstallWizard() {
         appConfig = new ConfigurationManager(false,
@@ -83,6 +77,7 @@ public class InstallWizard {
 
         externalDBConfig = new ConfigurationManager(false,
             System.getProperty("webapp.root") + "/WEB-INF/conf/db/db-mysql.properties");
+        dbUtils = new DBUtils();
     }
 
     public String start() {
@@ -108,10 +103,6 @@ public class InstallWizard {
                 dbConfig = new ConfigurationManager(true,
                     workingDir + "/system-settings/db.properties",
                     System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
-                sqlErrorsConfig = new ConfigurationManager(false,  null,
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/" + sqlErrorsFilePath);
-
-                dbErrors = sqlErrorsConfig.getProperties();
 
                 userMode = systemConfig.getStringProperty("user.mode");
 
@@ -137,6 +128,8 @@ public class InstallWizard {
 
             if (appMode.equals("production")) {
 
+//dbUtils.init(dbDriver, dbPrefix, dbUrl, dbUsername, dbPassword);             
+
                 dbConfig.setProperty("db.url", dbPrefix + dbUrl);
                 dbConfig.setProperty("db.user", dbUsername);
                 dbConfig.setProperty("db.password", dbPassword);
@@ -145,7 +138,9 @@ public class InstallWizard {
                 dbConfig.setProperty("db.hibernate.hbm2ddl.auto", externalDBConfig.getStringProperty("db.hibernate.hbm2ddl.auto"));
                 dbConfig.setProperty("db.schema", this.dbSchema);
                 dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
+                dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
                 dbConfig.save();
+                
 
             } else {
                 dbConfig.restoreDefaults();
@@ -154,12 +149,15 @@ public class InstallWizard {
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
 
             context.setConfigLocations(new String[] { "/WEB-INF/spring/webstudio-beans.xml",
+                    "/WEB-INF/spring/db/flyway-bean.xml",
                     "/WEB-INF/spring/system-config-beans.xml",
                     "/WEB-INF/spring/repository-beans.xml",
                     "/WEB-INF/spring/security-beans.xml",
-                    "/WEB-INF/spring/security/security-" + userMode + ".xml" });
+                    "/WEB-INF/spring/security/security-" + userMode + ".xml"}
+                    );
 
             context.refresh();
+
             FacesUtils.redirectToRoot();
 
         } catch (Exception e) {
@@ -182,7 +180,7 @@ public class InstallWizard {
      * the file sql-errors.properties
      */
     public void testDBConnection(String url, String login, String password) {
-        Connection conn = null;
+ /*       Connection conn = null;
         int errorCode = 0;
 
         try {
@@ -215,7 +213,8 @@ public class InstallWizard {
                     LOG.error(e.getMessage(), e);
                 }
             }
-        }
+        }*/
+        dbUtils.createConnection(dbDriver, dbPrefix, url, login, password);
     }
 
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
