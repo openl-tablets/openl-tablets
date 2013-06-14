@@ -2,8 +2,10 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -111,10 +113,12 @@ public class RulesProjectResolver {
     private File[] listProjects() {
         File wsfolder = new File(workspace);
         if (!wsfolder.exists())
-        	log.error("Workspace Folder " + wsfolder.getAbsolutePath() + " does not exist!");
-        
-         return wsfolder.listFiles();
+            log.error("Workspace Folder " + wsfolder.getAbsolutePath() + " does not exist!");
 
+        File[] projects = wsfolder.listFiles();
+        Arrays.sort(projects, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
+
+        return projects;
     }
 
     /**
