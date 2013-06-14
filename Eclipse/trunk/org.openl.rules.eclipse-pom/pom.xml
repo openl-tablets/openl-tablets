@@ -395,6 +395,12 @@
 
 			<dependency>
 				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.context</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -564,6 +570,13 @@
 			</dependency>
 
 			<!-- WSFrontend -->
+			<dependency>
+				<groupId>org.openl.rules</groupId>
+				<artifactId>org.openl.rules.ruleservice.context</artifactId>
+				<classifier>sources</classifier>
+				<version>${project.version}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.rules.ruleservice</artifactId>

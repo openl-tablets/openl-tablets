@@ -10,8 +10,8 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.runtime.BaseRulesFactory;
-import org.openl.rules.runtime.SimpleEngineFactory;
+import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.AOpenLEngineFactory;
 
 /**
@@ -19,13 +19,13 @@ import org.openl.runtime.AOpenLEngineFactory;
  * virtual module that depends on each predefined module(means virtual module
  * will have dependency for each module).
  * 
- * @author PUdalau, Marat Kamalov
+ * @author PUdalau
  * 
  */
 public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
     private final Log log = LogFactory.getLog(SimpleMultiModuleInstantiationStrategy.class);
 
-    private SimpleEngineFactory factory;
+    private RulesEngineFactory<?> engineFactory;
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         super(modules, dependencyManager);
@@ -38,7 +38,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     @Override
     public void reset() {
         super.reset();
-        factory = null;
+        engineFactory = null;
     }
 
     @Override
@@ -72,48 +72,49 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(rulesClass.getClassLoader());
         try {
-            return getEngineFactory().makeInstance();
+            return getEngineFactory().newEngineInstance();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
-    private SimpleEngineFactory getEngineFactory() {
+    @SuppressWarnings("unchecked")
+    private RulesEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = null;
         try {
             serviceClass = getServiceClass();
         } catch (ClassNotFoundException e) {
-            if (log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Failed to get service class.", e);
             }
             serviceClass = null;
         }
-        if (factory == null || (serviceClass != null && !factory.getInterfaceClass().equals(serviceClass))) {
-            factory = new SimpleEngineFactory(createVirtualSourceCodeModule(), AOpenLEngineFactory.DEFAULT_USER_HOME);// FIXME
+        if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
+            engineFactory = new RulesEngineFactory<Object>(createVirtualSourceCodeModule(),
+                    AOpenLEngineFactory.DEFAULT_USER_HOME, (Class<Object>) serviceClass);// FIXME
 
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<String>();
             Collection<String> allExcludes = new HashSet<String>();
-            for (Module m : getModules()){
+            for (Module m : getModules()) {
                 MethodFilter methodFilter = m.getMethodFilter();
-                if (methodFilter.getIncludes() != null){
+                if (methodFilter.getIncludes() != null) {
                     allIncludes.addAll(methodFilter.getIncludes());
                 }
-                if (methodFilter.getExcludes() != null){
+                if (methodFilter.getExcludes() != null) {
                     allExcludes.addAll(methodFilter.getExcludes());
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-                String[] includes = new String[]{};
-                String[] excludes = new String[]{};
-                includes = allIncludes.toArray(includes); 
-                excludes = allExcludes.toArray(excludes); 
-                factory.setRulesFactory(new BaseRulesFactory(includes, excludes));
+                String[] includes = new String[] {};
+                String[] excludes = new String[] {};
+                includes = allIncludes.toArray(includes);
+                excludes = allExcludes.toArray(excludes);
+                engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));
             }
-            factory.setDependencyManager(getDependencyManager());
-            factory.setInterfaceClass(serviceClass);
+            engineFactory.setDependencyManager(getDependencyManager());
         }
 
-        return factory;
+        return engineFactory;
     }
 }

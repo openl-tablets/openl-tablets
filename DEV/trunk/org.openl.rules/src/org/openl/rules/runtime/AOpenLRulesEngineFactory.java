@@ -5,8 +5,11 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.conf.IUserContext;
+import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.AOpenLEngineFactory;
+import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
@@ -25,23 +28,26 @@ public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
     }
 
     @Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new RuntimeEnvHolder();
-
-    }
-    
-    @Override
-    protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
-        return new OpenLRulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
-    }
-
-    // ThreadLocals can be cached by servlet container. RuntimeEnvHolder should
-    // be nested class, not inner class - otherwise we get memory leak
-    private static final class RuntimeEnvHolder extends ThreadLocal<org.openl.vm.IRuntimeEnv> {
-        @Override
-        protected org.openl.vm.IRuntimeEnv initialValue() {
-            return new SimpleRulesVM().getRuntimeEnv();
+    protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
+        if (runtimeEnvBuilder == null) {
+            runtimeEnvBuilder = new IRuntimeEnvBuilder() {
+                @Override
+                public IRuntimeEnv buildRuntimeEnv() {
+                    return new SimpleRulesVM().getRuntimeEnv();
+                }
+            };
         }
+        return runtimeEnvBuilder;
+    }
+
+    @Override
+    protected Class<?>[] prepareInstanceInterfaces() {
+        return new Class<?>[] { IEngineWrapper.class, IRulesRuntimeContextProvider.class };
+    }
+
+    @Override
+    protected final InvocationHandler prepareInvocationHandler(Object openClassInstance,
+            Map<Method, IOpenMember> methodMap, IRuntimeEnv runtimeEnv) {
+        return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }

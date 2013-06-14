@@ -1,10 +1,9 @@
 package org.openl.rules.calc.result.convertor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.openl.rules.calc.result.convertor.CalculationStep;
-import org.openl.rules.calc.result.convertor.SpreadsheetColumnExtractor;
 
 public class SpreadsheetColumnExtractorTest {
     

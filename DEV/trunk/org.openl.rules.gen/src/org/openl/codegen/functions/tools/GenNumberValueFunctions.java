@@ -26,52 +26,54 @@ import org.openl.meta.number.NumberValue;
  * Generates common functions for children of {@link NumberValue}.
  * 
  * @author DLiauchuk
- *
+ * 
  */
 public class GenNumberValueFunctions extends GenRulesCode {
-    
-    /** key - the type for which methods need to be generated. value - inner so called primitive type of the wrapper class **/
+
+    /**
+     * key - the type for which methods need to be generated. value - inner so
+     * called primitive type of the wrapper class
+     **/
     private static final Map<Class<?>, Class<?>> types = new HashMap<Class<?>, Class<?>>();
-    
-    /** first array of functions with equal implementation**/
+
+    /** first array of functions with equal implementation **/
     private static final NumberOperations[] MATH_FUNCTIONS1 = new NumberOperations[3];
-    
-    /** second array of functions with equal implementation**/
+
+    /** second array of functions with equal implementation **/
     private static final NumberOperations[] MATH_FUNCTIONS2 = new NumberOperations[2];
-    
-    /** third array of functions with equal implementation**/
+
+    /** third array of functions with equal implementation **/
     private static final NumberOperations[] MATH_FUNCTIONS3 = new NumberOperations[2];
-    
+
     /** array of primitive java numeric types **/
-    protected static final Class<?>[] primitiveNumericTypes = new Class<?>[] {byte.class, short.class, int.class, 
-        long.class, float.class, double.class};
-    
-    protected static final Class<?>[] wrapperNumericTypes = new Class<?>[] {Byte.class, Short.class, Integer.class, 
-        Long.class, Float.class, Double.class};
-    
-    protected static final Class<?>[] BIG_NUMERIC_TYPES = new Class<?>[] {BigInteger.class, BigDecimal.class};
-    
+    protected static final Class<?>[] primitiveNumericTypes = new Class<?>[] { byte.class, short.class, int.class,
+            long.class, float.class, double.class };
+
+    protected static final Class<?>[] wrapperNumericTypes = new Class<?>[] { Byte.class, Short.class, Integer.class,
+            Long.class, Float.class, Double.class };
+
+    protected static final Class<?>[] BIG_NUMERIC_TYPES = new Class<?>[] { BigInteger.class, BigDecimal.class };
+
     public static void main(String[] arg) throws Exception {
         new GenNumberValueFunctions().run();
     }
-    
+
     public void run() throws Exception {
         init();
         generateFunctions();
     }
-    
+
     private void init() {
         MATH_FUNCTIONS1[0] = NumberOperations.AVG;
         MATH_FUNCTIONS1[1] = NumberOperations.SUM;
-        MATH_FUNCTIONS1[2] = NumberOperations.MEDIAN;        
-        
+        MATH_FUNCTIONS1[2] = NumberOperations.MEDIAN;
+
         MATH_FUNCTIONS2[0] = NumberOperations.MAX;
         MATH_FUNCTIONS2[1] = NumberOperations.MIN;
-        
+
         MATH_FUNCTIONS3[0] = NumberOperations.MAX_IN_ARRAY;
         MATH_FUNCTIONS3[1] = NumberOperations.MIN_IN_ARRAY;
-        
-        
+
         types.put(ByteValue.class, byte.class);
         types.put(ShortValue.class, short.class);
         types.put(IntValue.class, int.class);
@@ -85,7 +87,7 @@ public class GenNumberValueFunctions extends GenRulesCode {
     private void generateFunctions() throws IOException {
 
         Map<String, Object> variables = new HashMap<String, Object>();
-        
+
         // generate functions for each type
         for (Class<?> clazz : types.keySet()) {
             String sourceFilePath = CodeGenTools.getClassSourcePathInCoreModule(clazz);
@@ -94,10 +96,10 @@ public class GenNumberValueFunctions extends GenRulesCode {
             variables.put("multiplyFormula", Formulas.MULTIPLY);
             variables.put("subtractFormula", Formulas.SUBTRACT);
             variables.put("divideFormula", Formulas.DIVIDE);
-            
+
             variables.put("remFormula", Formulas.REM);
-            
-//            variables.put("formulas", Formulas.values());
+
+            // variables.put("formulas", Formulas.values());
             variables.put("logicalExpressions", LogicalExpressions.values());
             variables.put("mathFunctions1", MATH_FUNCTIONS1);
             variables.put("mathFunctions2", MATH_FUNCTIONS2);
@@ -117,9 +119,9 @@ public class GenNumberValueFunctions extends GenRulesCode {
             variables.put("type", clazz);
             variables.put("primitiveType", types.get(clazz));
             variables.put("primitiveNumericTypes", primitiveNumericTypes);
-            processSourceCode(sourceFilePath, "NumberValueChildren-functions.vm", variables);            
-        }        
-        
+            processSourceCode(sourceFilePath, "NumberValueChildren-functions.vm", variables);
+        }
+
     }
 
 }

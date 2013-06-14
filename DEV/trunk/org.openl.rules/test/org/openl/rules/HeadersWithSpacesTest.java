@@ -7,10 +7,10 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 public class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
-	private static String __src = "test/rules/test xls/Test_Headers_With_Spaces.xls";
+	private static final String SRC = "test/rules/test xls/Test_Headers_With_Spaces.xls";
 
 	public HeadersWithSpacesTest() {
-		super(__src);
+		super(SRC);
 	}
 	
 	@Test

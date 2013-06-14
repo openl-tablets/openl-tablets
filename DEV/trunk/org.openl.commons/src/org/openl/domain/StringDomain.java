@@ -7,7 +7,7 @@ import org.openl.util.StringTool;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class StringDomain extends EnumDomain<String> {
 

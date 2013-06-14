@@ -1,13 +1,13 @@
 package org.openl.rules.calc;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.junit.Test;
 import org.openl.rules.TestHelper;
 
 public class Test2 {
-    interface ITestCalc {
+    public interface ITestCalc {
         SpreadsheetResult calc2();
     }
 

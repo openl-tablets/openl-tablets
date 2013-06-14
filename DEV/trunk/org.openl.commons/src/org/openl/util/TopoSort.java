@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * @author snshor
- *
+ * 
  */
 public final class TopoSort<T> {
 
@@ -32,10 +32,11 @@ public final class TopoSort<T> {
     HashMap<T, Counter> leaves = new HashMap<T, Counter>();
 
     HashMap<T, List<T>> dependents = new HashMap<T, List<T>>();
+
     /**
      * This method takes Nx2-dimensional matrix symbolizing dependency graph,
      * and topologically sorts it
-     *
+     * 
      * @param roots list of
      * @param leaves
      * @return
@@ -49,10 +50,11 @@ public final class TopoSort<T> {
 
         return ts.sort();
     }
+
     /**
      * This method takes 2 equal size lists symbolizing dependency graph, and
      * topologically sorts it
-     *
+     * 
      * @param roots list of
      * @param leaves
      * @return
@@ -70,7 +72,7 @@ public final class TopoSort<T> {
     /**
      * This method takes 2 equal size arrays symbolizing dependency graph, and
      * topologically sorts it
-     *
+     * 
      * @param roots list of
      * @param leaves
      * @return
@@ -88,7 +90,7 @@ public final class TopoSort<T> {
     /**
      * This method takes Nx2-dimensional matrix symbolizing dependency graph,
      * and topologically sorts it
-     *
+     * 
      * @param roots list of
      * @param leaves
      * @return
@@ -104,7 +106,7 @@ public final class TopoSort<T> {
     }
 
     /**
-     *
+     * 
      * @param root root object
      * @param leaf object or null
      */

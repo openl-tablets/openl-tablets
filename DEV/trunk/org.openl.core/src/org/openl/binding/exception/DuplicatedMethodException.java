@@ -33,7 +33,7 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
             return super.getMessage();
         }
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("Method ");
         MethodUtil.printMethod(method, buf);
         buf.append(" has already been defined");

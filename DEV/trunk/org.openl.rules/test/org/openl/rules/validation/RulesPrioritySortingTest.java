@@ -12,8 +12,7 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public class RulesPrioritySortingTest {
     public interface ITestI extends IRulesRuntimeContextProvider {
@@ -28,10 +27,10 @@ public class RulesPrioritySortingTest {
     public void testStartRequestDate() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        EngineFactory<ITestI> engineFactory = new RuleEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
         engineFactory.setExecutionMode(true);
 
-        ITestI instance = engineFactory.makeInstance();
+        ITestI instance = engineFactory.newEngineInstance();
 
         IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
 
@@ -59,10 +58,10 @@ public class RulesPrioritySortingTest {
     public void testEndRequestDate() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        EngineFactory<ITestI> engineFactory = new RuleEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
         engineFactory.setExecutionMode(true);
 
-        ITestI instance = engineFactory.makeInstance();
+        ITestI instance = engineFactory.newEngineInstance();
 
         IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
 
@@ -85,10 +84,10 @@ public class RulesPrioritySortingTest {
     public void testFilledPropertiesSorting() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        EngineFactory<ITestI> engineFactory = new RuleEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
         engineFactory.setExecutionMode(true);
 
-        ITestI instance = engineFactory.makeInstance();
+        ITestI instance = (ITestI)engineFactory.newEngineInstance();
 
         IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
 

@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,9 +30,9 @@ public class RulesServiceEnhancerTest {
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
         module.setClassname(ITest.class.getName());
-        EngineFactoryInstantiationStrategy strategy = new EngineFactoryInstantiationStrategy(module, false, null);
+        SimpleEngineFactoryInstantiationStrategy strategy = new SimpleEngineFactoryInstantiationStrategy(module, false, null);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
@@ -60,7 +61,7 @@ public class RulesServiceEnhancerTest {
 
         WrapperAdjustingInstantiationStrategy strategy = new WrapperAdjustingInstantiationStrategy(module, false, null);
 
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
@@ -90,7 +91,7 @@ public class RulesServiceEnhancerTest {
 
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
         
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(strategy);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 

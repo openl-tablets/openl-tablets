@@ -1,6 +1,6 @@
 package org.openl.rules.overload;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Calendar;
@@ -24,8 +24,7 @@ public class ActiveMethodFeatureTest {
     @Test
     public void testMethodOverload1() {
         File xlsFile = new File("test/rules/overload/ActiveMethodFeature.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
@@ -39,20 +38,19 @@ public class ActiveMethodFeatureTest {
         context.setCurrentDate(calendar.getTime());
 
         DoubleValue res1 = instance.driverRiskScoreOverloadTest1("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue());
+        assertEquals(120.0, res1.doubleValue(), 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
         DoubleValue res2 = instance.driverRiskScoreOverloadTest1("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue());
+        assertEquals(100.0, res2.doubleValue(), 1e-8);
     }
     
     @Test
     public void testMethodOverload2() {
         File xlsFile = new File("test/rules/overload/ActiveMethodFeature.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();

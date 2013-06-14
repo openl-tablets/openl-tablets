@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import junit.framework.TestCase;
 
 /**

@@ -15,10 +15,10 @@ import org.openl.types.java.JavaOpenClass;
 import static org.junit.Assert.*;
 
 public class ConditionalArrayIndexTest extends BaseOpenlBuilderHelper {
-    private static String src = "test/rules/binding/ConditionalArrayIndexTest.xlsx";
+    private static String SRC = "test/rules/binding/ConditionalArrayIndexTest.xlsx";
 
     public ConditionalArrayIndexTest() {
-        super(src);
+        super(SRC);
     }
 
     @Test
@@ -66,9 +66,6 @@ public class ConditionalArrayIndexTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testSpreadsheetExpression() throws Exception {
-    	
-//    	getJavaWrapper().getOpenClass();
-    	
         IOpenField driverField = getField("testDrivers");
         Object drivers = getFieldValue("testDrivers");
         assertEquals(

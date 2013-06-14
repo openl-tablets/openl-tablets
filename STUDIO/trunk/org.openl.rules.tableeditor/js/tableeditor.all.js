@@ -262,6 +262,7 @@ var TableEditor = Class.create({
     columns: 0,
     editCell: null,
     cellIdPrefix: null,
+    menuId: null,
     actions: null,
     editorWrapper: null,
     switchEditorMenu: null,
@@ -275,7 +276,8 @@ var TableEditor = Class.create({
     initialize: function(editorId, url, editCell, actions, mode, editable) {
         this.mode = mode || this.Modes.VIEW;
         this.editorId = editorId;
-        this.cellIdPrefix = this.editorId + "_cell-";
+        this.cellIdPrefix = this.editorId + "_c-";
+        this.menuId = this.editorId + "_menu";
         this.tableContainer = $(editorId + "_table");
         this.actions = actions;
 
@@ -300,6 +302,7 @@ var TableEditor = Class.create({
         Event.stopObserving(document, "keydown");
         Event.stopObserving(document, "keypress");
         this.tableContainer.stopObserving("dblclick");
+        this.tableContainer.stopObserving("contextmenu");
 
         if (this.mode == this.Modes.EDIT) {
             this.initEditMode();
@@ -308,6 +311,12 @@ var TableEditor = Class.create({
         this.tableContainer.observe("dblclick", function(e) {
             self.handleDoubleClick(e);
         });
+
+        if (this.editable || $(this.menuId)) {
+            this.tableContainer.observe("contextmenu", function(e) {
+                self.handleContextMenu(e);
+            });
+        }
     },
 
     toEditMode: function(cellToEdit) {
@@ -583,6 +592,14 @@ var TableEditor = Class.create({
                     break;
                 }
             }
+        }
+    },
+
+    handleContextMenu: function(event) {
+        event.preventDefault();
+        var elt = Event.element(event);
+        if (elt.tagName.toLowerCase() == "td") {
+            PopupMenu.sheduleShowMenu(this.menuId, event, 150);
         }
     },
 
@@ -1308,21 +1325,6 @@ var Decorator = Class.create({
     }
 
 });
-
-
-//TableEditor Menu 
-
-// @Deprecated
-function openMenu(menuId, event) {
-    event.preventDefault();
-    PopupMenu.sheduleShowMenu(menuId, event, 150);
-}
-
-// @Deprecated
-function closeMenu() {
-    PopupMenu.cancelShowMenu();
-}
-
 
 // TableEditor Toolbar
 

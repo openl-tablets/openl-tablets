@@ -2,7 +2,7 @@ package org.openl.rules;
 
 import java.util.Map.Entry;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.openl.OpenL;
@@ -26,58 +26,58 @@ import org.openl.types.IOpenMethod;
  *
  */
 public abstract class BaseOpenlBuilderHelper {
-    
-    private XlsModuleSyntaxNode xsn;    
+
+    private XlsModuleSyntaxNode xsn;
     private OpenClassJavaWrapper wrapper;
-    
+
     private IDependencyManager dependencyManager;
-    
-    
+
     public BaseOpenlBuilderHelper() {
-        
+
     }
-    
-    public BaseOpenlBuilderHelper(String _src) {
-        build(_src);        
+
+    public BaseOpenlBuilderHelper(String src) {
+        build(src);
     }
-    
-    public BaseOpenlBuilderHelper(String _src, IDependencyManager dependencyManager) {
+
+    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
-        build(_src);        
+        build(src);
     }
-    
-    protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {        
+
+    protected void buildXlsModuleSyntaxNode(String fileToBuildWrapper) {
         buildJavaWrapper(fileToBuildWrapper);
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
-        xsn = xmi.getXlsModuleNode();        
+        xsn = xmi.getXlsModuleNode();
     }
-    
-    protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {        
+
+    protected OpenClassJavaWrapper buildJavaWrapper(String fileToBuildWrapper) {
         UserContext ucxt = initUserContext();
-        wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, fileToBuildWrapper, false, dependencyManager);
+        wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, fileToBuildWrapper, false,
+                dependencyManager);
         return wrapper;
     }
 
     protected UserContext initUserContext() {
-        return new UserContext(Thread.currentThread().getContextClassLoader(), ".");        
+        return new UserContext(Thread.currentThread().getContextClassLoader(), ".");
     }
-    
+
     @Deprecated
     protected TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
         TableSyntaxNode result = null;
         for (TableSyntaxNode tsn : tsns) {
             if (tableName.equals(tsn.getDisplayName())) {
-                result = tsn;   
+                result = tsn;
             }
         }
         return result;
     }
-    
+
     protected TableSyntaxNode findTable(String tableName) {
         TableSyntaxNode result = null;
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             if (tableName.equals(tsn.getDisplayName())) {
-                result = tsn;   
+                result = tsn;
             }
         }
         return result;
@@ -100,45 +100,45 @@ public abstract class BaseOpenlBuilderHelper {
         return result;
     }
 
-    protected TableSyntaxNode[] getTableSyntaxNodes() {  
+    protected TableSyntaxNode[] getTableSyntaxNodes() {
         TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
         return tsns;
     }
-    
+
     protected XlsModuleSyntaxNode getModuleSuntaxNode() {
         return xsn;
     }
-    
+
     protected OpenClassJavaWrapper getJavaWrapper() {
         return wrapper;
     }
-    
+
     public void build(String fileToBuildWrapper) {
-        buildXlsModuleSyntaxNode(fileToBuildWrapper);        
+        buildXlsModuleSyntaxNode(fileToBuildWrapper);
     }
-    
+
     protected Object invokeMethod(IOpenMethod testMethod, Object[] paramValues) {
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
-        
-        return testMethod.invoke(__myInstance, paramValues, environment); 
+        Object myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
+
+        return testMethod.invoke(myInstance, paramValues, environment);
     }
-    
-    protected Object invokeMethod(String methodName) {        
-        return invokeMethod(methodName, new IOpenClass[] {},  new Object[0]);        
+
+    protected Object invokeMethod(String methodName) {
+        return invokeMethod(methodName, new IOpenClass[] {}, new Object[0]);
     }
-    
+
     protected Object invokeMethod(String methodName, IOpenClass[] params, Object[] paramValues) {
         IOpenMethod testMethod = getMethod(methodName, params);
-        
+
         Assert.assertNotNull(String.format("Method with name \"%s\" does not exists", methodName), testMethod);
-        
+
         return invokeMethod(testMethod, paramValues);
     }
-    
+
     protected IOpenMethod getMethod(String methodName, IOpenClass[] params) {
-        IOpenClass __class = getJavaWrapper().getOpenClassWithErrors(); 
-        return __class.getMatchingMethod(methodName, params);
+        IOpenClass clazz = getJavaWrapper().getOpenClassWithErrors();
+        return clazz.getMatchingMethod(methodName, params);
     }
 
     protected IOpenField getField(String fieldName) {
@@ -148,7 +148,7 @@ public abstract class BaseOpenlBuilderHelper {
     protected Object getFieldValue(String fieldName) {
         IOpenField field = getField(fieldName);
         org.openl.vm.IRuntimeEnv environment = new org.openl.vm.SimpleVM().getRuntimeEnv();
-        Object __myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
-        return field.get(__myInstance, environment);
+        Object myInstance = getJavaWrapper().getOpenClassWithErrors().newInstance(environment);
+        return field.get(myInstance, environment);
     }
 }

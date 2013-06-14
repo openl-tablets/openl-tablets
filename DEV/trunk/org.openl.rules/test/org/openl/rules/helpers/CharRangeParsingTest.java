@@ -12,19 +12,15 @@ import org.junit.Test;
  */
 public class CharRangeParsingTest {
 
-
-
-
     @Test
     public void testJustNumber() {
         assertEquals(new CharRange('a', 'a'), new CharRange("a"));
     }
 
-
     @Test
     public void testMinMaxFormat() {
         assertEquals(new CharRange('A', 'B'), new CharRange("A-B"));
-        assertEquals(new CharRange('a','z'), new CharRange("a-z"));
+        assertEquals(new CharRange('a', 'z'), new CharRange("a-z"));
     }
 
     @Test

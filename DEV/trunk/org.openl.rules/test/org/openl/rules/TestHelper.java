@@ -5,7 +5,7 @@ import java.io.File;
 import org.junit.Ignore;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.impl.DynamicObject;
@@ -13,14 +13,14 @@ import org.openl.types.impl.DynamicObject;
 @Ignore("Auxiliary class")
 public class TestHelper<T> {
 
-    private EngineFactory<T> engineFactory;
+    private RulesEngineFactory<T> engineFactory;
     private T instance;
     private TableSyntaxNode tableSyntaxNode;
 
     public TestHelper(File file, Class<T> tClass) {
-        engineFactory = new RuleEngineFactory<T>(file, tClass);
+        engineFactory = new RulesEngineFactory<T>(file, tClass);
 
-        instance = engineFactory.makeInstance();
+        instance = engineFactory.newEngineInstance();
 
         IEngineWrapper ew = (IEngineWrapper) instance;
         DynamicObject dObj = (DynamicObject) ew.getInstance();

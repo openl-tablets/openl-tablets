@@ -23,8 +23,9 @@ public class ZeroBasedUnit extends ASimpleUnit {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.types.science2.IMultiplicativeExpression#changeScalar(double)
+     * 
+     * @see
+     * org.openl.types.science2.IMultiplicativeExpression#changeScalar(double)
      */
     public IMultiplicativeExpression changeScalar(double newScalar) {
         if (newScalar == getScalar()) {

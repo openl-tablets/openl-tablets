@@ -8,7 +8,7 @@ import java.util.Stack;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class CategorizedSearchContext implements ICategorizedSearchContext {
 
@@ -52,15 +52,9 @@ public class CategorizedSearchContext implements ICategorizedSearchContext {
     private static synchronized ICategorizedSearchContext defaultSearchContext() {
         if (defaultContext == null) {
             defaultContext = new CategorizedSearchContext(null);
-            initDefaultContext();
         }
         return defaultContext;
     };
-
-    private static void initDefaultContext() {
-        // TODO Auto-generated method stub
-
-    }
 
     public static void push(ICategorizedSearchContext cxt) {
         Stack<ICategorizedSearchContext> s = contexts.get();

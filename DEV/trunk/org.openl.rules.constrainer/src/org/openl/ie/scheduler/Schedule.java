@@ -228,7 +228,7 @@ public class Schedule {
      * @return List of assigned resources
      */
     public String getAssignments(Job job) {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         for (int i = 0; i < _requirements.size(); i++) {
             AlternativeResourceConstraint c = (AlternativeResourceConstraint) _requirements.elementAt(i);
             if (job.equals(c.getJob())) {
@@ -248,7 +248,7 @@ public class Schedule {
      * @return List of jobs assigned to the resource
      */
     public String getAssignments(Resource res) {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         for (int i = 0; i < _requirements.size(); i++) {
             AlternativeResourceConstraint c = (AlternativeResourceConstraint) _requirements.elementAt(i);
             if (res.equals(c.getResource())) {

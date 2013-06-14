@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
 import junit.framework.AssertionFailedError;
@@ -11,15 +12,14 @@ import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
 
 public class Test0 {
-    interface ITestCalc {
+    public interface ITestCalc {
         SpreadsheetResult calc();
     }
-    
+
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc0/calc0-1.xls");
-        TestHelper<ITestCalc> testHelper;
-        testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+        TestHelper<ITestCalc> testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
 
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc();
@@ -42,7 +42,7 @@ public class Test0 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-2.xls");                
+                File xlsFile = new File("test/rules/calc0/calc0-2.xls");
                 new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Table has no body!");
@@ -52,7 +52,7 @@ public class Test0 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-3.xls");                
+                File xlsFile = new File("test/rules/calc0/calc0-3.xls");
                 new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Spreadsheet must have at least 2x2 cells!");
@@ -72,7 +72,7 @@ public class Test0 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-5.xls");                
+                File xlsFile = new File("test/rules/calc0/calc0-5.xls");
                 new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Col1 has already been defined", "cell=E4");
@@ -82,7 +82,7 @@ public class Test0 {
     public void test6() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-6.xls");                
+                File xlsFile = new File("test/rules/calc0/calc0-6.xls");
                 new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
         }, "Row1 has already been defined", "cell=B7");

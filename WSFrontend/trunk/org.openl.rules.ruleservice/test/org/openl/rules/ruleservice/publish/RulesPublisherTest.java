@@ -1,6 +1,9 @@
 package org.openl.rules.ruleservice.publish;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -14,7 +17,6 @@ import org.apache.commons.beanutils.MethodUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.OpenL;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
@@ -105,7 +107,7 @@ public class RulesPublisherTest {
     @Test
     public void testMultiModuleServiceClass() throws Exception {
         Collection<Module> modules = resolveAllModules(new File("./test-resources/multi-module"));
-        LazyMultiModuleInstantiationStrategy instantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, null, OpenL.OPENL_JAVA_RULE_NAME);
+        LazyMultiModuleInstantiationStrategy instantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules, null);
         instantiationStrategy.setServiceClass(SimpleInterface.class);
         Object instance = instantiationStrategy.instantiate();
         assertNotNull(instance);

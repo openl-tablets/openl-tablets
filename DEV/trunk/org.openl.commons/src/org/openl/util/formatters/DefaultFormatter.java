@@ -4,7 +4,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 public class DefaultFormatter implements IFormatter {
 
-    public DefaultFormatter() {        
+    public DefaultFormatter() {
     }
 
     public String format(Object obj) {

@@ -52,7 +52,7 @@ public class TestTableBuilder extends TableBuilder {
         if (executableTsn == null) {
             throw new IllegalArgumentException("Syntax node is null");
         }
-        
+
         if (!executableTsn.isExecutableNode()) {
             throw new IllegalArgumentException("Syntax node is not executable node");
         }

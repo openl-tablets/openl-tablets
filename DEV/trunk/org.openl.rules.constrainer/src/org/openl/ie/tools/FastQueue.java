@@ -106,7 +106,7 @@ public final class FastQueue implements java.io.Serializable {
 
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         int maxIndex = m_last - 1;
         for (int i = m_first; i <= maxIndex; i++) {

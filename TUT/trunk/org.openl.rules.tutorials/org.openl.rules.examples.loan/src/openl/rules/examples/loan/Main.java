@@ -6,8 +6,7 @@
 
 package openl.rules.examples.loan;
 
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public class Main {
 
@@ -17,8 +16,8 @@ public class Main {
 
 	public static void main(String[] args) {
 		String fileName = "rules/Loan.xls";
-        EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
-        IExample instance = engineFactory.makeInstance();
+        RulesEngineFactory<IExample> engineFactory = new RulesEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.newEngineInstance();
 		System.out.println(
 			"\n============================================\n" +
 		    fileName + "(main)" + 

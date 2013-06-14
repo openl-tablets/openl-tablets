@@ -2,11 +2,11 @@ package org.openl.rules.method;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.runtime.SimpleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.SimpleRulesRuntimeEnvUtils;
 
@@ -14,7 +14,7 @@ public class ExecutableRulesMethodTest {
 
     private static String __src = "test/rules/MethodArgumentsCacheTest.xls";
 
-    private SimpleEngineFactory factory;
+    private RulesEngineFactory<A1> engineFactory;
     private A1 instance;
 
     public static interface A1 {
@@ -25,9 +25,8 @@ public class ExecutableRulesMethodTest {
 
     @Before
     public void init() throws IOException {
-        factory = new SimpleEngineFactory(__src);
-        factory.setInterfaceClass(A1.class);
-        instance = (A1) factory.makeInstance();
+        engineFactory = new RulesEngineFactory<A1>(__src, A1.class);
+        instance = engineFactory.newEngineInstance();
     }
 
     @Test

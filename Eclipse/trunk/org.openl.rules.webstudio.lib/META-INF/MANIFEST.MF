@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.webstudio.lib
-Bundle-SymbolicName: org.openl.rules.webstudio.lib;singleton:=true
+Bundle-SymbolicName: org.openl.rules.webstudio.lib
 Bundle-Version: 5.11.0
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
@@ -77,7 +77,9 @@ Bundle-ClassPath: lib/antlr-2.7.7.jar,
  lib/xmlbeans-2.3.0.jar,
  lib/xpp3_min-1.1.4c.jar,
  lib/xstream-1.3.1.jar,
- lib/flyway-core-2.1.1.jar
+ lib/flyway-core-2.1.1.jar,
+ external-lib/ojdbc6.jar,
+ external-lib/sqljdbc4.jar
 Export-Package: EDU.oswego.cs.dl.util.concurrent,
  EDU.oswego.cs.dl.util.concurrent.misc,
  antlr,

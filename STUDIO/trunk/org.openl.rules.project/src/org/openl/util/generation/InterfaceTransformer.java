@@ -16,7 +16,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.runtime.RulesFactory;
+import org.openl.rules.runtime.InterfaceGenerator;
 import org.springframework.core.annotation.AnnotationUtils;
 
 /**
@@ -59,10 +59,10 @@ public class InterfaceTransformer {
      */
     public void accept(ClassVisitor classVisitor) {
         classVisitor.visit(Opcodes.V1_5,
-            RulesFactory.PUBLIC_ABSTRACT_INTERFACE,
+            InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
             className.replace('.', '/'),
             null,
-            RulesFactory.JAVA_LANG_OBJECT,
+            InterfaceGenerator.JAVA_LANG_OBJECT,
             null);
         for (Annotation annotation : interfaceToTransform.getAnnotations()) {
             AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
@@ -85,14 +85,16 @@ public class InterfaceTransformer {
                         }
                     }
                 } catch (Exception e) {
-                    log.error("Failed to process field '" + field.getName() + "'.",e);
+                    if (log.isErrorEnabled()){
+                        log.error("Failed to process field '" + field.getName() + "'.",e);
+                    }
                 }
             }
         }
 
         for (Method method : interfaceToTransform.getMethods()) {
             String ruleName = method.getName();
-            MethodVisitor methodVisitor = classVisitor.visitMethod(RulesFactory.PUBLIC_ABSTRACT,
+            MethodVisitor methodVisitor = classVisitor.visitMethod(InterfaceGenerator.PUBLIC_ABSTRACT,
                 ruleName,
                 Type.getMethodDescriptor(method),
                 null,

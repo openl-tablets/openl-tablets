@@ -52,7 +52,7 @@ public class RESTServicesRuleServicePublisher implements RuleServicePublisher {
         
         JAXRSServerFactoryBean sfb = new JAXRSServerFactoryBean();
 
-        JSONProvider provider = new JSONProvider();
+        JSONProvider<?> provider = new JSONProvider<Object>();
         provider.setWriteXsiType(false);
 
         sfb.setProvider(provider);

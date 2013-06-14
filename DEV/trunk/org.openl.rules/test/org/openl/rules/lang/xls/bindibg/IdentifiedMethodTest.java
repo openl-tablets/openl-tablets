@@ -1,6 +1,6 @@
 package org.openl.rules.lang.xls.bindibg;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.Calendar;
@@ -29,8 +29,7 @@ public class IdentifiedMethodTest {
     @Test
     public void testCallById() {
         File xlsFile = new File("test/rules/overload/Overload.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
+        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
         IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
@@ -41,17 +40,17 @@ public class IdentifiedMethodTest {
         context.setCurrentDate(calendar.getTime());
 
         DoubleValue res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue());
+        assertEquals(120.0, res1.doubleValue(), 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
         DoubleValue res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue());
+        assertEquals(100.0, res2.doubleValue(), 1e-8);
 
         // direct call to particular method avoiding method dispatcher
         DoubleValue res2_2 = instance.driverRiskEarlier("High Risk Driver");
-        assertEquals(120.0, res2_2.doubleValue());
+        assertEquals(120.0, res2_2.doubleValue(), 1e-8);
     }
 
     @Test

@@ -7,12 +7,13 @@
 package org.openl.types.science;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 /**
  * @author snshor
- *
+ * 
  */
 public abstract class AMultiplicativeExpression implements IMultiplicativeExpression {
 
@@ -30,8 +31,8 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
             return false;
         }
 
-        for (Iterator it = m1.getDimensionsPowers(); it.hasNext();) {
-            IDimensionPower d1 = (IDimensionPower) it.next();
+        for (Iterator<IDimensionPower> it = m1.getDimensionsPowers(); it.hasNext();) {
+            IDimensionPower d1 = it.next();
             IDimensionPower d2 = m2.getDimensionPower(d1.getDimension());
 
             if (d2 == null || d1.getPower() != d2.getPower()) {
@@ -44,10 +45,10 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
     static IMultiplicativeExpression merge(IMultiplicativeExpression m1, IMultiplicativeExpression m2, boolean multiply) {
 
-        Vector res = new Vector();
+        List<IDimensionPower> res = new ArrayList<IDimensionPower>();
 
-        for (Iterator it = m1.getDimensionsPowers(); it.hasNext();) {
-            IDimensionPower d1 = (IDimensionPower) it.next();
+        for (Iterator<IDimensionPower> it = m1.getDimensionsPowers(); it.hasNext();) {
+            IDimensionPower d1 = it.next();
             IDimensionPower d2 = m2.getDimensionPower(d1.getDimension());
 
             if (d2 == null) {
@@ -61,8 +62,8 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
             }
         }
 
-        for (Iterator it2 = m2.getDimensionsPowers(); it2.hasNext();) {
-            IDimensionPower d2 = (IDimensionPower) it2.next();
+        for (Iterator<IDimensionPower> it2 = m2.getDimensionsPowers(); it2.hasNext();) {
+            IDimensionPower d2 = it2.next();
             IDimensionPower d1 = m1.getDimensionPower(d2.getDimension());
 
             if (d1 == null) {
@@ -76,8 +77,8 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
             return new ScalarExpression(newScalar);
         }
 
-        return new MultiDimensionalExpression(newScalar, (IDimensionPower[]) res
-                .toArray(new IDimensionPower[res.size()]));
+        return new MultiDimensionalExpression(newScalar,
+                (IDimensionPower[]) res.toArray(new IDimensionPower[res.size()]));
     }
 
     static IDimensionPower negative(IDimensionPower dp) {
@@ -101,8 +102,10 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.types.science.IMultiplicativeExpression#add(org.openl.types.science.IMultiplicativeExpression)
+     * 
+     * @see
+     * org.openl.types.science.IMultiplicativeExpression#add(org.openl.types
+     * .science.IMultiplicativeExpression)
      */
     public IMultiplicativeExpression add(IMultiplicativeExpression im) throws RuntimeException {
         return additiveOp(this, im, 1);
@@ -110,8 +113,10 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.types.science.IMultiplicativeExpression#divide(org.openl.types.science.IMultiplicativeExpression)
+     * 
+     * @see
+     * org.openl.types.science.IMultiplicativeExpression#divide(org.openl.types
+     * .science.IMultiplicativeExpression)
      */
     public IMultiplicativeExpression divide(IMultiplicativeExpression im) {
         return merge(this, im, false);
@@ -119,8 +124,10 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.types.science.IMultiplicativeExpression#multiply(org.openl.types.science.IMultiplicativeExpression)
+     * 
+     * @see
+     * org.openl.types.science.IMultiplicativeExpression#multiply(org.openl.
+     * types.science.IMultiplicativeExpression)
      */
     public IMultiplicativeExpression multiply(IMultiplicativeExpression im) {
         return merge(this, im, true);
@@ -128,7 +135,7 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.openl.types.science.IMultiplicativeExpression#negate()
      */
     public IMultiplicativeExpression negate() {
@@ -149,8 +156,10 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.types.science.IMultiplicativeExpression#subtract(org.openl.types.science.IMultiplicativeExpression)
+     * 
+     * @see
+     * org.openl.types.science.IMultiplicativeExpression#subtract(org.openl.
+     * types.science.IMultiplicativeExpression)
      */
     public IMultiplicativeExpression subtract(IMultiplicativeExpression im) throws RuntimeException {
         return additiveOp(this, im, -1);

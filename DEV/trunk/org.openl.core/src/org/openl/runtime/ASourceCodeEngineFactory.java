@@ -64,7 +64,7 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         this.executionMode = executionMode;
     }    
 
-    public synchronized IOpenSourceCodeModule getSourceCode() {
+    public IOpenSourceCodeModule getSourceCode() {
         return sourceCode;
     }
     

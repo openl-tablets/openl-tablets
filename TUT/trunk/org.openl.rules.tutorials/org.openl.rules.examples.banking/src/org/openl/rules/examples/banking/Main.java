@@ -6,7 +6,7 @@
 
 package org.openl.rules.examples.banking;
 
-import org.openl.rules.runtime.RuleEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.runtime.EngineFactory;
 
 
@@ -27,8 +27,8 @@ public class Main
         System.out.println("*** Resolve Banking Problem ***");
         String fileName = "rules/Banking.xls";
         
-        EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
-        IExample instance = engineFactory.makeInstance();
+        EngineFactory<IExample> engineFactory = new RulesEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.newEngineInstance();
 
         System.out.println(
         "\n============================================\n" +

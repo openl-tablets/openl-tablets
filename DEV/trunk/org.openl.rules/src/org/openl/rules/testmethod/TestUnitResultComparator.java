@@ -9,22 +9,22 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.result.TestResultComparator;
 
 public class TestUnitResultComparator {
-    
+
     public static enum TestStatus {
         TR_EXCEPTION(2),
         TR_NEQ(1),
         TR_OK(0);
-        
+
         private int status;
-        
+
         private TestStatus(int status) {
             this.status = status;
         }
-        
+
        public int getStatus() {
            return status;
        }
-       
+
        public TestStatus getConstant(int status) {
             switch (status) {
                 case 0:
@@ -39,17 +39,17 @@ public class TestUnitResultComparator {
             }
        }
     }
-    
+
     private TestResultComparator resultComparator;
-    
+
     public TestUnitResultComparator(TestResultComparator resultComparator) {
         this.resultComparator = resultComparator;
     }
-    
+
     public TestResultComparator getComparator() {
         return resultComparator;
     }
-    
+
     /**
      * Return the comparasion of the expected result and actual one for the test unit. 
      * 
@@ -58,25 +58,24 @@ public class TestUnitResultComparator {
      * <b>1</b> if the expected result is not equal to the actual one.<br>
      * <b>2</b> if the was an exception, during running, that we didn`t expect.
      */
-    public int getCompareResult(TestUnit testUnit) {
+    public int getCompareResult(TestUnit testUnit, Double delta) {
         if (testUnit.getActualResult() instanceof Throwable) {
-            return compareExceptionResult(testUnit);
+            return compareExceptionResult(testUnit, delta);
         }
-        
-        if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult())) {
+
+        if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult(), delta)) {
             return TestStatus.TR_OK.getStatus();
         }
-        
+
         return TestStatus.TR_NEQ.getStatus();
-        
     }
-    
-    public boolean compareResult(Object actualResult, Object expectedResult) {
+
+    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
 
         if (actualResult == expectedResult) {
             return true;
         }
-        
+
         if (expectedResult == null) {
             if ((actualResult instanceof Object[] && ((Object[]) actualResult).length == 0)
                     || (actualResult instanceof Collection && ((Collection<?>) actualResult).isEmpty())
@@ -90,11 +89,11 @@ public class TestUnitResultComparator {
         if (actualResult == null) {
             return false;
         }
-        
-        return resultComparator.compareResult(actualResult, expectedResult);
+
+        return resultComparator.compareResult(actualResult, expectedResult, delta);
     }
-    
-    private int compareExceptionResult(TestUnit testUnit) {
+
+    private int compareExceptionResult(TestUnit testUnit, Double delta) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
             String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
@@ -113,8 +112,8 @@ public class TestUnitResultComparator {
             if (expectedMessage == null) {
                 expectedMessage = StringUtils.EMPTY;
             }
-            
-            if (compareResult(actualMessage, expectedMessage)) {
+
+            if (compareResult(actualMessage, expectedMessage, delta)) {
                 return TestStatus.TR_OK.getStatus();
             } else {
                 return TestStatus.TR_NEQ.getStatus();

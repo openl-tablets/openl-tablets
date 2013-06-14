@@ -375,6 +375,10 @@ public class DecisionTableOptimizedAlgorithm {
     
     protected void buildIndexInternal(boolean saveRulesMetaInfo) throws SyntaxNodeException {
 
+    	
+    	if (indexRoot != null && indexRoot.isHasMetaInfo() == saveRulesMetaInfo)
+    		return; //nothing to rebuild
+    	
         ArrayList<Object[][]> params = new ArrayList<Object[][]>();
 
         for (int i = 0; i < evaluators.length; i++) {
@@ -395,6 +399,7 @@ public class DecisionTableOptimizedAlgorithm {
 
         Object[][] params0 = params.get(0);
         indexRoot = evaluators[0].makeIndex(params0, new IntRangeDomain(0, params0.length - 1).intIterator());
+        indexRoot.setHasMetaInfo(saveRulesMetaInfo);
 
         indexNodes(indexRoot, params, 1, saveRulesMetaInfo);
     }

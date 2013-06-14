@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class String2BigDecimalConvertorTest {    
     
-    private static String DECIMAL = "1115.37";
+    private static final String DECIMAL = "1115.37";
     
     @Test
     public void testParse() {

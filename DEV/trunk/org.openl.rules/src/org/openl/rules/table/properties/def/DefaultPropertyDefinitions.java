@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[32];
+		definitions = new TablePropertyDefinition[33];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -429,6 +429,18 @@ public class DefaultPropertyDefinitions
 		definitions[31].setPrimaryKey(false);
 		definitions[31].setSystem(false);
 		definitions[31].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
+		definitions[32] = new TablePropertyDefinition();
+		definitions[32].setConstraints(new org.openl.rules.table.constraints.Constraints("regexp:(-?[0-9]+)"));
+		definitions[32].setDescription("Precision of comparing the returned results with the expected ones");
+		definitions[32].setDimensional(false);
+		definitions[32].setDisplayName("Precision");
+		definitions[32].setGroup("Dev");
+		definitions[32].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[32].setName("precision");
+		definitions[32].setPrimaryKey(false);
+		definitions[32].setSystem(false);
+		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_RUN_METHOD, XlsNodeTypes.XLS_PROPERTIES});
+		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

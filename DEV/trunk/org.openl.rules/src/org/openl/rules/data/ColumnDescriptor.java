@@ -144,7 +144,7 @@ public class ColumnDescriptor {
     public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {        
         if (field != null) {
             IOpenClass paramType = field.getType();
-            
+
             if (valuesAnArray) {
                 paramType = paramType.getAggregateInfo().getComponentType(paramType);
             }
@@ -154,8 +154,6 @@ public class ColumnDescriptor {
             if (!valuesAnArray) {
                 Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
 
-                
-                
                 if (res != null) {
                     field.set(literal, res, getRuntimeEnv());
                 }

@@ -8,7 +8,7 @@ package org.openl.types.science;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IDerivedConstants extends IBasicConstants {
     IMultiplicativeExpression MPH = MI.divide(H);

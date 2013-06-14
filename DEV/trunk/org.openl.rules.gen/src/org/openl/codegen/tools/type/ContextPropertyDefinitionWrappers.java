@@ -18,7 +18,7 @@ public class ContextPropertyDefinitionWrappers {
     private void init(ContextPropertyDefinition[] definitions) {
 
         for (ContextPropertyDefinition definition : definitions) {
-            
+
             ContextPropertyDefinitionWrapper wrapper = new ContextPropertyDefinitionWrapper(definition);
             wrappers.put(definition.getName(), wrapper);
         }
@@ -27,7 +27,7 @@ public class ContextPropertyDefinitionWrappers {
     public List<ContextPropertyDefinitionWrapper> asList() {
         return new ArrayList<ContextPropertyDefinitionWrapper>(wrappers.values());
     }
-    
+
     public ContextPropertyDefinitionWrapper findWrapper(String contextPropertyName) {
         return wrappers.get(contextPropertyName);
     }

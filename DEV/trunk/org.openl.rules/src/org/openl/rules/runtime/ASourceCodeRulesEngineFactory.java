@@ -9,6 +9,7 @@ import java.util.Map;
 import org.openl.conf.IUserContext;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.ASourceCodeEngineFactory;
+import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
@@ -42,25 +43,25 @@ public abstract class ASourceCodeRulesEngineFactory extends ASourceCodeEngineFac
     public ASourceCodeRulesEngineFactory(String openlName, URL source) {
         super(openlName, source);
     }
-
-    @Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new RuntimeEnvHolder();
-
-    }
+    
+    private IRuntimeEnvBuilder runtimeEnvBuilder = null;
     
     @Override
-    protected InvocationHandler makeInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
-        return new OpenLRulesInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+    protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
+        if (runtimeEnvBuilder == null){
+            runtimeEnvBuilder = new IRuntimeEnvBuilder() {
+                @Override
+                public IRuntimeEnv buildRuntimeEnv() {
+                    return new SimpleRulesVM().getRuntimeEnv();
+                }
+            };
+        }
+        return runtimeEnvBuilder;
     }
 
-    // ThreadLocals can be cached by servlet container. RuntimeEnvHolder should
-    // be nested class, not inner class - otherwise we get memory leak
-    private static final class RuntimeEnvHolder extends ThreadLocal<org.openl.vm.IRuntimeEnv> {
-        @Override
-        protected org.openl.vm.IRuntimeEnv initialValue() {
-            return new SimpleRulesVM().getRuntimeEnv();
-        }
+    @Override
+    protected InvocationHandler prepareInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
+            IRuntimeEnv runtimeEnv) {
+        return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }

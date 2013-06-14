@@ -53,7 +53,9 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
                 classLoader.addClassLoader(serviceClass.getClassLoader());
             }
         } catch (Exception e) {
-            log.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
+            if (log.isWarnEnabled()){
+                log.warn("Failed to register class loader of service class in class loader of Enhancer.", e);
+            }
         }
         return classLoader;
     }

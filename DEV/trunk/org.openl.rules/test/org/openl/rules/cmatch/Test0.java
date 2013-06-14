@@ -1,6 +1,6 @@
 package org.openl.rules.cmatch;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
@@ -20,7 +20,7 @@ public class Test0 {
     public void test1() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-1.xls");                
+                File xlsFile = new File("test/rules/cmatch0/match0-1.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Unsufficient rows. At least 4 are expected!");
@@ -30,7 +30,7 @@ public class Test0 {
     public void test2() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-2.xls");             
+                File xlsFile = new File("test/rules/cmatch0/match0-2.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Name cannot be empty!", "cell=B7");
@@ -40,17 +40,17 @@ public class Test0 {
     public void test3() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-3.xls");                
+                File xlsFile = new File("test/rules/cmatch0/match0-3.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Name cannot be empty!", "cell=B8");
     }
-    
+
     @Test
     public void testDublicateColumn() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/Test_Dublicate_Column.xls");                
+                File xlsFile = new File("test/rules/cmatch0/Test_Dublicate_Column.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Duplicate column 'values'!");
@@ -60,7 +60,7 @@ public class Test0 {
     public void test4() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-4.xls");                
+                File xlsFile = new File("test/rules/cmatch0/match0-4.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "org.openl.exception.OpenLRuntimeException", "cell=E6");
@@ -70,7 +70,7 @@ public class Test0 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-5.xls");                
+                File xlsFile = new File("test/rules/cmatch0/match0-5.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Cannot find algorithm for name 'ERROR'!", "range=B3:L7");
@@ -83,7 +83,7 @@ public class Test0 {
 
         Exception ex = null;
         try {
-            File xlsFile = new File("test/rules/cmatch0/match0-6.xls");            
+            File xlsFile = new File("test/rules/cmatch0/match0-6.xls");
             new TestHelper<ITestI>(xlsFile, ITestI.class);
         } catch (Exception e) {
             ex = e;
@@ -98,7 +98,7 @@ public class Test0 {
     public void test7() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-7.xls");                
+                File xlsFile = new File("test/rules/cmatch0/match0-7.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Illegal header format!", "range=B3:L7");
@@ -108,7 +108,7 @@ public class Test0 {
     public void test8() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch0/match0-8.xls");                
+                File xlsFile = new File("test/rules/cmatch0/match0-8.xls");
                 new TestHelper<ITestI>(xlsFile, ITestI.class);
             }
         }, "Unsufficient rows.", "range=B3:L4");
@@ -119,8 +119,7 @@ public class Test0 {
         MatchAlgorithmFactory.registerBuilder("ALGORITHM", new MatchAlgorithmCompilerBuilder());
 
         File xlsFile = new File("test/rules/ColumnMatch.xls");
-        TestHelper<ITestColumnMatch> testHelper;
-        testHelper = new TestHelper<ITestColumnMatch>(xlsFile, ITestColumnMatch.class);
+        TestHelper<ITestColumnMatch> testHelper = new TestHelper<ITestColumnMatch>(xlsFile, ITestColumnMatch.class);
 
         ITestColumnMatch test = testHelper.getInstance();
         int real = test.runColumnMatch("OO", "Y", 100);

@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
 

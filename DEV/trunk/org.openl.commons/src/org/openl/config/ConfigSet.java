@@ -65,8 +65,8 @@ public class ConfigSet {
         try {
             prop.setTextValue(objectValue.toString());
         } catch (Exception e) {
-            log.error("Failed to update ConfigProperty '" + prop.getName()
-                    + "' with value '" + objectValue.toString() + "'!", e);
+            log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + objectValue.toString()
+                    + "'!", e);
         }
     }
 
@@ -83,8 +83,8 @@ public class ConfigSet {
         try {
             prop.setTextValue(PassCoder.decode(pass, passKey));
         } catch (Exception e) {
-            log.error("Failed to update ConfigProperty '" + prop.getName()
-                    + "' with value '" + objectValue.toString() + "'!", e);
+            log.error("Failed to update ConfigProperty '" + prop.getName() + "' with value '" + objectValue.toString()
+                    + "'!", e);
         }
     }
 

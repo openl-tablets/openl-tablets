@@ -1,6 +1,6 @@
 package org.openl.rules.calc;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.junit.Ignore;
@@ -9,31 +9,28 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 
 public class Test1 {
-    interface ITestCalc {
+    public interface ITestCalc {
         SpreadsheetResult calc1(int a, int b);
     }
 
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc1/calc1-1.xls");
-        TestHelper<ITestCalc> testHelper;
-        testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+        TestHelper<ITestCalc> testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
 
-        
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc1(10, 20);
 
         System.out.println(result.printAsTable());
-        
-        
+
         Object o1 = result.getValue(0, 0);
         Object o2 = result.getValue(0, 1);
 
         DoubleValue v1 = (DoubleValue) o1;
-        assertEquals(10.0, v1.doubleValue());
+        assertEquals(10.0, v1.doubleValue(), 1e-8);
 
         DoubleValue v2 = (DoubleValue) o2;
-        assertEquals(20.0, v2.doubleValue());
+        assertEquals(20.0, v2.doubleValue(), 1e-8);
     }
 
     @Test
@@ -47,7 +44,7 @@ public class Test1 {
 
         Object o1 = result.getValue(0, 2);
         DoubleValue v1 = (DoubleValue) o1;
-        assertEquals(30.0, v1.doubleValue());
+        assertEquals(30.0, v1.doubleValue(), 1e-8);
     }
 
     @Test

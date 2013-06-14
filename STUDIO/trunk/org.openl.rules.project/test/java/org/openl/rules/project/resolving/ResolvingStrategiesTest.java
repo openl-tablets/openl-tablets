@@ -1,6 +1,6 @@
 package org.openl.rules.project.resolving;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.*;
 
 import java.io.File;

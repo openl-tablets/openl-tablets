@@ -8,8 +8,8 @@ import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
-    private IOpenClass moduleOpenClass;    
-    private String targetClassName;    
+    private IOpenClass moduleOpenClass;
+    private String targetClassName;
     private String targetPackageName;
 
     private String[] methodsToGenerate;
@@ -18,7 +18,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
     private boolean ignoreNonJavaTypes;
     private boolean ignoreTestMethods;
 
-    private String srcFile; 
+    private String srcFile;
     private String deplSrcFile;
 
     private JavaInterfaceGenerator(Builder builder) {
@@ -35,7 +35,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
     @Override
     public String generateJava() {
-        StringBuffer buf = new StringBuffer(1000);
+        StringBuilder buf = new StringBuilder(1000);
 
         // Add comment
         buf.append(JavaClassGeneratorHelper.getCommentText("This class has been generated."));
@@ -50,9 +50,9 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
         // Add source file path static field
         buf.append(JavaWrapperGenerator.getSourceFilePathField(srcFile, deplSrcFile));
-        
+
         addFieldMethods(buf);
-        
+
         // Add methods
         addMethods(buf);
 
@@ -61,10 +61,10 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
         return buf.toString();
     }
 
-    private void addMethods(StringBuffer buf) {
-        for (IOpenMethod method : moduleOpenClass.getMethods()) {            
-            if (!JavaWrapperGenerator.shouldBeGenerated(method, methodsToGenerate, moduleOpenClass.getName(), 
-                ignoreNonJavaTypes, ignoreTestMethods)) {
+    private void addMethods(StringBuilder buf) {
+        for (IOpenMethod method : moduleOpenClass.getMethods()) {
+            if (!JavaWrapperGenerator.shouldBeGenerated(method, methodsToGenerate, moduleOpenClass.getName(),
+                    ignoreNonJavaTypes, ignoreTestMethods)) {
                 continue;
             }
             buf.append("  ");
@@ -72,17 +72,17 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
             buf.append(";\n\n");
         }
     }
-    
-    private void addFieldMethods(StringBuffer buf) {
-        for (IOpenField field : moduleOpenClass.getFields().values()) {            
+
+    private void addFieldMethods(StringBuilder buf) {
+        for (IOpenField field : moduleOpenClass.getFields().values()) {
             if (!JavaWrapperGenerator.shouldBeGenerated(field, fieldsToGenerate, ignoreNonJavaTypes, ignoreTestMethods)) {
                 continue;
             }
-            addFieldAccessor(field, buf);            
+            addFieldAccessor(field, buf);
         }
     }
-    
-    private void addFieldAccessor(IOpenField field, StringBuffer buf) {
+
+    private void addFieldAccessor(IOpenField field, StringBuilder buf) {
 
         IOpenClass type = field.getType();
 
@@ -95,19 +95,19 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
 
     public static class Builder {
         // Required parameters
-        private IOpenClass moduleOpenClass;    
-        private String targetClassName;    
+        private IOpenClass moduleOpenClass;
+        private String targetClassName;
         private String targetPackageName;
 
         // Optional parameters
-        private String[] methodsToGenerate; 
+        private String[] methodsToGenerate;
         private String[] fieldsToGenerate;
-        private boolean ignoreNonJavaTypes;        
-        private String srcFile; 
+        private boolean ignoreNonJavaTypes;
+        private String srcFile;
         private String deplSrcFile;
         private boolean ignoreTestMethods;
 
-        public Builder (IOpenClass moduleOpenClass, String targetClass) {
+        public Builder(IOpenClass moduleOpenClass, String targetClass) {
             if (moduleOpenClass == null) {
                 throw new IllegalArgumentException("Cannot generate interface for null openl module class");
             }
@@ -124,7 +124,7 @@ public class JavaInterfaceGenerator implements OpenLToJavaGenerator {
             }
             return this;
         }
-        
+
         public Builder fieldsToGenerate(String[] fieldsToGenerate) {
             if (fieldsToGenerate != null) {
                 this.fieldsToGenerate = fieldsToGenerate.clone();

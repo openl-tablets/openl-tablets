@@ -1,6 +1,5 @@
 package org.openl.rules.data;
 
-
 public class Type1 {
 
     private java.lang.String name;
@@ -19,7 +18,7 @@ public class Type1 {
     public java.lang.String getValue() {
         return value;
     }
-    
+
     public java.lang.String getName() {
         return name;
     }

@@ -20,6 +20,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.Module;
@@ -56,18 +57,17 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
     private Collection<Module> modules;
     private Map<String, Object> externalParameters;
 
-    public DispatchedMultiModuleEngineFactory(Collection<Module> modules, Class<?> interfaceClass) {
+    public DispatchedMultiModuleEngineFactory(Collection<Module> modules, IDependencyManager dependencyManager,
+            Class<?> interfaceClass, Map<String, Object> externalParameters) {
         super(RULES_XLS_OPENL_NAME);
         this.modules = modules;
         if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface class can not be null.");
+            throw new IllegalArgumentException("Interface class can't be null.");
         } else {
             this.interfaceClass = interfaceClass;
         }
-    }
-
-    public void setDependencyManager(IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
+        this.externalParameters = externalParameters;
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -75,7 +75,6 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
             OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
-
         return compiledOpenClass;
     }
 
@@ -84,33 +83,22 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
     }
 
     @Override
-    protected Class<?>[] getInstanceInterfaces() {
-        return new Class[] { getInterfaceClass(), IEngineWrapper.class };
+    protected Class<?>[] prepareInstanceInterfaces() {
+        return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
     }
 
-    /*@Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        return new ThreadLocal<org.openl.vm.IRuntimeEnv>() {
-            @Override
-            protected org.openl.vm.IRuntimeEnv initialValue() {
-                return getOpenL().getVm().getRuntimeEnv();
-            }
-        };
-    }*/
-
     @Override
-    public Object makeInstance() {
+    protected Object prepareInstance(IRuntimeEnv runtimeEnv) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
+            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
-            Object openClassInstance = openClass.newInstance(getRuntimeEnv());
-            Map<Method, IOpenMember> methodMap = makeMethodMap(getInterfaceClass(), openClass);
-
-            return makeEngineInstance(openClassInstance, methodMap, getRuntimeEnv(), getCompiledOpenClass()
+            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getCompiledOpenClass()
                     .getClassLoader());
         } catch (Exception ex) {
-            String errorMessage = "Cannot instantiate engine instance";
+            String errorMessage = "Can't instantiate engine instance!";
             if (log.isErrorEnabled()) {
                 log.error(errorMessage, ex);
             }
@@ -133,7 +121,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
                 try {
                     return interfaceMethod.invoke(target, params);
                 } catch (Exception e) {
-                    if (log.isErrorEnabled()){
+                    if (log.isErrorEnabled()) {
                         log.error(e);
                     }
                     return null;
@@ -208,7 +196,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
         }
     }
 
-    public String getFieldName(final Method interfaceMethod) {
+    private String getFieldName(final Method interfaceMethod) {
         return StringUtils.uncapitalize(interfaceMethod.getName().substring(3));
     }
 
@@ -252,7 +240,7 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
                 new SyntaxNodeException[0]);
     }
 
-    public void checkUnannotatedMethods(List<Method> unannotatedMethos, ModuleOpenClass moduleOpenClass) {
+    private void checkUnannotatedMethods(List<Method> unannotatedMethos, ModuleOpenClass moduleOpenClass) {
         for (Method method : unannotatedMethos) {
             if (isGetter(method) || isSetter(method) && moduleOpenClass.getField(getFieldName(method), false) != null) {
                 continue;
@@ -266,10 +254,6 @@ public class DispatchedMultiModuleEngineFactory extends AOpenLRulesEngineFactory
 
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
-    }
-
-    public void setExternalParameters(Map<String, Object> parameters) {
-        this.externalParameters = parameters;
     }
 
 }

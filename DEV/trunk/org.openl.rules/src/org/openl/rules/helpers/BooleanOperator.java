@@ -5,10 +5,9 @@
 package org.openl.rules.helpers;
 
 /**
- * @author jacob
+ * @author jacob, Marat Kamalov
  */
 
-@SuppressWarnings("unchecked")
 public class BooleanOperator {
 
     public BooleanOperator(String s) {
@@ -29,7 +28,7 @@ public class BooleanOperator {
         }
     }
 
-    public boolean compare(Comparable c1, Comparable c2) {
+    public <T extends Comparable<T>> boolean compare(T c1, T c2) {
         return operator.compare(c1, c2);
     }
 
@@ -42,42 +41,42 @@ public class BooleanOperator {
     }
 
     interface ComparableOperator {
-        boolean compare(Comparable c1, Comparable c2);
+        <T extends Comparable<T>> boolean compare(T c1, T c2);
     }
 
     static ComparableOperator LT = new ComparableOperator() {
-        public boolean compare(Comparable c1, Comparable c2) {
-            return c1.compareTo(c2) < 0;
+        public <T extends Comparable<T>> boolean compare(T c1, T c2) {
+            return c1.compareTo((T) c2) < 0;
         }
     };
 
     static ComparableOperator LE = new ComparableOperator() {
-        public boolean compare(Comparable c1, Comparable c2) {
-            return c1.compareTo(c2) <= 0;
+        public <T extends Comparable<T>> boolean compare(T c1, T c2) {
+            return c1.compareTo((T) c2) <= 0;
         }
     };
 
     static ComparableOperator GE = new ComparableOperator() {
-        public boolean compare(Comparable c1, Comparable c2) {
-            return c1.compareTo(c2) >= 0;
+        public <T extends Comparable<T>> boolean compare(T c1, T c2) {
+            return c1.compareTo((T) c2) >= 0;
         }
     };
 
     static ComparableOperator GT = new ComparableOperator() {
-        public boolean compare(Comparable c1, Comparable c2) {
-            return c1.compareTo(c2) > 0;
+        public <T extends Comparable<T>> boolean compare(T c1, T c2) {
+            return c1.compareTo((T) c2) > 0;
         }
     };
 
     static ComparableOperator EQ = new ComparableOperator() {
-        public boolean compare(Comparable c1, Comparable c2) {
-            return c1.compareTo(c2) == 0;
+        public <T extends Comparable<T>> boolean compare(T c1, T c2) {
+            return c1.compareTo((T) c2) == 0;
         }
     };
 
     static ComparableOperator NE = new ComparableOperator() {
-        public boolean compare(Comparable c1, Comparable c2) {
-            return c1.compareTo(c2) != 0;
+        public <T extends Comparable<T>> boolean compare(T c1, T c2) {
+            return c1.compareTo((T) c2) != 0;
         }
     };
 

@@ -25,7 +25,7 @@ public class DuplicatedVarException extends OpenlNotCheckedException {
 
     @Override
     public String getMessage() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (super.getMessage() != null) {
             buf.append(super.getMessage());
         }

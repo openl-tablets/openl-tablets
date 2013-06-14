@@ -13,23 +13,23 @@ import org.openl.util.OpenIterator;
 import org.openl.util.StringTool;
 
 /**
- * Default format to convert <code>Object</code> values to <code>String</code> representations.
- * Supports:<br>
- *           - <code>null</code> objects<br>
- *           - arrays (Object and primitives)<br>
- *           - object that are instances of {@link Collection}<br>
- *           - maps of objects.
+ * Default format to convert <code>Object</code> values to <code>String</code>
+ * representations. Supports:<br>
+ * - <code>null</code> objects<br>
+ * - arrays (Object and primitives)<br>
+ * - object that are instances of {@link Collection}<br>
+ * - maps of objects.
  * 
  * @author snshor
- *
+ * 
  */
 public class DefaultFormat implements IFormat {
 
     public DefaultFormat() {
-        super();        
+        super();
     }
 
-    public StringBuffer format(Object obj, int mode, StringBuffer buf) {
+    public StringBuilder format(Object obj, int mode, StringBuilder buf) {
         if (obj == null) {
             return buf.append("null");
         }
@@ -42,8 +42,8 @@ public class DefaultFormat implements IFormat {
             return formatCollection((Collection<?>) obj, mode, buf);
         }
 
-        if (obj instanceof Map<?,?>) {
-            return formatMap((Map<?,?>) obj, mode, buf);
+        if (obj instanceof Map<?, ?>) {
+            return formatMap((Map<?, ?>) obj, mode, buf);
         }
 
         if (!isPrimitive(obj.getClass())) {
@@ -53,13 +53,13 @@ public class DefaultFormat implements IFormat {
         return buf.append(obj);
     }
 
-    protected StringBuffer formatArray(Object obj, int mode, StringBuffer buf) {
+    protected StringBuilder formatArray(Object obj, int mode, StringBuilder buf) {
         int maxLen = maxCollectionLength(mode);
 
         return formatIterator(OpenIterator.fromArrayObj(obj), mode, buf, maxLen, Array.getLength(obj), "[]");
     }
 
-    protected StringBuffer formatBean(Object obj, int mode, StringBuffer buf) {
+    protected StringBuilder formatBean(Object obj, int mode, StringBuilder buf) {
         if (obj instanceof INamedThing) {
             return buf.append(((INamedThing) obj).getDisplayName(mode));
         }
@@ -68,7 +68,7 @@ public class DefaultFormat implements IFormat {
         return buf.append(printer.getBuffer());
     }
 
-    protected StringBuffer formatCollection(Collection<?> collection, int mode, StringBuffer buf) {
+    protected StringBuilder formatCollection(Collection<?> collection, int mode, StringBuilder buf) {
 
         int maxLength = maxCollectionLength(mode);
 
@@ -89,7 +89,7 @@ public class DefaultFormat implements IFormat {
         return buf;
     }
 
-    public StringBuffer formatIterator(Iterator<?> it, int mode, StringBuffer buf, int maxLength, int actualLength,
+    public StringBuilder formatIterator(Iterator<?> it, int mode, StringBuilder buf, int maxLength, int actualLength,
             String brackets) {
         buf.append(brackets.charAt(0));
 
@@ -117,7 +117,7 @@ public class DefaultFormat implements IFormat {
         return buf;
     }
 
-    protected StringBuffer formatMap(Map<?,?> map, int mode, StringBuffer buf) {
+    protected StringBuilder formatMap(Map<?, ?> map, int mode, StringBuilder buf) {
         return formatCollection(map.keySet(), mode, buf);
     }
 

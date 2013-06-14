@@ -177,7 +177,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             String line = StringTool.untab(lines[i], module.getTabSize());
             pw.println(line);
             if (i == line1) {
-                StringBuffer buf = new StringBuffer(Math.max(column1, column2) + 5);
+                StringBuilder buf = new StringBuilder(Math.max(column1, column2) + 5);
                 StringTool.append(buf, ' ', column1);
                 int col2 = line1 == line2 ? column2 + 1 : line.length();
 

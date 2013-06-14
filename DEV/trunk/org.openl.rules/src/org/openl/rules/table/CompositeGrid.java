@@ -105,7 +105,7 @@ public class CompositeGrid extends AGrid {
             return null;
         }
         if (t1.grid() != t2.grid()) {
-            return null;
+            return t1.grid.getUri();  //TODO check if anything breaks
         }
         return t1.grid().getRangeUri(t1.getCol(), t1.getRow(), t2.getCol(), t2.getRow());
 

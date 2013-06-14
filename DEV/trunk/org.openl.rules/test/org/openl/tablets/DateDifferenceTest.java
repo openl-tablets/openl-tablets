@@ -1,17 +1,15 @@
 package org.openl.tablets;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.util.DateDifference;
 import org.openl.util.DateTool;
 
@@ -21,16 +19,16 @@ public class DateDifferenceTest {
 
     private static final String dateFormat = "dd/MM/yyyy";
 
-    private static String src = "test/rules/DateDifference.xls";
+    private static final String SRC = "test/rules/DateDifference.xls";
     
-    private IDateDifferenceTest test;
+    private IDateDifferenceTest instance;
     
     @Before
     public void initEngine() {
-        EngineFactory<IDateDifferenceTest> engineFactory = new EngineFactory<IDateDifferenceTest>(
-                RuleEngineFactory.RULE_OPENL_NAME, src, IDateDifferenceTest.class);
+        RulesEngineFactory<IDateDifferenceTest> engineFactory = new RulesEngineFactory<IDateDifferenceTest>(
+                 SRC, IDateDifferenceTest.class);
         
-        test = engineFactory.makeInstance();
+        instance = engineFactory.newEngineInstance();
     }
     
     //------------Testing via Openl-------------------
@@ -40,7 +38,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "02/08/2010");
         
-        int diff = test.dateCount(startDate, endDate);
+        int diff = instance.dateCount(startDate, endDate);
         Assert.assertEquals(15188, diff);    
     }
     
@@ -50,7 +48,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "02/08/2010");
         
-        int diff = test.dateCount(startDate, endDate);
+        int diff = instance.dateCount(startDate, endDate);
         Assert.assertEquals(18476, diff);    
     }
     
@@ -60,7 +58,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "02/08/2010");
         
-        int diff = test.dateCount(startDate, endDate);
+        int diff = instance.dateCount(startDate, endDate);
         Assert.assertEquals(14823, diff);    
     }
     

@@ -26,6 +26,7 @@ public final class OpenLService {
     private Class<?> instanceClass;
     private Object serviceBean;
     private boolean provideRuntimeContext = false;
+    private boolean useRuleServiceRuntimeContext = false;
     private boolean provideVariations = false;
     private Collection<Module> modules;
     private Collection<Class<RuleServicePublisher>> publishers;
@@ -39,19 +40,19 @@ public final class OpenLService {
      * @param provideRuntimeContext define is runtime context should be used
      * @param modules a list of modules for load
      */
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             Collection<Class<RuleServicePublisher>> publishers, Collection<Module> modules) {
-        this(name, url, serviceClassName, provideRuntimeContext, false, publishers, modules);
+        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, publishers, modules);
     }
 
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             Collection<Module> modules) {
-        this(name, url, serviceClassName, provideRuntimeContext, false, null, modules);
+        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, false, null, modules);
     }
 
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             boolean provideVariations, Collection<Module> modules) {
-        this(name, url, serviceClassName, provideRuntimeContext, provideVariations, null, modules);
+        this(name, url, serviceClassName, provideRuntimeContext, useRuleServiceRuntimeContext, provideVariations, null, modules);
     }
 
     /**
@@ -65,7 +66,7 @@ public final class OpenLService {
      * @param modules a list of modules for load
      * @param configuration configuration
      */
-    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext,
+    OpenLService(String name, String url, String serviceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             boolean provideVariations, Collection<Class<RuleServicePublisher>> publishers, Collection<Module> modules) {
         if (name == null) {
             throw new IllegalArgumentException("name arg can't be null");
@@ -79,6 +80,7 @@ public final class OpenLService {
         }
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
+        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
         this.provideVariations = provideVariations;
         if (publishers != null) {
             this.publishers = Collections.unmodifiableCollection(publishers);
@@ -88,7 +90,7 @@ public final class OpenLService {
     }
 
     private OpenLService(OpenLServiceBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext,
+        this(builder.name, builder.url, builder.serviceClassName, builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext,
                 builder.provideVariations, builder.publishers, builder.modules);
     }
 
@@ -151,6 +153,14 @@ public final class OpenLService {
         return provideRuntimeContext;
     }
 
+    /**
+     * Returns useRuleServiceRuntimeContext
+     * @return useRuleServiceRuntimeContext
+     */
+    public boolean isUseRuleServiceRuntimeContext() {
+        return useRuleServiceRuntimeContext;
+    }
+    
     /**
      * This flag defines whether variations will be supported or not.
      * 
@@ -232,6 +242,7 @@ public final class OpenLService {
         private String serviceClassName;
         private boolean provideRuntimeContext = false;
         private boolean provideVariations = false;
+        private boolean useRuleServiceRuntimeContext = false;
         private Collection<Module> modules;
         private Collection<Class<RuleServicePublisher>> publishers;
 
@@ -364,6 +375,17 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setUrl(String url) {
             this.url = url;
+            return this;
+        }
+        
+        /**
+         * Sets flag useRuleServiceRuntimeContext.
+         * 
+         * @param url
+         * @return
+         */
+        public OpenLServiceBuilder setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
+            this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
             return this;
         }
 

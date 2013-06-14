@@ -1,6 +1,6 @@
 package org.openl.rules.cmatch;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
@@ -20,8 +20,7 @@ public class Test2 {
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/cmatch1/match2-1.xls");
-        TestHelper<ITest2> testHelper;
-        testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
+        TestHelper<ITest2> testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
 
         ITest2 test = testHelper.getInstance();
 
@@ -40,8 +39,7 @@ public class Test2 {
     @Test
     public void test2() {
         File xlsFile = new File("test/rules/cmatch1/match2-2.xls");
-        TestHelper<ITest2> testHelper;
-        testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
+        TestHelper<ITest2> testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
 
         ITest2 test = testHelper.getInstance();
 
@@ -61,8 +59,7 @@ public class Test2 {
     @Test
     public void test3() {
         File xlsFile = new File("test/rules/cmatch1/match2-3.xls");
-        TestHelper<ITest5> testHelper;
-        testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
+        TestHelper<ITest5> testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
 
         ITest5 test = testHelper.getInstance();
 
@@ -83,7 +80,7 @@ public class Test2 {
     public void test4() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-4.xls");                
+                File xlsFile = new File("test/rules/cmatch1/match2-4.xls");
                 new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
         }, "All sub nodes must be leaves!", "cell=B7");
@@ -93,7 +90,7 @@ public class Test2 {
     public void test5() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-5.xls");                
+                File xlsFile = new File("test/rules/cmatch1/match2-5.xls");
                 new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
         }, "All sub nodes must be leaves!", "cell=B7");
@@ -103,7 +100,7 @@ public class Test2 {
     public void test6() {
         TestUtils.assertEx(new Runnable() {
             public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-6.xls");                
+                File xlsFile = new File("test/rules/cmatch1/match2-6.xls");
                 new TestHelper<ITest5>(xlsFile, ITest5.class);
             }
         }, "Illegal indent!", "cell=B10");

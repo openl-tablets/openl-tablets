@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 import org.openl.rules.runtime.RuleInfo;
-import org.openl.rules.runtime.RulesFactory;
+import org.openl.rules.runtime.InterfaceGenerator;
 
 public class RulesFactoryTest {
 
@@ -30,7 +30,7 @@ public class RulesFactoryTest {
         rule2.setParamTypes(new Class<?>[] { String.class, Integer.class });
         rules[1] = rule2;
 
-        Class<?> clazz = RulesFactory.generateInterface(className, rules, classLoader);
+        Class<?> clazz = InterfaceGenerator.generateInterface(className, rules, classLoader);
 
         assertNotNull(clazz);
         assertTrue(clazz.isInterface());

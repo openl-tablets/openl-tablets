@@ -19,7 +19,7 @@ public class TestSet extends Test0 {
     public void test2() {
         Exception ex = catchEx(new File("test/rules/tbasic1/SET_F2.xls"));
         assertTrue(ex instanceof CompositeSyntaxNodeException);
-//        TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
+        // TestUtils.assertEx(ex, "org.openl.syntax.SyntaxErrorException:");
     }
 
     @Test

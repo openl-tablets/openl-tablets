@@ -30,7 +30,7 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
     @Override
     public String getMessage() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (super.getMessage() != null) {
             buffer.append(super.getMessage());

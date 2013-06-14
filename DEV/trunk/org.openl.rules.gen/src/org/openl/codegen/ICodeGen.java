@@ -56,7 +56,7 @@ public interface ICodeGen {
     int setDoublePrecision(int dprecision);
 
     StringBuilder genLiteralNull(StringBuilder sb);
-    
+
     StringBuilder genLiteralJavaOpenClass(JavaOpenClass jc, StringBuilder sb);
 
     StringBuilder genLiteralConstraints(Constraints value, StringBuilder sb);
@@ -64,11 +64,11 @@ public interface ICodeGen {
     StringBuilder genLiteralSystemValuePolicy(SystemValuePolicy value, StringBuilder sb);
 
     StringBuilder genLiteralLevelInheritance(InheritanceLevel value, StringBuilder sb);
-    
+
     StringBuilder genLiteralMatchingExpression(MatchingExpression value, StringBuilder sb);
-    
+
     StringBuilder genLiteralTableType(XlsNodeTypes value, StringBuilder sb);
-    
+
     StringBuilder genLiteralErrorSeverity(Severity value, StringBuilder sb);
-    
+
 }

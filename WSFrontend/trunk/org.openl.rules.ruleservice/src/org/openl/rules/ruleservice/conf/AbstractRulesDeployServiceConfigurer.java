@@ -113,6 +113,9 @@ public abstract class AbstractRulesDeployServiceConfigurer implements ServiceCon
                             if (rulesDeploy.isProvideVariations() != null) {
                                 serviceDescriptionBuilder.setProvideVariations(rulesDeploy.isProvideVariations());
                             }
+                            if (rulesDeploy.isUseRuleServiceRuntimeContext() != null){
+                                serviceDescriptionBuilder.setUseRuleServiceRuntimeContext(rulesDeploy.isUseRuleServiceRuntimeContext());
+                            }
                             if (rulesDeploy.getConfiguration() != null) {
                                 serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
                             }

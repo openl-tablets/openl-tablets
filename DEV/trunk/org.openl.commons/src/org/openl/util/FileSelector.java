@@ -7,9 +7,9 @@ import java.io.File;
 
 /**
  * Companion to FileTreeIterator
- *
+ * 
  * @author snshor
- *
+ * 
  */
 public abstract class FileSelector extends ASelector<File> {
 

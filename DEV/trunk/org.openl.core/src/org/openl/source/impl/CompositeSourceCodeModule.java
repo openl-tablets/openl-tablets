@@ -37,7 +37,7 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     private void makeCode(String separator) {
-        StringBuffer buf = new StringBuffer(100);
+        StringBuilder buf = new StringBuilder(100);
     
         for (int i = 0; i < modules.length; i++) {
             if (modules[i] == null) {

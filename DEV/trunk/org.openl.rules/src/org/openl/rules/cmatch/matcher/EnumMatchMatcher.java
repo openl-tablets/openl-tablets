@@ -2,10 +2,10 @@ package org.openl.rules.cmatch.matcher;
 
 public class EnumMatchMatcher implements IMatcher {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private final Class<Enum> enumType;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public EnumMatchMatcher(Class<?> clazz) {
         enumType = (Class<Enum>) clazz;
     }

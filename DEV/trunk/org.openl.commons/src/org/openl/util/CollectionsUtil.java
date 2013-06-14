@@ -10,9 +10,9 @@ import java.lang.reflect.Array;
 
 /**
  * @author snshor
- *
- * This class contains a bunch of utilities related to arrays, Iterarators and
- * Collections. Hence, the name
+ * 
+ *         This class contains a bunch of utilities related to arrays,
+ *         Iterarators and Collections. Hence, the name
  */
 
 public class CollectionsUtil {
@@ -23,7 +23,7 @@ public class CollectionsUtil {
     /**
      * Collect objects from array src[] to array dst[] using Collector ic. Does
      * not check boundaries.
-     *
+     * 
      * @param dst
      * @param src
      * @param ic

@@ -10,55 +10,62 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
 
     public static final String DEFAULT_USER_HOME = ".";
-    
-    private OpenL openl;
-    private IUserContext userContext;
+
+    // Volatile is required for correct double locking checking pattern
+    private volatile OpenL openl;
+    private volatile IUserContext userContext;
 
     private String openlName;
     private String userHome;
 
+    protected IRuntimeEnvBuilder runtimeEnvBuilder;
+
     public AOpenLEngineFactory(String openlName) {
-        this(openlName, DEFAULT_USER_HOME, null);        
+        this(openlName, DEFAULT_USER_HOME, null);
     }
-    
+
     public AOpenLEngineFactory(String openlName, String userHome) {
-        this(openlName, userHome, null);        
+        this(openlName, userHome, null);
     }
 
     public AOpenLEngineFactory(String openlName, IUserContext userContext) {
-        this(openlName, DEFAULT_USER_HOME, userContext);        
+        this(openlName, DEFAULT_USER_HOME, userContext);
     }
-    
+
     private AOpenLEngineFactory(String openlName, String userHome, IUserContext userContext) {
         this.openlName = openlName;
         this.userHome = userHome;
-        this.userContext = userContext;        
+        this.userContext = userContext;
     }
 
-    public synchronized OpenL getOpenL() {
-
+    public OpenL getOpenL() {
         if (openl == null) {
-            openl = OpenL.getInstance(openlName, getUserContext());
+            synchronized (this) {
+                if (openl == null) {
+                    openl = OpenL.getInstance(openlName, getUserContext());
+                }
+            }
         }
-
         return openl;
     }
 
-    public synchronized IUserContext getUserContext() {
-
+    public IUserContext getUserContext() {
         if (userContext == null) {
-            userContext = new UserContext(getDefaultUserClassLoader(), userHome);
+            synchronized (this) {
+                if (userContext == null) {
+                    userContext = new UserContext(getDefaultUserClassLoader(), userHome);
+                }
+            }
         }
-
         return userContext;
     }
-    
-    protected ClassLoader getDefaultUserClassLoader() {
 
+    private ClassLoader getDefaultUserClassLoader() {
         ClassLoader userClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
 
         try {
@@ -72,18 +79,35 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     @Override
-    protected InvocationHandler makeInvocationHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
-        return new OpenLInvocationHandler(openClassInstance, this, runtimeEnv, methodMap);
+    protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
+        if (runtimeEnvBuilder == null) {
+            runtimeEnvBuilder = new IRuntimeEnvBuilder() {
+                @Override
+                public IRuntimeEnv buildRuntimeEnv() {
+                    return new SimpleVM().getRuntimeEnv();
+                }
+            };
+        }
+        return runtimeEnvBuilder;
     }
 
-	public String getOpenlName() {
-		return openlName;
-	}
+    @Override
+    protected Class<?>[] prepareInstanceInterfaces() {
+        return new Class<?>[] { IEngineWrapper.class };
+    }
 
-	public String getUserHome() {
-		return userHome;
-	}
+    @Override
+    protected InvocationHandler prepareInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
+            IRuntimeEnv runtimeEnv) {
+        return new OpenLInvocationHandler(openClassInstance, runtimeEnv, methodMap);
+    }
+
+    public String getOpenlName() {
+        return openlName;
+    }
+
+    public String getUserHome() {
+        return userHome;
+    }
 
 }

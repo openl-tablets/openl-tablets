@@ -10,14 +10,15 @@ public class NumberUtils {
     /**
      * Minimal negative float value.
      */
-    public static final double FLOAT_MIN_VALUE = - Float.MAX_VALUE;
+    public static final double FLOAT_MIN_VALUE = -Float.MAX_VALUE;
 
     /**
      * Minimal negative double value.
      */
-    public static final double DOUBLE_MIN_VALUE = - Double.MAX_VALUE;
+    public static final double DOUBLE_MIN_VALUE = -Double.MAX_VALUE;
 
-    private NumberUtils() {}
+    private NumberUtils() {
+    }
 
     public static Object intOrDouble(double value) {
         int intValue = (int) value;
@@ -62,18 +63,19 @@ public class NumberUtils {
         }
         return minValue;
     }
-    
-    public static boolean isPrimitive(String canonicalTypeName) {        
+
+    public static boolean isPrimitive(String canonicalTypeName) {
         if (StringUtils.isNotBlank(canonicalTypeName)) {
-            if (canonicalTypeName.contains("byte") || canonicalTypeName.contains("short") || canonicalTypeName.contains("int") ||
-                    canonicalTypeName.contains("long") || canonicalTypeName.contains("float") || canonicalTypeName.contains("double") ||
-                    canonicalTypeName.contains("boolean") || canonicalTypeName.contains("char")) {
+            if (canonicalTypeName.contains("byte") || canonicalTypeName.contains("short")
+                    || canonicalTypeName.contains("int") || canonicalTypeName.contains("long")
+                    || canonicalTypeName.contains("float") || canonicalTypeName.contains("double")
+                    || canonicalTypeName.contains("boolean") || canonicalTypeName.contains("char")) {
                 return true;
             }
         }
         return false;
     }
-    
+
     public static Class<?> getWrapperType(String primitiveName) {
         Class<?> wrapperType = null;
         if (primitiveName.equals("byte")) {

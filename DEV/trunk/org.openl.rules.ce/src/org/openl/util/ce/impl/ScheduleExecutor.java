@@ -104,7 +104,7 @@ public class ScheduleExecutor {
 		}
 
 //		private String printDeps(int id) {
-//			StringBuffer buf = new StringBuffer();
+//			StringBuilder buf = new StringBuilder();
 //			buf.append(id).append('[');
 //			int[] deps = dependents[id];
 //			for (int i = 0; i < deps.length; i++) {
