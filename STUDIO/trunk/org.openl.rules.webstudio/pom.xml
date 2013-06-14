@@ -116,7 +116,7 @@
 						<artifactId>tomcat-maven-plugin</artifactId>
 						<configuration>
 							<url>http://openl.internal.corp:9090/manager/text</url>
-							<server>webstudio-server</server>
+							<server>wstest-server</server>
 							<path>/webstudio-test</path>
 							<warFile>target/${war.name}.war</warFile>
 							<update>true</update>
