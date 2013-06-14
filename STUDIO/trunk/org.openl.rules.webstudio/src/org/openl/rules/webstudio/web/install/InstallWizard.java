@@ -203,7 +203,7 @@ public class InstallWizard {
 
         } catch (ClassNotFoundException cnfe) {
             LOG.error(cnfe.getMessage(), cnfe);
-            throw new ValidatorException(new FacesMessage("Incorrectd database driver"));
+            throw new ValidatorException(new FacesMessage("Incorrect database driver"));
         } catch (Exception e) {
             LOG.error("Unexpected error, see instalation log", e);
             throw new ValidatorException(new FacesMessage("Unexpected error: " + e.getMessage()));
