@@ -44,16 +44,16 @@
 
 	<profiles>
 		<profile>
-			<id>ws-frontend</id>
+			<id>deploy-to-demo-server</id>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>tomcat-maven-plugin</artifactId>
 						<configuration>
-							<url>http://openl.internal.corp:8088/manager/text</url>
-							<server>openl-tomcat-frontend-server</server>
-							<path>/ws-frontend</path>
+							<url>http://openl.internal.corp:8082/manager/text</url>
+							<server>demo-server</server>
+							<path>/${war.name}</path>
 							<warFile>target/${war.name}.war</warFile>
 							<update>true</update>
 						</configuration>
