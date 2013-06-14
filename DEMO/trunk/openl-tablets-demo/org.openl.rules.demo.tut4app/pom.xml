@@ -16,13 +16,26 @@
 	<description>Tut 4 Demo for OpenL demo application</description>
 	<url>http://openl-tablets.sf.net/</url>
 
+	<properties>
+		<webservice.url>http://localhost:8080/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>
+	</properties>
+	
 	<build>
 		<finalName>demo</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 
 	<profiles>
 		<profile>
 			<id>deploy-to-demo-server</id>
+			<properties>
+				<webservice.url>http://openl.internal.corp:8082/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
