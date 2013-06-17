@@ -348,6 +348,10 @@ public class TableBean {
         return copyable;
     }
 
+    public boolean isTablePart() {
+        return WebStudioUtils.getProjectModel().isTablePart(uri);
+    }
+
     public boolean isHasErrors() {
         return CollectionUtils.isNotEmpty(errors);
     }
