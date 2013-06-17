@@ -32,8 +32,7 @@ public class HTMLRenderer {
     public static final String NL = "\n";
 
     public static final int ALL_ROWS = -1;
-    public static final int MAX_NUM_CELLS = 1500;
-    public static final int MAX_ROWS = 150; 
+    public static final int MAX_NUM_CELLS = 5000;
 
     @SuppressWarnings("unchecked")
     protected Set<String> getResourcesWritten() {
@@ -320,7 +319,7 @@ public class HTMLRenderer {
 
         int numCells = rows * cols;
 
-        if (numCells > MAX_NUM_CELLS && rows > MAX_ROWS) {
+        if (numCells > MAX_NUM_CELLS) {
             int extraCells = numCells - MAX_NUM_CELLS;
             int extraRows = extraCells / cols;
             return rows - extraRows;
