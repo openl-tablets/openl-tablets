@@ -385,7 +385,7 @@ public class DependentParametersOptimizedAlgorithm {
 
 	enum RelationType {
 
-		LT("<", ">=", true, null), LE("<=", ">", true, Bound.UPPER), GE(">=", "<", false, null), GT(">", "<=", false, Bound.LOWER);
+		LT("<", ">", true, null), LE("<=", ">=", true, Bound.UPPER), GE(">=", "<=", false, null), GT(">", "<", false, Bound.LOWER);
 
 		private RelationType(String func, String opposite, boolean lessThan,
 				Bound incBound) {
