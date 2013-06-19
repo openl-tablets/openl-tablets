@@ -250,7 +250,7 @@ public class DecisionTableOptimizedAlgorithm {
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-    private static IRangeAdaptor<? extends Object, ? extends Object> getRangeAdaptor(IOpenClass methodType,
+    static IRangeAdaptor<? extends Object, ? extends Object> getRangeAdaptor(IOpenClass methodType,
             IOpenClass paramType) {
         if (isMethodTypeNumber(methodType)) {
             if (isParameterIntRange(paramType)) {
@@ -384,10 +384,16 @@ public class DecisionTableOptimizedAlgorithm {
         for (int i = 0; i < evaluators.length; i++) {
 
             if (evaluators[i].isIndexed()) {
-
-                Object[][] values = table.getConditionRows()[i].getParamValues();
-                Object[][] precalculatedParams = prepareIndexedParams(values);
+                try
+                {
+                	Object[][] values = table.getConditionRows()[i].getParamValues();
+                	Object[][] precalculatedParams = prepareIndexedParams(values);
                 params.add(precalculatedParams);
+                }
+                catch(CanNotIndexConditionsException ex)
+                {
+                	break;
+                }
             } else {
                 break;
             }
@@ -547,7 +553,7 @@ public class DecisionTableOptimizedAlgorithm {
         indexNode(index.getEmptyOrFormulaNodes(), params, level, saveRulesMetaInfo);
     }
 
-    private Object[][] prepareIndexedParams(Object[][] params) throws SyntaxNodeException {
+    private Object[][] prepareIndexedParams(Object[][] params) throws CanNotIndexConditionsException {
 
         Object[][] indexedParams = new Object[params.length][];
 
@@ -565,8 +571,7 @@ public class DecisionTableOptimizedAlgorithm {
                     Object value = params[i][j];
 
                     if (value instanceof IOpenMethod) {
-                        throw SyntaxNodeExceptionUtils.createError("Can not index conditions with formulas",
-                                table.getSyntaxNode());
+                    	throw new CanNotIndexConditionsException(table.getSyntaxNode());
                     }
                     values[j] = value;
                 }

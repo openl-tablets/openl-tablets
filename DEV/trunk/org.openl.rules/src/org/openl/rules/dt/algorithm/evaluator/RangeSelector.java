@@ -9,14 +9,14 @@ import org.openl.vm.IRuntimeEnv;
 public class RangeSelector implements IIntSelector {
 
     private ICondition condition;
-    private Number value;
+    private Object value;
     
     private Object target;
     private Object[] params;
     private IRuntimeEnv env;
     private IRangeAdaptor<Object, Object> adaptor;
 
-    public RangeSelector(ICondition condition, Number value, Object target, Object[] params, IRangeAdaptor<Object, Object> adaptor,  IRuntimeEnv env) {
+    public RangeSelector(ICondition condition, Object value, Object target, Object[] params, IRangeAdaptor<Object, Object> adaptor,  IRuntimeEnv env) {
         this.condition = condition;
         this.adaptor = adaptor;
         

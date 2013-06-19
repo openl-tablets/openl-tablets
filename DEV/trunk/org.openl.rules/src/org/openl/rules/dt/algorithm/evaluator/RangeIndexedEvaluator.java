@@ -15,7 +15,6 @@ import java.util.TreeSet;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
@@ -41,6 +40,10 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     }
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
+    	if (adaptor != null && adaptor.useOriginalSource())
+    		return condition.getSourceCodeModule();
+    		
+    	
         IParameterDeclaration[] cparams = condition.getParams();
 
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
@@ -54,12 +57,16 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
-        if (value instanceof Number) {
-            return new RangeSelector(condition, (Number) value, target, dtparams, adaptor, env);
-        }
-        String errorMessage = String.format("Evaluation result for condition %s in method %s must be a numeric value",
-                condition.getName(), condition.getMethod().getName());
-        throw new OpenLRuntimeException(errorMessage);
+
+      return new RangeSelector(condition,  value, target, dtparams, adaptor, env);
+        
+        
+//        if (value instanceof Number) {
+//            return new RangeSelector(condition, (Number) value, target, dtparams, adaptor, env);
+//        }
+//        String errorMessage = String.format("Evaluation result for condition %s in method %s must be a numeric value",
+//                condition.getName(), condition.getMethod().getName());
+//        throw new OpenLRuntimeException(errorMessage);
 
     }
 

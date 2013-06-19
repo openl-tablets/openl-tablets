@@ -11,16 +11,17 @@ public class RangeIndex extends ARuleIndex {
 
 	protected Comparable<?>[] index;
 	protected DecisionTableRuleNode[] rules;
-	
+
 	protected IRangeAdaptor<?, ?> adaptor;
 
 	public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-			Comparable<?>[] index, DecisionTableRuleNode[] rules, IRangeAdaptor<?, ?> adaptor) {
+			Comparable<?>[] index, DecisionTableRuleNode[] rules,
+			IRangeAdaptor<?, ?> adaptor) {
 		super(emptyOrFormulaNodes);
 
 		this.index = index;
 		this.rules = rules;
-		this.adaptor = adaptor;		
+		this.adaptor = adaptor;
 	}
 
 	@Override
@@ -55,11 +56,9 @@ public class RangeIndex extends ARuleIndex {
 			return value; // there is no values in index to compare => no reason
 			// to convert
 		}
-		
-		if (value instanceof Number) {
-		    if (adaptor != null) {
-		        return adaptor.adaptValueType((Number)value);
-		    }		    
+
+		if (adaptor != null) {
+			return adaptor.adaptValueType(value);
 		}
 		return value;
 	}
@@ -68,9 +67,10 @@ public class RangeIndex extends ARuleIndex {
 	public Iterator<DecisionTableRuleNode> nodes() {
 		return OpenIterator.fromArray(rules);
 	}
-	
+
 	/**
 	 * Used for tests
+	 * 
 	 * @param node
 	 * @return
 	 */

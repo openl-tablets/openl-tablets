@@ -13,6 +13,7 @@ import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.dt.algorithm.DependentParametersOptimizedAlgorithm;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.table.ILogicalTable;
@@ -106,6 +107,15 @@ public class Condition extends FunctionalRow implements ICondition {
             if (methodType != JavaOpenClass.BOOLEAN && methodType != JavaOpenClass.getOpenClass(Boolean.class)) {
                 throw SyntaxNodeExceptionUtils.createError("Condition must have boolean type if it depends on it's parameters", source);
             }
+            
+            conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(this, signature);
+            
+            
+            if (conditionEvaluator != null)
+            {
+            	evaluator = makeOptimizedConditionMethodEvaluator(signature, conditionEvaluator.getOptimizedSourceCode());
+            	return conditionEvaluator;
+            }	
 
             return conditionEvaluator = new DefaultConditionEvaluator();
         }
@@ -187,10 +197,17 @@ public class Condition extends FunctionalRow implements ICondition {
         return false;
     }
 
+ 
     private IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature) {
+    
+    	String code = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+    	return makeOptimizedConditionMethodEvaluator(signature, code);
+    }
 
-        String code = ((CompositeMethod) getMethod()).getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+    
+    private IMethodCaller makeOptimizedConditionMethodEvaluator(IMethodSignature signature, String code) {
 
+ 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
             if (pname.equals(code)) {
