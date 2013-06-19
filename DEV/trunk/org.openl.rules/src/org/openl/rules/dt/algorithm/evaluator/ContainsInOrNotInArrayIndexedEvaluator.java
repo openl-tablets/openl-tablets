@@ -170,4 +170,16 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return null;
     }
 
+	@Override
+	public String getOptimizedSourceCode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setOptimizedSourceCode(String code) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

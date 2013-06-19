@@ -33,6 +33,8 @@ public interface IRangeAdaptor<T, C> {
      * values.
      * @return value, casted to the type of specific <code>IRangeAdaptor</code> implementation.
      */
-    Number adaptValueType(Number value);
+    Comparable<C> adaptValueType(Object value);
+
+	boolean useOriginalSource();
 
 }

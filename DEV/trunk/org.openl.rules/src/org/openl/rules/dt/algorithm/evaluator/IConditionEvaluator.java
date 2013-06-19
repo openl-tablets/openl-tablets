@@ -28,4 +28,11 @@ public interface IConditionEvaluator {
     IDomain<? extends Object> getRuleParameterDomain(ICondition condition) throws DomainCanNotBeDefined;
     IDomain<? extends Object> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined;
 
+    
+    //Added to support dependent parameters
+    
+	String getOptimizedSourceCode();
+	void setOptimizedSourceCode(String code);
+	
+
 }
