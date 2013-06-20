@@ -1,25 +1,22 @@
 package org.openl.rules.dt.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DependentParametersOptimizedAlgorithm {
 
 	public static IConditionEvaluator makeEvaluator(ICondition condition,
@@ -43,29 +40,15 @@ public class DependentParametersOptimizedAlgorithm {
 			if (expressionType.equals(paramType)
 					|| expressionType.getInstanceClass().equals(
 							paramType.getInstanceClass())) {
-				return getSingleRangeEvaluator(evaluatorFactory, paramType);
+				return getOneParamRangeEvaluator(evaluatorFactory, paramType);
 			}
 
 			if (expressionType instanceof JavaOpenClass
 					&& ((JavaOpenClass) expressionType)
 							.equalsAsPrimitive(paramType)) {
-				return getSingleRangeEvaluator(evaluatorFactory, paramType);
+				return getOneParamRangeEvaluator(evaluatorFactory, paramType);
 			}
 
-			@SuppressWarnings("unchecked")
-			IRangeAdaptor<Object, Object> rangeAdaptor = (IRangeAdaptor<Object, Object>) DecisionTableOptimizedAlgorithm
-					.getRangeAdaptor(expressionType, paramType);
-
-			if (rangeAdaptor != null) {
-				return new RangeIndexedEvaluator(rangeAdaptor);
-			}
-
-			if (JavaOpenClass.BOOLEAN.equals(expressionType)
-					|| JavaOpenClass.getOpenClass(Boolean.class).equals(
-							expressionType)) {
-				return new DefaultConditionEvaluator();
-
-			}
 
 			break;
 
@@ -76,46 +59,32 @@ public class DependentParametersOptimizedAlgorithm {
 
 			if (expressionType == paramType0 && expressionType == paramType1) {
 
-				Class<?> clazz = expressionType.getInstanceClass();
-
-				if (clazz != int.class && clazz != long.class
-						&& clazz != double.class && clazz != float.class
-						&& !Comparable.class.isAssignableFrom(clazz)) {
-
-					String message = String.format(
-							"Type '%s' is not Comparable",
-							expressionType.getName());
-
-					throw SyntaxNodeExceptionUtils.createError(message, null,
-							null, condition.getSourceCodeModule());
-				}
-
-				return new RangeIndexedEvaluator(null);
+				return getTwoParamRangeEvaluator(evaluatorFactory, expressionType);
 			}
 
 			break;
 		}
 
-		List<String> names = new ArrayList<String>();
-
-		for (IParameterDeclaration parameterDeclaration : params) {
-
-			String name = parameterDeclaration.getType().getName();
-			names.add(name);
-		}
-
-		String parametersString = StringUtils.join(names, ",");
-
-		String message = String.format(
-				"Can not make a Condition Evaluator for parameter %s and [%s]",
-				expressionType.getName(), parametersString);
-
-		throw SyntaxNodeExceptionUtils.createError(message, null, null,
-				condition.getSourceCodeModule());
+		
+		
+		return null;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static IConditionEvaluator getSingleRangeEvaluator(
+	private static IConditionEvaluator getTwoParamRangeEvaluator(
+			EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
+		IRangeAdaptor adaptor = getRangeAdaptor(evaluatorFactory, paramType);
+
+		if (adaptor == null)
+			return null;
+
+		RangeIndexedEvaluator rix = new RangeIndexedEvaluator(adaptor, 2);
+		
+		rix.setOptimizedSourceCode(evaluatorFactory.signatureParam.getName());
+		
+		return rix;
+	}
+
+	private static IConditionEvaluator getOneParamRangeEvaluator(
 			EvaluatorFactory evaluatorFactory, IOpenClass paramType) {
 
 		IRangeAdaptor adaptor = getRangeAdaptor(evaluatorFactory, paramType);
@@ -123,7 +92,7 @@ public class DependentParametersOptimizedAlgorithm {
 		if (adaptor == null)
 			return null;
 
-		RangeIndexedEvaluator rix = new RangeIndexedEvaluator(adaptor);
+		RangeIndexedEvaluator rix = new RangeIndexedEvaluator(adaptor, 1);
 		
 		rix.setOptimizedSourceCode(evaluatorFactory.signatureParam.getName());
 		
@@ -136,6 +105,11 @@ public class DependentParametersOptimizedAlgorithm {
 		if (paramType == JavaOpenClass.INT)
 		{
 			return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.INT);
+		}
+		
+		if (paramType.getInstanceClass() == Date.class)
+		{
+			return new RelationRangeAdaptor(evaluatorFactory, ITypeAdaptor.DATE);
 		}	
 
 		return null;
@@ -201,7 +175,7 @@ public class DependentParametersOptimizedAlgorithm {
 	final static Pattern regex1 = Pattern
 			.compile("\\s*(\\w+)\\s*(<=|<|>|>=)\\s*(\\w+)\\s*");
 	final static Pattern regex2 = Pattern
-			.compile("\\s*(\\w+)\\s*(<=|<)\\s*(\\w+)\\s*&&\\s*(\\w+)\\s*(<=|<)\\s*(\\w+)\\s*");
+			.compile("\\s*(\\w+)\\s*(<=|<|>|>=)\\s*(\\w+)\\s*&&\\s*(\\w+)\\s*(<=|<|>|>=)\\s*(\\w+)\\s*");
 
 	private static EvaluatorFactory determineOptimizedEvaluationFactory(
 			ICondition condition, IMethodSignature signature) {
@@ -225,7 +199,8 @@ public class DependentParametersOptimizedAlgorithm {
 			m = regex2.matcher(code);
 			if (!m.matches())
 				return null;
-			return null; // TODO implement this
+			return makeTwoParameterRangeFactory(
+					m, condition, signature);
 		default:
 			return null;
 		}
@@ -258,6 +233,81 @@ public class DependentParametersOptimizedAlgorithm {
 		return new OneParameterRangeFactory(signatureParam, conditionParam,
 				relation);
 
+	}
+
+	
+	private static TwoParameterRangeFactory makeTwoParameterRangeFactory(
+			Matcher m, ICondition condition, IMethodSignature signature) {
+
+		String p11 = m.group(1);
+		String op1 = m.group(2);
+		String p12 = m.group(3);
+		
+		String p21 = m.group(4);
+		String op2 = m.group(5);
+		String p22 = m.group(6);
+
+		
+		
+		RelationType rel1 = RelationType.findElement(op1);
+
+		if (!rel1.isLessThan())
+		{
+			rel1 = RelationType.findElement(rel1.opposite);
+			String tmp = p11;
+			p11 = p12;
+			p12 = tmp;
+		}	
+
+		RelationType rel2 = RelationType.findElement(op2);
+		
+		if (!rel2.isLessThan())
+		{
+			rel2 = RelationType.findElement(rel2.opposite);
+			String tmp = p21;
+			p21 = p22;
+			p22 = tmp;
+		}	
+		
+		
+		if (p12.equals(p21))
+			return makeTwoParameterRangeFactory(p11, rel1, p12, p21, rel2, p22, condition, signature);
+		
+		if (p11.equals(p22))
+			return makeTwoParameterRangeFactory(p21, rel2, p22, p11, rel1, p12, condition, signature);
+		
+		return null;
+		
+
+	}
+	
+	
+	
+	private static TwoParameterRangeFactory makeTwoParameterRangeFactory(
+			String p11, RelationType rel1, String p12, String p21,
+			RelationType rel2, String p22, ICondition condition,
+			IMethodSignature signature) {
+		
+		IParameterDeclaration signatureParam = getParameter(p12, signature);
+
+		if (signatureParam == null)
+			return null;
+
+		IParameterDeclaration conditionParam1 = condition.getParams()[0];
+
+		if (!p11.equals(conditionParam1.getName()))
+			return null;
+
+		
+		IParameterDeclaration conditionParam2 = condition.getParams()[1];
+
+		if (!p22.equals(conditionParam2.getName()))
+			return null;
+		
+
+		return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2);
+		
+		
 	}
 
 	private static IParameterDeclaration getParameter(String pname,
@@ -378,10 +428,50 @@ public class DependentParametersOptimizedAlgorithm {
 			return relation.getIncBound() == bound;
 		}
 		
+	}
+	
+	
+	
+	static class TwoParameterRangeFactory extends EvaluatorFactory {
+		IParameterDeclaration conditionParam1;
+		IParameterDeclaration conditionParam2;
+		RelationType relation1, relation2;
+
+		public TwoParameterRangeFactory(IParameterDeclaration signatureParam,
+				IParameterDeclaration conditionParam1, RelationType relation1, IParameterDeclaration conditionParam2, RelationType relation2 ) {
+			super(signatureParam);
+
+			this.conditionParam1 = conditionParam1;
+			this.relation1 = relation1;
+			this.conditionParam2 = conditionParam2;
+			this.relation2 = relation2;
+		}
+
+
+		@Override
+		public boolean hasMin() {
+			return true;
+		}
+
+		@Override
+		public boolean hasMax() {
+			return true;
+		}
+
+		@Override
+		public boolean needsIncrement(Bound bound) {
+			if (bound == Bound.LOWER)
+				return relation1 == RelationType.LT; 
+			return relation2 == RelationType.LE;
+		}
+		
 		
 		
 		
 	}
+
+	
+	
 
 	enum RelationType {
 
