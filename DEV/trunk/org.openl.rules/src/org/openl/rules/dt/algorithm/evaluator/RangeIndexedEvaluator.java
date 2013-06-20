@@ -33,14 +33,16 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class RangeIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
-    private IRangeAdaptor<Object, Object> adaptor;
+    private IRangeAdaptor<Object, Object> adaptor2;
+    int nparams; // 1 or 2
 
-    public RangeIndexedEvaluator(IRangeAdaptor<Object, Object> adaptor) {
-        this.adaptor = adaptor;
+    public RangeIndexedEvaluator(IRangeAdaptor<Object, Object> adaptor, int nparams) {
+        this.adaptor2 = adaptor;
+        this.nparams = nparams;
     }
 
     public IOpenSourceCodeModule getFormalSourceCode(ICondition condition) {
-    	if (adaptor != null && adaptor.useOriginalSource())
+    	if (adaptor2 != null && adaptor2.useOriginalSource())
     		return condition.getSourceCodeModule();
     		
     	
@@ -58,7 +60,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
 
-      return new RangeSelector(condition,  value, target, dtparams, adaptor, env);
+      return new RangeSelector(condition,  value, target, dtparams, adaptor2, env);
         
         
 //        if (value instanceof Number) {
@@ -98,18 +100,26 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 continue;
             }
 
+            
             Comparable<Object> vFrom = null;
             Comparable<Object> vTo = null;
 
-            if (adaptor == null) {
-                vFrom = (Comparable<Object>) indexedparams[i][0];
-                vTo = (Comparable<Object>) indexedparams[i][1];
+            if (nparams == 2) {
+            	if (adaptor2 == null)
+            	{	
+            		vFrom = (Comparable<Object>) indexedparams[i][0];
+            		vTo = (Comparable<Object>) indexedparams[i][1];
+            	}
+            	else {
+            		vFrom = adaptor2.getMin(indexedparams[i][0]);
+            		vTo = adaptor2.getMax(indexedparams[i][1]);
+            	}
             } else {
                 // adapt border values for usage in IntervalMap
                 // see IntervalMap description
                 //
-                vFrom = adaptor.getMin(indexedparams[i][0]);
-                vTo = adaptor.getMax(indexedparams[i][0]);
+                vFrom = adaptor2.getMin(indexedparams[i][0]);
+                vTo = adaptor2.getMax(indexedparams[i][0]);
             }
 
             Integer v = Integer.valueOf(i);
@@ -160,7 +170,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         }
 
         return new RangeIndex(emptyNode, index.toArray(new Comparable[index.size()]),
-                rules.toArray(new DecisionTableRuleNode[rules.size()]), adaptor);
+                rules.toArray(new DecisionTableRuleNode[rules.size()]), adaptor2);
     }
 
     private int[] collectionToPrimitiveArray(Collection<Integer> rulesIndexesCollection) {
@@ -235,12 +245,21 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             Comparable<?> vFrom = null;
             Comparable<?> vTo = null;
 
-            if (adaptor == null) {
-                vFrom = (Comparable<?>) pi[0];
-                vTo = (Comparable<?>) pi[1];
+            if (nparams == 2) {
+            	if (adaptor2 == null)
+            	{	
+            		vFrom = (Comparable<?>) pi[0];
+            		vTo = (Comparable<?>) pi[1];
+            	}
+            	else
+            	{
+            		vFrom = adaptor2.getMin(pi[0]);
+            		vTo = adaptor2.getMax(pi[1]);
+            	}
+            		
             } else {
-                vFrom = adaptor.getMin(pi[0]);
-                vTo = adaptor.getMax(pi[0]);
+                vFrom = adaptor2.getMin(pi[0]);
+                vTo = adaptor2.getMax(pi[0]);
             }
 
             if (!(vFrom instanceof Integer)) {

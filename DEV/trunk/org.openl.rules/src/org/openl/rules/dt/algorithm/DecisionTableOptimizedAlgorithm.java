@@ -307,7 +307,7 @@ public class DecisionTableOptimizedAlgorithm {
                         methodType, paramType);
 
                 if (rangeAdaptor != null) {
-                    return new RangeIndexedEvaluator(rangeAdaptor);
+                    return new RangeIndexedEvaluator(rangeAdaptor, 1);
                 }
 
                 if (JavaOpenClass.BOOLEAN.equals(methodType)
@@ -336,7 +336,7 @@ public class DecisionTableOptimizedAlgorithm {
                                 .createError(message, null, null, condition.getSourceCodeModule());
                     }
 
-                    return new RangeIndexedEvaluator(null);
+                    return new RangeIndexedEvaluator(null, 2);
                 }
 
                 aggregateInfo = paramType1.getAggregateInfo();
