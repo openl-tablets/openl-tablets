@@ -11,6 +11,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 /**
  * @author snshor
@@ -27,8 +28,10 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
 
         if (methodCaller == null) {
-            String message = errorMsg(operatorName, types[0], types[1]);
-            BindHelper.processError(message, node, bindingContext, false);
+        	if (!NullOpenClass.isAnyNull(types)){
+        		String message = errorMsg(operatorName, types[0], types[1]);
+        		BindHelper.processError(message, node, bindingContext, false);
+        	}	
 
             return new ErrorBoundNode(node);
         }

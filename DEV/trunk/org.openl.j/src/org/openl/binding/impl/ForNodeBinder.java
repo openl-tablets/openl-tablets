@@ -7,7 +7,6 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.java.OpenClassHelper;
 
 /**
  * @author snshor
@@ -24,10 +23,12 @@ public class ForNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
         IBoundNode conditionNode = children[1];
 
-        if (conditionNode != null && !OpenClassHelper.isBooleanType(conditionNode.getType())) {
-            BindHelper.processError("Condition must have boolean type", conditionNode.getSyntaxNode(), bindingContext);
-            return new ErrorBoundNode(node);
-        }
+        
+        IBoundNode checkConditionNode = BindHelper.checkConditionBoundNode(conditionNode, bindingContext);
+        
+        if (checkConditionNode != conditionNode)
+        	return checkConditionNode;
+        
 
         return new ForNode(node, children);
     }

@@ -26,6 +26,18 @@ public class NullOpenClass implements IOpenClass {
 
     public static final NullOpenClass the = new NullOpenClass();
 
+
+    public static boolean isAnyNull(IOpenClass... args)
+    {
+    	for (int i = 0; i < args.length; i++) {
+			if (args[i] == the)
+				return true;
+		}
+    	
+    	return false;
+    }
+    
+    
     private NullOpenClass() {
     }
 

@@ -17,6 +17,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
@@ -162,6 +163,8 @@ public class MethodSearch {
                 if (isMoreSpecificMethod(next, res, casts)) {
                     res = next;
                 } else {
+                	if (NullOpenClass.isAnyNull(params))
+                		return null;
                     throw new AmbiguousMethodException(name, params, matchingMethods);
                 }
             }
