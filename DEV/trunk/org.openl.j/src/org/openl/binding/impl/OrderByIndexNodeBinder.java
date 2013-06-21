@@ -13,6 +13,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -45,7 +46,8 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 				throws OpenLRuntimeException {
 			IBoundNode containerNode = getContainer();
 			IBoundNode orderBy = getChildren()[1];
-			IAggregateInfo aggregateInfo = containerNode.getType().getAggregateInfo();
+			IAggregateInfo aggregateInfo = containerNode.getType()
+					.getAggregateInfo();
 			Object container = containerNode.evaluate(env);
 
 			Iterator<Object> elementsIterator = aggregateInfo
@@ -82,20 +84,19 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 			while (mapIterator.hasNext()) {
 				Object element = mapIterator.next();
 				if (element.getClass() != OrderList.class)
-					Array.set(result, nextIdx( idx++, size), element);
+					Array.set(result, nextIdx(idx++, size), element);
 				else {
-					OrderList list = (OrderList)element;
+					OrderList list = (OrderList) element;
 					for (int i = 0; i < list.size(); i++) {
-						Array.set(result, nextIdx( idx++, size), list.get(i));
+						Array.set(result, nextIdx(idx++, size), list.get(i));
 					}
 				}
 			}
 			return result;
 		}
-		
-		private int nextIdx(int idx, int size)
-		{
-			return isDecreasing ? size - 1 - idx : idx; 
+
+		private int nextIdx(int idx, int size) {
+			return isDecreasing ? size - 1 - idx : idx;
 		}
 
 		private IBoundNode getContainer() {
@@ -105,49 +106,13 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 		public IOpenClass getType() {
 			if (getContainer().getType().isArray())
 				return getContainer().getType();
-			
+
 			IOpenClass varType = tempVar.getType();
-			return varType.getAggregateInfo().getIndexedAggregateType(varType, 1);
+			return varType.getAggregateInfo().getIndexedAggregateType(varType,
+					1);
 		}
 	}
 
-//	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-//			throws Exception {
-//		BindHelper.processError("This node always binds  with target", node,
-//				bindingContext);
-//
-//		return new ErrorBoundNode(node);
-//	}
-
-//	public IBoundNode bindTargetZZZ(ISyntaxNode node,
-//			IBindingContext bindingContext, IBoundNode targetNode)
-//			throws Exception {
-//
-//		if (node.getNumberOfChildren() != 1) {
-//			BindHelper.processError("Index node must have  exactly 1 subnode",
-//					node, bindingContext);
-//
-//			return new ErrorBoundNode(node);
-//		}
-//
-//		boolean isDecreasing = node.getType().contains("decreasing");
-//		
-//		IOpenClass containerType = targetNode.getType();
-//		IAggregateInfo info = containerType.getAggregateInfo();
-//
-//		String varName = BindHelper.getTemporaryVarName(bindingContext,
-//				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
-//		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
-//				varName, info.getComponentType(containerType));
-//
-//		IBoundNode[] children = bindChildren(node, new TypeBindingContext(
-//				bindingContext, var));
-//		IBoundNode orderExpressionNode = checkOrderExpressionBoundNode(
-//				children[0], bindingContext);
-//
-//		return new OrderByIndexNode(node, new IBoundNode[] { targetNode,
-//				orderExpressionNode }, var, isDecreasing);
-//	}
 
 	static public IBoundNode checkOrderExpressionBoundNode(
 			IBoundNode orderExpressionNode, IBindingContext bindingContext) {
@@ -155,8 +120,12 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 		if (orderExpressionNode != null
 				&& !Comparable.class.isAssignableFrom(orderExpressionNode
 						.getType().getInstanceClass())) {
-			BindHelper.processError("Order By expression must be Comparable",
-					orderExpressionNode.getSyntaxNode(), bindingContext);
+
+			if (orderExpressionNode.getType() != NullOpenClass.the) {
+				BindHelper.processError(
+						"Order By expression must be Comparable",
+						orderExpressionNode.getSyntaxNode(), bindingContext);
+			}
 			return new ErrorBoundNode(orderExpressionNode.getSyntaxNode());
 		} else {
 			return orderExpressionNode;
@@ -174,14 +143,13 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 	protected IBoundNode createBoundNode(ISyntaxNode node,
 			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
 		boolean isDecreasing = node.getType().contains("decreasing");
-		return new OrderByIndexNode(node, new IBoundNode[] {
-				targetNode, expressionNode }, localVar, isDecreasing);
+		return new OrderByIndexNode(node, new IBoundNode[] { targetNode,
+				expressionNode }, localVar, isDecreasing);
 	}
 
 	@Override
 	protected IBoundNode validateExpressionNode(IBoundNode expressionNode,
 			IBindingContext bindingContext) {
-		return checkOrderExpressionBoundNode(expressionNode,
-				bindingContext);
+		return checkOrderExpressionBoundNode(expressionNode, bindingContext);
 	}
 }
