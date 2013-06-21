@@ -50,6 +50,7 @@ public class TestBean {
     private int page = DEFAULT_PAGE;
     private int lastPage = DEFAULT_PAGE;
     private int testsPerPage = 5;
+    private boolean failuresOnly = false;
 
     /**
      * URI of tested table
@@ -63,6 +64,9 @@ public class TestBean {
         testAll();
 
         initPagination();
+
+        failuresOnly = Boolean.valueOf(
+                FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY));
     }
 
     private void initPagination() {
@@ -109,6 +113,14 @@ public class TestBean {
 
     public void setTestsPerPage(int testsPerPage) {
         this.testsPerPage = testsPerPage;
+    }
+
+    public boolean getFailuresOnly() {
+        return failuresOnly;
+    }
+
+    public void setFailuresOnly(boolean failuresOnly) {
+        this.failuresOnly = failuresOnly;
     }
 
     private void testAll() {

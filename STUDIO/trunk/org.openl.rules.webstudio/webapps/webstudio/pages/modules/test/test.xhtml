@@ -7,6 +7,8 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
+    <ui:param name="failuresOnly" value="#{testBean.failuresOnly}" />
+
     <script>
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
@@ -21,6 +23,11 @@
             rendered="#{testBean.numberOfFailedTests > 0}"
             styleClass="badge badge-error" style="margin-left: 4px" />
 
+        <label title="Show only failed test cases" style="position:absolute;top:6px;margin-left:50px">
+            Failures Only <input type="checkbox" style="vertical-align:-2px" checked="#{failuresOnly ? 'checked' : ''}"
+            onchange="ws.nav.reload({'failuresOnly':this.checked})" />
+        </label>
+
         <c:set var="interval" value="5" />
         <c:set var="curPage" value="#{testBean.page}" />    
         <c:set var="maxPage" value="#{testBean.lastPage}" />
@@ -29,10 +36,10 @@
         <c:set var="perPage" value="#{testBean.testsPerPage}" />
 
         <c:set var="pageUri" value="#test/test.xhtml" />
-        <c:set var="pageUriExtra" value="#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}" />
+        <c:set var="pageUriExtra" value="#{!empty param.uri ? ('&amp;uri='.concat(jsffn:encodeURL(param.uri))) : ''}#{!empty param.failuresOnly ? ('&amp;failuresOnly='.concat(failuresOnly)) : ''}" />
         <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{pageUriExtra}" />
 
-        <span class="dropdown" style="position:absolute;top:7px;margin-left:45px">
+        <span class="dropdown" style="position:absolute;top:7px;margin-left:200px">
             <a class="dropdown-toggle link-dropdown" data-toggle="dropdown" href="#">#{perPage == -1 ? 'All' : perPage}</a>
             per page
             <ul class="dropdown-menu link-dropdown-menu" role="menu">
@@ -43,7 +50,8 @@
                 <li><a tabindex="-1" href="#{pageUri}?pp=-1#{pageUriExtra}">All</a></li>
             </ul>
         </span>
-        <h:panelGroup class="pagination pagination-mini" rendered="#{maxPage > 1}" style="position:absolute;top:4px;margin-left:130px">
+        <h:panelGroup class="pagination pagination-mini" rendered="#{maxPage > 1}"
+            style="position:absolute;top:4px;margin-left:300px">
             <ul>
                 <li><a href="#{pageUri}?p=1#{pageUriPagerExtra}">«</a></li>
                 <c:if test="#{curPage == 1}">
@@ -85,16 +93,18 @@
 
         <h:panelGroup rendered="#{!testBean.expired}">
             <ui:repeat value="#{testBean.ranTests}" var="testUnitsResults">
+            <ui:param name="testFailed" value="#{testUnitsResults.numberOfFailures > 0}" />
             <div class="test">
                 <h1>
                     <h:outputLink value="#table.xhtml"
-                        styleClass="#{testUnitsResults.numberOfFailures > 0 ? 'testError' : 'testSuccess'}">
+                        styleClass="#{testFailed ? 'testError' : 'testSuccess'}">
                         <f:param name="uri" value="#{testUnitsResults.testSuite.uri}" />
                         <h:outputText value="#{testBean.getTestTableName(testUnitsResults)}" />
                     </h:outputLink>
                     <span class="badge">#{testBean.getTestTableInfo(testUnitsResults)}</span>
-                    <h:panelGroup rendered="#{testUnitsResults.numberOfFailures > 0}" class="badge badge-error" style="margin-left:3px">#{testUnitsResults.numberOfFailures} failed</h:panelGroup>
+                    <h:panelGroup rendered="#{testFailed}" class="badge badge-error" style="margin-left:3px">#{testUnitsResults.numberOfFailures} failed</h:panelGroup>
                 </h1>
+                <h:panelGroup rendered="#{testFailed or !failuresOnly}">
                 <table class="table">
                     <tr>
                         <ui:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="parameterHeader">
@@ -110,6 +120,8 @@
                     </tr>
 
                     <ui:repeat value="#{testUnitsResults.testUnits}" var="testUnit">
+                    <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
+                    <h:panelGroup rendered="#{compareResult != 0 or !failuresOnly}">
                         <tr>
                             <ui:repeat value="#{testBean.getParamDescriptions(testUnit)}" var="parameter">
                             <td>
@@ -137,8 +149,6 @@
                                     </h:outputLink></td>
                             </h:panelGroup>
                             <td>
-                                <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
-
                                 <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
                                     <h:panelGroup rendered="#{!testUnitsResults.runmethod}">
                                         <i class="#{compareResult == 0 ? 'case-success' : 'case-error'}"></i>
@@ -179,8 +189,10 @@
                                     </ui:include>
                                 </h:panelGroup></td>
                         </tr>
+                        </h:panelGroup>
                     </ui:repeat>
                 </table>
+                </h:panelGroup>
             </div>
             </ui:repeat>
         </h:panelGroup>
