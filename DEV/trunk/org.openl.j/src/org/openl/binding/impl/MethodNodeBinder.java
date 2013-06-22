@@ -15,6 +15,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.StringTool;
 
 /**
@@ -130,8 +131,12 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private IBoundNode cantFindMethodError(ISyntaxNode node, IBindingContext bindingContext, String methodName,
             IOpenClass[] parameterTypes) {
-        String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
-        BindHelper.processError(message, node, bindingContext, false);
+    	
+    	if (!NullOpenClass.isAnyNull(parameterTypes))
+    	{	
+    		String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
+    		BindHelper.processError(message, node, bindingContext, false);
+    	}	
 
         return new ErrorBoundNode(node);
     }
