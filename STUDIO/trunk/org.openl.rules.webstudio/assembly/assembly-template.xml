@@ -34,6 +34,10 @@
         <directory>target/classes</directory>
         <outputDirectory>webapps/webstudio/WEB-INF/classes</outputDirectory>
     </fileSet>
+    <fileSet>
+        <directory>resources/**</directory>
+        <outputDirectory>webapps/webstudio/WEB-INF/classes</outputDirectory>
+    </fileSet>
   </fileSets>
 
 </assembly>

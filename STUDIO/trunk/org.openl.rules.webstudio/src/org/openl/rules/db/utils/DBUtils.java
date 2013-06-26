@@ -2,8 +2,8 @@ package org.openl.rules.db.utils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -17,56 +17,24 @@ import java.util.Map;
 import javax.faces.application.FacesMessage;
 import javax.faces.validator.ValidatorException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.webstudio.web.install.InstallWizard;
 
 public class DBUtils {
+    private static final String USERS_TABLE = "openluser";
+    private final Log log = LogFactory.getLog(InstallWizard.class);
+
     private Map<String, Object> dbErrors;
     private ConfigurationManager sqlErrorsConfig;
     private String sqlErrorsFilePath = "db/sql-errors.properties";
-    private String sqlScriptPath = System.getProperty("webapp.root") + "db/mysql_changes/Modifyng_mysql_DB.sql";
-    private final Log LOG = LogFactory.getLog(InstallWizard.class);
-    private Connection dbConnection;
     private  String tableForValidation = "schema_version";
 
     public DBUtils() {
         sqlErrorsConfig = new ConfigurationManager(false, null, System.getProperty("webapp.root") + "/WEB-INF/conf/" + sqlErrorsFilePath);
         dbErrors = sqlErrorsConfig.getProperties();
     }
-
-/*    public boolean init(String dbDriver, String dbPrefix, String dbUrl, String login, String password) {
-        dbConnection = createConnection(dbDriver, dbPrefix, dbUrl, login, password);
-        Statement st;
-        boolean isModified = false;
-        try {
-            st = dbConnection.createStatement();
-            DatabaseMetaData meta = dbConnection.getMetaData();
-            String dbVendor = meta.getDatabaseProductName();
-
-            if (StringUtils.containsIgnoreCase(dbVendor, "MySQL")) {
-                if (isDatabaseExists(dbConnection) & !isTableSchemaVersionIxists(dbConnection)) {
-                        executeSQL(sqlScriptPath, st);
-                }
-                isModified = true;
-            }  
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        
-
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
-        
-        return isModified;
-    }*/
 
     /**
      * Returns connection (session) to a specific database.
@@ -86,17 +54,17 @@ public class DBUtils {
             Class.forName(dbDriver);
             conn = DriverManager.getConnection((dbPrefix + dbUrl), login, password);
         } catch (ClassNotFoundException cnfe) {
-            LOG.error(cnfe.getMessage(), cnfe);
+            log.error(cnfe.getMessage(), cnfe);
             throw new ValidatorException(new FacesMessage("Incorrectd database driver"));
         } catch (SQLException sqle) {
             errorCode = sqle.getErrorCode();
             String errorMessage = (String) dbErrors.get("" + errorCode);
 
             if (errorMessage != null) {
-                LOG.error(sqle.getMessage(), sqle);
+                log.error(sqle.getMessage(), sqle);
                 throw new ValidatorException(new FacesMessage(errorMessage));
             } else {
-                LOG.error(sqle.getMessage(), sqle);
+                log.error(sqle.getMessage(), sqle);
                 throw new ValidatorException(new FacesMessage("Incorrect database URL, login or password"));
             }
         }
@@ -115,14 +83,10 @@ public class DBUtils {
         try {
             schemaName = conn.getCatalog();
         } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
-        if (getDbSchemaList(conn).contains(schemaName)) {
-            return true;
-        } else {
-            return false;
-        }
+        return getDbSchemaList(conn).contains(schemaName);
     }
 
     /**
@@ -131,13 +95,12 @@ public class DBUtils {
      * @param conn is a connection (session) with a specific database.
      * @return true if table 'schema_version' exists into DB
      */
-    public boolean isTableSchemaVersionIxists(Connection conn) throws SQLException {
+    public boolean isTableSchemaVersionExists(Connection conn) throws SQLException {
+        return getDBOpenlTables(conn).contains(tableForValidation);
+    }
 
-        if (getDBOpenlTables(conn).contains(tableForValidation)) {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean isTableUsersExists(Connection conn) throws SQLException {
+        return getDBOpenlTables(conn).contains(USERS_TABLE);
     }
 
     /**
@@ -158,7 +121,7 @@ public class DBUtils {
             }
 
         } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return dbSchemasList;
     }
@@ -181,7 +144,7 @@ public class DBUtils {
                 dbOpenlTablesList.add(dbTableName);
             }
         } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return dbOpenlTablesList;
     }
@@ -191,34 +154,62 @@ public class DBUtils {
      * existing MySQL database
      * 
      * @param sqlFilePath a path to SQL script
-     * @param st - Statement. The object used for executing a static SQL
+     * @param connection - used for executing a static SQL
      *            statement and returning the results it produces.
      */
-    public void executeSQL(String sqlFilePath, Statement st) {
+    public void executeSQL(String sqlFilePath, Connection connection) {
+        List<String> queries = new ArrayList<String>();
+        BufferedReader buffReader = null;
         try {
-            BufferedReader buffReader = new BufferedReader(new FileReader(sqlFilePath));
-            StringBuffer sb = new StringBuffer();
+            buffReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(sqlFilePath)));
+            StringBuilder sb = new StringBuilder();
             String str;
 
             while ((str = buffReader.readLine()) != null) {
                 sb.append(str);
                 if (str.isEmpty()) {
-                    st.addBatch(sb.toString());
-                    // clear the Stringbuffer content
+                    queries.add(sb.toString());
+                    // clear the StringBuilder content
                     sb.delete(0, sb.length());
                 }
             }
+            
+            if (sb.length() > 0) {
+                queries.add(sb.toString());
+            }
 
             buffReader.close();
-            st.executeBatch();
-            st.close();
-
         } catch (FileNotFoundException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
+        } finally {
+            if (buffReader != null) {
+                try {
+                    buffReader.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+        }
+
+        Statement st = null;
+        try {
+            st = connection.createStatement();
+            for (String query : queries) {
+                st.addBatch(query);
+            }
+            st.executeBatch();
         } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
+        } finally {
+            if (st != null) {
+                try {
+                    st.close();
+                } catch (SQLException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
     }
 

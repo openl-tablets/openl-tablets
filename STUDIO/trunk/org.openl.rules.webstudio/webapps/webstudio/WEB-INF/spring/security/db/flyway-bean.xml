@@ -4,13 +4,8 @@
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
     default-autowire="no">
-    
-<!--     <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
-        <property name="dataSource" ref="openlDataSource" />
-        <property name="locations" value="filesystem:#{systemProperties['webapp.root']}/db" />
-    </bean> -->
 
-        <bean id="flywayFactory" class="org.openl.rules.db.migration.DBMigrationBean" >
+        <bean id="dbMigration" class="org.openl.rules.db.migration.DBMigrationBean" init-method="init">
             <property name="dbDriver" value = "#{dbConfig['db.driver']}" />
             <property name="dbLogin" value = "#{dbConfig['db.user']}" />
             <property name="dbPassword" value="#{dbConfig['db.password']}" />
@@ -19,9 +14,5 @@
             <property name="dbUrlSeparator" value="#{dbConfig['db.url.separator']}" />
             <property name="dataSource" ref="openlDataSource" />
         </bean>
-        
-        <bean id="flyway" factory-bean="flywayFactory" factory-method="init" >
-        </bean>
-
 
 </beans>
