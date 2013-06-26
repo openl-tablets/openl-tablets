@@ -10,7 +10,7 @@
     <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean id="openlDataSource"
-    class="org.apache.commons.dbcp.BasicDataSource" depends-on="flywayFactory">
+    class="org.apache.commons.dbcp.BasicDataSource">
       <property name="driverClassName" value="#{dbConfig['db.driver']}" />
       <property name="url" value="#{dbConfig['db.url']}"/>
       <property name="username" value="#{dbConfig['db.user']}"/>
@@ -65,7 +65,7 @@
       </property>
     </bean>
 
-    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dataBase">
+    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dataBase, dbMigration">
       <property name="dataSource" ref="openlDataSource"/>
       <property name="configLocation" value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
       <property name="hibernateProperties">
@@ -75,7 +75,6 @@
           <prop key="hibernate.format_sql">#{dbConfig['db.hibernate.format_sql']}</prop>
           <prop key="hibernate.use_sql_comments">#{dbConfig['db.hibernate.use_sql_comments']}</prop>
           <prop key="hibernate.jdbc.batch_size">#{dbConfig['db.hibernate.batch_size']}</prop>
-          <prop key="hibernate.hbm2ddl.auto">#{dbConfig['db.hibernate.hbm2ddl.auto']}</prop>
 
           <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
           <prop key="hibernate.cache.use_query_cache">true</prop>
@@ -93,59 +92,6 @@
 
     <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"
         p:sessionFactory-ref="openlSessionFactory" />
-
-    <bean name="org.dbunit.operation.DatabaseOperation.INSERT"
-      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
-
-    <bean id="dbInitializationNeeded" class="org.openl.rules.security.common.spring.db.DbInitializationNeededChecker">
-        <property name="sessionFactory" ref="openlSessionFactory"/>
-        <property name="checkDbIsInitialized" value="#{dbConfig['db.populateDatabase']}"/>
-    </bean>
-
-    <!-- Populate database with demo data  -->
-    <bean id="databasePopulator" class="org.openl.rules.security.common.spring.db.DbUnitDatabasePopulator"
-          depends-on="openlSessionFactory">
-      <property name="dataSource" ref="openlDataSource"/>
-      <property name="enabled" ref="dbInitializationNeeded"/>
-      <property name="ordered" value="false"/>
-      <!-- for DBMS that support multiple schemata like Oracle -->
-      <property name="dbSchema" value="#{dbConfig['db.schema']}"/>
-      <property name="dataTypeFactory">
-        <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-          <property name="testValue" value="#{dbConfig['db.hibernate.dialect']}"/>
-          <property name="defaultObject">
-            <bean class="org.dbunit.dataset.datatype.DefaultDataTypeFactory"/>
-          </property>
-          <property name="casesMap">
-            <map>
-              <entry key="org\.hibernate\.dialect\.Oracle.*Dialect,">
-                <bean class="org.dbunit.ext.oracle.OracleDataTypeFactory"/>
-              </entry>
-            </map>
-          </property>
-        </bean>
-      </property>
-      <property name="databaseOperation">
-        <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-          <property name="testValue" value="#{dbConfig['db.hibernate.dialect']}"/>
-          <property name="defaultObject" ref="org.dbunit.operation.DatabaseOperation.INSERT"/>
-          <property name="casesMap">
-            <map>
-              <entry key="org\.hibernate\.dialect\.SQLServerDialect">
-                <bean class="org.dbunit.ext.mssql.InsertIdentityOperation">
-                  <constructor-arg ref="org.dbunit.operation.DatabaseOperation.INSERT"/>
-                </bean>
-              </entry>
-            </map>
-          </property>
-        </bean>
-      </property>
-      <property name="locations">
-        <list>
-          <value>classpath:META-INF/standalone/data/default_principals.xml</value>
-        </list>
-      </property>
-    </bean>
 
     <bean name="aclService" class="org.openl.rules.security.standalone.service.DefaultAclService">
       <property name="sessionFactory" ref="openlSessionFactory"/>

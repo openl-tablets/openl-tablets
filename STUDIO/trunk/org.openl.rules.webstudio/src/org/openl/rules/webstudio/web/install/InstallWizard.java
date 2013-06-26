@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.faces.application.FacesMessage;
@@ -26,12 +27,17 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.db.utils.DBUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 @ManagedBean
 @SessionScoped
 public class InstallWizard {
+
+    private static final String MULTI_USER_MODE = "multi";
 
     private final Log LOG = LogFactory.getLog(InstallWizard.class);
 
@@ -117,19 +123,7 @@ public class InstallWizard {
     public String finish() {
 
         try {
-            systemConfig.setProperty("user.mode", userMode);
-            systemConfig.save();
-
-            appConfig.setPath("webstudio.home", workingDir);
-            appConfig.setProperty("webstudio.configured", true);
-            appConfig.save();
-            System.setProperty("webstudio.home", workingDir);
-            System.setProperty("webstudio.configured", "true");
-
-            if (appMode.equals("production")) {
-
-//dbUtils.init(dbDriver, dbPrefix, dbUrl, dbUsername, dbPassword);             
-
+            if (MULTI_USER_MODE.equals(userMode) && appMode.equals("production")) {
                 dbConfig.setProperty("db.url", dbPrefix + dbUrl);
                 dbConfig.setProperty("db.user", dbUsername);
                 dbConfig.setProperty("db.password", dbPassword);
@@ -139,17 +133,26 @@ public class InstallWizard {
                 dbConfig.setProperty("db.schema", this.dbSchema);
                 dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
                 dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
-                dbConfig.save();
-                
 
+                migrateDatabase(dbConfig.getProperties());
+
+                dbConfig.save();
             } else {
                 dbConfig.restoreDefaults();
             }
 
+            systemConfig.setProperty("user.mode", userMode);
+            systemConfig.save();
+
+            appConfig.setPath("webstudio.home", workingDir);
+            appConfig.setProperty("webstudio.configured", true);
+            appConfig.save();
+            System.setProperty("webstudio.home", workingDir);
+            System.setProperty("webstudio.configured", "true");
+
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
 
             context.setConfigLocations(new String[] { "/WEB-INF/spring/webstudio-beans.xml",
-                    "/WEB-INF/spring/db/flyway-bean.xml",
                     "/WEB-INF/spring/system-config-beans.xml",
                     "/WEB-INF/spring/repository-beans.xml",
                     "/WEB-INF/spring/security-beans.xml",
@@ -162,6 +165,9 @@ public class InstallWizard {
 
         } catch (Exception e) {
             LOG.error("Failed while saving the configuration", e);
+            // TODO Add error message in UI
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
+                FacesMessage.SEVERITY_ERROR, "Cannot save the configuration", null));
         } finally {
             step = 1;
         }
@@ -180,40 +186,6 @@ public class InstallWizard {
      * the file sql-errors.properties
      */
     public void testDBConnection(String url, String login, String password) {
- /*       Connection conn = null;
-        int errorCode = 0;
-
-        try {
-            Class.forName(dbDriver);
-            conn = DriverManager.getConnection((dbPrefix + url), login, password);
-
-        } catch (SQLException sqle) {
-            errorCode = sqle.getErrorCode();
-            String errorMessage = (String) dbErrors.get("" + errorCode);
-
-            if (errorMessage != null) {
-                LOG.error(sqle.getMessage(), sqle);
-                throw new ValidatorException(new FacesMessage(errorMessage));
-            } else {
-                LOG.error(sqle.getMessage(), sqle);
-                throw new ValidatorException(new FacesMessage("Incorrect database URL, login or password"));
-            }
-
-        } catch (ClassNotFoundException cnfe) {
-            LOG.error(cnfe.getMessage(), cnfe);
-            throw new ValidatorException(new FacesMessage("Incorrect database driver"));
-        } catch (Exception e) {
-            LOG.error("Unexpected error, see instalation log", e);
-            throw new ValidatorException(new FacesMessage("Unexpected error: " + e.getMessage()));
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }
-        }*/
         dbUtils.createConnection(dbDriver, dbPrefix, url, login, password);
     }
 
@@ -563,6 +535,31 @@ public class InstallWizard {
 
     public void setDbSchema(String dbSchema) {
         this.dbSchema = dbSchema;
+    }
+
+    private void migrateDatabase(final Map<String, Object> dbProperties) {
+        XmlWebApplicationContext ctx = null;
+        try {
+            ctx = new XmlWebApplicationContext();
+            ctx.setServletContext(FacesUtils.getServletContext());
+            ctx.setConfigLocations(new String[] {
+                    "classpath:META-INF/standalone/spring/security-hibernate-beans.xml",
+                    "/WEB-INF/spring/security/db/flyway-bean.xml"
+            });
+            ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
+                
+                @Override
+                public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+                    beanFactory.registerSingleton("dbConfig", dbProperties);
+                }
+            });
+            ctx.refresh();
+            ctx.getBean("dbMigration");
+        } finally {
+            if (ctx != null) {
+                ctx.close();
+            }
+        }
     }
 
 }
