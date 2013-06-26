@@ -81,6 +81,9 @@
 		</plugins>
 		<resources>
 			<resource>
+				<directory>resources</directory>
+			</resource>
+			<resource>
 				<directory>src</directory>
 				<includes>
 					<include>**/*.properties</include>
@@ -211,6 +214,10 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>com.googlecode.flyway</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>org.mockito</groupId>

@@ -58,8 +58,7 @@ public class User extends PersistentObject {
 
     @Override
     @Id
-    @GeneratedValue(
-        strategy=GenerationType.AUTO)
+    @GeneratedValue
     @Column(name = "UserID")
     @Type(type = "java.lang.Long")
     public Long getId() {
@@ -91,7 +90,7 @@ public class User extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "UserPivileges", length = 200) // Privileges is reserved word for Oracle Data base
+    @Column(name = "UserPrivileges", length = 1000) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
         return privileges;
     }
