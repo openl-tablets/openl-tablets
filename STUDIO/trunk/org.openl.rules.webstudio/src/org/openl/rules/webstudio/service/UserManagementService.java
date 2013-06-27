@@ -74,7 +74,9 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
             groups.add(groupDao.getGroupByName(auth.getAuthority()));
         }
         persistUser.setGroups(groups);
-        persistUser.setPasswordHash(user.getPassword());
+        if (user.getPassword() != null) {
+            persistUser.setPasswordHash(new Md5PasswordEncoder().encodePassword(user.getPassword(), null));
+        }
 
         userDao.update(persistUser);
     }

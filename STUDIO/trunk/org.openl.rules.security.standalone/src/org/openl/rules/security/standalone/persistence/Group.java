@@ -92,7 +92,7 @@ public class Group extends PersistentObject {
      *
      * @return
      */
-    @Column(name = "UserPrivileges", length = 500) // Privileges is reserved word for Oracle Data base
+    @Column(name = "UserPrivileges", length = 1000) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
         return privileges;
     }
