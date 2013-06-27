@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.openl.rules.webstudio.lib
-Bundle-SymbolicName: org.openl.rules.webstudio.lib;singleton:=true
+Bundle-SymbolicName: org.openl.rules.webstudio.lib
 Bundle-Version: 5.11.0
 Bundle-Vendor: OpenL
 Bundle-Localization: plugin
@@ -14,7 +14,7 @@ Bundle-ClassPath: lib/antlr-2.7.7.jar,
  lib/commons-beanutils-1.8.3.jar,
  lib/commons-collections-3.2.jar,
  lib/commons-configuration-1.6.jar,
- lib/commons-dbcp-1.2.2.jar,
+ lib/commons-dbcp-1.3.jar,
  lib/commons-digester-1.6.jar,
  lib/commons-fileupload-1.2.jar,
  lib/commons-io-2.0.jar,
@@ -76,7 +76,10 @@ Bundle-ClassPath: lib/antlr-2.7.7.jar,
  lib/xml-apis-1.3.03.jar,
  lib/xmlbeans-2.3.0.jar,
  lib/xpp3_min-1.1.4c.jar,
- lib/xstream-1.3.1.jar
+ lib/xstream-1.3.1.jar,
+ lib/flyway-core-2.1.1.jar,
+ external-lib/ojdbc6.jar,
+ external-lib/sqljdbc4.jar
 Export-Package: EDU.oswego.cs.dl.util.concurrent,
  EDU.oswego.cs.dl.util.concurrent.misc,
  antlr,
@@ -115,6 +118,7 @@ Export-Package: EDU.oswego.cs.dl.util.concurrent,
  com.google.common.net,
  com.google.common.primitives,
  com.google.common.util.concurrent,
+ com.googlecode.flyway.core,
  com.mysql.jdbc,
  com.mysql.jdbc.authentication,
  com.mysql.jdbc.exceptions,

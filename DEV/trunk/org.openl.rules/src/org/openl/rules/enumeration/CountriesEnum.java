@@ -104,4 +104,14 @@ public enum CountriesEnum {
 	public String toString() {
 		return displayName;
 	}
+	
+	public static CountriesEnum fromString(String displayName) {
+		for (CountriesEnum v : CountriesEnum.values()) {
+			if (displayName.equalsIgnoreCase(v.displayName)) {
+				return v;
+			}
+		}
+		
+		throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+  	}
 }

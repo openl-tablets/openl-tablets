@@ -1,6 +1,6 @@
 package org.openl.rules.cmatch;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
@@ -16,8 +16,7 @@ public class Test3 {
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/cmatch1/match3-1.xls");
-        TestHelper<ITest4> testHelper;
-        testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
+        TestHelper<ITest4> testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
 
         ITest4 test = testHelper.getInstance();
 

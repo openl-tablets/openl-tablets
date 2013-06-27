@@ -279,7 +279,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     }
 
-    static final public EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
+    public static final EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
 
     public static <T> List<T> asList(Iterator<T> it) {
         int size = size(it);
@@ -403,7 +403,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     }
 
     /**
-     *
+     * 
      * @param value
      * @return iterator over single value, if value != null, empty iterator
      *         otherwise
@@ -482,7 +482,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     /**
      * Calculates the number of iterated elements. Unfortunately, destroys the
      * iterator
-     *
+     * 
      * @see #size
      * @return
      */
@@ -501,8 +501,9 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     /*
      * (non-Javadoc)
-     *
-     * @see org.openl.util.IOpenIterator#modify(org.openl.util.IOpenIteratorModifier)
+     * 
+     * @see
+     * org.openl.util.IOpenIterator#modify(org.openl.util.IOpenIteratorModifier)
      */
     public <E> IOpenIterator<E> extend(IOpenIteratorExtender<E, T> mod) {
         return extend(this, mod);
@@ -513,9 +514,9 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     }
 
     /**
-     * Returns reverse iterator ri such as last(this) == first(ri), last-1(this) ==
-     * first+1(ri), this.size() = ri.size(), this.count() = ri.count() etc.
-     *
+     * Returns reverse iterator ri such as last(this) == first(ri), last-1(this)
+     * == first+1(ri), this.size() = ri.size(), this.count() = ri.count() etc.
+     * 
      * @return
      */
 
@@ -531,7 +532,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
      * Calculates the remaining size of iterated collection without destroying
      * itself(const in c++ terminology), -1 if it can not be known in advance.
      * Not every iterator is capable of doing it.
-     *
+     * 
      * @see count
      */
 
@@ -541,7 +542,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     /**
      * Skips up to n elements.
-     *
+     * 
      * @param n
      * @return actual number of skipped elements
      */

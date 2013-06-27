@@ -19,10 +19,10 @@ import org.openl.syntax.impl.IdentifierNode;
  * @author PUdalau
  */
 public class DatatypeNodeComparatorTest extends BaseOpenlBuilderHelper {
-    private static String __src = "test/rules/DatatypeInheritanceTest.xls";
+    private static final String SRC = "test/rules/DatatypeInheritanceTest.xls";
 
     public DatatypeNodeComparatorTest() {
-        super(__src);
+        super(SRC);
     }
 
     private TableSyntaxNode findTableSyntaxNodeByDatatypeName(String datatypeName) {

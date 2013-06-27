@@ -7,9 +7,9 @@ package org.openl.rules.tableeditor.model;
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -107,18 +107,8 @@ public class TableEditorModel {
         return actions.hasUndo();
     }
 
-    /**
-     * Extracts original grid table.
-     * 
-     * @param table Table which we have.
-     * @return Original table that includes our table.
-     */
     public IGridTable getOriginalGridTable() {
-        IGridTable resultTable = gridTable;
-        while (resultTable instanceof AGridTableDecorator) {
-            resultTable = ((AGridTableDecorator) resultTable).getOriginalGridTable();
-        }
-        return resultTable;
+        return GridTableUtils.getOriginalTable(gridTable);
     }
 
     public IGridRegion getOriginalTableRegion() {

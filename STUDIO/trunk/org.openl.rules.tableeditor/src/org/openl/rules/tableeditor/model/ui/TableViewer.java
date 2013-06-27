@@ -53,7 +53,7 @@ public class TableViewer {
 
         switch (style.getVerticalAlignment()) {
             case ICellStyle.VERTICAL_BOTTOM:
-                cm.setValign("bottom");
+                // Left by default
                 break;
             case ICellStyle.VERTICAL_CENTER:
                 cm.setValign("center");
@@ -133,7 +133,7 @@ public class TableViewer {
     }
 
     private boolean image(String formattedValue) {
-        return formattedValue.matches(".*<img .*>.*");
+        return formattedValue.replaceAll("\n", "").matches(".*<i .*>.*</i>.*");
     }
 
     private boolean link(String formattedValue) {
@@ -142,7 +142,7 @@ public class TableViewer {
 
     private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
         int nextSymbolIndex = 0;
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         if (isShowLinks()) {
             for (MethodUsage methodUsage : cell.getMetaInfo().getUsedMethods()) {
                 int pstart = methodUsage.getStart();
@@ -278,6 +278,8 @@ public class TableViewer {
                 break;
             default:
                 Log.warn("Unknown border style: " + xlsStyle);
+                bs.setWidth(1);
+                bs.setStyle("solid");
         }
         return bs;
     }

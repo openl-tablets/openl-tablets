@@ -1,7 +1,7 @@
 package org.openl.util;
 
-public class IntPair{
-    
+public class IntPair {
+
     private int x, y;
 
     public IntPair(int x, int y) {
@@ -42,7 +42,5 @@ public class IntPair{
             return false;
         return true;
     }
-    
-    
 
 }

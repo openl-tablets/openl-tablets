@@ -11,7 +11,6 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -142,7 +141,7 @@ public class DispatchingTest {
     }
 
     public void calcBenchmark() throws Exception {
-        IRuntimeEnv runtimeEnv = instance.getRuntimeEnv();
+        IRuntimeEnv runtimeEnv = ((IEngineWrapper)instance).getRuntimeEnv();
 
         IRulesRuntimeContext context1 = new DefaultRulesRuntimeContext();
         context1.setCountry(CountriesEnum.US);
@@ -196,11 +195,11 @@ public class DispatchingTest {
 
     private IRulesRuntimeContext initContext() {
         IRulesRuntimeContext context = new DefaultRulesRuntimeContext();
-        instance.getRuntimeEnv().setContext(context);
+        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
         return context;
     }
 
-    public static interface Rules extends IEngineWrapper {
+    public static interface Rules {
         int getSimplePriority();
 
         String getPriority();

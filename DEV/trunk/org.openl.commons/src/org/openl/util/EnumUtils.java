@@ -10,12 +10,12 @@ public class EnumUtils {
     public static String getName(Enum<?> constant) {
         return constant.name();
     }
-    
-    @SuppressWarnings({"rawtypes", "unchecked"})
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Object valueOf(Class enumClass, String constantName) {
         return StringUtils.isEmpty(constantName) ? null : Enum.valueOf(enumClass, constantName);
     }
-    
+
     public static String[] getNames(Object[] constants) {
         List<String> names = new ArrayList<String>();
         for (Object constant : constants) {
@@ -60,8 +60,7 @@ public class EnumUtils {
     }
 
     public static boolean isEnumArray(Object value) {
-        return value != null && value.getClass().isArray()
-            && value.getClass().getComponentType().isEnum();
+        return value != null && value.getClass().isArray() && value.getClass().getComponentType().isEnum();
     }
 
 }

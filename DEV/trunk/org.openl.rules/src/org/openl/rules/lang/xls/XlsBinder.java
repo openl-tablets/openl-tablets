@@ -179,7 +179,7 @@ public class XlsBinder implements IOpenBinder {
         if (parsedCode.getExternalParams() != null) {
             bindingContext.setExternalParams(parsedCode.getExternalParams());
         }
-        
+
         IBoundNode topNode = null;
 
         if (!parsedCode.getCompiledDependencies().isEmpty()) {
@@ -303,19 +303,19 @@ public class XlsBinder implements IOpenBinder {
         bindInternal(moduleNode, moduleOpenClass, propertiesNodes, openl, moduleContext);
 
         bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, moduleContext);
-        
+
         // Bind datatype nodes.
         //
         ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
         TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
         TableSyntaxNode[] processedDatatypeNodes = processDatatypes(datatypeNodes, moduleContext);
-        
+
         bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
-        
+
         // Selector for other nodes
         //
         ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector = propertiesSelector.not().and(dataTypeSelector.not());
-        
+
         IBoundNode topNode = null;
         if (OpenLSystemProperties.isCustomSpreadsheetType(moduleContext.getExternalParams())) {
             topNode = bindInternalWithCustomSpreadsheetTypes(moduleNode, openl, moduleContext, moduleOpenClass,
@@ -618,7 +618,7 @@ public class XlsBinder implements IOpenBinder {
                 finilizeBind(children[i], tableSyntaxNodes[i], moduleContext);
             }
         }
-        
+
         if (moduleContext.isExecutionMode()) {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
         }

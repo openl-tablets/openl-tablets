@@ -57,15 +57,12 @@ public class Benchmark {
                 if (time > minMillis) {
                     return new RunInfo(runs, time, memoryBefore, memoryDirtyAfter, memoryCleanAfter);
                 }
-            }
-            else
-            {
+            } else {
                 time = bu.millisecondsToRun(runs);
                 if (time > minMillis) {
                     return new RunInfo(runs, time);
                 }
-            }    
-                
+            }
 
             if (time <= 0) {
                 time = 1;

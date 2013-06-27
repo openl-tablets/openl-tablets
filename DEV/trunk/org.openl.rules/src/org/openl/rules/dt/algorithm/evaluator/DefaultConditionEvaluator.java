@@ -45,4 +45,16 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
         throw new DomainCanNotBeDefined("Non-indexed Evaluator", getFormalSourceCode(condition).getCode());
     }
 
+	@Override
+	public String getOptimizedSourceCode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setOptimizedSourceCode(String code) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

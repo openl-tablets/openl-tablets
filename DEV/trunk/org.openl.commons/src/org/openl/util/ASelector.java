@@ -64,7 +64,7 @@ public abstract class ASelector<T> implements ISelector<T> {
 
     }
 
-    public static  class ClassSelector<T> extends ASelector<T> {
+    public static class ClassSelector<T> extends ASelector<T> {
         Class<T> c;
 
         public ClassSelector(Class<T> c) {
@@ -73,7 +73,7 @@ public abstract class ASelector<T> implements ISelector<T> {
 
         @Override
         protected boolean equalsSelector(ASelector<T> sel) {
-            return c == ((ClassSelector<T>)  sel).c;
+            return c == ((ClassSelector<T>) sel).c;
         }
 
         @Override

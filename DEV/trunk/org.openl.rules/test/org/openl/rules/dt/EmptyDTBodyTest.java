@@ -9,16 +9,16 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 public class EmptyDTBodyTest extends BaseOpenlBuilderHelper {
-    
-    private static String src = "test/rules/dt/EmptyDTBody.xls";
-    
+
+    private static final String SRC = "test/rules/dt/EmptyDTBody.xls";
+
     public EmptyDTBodyTest() {
-        super(src);        
+        super(SRC);
     }
-    
+
     @Test
     public void testEmptyBodyError() {
-        String tableName = "Rules void hello1(int hour)";
+        final String tableName = "Rules void hello1(int hour)";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             assertTrue(1 == resultTsn.getErrors().length);

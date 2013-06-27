@@ -9,10 +9,10 @@ import org.openl.types.java.OpenClassHelper;
 
 public class DoubleRangeRulesParsingTest extends BaseOpenlBuilderHelper {
     
-    private static String __src = "test/rules/helpers/DoubleRangeRulesParsingTest.xlsx";
+    private static final String SRC = "test/rules/helpers/DoubleRangeRulesParsingTest.xlsx";
     
     public DoubleRangeRulesParsingTest() {
-        super(__src);        
+        super(SRC);        
     }
     
     /**

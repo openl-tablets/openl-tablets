@@ -147,7 +147,7 @@ public class DesionTableValidationResult implements IValidationResult {
 
     @Override
     public String toString() {
-        StringBuffer validationResultDetails = new StringBuffer();
+        StringBuilder validationResultDetails = new StringBuilder();
 
         if (getUncovered().length > 0) {
             validationResultDetails.append(String.format("There is an uncovered case for values: %s\r\n",

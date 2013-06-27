@@ -21,13 +21,13 @@ import org.openl.vm.SimpleVM;
  * @author PUdalau
  */
 public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
-    private static String __src = "test/rules/DatatypeInheritanceTest.xls";
+    private static final String SRC = "test/rules/DatatypeInheritanceTest.xls";
     private static final String PARENT_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "ParentType");
     private static final String CHILD_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
     private static final String SECOND_CHILD_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
 
     public DatatypeInheritanceTest() {
-        super(__src);
+        super(SRC);
     }
 
     @Test

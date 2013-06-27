@@ -10,23 +10,22 @@ public class EnumFormatter implements IFormatter {
     private final Log log = LogFactory.getLog(EnumFormatter.class);
 
     private Class<?> enumClass;
-    
+
     public EnumFormatter(Class<?> enumType) {
         this.enumClass = enumType;
     }
-    
+
     public String format(Object value) {
 
         if (!(value instanceof Enum<?>)) {
-            
-            log.debug(String.format("Should be a %s value: %s" , enumClass.toString(),
-                    ObjectUtils.toString(value, null)));
+
+            log.debug(String.format("Should be a %s value: %s", enumClass.toString(), ObjectUtils.toString(value, null)));
             return null;
         }
-        
-        return EnumUtils.getName((Enum<?>)value);        
+
+        return EnumUtils.getName((Enum<?>) value);
     }
-    
+
     public Object parse(String value) {
         return EnumUtils.valueOf(enumClass, value);
     }

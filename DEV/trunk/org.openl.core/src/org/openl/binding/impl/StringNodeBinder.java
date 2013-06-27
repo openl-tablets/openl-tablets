@@ -16,7 +16,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class StringNodeBinder extends ANodeBinder {
 
-    public static int processOctal(String s, int startIndex, StringBuffer buf) throws Exception {
+    public static int processOctal(String s, int startIndex, StringBuilder buf) throws Exception {
 
         int res = 0;
         int i;
@@ -62,7 +62,7 @@ public class StringNodeBinder extends ANodeBinder {
         String s = ((LiteralNode) node).getImage();
         int len = s.length();
 
-        StringBuffer buf = new StringBuffer(len);
+        StringBuilder buf = new StringBuilder(len);
 
         try {
 

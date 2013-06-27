@@ -37,7 +37,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
         DynamicObject[] testObjects = getTestObejcts();
         TestDescription[] tests = new TestDescription[testObjects.length];
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(getTestedMethod(), testObjects[i]);
+            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], this.getProperties());
         }
         return tests;
     }

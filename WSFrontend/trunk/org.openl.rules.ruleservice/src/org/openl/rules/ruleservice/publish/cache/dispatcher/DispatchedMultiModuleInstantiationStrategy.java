@@ -61,7 +61,7 @@ public class DispatchedMultiModuleInstantiationStrategy extends MultiModuleInsta
         Thread.currentThread().setContextClassLoader(rulesClass.getClassLoader());
         try {
             try {
-                return getEngineFactory().makeInstance();
+                return getEngineFactory().newInstance();
             } catch (ClassNotFoundException e) {
                 throw new RulesInstantiationException("Faield to compile multimodule with dispatcher.",e);
             }
@@ -72,13 +72,8 @@ public class DispatchedMultiModuleInstantiationStrategy extends MultiModuleInsta
 
     private DispatchedMultiModuleEngineFactory getEngineFactory() throws ClassNotFoundException {
         if (factory == null) {
-            factory = new DispatchedMultiModuleEngineFactory(getModules(), getServiceClass());
-
-            factory.setDependencyManager(getDependencyManager());
-            factory.setExternalParameters(getExternalParameters());
-          
+            factory = new DispatchedMultiModuleEngineFactory(getModules(), getDependencyManager(), getServiceClass(), getExternalParameters());
         }
-
         return factory;
     }
 }

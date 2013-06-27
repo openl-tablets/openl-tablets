@@ -18,11 +18,11 @@ import org.apache.commons.lang.StringUtils;
 public class StringTool {
 
     public interface Convertor {
-        void convert(char c, int idx, StringBuffer out);
+        void convert(char c, int idx, StringBuilder out);
     }
 
     public interface MacroKeyHandler {
-        void handleKey(String key, MacroSubst ms, StringBuffer out);
+        void handleKey(String key, MacroSubst ms, StringBuilder out);
     }
 
     public static class MacroSubst extends TextTransformer {
@@ -88,8 +88,8 @@ public class StringTool {
     static public class TextTransformer {
         static final public char EOF = (char) -1;
         protected char prev = EOF, cur = EOF, next = EOF;
-        protected StringBuffer out = null;
-        private StringBuffer tmp = null;
+        protected StringBuilder out = null;
+        private StringBuilder tmp = null;
         protected int len = -1;
         protected int status = 0;
         protected int idx = 0;
@@ -104,18 +104,18 @@ public class StringTool {
             out.append(cur);
         }
 
-        public final StringBuffer tmp() {
+        public final StringBuilder tmp() {
             if (tmp == null) {
-                tmp = new StringBuffer();
+                tmp = new StringBuilder();
             }
             return tmp;
         }
 
         public String transform(String src) {
-            return transform(src, new StringBuffer()).toString();
+            return transform(src, new StringBuilder()).toString();
         }
 
-        public StringBuffer transform(String src, StringBuffer buf) {
+        public StringBuilder transform(String src, StringBuilder buf) {
             out = buf;
             len = src.length();
             if (len > 0) {
@@ -141,40 +141,40 @@ public class StringTool {
     }
 
     static public Convertor IGNORE = new Convertor() {
-        public void convert(char c, int idx, StringBuffer out) {
+        public void convert(char c, int idx, StringBuilder out) {
         }
     };
 
     static public Convertor UPPER = new Convertor() {
-        public void convert(char c, int idx, StringBuffer out) {
+        public void convert(char c, int idx, StringBuilder out) {
             out.append(Character.toUpperCase(c));
         }
     };
 
     static public Convertor LOWER = new Convertor() {
-        public void convert(char c, int idx, StringBuffer out) {
+        public void convert(char c, int idx, StringBuilder out) {
             out.append(Character.toLowerCase(c));
         }
     };
 
     static public final MacroKeyHandler MKH_DONOTHING = new MacroKeyHandler() {
-        public void handleKey(String key, MacroSubst ms, StringBuffer out) {
+        public void handleKey(String key, MacroSubst ms, StringBuilder out) {
         }
     };
 
     static public final MacroKeyHandler MKH_LEAVE = new MacroKeyHandler() {
-        public void handleKey(String key, MacroSubst ms, StringBuffer out) {
+        public void handleKey(String key, MacroSubst ms, StringBuilder out) {
             out.append(ms._macroDelim).append(key).append(ms._macroDelim);
         }
     };
 
     static public final MacroKeyHandler MKH_ERROR = new MacroKeyHandler() {
-        public void handleKey(String key, MacroSubst ms, StringBuffer out) {
+        public void handleKey(String key, MacroSubst ms, StringBuilder out) {
             throw new RuntimeException("Key " + key + " not found");
         }
     };
 
-    public static StringBuffer append(StringBuffer buf, char c, int n) {
+    public static StringBuilder append(StringBuilder buf, char c, int n) {
         for (int i = 0; i < n; i++) {
             buf.append(c);
         }
@@ -184,14 +184,14 @@ public class StringTool {
     /**
      * Create hexadecimal string representation of a specified number of bytes
      * from array (padded with 0s)
-     *
+     * 
      * @param src source byte array
      * @param off offset
      * @param len length
      * @return hex string
      */
     public static String byteArrayToHexString(byte[] src, int off, int len) {
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
         for (int i = off; i < off + len; i++) {
             String s = Integer.toHexString(src[i] & 0xFF);
             if (s.length() % 2 != 0) {
@@ -200,23 +200,26 @@ public class StringTool {
             out.append(s);
         }
         return out.toString();
-    }    
+    }
 
     /**
-     * See examples below: 
-     * 1) Assert.assertEquals("url", StringTool.decapitalizeName("URL", "_")); 
-     * 2) Assert.assertEquals("driver", StringTool.decapitalizeName("Driver", "_"));
-     * 3) Assert.assertEquals("test_url", StringTool.decapitalizeName("TestURL", "_")); 
-     * 4) Assert.assertEquals("testurl", StringTool.decapitalizeName("testURL", null));
-     * 5) Assert.assertEquals("test_url_code", StringTool.decapitalizeName("TestURLCode", "_"));
-     * 6) Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode", "_"));
+     * See examples below: 1) Assert.assertEquals("url",
+     * StringTool.decapitalizeName("URL", "_")); 2)
+     * Assert.assertEquals("driver", StringTool.decapitalizeName("Driver",
+     * "_")); 3) Assert.assertEquals("test_url",
+     * StringTool.decapitalizeName("TestURL", "_")); 4)
+     * Assert.assertEquals("testurl", StringTool.decapitalizeName("testURL",
+     * null)); 5) Assert.assertEquals("test_url_code",
+     * StringTool.decapitalizeName("TestURLCode", "_")); 6)
+     * Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode",
+     * "_"));
      */
 
     public static String decapitalizeName(String capitalized, String separator) {
-        return decapitalizeName(capitalized, separator, new StringBuffer()).toString();
+        return decapitalizeName(capitalized, separator, new StringBuilder()).toString();
     }
 
-    public static StringBuffer decapitalizeName(String capitalized, String separator, StringBuffer buf) {
+    public static StringBuilder decapitalizeName(String capitalized, String separator, StringBuilder buf) {
         if (capitalized == null) {
             return buf;
         }
@@ -224,7 +227,7 @@ public class StringTool {
             separator = "";
         }
 
-        // StringBuffer buf = new StringBuffer();
+        // StringBuilder buf = new StringBuilder();
         int start = 0;
         boolean prevUP = false;
 
@@ -262,15 +265,14 @@ public class StringTool {
         return buf;
     }
 
-     // TODO Move to URLUtils class
-     public static String encodeURL(String url) {
+    // TODO Move to URLUtils class
+    public static String encodeURL(String url) {
         String encodedUrl = null;
         if (StringUtils.isBlank(url)) {
             return url;
         }
         try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8")
-                .replaceAll("\\+", "%20");
+            encodedUrl = URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -296,14 +298,14 @@ public class StringTool {
      * convertor is called to transform it, otherwise c is put into output
      */
     public static String filter(String src, Selector sel, Convertor conv) {
-        return filter(src, sel, conv, new StringBuffer()).toString();
+        return filter(src, sel, conv, new StringBuilder()).toString();
     }
 
     /**
      * Transforms String using the following rule: if c is not selected,
      * convertor is called to transform it, otherwise c is put into output
      */
-    public static StringBuffer filter(String src, Selector sel, Convertor conv, StringBuffer buf) {
+    public static StringBuilder filter(String src, Selector sel, Convertor conv, StringBuilder buf) {
         int len = src.length();
 
         for (int i = 0; i < len; i++) {
@@ -345,7 +347,7 @@ public class StringTool {
     }
 
     public static String keepChars(String src, String toKeep) {
-        StringBuffer buf = new StringBuffer(src.length());
+        StringBuilder buf = new StringBuilder(src.length());
         for (int i = 0; i < src.length(); i++) {
             char c = src.charAt(i);
             if (toKeep.indexOf(c) >= 0) {
@@ -361,16 +363,17 @@ public class StringTool {
     }
 
     public static String macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh) {
-        return macroSubst(src, macros, macroDelim, mkh, new StringBuffer()).toString();
+        return macroSubst(src, macros, macroDelim, mkh, new StringBuilder()).toString();
     }
 
-    public static StringBuffer macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh, StringBuffer buf) {
+    public static StringBuilder macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh,
+            StringBuilder buf) {
         MacroSubst ms = new MacroSubst(macros, macroDelim, mkh);
         return ms.transform(src, buf);
     }
 
     public static String makeJavaIdentifier(String src) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < src.length(); i++) {
             char c = src.charAt(i);
             if (i == 0) {
@@ -411,11 +414,11 @@ public class StringTool {
     }
 
     public static String replace(String src, String toFind, String toReplace) {
-        return replace(src, toFind, toReplace, true, false, new StringBuffer()).toString();
+        return replace(src, toFind, toReplace, true, false, new StringBuilder()).toString();
     }
 
-    public static StringBuffer replace(String src, String toFind, String toReplace, boolean all, boolean ignoreCase,
-            StringBuffer out) {
+    public static StringBuilder replace(String src, String toFind, String toReplace, boolean all, boolean ignoreCase,
+            StringBuilder out) {
         int find_len = toFind.length();
         int src_len = src.length();
         int replace_len = toReplace.length();
@@ -487,7 +490,7 @@ public class StringTool {
     }
 
     static public String untab(String src, int tabSize) {
-        StringBuffer buf = new StringBuffer(src.length() + 10);
+        StringBuilder buf = new StringBuilder(src.length() + 10);
 
         for (int i = 0; i < src.length(); i++) {
             char c = src.charAt(i);
@@ -505,67 +508,67 @@ public class StringTool {
         return buf.toString();
     }
 
-    static public String getFileNameOfJavaClass(Class<?> c)
-    {
-        return c.getName().replace('.', '/') +  ".java";
+    static public String getFileNameOfJavaClass(Class<?> c) {
+        return c.getName().replace('.', '/') + ".java";
     }
-    
+
     /**
-     * Split the string by the symbolToSplit. To avoid splitting symbolToEscape is used.
-     * Trims the splitted result. For examples see tests.
+     * Split the string by the symbolToSplit. To avoid splitting symbolToEscape
+     * is used. Trims the splitted result. For examples see tests.
      * 
      * @param src source to process. Can`t be <code>null</code>.
      * @param symbolToSplit the delimiting symbol. Can`t be <code>null</code>.
-     * @param symbolToEscape the escaper, that is used to break splitting by symbolToSplit. If <code>null</code>, 
-     * the symbolToSplit array will be returned.
-     * @return the array of strings computed by splitting this string around matches of the given symbolToSplit and 
-     * escaped by escaper.
+     * @param symbolToEscape the escaper, that is used to break splitting by
+     *            symbolToSplit. If <code>null</code>, the symbolToSplit array
+     *            will be returned.
+     * @return the array of strings computed by splitting this string around
+     *         matches of the given symbolToSplit and escaped by escaper.
      */
     public static String[] splitAndEscape(String src, String symbolToSplit, String symbolToEscape) {
         String[] result = null;
         String[] tokens = src.split(symbolToSplit);
         List<String> resultList = new ArrayList<String>();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         if (symbolToEscape != null) {
-            for (int i=0; i<tokens.length; i++) {                
-                if (tokens[i].endsWith(symbolToEscape)) {    
+            for (int i = 0; i < tokens.length; i++) {
+                if (tokens[i].endsWith(symbolToEscape)) {
                     tokens[i] = tokens[i].trim();
-                    String tokenWithoutEscaper = tokens[i].substring(0,tokens[i].length()-1);
-                    buf.append(tokenWithoutEscaper).append(symbolToSplit);                
+                    String tokenWithoutEscaper = tokens[i].substring(0, tokens[i].length() - 1);
+                    buf.append(tokenWithoutEscaper).append(symbolToSplit);
                 } else {
                     if (buf.length() == 0) {
                         tokens[i] = tokens[i].trim();
                         resultList.add(tokens[i]);
-                    } else {                        
+                    } else {
                         buf.append(tokens[i]);
                         resultList.add(buf.toString());
                         buf.delete(0, buf.length());
-                    }                 
+                    }
                 }
             }
-            result = (String[]) resultList.toArray(new String[0]); 
+            result = (String[]) resultList.toArray(new String[0]);
         } else {
             result = tokens;
         }
-        
-        return result; 
+
+        return result;
     }
-    
+
     public static String insertStringToString(String baseStr, String strToInsertBefore, String insertion) {
         String src = baseStr;
         String[] tokens = src.split(strToInsertBefore);
-        StringBuffer strBuf = new StringBuffer();
-        for (int i=0; i<tokens.length; i++) {
+        StringBuilder strBuf = new StringBuilder();
+        for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
             strBuf.append(token);
-            if (!(i == tokens.length-1)) {
+            if (!(i == tokens.length - 1)) {
                 strBuf.append(insertion);
-                strBuf.append(strToInsertBefore);                
+                strBuf.append(strToInsertBefore);
             }
         }
         return strBuf.toString();
     }
-    
+
     public static String arrayToStringThroughSymbol(Object[] values, String symbol) {
         if (ArrayUtils.isNotEmpty(values)) {
             List<String> objectStrings = new ArrayList<String>();
@@ -576,11 +579,11 @@ public class StringTool {
         }
         return null;
     }
-    
+
     public static String listToStringThroughSymbol(List<String> values, String symbol) {
         String result = StringUtils.EMPTY;
         if (values != null && !values.isEmpty()) {
-            StringBuffer strBuf = new StringBuffer();
+            StringBuilder strBuf = new StringBuilder();
             int paramNum = values.size();
             for (String value : values) {
                 paramNum--;
@@ -590,34 +593,34 @@ public class StringTool {
                 }
             }
             result = strBuf.toString();
-        } 
+        }
         return result;
     }
-    
+
     /**
-     * Returns the setter name, by adding set, to the field name,
-     * and upper case the first field name symbol.
+     * Returns the setter name, by adding set, to the field name, and upper case
+     * the first field name symbol.
      * 
      * @param fieldName
      * @return setFieldName
      */
     public static String getSetterName(String fieldName) {
-        return String.format("set%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
+        return String.format("set%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1));
     }
-    
+
     public static String getGetterName(String fieldName) {
-        return String.format("get%s%s", fieldName.substring(0,1).toUpperCase(), fieldName.substring(1));
+        return String.format("get%s%s", fieldName.substring(0, 1).toUpperCase(), fieldName.substring(1));
     }
-    
+
     /**
      * Builds the type name with namespace.
      * 
      * @param namespace for typeName
-     * @param typeName 
+     * @param typeName
      * @return namespace::typeName
      */
     public static final String buildTypeName(String namespace, String typeName) {
         return String.format("%s::%s", namespace, typeName);
     }
-    
+
 }

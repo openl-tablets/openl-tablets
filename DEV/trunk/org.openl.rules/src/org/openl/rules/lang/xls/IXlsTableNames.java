@@ -30,6 +30,7 @@ public interface IXlsTableNames {
     String RUN_METHOD_TABLE = "Runmethod";
     String RUN_TABLE = "Run";
     String PERSISTENCE_TABLE = "Persistent";
+    String TABLE_PART = "TablePart";
 
     String LANG_PROPERTY = "language";
     String INCLUDE_TABLE = "include";

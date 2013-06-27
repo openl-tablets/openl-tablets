@@ -5,7 +5,7 @@ package org.openl.util.print;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class PrintContext {
 
@@ -17,8 +17,8 @@ public class PrintContext {
         this.filter = filter;
     }
 
-    public StringBuffer print(Object obj, int mode, StringBuffer out) {
-        StringBuffer tmpout = filter == null ? out : new StringBuffer(10);
+    public StringBuilder print(Object obj, int mode, StringBuilder out) {
+        StringBuilder tmpout = filter == null ? out : new StringBuilder(10);
 
         if (format != null) {
             format.format(obj, mode, tmpout);

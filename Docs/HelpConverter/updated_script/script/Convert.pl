@@ -118,10 +118,10 @@ use integer;
 my $command_line = " $0 @ARGV ";
 
 my %opt;
-
+ 
 do {
   use Getopt::Std;
-
+ 
   getopts('hpuc:i:t:n:S:l:aBP:X:',\%opt);
 
   use Pod::Usage;
@@ -226,9 +226,19 @@ for my $e ($doc->descendants) {
   if ( $e->{style} ) {
     $e->{style} =~ s/[\n\r]//g;
     $e->{class} = 'section-break' if $e->{style} =~ /section-break/;
-    delete $e->{style};
-  }
-  delete $e->{color};
+    my $stl = $e->{style};                                                           # 22.04.2012
+    if ( $stl !~ /mso-tab-count/  &&  $stl !~ /margin/ && $stl !~ /indent/ 
+        && $stl !~ /background/  && $stl !~ /highlight/  && $stl !~ /color/ && $stl !~ /bold/  
+        && $stl !~ /font-size/ && $stl !~ /mso-spacerun:yes/                 ) {     # 06.05.2012
+     delete $e->{style};                                                             # 16.04.2012
+   }                                                                                 # 22.04.2012
+    if (($stl =~ /border-left/ && $stl =~ /none/) ||
+          ($stl =~ /border-right/ && $stl =~ /none/) || 
+          $stl =~ /border:none/  ) {                                                 # 23.04.2012
+     delete $e->{style};                                                             # 23.04.2012
+    }
+  }                                                                                  # 23.04.2012
+# delete $e->{color};                                                                # 16.04.2012  
   delete $e->{size};
 }
 
@@ -251,6 +261,16 @@ for my $e ($doc->find_by_tag_name('font')) {
    { $e->replace_with_content->delete }
 }
 
+## ------------  23.07.2012
+for my $e ($doc->find_by_tag_name('a')) {
+   my $xml = $e->as_XML;
+   if  ( $xml =~ /href="http:|href="https:/ ) {
+     my $target = "_blank";
+     $e->attr('target',$target);
+  }
+}
+## -----------
+
 &write_progress();
 
 # skim empty spans
@@ -258,7 +278,18 @@ for my $e ($doc->find_by_tag_name('span')) {
   unless (grep {ref $$_} $e->content_refs_list)
   {
     for my $c ($e->content_refs_list) {
-      if ($$c =~ /^[\s\xa0]*$/) {$$c = ''};
+    #  if ($$c =~ /^[\s\xa0]*$/) {$$c = ''}; #   16.04.2012
+    
+     if ($$c =~ /^[\s\xa0]*$/) {             #   16.04.2012
+        my $tstyle = $e->as_HTML;            #   16.04.2012
+        if ( $tstyle !~ /mso-tab-count/ 
+        ##     && $tstyle !~ /&nbsp;/ 
+             && $tstyle !~ /lang="EN-/ 
+             && $tstyle !~ /mso-spacerun:yes/ ) {  #   23.04.2012
+  	        $e->delete_content();             #   16.04.2012
+        }                                    #   16.04.2012
+      
+     }
     }
   }
 }
@@ -292,7 +323,10 @@ sub {
   return 1 if ref $elt;
   
   $elt =~ s{\</?o\:p\>}{}g;
-  $elt =~ s{\<!.*?\>}{}sg;
+  #  $elt =~ s{\<!.*?\>}{}sg;        # 9.05.2012
+      $elt =~ s{\<!\[.*?\>}{}sg;     # 9.05.2012
+      $elt =~ s{\<!--\[.*?\>}{}sg;   # 9.05.2012
+
 
   if (ref $text_parent) {
     $text_parent->content->[$text_ind] = $elt;
@@ -461,6 +495,8 @@ for my $h ($doc->find_by_tag_name(qw( h1 h2 h3 h4 h5 h6 )))
 # correcting table appearance
 for $h ($doc->find_by_tag_name('table'))
 {
+  $h->{class}       = 'normaltabula';      #!! 2.04.2012
+
   $h->{border}      = '1';
   $h->{cellspacing} = '0';
   $h->{cellpadding} = '0';
@@ -561,7 +597,7 @@ $cur_list_depth = 0;
                     $_->replace_with_content->delete }
                   KEEP_CLASS;
                 },
-  MsoListContinue => sub { 
+  MsoListContinue => sub {  
                   $_[0]->attr('class'=> 'listcontinue'); 
                   KEEP_CLASS;
                 },
@@ -767,7 +803,9 @@ sub create_list_container
     $list_containers[$list_depth] = \$list_container;
     if ($list_depth > 1)
     {
+    if (exists $list_containers[$list_depth - 1]) {     # 28.07.2012 
         ${$list_containers[$list_depth - 1]}->push_content($list_container);
+     }
     }
     else
     {
@@ -955,7 +993,8 @@ print STDERR +$doc->descendants." elements out\n";
 &process_templates;
 
 $doc->delete;
-
+ print " \n ----- end ----- \n ";  #   16.04.2012
+ sleep (5);                        #   16.04.2012
 
 ### subroutines
 
@@ -1471,7 +1510,7 @@ Processes files in templates/ and/or copies them to the working directory.
 =cut
 
 use Cwd;
-use Text::Template 'fill_in_file';
+use Text::Template 'fill_in_file';       
 
 
 sub process_templates

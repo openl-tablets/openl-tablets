@@ -11,10 +11,10 @@ import static org.junit.Assert.*;
 
 public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
 
-    private static String __src = "test/rules/validation/TestData.xls";
+    private static final String SRC = "test/rules/validation/TestData.xls";
 
     public ActivePropetyValidatorTest() {
-        super(__src);
+        super(SRC);
     }
 
     @Test

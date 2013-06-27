@@ -53,7 +53,7 @@ public class JavaOpenSchema extends AOpenSchema {
             // ".class"
 
             int len = s.length();
-            StringBuffer buf = new StringBuffer(len);
+            StringBuilder buf = new StringBuilder(len);
 
             for (int i = 0; i < len; i++) {
                 char c = s.charAt(i);

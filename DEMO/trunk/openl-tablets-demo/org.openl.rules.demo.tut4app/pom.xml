@@ -1,0 +1,113 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.openl.rules.demo</groupId>
+		<artifactId>org.openl.rules.demo-pom</artifactId>
+		<version>5.11.0-SNAPSHOT</version>
+		<relativePath>../org.openl.rules.demo-pom</relativePath>
+	</parent>
+
+	<artifactId>org.openl.demo.tut4app</artifactId>
+	<packaging>war</packaging>
+	<name>OpenL - DEMO - TUT4APP</name>
+	<description>Tut 4 Demo for OpenL demo application</description>
+	<url>http://openl-tablets.sf.net/</url>
+
+	<properties>
+		<webservice.url>http://localhost:8080/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>
+	</properties>
+	
+	<build>
+		<finalName>demo</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>deploy-to-demo-server</id>
+			<properties>
+				<webservice.url>http://openl.internal.corp:8082/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>tomcat-maven-plugin</artifactId>
+						<configuration>
+							<url>http://openl.internal.corp:8082/manager/text</url>
+							<server>demo-server</server>
+							<path>/demo</path>
+							<warFile>target/demo.war</warFile>
+							<update>true</update>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-extension-providers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-databinding-aegis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.annox</groupId>
+			<artifactId>annox</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.faces</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl</groupId>
+			<artifactId>org.openl.commons</artifactId>
+		</dependency>
+	</dependencies>
+</project>

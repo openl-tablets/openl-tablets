@@ -84,7 +84,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             String message = String.format("Type not found: '%s'", typeName);
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }
-        
+
         // Check that table type loaded properly.
         //
         if (tableType.getInstanceClass() == null) {
@@ -123,7 +123,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext,
             OpenL openl,
             boolean hasColumnTitleRow) throws Exception {
-        
+
         if (tableBody == null) {
             String message = "There is no body in Data table.";
             throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
@@ -170,7 +170,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
         ILogicalTable dataWithTitle = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
-        
+
         tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, dataWithTitle);
     }
 

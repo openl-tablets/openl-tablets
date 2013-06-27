@@ -10,7 +10,7 @@ import org.openl.base.INamedThing;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IMeasurementSystem extends INamedThing {
     DistanceUnit getBaseDistanceUnit();

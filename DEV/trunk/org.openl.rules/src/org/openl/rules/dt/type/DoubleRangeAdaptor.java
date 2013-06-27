@@ -37,7 +37,14 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return min;
     }
 
-    public Double adaptValueType(Number value) {        
-        return Double.valueOf(value.doubleValue());
-    }
+
+	@Override
+	public Comparable<Double> adaptValueType(Object value) {
+        return Double.valueOf(((Number)value).doubleValue());
+	}
+
+	@Override
+	public boolean useOriginalSource() {
+		return false;
+	}
 }

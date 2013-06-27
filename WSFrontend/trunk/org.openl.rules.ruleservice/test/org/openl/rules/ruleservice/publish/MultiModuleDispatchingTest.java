@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class MultiModuleDispatchingTest {
 
     @Test
     public void testMultiModuleService() throws Exception {
-        Collection<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module_overloaded"));
+        Collection<Module> modules1 = resolveAllModules(new File("./test-resources/multi-module-overloaded"));
         service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(SERVICE_NAME, "no_url", null, true,
                 modules1);
 
@@ -82,7 +82,7 @@ public class MultiModuleDispatchingTest {
     @Test
     public void testMultiModuleService2() throws Exception {
         ProjectDescriptor descriptor = resolveAllModulesUsingDescriptor(new File(
-                "./test-resources/multi-module_overloaded"));
+                "./test-resources/multi-module-overloaded"));
         service1 = ruleServiceOpenLServiceInstantiationFactory.createOpenLService(SERVICE_NAME, "no_url", null, true,
                 descriptor.getModules());
         publisher.deploy(service1);

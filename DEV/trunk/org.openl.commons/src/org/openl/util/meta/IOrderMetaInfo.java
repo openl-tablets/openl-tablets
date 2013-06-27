@@ -41,7 +41,7 @@ public interface IOrderMetaInfo {
     /**
      * Produces object that is used for comparison with other objects in
      * collection
-     *
+     * 
      * @param obj
      * @return
      */

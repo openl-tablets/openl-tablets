@@ -31,8 +31,7 @@ public class Test0 {
     }
 
     public void okRows(File xlsFile, int expectedNumberOfRows) {
-        TestHelper<ITestAlgorithm1> testHelper;
-        testHelper = new TestHelper<ITestAlgorithm1>(xlsFile, ITestAlgorithm1.class);
+        TestHelper<ITestAlgorithm1> testHelper = new TestHelper<ITestAlgorithm1>(xlsFile, ITestAlgorithm1.class);
         ITestAlgorithm1 a = testHelper.getInstance();
 
         // assertEquals(expectedNumberOfRows, a.modification());

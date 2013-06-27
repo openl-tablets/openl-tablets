@@ -7,12 +7,10 @@ import java.net.URL;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.OpenL;
 import org.openl.conf.IUserContext;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
-import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
@@ -27,159 +25,147 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @param <T>
  * 
- * @author snshor
+ * @author Marat Kamalov
  */
 public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
-    // This field should be always passed as constructor parameter
-    protected Class<T> engineInterface;
+    private Class<T> interfaceClass;
+    private CompiledOpenClass compiledOpenClass;
 
-    // These fieldValues may be derived from other fieldValues, or set by
-    // constructor directly
-    protected IOpenSourceCodeModule sourceCode;
-    protected String sourceFile;
-
-    // These fields are initialized internally and can't be passed as a
-    // parameter of constructor
-    protected CompiledOpenClass compiledOpenClass;
     protected Map<Method, IOpenMember> methodMap;
 
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}.
-     * @param factoryDef Engine factory definition
-     *            {@link EngineFactoryDefinition}.
-     * @param engineInterface User interface of rule.
-     */
-    public EngineFactory(String openlName, EngineFactoryDefinition factoryDef, Class<T> engineInterface) {
-        super(openlName, factoryDef.sourceCode, factoryDef.ucxt);
-        this.engineInterface = engineInterface;
-    }
-
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}
-     * @param file Rule file
-     * @param engineInterface User interface of rule
-     */
-    public EngineFactory(String openlName, File file, Class<T> engineInterface) {
+    protected EngineFactory(String openlName, File file) {
         super(openlName, file);
-        this.engineInterface = engineInterface;
     }
 
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}
-     * @param sourceFile A pathname of rule file string
-     * @param engineInterface User interface of a rule
-     */
-    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface) {
+    protected EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext) {
+        super(openlName, sourceCode, userContext);
+    }
+
+    protected EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome) {
+        super(openlName, sourceCode, userHome);
+    }
+
+    protected EngineFactory(String openlName, IOpenSourceCodeModule sourceCode) {
+        super(openlName, sourceCode);
+    }
+
+    protected EngineFactory(String openlName, String sourceFile, String userHome) {
+        super(openlName, sourceFile, userHome);
+    }
+
+    protected EngineFactory(String openlName, String sourceFile) {
         super(openlName, sourceFile);
-        this.engineInterface = engineInterface;
     }
 
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}
-     * @param sourceFile A pathname of rule file string
-     * @param engineInterface User interface of a rule
-     * @param userContext User context {@link IUserContext}
-     */
-    public EngineFactory(String openlName, String sourceFile, Class<T> engineInterface, IUserContext userContext) {
-        super(openlName, new FileSourceCodeModule(sourceFile, null), userContext);
-        this.engineInterface = engineInterface;
-    }
-
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}
-     * @param userHome Current path of Openl userHome
-     * @param sourceFile A pathname of rule file string
-     * @param engineInterface User interface of a rule
-     */
-    public EngineFactory(String openlName, String userHome, String sourceFile, Class<T> engineInterface) {
-        super(openlName, new FileSourceCodeModule(sourceFile, null), userHome);
-        this.engineInterface = engineInterface;
-    }
-
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}
-     * @param url Url to rule file
-     * @param engineInterface User interface of a rule
-     */
-    public EngineFactory(String openlName, URL url, Class<T> engineInterface) {
-        super(openlName, url);
-        this.engineInterface = engineInterface;
-    }
-
-    
-    public EngineFactory(String openlName, String userHome, IOpenSourceCodeModule source, Class<T> engineInterface) {
-        super(openlName, source, userHome);
-        this.engineInterface = engineInterface;
-    }
-
-    public EngineFactory(String openlName, IOpenSourceCodeModule source, Class<T> engineInterface) {
+    protected EngineFactory(String openlName, URL source) {
         super(openlName, source);
-        this.engineInterface = engineInterface;
     }
 
-    /**
-     * 
-     * @param openlName Name of OpenL configuration {@link OpenL}
-     * @param url Url to rule file
-     * @param engineInterface User interface of a rule
-     * @param userContext User context {@link IUserContext}
-     */
-    public EngineFactory(String openlName, URL url, Class<T> engineInterface, IUserContext userContext) {
-        super(openlName, new URLSourceCodeModule(url), userContext);
-        this.engineInterface = engineInterface;
+    public EngineFactory(String openlName, File file, Class<T> interfaceClass) {
+        super(openlName, file);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
     }
 
-    /**
-     * @return an abstraction of a "class".
-     */
-    public synchronized IOpenClass getOpenClass() {
-        IOpenClass openClass = getCompiledOpenClass().getOpenClass();
-        methodMap = makeMethodMap(engineInterface, openClass);
-        return openClass;
+    public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext,
+            Class<T> interfaceClass) {
+        super(openlName, sourceCode, userContext);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
     }
 
-    public synchronized CompiledOpenClass getCompiledOpenClass() {
+    public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome, Class<T> interfaceClass) {
+        super(openlName, sourceCode, userHome);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
+    }
+
+    public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
+        super(openlName, sourceCode);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
+    }
+
+    public EngineFactory(String openlName, String sourceFile, String userHome, Class<T> interfaceClass) {
+        super(openlName, sourceFile, userHome);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
+    }
+
+    public EngineFactory(String openlName, String sourceFile, Class<T> interfaceClass) {
+        super(openlName, sourceFile);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
+    }
+
+    public EngineFactory(String openlName, URL source, Class<T> interfaceClass) {
+        super(openlName, source);
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("Interface can't be null!");
+        }
+        this.interfaceClass = interfaceClass;
+    }
+
+    public Class<T> getInterfaceClass() {
+        return interfaceClass;
+    }
+
+    protected void setInterfaceClass(Class<T> interfaceClass) {
+        this.interfaceClass = interfaceClass;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T newEngineInstance() {
+        return (T) newInstance();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T newEngineInstance(IRuntimeEnv runtimeEnv) {
+        return (T) newInstance(runtimeEnv);
+    }
+
+    public void reset() {
+        compiledOpenClass = null;
+    }
+
+    @Override
+    protected Class<?>[] prepareInstanceInterfaces() {
+        return new Class[] { getInterfaceClass(), IEngineWrapper.class };
+    }
+
+    @Override
+    public Object prepareInstance(IRuntimeEnv runtimeEnv) {
+        try {
+            compiledOpenClass = getCompiledOpenClass();
+            IOpenClass openClass = compiledOpenClass.getOpenClass();
+            Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
+            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getInterfaceClass().getClassLoader());
+        } catch (OpenlNotCheckedException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new OpenlNotCheckedException("Can't instantiate engine instance", ex);
+        }
+    }
+
+    public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
-        	OpenLMessages.getCurrentInstance().clear();
+            OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
         return compiledOpenClass;
     }
-
-    /**
-     * Force EngineFactory to recompile the rules when creating new rules
-     * instance.
-     */
-    public void reset() {
-        compiledOpenClass = null;
-        methodMap = null;
-    }
-
-    @Override
-    protected Class<?>[] getInstanceInterfaces() {
-        return new Class<?>[] { engineInterface, IEngineWrapper.class };
-    }
-    
-    @Override
-    protected ThreadLocal<IRuntimeEnv> initRuntimeEnvironment() {
-        ThreadLocal<IRuntimeEnv> runtimeEnvHolder = new ThreadLocal<IRuntimeEnv>();
-        runtimeEnvHolder.set(getOpenL().getVm().getRuntimeEnv());
-        return runtimeEnvHolder;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T makeInstance() {        
-        Object openClassInstance = getOpenClass().newInstance(getRuntimeEnv());        
-        return (T) makeEngineInstance(
-                openClassInstance, methodMap, getRuntimeEnv(), engineInterface.getClassLoader());
-    }
-
 }

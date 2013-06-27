@@ -1,6 +1,6 @@
 package org.openl.rules.project.dependencies;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -14,7 +14,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesServiceEnhancer;
+import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
@@ -105,7 +105,7 @@ public class ExternalDependenciesTest {
         ApiBasedInstantiationStrategy s = 
             new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(s);
         Class<?> interfaceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 
@@ -153,7 +153,7 @@ public class ExternalDependenciesTest {
         ApiBasedInstantiationStrategy s = 
             new ApiBasedInstantiationStrategy(descr.getModules().get(0), executionMode, dependencyManager);
         
-        RulesServiceEnhancer enhancer = new RulesServiceEnhancer(s);
+        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(s);
 
         Class<?> interfaceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

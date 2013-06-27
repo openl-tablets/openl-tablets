@@ -40,9 +40,9 @@ public abstract class AbstractProductionRepoController {
     private RepositoryConfiguration defaultRepoConfig;
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
-        String[] configNames = configManager.getStringArrayProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS);
-        configNames = (String[]) ArrayUtils.add(configNames, getConfigurationName(repoConf.getConfigName()));
-        configManager.setProperty(SystemSettingsBean.PRODUCTION_REPOSITORY_CONFIGS, configNames);
+        String[] configNames = configManager.getStringArrayProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
+        configNames = (String[]) ArrayUtils.add(configNames, repoConf.getConfigName());
+        configManager.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS, configNames);
 
         systemSettingsBean.getProductionRepositoryConfigurations().add(repoConf);
     }
@@ -58,7 +58,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createRepositoryConfiguration(String connectionType) {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(this.getName()), getProductionConfigManager(getName()));
 
         repoConfig.setName(getName());
         repoConfig.setType(getType());

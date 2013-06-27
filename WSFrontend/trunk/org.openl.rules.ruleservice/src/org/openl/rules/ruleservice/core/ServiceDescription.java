@@ -21,6 +21,7 @@ public final class ServiceDescription {
     private String serviceClassName;
     private String interceptingTemplateClassName;
     private boolean provideRuntimeContext;
+    private boolean useRuleServiceRuntimeContext;
     private boolean provideVariations;
     private Map<String, Object> configuration;
     private Collection<ModuleDescription> modules;
@@ -37,12 +38,15 @@ public final class ServiceDescription {
      * @param provideVariations
      * @param modules
      */
-    ServiceDescription(String name, String url, String serviceClassName, String interceptingTemplateClassName, boolean provideRuntimeContext,
-            boolean provideVariations, Collection<ModuleDescription> modules, Set<ModuleDescription> modulesInService, Map<String, Object> configuration) {
+    ServiceDescription(String name, String url, String serviceClassName, String interceptingTemplateClassName,
+            boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext, boolean provideVariations,
+            Collection<ModuleDescription> modules, Set<ModuleDescription> modulesInService,
+            Map<String, Object> configuration) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
+        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
         this.provideVariations = provideVariations;
         this.interceptingTemplateClassName = interceptingTemplateClassName;
         if (configuration == null) {
@@ -55,13 +59,13 @@ public final class ServiceDescription {
         } else {
             this.modules = Collections.emptySet();
         }
-        
+
         if (modulesInService != null) {
             this.modulesInService = Collections.unmodifiableSet(modulesInService);
         } else {
             this.modulesInService = Collections.emptySet();
         }
-        
+
         if (!modules.isEmpty()) {
             ModuleDescription m = modules.iterator().next();
             this.deployment = new DeploymentDescription(m.getDeploymentName(), m.getDeploymentVersion());
@@ -69,18 +73,29 @@ public final class ServiceDescription {
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
-        this(builder.name, builder.url, builder.serviceClassName, builder.interceptingTemplateClassName, builder.provideRuntimeContext,
-                builder.provideVariations, builder.modules, builder.modulesInService, builder.configuration);
+        this(builder.name, builder.url, builder.serviceClassName, builder.interceptingTemplateClassName,
+                builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext, builder.provideVariations,
+                builder.modules, builder.modulesInService, builder.configuration);
     }
 
     /**
-     * Returns interceptor template class name 
+     * Returns interceptor template class name
+     * 
      * @return class name
      */
     public String getInterceptorTemplateClassName() {
         return interceptingTemplateClassName;
     }
-    
+
+    /**
+     * Return useRuleServiceRuntimeContext
+     * 
+     * @return
+     */
+    public boolean isUseRuleServiceRuntimeContext() {
+        return useRuleServiceRuntimeContext;
+    }
+
     /**
      * Returns service name.
      * 
@@ -202,20 +217,31 @@ public final class ServiceDescription {
         private String interceptingTemplateClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
+        private boolean useRuleServiceRuntimeContext = false;
         private Map<String, Object> configuration;
         private Collection<ModuleDescription> modules;
         private Set<ModuleDescription> modulesInService;
 
         /**
          * Sets intercepting template class name
+         * 
          * @param interceptingTemplateClassName
          */
         public ServiceDescriptionBuilder setInterceptingTemplateClassName(String interceptingTemplateClassName) {
             this.interceptingTemplateClassName = interceptingTemplateClassName;
             return this;
         }
-        
-        
+
+        /**
+         * Sets useRuleServiceRuntimeContext
+         * 
+         * @param useRuleServiceRuntimeContext
+         */
+        public ServiceDescriptionBuilder setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
+            this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
+            return this;
+        }
+
         /**
          * Sets name to the builder.
          * 
@@ -395,7 +421,8 @@ public final class ServiceDescription {
                 throw new IllegalStateException("modulesInService is required field for building ServiceDescription");
             }
             if (modules.size() < modulesInService.size()) {
-                throw new IllegalStateException("moduleNamesInService size cannot be greater than modules in deployment size");
+                throw new IllegalStateException(
+                        "moduleNamesInService size cannot be greater than modules in deployment size");
             }
             return new ServiceDescription(this);
         }

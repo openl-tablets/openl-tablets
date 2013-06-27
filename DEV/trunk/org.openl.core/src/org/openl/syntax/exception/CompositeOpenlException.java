@@ -36,7 +36,7 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
 
         printWriter.close();
         
-        return new StringBuffer().append(superMessage).append(stringWriter.toString()).toString(); 
+        return new StringBuilder().append(superMessage).append(stringWriter.toString()).toString(); 
     }
     
     public OpenLMessage[] getErrorMessages() {

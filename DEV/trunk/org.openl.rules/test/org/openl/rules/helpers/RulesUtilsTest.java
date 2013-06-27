@@ -45,7 +45,7 @@ import org.openl.util.ArrayTool;
  */
 public class RulesUtilsTest {
 
-	private static final String src = "test/rules/helpers/RulesUtilsTest.xlsx";
+	private static final String SRC = "test/rules/helpers/RulesUtilsTest.xlsx";
 
 	private static TestInterf instance;
 	private static String str;
@@ -842,7 +842,7 @@ public class RulesUtilsTest {
 		Locale.setDefault(locale);
 
 		if (instance == null) {
-			File xlsFile = new File(src);
+			File xlsFile = new File(SRC);
 			TestHelper<TestInterf> testHelper;
 			testHelper = new TestHelper<TestInterf>(xlsFile, TestInterf.class);
 			str = "Testing string value";
@@ -5004,10 +5004,6 @@ public class RulesUtilsTest {
 		Locale.setDefault(Locale.ENGLISH);
 
 		c.set(year, month, date, hour, min);
-
-		// System.out.println("Default locale is: " + Locale.getDefault());
-		// System.out.println("Locale date format: " +
-		// RulesUtils.dateToString(c.getTime()));
 
 		assertEquals("2/25/13", RulesUtils.format(c.getTime()));
 		assertEquals("2/25/13", RulesUtils.dateToString(c.getTime()));

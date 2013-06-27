@@ -6,10 +6,10 @@ import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
 public class VoidReturnTest extends BaseOpenlBuilderHelper {
-	private static final String str = "test/rules/tbasic0/VoidReturn.xls";
+	private static final String SRC = "test/rules/tbasic0/VoidReturn.xls";
 	
 	public VoidReturnTest() {
-		super(str);
+		super(SRC);
 	}
 	
 	@Test

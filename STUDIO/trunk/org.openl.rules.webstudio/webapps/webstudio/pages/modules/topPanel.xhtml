@@ -7,46 +7,16 @@
 
     <ui:include src="/pages/modules/updateModule.xhtml" />
     <ui:include src="/pages/modules/exportModule.xhtml" />
-    
+
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="rProject" value="#{studio.currentProject}" />
 
-    <style>
-        #viewMenu {
-            color: #555555;
-            border-color: #cccccc;
-            display: none;
-            padding: 7px 8px;
-            width: 80px;
-        }
-    </style>
-
     <h:panelGroup id="topPanel" layout="block">
-        <div style="float: right; position: relative;">
+        <div style="float: right; position: relative;margin-right: 35px">
             <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
                 <ui:include src="/pages/modules/searchForm.xhtml" />
             </h:panelGroup>
-
-            <div class="buttonPanel" style="display: inline-block; margin-left: 17px">
-                <a href="javascript:void(0)" onclick="showPopupMenu(event, 'viewMenu', this, {'offsetTop' : -1})"
-                    class="button" title="Show or hide table headers and/or formulas">View</a>
-                <div id="viewMenu">
-                    <h:form>
-                        <div>Show</div>
-                        <a4j:ajax oncomplete="reloadCurrent()">
-                            <div><h:selectBooleanCheckbox value="#{studio.showHeader}" />Header</div>
-                            <div><h:selectBooleanCheckbox value="#{studio.showFormulas}" />Formulas</div>
-                        </a4j:ajax>
-                    </h:form>
-                </div>
-
-                <div style="display:inline-block; margin-left: 15px">
-                    <a target="_blank" style="background:url('webresource/images/compare.gif')"
-                        onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
-                        href="#" title="Show a dialog for comparing Excel files" class="imageButton" />
-                </div>
-            </div>
-        </div>
+       </div>
 
         <div>
             <h:form id="headerForm">
@@ -77,28 +47,47 @@
 							style="background:url('webresource/images/repository/checkout.gif')" />
 					</a4j:ajax>
 
-					<h:outputLink value="#test/runAllTests.xhtml"
+					<h:outputLink value="#test/test.xhtml"
 						title="Run #{treeBean.projectTestsCount} Test(s)"
 						rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}"
 						styleClass="imageButton"
 						style="background:url('webresource/images/test_ok.gif')" />
 
-					<span style="margin-left: 17px;" />
-
-                    <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
-                        title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
-
-                    <h:outputLink rendered="#{!empty rProject and studio.model.canEditTable}"
-                        value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" >Revert</h:outputLink>
+                    <h:panelGroup style="margin-left: 17px;" rendered="#{studio.model.canCreateTable or studio.model.canEditProject}">
+                        <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
+                            title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
+                        <h:outputLink rendered="#{studio.model.canEditProject}"
+                            value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" >Revert</h:outputLink>
+                    </h:panelGroup>
 
                     <span style="margin-left: 13px;" />
 
-                    <h:outputLink rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}"
-                        value="#rulesDependencies.xhtml" styleClass="button"
-                        title="Display Dependency graph"
-                         >Dependencies
-                    </h:outputLink>
-
+                    <h:panelGroup class="dropdown">
+                        <h:form>
+                        <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
+                            More<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <h:panelGroup rendered="#{!empty rProject and studio.model.projectCompiledSuccessfully}">
+                            <li><a tabindex="-1" href="#rulesDependencies.xhtml">Table Dependency Graph</a></li>
+                            <li class="divider"></li>
+                            </h:panelGroup>
+                            <li class="nav-header">Table View Settings</li>
+                            <a4j:ajax oncomplete="reloadCurrent()">
+                            <li>
+                                <a href="javascript:void(0)"><h:selectBooleanCheckbox value="#{studio.showHeader}" />Show Header</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)"><h:selectBooleanCheckbox value="#{studio.showFormulas}" />Show Formulas</a>
+                            </li>
+                            </a4j:ajax>
+                            <li class="divider"></li>
+                            <li><a tabindex="-1" target="_blank"
+                                onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
+                                href="#">Compare Excel files</a></li>
+                        </ul>
+                        </h:form>
+                    </h:panelGroup>
                 </div>
             </h:form>
         </div>

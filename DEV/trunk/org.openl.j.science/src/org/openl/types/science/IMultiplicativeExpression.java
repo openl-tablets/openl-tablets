@@ -10,8 +10,8 @@ import java.util.Iterator;
 
 /**
  * @author snshor
- *
- * Provides facility for expressing something like 15 m/s, or 3.5 APY
+ * 
+ *         Provides facility for expressing something like 15 m/s, or 3.5 APY
  */
 
 public interface IMultiplicativeExpression {
@@ -23,18 +23,18 @@ public interface IMultiplicativeExpression {
 
     /**
      * Returns number of different dimensions it has
-     *
+     * 
      * @return
      */
     int getDimensionCount();
 
     IDimensionPower getDimensionPower(IDimension id);
 
-    Iterator getDimensionsPowers();
+    Iterator<IDimensionPower> getDimensionsPowers();
 
     /**
      * Return scalar part of the expression
-     *
+     * 
      * @return
      */
     double getScalar();

@@ -10,6 +10,7 @@ public class StringTransformer {
         String find(String name);
 
     }
+
     static class MapVarHolder implements IVarHolder {
 
         Map<String, String> map;

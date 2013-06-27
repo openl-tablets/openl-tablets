@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.table.AGridTableDecorator;
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
@@ -21,17 +22,8 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
     public UndoableEditTableAction() {
     }
 
-    /**
-     * Extracts original table.
-     * 
-     * @param table Table which we have.
-     * @return Original table that includes our table.
-     */
     public static IGridTable getOriginalTable(IGridTable table) {
-        while (isDecoratorTable(table)) {
-            table = ((AGridTableDecorator) table).getOriginalGridTable();
-        }
-        return table;
+        return GridTableUtils.getOriginalTable(table);
     }
 
     public static boolean isDecoratorTable(IGridTable table) {

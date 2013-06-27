@@ -5,8 +5,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
-import org.openl.types.impl.DelegatedDynamicObject;
-import org.openl.types.impl.DynamicObject;
 import org.openl.vm.IRuntimeEnv;
 
 public class DataOpenField extends AOpenField {

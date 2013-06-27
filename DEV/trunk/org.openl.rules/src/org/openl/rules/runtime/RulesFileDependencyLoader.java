@@ -5,7 +5,7 @@ import org.openl.dependency.loader.FileDependencyLoader;
 
 /**
  * Dependency loader for excel based files.
- *
+ * 
  */
 public class RulesFileDependencyLoader extends FileDependencyLoader {
 
@@ -14,5 +14,5 @@ public class RulesFileDependencyLoader extends FileDependencyLoader {
     public RulesFileDependencyLoader() {
         super(RULE_OPENL_NAME);
     }
-    
+
 }

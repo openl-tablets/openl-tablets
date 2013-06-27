@@ -171,7 +171,7 @@ public class Bins
 
     public String toString()
     {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       try
       {
         buf.append("Bin#"+id + " (" + binTypes[type.value()]+"):");

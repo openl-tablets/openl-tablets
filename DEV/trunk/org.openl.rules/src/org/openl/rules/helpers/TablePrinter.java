@@ -54,7 +54,7 @@ public class TablePrinter {
     }
 
     public String print(int from, int to) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         int[] width = calcWidth(tableAdaptor);
 

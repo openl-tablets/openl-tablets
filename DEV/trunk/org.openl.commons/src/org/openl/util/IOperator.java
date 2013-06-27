@@ -7,7 +7,7 @@ import org.openl.base.INamedThing;
 
 /**
  * @author snshor
- *
+ * 
  */
 public interface IOperator extends INamedThing {
 

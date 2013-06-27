@@ -6,8 +6,7 @@
 
 package org.openl.rules.examples.hello;
 
-import org.openl.rules.runtime.RuleEngineFactory;
-import org.openl.runtime.EngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public class RunHelloExcelCustomer
 {
@@ -19,8 +18,8 @@ public class RunHelloExcelCustomer
 	{
 		String fileName = "rules/HelloExcelCustomer.xls";
 		
-        EngineFactory<IExample> engineFactory = new RuleEngineFactory<IExample>(fileName, IExample.class);
-        IExample instance = engineFactory.makeInstance();
+        RulesEngineFactory<IExample> engineFactory = new RulesEngineFactory<IExample>(fileName, IExample.class);
+        IExample instance = engineFactory.newEngineInstance();
 
 		System.out.println(
 		"\n============================================\n" +

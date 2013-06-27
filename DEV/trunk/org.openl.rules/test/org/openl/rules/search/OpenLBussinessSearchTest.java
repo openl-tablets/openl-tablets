@@ -14,10 +14,10 @@ import org.openl.rules.table.properties.ITableProperties;
 
 public class OpenLBussinessSearchTest extends BaseOpenlBuilderHelper{
     
-    private static String __src = "test/rules/Tutorial_4_Test.xls";
+    private static final String SRC = "test/rules/Tutorial_4_Test.xls";
     
     public OpenLBussinessSearchTest() {
-        super(__src);        
+        super(SRC);        
     }
     
     private OpenLBussinessSearch search = new OpenLBussinessSearch();

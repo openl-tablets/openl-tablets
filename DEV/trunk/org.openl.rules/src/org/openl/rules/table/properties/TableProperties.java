@@ -270,6 +270,12 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 	public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
 		setFieldValue("recalculate", recalculate);
 	}	
+	public java.lang.String getPrecision() {
+		return (java.lang.String) getPropertyValue("precision"); 
+	}
+	public void setPrecision(java.lang.String precision) {
+		setFieldValue("precision", precision);
+	}	
 // <<< END INSERT >>>
 
     /**

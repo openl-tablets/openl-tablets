@@ -32,4 +32,35 @@ import org.openl.rules.table.IGridRegion;
         return poiXlsRegion.getFirstRow();
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + getBottom();
+        result = prime * result + getLeft();
+        result = prime * result + getRight();
+        result = prime * result + getTop();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        XlsGridRegion other = (XlsGridRegion) obj;
+        if (getBottom() != other.getBottom())
+            return false;
+        if (getLeft() != other.getLeft())
+            return false;
+        if (getRight() != other.getRight())
+            return false;
+        if (getTop() != other.getTop())
+            return false;
+        return true;
+    }
+
 }

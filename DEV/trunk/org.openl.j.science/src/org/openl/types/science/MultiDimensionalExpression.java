@@ -12,7 +12,7 @@ import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
- *
+ * 
  */
 public class MultiDimensionalExpression extends AMultiplicativeExpression {
 
@@ -45,7 +45,7 @@ public class MultiDimensionalExpression extends AMultiplicativeExpression {
         return null;
     }
 
-    public Iterator getDimensionsPowers() {
+    public Iterator<IDimensionPower> getDimensionsPowers() {
         return OpenIterator.fromArray(power);
     }
 

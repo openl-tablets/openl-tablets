@@ -26,7 +26,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     public synchronized String getCode() {
 
         if (code == null) {
-            StringBuffer buf = new StringBuffer(4096);
+            StringBuilder buf = new StringBuilder(4096);
             char[] c = new char[8192];
             BufferedReader br = new BufferedReader(getCharacterStream());
 

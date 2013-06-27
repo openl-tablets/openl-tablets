@@ -14,9 +14,9 @@ import org.openl.rules.lang.xls.prebind.XlsPreBinder;
  * prebind step use {@link #setPrebindHandler(IPrebindHandler)} , when
  * prebinding is finished, invoke {@link #removePrebindHandler()}
  * 
- * @author NSamatov
+ * @author NSamatov, Marat Kamalov
  */
-public class LazyBinderInvocationHandler implements InvocationHandler {
+class LazyBinderInvocationHandler implements InvocationHandler {
     private static final ThreadLocal<IPrebindHandler> prebindHandlerHolder = new ThreadLocal<IPrebindHandler>();
 
     private final IOpenBinder originalBinder;

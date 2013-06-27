@@ -13,7 +13,7 @@ import org.openl.rules.table.properties.ITableProperties;
 
 public class DimensionPropertiesDomainsCollectorTest extends BaseOpenlBuilderHelper {
 
-    private static String src = "test/rules/validation/Dimension_Properties_Domains_Collector_Test.xls";
+    private static final String SRC = "test/rules/validation/Dimension_Properties_Domains_Collector_Test.xls";
     
     private static final String PROPERTY_USREGION = "usregion";
     private static final String PROPERTY_LOB = "lob";
@@ -23,7 +23,7 @@ public class DimensionPropertiesDomainsCollectorTest extends BaseOpenlBuilderHel
     private static final String PROPERTY_COUNTRY = "country";
     
     public DimensionPropertiesDomainsCollectorTest() {
-        super(src);        
+        super(SRC);        
     }
     
     @Test

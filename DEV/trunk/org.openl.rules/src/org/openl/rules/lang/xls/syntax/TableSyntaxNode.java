@@ -24,6 +24,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
@@ -66,6 +67,16 @@ public class TableSyntaxNode extends NaryNode implements IIndexElement {
         errors.add(error);
     }
 
+    public void addError(CompositeSyntaxNodeException error) {
+    	
+    	SyntaxNodeException[] errors = error.getErrors();
+    	for (int i = 0; i < errors.length; i++) {
+    		addError(errors[i]);
+		}
+    }
+    
+    
+    
     public String getCategory() {
         return IDocumentType.WORKSHEET_TABLE.getCategory();
     }

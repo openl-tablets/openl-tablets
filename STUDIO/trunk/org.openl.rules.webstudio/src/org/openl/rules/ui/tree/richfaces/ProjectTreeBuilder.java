@@ -56,7 +56,7 @@ public class ProjectTreeBuilder extends TreeBuilder {
         String elementType = element.getType();
         if (elementType.startsWith(IProjectTypes.PT_TABLE + ".")) {
             String uri = ((ProjectTreeNode) element).getUri();
-            return "#showTable.xhtml?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
+            return "#table.xhtml?" + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL(uri);
         }
         return null;
     }

@@ -1,21 +1,20 @@
 package org.openl.rules.calc;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import java.io.File;
 
 import org.junit.Test;
 import org.openl.rules.TestHelper;
 
 public class Test3 {
-    interface ITestCalc {
+    public interface ITestCalc {
         SpreadsheetResult calc3();
     }
 
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc1/calc3-1.xls");
-        TestHelper<ITestCalc> testHelper;
-        testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+        TestHelper<ITestCalc> testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
 
         ITestCalc test = testHelper.getInstance();
         SpreadsheetResult result = test.calc3();
@@ -33,13 +32,13 @@ public class Test3 {
 
         assertEquals("A", result.getValue(0, 0).toString());
         assertEquals("B", result.getValue(0, 1).toString());
-//        assertEquals("C", result.getValue(0, 2).toString());
+        // assertEquals("C", result.getValue(0, 2).toString());
 
         // TODO consider update implementation
         // nulls if no row/column has no Name is not right
         // at least let them be String(s)
         assertEquals("D", result.getValue(1, 0).toString());
-    
+
         assertEquals("17.0", result.getValue(3, 2).toString());
         assertEquals("41.0", result.getValue(3, 3).toString());
 

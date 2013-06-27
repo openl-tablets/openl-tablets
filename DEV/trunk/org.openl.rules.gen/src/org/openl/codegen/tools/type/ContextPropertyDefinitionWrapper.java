@@ -7,20 +7,20 @@ import org.openl.rules.table.constraints.DataEnumConstraint;
 
 public class ContextPropertyDefinitionWrapper {
 
-    private ContextPropertyDefinition contextPropertyDefinition ;
-    
+    private ContextPropertyDefinition contextPropertyDefinition;
+
     public ContextPropertyDefinitionWrapper(ContextPropertyDefinition contextPropertyDefinition) {
         this.contextPropertyDefinition = contextPropertyDefinition;
     }
-    
+
     public ContextPropertyDefinition getDefinition() {
         return contextPropertyDefinition;
     }
 
     public boolean isEnum() {
-        return org.openl.rules.enumeration.Enum.class.equals(contextPropertyDefinition.getType().getInstanceClass()) 
-            || org.openl.rules.enumeration.Enum[].class
-                    .equals(contextPropertyDefinition.getType().getInstanceClass());
+        return org.openl.rules.enumeration.Enum.class.equals(contextPropertyDefinition.getType().getInstanceClass())
+                || org.openl.rules.enumeration.Enum[].class.equals(contextPropertyDefinition.getType()
+                        .getInstanceClass());
     }
 
     public String getEnumName() {

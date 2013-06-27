@@ -22,6 +22,7 @@ public enum DefaultPrivileges implements Privilege {
     PRIVILEGE_EDIT_DEPLOYMENT ("Edit Deploy Configuration"),
     PRIVILEGE_DELETE_DEPLOYMENT ("Delete Deploy Configuration"),
     PRIVILEGE_ERASE_DEPLOYMENT ("Erase Deploy Configuration"),
+    PRIVILEGE_UNLOCK_DEPLOYMENT ("Unlock Deploy Configuration"),
 
     PRIVILEGE_CREATE_TABLES ("Create Tables"),
     PRIVILEGE_EDIT_TABLES ("Edit Tables"),

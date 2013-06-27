@@ -14,10 +14,10 @@ import org.openl.types.java.OpenClassHelper;
  */
 public class IntRangeRulesParsingTest extends BaseOpenlBuilderHelper {
     
-    private static String __src = "test/rules/helpers/IntRangeTest.xlsx";
+    private static final String SRC = "test/rules/helpers/IntRangeTest.xlsx";
     
     public IntRangeRulesParsingTest() {
-        super(__src);        
+        super(SRC);        
     }
     
     /**

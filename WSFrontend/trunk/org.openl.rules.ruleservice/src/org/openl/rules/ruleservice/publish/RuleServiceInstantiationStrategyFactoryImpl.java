@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish;
 
 import java.util.Collection;
 
-import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -21,17 +20,6 @@ import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStr
  */
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 	
-	
-	private String openlName = OpenL.OPENL_JAVA_RULE_NAME;
-
-    public String getOpenlName() {
-		return openlName;
-	}
-
-	public void setOpenlName(String openlName) {
-		this.openlName = openlName;
-	}
-
 	/** {@inheritDoc} */
     public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         switch (modules.size()) {
@@ -41,7 +29,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
                 return RulesInstantiationStrategyFactory
                         .getStrategy(modules.iterator().next(), true, dependencyManager);
             default:
-                return new LazyMultiModuleInstantiationStrategy(modules, dependencyManager, openlName);
+                return new LazyMultiModuleInstantiationStrategy(modules, dependencyManager);
         }
     }
 

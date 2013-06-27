@@ -21,7 +21,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
     }
 
     @Override
-    public synchronized String toString() {
+    public String toString() {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out);

@@ -8,10 +8,10 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 public class PropertiesDefinedInTableTest extends BaseOpenlBuilderHelper {
 	
-	public static final String src = "test/rules/properties/PropertiesDefinedInTable.xls";
+	public static final String SRC = "test/rules/properties/PropertiesDefinedInTable.xls";
 	
 	public PropertiesDefinedInTableTest() {
-		super(src);
+		super(SRC);
 	}
 	
 	@Test

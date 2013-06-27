@@ -220,7 +220,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
      */
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         int maxIndex = m_size - 1;
         for (int i = 0; i <= maxIndex; i++) {

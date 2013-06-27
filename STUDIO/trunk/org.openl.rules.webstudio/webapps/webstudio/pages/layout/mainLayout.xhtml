@@ -45,6 +45,8 @@
 
             var loadingPanel;
 
+            var reqs = 0;
+
             $j.ajaxSetup({
                 handleLoginPage: true,
                 cache: false,
@@ -188,6 +190,7 @@
                 }
             }
 
+            // Deprecated
             function search(params) {
                 var query;
 
@@ -205,6 +208,7 @@
                 goTo("search.xhtml" + (query ? "?" + query : ""));
             }
 
+            // Deprecated
             function goTo(page, reload) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
@@ -223,10 +227,26 @@
                 }
             }
 
+            var ws = {
+                nav: {
+                    reload: function(params) {
+                        if (!params) {
+                            reloadCurrent();
+                        } else {
+                            var currentPage = getCurrentPage();
+                            var newPage = $location.utils.setParams(currentPage, params);
+                            goTo(newPage);
+                        }
+                    }
+                }
+            }
+
+            // Deprecated
             function goHome() {
                 loadContent(urlRewrite.prefix + HOME_PAGE);
             }
 
+            // Deprecated
             function reloadCurrent() {
                 reloadTop();
                 reloadLeft();
@@ -248,7 +268,8 @@
                 $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
             }
 
-            function getCurrentPage() {
+            // Deprecated
+             function getCurrentPage() {
                 if (location.hash) {
                     var page = lastSavedHash;
                     if (page && page.indexOf(urlRewrite.prefix) < 0) {
@@ -258,7 +279,7 @@
                 }
             }
 
-            function loadContent(page) {
+              function loadContent(page) {
                 var page = page || getCurrentPage();
 
                 if (page) {
@@ -280,7 +301,7 @@
                         toRulesPanel(header);
                     }
 
-                    if (page.indexOf("showTable.xhtml") > -1) {
+                    if (page.indexOf("table.xhtml") > -1) {
                         mainLayout.show("east");
                         $j("#tableProperties").load(
                                 urlRewrite.prefix + "tableDetailsData.xhtml?"
@@ -297,7 +318,7 @@
             function openTreeNode(page) {
                 var page = page || getCurrentPage();
 
-                if (page && page.indexOf("showTable.xhtml") > -1) {
+                if (page && page.indexOf("table.xhtml") > -1) {
                     var tableId = page.split("uri=")[1].split("&")[0];
                     var tableLink = $j("#rulesTree a[href *= '" + tableId + "']");
                     if (tableLink.length) { // Firefox has bug with decoding url after refresh
@@ -373,13 +394,13 @@
             }
 
             function showLoader() {
-                if (loadingPanel.is(":hidden")) {
+                if (reqs++ == 0) {
                     loadingPanel.show();
                 }
             }
 
             function hideLoader() {
-                if (loadingPanel.is(":visible")) {
+                if (reqs-- == 1) {
                     loadingPanel.hide();
                 }
             }

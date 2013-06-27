@@ -16,7 +16,6 @@ import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
-import org.openl.util.math.MathUtils;
 
 /**
  * The <code>DoubleRange</code> class stores range of floats. Examples :

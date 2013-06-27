@@ -66,7 +66,7 @@ public class StringHighlighter {
      * @return Highlighted strings in text. For further use on UI.
      */
     public String highlightStringsInText() {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int startPos = 0;
         for (;;) {
             int nextStart = findTokenFromPos(startPos);

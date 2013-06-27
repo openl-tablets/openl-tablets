@@ -21,7 +21,7 @@ public class ScheduledActivity extends IdObject implements IScheduledActivity {
 
 
 	private String printDepIds(List<IScheduledActivity> deps) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		boolean first = true;
 		
 		buf.append('{');

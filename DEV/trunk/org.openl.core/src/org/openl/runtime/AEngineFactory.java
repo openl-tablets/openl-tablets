@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -15,39 +16,46 @@ import org.openl.types.java.OpenClassHelper;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
-
     private static final String FIELD_PREFIX = "get";
-
-    private ThreadLocal<org.openl.vm.IRuntimeEnv> __env;
-
-    public abstract Object makeInstance();
-
-    public void setRuntimeEnvironment(IRuntimeEnv env) {
-        __env = new ThreadLocal<org.openl.vm.IRuntimeEnv>();
-        __env.set(env);
+    
+    /**
+     * This method deprecated. Use newInstance method. 
+     * @return
+     */
+    @Deprecated
+    public final Object makeInstance(){
+        return newInstance();
     }
 
-    protected IRuntimeEnv getRuntimeEnv() {
-        if (__env == null) {
-            __env = initRuntimeEnvironment();
-        }
-        return __env.get();
+    public final Object newInstance(){
+        return newInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
     }
 
-    protected Object makeEngineInstance(Object openClassInstance, Map<Method, IOpenMember> methodMap,
+    protected final Object prepareProxyInstance(Object openClassInstance, Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv, ClassLoader classLoader) {
 
-        Class<?>[] proxyInterfaces = getInstanceInterfaces();
-        InvocationHandler handler = makeInvocationHandler(openClassInstance, methodMap, runtimeEnv);
+        Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
+        
+        InvocationHandler handler = prepareInvocationHandler(openClassInstance, methodMap, runtimeEnv);
 
         return Proxy.newProxyInstance(classLoader, proxyInterfaces, handler);
     }
+    
+    public final Object newInstance(IRuntimeEnv runtimeEnv){
+        if (runtimeEnv == null){
+            return prepareInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
+        }else{
+            return prepareInstance(runtimeEnv);
+        }
+    }
+    
+    protected abstract Object prepareInstance(IRuntimeEnv runtimeEnv);
 
-    protected abstract Class<?>[] getInstanceInterfaces();
+    protected abstract Class<?>[] prepareInstanceInterfaces();
 
-    protected abstract ThreadLocal<org.openl.vm.IRuntimeEnv> initRuntimeEnvironment();
+    protected abstract IRuntimeEnvBuilder getRuntimeEnvBuilder();
 
-    protected abstract InvocationHandler makeInvocationHandler(Object openClassInstance,
+    protected abstract InvocationHandler prepareInvocationHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap, IRuntimeEnv runtimeEnv);
 
     /**
@@ -59,7 +67,7 @@ public abstract class AEngineFactory {
      *            appropriate rules
      * @return methods map
      */
-    protected Map<Method, IOpenMember> makeMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
+    protected Map<Method, IOpenMember> prepareMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
 
         // Methods map.
         //
@@ -136,7 +144,7 @@ public abstract class AEngineFactory {
                 String message = String.format("There is no implementation in rules for interface method \"%s\"",
                         interfaceMethod);
 
-                throw new RuntimeException(message);
+                throw new OpenlNotCheckedException(message);
             }
         }
 

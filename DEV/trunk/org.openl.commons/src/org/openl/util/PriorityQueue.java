@@ -12,9 +12,9 @@ import java.util.Comparator;
 /**
  * @author snshor PriorityQueue returns elements (using method pop()) in order
  *         Comparator.less(), first-in-first-out
- *
- * This version is NOT synchronized
- *
+ * 
+ *         This version is NOT synchronized
+ * 
  */
 public class PriorityQueue<T> extends ArrayList<T> {
     /**

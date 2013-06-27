@@ -117,7 +117,8 @@ public class RuleRowHelper {
                     // Set cell meta info manually.
                     //
                     //
-                    setCellMetaInfo(cell, paramName, paramType, true);
+                    if(!openlAdaptor.getBindingContext().isExecutionMode())
+                    	setCellMetaInfo(cell, paramName, paramType, true);
                 }
 
                 values.add(res);
@@ -187,11 +188,11 @@ public class RuleRowHelper {
             OpenlToolAdaptor openlAdapter) throws SyntaxNodeException {
 
         ICell theCell = table.getSource().getCell(0, 0);
-        
-                
+
         if (paramType.getInstanceClass().equals(String.class)) {
             // if param type is of type String, load as String
             String src = theCell.getStringValue();
+            if (src != null) src = src.intern();
             return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
         }
         
@@ -223,6 +224,7 @@ public class RuleRowHelper {
         // don`t move it up, as this call will convert native values such as numbers and dates to strings, it 
         // has negative performance implication
         String src = theCell.getStringValue();
+        if (src != null) src = src.intern();
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, null, false);
     }
 

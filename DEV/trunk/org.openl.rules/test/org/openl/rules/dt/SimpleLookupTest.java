@@ -9,15 +9,15 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.TestUnitsResults;
 
 public class SimpleLookupTest extends BaseOpenlBuilderHelper {
-    private static String src = "test/rules/dt/lookup/SimpleLookup.xls";
+    private static final String SRC = "test/rules/dt/lookup/SimpleLookup.xls";
 
     public SimpleLookupTest() {
-        super(src);
+        super(SRC);
     }
     
     @Test
     public void testMergedConditions() {
-        String tableName = "SimpleLookup DoubleValue CarPrice (String country, String carBrand, String carModel) ";
+        final String tableName = "SimpleLookup DoubleValue CarPrice (String country, String carBrand, String carModel) ";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertFalse(resultTsn.hasErrors());
 
