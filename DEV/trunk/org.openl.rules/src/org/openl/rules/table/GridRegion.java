@@ -15,14 +15,15 @@ public class GridRegion implements IGridRegion {
     }
 
     public GridRegion(int top, int left, int bottom, int right) {
-        if (bottom < top) {
+        //TableParts change
+        /*if (bottom < top) {
             throw new IllegalArgumentException("The bottom row (" + bottom + ") must not be less than the top row("
                     + top + ").");
         }
         if (right < left) {
             throw new IllegalArgumentException("The right row (" + right + ") must not be less than the left row("
                     + left + ").");
-        }
+        }*/
         this.top = top;
         this.left = left;
         this.bottom = bottom;
