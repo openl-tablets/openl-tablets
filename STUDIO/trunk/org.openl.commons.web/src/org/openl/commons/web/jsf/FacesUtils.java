@@ -151,6 +151,15 @@ public abstract class FacesUtils {
         return getRequestParameterMap().get(parameterName);
     }
 
+    public static int getRequestIntParameter(String name, int defaultValue) {
+        String value = getRequestParameter(name);
+        try {
+            return Integer.valueOf(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     public static Map<String, String> getRequestParameterMap() {
         return getExternalContext().getRequestParameterMap();
     }

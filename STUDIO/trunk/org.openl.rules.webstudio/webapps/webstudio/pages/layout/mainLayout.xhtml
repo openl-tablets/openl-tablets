@@ -231,7 +231,7 @@
                 nav: {
                     reload: function(params) {
                         if (!params) {
-                            reloadCurrent();
+                            loadContent();
                         } else {
                             var currentPage = getCurrentPage();
                             var newPage = $location.utils.setParams(currentPage, params);

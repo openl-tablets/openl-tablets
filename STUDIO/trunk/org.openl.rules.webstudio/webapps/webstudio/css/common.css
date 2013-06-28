@@ -113,6 +113,23 @@ a.button-primary {
     margin: 0px 2px;
 }
 
+.button-dropdown {
+    margin-right: 0 !important;
+}
+
+.button-dropdown + .dropdown >.dropdown-toggle {
+    padding: 5px 2px 5px 0;
+    border: 1px solid #ddd;
+    border-left: 0;
+    background: #fbfbfb;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+    .button-dropdown + .dropdown >.dropdown-toggle {
+        margin-left: -4px;
+    }
+}
+
 img {
     border: 0;
 }
@@ -696,6 +713,10 @@ form.standard table.buttonPanel {
     display: none;
 }
 
+.hidden {
+    display: none;
+}
+
 /* RichFaces styles */
 
 .rf-trn, .rf-tr-nd {
@@ -845,11 +866,6 @@ form.standard table.buttonPanel {
     text-decoration: none;
 }
 
-.dropdown-menu > li > a > input[type="checkbox"] {
-    vertical-align: bottom;
-    margin-right: 5px;
-}
-
 .dropdown-menu .divider {
     margin: 5px 1px;
 }
@@ -893,8 +909,7 @@ form.standard table.buttonPanel {
     border-radius: 1px;
 }
 
-.pagination,
-.pagination > ul {
+.pagination {
     margin: 0;
 }
 
@@ -903,13 +918,16 @@ form.standard table.buttonPanel {
     box-shadow: none;
 }
 
-
+.pagination ul > li:first-child > a,
+.pagination ul > li:first-child > span,
 .pagination-mini ul > li:first-child > a,
 .pagination-mini ul > li:first-child > span {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
 }
 
+.pagination ul > li:last-child > a,
+.pagination ul > li:last-child > span
 .pagination-mini ul > li:last-child > a,
 .pagination-mini ul > li:last-child > span {
     border-bottom-right-radius: 0;
@@ -919,4 +937,28 @@ form.standard table.buttonPanel {
 .pagination ul > .active > a,
 .pagination ul > .active > span {
     font-weight: bold;
+}
+
+
+/* OpenL Tablets Bootstrap styles */
+
+.dropdown-menu > li > span {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 20px;
+    color: #444;
+    white-space: nowrap;
+}
+
+.dropdown-menu > li > a > input[type="checkbox"],
+.dropdown-menu > li > span > input[type="checkbox"] {
+    vertical-align: bottom;
+    margin-right: 5px;
+}
+
+.dropdown-form .dropdown-menu > li > span > span {
+    display: inline-block;
+    min-width: 103px;
 }
