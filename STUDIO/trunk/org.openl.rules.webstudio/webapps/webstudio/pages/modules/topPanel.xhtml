@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j">
@@ -19,7 +20,7 @@
        </div>
 
         <div>
-            <h:form id="headerForm">
+            <h:form id="headerForm" prependId="false">
                 <div class="buttonPanel">
 					<a4j:ajax oncomplete="reloadCurrent()">
 						<h:commandLink action="#{mainBean.reload}" title="Refresh" styleClass="imageButton"
@@ -50,8 +51,62 @@
 					<h:outputLink value="#test/test.xhtml"
 						title="Run #{treeBean.projectTestsCount} Test(s)"
 						rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}"
-						styleClass="imageButton"
+						styleClass="imageButton button-dropdown" onclick="test(event)"
 						style="background:url('webresource/images/test_ok.gif')" />
+                    <h:panelGroup class="dropdown dropdown-form"
+                            rendered="#{!empty rProject and treeBean.projectTestsCount > 0 and treeBean.canRun}">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
+                        <ul id="testSettings" class="dropdown-menu" role="menu" style="margin:7px 0 0 -34px">
+                            <li onclick="event.stopPropagation()">
+                                <span tabindex="-1">
+                                    <span>Tests per page</span>
+                                    <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
+                                        <f:selectItem itemLabel="1" itemValue="1" />
+                                        <f:selectItem itemLabel="5" itemValue="5" />
+                                        <f:selectItem itemLabel="20" itemValue="20" />
+                                        <f:selectItem itemLabel="All" itemValue="-1" />
+                                    </h:selectOneMenu>
+                                </span>
+                            </li>
+                            <li class="divider"></li>
+                            <li onclick="event.stopPropagation()">
+                                <span tabindex="-1">
+                                    <span>Failures Only</span>
+                                    <input name="failuresOnly" type="checkbox"
+                                        onclick="$j('#failuresSetting').toggle(this.checked)"
+                                        value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
+                                        style="vertical-align:-2px;margin:-4px" />
+                                </span>
+                            </li>
+                            <li id="failuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}"
+                                onclick="event.stopPropagation()">
+                                <span tabindex="-1">
+                                    <span>Failures per test</span>
+                                    <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
+                                        <f:selectItem itemLabel="1" itemValue="1" />
+                                        <f:selectItem itemLabel="5" itemValue="5" />
+                                        <f:selectItem itemLabel="20" itemValue="20" />
+                                        <f:selectItem itemLabel="All" itemValue="-1" />
+                                    </h:selectOneMenu>
+                                </span>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <span style="padding:6px 18px 7px">
+                                    <a href="#test/test.xhtml" class="button" onclick="test(event)">Test</a>
+                                </span>
+                            </li>
+                        </ul>
+                    </h:panelGroup>
+
+                    <script>
+                        // TODO Add to namespace
+                        function test(e) {
+                            e.preventDefault();
+                            var query = $j("#testSettings").find("select,input").serialize();
+                            goTo("test/test.xhtml?" + query);
+                        }
+                    </script>
 
                     <h:panelGroup style="margin-left: 17px;" rendered="#{studio.model.canCreateTable or studio.model.canEditProject}">
                         <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"

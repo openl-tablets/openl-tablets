@@ -1,7 +1,7 @@
 package org.openl.tablets.tutorial4.client.jsf;
 
 import org.openl.generated.beans.Driver;
-import org.openl.tablets.tutorial4.Tutorial_4Wrapper;
+import org.openl.tablets.tutorial4.Tutorial_4WrapperInterface;
 
 public class WSBean {
 	private String[] result;
@@ -36,7 +36,7 @@ public class WSBean {
 	public void getCoverage() {
 		methodName = "getCoverage"; 
 		result = new AbstractBean<String[]>() {
-			public String[] perform(Tutorial_4Wrapper client) {
+			public String[] perform(Tutorial_4WrapperInterface client) {
 				return client.getCoverage();
 			}
 		}.getResult();
@@ -45,7 +45,7 @@ public class WSBean {
 	public void getTheftRating() {
 		methodName = "getTheft_rating";
 		result = new AbstractBean<String[]>() {
-			public String[] perform(Tutorial_4Wrapper client) {
+			public String[] perform(Tutorial_4WrapperInterface client) {
 				return client.getTheft_rating();
 			}
 		}.getResult();
@@ -59,7 +59,7 @@ public class WSBean {
 		driver.setGender(param2);
 
 		String ret = new AbstractBean<String>() {
-			public String perform(Tutorial_4Wrapper client) {
+			public String perform(Tutorial_4WrapperInterface client) {
 				return client.driverAgeType(driver);
 			}
 		}.getResult();
