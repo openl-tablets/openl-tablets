@@ -210,7 +210,52 @@ public class RulesUtils {
         return (double) MathUtils.max(values);
     }
 
+    
+
+    /**
+     * Returns the greater of two {@code Comparable} values. 
+     * If either of the values is null, it throws a {@link NullPointerException} 
+     * 
+     * @param a an argument
+     * @param b another argument
+     * @return the larger of {@code a} and {@code b}. In case of equal objects returns a
+     */
+ 
+    public static <T extends Comparable<? super T>> T max(T a, T b) throws NullPointerException{
+        if (a == null) 
+        	throw new NullPointerException("The first argument of max(a,b) is null");
+        if (b == null) 
+        	throw new NullPointerException("The second argument of max(a,b) is null");
+
+        if (a == b)
+        	return a;
+        return a.compareTo(b) < 0 ? b : a;
+    }    
+    
+    
     // MIN
+    
+    /**
+     * Returns the lesser of two {@code Comparable} values. 
+     * If either of the values is null, it throws a {@link NullPointerException} 
+     * 
+     * @param a an argument
+     * @param b another argument
+     * @return the lesser of {@code a} and {@code b}. In case of equal objects returns a 
+     */
+ 
+    public static <T extends Comparable<? super T>> T min(T a, T b) throws NullPointerException{
+        if (a == null) 
+        	throw new NullPointerException("The first argument of min(a,b) is null");
+        if (b == null) 
+        	throw new NullPointerException("The second argument of min(a,b) is null");
+
+        if (a == b)
+        	return a;
+        return a.compareTo(b) > 0 ? b : a;
+    }    
+    
+    
     /**
      * <p>
      * Returns the minimum value in an array.
