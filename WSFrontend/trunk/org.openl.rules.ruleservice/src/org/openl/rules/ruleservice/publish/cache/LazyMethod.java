@@ -55,6 +55,10 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy method.", e);
         }
+        finally
+        {
+            XlsModuleOpenClass.setTopOpenClass(null); //prevent memory leak
+        }
     }
 
     public IMethodSignature getSignature() {
