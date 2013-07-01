@@ -8,8 +8,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -42,14 +40,15 @@ final class ModulesCache {
 
     private Cache cache = CacheManager.create().getCache(CACHE_NAME);
 
-    private SingleModuleInstantiationStrategy getRulesInstantiationStrategyFromCache(Module module) {
+    public SingleModuleInstantiationStrategy getRulesInstantiationStrategyFromCache(Module module) {
         Element element = cache.get(module);
-        if (element == null)
+        if (element == null) {
             return null;
+        }
         return (SingleModuleInstantiationStrategy) element.getObjectValue();
     }
 
-    private void putToCache(Module module, SingleModuleInstantiationStrategy strategy) {
+    public void putToCache(Module module, SingleModuleInstantiationStrategy strategy) {
         if (module == null) {
             throw new IllegalArgumentException("module argument can't be null");
         }
@@ -66,51 +65,6 @@ final class ModulesCache {
     public Set<Module> getModules() {
         List<Module> keys = cache.getKeys();
         return new HashSet<Module>(keys);
-    }
-
-    /**
-     * Gets cached instantiation strategy for the module or creates it in cache.
-     * 
-     * @param module Module
-     * @return Instantiation strategy for the module.
-     */
-    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module) {
-        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
-        if (strategy == null) {
-            strategy = RulesInstantiationStrategyFactory.getStrategy(module);
-            putToCache(module, strategy);
-        }
-        return strategy;
-    }
-
-    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
-        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
-        if (strategy == null) {
-            strategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
-            putToCache(module, strategy);
-        }
-        return strategy;
-    }
-
-    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
-            IDependencyManager dependencyManager) {
-        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
-        if (strategy == null) {
-            strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager);
-            putToCache(module, strategy);
-        }
-        return strategy;
-    }
-
-    public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode,
-            IDependencyManager dependencyManager, ClassLoader classLoader) {
-        SingleModuleInstantiationStrategy strategy = getRulesInstantiationStrategyFromCache(module);
-        if (strategy == null) {
-            strategy = RulesInstantiationStrategyFactory.getStrategy(module, executionMode, dependencyManager,
-                    classLoader);
-            putToCache(module, strategy);
-        }
-        return strategy;
     }
 
     /**
