@@ -10,6 +10,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 /**
  * @author snshor
@@ -72,9 +73,12 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
             //only implicit casts and explicit casts for literal are allowed for right part
             if (cast == null || (!cast.isImplicit() && !(children[1] instanceof LiteralBoundNode))) {
-                String message = String.format("Can not convert from '%s' to '%s'",
+            	if (!NullOpenClass.isAnyNull(rightType, leftType))
+            	{	
+            		String message = String.format("Can not convert from '%s' to '%s'",
                         rightType.getName(), leftType.getName());
-                BindHelper.processError(message, node, bindingContext, false);
+                	BindHelper.processError(message, node, bindingContext, false);
+            	}	
 
                 return new ErrorBoundNode(node);
             }

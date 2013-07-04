@@ -38,6 +38,9 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IBoundNode bindTargetNode(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
+    	
+    	if (targetNode.getClass() == ErrorBoundNode.class)
+            return new ErrorBoundNode(node);
 
         INodeBinder binder = findBinder(node, bindingContext);
 
@@ -200,7 +203,10 @@ public abstract class ANodeBinder implements INodeBinder {
         IOpenCast cast = bindingContext.getCast(from, to);
 
         if (cast == null || (implicitOnly && !cast.isImplicit())) {
-            throw new TypeCastException(node.getSyntaxNode(), from, to);
+        	if (!NullOpenClass.isAnyNull(from, to))
+        	{	
+        		throw new TypeCastException(node.getSyntaxNode(), from, to);
+        	}	
         }
 
         return cast;

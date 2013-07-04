@@ -85,9 +85,13 @@ public class WebStudio {
     private List<ProjectDescriptor> projects = null;
     private boolean updateSystemProperties;
 
+    // TODO Move settings to separate UserSettings class
     private RulesTreeView treeView;
     private String tableView;
     private boolean showFormulas;
+    private int testsPerPage;
+    private boolean testsFailuresOnly;
+    private int testsFailuresPerTest;
 
     private Module currentModule;
 
@@ -141,6 +145,9 @@ public class WebStudio {
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");
         showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
+        testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
+        testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
+        testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
     }
 
     private void initDependencyManager() {
@@ -483,6 +490,33 @@ public class WebStudio {
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
         userSettingsManager.setProperty("table.formulas.show", showFormulas);
+    }
+
+    public int getTestsPerPage() {
+        return testsPerPage;
+    }
+
+    public void setTestsPerPage(int testsPerPage) {
+        this.testsPerPage = testsPerPage;
+        userSettingsManager.setProperty("test.tests.perpage", testsPerPage);
+    }
+
+    public boolean isTestsFailuresOnly() {
+        return testsFailuresOnly;
+    }
+
+    public void setTestsFailuresOnly(boolean testsFailuresOnly) {
+        this.testsFailuresOnly = testsFailuresOnly;
+        userSettingsManager.setProperty("test.failures.only", testsFailuresOnly);
+    }
+
+    public int getTestsFailuresPerTest() {
+        return testsFailuresPerTest;
+    }
+
+    public void setTestsFailuresPerTest(int testsFailuresPerTest) {
+        this.testsFailuresPerTest = testsFailuresPerTest;
+        userSettingsManager.setProperty("test.failures.pertest", testsFailuresPerTest);
     }
 
     public boolean isCollapseProperties() {

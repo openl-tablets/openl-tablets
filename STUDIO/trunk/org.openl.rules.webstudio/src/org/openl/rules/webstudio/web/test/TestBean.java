@@ -32,6 +32,7 @@ import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IParameterDeclaration;
@@ -44,12 +45,28 @@ import org.openl.types.IParameterDeclaration;
 public class TestBean {
     private final Log log = LogFactory.getLog(TestBean.class);
 
+    public static final Comparator<TestUnitsResults> TEST_COMPARATOR = new Comparator<TestUnitsResults>() {
+
+        public int compare(TestUnitsResults t1, TestUnitsResults t2) {
+            if (t2 != null && t1 != null) {
+                int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+
+            return t1.getName().compareTo(t2.getName());
+        }
+    };
+
+    private WebStudio studio;
     private TestUnitsResults[] ranResults;
+
+    private final static int ALL = -1;
 
     private final static int DEFAULT_PAGE = 1;
     private int page = DEFAULT_PAGE;
     private int lastPage = DEFAULT_PAGE;
-    private int testsPerPage = 5;
 
     /**
      * URI of tested table
@@ -57,41 +74,47 @@ public class TestBean {
     private String uri;
 
     public TestBean() {
+        studio = WebStudioUtils.getWebStudio();
         uri = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
 
         TestResultsHelper.initExplanator();
         testAll();
 
         initPagination();
+        initFailures();
     }
 
     private void initPagination() {
-        String perPageParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PERPAGE);
-        if (StringUtils.isNotBlank(perPageParam)) {
-            try {
-                int initPerPage = Integer.valueOf(perPageParam);
-                if (initPerPage == -1 || initPerPage > 0) {
-                    testsPerPage = initPerPage;
-                }
-            } catch (Exception e) {
-                log.warn(e);
-            }
+        int defaultPerPage = studio.getTestsPerPage();
+        int perPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PERPAGE, defaultPerPage);
+        if ((perPage == ALL || perPage > 0) && perPage != defaultPerPage) {
+            studio.setTestsPerPage(perPage);
         }
 
         if (ranResults != null && ranResults.length > 0) {
-            lastPage = testsPerPage == -1 ? DEFAULT_PAGE : ((int) Math.ceil((double) ranResults.length / testsPerPage));
+            lastPage = studio.getTestsPerPage() == ALL ? DEFAULT_PAGE
+                    : ((int) Math.ceil((double) ranResults.length / studio.getTestsPerPage()));
         }
 
-        String pageParam = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_PAGE);
-        if (StringUtils.isNotBlank(pageParam)) {
-            try {
-                int initPage = Integer.valueOf(pageParam);
-                if (initPage > DEFAULT_PAGE && initPage <= lastPage) {
-                    page = initPage;
-                }
-            } catch (Exception e) {
-                log.warn(e);
-            }
+        int initPage = FacesUtils.getRequestIntParameter(Constants.REQUEST_PARAM_PAGE, DEFAULT_PAGE);
+        if (initPage > DEFAULT_PAGE && initPage <= lastPage) {
+            page = initPage;
+        }
+    }
+
+    private void initFailures() {
+        boolean defaultFailuresOnly = studio.isTestsFailuresOnly();
+        boolean failuresOnly = Boolean.valueOf(
+                FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_FAILURES_ONLY));
+        if (failuresOnly != defaultFailuresOnly) {
+            studio.setTestsFailuresOnly(failuresOnly);
+        }
+
+        int defaultFailuresPerTest = studio.getTestsFailuresPerTest();
+        int failuresPerTest = FacesUtils.getRequestIntParameter(
+                Constants.REQUEST_PARAM_FAILURES_NUMBER, defaultFailuresPerTest);
+        if ((failuresPerTest == ALL || failuresPerTest > 0) && failuresPerTest != defaultFailuresPerTest) {
+            studio.setTestsFailuresPerTest(failuresPerTest);
         }
     }
 
@@ -101,14 +124,6 @@ public class TestBean {
 
     public int getLastPage() {
         return lastPage;
-    }
-
-    public int getTestsPerPage() {
-        return testsPerPage;
-    }
-
-    public void setTestsPerPage(int testsPerPage) {
-        this.testsPerPage = testsPerPage;
     }
 
     private void testAll() {
@@ -136,29 +151,35 @@ public class TestBean {
     }
 
     public TestUnitsResults[] getRanTests() {
-        Comparator<TestUnitsResults> c = new Comparator<TestUnitsResults>() {
+        Arrays.sort(ranResults, TEST_COMPARATOR);
 
-            public int compare(TestUnitsResults t1, TestUnitsResults t2) {
-                if (t2 != null && t1 != null) {
-                    int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
-                    if (cmp != 0) {
-                        return cmp;
-                    }
-                }
-
-                return t1.getName().compareTo(t2.getName());
-            }
-
-        };
-        Arrays.sort(ranResults, c);
+        int testsPerPage = studio.getTestsPerPage();
 
         int startPos = (page - 1) * testsPerPage;
         int endPos = startPos + testsPerPage;
-        if (endPos >= ranResults.length || testsPerPage == -1) {
+        if (endPos >= ranResults.length || testsPerPage == ALL) {
             endPos = ranResults.length;
         }
 
         return Arrays.copyOfRange(ranResults, startPos, endPos);
+    }
+
+    public List<TestUnit> getFilteredTestCases(TestUnitsResults testResult) {
+        List<TestUnit> cases = testResult.getTestUnits();
+
+        if (studio.isTestsFailuresOnly()) {
+            List<TestUnit> failedCases = new ArrayList<TestUnit>();
+            for (TestUnit testUnit : cases) {
+                if (testUnit.compareResult() != 0 // Failed case
+                        && (failedCases.size() < studio.getTestsFailuresPerTest()
+                                || studio.getTestsFailuresPerTest() == ALL)) {
+                    failedCases.add(testUnit);
+                }
+            }
+            return failedCases;
+        }
+
+        return cases;
     }
 
     public int getNumberOfTests() {
