@@ -250,47 +250,17 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         }
         return resultProperties;
     }
-    
-    /**
-     * Validation for properties name
-     */
-    public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
-        FacesMessage message = new FacesMessage();
-        String name = ((String) value).toUpperCase();
 
-        if (name.isEmpty()) {
+    /**
+     * Validation for properties value
+     */
+    public void validatePropsValue(FacesContext context, UIComponent toValidate, Object value) {
+        FacesMessage message = new FacesMessage();
+        String val = ((String) value).toUpperCase();
+
+        if (val.isEmpty()) {
             message.setDetail("Can not be empty");
             throw new ValidatorException(message);
         }
-
-        String pattern = "([a-zA-Z_][a-zA-Z_0-9]*)?";
-        if (!name.matches(pattern)) {
-            message.setDetail("Invalid name for parameter");
-            throw new ValidatorException(message);
-        }
-
-        int i = 0;
-        int paramId = this.getPropId(toValidate.getClientId());
-        for (TableProperty prop : propertiesManager.getProperties()) {
-            if (paramId != i && prop.getStringValue() != null && prop.getStringValue().toUpperCase().equals(name)) {
-                message.setDetail("Parameter with such name already exists");
-                throw new ValidatorException(message);
-            }
-
-            i++;
-        }
     }
-
-    private int getPropId(String componentId) {
-        if(componentId != null) {
-            String[] elements = componentId.split(":");
-            
-            if (elements.length > 3) {
-                return Integer.parseInt(elements[2]);
-            }
-        }
-        
-        return 0;
-    }
-
 }
