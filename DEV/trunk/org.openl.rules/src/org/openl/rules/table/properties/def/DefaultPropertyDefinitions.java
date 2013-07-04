@@ -439,7 +439,7 @@ public class DefaultPropertyDefinitions
 		definitions[32].setName("precision");
 		definitions[32].setPrimaryKey(false);
 		definitions[32].setSystem(false);
-		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_RUN_METHOD, XlsNodeTypes.XLS_PROPERTIES});
+		definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
