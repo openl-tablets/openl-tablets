@@ -50,7 +50,7 @@
                                 <oh:multiselect items="#{prop.enumArrayItems}"
                                     selected="#{prop.enumArrayValue}" rendered="#{prop.enumArray}" required="true" requiredMessage="Please select anything"/>
 
-                                <h:inputText id="inputText" value="#{prop.value}" validator="#{wizard.validatePropsName}"
+                                <h:inputText id="inputText" value="#{prop.value}" validator="#{wizard.validatePropsValue}"
                                     rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}"/>
 
                                 <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">

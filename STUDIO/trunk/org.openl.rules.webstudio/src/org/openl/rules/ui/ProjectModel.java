@@ -502,11 +502,9 @@ public class ProjectModel {
     }
 
     private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
-
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-
             IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
 
             if (resolvedMethod != null) {
@@ -521,7 +519,6 @@ public class ProjectModel {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-
             IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
 
             if (resolvedMethod != null) {
