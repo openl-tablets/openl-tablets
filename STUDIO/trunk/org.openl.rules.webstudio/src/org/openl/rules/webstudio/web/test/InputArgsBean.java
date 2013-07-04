@@ -6,6 +6,7 @@ import javax.faces.bean.ViewScoped;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -69,7 +70,14 @@ public class InputArgsBean {
             for (int i = 0; i < arguments.length; i++) {
                 arguments[i] = argumentTreeNodes[i].getValueForced();
             }
-            TestDescription testDescription = new TestDescription(method, arguments);
+
+            TestDescription testDescription;
+            if (method instanceof OpenMethodDispatcher) {
+                testDescription = new TestDescription(getCurrentMethodFromDispatcher(method), arguments);
+            } else {
+                testDescription = new TestDescription(method, arguments);
+            }
+
             TestSuite testSuite = new TestSuite(testDescription);
             WebStudioUtils.getProjectModel().addTestSuiteToRun(testSuite);
         } catch (RuntimeException e) {
@@ -80,6 +88,11 @@ public class InputArgsBean {
                 throw e;
             }
         }
+    }
+
+    private IOpenMethod getCurrentMethodFromDispatcher(IOpenMethod method) {
+        ProjectModel projectModel = WebStudioUtils.getProjectModel();
+        return projectModel.getCurrentDispatcherMethod(method, uri);
     }
 
     public void initObject() {

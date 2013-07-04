@@ -6,6 +6,9 @@ import java.util.List;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -186,7 +189,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             //
             StringBuilder sb = new StringBuilder();
             MethodUtil.printMethod(getName(), getSignature(), sb);
-            
+
             throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());
         }
     }
@@ -199,4 +202,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @return method to invoke
      */
     protected abstract IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context);
+
+    public IOpenMethod getTargetMethod() {
+        return this.delegate;
+    }
 }

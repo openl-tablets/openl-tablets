@@ -367,7 +367,7 @@ public class ProjectModel {
         if (compiledOpenClass == null) {
             return Collections.emptyList();
         }
-        
+
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         List<TableSyntaxNode> list = new ArrayList<TableSyntaxNode>();
@@ -475,7 +475,7 @@ public class ProjectModel {
         if(!isProjectCompiledSuccessfully()) {
             return null;
         }
-            
+
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         for (IOpenMethod method : openClass.getMethods()) {
@@ -511,6 +511,21 @@ public class ProjectModel {
 
             if (resolvedMethod != null) {
                 return method;
+            }
+        }
+
+        return null;
+    }
+
+    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+        List<IOpenMethod> candidates = method.getCandidates();
+
+        for (IOpenMethod candidate : candidates) {
+
+            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+
+            if (resolvedMethod != null) {
+                return resolvedMethod;
             }
         }
 
@@ -1383,5 +1398,10 @@ public class ProjectModel {
     
     private IDependencyManager getDependencyManager() {
         return modulesCache.wrapToCollectDependencies(studio.getDependencyManager(), moduleInfo);
+    }
+
+    public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
+        TableSyntaxNode tsn = getNode(uri);
+        return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
     }
 }
