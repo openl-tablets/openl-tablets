@@ -281,6 +281,7 @@ public class SystemSettingsBean {
             }
 
             for (RepositoryConfiguration prodConfig : deletedConfigurations) {
+                deploymentManager.removeRepository(prodConfig.getConfigName());
                 prodConfig.delete();
             }
 
@@ -379,8 +380,6 @@ public class SystemSettingsBean {
 
     public void deleteProductionRepository(String configName) {
         try {
-            deploymentManager.removeRepository(configName);
-
             String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
             configNames = (String[]) ArrayUtils.removeElement(configNames, configName);
             configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
