@@ -30,6 +30,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -196,6 +197,12 @@ public class SpreadsheetStructureBuilder {
             componentsBuilder.getTableSyntaxNode().addError(e);
             BindHelper.processError(e, spreadsheetBindingContext);
         }
+        catch (CompositeSyntaxNodeException e) {
+
+            componentsBuilder.getTableSyntaxNode().addError(e);
+            BindHelper.processError(e, spreadsheetBindingContext);
+        }
+
     }
 
     /**

@@ -52,7 +52,8 @@ public class CellLoader {
                 } catch (CompositeSyntaxNodeException e) {
                     // catch the error of making method and wrap it to SyntaxNodeException.
                     //
-                    throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);                    
+                    //throw SyntaxNodeExceptionUtils.createError("Error loading cell value", e, null, source);
+                	throw e;
                 }
             }
         }

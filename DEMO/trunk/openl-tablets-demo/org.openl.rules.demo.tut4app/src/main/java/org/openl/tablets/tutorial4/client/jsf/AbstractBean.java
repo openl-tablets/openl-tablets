@@ -1,6 +1,6 @@
 package org.openl.tablets.tutorial4.client.jsf;
 
-import org.openl.tablets.tutorial4.Tutorial_4Wrapper;
+import org.openl.tablets.tutorial4.Tutorial_4WrapperInterface;
 import org.openl.tablets.tutorial4.client.WebServiceCallback;
 import org.openl.tablets.tutorial4.client.WebServiceTemplate;
 
@@ -11,7 +11,7 @@ public abstract class AbstractBean<T> {
 	public <T> T getResult() {
 		try {
 			return (T) WebServiceTemplate.getInstance().run(new WebServiceCallback() {
-				public Object doAction(Tutorial_4Wrapper client) {
+				public Object doAction(Tutorial_4WrapperInterface client) {
 					return perform(client);
 				}
 			});
@@ -21,5 +21,5 @@ public abstract class AbstractBean<T> {
 		}
 	}
 
-	public abstract <T> T perform(Tutorial_4Wrapper client);
+	public abstract <T> T perform(Tutorial_4WrapperInterface client);
 }

@@ -72,41 +72,6 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 		}
 	}
 
-//	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-//			throws Exception {
-//		BindHelper.processError("This node always binds  with target", node,
-//				bindingContext);
-//
-//		return new ErrorBoundNode(node);
-//	}
-//
-//	public IBoundNode bindTargetZZZ(ISyntaxNode node,
-//			IBindingContext bindingContext, IBoundNode targetNode)
-//			throws Exception {
-//
-//		if (node.getNumberOfChildren() != 1) {
-//			BindHelper.processError("Index node must have  exactly 1 subnode",
-//					node, bindingContext);
-//
-//			return new ErrorBoundNode(node);
-//		}
-//
-//		IOpenClass containerType = targetNode.getType();
-//		IAggregateInfo info = containerType.getAggregateInfo();
-//
-//		String varName = BindHelper.getTemporaryVarName(bindingContext,
-//				ISyntaxConstants.THIS_NAMESPACE, TEMPORARY_VAR_NAME);
-//		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
-//				varName, info.getComponentType(containerType));
-//
-//		IBoundNode[] children = bindChildren(node, new TypeBindingContext(
-//				bindingContext, var));
-//		IBoundNode conditionNode = BindHelper.checkConditionBoundNode(
-//				children[0], bindingContext);
-//
-//		return new ConditionalSelectIndexNode(node, new IBoundNode[] {
-//				targetNode, conditionNode }, var);
-//	}
 
 	@Override
 	public String getDefaultTempVarName(IBindingContext bindingContext) {

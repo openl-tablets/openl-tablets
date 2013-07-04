@@ -19,5 +19,21 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
     }
 
     protected abstract IDomain<? extends Object> indexedDomain(ICondition condition) throws DomainCanNotBeDefined;    
+
+    
+    //Added to support dependent parameters
+    
+    private String optimizedSourceCode;
+
+
+	public String getOptimizedSourceCode() {
+		return optimizedSourceCode;
+	}
+
+	public void setOptimizedSourceCode(String optimizedSourceCode) {
+		this.optimizedSourceCode = optimizedSourceCode;
+	}
+    
+
     
 }

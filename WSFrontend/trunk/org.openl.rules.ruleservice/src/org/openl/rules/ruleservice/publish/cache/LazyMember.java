@@ -3,6 +3,8 @@ package org.openl.rules.ruleservice.publish.cache;
 import java.util.Map;
 
 import org.openl.dependency.IDependencyManager;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -21,7 +23,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private boolean executionMode;
     private T original;
     private Map<String, Object> externalParameters;
-    
+
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it
      * contains generated classes for datatypes.(If we use different
@@ -30,21 +32,42 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      */
     private ClassLoader classLoader;
 
-    public LazyMember(IDependencyManager dependencyManager,
-			boolean executionMode, ClassLoader classLoader, T original, Map<String, Object> externalParameters) {
-		this.dependencyManager = dependencyManager;
-		this.executionMode = executionMode;
-		this.classLoader = classLoader;
-		this.original = original;
-		this.externalParameters = externalParameters;
-	}
+    public LazyMember(IDependencyManager dependencyManager, boolean executionMode, ClassLoader classLoader, T original,
+            Map<String, Object> externalParameters) {
+        this.dependencyManager = dependencyManager;
+        this.executionMode = executionMode;
+        this.classLoader = classLoader;
+        this.original = original;
+        this.externalParameters = externalParameters;
+    }
 
-	/**
+    protected abstract T getMember(SingleModuleInstantiationStrategy strategy);
+
+    /**
      * Compiles method declaring the member and returns it.
      * 
      * @return Real member in compiled module.
      */
-    public abstract T getMember(IRuntimeEnv env);
+    protected final T getMember(IRuntimeEnv env) {
+        final Module module = getModule(env);
+        SingleModuleInstantiationStrategy strategy = getCache().getRulesInstantiationStrategyFromCache(module);
+        if (strategy == null) {
+            strategy = RulesInstantiationStrategyFactory.getStrategy(module, isExecutionMode(), getDependencyManager(),
+                    getClassLoader());
+            synchronized (this) {
+                SingleModuleInstantiationStrategy strategy1 = getCache().getRulesInstantiationStrategyFromCache(module);
+                if (strategy1 == null) {
+                    getCache().putToCache(module, strategy);
+                } else {
+                    strategy = strategy1;
+                }
+                strategy.setExternalParameters(getExternalParameters());
+            }
+        }
+        synchronized (strategy) {
+            return getMember(strategy);
+        }
+    }
 
     protected ModulesCache getCache() {
         return ModulesCache.getInstance();
@@ -56,7 +79,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     public abstract Module getModule(IRuntimeEnv env);
 
     /**
-     * @return DependencyManager used for lazy compiling. 
+     * @return DependencyManager used for lazy compiling.
      */
     protected IDependencyManager getDependencyManager() {
         return dependencyManager;
@@ -65,13 +88,13 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     protected boolean isExecutionMode() {
         return executionMode;
     }
-    
+
     /**
-     * @return ClassLoader used for lazy compiling. 
+     * @return ClassLoader used for lazy compiling.
      */
     public ClassLoader getClassLoader() {
-		return classLoader;
-	}
+        return classLoader;
+    }
 
     public T getOriginal() {
         return original;
