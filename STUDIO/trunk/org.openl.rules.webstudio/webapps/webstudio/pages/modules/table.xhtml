@@ -80,6 +80,20 @@
         .targetTablesPopup div {
             margin-bottom: 3px;
         }
+
+        #runCasesSettings {
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            margin: 5px 0 3px;
+            padding: 7px 0;
+        }
+        #runCasesSettings > div {
+            padding: 4px 15px;
+        }
+        #runCasesSettings > div > span {
+            display: inline-block;
+            min-width: 103px;
+        }
     </style>
 
     <c:if test="#{!tableBean.dispatcherValidationNode}">
@@ -147,15 +161,15 @@
                     <h:form prependId="false">
                         <c:set var="runLink"
                             value="#{tableBean.table.type == 'xls.run.method' ? 'test/run.xhtml' : 'test/test.xhtml'}?uri=#{tableBean.encodedUri}" />
-                        <div id="unitsMenu" style="display: none">
+                        <div id="unitsMenu" style="display: none; min-width: 175px">
                             <c:set var="columnSize" value="#{fn:length(tableBean.tests[0].executionParams)}" />
-                            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px">
+                            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%">
                                 <tr>
                                     <th>
                                         <h:selectBooleanCheckbox id="allTestCheck" value="true" onclick="changeAllItemStatus(this, 'unitsMenu')" title="Check/Uncheck All" />
                                     </th>
                                     <th colspan="#{columnSize}">
-                                        Test Parameter(s)
+                                        Test Cases
                                     </th>
                                 </tr>
                                 <ui:repeat var="test" value="#{tableBean.tests}">
@@ -173,10 +187,28 @@
                                 </tr>
                                 </ui:repeat>
                             </table>
+                            <div id="runCasesSettings">
+                                <div>
+                                    <span>Failures Only</span>
+                                    <input name="failuresOnly" type="checkbox"
+                                        onclick="$j('#caseFailuresSetting').toggle(this.checked)"
+                                        value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
+                                        style="vertical-align:-2px;margin:-4px" />
+                                </div>
+                                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
+                                    <span>Failures per test</span>
+                                    <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
+                                        <f:selectItem itemLabel="1" itemValue="1" />
+                                        <f:selectItem itemLabel="5" itemValue="5" />
+                                        <f:selectItem itemLabel="20" itemValue="20" />
+                                        <f:selectItem itemLabel="All" itemValue="-1" />
+                                    </h:selectOneMenu>
+                                </div>
+                            </div>
                             <div style="padding: 6px 5px">
                                 <a4j:commandButton id="runButton" action="#{tableBean.makeTestSuite}" value="Run"
                                     rendered="#{tableBean.canRun}"
-                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="goTo('#{runLink}')"
+                                    title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases()"
                                     style="display:none" />
                                 <a4j:commandButton id="traceButton" action="#{tableBean.makeTestSuite}"
                                     rendered="#{tableBean.canTrace}"
@@ -208,7 +240,7 @@
                                                     <img src="webresource/images/run.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#runButton').show();$j('#traceButton, #traceIntoFileButton, #benchmarkButton').hide();return false;"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#runButton, #runCasesSettings').show();$j('#traceButton, #traceIntoFileButton, #benchmarkButton').hide();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -234,7 +266,7 @@
                                                     <img src="webresource/images/trace.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#traceButton, #traceIntoFileButton').show();$j('#runButton, #benchmarkButton').hide();return false;"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#traceButton, #traceIntoFileButton').show();$j('#runButton, #runCasesSettings, #benchmarkButton').hide();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -261,7 +293,7 @@
                                                     <img src="webresource/images/clock-icon.png" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#benchmarkButton').show();$j('#runButton, #traceButton, #traceIntoFileButton').hide();return false;"
+                                                    onclick="showButtonMenu(event, 'unitsMenu', 'a');$j('#benchmarkButton').show();$j('#runButton, #runCasesSettings, #traceButton, #traceIntoFileButton').hide();return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -528,6 +560,11 @@
 
             message("No tests selected", 3000);
             return false;
+        }
+
+        function runTestCases() {
+            var query = $j("#runCasesSettings").find("select,input").serialize();
+            goTo("#{runLink}&" + query);
         }
 
         function canLeavePage() {
