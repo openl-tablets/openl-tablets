@@ -15,13 +15,9 @@
         <link href="#{contextPath}/css/layout/simple.css" rel="stylesheet" />
         <script src="#{contextPath}/javascript/common.js"></script>
         <script src="#{contextPath}/javascript/jquery-1.7.2.min.js"></script>
-        <script src="#{contextPath}/javascript/jquery.layout.js"></script>
 
         <script>
             var $j = $.noConflict();
-            $j(document).ready(function () {
-                $j("body").layout();
-            });
         </script>
 
         <title>
@@ -30,15 +26,15 @@
     </h:head>
 
     <h:body>
-        <div id="header" class="ui-layout-north">
+        <div id="header">
             <ui:insert name="header">
                 <ui:include src="/pages/common/simpleHeader.xhtml" />
             </ui:insert>
         </div>
-        <div id="content" class="ui-layout-center">
+        <div id="content">
             <ui:insert name="content" />
         </div>
-        <div id="footer" class="ui-layout-south">
+        <div id="footer">
             <ui:insert name="footer">
                 <ui:include src="/pages/common/footer.xhtml" />
             </ui:insert>
