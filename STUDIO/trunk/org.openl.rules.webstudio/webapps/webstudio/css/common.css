@@ -70,7 +70,9 @@ input[type='button']:disabled, button:disabled,
     cursor: default;
 }
 
-.button, .button-primary {
+.button,
+.button-primary,
+.button-secondary {
     text-decoration: none;
 }
 
@@ -78,14 +80,24 @@ input[type='button']:disabled, button:disabled,
     padding: 5px 6px;
 }
 
-.button-primary {
-    background: #ff8111 !important;
-    border-color: #ff8111 !important;
+.button-primary,
+.button-secondary {
     color: white !important;
     box-shadow: none !important;
 }
 
-a.button-primary {
+.button-primary {
+    background: #ff8111 !important;
+    border-color: #ff8111 !important;
+}
+
+.button-secondary {
+    background: #55b1f7 !important;
+    border-color: #5af !important;
+}
+
+a.button-primary,
+a.button-secondary {
     padding: 6px 8px;
 }
 
@@ -97,18 +109,21 @@ a.button-primary {
 }
 
 .button + .dropdown-menu,
-.button-primary + .dropdown-menu {
+.button-primary + .dropdown-menu,
+.button-secondary + .dropdown-menu {
     margin-top: 7px;
     margin-left: 2px;
 }
 
 .button > .caret,
-.button-primary > .caret {
+.button-primary > .caret,
+.button-secondary > .caret {
     margin-left: 4px;
 }
 
 .buttonPanel .button,
 .buttonPanel .button-primary,
+.buttonPanel .button-secondary,
 .buttonPanel .imageButton {
     margin: 0px 2px;
 }
