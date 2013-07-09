@@ -8,9 +8,9 @@ html, body {
     border-bottom: 1px solid #f3f3f3;
     padding: 4px 11px;
     background: #f9f9f9;
-    height: 31px;
-    -moz-box-sizing: padding-box;
-    box-sizing: padding-box;
+    height: 32px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 #content {
