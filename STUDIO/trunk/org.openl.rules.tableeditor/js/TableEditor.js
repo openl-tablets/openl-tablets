@@ -70,7 +70,6 @@ var TableEditor = Class.create({
         Event.stopObserving(document, "keydown");
         Event.stopObserving(document, "keypress");
         this.tableContainer.stopObserving("dblclick");
-        this.tableContainer.stopObserving("contextmenu");
 
         if (this.mode == this.Modes.EDIT) {
             this.initEditMode();
@@ -81,9 +80,9 @@ var TableEditor = Class.create({
         });
 
         if (this.editable || $(this.menuId)) {
-            this.tableContainer.observe("contextmenu", function(e) {
+            this.tableContainer.oncontextmenu = function(e) {
                 self.handleContextMenu(e);
-            });
+            };
         }
     },
 
