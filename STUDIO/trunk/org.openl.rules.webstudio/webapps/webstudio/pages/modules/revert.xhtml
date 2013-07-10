@@ -24,13 +24,13 @@
 
     <h:panelGroup rendered="#{empty history}">
         <h:panelGrid>
-            <p class="info_box">#{msg['ws.revert.no']}</p>
+            <p class="problem-info">#{msg['ws.revert.no']}</p>
         </h:panelGrid>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{not empty history}">
         <h:panelGrid>
-            <h:messages globalOnly="true" errorClass="error_box" infoClass="info_box"
+            <h:messages globalOnly="true" errorClass="problem-error" infoClass="problem-info"
                 style="list-style: none; padding: 0px" />
         </h:panelGrid>
 

@@ -353,7 +353,7 @@ verticalRenderer = {
                 td = document.createElement('td');
 
                 d = document.createElement('div');
-                $j(d).addClass('error_box')
+                $j(d).addClass('problem-error')
                     .html(error[i])
                     .appendTo(td);
 
