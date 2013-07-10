@@ -79,7 +79,7 @@ public class ProblemsBean {
 
     private TreeNode createMessagesRoot(String rootName, int messagesNumber) {
         TreeNode messagesRoot = new TreeNode(
-                rootName + " [" + messagesNumber + "]", rootName, null, 0, 0, rootName.toLowerCase(), true);
+                rootName, rootName, null, 0, messagesNumber, rootName.toLowerCase(), true);
         return messagesRoot;
     }
 

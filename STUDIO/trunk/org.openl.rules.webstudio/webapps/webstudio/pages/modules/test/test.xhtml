@@ -197,7 +197,7 @@
                                             <h:panelGroup rendered="#{testBean.isResultThrowable(testUnit)}">
                                                 <ui:repeat value="#{testBean.getResultMessages(testUnit)}" var="actualParam">
                                                     <c:set var="messageBoxClass"
-                                                        value="#{message.severity == 'ERROR' ? 'error_box' : (message.severity == 'WARN' ? 'warning_box' : 'info_box')}" />
+                                                        value="#{message.severity == 'ERROR' ? 'problem-error' : (message.severity == 'WARN' ? 'problem-warning' : 'problem-info')}" />
                                                     <div class="#{messageBoxClass}">
                                                         <h:outputText id="summary" value="#{actualParam.summary}" />
                                                     </div>

@@ -11,7 +11,7 @@
 
     <a4j:repeat value="#{messages}" var="message" binding="#{messagesBean.messages}">
         <c:set var="messageBoxClass"
-            value="#{message.severity == 'ERROR' ? 'error_box' : (message.severity == 'WARN' ? 'warning_box' : 'info_box')}" />
+            value="#{message.severity == 'ERROR' ? 'problem-error' : (message.severity == 'WARN' ? 'problem-warning' : 'problem-info')}" />
 
         <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
         <div class="#{messageBoxClass}">

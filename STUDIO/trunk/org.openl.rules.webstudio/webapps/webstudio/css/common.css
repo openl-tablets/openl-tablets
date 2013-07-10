@@ -218,26 +218,34 @@ fieldset {
     z-index: 10001;
 }
 
-.info_box,
-.warning_box,
-.error_box {
+.problem-error,
+.problem-warning,
+.problem-info {
     padding: 12px;
     border-radius: 1px;
+    border-left-style: solid;
+    border-left-width: 3px;
 }
 
-.info_box {
-    background: #D8E3F8;
-    border-left: 3px solid #8EBCFF;
-}
-
-.warning_box {
-    background: #FFF9AD;
-    border-left: 3px solid #EFCA5F;
-}
-
-.error_box {
+.problem-error {
     background: #FFE9E4;
-    border-left: 3px solid #FF725C;
+    border-left-color: #FF6234;
+}
+
+.problem-warning {
+    background: #FFF9AD;
+    border-left-color: #EFCA5F;
+}
+
+.problem-info {
+    background: #DAEBFF;
+    border-left-color: #92BFFF;
+}
+
+.problem-small {
+	background: transparent;
+    padding: 0 5px;
+    border-left-width: 2px
 }
 
 #topPanel {
@@ -295,17 +303,20 @@ fieldset {
 }
 
 .badge-small {
-    font-size: 8px;
-    padding: 0 3px 1px;
-    padding-top: 1px\9; /* IE 9*/
-}
-
-.badge-info {
-    background: #59c;
+    padding: 1px 4px 2px;
+    padding-top: 2px\9; /* IE 9*/
 }
 
 .badge-error {
     background: #f54;
+}
+
+.badge-warning {
+    background: #FFD200;
+}
+
+.badge-info {
+    background: #59c;
 }
 
 .close {
