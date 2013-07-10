@@ -101,6 +101,10 @@ a.button-secondary {
     padding: 6px 8px;
 }
 
+.button-large {
+    padding: 5px 7px !important;
+}
+
 .imageButton {
     padding: 5px 16px;
     background-repeat: no-repeat !important;
