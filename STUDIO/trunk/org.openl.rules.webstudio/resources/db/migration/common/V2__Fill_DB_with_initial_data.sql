@@ -1,10 +1,10 @@
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('user', 'ee11cbb19052e40b07aac0ca060c23ee');
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('u0', '3e334e859879af256d3827d651b7804a');
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('u1', 'e4774cdda0793f86414e8b9140bb6db4');
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('u2', '270c1b084f3f146eb5787075158d9c53');
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('u3', '532a7b8e0328a8d05a8e6258b28b9a36');
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('u4', '7b8d62fd2f0f5b2e3ba5437e5b983128');
-INSERT INTO ${schemaPrefix}OpenlUser (LoginName, Password) VALUES('a1', '8a8bb7cd343aa2ad99b7d762030857a2');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('user', 'ee11cbb19052e40b07aac0ca060c23ee');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('u0', '3e334e859879af256d3827d651b7804a');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('u1', 'e4774cdda0793f86414e8b9140bb6db4');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('u2', '270c1b084f3f146eb5787075158d9c53');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('u3', '532a7b8e0328a8d05a8e6258b28b9a36');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('u4', '7b8d62fd2f0f5b2e3ba5437e5b983128');
+INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('a1', '8a8bb7cd343aa2ad99b7d762030857a2');
 
 INSERT INTO ${schemaPrefix}UserGroup (GroupName, Description, UserPrivileges) VALUES ('Viewers', NULL, 'PRIVILEGE_VIEW_PROJECTS');
 INSERT INTO ${schemaPrefix}UserGroup (GroupName, Description, UserPrivileges) VALUES ('Developers', NULL, 'PRIVILEGE_CREATE_PROJECTS,PRIVILEGE_EDIT_PROJECTS,PRIVILEGE_ERASE_PROJECTS,PRIVILEGE_DELETE_PROJECTS,PRIVILEGE_CREATE_TABLES,PRIVILEGE_EDIT_TABLES,PRIVILEGE_REMOVE_TABLES');
@@ -25,7 +25,7 @@ INSERT INTO ${schemaPrefix}Group2Group (GroupID, IncludedGroupID) (
 
 INSERT INTO ${schemaPrefix}User2Group (UserID, GroupID) (
 	SELECT u.UserID, g.GroupID
-	FROM OpenlUser u, UserGroup g
+	FROM OpenLUser u, UserGroup g
 	WHERE u.LoginName = 'user' AND g.GroupName = 'Viewers'
 		OR u.LoginName = 'u0' AND g.GroupName = 'Testers'
 		OR u.LoginName = 'u1' AND g.GroupName = 'Developers'

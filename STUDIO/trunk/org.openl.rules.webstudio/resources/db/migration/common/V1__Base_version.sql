@@ -1,6 +1,6 @@
 ${create_hibernate_sequence}
 
-CREATE TABLE ${schemaPrefix}OpenlUser (
+CREATE TABLE ${schemaPrefix}OpenLUser (
     UserID ${identity_column},
     FirstName   varchar(50) default null,
     Surname varchar(50) default null,
@@ -22,7 +22,7 @@ CREATE TABLE ${schemaPrefix}User2Group (
     UserID  ${bigint} not null,
     GroupID ${bigint} not null,
     PRIMARY KEY (UserID, GroupID),
-    CONSTRAINT fk_User2Group1 FOREIGN KEY (UserID) REFERENCES OpenlUser(UserID),
+    CONSTRAINT fk_User2Group1 FOREIGN KEY (UserID) REFERENCES OpenLUser(UserID),
     CONSTRAINT fk_User2Group2 FOREIGN KEY (GroupID) REFERENCES UserGroup(GroupID)
 );
 
@@ -41,7 +41,7 @@ CREATE TABLE ${schemaPrefix}AccessControlEntry (
     GroupID ${bigint} default null,
     UserID  ${bigint} default null,
     PRIMARY KEY (ACEID),
-    CONSTRAINT fk_AccessControlEntry1 FOREIGN KEY (UserID) REFERENCES OpenlUser(UserID),
+    CONSTRAINT fk_AccessControlEntry1 FOREIGN KEY (UserID) REFERENCES OpenLUser(UserID),
     CONSTRAINT fk_AccessControlEntry2 FOREIGN KEY (GroupID) REFERENCES UserGroup(GroupID)
 );
 
