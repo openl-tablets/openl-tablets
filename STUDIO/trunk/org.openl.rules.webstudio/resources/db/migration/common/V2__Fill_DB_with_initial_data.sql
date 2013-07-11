@@ -13,8 +13,8 @@ INSERT INTO ${schemaPrefix}UserGroup (GroupName, Description, UserPrivileges) VA
 INSERT INTO ${schemaPrefix}UserGroup (GroupName, Description, UserPrivileges) VALUES ('Analysts', NULL, '');
 INSERT INTO ${schemaPrefix}UserGroup (GroupName, Description, UserPrivileges) VALUES ('Administrators', NULL, 'PRIVILEGE_ALL');
 
-INSERT INTO ${schemaPrefix}Group2Group (GroupId, IncludedGroupId) (
-	SELECT g1.GroupId, g2.GroupId
+INSERT INTO ${schemaPrefix}Group2Group (GroupID, IncludedGroupID) (
+	SELECT g1.GroupID, g2.GroupID
 	FROM UserGroup g1, UserGroup g2
 	WHERE g1.GroupName = 'Developers' AND g2.GroupName = 'Viewers'
 		OR g1.GroupName = 'Deployers' AND g2.GroupName = 'Viewers'
@@ -23,8 +23,8 @@ INSERT INTO ${schemaPrefix}Group2Group (GroupId, IncludedGroupId) (
 		OR g1.GroupName = 'Analysts' AND g2.GroupName = 'Testers'
 );
 
-INSERT INTO ${schemaPrefix}User2Group (UserId, GroupId) (
-	SELECT u.UserID, g.GroupId
+INSERT INTO ${schemaPrefix}User2Group (UserID, GroupID) (
+	SELECT u.UserID, g.GroupID
 	FROM OpenlUser u, UserGroup g
 	WHERE u.LoginName = 'user' AND g.GroupName = 'Viewers'
 		OR u.LoginName = 'u0' AND g.GroupName = 'Testers'
@@ -36,8 +36,8 @@ INSERT INTO ${schemaPrefix}User2Group (UserId, GroupId) (
 		OR u.LoginName = 'a1' AND g.GroupName = 'Administrators'
 );
 
-INSERT INTO ${schemaPrefix}AccessControlEntry (Permission, Object, GroupId) (
-	SELECT 'r+w+', '/repo1/project1', g.GroupId
+INSERT INTO ${schemaPrefix}AccessControlEntry (permission, object, GroupID) (
+	SELECT 'r+w+', '/repo1/project1', g.GroupID
 	FROM UserGroup g
 	WHERE g.GroupName = 'Viewers'
 );
