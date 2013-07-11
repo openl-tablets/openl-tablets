@@ -7,7 +7,7 @@ CREATE TABLE ${schemaPrefix}OpenlUser (
     LoginName varchar(50) not null unique,
     Password varchar(50)not null,
     UserPrivileges ${longtext},
-    PRIMARY KEY (UserId)
+    PRIMARY KEY (UserID)
 );
 
 CREATE TABLE ${schemaPrefix}UserGroup (
