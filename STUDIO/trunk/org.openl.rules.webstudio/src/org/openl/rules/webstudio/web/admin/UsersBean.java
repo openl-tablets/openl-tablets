@@ -28,6 +28,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
@@ -144,8 +145,9 @@ public class UsersBean {
     }
 
     public void addUser() {
+        String passwordHash = new Md5PasswordEncoder().encodePassword(password, null);
         userManagementService.addUser(
-                new SimpleUser(firstName, lastName, username, password, getSelectedGroups()));
+                new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
 
     public void editUser() {
