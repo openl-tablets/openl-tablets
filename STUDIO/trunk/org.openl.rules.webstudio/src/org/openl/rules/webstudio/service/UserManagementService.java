@@ -49,8 +49,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
     public void addUser(org.openl.rules.security.User user) {
         User persistUser = new User();
         persistUser.setLoginName(user.getUsername());
-        persistUser.setPasswordHash(
-                new Md5PasswordEncoder().encodePassword(user.getPassword(), null));
+        persistUser.setPasswordHash(user.getPassword());
         persistUser.setFirstName(user.getFirstName());
         persistUser.setSurname(user.getLastName());
 
@@ -75,7 +74,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         }
         persistUser.setGroups(groups);
         if (user.getPassword() != null) {
-            persistUser.setPasswordHash(new Md5PasswordEncoder().encodePassword(user.getPassword(), null));
+            persistUser.setPasswordHash(user.getPassword());
         }
 
         userDao.update(persistUser);

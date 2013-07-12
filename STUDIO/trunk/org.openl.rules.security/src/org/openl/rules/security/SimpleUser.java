@@ -9,18 +9,18 @@ public class SimpleUser implements User {
     private String firstName;
     private String lastName;
     private String username;
-    private String password;
+    private String passwordHash;
     private Collection<Privilege> privileges;
 
     public SimpleUser() {
     }
 
     public SimpleUser(String firstName, String lastName, String username,
-            String password, Collection<Privilege> privileges) {
+            String passwordHash, Collection<Privilege> privileges) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.privileges = privileges;
     }
 
@@ -51,13 +51,16 @@ public class SimpleUser implements User {
         this.username = username;
     }
 
+    /**
+     * In this implementation returns the password hash
+     */
     @Override
     public String getPassword() {
-        return password;
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     @Override
