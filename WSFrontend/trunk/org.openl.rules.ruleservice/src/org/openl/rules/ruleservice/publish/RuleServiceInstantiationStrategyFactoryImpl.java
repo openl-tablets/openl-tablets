@@ -6,13 +6,14 @@ import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
 
 /**
  * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates
  * decision to RulesInstantiationStrategyFactory if one module in service.
- * Returns LazyMultiModuleInstantiationStrategy strategy if more than ome module
+ * Returns LazyMultiModuleInstantiationStrategy strategy if more than one module
  * in service.
  * 
  * 
@@ -20,19 +21,28 @@ import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStr
  * 
  */
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
-	
-	
-	private String openlName = OpenL.OPENL_JAVA_RULE_NAME;
+
+    private String openlName = OpenL.OPENL_JAVA_RULE_NAME;
+
+    private boolean lazy = true;
 
     public String getOpenlName() {
-		return openlName;
-	}
+        return openlName;
+    }
 
-	public void setOpenlName(String openlName) {
-		this.openlName = openlName;
-	}
+    public void setOpenlName(String openlName) {
+        this.openlName = openlName;
+    }
 
-	/** {@inheritDoc} */
+    public void setLazy(boolean lazy) {
+        this.lazy = lazy;
+    }
+
+    public boolean isLazy() {
+        return lazy;
+    }
+
+    /** {@inheritDoc} */
     public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         switch (modules.size()) {
             case 0:
@@ -41,8 +51,11 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
                 return RulesInstantiationStrategyFactory
                         .getStrategy(modules.iterator().next(), true, dependencyManager);
             default:
-                return new LazyMultiModuleInstantiationStrategy(modules, dependencyManager, openlName);
+                if (isLazy()) {
+                    return new LazyMultiModuleInstantiationStrategy(modules, dependencyManager, openlName);
+                } else {
+                    return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
+                }
         }
     }
-
 }

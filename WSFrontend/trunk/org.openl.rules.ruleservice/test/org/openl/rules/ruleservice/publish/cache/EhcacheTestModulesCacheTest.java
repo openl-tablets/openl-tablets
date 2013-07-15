@@ -94,22 +94,22 @@ public class EhcacheTestModulesCacheTest {
         assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
-        assertEquals(1, cache.getStatistics().getCacheMisses());
+        assertEquals(2, cache.getStatistics().getCacheMisses());
         assertEquals(2, Array.getLength(frontend.getValue("multiModule2", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
-        assertEquals(2, cache.getStatistics().getCacheMisses());
+        assertEquals(4, cache.getStatistics().getCacheMisses());
         assertEquals(2, Array.getLength(frontend.getValue("multiModule", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
-        assertEquals(3, cache.getStatistics().getCacheMisses());
+        assertEquals(6, cache.getStatistics().getCacheMisses());
         assertEquals(2, Array.getLength(frontend.getValue("multiModule2", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(0, cache.getStatistics().getCacheHits());
-        assertEquals(4, cache.getStatistics().getCacheMisses());
+        assertEquals(8, cache.getStatistics().getCacheMisses());
         assertEquals(2, Array.getLength(frontend.getValue("multiModule2", "data1")));
         assertEquals(1, cache.getStatistics().getObjectCount());
         assertEquals(1, cache.getStatistics().getCacheHits());
-        assertEquals(4, cache.getStatistics().getCacheMisses());
+        assertEquals(8, cache.getStatistics().getCacheMisses());
     }
 }
