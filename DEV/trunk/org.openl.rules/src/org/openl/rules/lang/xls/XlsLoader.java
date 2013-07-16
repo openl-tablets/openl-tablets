@@ -440,7 +440,6 @@ public class XlsLoader {
 			mergedNodes = new TableSyntaxNode[n];
 			for (int i = 0; i < n; i++) {
 				mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),  tableParts.get(i).getSource());
-
 			} 
 			
 		} catch (OpenLCompilationException e) {

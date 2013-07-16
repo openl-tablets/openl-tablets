@@ -107,10 +107,16 @@ public class CompositeGrid extends AGrid {
             return null;
         }
         if (t1.grid() != t2.grid()) {
-            return t2.grid().getRangeUri(t1.getCol(), t1.getRow(), t2.getCol(), t2.getRow());
+            for (int j = 0; j < gridTables.length; j++) {
+                // check if table belongs to grid
+                if (gridTables[j].getGrid() != t2.grid()) {
+                    continue;
+                }
+                IGridRegion region = gridTables[j].getRegion();
+                return t2.grid().getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
+            }
         }
         return t1.grid().getRangeUri(t1.getCol(), t1.getRow(), t2.getCol(), t2.getRow());
-
     }
 
     public String getUri() {
