@@ -1,6 +1,13 @@
 <project name="overallRelease" default="help" basedir=".">
 
-	<taskdef name="try" classname="ise.antelope.tasks.TryTask"/>
+	<path id="base.path">
+		<pathelement path="${classpath}" />
+		<fileset dir=".">
+			<include name="AntelopeTasks_3.4.0.jar" />
+		</fileset>
+	</path>
+	
+	<taskdef name="try" classname="ise.antelope.tasks.TryTask" classpathref="base.path"/>
 
 	<import file="changeVersion.xml"/>
 
