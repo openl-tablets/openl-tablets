@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.publish.cache;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
@@ -21,10 +22,9 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
         this.fieldName = fieldName;
     }
 
-    public IOpenField getMember(IRuntimeEnv env) {
+    public IOpenField getMember(SingleModuleInstantiationStrategy strategy) {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(env), isExecutionMode(),
-                    getDependencyManager(), getClassLoader()).compile();
+            CompiledOpenClass compiledOpenClass = strategy.compile();
             return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy field.", e);

@@ -7,6 +7,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.InitializingListener;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
 
@@ -23,6 +24,10 @@ import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStr
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 
     private Collection<InitializingListener> initializingListeners;
+    
+    private static final boolean LAZY_DEFAULT_VALUE = true;
+    
+    private boolean lazy = LAZY_DEFAULT_VALUE;
 
     public Collection<InitializingListener> getInitializingListeners() {
         return initializingListeners;
@@ -45,6 +50,14 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         }
     }
     
+    public boolean isLazy() {
+        return lazy;
+    }
+    
+    public void setLazy(boolean lazy) {
+        this.lazy = lazy;
+    }
+    
     /** {@inheritDoc} */
     public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         switch (modules.size()) {
@@ -53,14 +66,24 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
             case 1:
                 return RulesInstantiationStrategyFactory.getStrategy(modules.iterator().next(), true, dependencyManager);
             default:
-                LazyMultiModuleInstantiationStrategy myInstantiationStrategy = new LazyMultiModuleInstantiationStrategy(modules,
-                    dependencyManager);
-                if (initializingListeners != null) {
-                    for (InitializingListener listener : initializingListeners) {
-                        myInstantiationStrategy.addInitializingListener(listener);
+                if (isLazy()){
+                    LazyMultiModuleInstantiationStrategy lazyMultiMOduleInstatntiationStrategy = new LazyMultiModuleInstantiationStrategy(modules,
+                            dependencyManager);
+                    if (initializingListeners != null) {
+                        for (InitializingListener listener : initializingListeners) {
+                            lazyMultiMOduleInstatntiationStrategy.addInitializingListener(listener);
+                        }
                     }
+                    return lazyMultiMOduleInstatntiationStrategy;
+                }else{
+                    SimpleMultiModuleInstantiationStrategy simpleMultiModuleInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
+                    if (initializingListeners != null) {
+                        for (InitializingListener listener : initializingListeners) {
+                            simpleMultiModuleInstantiationStrategy.addInitializingListener(listener);
+                        }
+                    }
+                    return simpleMultiModuleInstantiationStrategy;
                 }
-                return myInstantiationStrategy;
         }
     }
 

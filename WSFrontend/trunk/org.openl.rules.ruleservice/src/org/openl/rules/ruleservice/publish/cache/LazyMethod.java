@@ -3,6 +3,8 @@ package org.openl.rules.ruleservice.publish.cache;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -27,17 +29,14 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         this.argTypes = argTypes;
     }
 
-    public IOpenMethod getMember(IRuntimeEnv env) {
+    protected IOpenMethod getMember(SingleModuleInstantiationStrategy strategy) {
         try {
-            CompiledOpenClass compiledOpenClass = getCache().getInstantiationStrategy(getModule(env),
-                isExecutionMode(),
-                getDependencyManager(),
-                getClassLoader()).compile();
+            CompiledOpenClass compiledOpenClass = strategy.compile();
             IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
             return compiledOpenClass.getOpenClass().getMatchingMethod(methodName, argOpenTypes);
-        } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy field.", e);
-        }
+        } catch (RulesInstantiationException e) {
+            throw new OpenlNotCheckedException("Failed to load lazy method", e);
+        } 
     }
 
     public IMethodSignature getSignature() {

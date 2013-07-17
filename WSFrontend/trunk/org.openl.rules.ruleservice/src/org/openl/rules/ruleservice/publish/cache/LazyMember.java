@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.publish.cache;
 
 import org.openl.dependency.IDependencyManager;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -33,13 +35,34 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 		this.classLoader = classLoader;
 		this.original = original;
 	}
+    
+    protected abstract T getMember(SingleModuleInstantiationStrategy strategy);
 
 	/**
      * Compiles method declaring the member and returns it.
      * 
      * @return Real member in compiled module.
      */
-    public abstract T getMember(IRuntimeEnv env);
+    protected final T getMember(IRuntimeEnv env) {
+        final Module module = getModule(env);
+        SingleModuleInstantiationStrategy strategy = getCache().getRulesInstantiationStrategyFromCache(module);
+        if (strategy == null) {
+            strategy = RulesInstantiationStrategyFactory.getStrategy(module, isExecutionMode(), getDependencyManager(),
+                    getClassLoader());
+            synchronized (this) {
+                SingleModuleInstantiationStrategy strategy1 = getCache().getRulesInstantiationStrategyFromCache(module);
+                if (strategy1 == null) {
+                    getCache().putToCache(module, strategy);
+                } else {
+                    strategy = strategy1;
+                }
+                //strategy.setExternalParameters(getExternalParameters());
+            }
+        }
+        synchronized (strategy) {
+            return getMember(strategy);
+        }
+    }
 
     protected ModulesCache getCache() {
         return ModulesCache.getInstance();
