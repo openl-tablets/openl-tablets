@@ -134,7 +134,7 @@ public class OpenL {
      * @return instance of IOpenL
      * @throws OpenConfigurationException
      */
-    public static OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
+    public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
 
         Object key = CacheUtils.buildKey(name, userContext);
         OpenL openl = openLCache.get(key);
