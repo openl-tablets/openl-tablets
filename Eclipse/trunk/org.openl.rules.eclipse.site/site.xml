@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.openl.rules.all.eclipse.feature_5.9.3.1.jar" id="org.openl.rules.all.eclipse.feature" version="5.9.3.1">
+   <feature url="features/org.openl.rules.all.eclipse.feature_5.9.3.2-SNAPSHOT.jar" id="org.openl.rules.all.eclipse.feature" version="5.9.3.2-SNAPSHOT">
       <category name="OpenL Tablets"/>
    </feature>
    <category-def name="OpenL Tablets" label="OpenL Tablets"/>
