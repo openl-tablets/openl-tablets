@@ -715,6 +715,10 @@ form.standard table.buttonPanel {
     background: none !important;
 }
 
+.rf-tr-nd {
+    padding: 1px !important;
+}
+
 .rf-trn {
     padding: 2px 0 !important;
     cursor: pointer !important;
