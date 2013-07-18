@@ -57,12 +57,11 @@
 }
 
 .te_toolbar {
-    background-color: #CCDEFF;
+    background-color: #f7f7f7;
     width: 647px;
-    margin-bottom: 5px;
-    padding: 2px 0px;
+    margin-bottom: 7px;
+    padding: 5px 2px;
     font-size: 0px;
-    border: 1px solid rgb(185, 200, 235);
 }
 
 .te_toolbar img {
@@ -71,33 +70,26 @@
 }
 
 .te_toolbar_item {
-    border: 1px solid rgb(170, 180, 210);
-    background: -moz-linear-gradient(to bottom, #fff, #ccdeff);
-    background: -webkit-linear-gradient(top, #fff, #ccdeff);
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ccdeff)";
-    background: linear-gradient(to bottom, #fff, #ccdeff);
+    border: 1px solid #f7f7f7;
 }
 
 .te_toolbar_item_disabled {
-    border-color: rgb(130, 140, 170);
     opacity: 0.15;
+    border-color: #f7f7f7 !important;
+    cursor: default !important;
 }
 
 .te_toolbar_item_pressed {
-	border-color: orange;
+    border-color: orange;
     cursor: pointer;
-    background: #ffd86b;
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
     opacity: 0.8;
+    box-shadow: 0px 0px 3px #fff inset;
 }
 
 .te_toolbar_item_over {
     border-color: orange;
     cursor: pointer;
-    background: -moz-linear-gradient(to bottom, #fff, #ffeedd);
-    background: -webkit-linear-gradient(top, #fff, #ffeedd);
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ffeedd)";
-    background: linear-gradient(to bottom, #fff, #ffeedd);
+    box-shadow: 0px 0px 3px #fff inset;
 }
 
 .te_toolbar .item_separator {
