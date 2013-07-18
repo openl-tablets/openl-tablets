@@ -8,8 +8,10 @@
 	<!-- Controls instantiation of OpenL modules and creates service beans and 
 		service classes. -->
 	<bean id="instantiationStrategyFactory"
-		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl"/>
-	
+		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
+		<property name="lazy" value="${ruleservice.instantiation.strategy.lazy}" />
+	</bean>
+
 	<bean id="ruleServiceInstantiationFactory"
 		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
