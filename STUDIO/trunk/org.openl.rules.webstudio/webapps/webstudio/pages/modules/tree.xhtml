@@ -28,17 +28,18 @@
                 position: absolute;
                 right: 3px;
             }
+            .rf-tr-nd > .rf-trn span.rf-trn-ico:not(.rf-trn-ico-lf) {
+                display: none;
+            }
         </style>
 
         <rich:tree id="rulesTree" styleClass="tree" value="#{treeBean.tree}" var="node" nodeType="#{node.type}"
             toggleType="client" nodeClass="#{node.active ? '' : 'treeNodeInactive'}">
-            <rich:treeNode type="folder"
-                iconCollapsed="webresource/images/tree/folder.png" iconExpanded="webresource/images/tree/folder.png">
+            <rich:treeNode type="folder">
                 <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
-            <rich:treeNode type="workbook"
-                iconCollapsed="webresource/images/excel.png" iconExpanded="webresource/images/excel.png">
+            <rich:treeNode type="workbook">
                 <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                 <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
             </rich:treeNode>
