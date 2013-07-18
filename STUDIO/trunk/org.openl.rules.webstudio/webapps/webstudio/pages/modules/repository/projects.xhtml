@@ -61,7 +61,7 @@
           &#160;
           <h:commandLink immediate="true"
               rendered="#{repositoryTreeState.canCreate}"
-              onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Create a new project in Design Repository with a different project name but the same content">
+              onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy project">
               <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
