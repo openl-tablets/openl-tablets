@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -123,29 +122,19 @@
 								<cobertura-merge datafile="target\cobertura-merged-file.ser">
 									<fileset dir="..">
 										<include name="org.openl.rules.diff\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.tableeditor\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.repository\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.repository.jcr\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.repository.jcr.jackrabbit\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.security\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.security.standalone\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.webstudio\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.commons.web\target\cobertura\cobertura.ser" />
-										<include
-											name="org.openl.rules.workspace\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.tableeditor\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.repository\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.repository.jcr\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.repository.jcr.jackrabbit\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.security\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.security.standalone\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.webstudio\target\cobertura\cobertura.ser" />
+										<include name="org.openl.commons.web\target\cobertura\cobertura.ser" />
+										<include name="org.openl.rules.workspace\target\cobertura\cobertura.ser" />
 									</fileset>
 								</cobertura-merge>
 
-								<cobertura-report datafile="target\cobertura-merged-file.ser"
-									destdir="target\site\cobertura-summary">
+								<cobertura-report datafile="target\cobertura-merged-file.ser" destdir="target\site\cobertura-summary">
 									<fileset dir="..\org.openl.rules.diff\src\">
 										<include name="**\*.java" />
 									</fileset>
