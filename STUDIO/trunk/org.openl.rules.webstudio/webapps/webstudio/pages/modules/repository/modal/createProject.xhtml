@@ -144,7 +144,8 @@
 
             <rich:tab header="Workspace">
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
-                    <h:panelGrid style="max-height: 286px; overflow:auto; width: 100%" id="uploadPrjFromLocalDiv">
+                    <div style="max-height: 286px; overflow:auto">
+                    <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
                         <rich:dataTable value="#{localUpload.projects4Upload}"
                             rendered="#{not empty localUpload.projects4Upload}"
                             var="item" styleClass="table table-striped" id="uploadPrjFromLocalTable" style="width: 98%">
@@ -168,10 +169,11 @@
                             </rich:column>
                         </rich:dataTable>
                     </h:panelGrid>
-                    <h:panelGrid style="max-height: 286px; overflow:auto" id="uploadPrjFromLocalMessageDiv">
+                    <h:panelGrid id="uploadPrjFromLocalMessageDiv">
 	                    <h:outputText value="All projects are already in repository"
 	                        rendered="#{empty localUpload.projects4Upload}" />
                     </h:panelGrid>
+                    </div>
                     <hr style="margin-bottom: 15px" />
 
                     <h:panelGrid id="localUploadButtonPanel" columns="2" styleClass="buttonPanel" cellpadding="3" cellspacing="0">

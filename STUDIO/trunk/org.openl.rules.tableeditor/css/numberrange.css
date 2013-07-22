@@ -1,0 +1,63 @@
+.range {
+    display: inline-block;
+    padding: 5px;
+    background: #fff;
+    border: 1px solid #d2d2d2;
+    box-shadow: 2px 2px 3px #eee;
+    width: 211px;
+}
+
+.range-table td {
+    vertical-align: top;
+}
+
+.range-table td:first-child {
+    width: 83px;
+}
+
+.range-table input[type='checkbox'] {
+    margin: 2px;
+}
+
+.range-label {
+    margin-top: 9px;
+    padding: 4px 2px;
+    color: #888;
+}
+
+.range-input {
+    width: 60px;
+    width: 46px\9;
+    margin: 0 1px;
+}
+
+.range-btn {
+    display: block;
+    width: 23px;
+    padding: 2px !important;
+    border: 0 !important;
+    margin: 0 4px !important;
+    box-shadow: none !important;
+}
+
+.range-btn-selected {
+    background: #55B1F7 !important;
+    color: #fff !important;
+}
+
+.range-btn:hover {
+    background: #55B1F7 !important;
+    color: #fff !important;
+}
+
+.range-result {
+    border-top: 1px solid #e5e5e5;
+    margin: 8px 0;
+    padding-top: 9px;
+    text-align: center;
+}
+
+.range-done {
+    text-align: center;
+    margin: 9px 0 3px;
+}

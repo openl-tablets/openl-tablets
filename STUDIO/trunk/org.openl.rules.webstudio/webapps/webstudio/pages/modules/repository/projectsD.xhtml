@@ -62,8 +62,7 @@
           &#160;
           <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}" 
                 onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;" 
-                title="Create a new deploy configuration in Design Repository with a diffrent deploy configuration name
-                but the same content ">
+                title="Copy Deploy Configuration">
             <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
           </h:commandLink>
           <h:panelGroup rendered="#{repositoryTreeController.canUnlockDeployment and prj.data.locked and not prj.data.lockedByMe}">
@@ -78,8 +77,8 @@
           </h:panelGroup>
           <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and (not prj.data.locked or prj.data.lockedByMe)}">
             &#160;
-            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Mark deploy configuration as deleted" 
-              onclick="if(!window.confirm('Are you sure you want to delete the Deploy Configuration?')) {return false;}">
+            <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Archive Deploy Configuration" 
+              onclick="if(!window.confirm('Are you sure you want to archive the Deploy Configuration?')) {return false;}">
               <f:param name="deploymentProjectName" value="#{prj.name}" />
               <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
             </h:commandLink>

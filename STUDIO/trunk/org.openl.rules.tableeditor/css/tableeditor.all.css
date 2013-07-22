@@ -57,12 +57,11 @@
 }
 
 .te_toolbar {
-    background-color: #CCDEFF;
+    background-color: #f7f7f7;
     width: 647px;
-    margin-bottom: 5px;
-    padding: 2px 0px;
+    margin-bottom: 7px;
+    padding: 5px 2px;
     font-size: 0px;
-    border: 1px solid rgb(185, 200, 235);
 }
 
 .te_toolbar img {
@@ -71,33 +70,26 @@
 }
 
 .te_toolbar_item {
-    border: 1px solid rgb(170, 180, 210);
-    background: -moz-linear-gradient(to bottom, #fff, #ccdeff);
-    background: -webkit-linear-gradient(top, #fff, #ccdeff);
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ccdeff)";
-    background: linear-gradient(to bottom, #fff, #ccdeff);
+    border: 1px solid #f7f7f7;
 }
 
 .te_toolbar_item_disabled {
-    border-color: rgb(130, 140, 170);
     opacity: 0.15;
+    border-color: #f7f7f7 !important;
+    cursor: default !important;
 }
 
 .te_toolbar_item_pressed {
-	border-color: orange;
+    border-color: orange;
     cursor: pointer;
-    background: #ffd86b;
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
     opacity: 0.8;
+    box-shadow: 0px 0px 3px #fff inset;
 }
 
 .te_toolbar_item_over {
     border-color: orange;
     cursor: pointer;
-    background: -moz-linear-gradient(to bottom, #fff, #ffeedd);
-    background: -webkit-linear-gradient(top, #fff, #ffeedd);
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ffeedd)";
-    background: linear-gradient(to bottom, #fff, #ffeedd);
+    box-shadow: 0px 0px 3px #fff inset;
 }
 
 .te_toolbar .item_separator {
@@ -792,6 +784,69 @@ body.fd-drag-active
 
 .multiselect_container div:hover {
     background: #CBE5FF;
+}
+.range {
+    display: inline-block;
+    padding: 5px;
+    background: #fff;
+    border: 1px solid #d2d2d2;
+    box-shadow: 2px 2px 3px #eee;
+    width: 211px;
+}
+
+.range-table td {
+    vertical-align: top;
+}
+
+.range-table td:first-child {
+    width: 83px;
+}
+
+.range-table input[type='checkbox'] {
+    margin: 2px;
+}
+
+.range-label {
+    margin-top: 9px;
+    padding: 4px 2px;
+    color: #888;
+}
+
+.range-input {
+    width: 60px;
+    width: 46px\9;
+    margin: 0 1px;
+}
+
+.range-btn {
+    display: block;
+    width: 23px;
+    padding: 2px !important;
+    border: 0 !important;
+    margin: 0 4px !important;
+    box-shadow: none !important;
+}
+
+.range-btn-selected {
+    background: #55B1F7 !important;
+    color: #fff !important;
+}
+
+.range-btn:hover {
+    background: #55B1F7 !important;
+    color: #fff !important;
+}
+
+.range-result {
+    border-top: 1px solid #e5e5e5;
+    margin: 8px 0;
+    padding-top: 9px;
+    text-align: center;
+}
+
+.range-done {
+    text-align: center;
+    margin: 9px 0 3px;
 }
 /* Common Color Picker styles */
 
