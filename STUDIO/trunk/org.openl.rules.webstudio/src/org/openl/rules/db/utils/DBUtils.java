@@ -19,6 +19,7 @@ import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.webstudio.web.install.InstallWizard;
 
@@ -55,17 +56,17 @@ public class DBUtils {
             conn = DriverManager.getConnection((dbPrefix + dbUrl), login, password);
         } catch (ClassNotFoundException cnfe) {
             log.error(cnfe.getMessage(), cnfe);
-            throw new ValidatorException(new FacesMessage("Incorrectd database driver"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("Incorrectd database driver"));
         } catch (SQLException sqle) {
             errorCode = sqle.getErrorCode();
             String errorMessage = (String) dbErrors.get("" + errorCode);
 
             if (errorMessage != null) {
                 log.error(sqle.getMessage(), sqle);
-                throw new ValidatorException(new FacesMessage(errorMessage));
+                throw new ValidatorException(FacesUtils.createErrorMessage(errorMessage));
             } else {
                 log.error(sqle.getMessage(), sqle);
-                throw new ValidatorException(new FacesMessage("Incorrect database URL, login or password"));
+                throw new ValidatorException(FacesUtils.createErrorMessage("Incorrect database URL, login or password"));
             }
         }
 
@@ -111,9 +112,10 @@ public class DBUtils {
      */
     private List<String> getDbSchemaList(Connection conn) {
         List<String> dbSchemasList = new ArrayList<String>();
+        ResultSet rs = null;
         try {
             DatabaseMetaData meta = conn.getMetaData();
-            ResultSet rs = meta.getCatalogs();
+            rs = meta.getCatalogs();
 
             while (rs.next()) {
                 String databaseName = rs.getString("TABLE_CAT");
@@ -122,6 +124,14 @@ public class DBUtils {
 
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
         return dbSchemasList;
     }
@@ -135,9 +145,10 @@ public class DBUtils {
     private List<String> getDBOpenlTables(Connection conn) {
         List<String> dbOpenlTablesList = new ArrayList<String>();
 
+        ResultSet rs = null;
         try {
             DatabaseMetaData meta = conn.getMetaData();
-            ResultSet rs = meta.getTables(null, null, "%", null);
+            rs = meta.getTables(null, null, "%", null);
 
             while (rs.next()) {
                 String dbTableName = rs.getString("TABLE_NAME");
@@ -145,6 +156,14 @@ public class DBUtils {
             }
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
         return dbOpenlTablesList;
     }

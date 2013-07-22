@@ -5,14 +5,15 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     template="/pages/layout/simpleLayout.xhtml"
     xmlns:a4j="http://richfaces.org/a4j">
-                     
-   <style>
-        .error ul {
-        list-style-type: none;
-        }
-   </style>
 
     <ui:define name="content">
+    <style>
+      .installMessages ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+    </style>
 
         <div class="wizard-page">
             <div class="wizard-page-container">
@@ -60,8 +61,10 @@
                                 
                                 <tr>
                                     <td colspan="2">
-                                        <a4j:outputPanel ajaxRendered="true">
-                                            <h:message  class="error" style="list-style-type: none;" for="dbPassword" />
+                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
+                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                                showSummary="false" tooltip="true" globalOnly="true" />
+                                            <h:message  class="error" for="dbPassword" />
                                         </a4j:outputPanel>
                                     </td>
                                    </tr>

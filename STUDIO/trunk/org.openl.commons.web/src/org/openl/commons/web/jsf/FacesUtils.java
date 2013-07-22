@@ -253,4 +253,27 @@ public abstract class FacesUtils {
         addMessage(summary, detail, FacesMessage.SEVERITY_WARN);
     }
 
+    public static FacesMessage createErrorMessage(String summary) {
+        return createErrorMessage(summary, null);
+    }
+
+    public static FacesMessage createErrorMessage(String summary, String detail) {
+        return new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, detail);
+    }
+
+    public static FacesMessage createWarnMessage(String summary) {
+        return createWarnMessage(summary, null);
+    }
+
+    public static FacesMessage createWarnMessage(String summary, String detail) {
+        return new FacesMessage(FacesMessage.SEVERITY_WARN, summary, detail);
+    }
+
+    public static FacesMessage createInfoMessage(String summary) {
+        return createWarnMessage(summary, null);
+    }
+
+    public static FacesMessage createInfoMessage(String summary, String detail) {
+        return new FacesMessage(FacesMessage.SEVERITY_INFO, summary, detail);
+    }
 }
