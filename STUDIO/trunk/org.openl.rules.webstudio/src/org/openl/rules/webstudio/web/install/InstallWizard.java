@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
@@ -33,13 +34,15 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
+import com.googlecode.flyway.core.api.FlywayException;
+
 @ManagedBean
 @SessionScoped
 public class InstallWizard {
 
     private static final String MULTI_USER_MODE = "multi";
 
-    private final Log LOG = LogFactory.getLog(InstallWizard.class);
+    private final Log log = LogFactory.getLog(InstallWizard.class);
 
     private int step;
 
@@ -164,10 +167,12 @@ public class InstallWizard {
             FacesUtils.redirectToRoot();
 
         } catch (Exception e) {
-            LOG.error("Failed while saving the configuration", e);
-            // TODO Add error message in UI
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
-                FacesMessage.SEVERITY_ERROR, "Cannot save the configuration", null));
+            log.error("Failed while saving the configuration", e);
+            if (e.getCause() instanceof FlywayException) {
+                FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
+            } else {
+                FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
+            }
         } finally {
             step = 1;
         }
@@ -186,7 +191,12 @@ public class InstallWizard {
      * the file sql-errors.properties
      */
     public void testDBConnection(String url, String login, String password) {
-        dbUtils.createConnection(dbDriver, dbPrefix, url, login, password);
+        Connection conn = dbUtils.createConnection(dbDriver, dbPrefix, url, login, password);
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -194,10 +204,9 @@ public class InstallWizard {
 
         if (!"demo".equals(appMode)) {
             if (StringUtils.isBlank(dbVendor)) {
-                throw new ValidatorException(new FacesMessage("Select database type"));
-
+                throw new ValidatorException(FacesUtils.createErrorMessage("Select database type"));
             } else if (StringUtils.isEmpty(dbUrl)) {
-                throw new ValidatorException(new FacesMessage("Database URL can not be blank"));
+                throw new ValidatorException(FacesUtils.createErrorMessage("Database URL can not be blank"));
             }
             else {
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
@@ -235,10 +244,10 @@ public class InstallWizard {
                          */
                         isWritable(studioDir);
                     } else {
-                        throw new ValidatorException(new FacesMessage("There is not enough access rights for installing WebStudio into the folder: '" + studioPath + "'"));
+                        throw new ValidatorException(FacesUtils.createErrorMessage("There is not enough access rights for installing WebStudio into the folder: '" + studioPath + "'"));
                     }
                 } else {
-                    throw new ValidatorException(new FacesMessage("'" + studioPath + "' is not a folder"));
+                    throw new ValidatorException(FacesUtils.createErrorMessage("'" + studioPath + "' is not a folder"));
                 }
             } else {
                 File parentFolder = studioDir.getParentFile();
@@ -264,7 +273,7 @@ public class InstallWizard {
             }
 
         } else {
-            throw new ValidatorException(new FacesMessage("WebStudio working directory name can not be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio working directory name can not be blank"));
         }
     }
 
@@ -282,7 +291,7 @@ public class InstallWizard {
             tmpFile.delete();
 
         } catch (IOException ioe) {
-            throw new ValidatorException(new FacesMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
+            throw new ValidatorException(FacesUtils.createErrorMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
         }
         return isAccessable;
     }
@@ -329,19 +338,19 @@ public class InstallWizard {
        List<SelectItem> dbVendors = new ArrayList<SelectItem>();
        Properties dbProps = new Properties();
 
-       for (File propFile : getDBPropetiesFiles()) {
-           try {
-            dbProps.load(new FileInputStream(propFile));
-            String propertyFilePath = System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
-            String dbVendor = dbProps.getProperty("db.vendor");
+        for (File propFile : getDBPropetiesFiles()) {
+            try {
+                dbProps.load(new FileInputStream(propFile));
+                String propertyFilePath = System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
+                String dbVendor = dbProps.getProperty("db.vendor");
 
-            dbVendors.add(new SelectItem(propertyFilePath, dbVendor));
-        } catch (FileNotFoundException e) {
-            LOG.error("The file " + propFile.getAbsolutePath() + " not found", e);
-        } catch (IOException e) {
-            LOG.error("Error while loading file " + propFile.getAbsolutePath(), e);
+                dbVendors.add(new SelectItem(propertyFilePath, dbVendor));
+            } catch (FileNotFoundException e) {
+                log.error("The file " + propFile.getAbsolutePath() + " not found", e);
+            } catch (IOException e) {
+                log.error("Error while loading file " + propFile.getAbsolutePath(), e);
+            }
         }
-       }
         return dbVendors;
     }
 
