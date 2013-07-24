@@ -24,6 +24,9 @@ import org.openl.config.ConfigurationManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ResolvingRulesProjectDependencyLoader;
@@ -394,17 +397,26 @@ public class WebStudio {
         }
 
         try {
+
+            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(model.getHistoryManager());
+            historyListener.beforeSave(model.getCurrentModuleWorkbook());
+
             Module module = getCurrentModule();
             OutputStream outputStream = new FileOutputStream(module.getRulesRootPath().getPath());
             IOUtils.copy(getLastUploadedFile().getInputStream(), outputStream);
             IOUtils.closeQuietly(getLastUploadedFile().getInputStream());
+            IOUtils.closeQuietly(outputStream);
+
+            historyListener.afterSave(model.getCurrentModuleWorkbook());
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             // TODO Display message - e.getMessage()
         }
+
         reset(ReloadType.FORCED);
         rebuildModel();
         uploadedFiles.clear();
+
         return null;
     }
 
