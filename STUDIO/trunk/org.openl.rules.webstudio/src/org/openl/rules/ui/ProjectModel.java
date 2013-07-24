@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -1304,7 +1305,18 @@ public class ProjectModel {
         }
 
     }
-    
+
+    public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
+        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
+            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
+            if (module.getSourceFile().getName().equals(
+                    FilenameUtils.getName(studio.getCurrentModule().getRulesRootPath().getPath()))) {
+                return module;
+            }
+        }
+        return null;
+    }
+
     private static class EditXlsModificationChecker implements ModificationChecker {
         private final XlsWorkbookSourceCodeModule module;
         private final File sourceFile;
