@@ -169,14 +169,14 @@ public class Explanation {
         ValueMetaInfo mi = (ValueMetaInfo) value.getMetaInfo();
         if (mi != null) {
             IOpenSourceCodeModule source = mi.getSource();
-            if (source instanceof GridCellSourceCodeModule) {
+            /*if (source instanceof GridCellSourceCodeModule) {
                 // Get table uri
                 IGridTable table = ((GridCellSourceCodeModule) source).getTable();
                 url = GridTableUtils.getOriginalTable(table).getUri();
-            } else {
+            } else {*/
                 // Get cell uri
                 url = mi.getSourceUrl();
-            }
+            /*}*/
         }
 
         if (url == null) {

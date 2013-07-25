@@ -40,6 +40,14 @@ public class CompositeGrid extends AGrid {
 
     private int height = 0;
 
+    public IGridTable[] getGridTables() {
+        return gridTables;
+    }
+    
+    public IGridRegion getMappedRegion(int i) {
+        return mappedRegions[i];
+    };
+    
     /**
      * 
      * @param tables Tables to be composed.
