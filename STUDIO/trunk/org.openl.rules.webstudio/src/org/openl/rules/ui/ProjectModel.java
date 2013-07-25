@@ -126,7 +126,7 @@ public class ProjectModel {
     private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
 
     public boolean hasTestSuitesToRun() {
-        return testSuitesToRun.size()>0;
+        return testSuitesToRun.size() > 0;
     }
 
     public TestSuite popLastTest() {
@@ -143,7 +143,7 @@ public class ProjectModel {
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
-    }    
+    }
 
     public RulesProject getProject() {
         return studio.getCurrentProject();
@@ -162,34 +162,34 @@ public class ProjectModel {
 
             try {
 
-                    bu = new BenchmarkUnit() {
-                        @Override
-                        public String getName() {
-                            return testSuite.getName();
-                        }
+                bu = new BenchmarkUnit() {
+                    @Override
+                    public String getName() {
+                        return testSuite.getName();
+                    }
 
-                        @Override
-                        public int nUnitRuns() {
-                            return testSuite.getNumberOfTests();
-                        }
+                    @Override
+                    public int nUnitRuns() {
+                        return testSuite.getNumberOfTests();
+                    }
 
-                        @Override
-                        protected void run() throws Exception {
-                            throw new RuntimeException();
-                        }
+                    @Override
+                    protected void run() throws Exception {
+                        throw new RuntimeException();
+                    }
 
-                        @Override
-                        public void runNtimes(long times) throws Exception {
-                            testSuite.invoke(target, env, times);
-                        }
+                    @Override
+                    public void runNtimes(long times) throws Exception {
+                        testSuite.invoke(target, env, times);
+                    }
 
-                        @Override
-                        public String[] unitName() {
-                            //FIXME
-                            return testSuite.getTestSuiteMethod().unitName();
-                        }
+                    @Override
+                    public String[] unitName() {
+                        // FIXME
+                        return testSuite.getTestSuiteMethod().unitName();
+                    }
 
-                    };
+                };
                 BenchmarkUnit[] buu = { bu };
                 return new Benchmark(buu).runUnit(bu, ms, false);
 
@@ -201,7 +201,7 @@ public class ProjectModel {
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
         }
     }
-    
+
     public BenchmarkInfo benchmarkSingleTest(final TestSuite testSuite, final int testIndex, int ms) throws Exception {
 
         BenchmarkUnit bu = null;
@@ -317,7 +317,7 @@ public class ProjectModel {
 
     }
 
-    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {        
+    public TableSyntaxNode findAnyTableNodeByLocation(XlsUrlParser p1) {
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
@@ -351,12 +351,39 @@ public class ProjectModel {
         return null;
     }
 
-    public TableSyntaxNode findNode(XlsUrlParser p1) {        
+    private boolean findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1) {
+        for (IGridTable gridTable : compositeGrid.getGridTables()) {
+            if (gridTable.getGrid() instanceof CompositeGrid) {
+                if (findInCompositeGrid((CompositeGrid) gridTable.getGrid(), p1)) {
+                    return true;
+                }
+            } else {
+                if (XlsUrlUtils.intersects(p1, gridTable.getUri())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public TableSyntaxNode findNode(XlsUrlParser p1) {
         TableSyntaxNode[] nodes = getTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
             if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUri())) {
-                return nodes[i];
+                TableSyntaxNode tsn = nodes[i];
+                if (XlsNodeTypes.XLS_TABLEPART.equals(tsn.getNodeType())) {
+                    for (int j = 0; j < nodes.length; j++) {
+                        IGridTable table = nodes[j].getGridTable();
+                        if (table.getGrid() instanceof CompositeGrid) {
+                            CompositeGrid compositeGrid = (CompositeGrid) table.getGrid();
+                            if (findInCompositeGrid(compositeGrid, p1)) {
+                                return nodes[j];
+                            }
+                        }
+                    }
+                }
+                return tsn;
             }
         }
 
@@ -472,7 +499,7 @@ public class ProjectModel {
 
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
 
-        if(!isProjectCompiledSuccessfully()) {
+        if (!isProjectCompiledSuccessfully()) {
             return null;
         }
 
@@ -492,9 +519,10 @@ public class ProjectModel {
             }
         }
 
-        // for methods that exist in module but not included in CompiledOpenClass
+        // for methods that exist in module but not included in
+        // CompiledOpenClass
         // e.g. elder inactive versions of methods
-        if(tsn.getMember() instanceof IOpenMethod ){
+        if (tsn.getMember() instanceof IOpenMethod) {
             return (IOpenMethod) tsn.getMember();
         }
 
@@ -686,8 +714,9 @@ public class ProjectModel {
      * Gets all test methods for method by uri.
      * 
      * @param tableUri
-     * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
-     * runs without any parameters and tests without cases and runs.
+     * @return all test methods, including tests with test cases, runs with
+     *         filled runs, tests without cases(empty), runs without any
+     *         parameters and tests without cases and runs.
      */
     public IOpenMethod[] getTestAndRunMethods(String tableUri) {
         IOpenMethod method = getMethod(tableUri);
@@ -709,10 +738,10 @@ public class ProjectModel {
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
-        
+
         if (compiledOpenClass != null) {
             XlsModuleSyntaxNode xlsModuleNode = ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo())
-                .getXlsModuleNode();
+                    .getXlsModuleNode();
             WorkbookSyntaxNode[] workbookNodes = xlsModuleNode.getWorkbookSyntaxNodes();
             return workbookNodes;
         }
@@ -761,11 +790,11 @@ public class ProjectModel {
     }
 
     public XlsModuleSyntaxNode getXlsModuleNode() {
-        
+
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
-        
+
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
         return xsn;
@@ -802,12 +831,12 @@ public class ProjectModel {
 
         return false;
     }
-    
+
     public boolean isCanStartEditing() {
         RulesProject project = getProject();
         return project != null && (project.isLocalOnly() || !project.isLocked()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
-    
+
     public boolean isCanCreateTable() {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
     }
@@ -858,7 +887,7 @@ public class ProjectModel {
         ProjectTreeNode root = makeProjectTreeRoot();
 
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
-        
+
         OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
         TreeBuilder<Object> treeBuilder = new TreeBuilder<Object>();
@@ -881,8 +910,8 @@ public class ProjectModel {
             }
         }
 
-        for (int i = 0; i < tableSyntaxNodes.length; i++) {                
-        	treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+        for (int i = 0; i < tableSyntaxNodes.length; i++) {
+            treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
         }
 
         projectRoot = root;
@@ -994,10 +1023,11 @@ public class ProjectModel {
                 modulesCache.reset();
             case SINGLE:
                 if (moduleInfo != null) {
-                    // Clear the cache of dependency manager, as the project has been modified
-                    getDependencyManager()
-                        .reset(new Dependency(
-                                DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null)));
+                    // Clear the cache of dependency manager, as the project has
+                    // been modified
+                    getDependencyManager().reset(
+                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(),
+                                    null)));
                 }
                 break;
         }
@@ -1010,7 +1040,7 @@ public class ProjectModel {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
-        for (int i = 0 ; i < tests.length; i++) {
+        for (int i = 0; i < tests.length; i++) {
             results[i] = new TestSuite(tests[i]).invoke(target, env, 1);
         }
         return results;
@@ -1020,7 +1050,7 @@ public class ProjectModel {
         IOpenMethod[] tests = getTestMethods(forTable);
         if (tests != null) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
-            for (int i = 0 ; i < tests.length; i++){
+            for (int i = 0; i < tests.length; i++) {
                 results[i] = runTest(new TestSuite((TestSuiteMethod) tests[i]));
             }
             return results;
@@ -1079,8 +1109,7 @@ public class ProjectModel {
 
     public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        return getSearchResults(
-                new TableSearcher().search(xsn, selectors));
+        return getSearchResults(new TableSearcher().search(xsn, selectors));
     }
 
     public void setProjectTree(ProjectTreeNode projectRoot) {
@@ -1119,7 +1148,8 @@ public class ProjectModel {
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
             ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
             this.moduleInfo = projectDescriptor.getModuleByClassName(moduleInfo.getClassname());
-            // When moduleInfo cannot be found by class name, it is searched by module name
+            // When moduleInfo cannot be found by class name, it is searched by
+            // module name
             if (this.moduleInfo == null) {
                 for (Module module : projectDescriptor.getModules()) {
                     if (moduleInfo.getName().equals(module.getName())) {
@@ -1142,13 +1172,14 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
 
-        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo, getDependencyManager());
+        RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo,
+                getDependencyManager());
         instantiationStrategy.setExternalParameters(studio.getSystemConfigManager().getProperties());
 
         try {
-            if(reloadType == ReloadType.FORCED){
+            if (reloadType == ReloadType.FORCED) {
                 instantiationStrategy.forcedReset();
-            }else if(reloadType != ReloadType.NO){
+            } else if (reloadType != ReloadType.NO) {
                 instantiationStrategy.reset();
             }
             compiledOpenClass = instantiationStrategy.compile();
@@ -1159,8 +1190,8 @@ public class ProjectModel {
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             messages.add(new OpenLMessage(message, StringUtils.EMPTY, Severity.ERROR));
 
-            compiledOpenClass = new CompiledOpenClass(
-                    NullOpenClass.the, messages, new SyntaxNodeException[0], new SyntaxNodeException[0]);
+            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
+                    new SyntaxNodeException[0]);
         }
 
     }
@@ -1171,7 +1202,8 @@ public class ProjectModel {
      * another thread(due to running as web application).
      */
     private OpenLMessages previousUsedMessages;
-    private void clearOpenLMessages(){
+
+    private void clearOpenLMessages() {
         if (previousUsedMessages != null) {
             previousUsedMessages.clear();
         }
@@ -1208,9 +1240,8 @@ public class ProjectModel {
     }
 
     public boolean isProjectCompiledSuccessfully() {
-        return compiledOpenClass != null 
-            && compiledOpenClass.getOpenClassWithErrors() != null 
-            && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass);
+        return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null
+                && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass);
     }
 
     public DependencyRulesGraph getDependencyGraph() {
@@ -1280,7 +1311,7 @@ public class ProjectModel {
     public void openWorkbookForEdit(String workBookName) {
         for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            
+
             if (module.getSourceFile().getName().equals(workBookName)) {
                 module.setModificationChecker(new EditXlsModificationChecker(module));
                 break;
@@ -1294,17 +1325,17 @@ public class ProjectModel {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
             if (module.getSourceFile().getName().equals(workBookName)) {
                 ModificationChecker checker = module.getModificationChecker();
-                
+
                 if (checker instanceof EditXlsModificationChecker) {
                     ((EditXlsModificationChecker) checker).afterXlsOpened();
                 }
-                
+
                 break;
             }
         }
 
     }
-    
+
     private static class EditXlsModificationChecker implements ModificationChecker {
         private final XlsWorkbookSourceCodeModule module;
         private final File sourceFile;
@@ -1350,7 +1381,7 @@ public class ProjectModel {
             return !(sourceFile.lastModified() == beforeOpenModifiedTime && sourceFile.length() == beforeOpenFileSize);
         }
     }
-    
+
     public void destroy() {
         removeListeners();
 
@@ -1392,7 +1423,7 @@ public class ProjectModel {
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
         }
     }
-    
+
     private IDependencyManager getDependencyManager() {
         return modulesCache.wrapToCollectDependencies(studio.getDependencyManager(), moduleInfo);
     }
