@@ -217,9 +217,10 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
             if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
                 studio.getModel().clearModuleInfo();
+                studio.setCurrentModule(null);
             }
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to close project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -486,9 +487,10 @@ public class RepositoryTreeController {
             }
             if (project.equals(studio.getModel().getProject())) {
                 studio.getModel().clearModuleInfo();
+                studio.setCurrentModule(null);
             }
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Cannot delete rules project '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }

@@ -1133,6 +1133,7 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, ReloadType.NO);
     }
 
+    // TODO Remove "throws Exception"
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
