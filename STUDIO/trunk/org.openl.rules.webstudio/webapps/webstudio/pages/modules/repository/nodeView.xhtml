@@ -260,14 +260,14 @@
       </h:commandButton>
 
       <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}">
-          <rich:tooltip showDelay="500">#{closeMessage}</rich:tooltip>
+          <rich:tooltip showDelay="500">Close Deploy Configuration and make it unavailable for editing</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton rendered="#{repositoryTreeState.canEditDeployment}" value="Edit" action="#{deploymentController.edit}">
+      <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Edit" action="#{deploymentController.edit}">
           <rich:tooltip showDelay="500">Make project available for editing and lock it from editing by other users</rich:tooltip>
       </h:commandButton>
 
-      <h:commandButton rendered="#{repositoryTreeState.canSaveDeployment}" value="Save" action="#{deploymentController.save}">
+      <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save" action="#{deploymentController.save}">
           <rich:tooltip showDelay="500">#{saveMessage}</rich:tooltip>
       </h:commandButton>
 
