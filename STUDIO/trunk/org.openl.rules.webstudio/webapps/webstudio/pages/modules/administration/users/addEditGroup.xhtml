@@ -210,12 +210,14 @@
             $j("#addEditGroupForm\\:newName").attr("disabled", true);
             $j("#addEditGroupForm\\:name").attr("disabled", false);
 
+            setIsOnlyAdmin(false);
+
             checkGroups();
 
             RichFaces.$("modalAddEditGroup").show();
         }
 
-        function editGroup(name, description) {
+        function editGroup(name, description, isOnlyAdmin) {
             $j("#addHeader,#addEditGroupForm\\:name,#addEditGroupForm\\:saveBtn").hide();
             $j("#editHeader,#addEditGroupForm\\:newName,#addEditGroupForm\\:editBtn").show();
 
@@ -225,10 +227,32 @@
             $j("#addEditGroupForm\\:oldName").val(name);
             $j("#addEditGroupForm\\:newName").val(name);
             $j("#addEditGroupForm\\:description").val(description);
+            setIsOnlyAdmin(isOnlyAdmin);
             setPrivileges(name);
 
             RichFaces.$("modalAddEditGroup").show();
         }
+
+        //<![CDATA[
+        function setIsOnlyAdmin(isOnlyAdmin) {
+            $j("#privilegesTable td :checkbox").each(function() {
+                if (this.value == 'PRIVILEGE_ADMINISTRATE') {
+                    var jElem = $j(this);
+                    jElem.closest("tr").toggleClass("selectedRow", isOnlyAdmin);
+                    jElem.attr("checked", isOnlyAdmin);
+                    jElem.attr("disabled", isOnlyAdmin);
+                    if (isOnlyAdmin) {
+                        // Disabled fields will not be submitted. Let's create a hidden input for them
+                        $j('<input>').attr({
+                            type: 'hidden',
+                            name: 'privilege',
+                            value: 'PRIVILEGE_ADMINISTRATE'
+                        }).insertAfter(jElem);
+                    }
+                }
+            });
+        }
+        //]]>
 
         function hideAddGroup() {
             RichFaces.$("modalAddEditGroup").hide();

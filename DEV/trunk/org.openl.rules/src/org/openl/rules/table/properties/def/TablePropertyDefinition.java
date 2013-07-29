@@ -7,7 +7,7 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.types.IOpenClass;
 
-public class TablePropertyDefinition {
+public class TablePropertyDefinition implements Comparable<TablePropertyDefinition> {
 
 	private String displayName;
 	private String name;
@@ -183,6 +183,11 @@ public class TablePropertyDefinition {
 
 	public void setDeprecation(String deprecation) {
         this.deprecation = deprecation;
+    }
+
+    @Override
+    public int compareTo(TablePropertyDefinition to) {
+        return displayName.compareTo(to.getDisplayName());
     }
 
 }
