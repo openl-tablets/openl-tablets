@@ -58,7 +58,10 @@ class CompositeCell implements ICell {
     }
 
     public int getHeight() {
-        return delegate.getHeight();
+        if (region == null){
+            return delegate.getHeight();
+        }
+        return region.getBottom() - region.getTop() + 1;
     }
     
     public Object getObjectValue() {
@@ -74,7 +77,10 @@ class CompositeCell implements ICell {
     }
 
     public int getWidth() {
-        return delegate.getWidth();
+        if (region == null){
+            return delegate.getWidth();
+        }
+        return region.getRight() - region.getLeft() + 1;
     }
 
     public String getFormula() {

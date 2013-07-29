@@ -146,7 +146,7 @@ public class TablePartProcessor {
             tables[cnt++] = table;
 
         }
-
+        
         CompositeGrid grid = new CompositeGrid(tables, vertical);
 
         IGridTable table = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
