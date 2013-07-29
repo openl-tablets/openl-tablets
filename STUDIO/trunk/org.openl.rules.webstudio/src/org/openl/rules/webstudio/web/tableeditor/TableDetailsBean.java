@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -159,14 +160,27 @@ public class TableDetailsBean {
             }
         }
 
-        for (TablePropertyDefinition propDefinition : propDefinitions) {
-            String propName = propDefinition.getName();
-            if (!currentProps.contains(propName)
-                    && !"version".equals(propName)
-                    && propDefinition.getDeprecation() == null) {
-                propertiesToAdd.add(new SelectItem(propName, propDefinition.getDisplayName()));
+        Map<String, Set<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
+                .groupProperties(propDefinitions);
+        for (String groupName : propGroups.keySet()) {
+            List<SelectItem> items = new ArrayList<SelectItem>();
+
+            for (TablePropertyDefinition propDefinition : propGroups.get(groupName)) {
+                String propName = propDefinition.getName();
+                if (!currentProps.contains(propName)
+                        && !"version".equals(propName)
+                        && propDefinition.getDeprecation() == null) {
+                    items.add(new SelectItem(propName, propDefinition.getDisplayName()));
+                }
+            }
+
+            if (!items.isEmpty()) {
+                SelectItemGroup itemGroup = new SelectItemGroup(groupName);
+                itemGroup.setSelectItems(items.toArray(new SelectItem[0]));
+                propertiesToAdd.add(itemGroup);
             }
         }
+
         return propertiesToAdd;
     }
 
