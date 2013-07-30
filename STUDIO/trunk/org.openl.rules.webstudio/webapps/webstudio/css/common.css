@@ -5,6 +5,10 @@ body {
     font-size: 70%;
 }
 
+optgroup {
+    font-style: normal;
+}
+
 table, input, textarea {
     font-size: 100%;
 }
