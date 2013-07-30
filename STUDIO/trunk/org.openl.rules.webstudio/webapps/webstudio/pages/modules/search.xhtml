@@ -7,6 +7,19 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
+    <style>
+        .search-result {
+            padding: 15px 4px 25px;
+            border-bottom: 1px solid #f7f7f7;
+        }
+        .search-result:first-child {
+            padding-top: 12px;
+        }
+        .search-result:last-child {
+            border-bottom: 0;
+        }
+    </style>
+
     <div class="view_header">
         <h:panelGroup rendered="#{not empty searchBean.searchResults}">
             <h:outputText value="#{searchBean.searchResults.size()}" style="font-weight: bold" />
@@ -20,27 +33,17 @@
     <div id="searchResults" class="content">
         <div>
             <c:forEach items="#{searchBean.searchResults}" var="table">
-                <br />
-                <span>
-                    <img src="webresource/images/viewTable.gif" />
+                <div class="search-result">
                     <h:outputLink value="#table.xhtml">
                         <f:param name="uri" value="#{table.uri}" />
                         <h:outputText value="#{msg['ws.search.results.view']}" />
                     </h:outputLink>
-                </span>
 
-                <br />
-                <h:panelGroup rendered="#{studio.model.canEditProject}">
-                    <img src="webresource/images/excel.png" />
-                    <h:outputLink value="#{contextPath}/action/launch" target="hidden">
-                        <f:param name="uri" value="#{table.uri}" />
-                        <h:outputText value="#{msg['ws.search.results.excel']}" />
-                    </h:outputLink>
-                </h:panelGroup>
+                    <br /><br />
 
-                <br /><br />
-                <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
-                    rendered="#{table != null}" linkBase="#table.xhtml" />
+                    <rules:tableEditor table="#{table}" editable="false" view="#{studio.tableView}"
+                        rendered="#{table != null}" linkBase="#table.xhtml" />
+                </div>
              </c:forEach>
         </div>
 
