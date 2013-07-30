@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.Oracle8iDialect;
+import org.hibernate.dialect.SQLServerDialect;
 import org.hibernate.service.jdbc.dialect.internal.StandardDialectResolver;
 import org.openl.rules.db.utils.DBUtils;
 
@@ -203,13 +204,11 @@ public class DBMigrationBean  {
         // DB-specific scripts can be added here:
         if (dialect instanceof Oracle8iDialect) {
             locations.add("db/migration/oracle");
+        } else if (dialect instanceof MySQLDialect) {
+            locations.add("db/migration/mysql");
+        } else if (dialect instanceof SQLServerDialect) {
+            locations.add("db/migration/mssqlserver");
         }
-//        if (dialect instanceof MySQLDialect) {
-//            locations.add("db/migration/mysql");
-//        }
-//        if (dialect instanceof SQLServerDialect) {
-//            locations.add("db/migration/mssqlserver");
-//        }
 
         return locations.toArray(new String[locations.size()]);
     }
