@@ -18,69 +18,15 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.openl.GridTableSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 
-public class TablePartProcessor {
-
-    public void processTablePart(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
-        TablePart tpart = new TablePart(table, source);
-        parseHeader(tpart);
-        addToParts(tpart);
-    }
-
-    Map<String, TreeSet<TablePart>> parts = new HashMap<String, TreeSet<TablePart>>();
-
-    private synchronized void addToParts(TablePart tablePart) throws OpenLCompilationException {
-        String key = tablePart.getPartName();
-        TreeSet<TablePart> set = parts.get(key);
-        if (set == null) {
-            set = new TreeSet<TablePart>();
-            parts.put(key, set);
-        }
-
-        boolean res = set.add(tablePart);
-        if (!res) {
-            String message = "Duplicated TablePart part # = " + tablePart.getPart();
-            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-
-        }
-    }
-
-    Pattern pattern = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
-
-    private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
-
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(tablePart.getTable());
-
-        String header = src.getCode();
-
-        Matcher m = pattern.matcher(header);
-
-        if (!m.matches()) {
-            String message = "Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>";
-            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-        }
-
-        String tableId = m.group(1);
-        String colOrRow = m.group(2);
-        String npart = m.group(3);
-        String totalParts = m.group(4);
-
-        tablePart.setPartName(tableId);
-        tablePart.setPart(Integer.parseInt(npart));
-        tablePart.setSize(Integer.parseInt(totalParts));
-        tablePart.setVertical(colOrRow.equals("row"));
-
-    }
+class TablePartProcessor {
 
     /**
      * 
      * @return a list of TableParts with tables merged
-     * @throws OpenLCompilationException
      */
-
     public List<TablePart> mergeAllNodes() {
-
         List<TablePart> tables = new ArrayList<TablePart>();
-        for (TreeSet<TablePart> set : parts.values()) {
+        for (TreeSet<TablePart> set : tableParts.values()) {
             try {
                 TablePart mergedTable = validateAndMerge(set);
                 tables.add(mergedTable);
@@ -137,16 +83,16 @@ public class TablePartProcessor {
                 if (myDim != dimension) {
                     String message = "TablePart number " + tablePart.getPart() + " has "
                             + (vertical ? "width" : "height") + " = " + myDim + " instead of " + dimension;
-                    throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-
+                    if (vertical) {
+                        throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+                    } else {
+                        OpenLMessagesUtils.addWarn(message);
+                    }
                 }
-
             }
-
             tables[cnt++] = table;
-
         }
-        
+
         CompositeGrid grid = new CompositeGrid(tables, vertical);
 
         IGridTable table = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
@@ -154,8 +100,56 @@ public class TablePartProcessor {
         return new TablePart(table, first.source);
     }
 
-    IOpenSourceCodeModule makeSourceModule(IGridTable table) {
+    private static IOpenSourceCodeModule makeSourceModule(IGridTable table) {
         return new GridTableSourceCodeModule(table);
     }
 
+    Map<String, TreeSet<TablePart>> tableParts = new HashMap<String, TreeSet<TablePart>>();
+
+    public void register(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
+        TablePart tablePart = new TablePart(table, source);
+        parseHeader(tablePart);
+        addToParts(tablePart);
+    }
+
+    private Pattern pattern = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
+
+    private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
+
+        GridCellSourceCodeModule src = new GridCellSourceCodeModule(tablePart.getTable());
+
+        String header = src.getCode();
+
+        Matcher m = pattern.matcher(header);
+
+        if (!m.matches()) {
+            String message = "Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>";
+            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+        }
+
+        String tableId = m.group(1);
+        String colOrRow = m.group(2);
+        String npart = m.group(3);
+        String totalParts = m.group(4);
+
+        tablePart.setPartName(tableId);
+        tablePart.setPart(Integer.parseInt(npart));
+        tablePart.setSize(Integer.parseInt(totalParts));
+        tablePart.setVertical(colOrRow.equals("row"));
+    }
+
+    private synchronized void addToParts(TablePart tablePart) throws OpenLCompilationException {
+        String key = tablePart.getPartName();
+        TreeSet<TablePart> set = tableParts.get(key);
+        if (set == null) {
+            set = new TreeSet<TablePart>();
+            tableParts.put(key, set);
+        }
+
+        boolean res = set.add(tablePart);
+        if (!res) {
+            String message = "Duplicated TablePart part # = " + tablePart.getPart();
+            throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+        }
+    }
 }

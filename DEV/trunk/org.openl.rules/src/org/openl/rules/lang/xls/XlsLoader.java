@@ -342,7 +342,7 @@ public class XlsLoader {
         {
         	try
         	{
-        		preprocessTablePart(table, source);
+        		tablePartProcessor.register(table, source);
         	}
         	catch(Throwable t)
         	{
@@ -360,12 +360,6 @@ public class XlsLoader {
 
     TablePartProcessor tablePartProcessor = new TablePartProcessor();
     
-    private void preprocessTablePart(IGridTable table,
-			XlsSheetSourceCodeModule source) throws OpenLCompilationException {
-    	
-    	tablePartProcessor.processTablePart(table, source); 
-	}
-
 	private void preprocessVocabularyTable(IGridTable table, XlsSheetSourceCodeModule source) {
 
         String vocabularyStr = table.getCell(1, 0).getStringValue();
@@ -441,7 +435,6 @@ public class XlsLoader {
 			for (int i = 0; i < n; i++) {
 				mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),  tableParts.get(i).getSource());
 			} 
-			
 		} catch (OpenLCompilationException e) {
             OpenLMessagesUtils.addError(e);
 		}
