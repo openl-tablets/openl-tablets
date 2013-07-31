@@ -4,7 +4,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import javax.faces.bean.ManagedProperty;
-import org.apache.commons.lang.ArrayUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -40,10 +40,6 @@ public abstract class AbstractProductionRepoController {
     private RepositoryConfiguration defaultRepoConfig;
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
-        String[] configNames = configManager.getStringArrayProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS);
-        configNames = (String[]) ArrayUtils.add(configNames, repoConf.getConfigName());
-        configManager.setProperty(AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS, configNames);
-
         systemSettingsBean.getProductionRepositoryConfigurations().add(repoConf);
     }
 
