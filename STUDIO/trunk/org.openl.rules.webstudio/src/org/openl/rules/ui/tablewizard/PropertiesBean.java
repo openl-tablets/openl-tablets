@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.model.SelectItem;
 
@@ -30,7 +31,7 @@ public class PropertiesBean {
      *            this bean.
      */
     public PropertiesBean(List<String> possibleProperties) {
-        possibleToAddProps = new HashSet<String>(possibleProperties);
+        possibleToAddProps = new TreeSet<String>(possibleProperties);
     }
 
     public String getPropNameToAdd() {
