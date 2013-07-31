@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
@@ -50,7 +50,7 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * @author Andrei Astrouski
  */
 @ManagedBean
-@SessionScoped
+@ViewScoped
 public class SystemSettingsBean {
     @ManagedProperty(value = "#{productionRepositoriesTreeController}")
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
@@ -287,10 +287,14 @@ public class SystemSettingsBean {
 
             deletedConfigurations.clear();
 
+            String configNames[] = new String[productionRepositoryConfigurations.size()];
             for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
                 RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
-                productionRepositoryConfigurations.set(i, saveProductionRepository(prodConfig));
+                RepositoryConfiguration newProdConfig = saveProductionRepository(prodConfig);
+                productionRepositoryConfigurations.set(i, newProdConfig);
+                configNames[i] = newProdConfig.getConfigName();
             }
+            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
 
             saveSystemConfig();
         } catch (Exception e) {
@@ -365,7 +369,6 @@ public class SystemSettingsBean {
             newConfig.setPath(templatePath + (getMaxTemplatedPath(paths, templatePath) + 1));
 
             configNames = (String[]) ArrayUtils.add(configNames, newConfigName);
-            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
 
             productionRepositoryConfigurations.add(newConfig);
             // FacesUtils.addInfoMessage("Repository '" + newConfig.getName() +
@@ -380,10 +383,6 @@ public class SystemSettingsBean {
 
     public void deleteProductionRepository(String configName) {
         try {
-            String[] configNames = configManager.getStringArrayProperty(PRODUCTION_REPOSITORY_CONFIGS);
-            configNames = (String[]) ArrayUtils.removeElement(configNames, configName);
-            configManager.setProperty(PRODUCTION_REPOSITORY_CONFIGS, configNames);
-
             Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
             while (it.hasNext()) {
                 RepositoryConfiguration prodConfig = it.next();
@@ -506,19 +505,21 @@ public class SystemSettingsBean {
             throws ServletException {
         boolean changed = prodConfig.save();
         if (changed) {
+            String oldConfigName = prodConfig.getConfigName();
+            if (prodConfig.isNameChangedIgnoreCase()) {
+                prodConfig = renameConfigName(prodConfig);
+            }
+            String newConfigName = prodConfig.getConfigName();
+
             try {
-                deploymentManager.removeRepository(prodConfig.getConfigName());
+                deploymentManager.removeRepository(oldConfigName);
             } catch (RRepositoryException e) {
                 if (log.isErrorEnabled()) {
                     log.error(e.getMessage(), e);
                 }
             }
 
-            if (prodConfig.isNameChangedIgnoreCase()) {
-                prodConfig = renameConfigName(prodConfig);
-            }
-
-            deploymentManager.addRepository(prodConfig.getConfigName());
+            deploymentManager.addRepository(newConfigName);
         }
         return prodConfig;
     }

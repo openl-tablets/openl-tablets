@@ -8,12 +8,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
@@ -141,12 +143,22 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         selectItem.setLabel("");
         propertyNames.add(selectItem);
 
-        for (TablePropertyDefinition propDefinition : propDefinitions) {
-            if (propDefinition.getDeprecation() == null) {
+        Map<String, Set<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
+                .groupProperties(propDefinitions);
+        for (String groupName : propGroups.keySet()) {
+            List<SelectItem> items = new ArrayList<SelectItem>();
+
+            for (TablePropertyDefinition propDefinition : propGroups.get(groupName)) {
                 String propName = propDefinition.getName();
-                selectItem = new SelectItem(propName);
-                selectItem.setLabel(propDefinition.getDisplayName());
-                propertyNames.add(selectItem);
+                if (propDefinition.getDeprecation() == null) {
+                    items.add(new SelectItem(propName, propDefinition.getDisplayName()));
+                }
+            }
+
+            if (!items.isEmpty()) {
+                SelectItemGroup itemGroup = new SelectItemGroup(groupName);
+                itemGroup.setSelectItems(items.toArray(new SelectItem[0]));
+                propertyNames.add(itemGroup);
             }
         }
 
