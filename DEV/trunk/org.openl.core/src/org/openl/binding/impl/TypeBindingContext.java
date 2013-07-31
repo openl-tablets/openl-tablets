@@ -43,11 +43,13 @@ public class TypeBindingContext extends BindingContextDelegator {
 	public IMethodCaller findMethodCaller(String namespace, String name,
 			IOpenClass[] parTypes) throws AmbiguousMethodException {
 		IMethodCaller res = null;
-        IOpenMethod method = null;
+//        IOpenMethod method = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
-        	method = localVar.getType().getMatchingMethod(name, parTypes);
-        	if (method != null)
-        	  res = new LocalvarMethodCaller(localVar, method);	
+        	res =MethodSearch.getMethodCaller(name, parTypes, this, localVar.getType());
+        	
+//        	method = localVar.getType().getMatchingMethod(name, parTypes);
+        	if (res != null)
+        	  res = new LocalvarMethodCaller(localVar, res);	
         }
 
 		return res == null ? super.findMethodCaller(namespace, name, parTypes) : res;
@@ -58,8 +60,8 @@ public class TypeBindingContext extends BindingContextDelegator {
 	{
 		
 		ILocalVar localvar;
-		IOpenMethod method;
-		public LocalvarMethodCaller(ILocalVar localvar, IOpenMethod method) {
+		IMethodCaller method;
+		public LocalvarMethodCaller(ILocalVar localvar, IMethodCaller method) {
 			super();
 			this.localvar = localvar;
 			this.method = method;
@@ -74,7 +76,7 @@ public class TypeBindingContext extends BindingContextDelegator {
 
 		@Override
 		public IOpenMethod getMethod() {
-			return method;
+			return method.getMethod();
 		}
 		
 	}
