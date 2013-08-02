@@ -77,15 +77,17 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
         
 
         public IOpenClass getType() {
-        	IOpenClass containerType = getContainer().getType();
-        	if (containerType.isArray())
-        	{	
-        		IAggregateInfo info = getContainer().getType().getAggregateInfo();
-        		return info.getIndexedAggregateType(getTransformer().getType(), 1);
-        	}
+//        	IOpenClass containerType = getContainer().getType();
+//        	if (containerType.isArray())
+//        	{	
+//        		IAggregateInfo info = getContainer().getType().getAggregateInfo();
+//        		return info.getIndexedAggregateType(getTransformer().getType(), 1);
+//        	}
+//        	
+//        	IOpenClass componentType = tempVar.getType();
         	
-        	IOpenClass componentType = tempVar.getType();
-    		return componentType.getAggregateInfo().getIndexedAggregateType(getTransformer().getType(), 1);
+        	IOpenClass targetType = getTransformer().getType();
+    		return targetType.getAggregateInfo().getIndexedAggregateType(targetType, 1);
         }
     }
 

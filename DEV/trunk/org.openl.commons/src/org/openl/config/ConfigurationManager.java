@@ -155,6 +155,8 @@ public class ConfigurationManager {
                     }
                 }
             }
+        } else if (key != null) {
+            removeProperty(key);
         }
     }
 

@@ -109,6 +109,11 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             return componentType;
         }
 
+        if (componentType instanceof MyArrayOpenClass)
+        {
+        	return getIndexedAggregateType(((MyArrayOpenClass)componentType).getComponentClass(), dim+1);
+        }	
+        
         IOpenClass[] arrayTypes = ((ADynamicClass) componentType).getArrayTypes();
 
         synchronized (arrayTypes) {
@@ -116,11 +121,11 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
                 return arrayTypes[dim - 1];
             }
 
-            for (int i = 0; i < dim; i++) {
-                componentType = new MyArrayOpenClass(componentType);
+            for (int i = 0; i < arrayTypes.length; i++) {
+            	arrayTypes[i] = componentType = new MyArrayOpenClass(componentType);
             }
 
-            return arrayTypes[dim - 1] = componentType;
+            return arrayTypes[dim - 1];
         }
 
     }
