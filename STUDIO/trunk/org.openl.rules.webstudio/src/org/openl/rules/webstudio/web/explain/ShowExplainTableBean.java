@@ -60,10 +60,17 @@ public class ShowExplainTableBean {
                 if (XlsUrlUtils.intersects(p1, gridTable.getUri())) {
                     IGridRegion region2 =  gridTable.getRegion();
                     IGridRegion region3 =  compositeGrid.getMappedRegion(i);
-                    int top = region.getTop() - region2.getTop() + region3.getTop();
-                    int bottom = region.getBottom() - region2.getTop() + region3.getTop();
-                    int left = region.getLeft() - region2.getLeft() + region3.getLeft();
-                    int right = region.getRight() - region2.getLeft() + region3.getLeft();
+                    IGridRegion tmp = region;
+                    if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0){//if one cell find merged region
+                        IGridRegion margedRegion = gridTable.getGrid().getRegionContaining(region.getLeft(), region.getTop());
+                        if (margedRegion != null){
+                            tmp = margedRegion;
+                        }
+                    }
+                    int top = tmp.getTop() - region2.getTop() + region3.getTop();
+                    int bottom = tmp.getBottom() - region2.getTop() + region3.getTop();
+                    int left = tmp.getLeft() - region2.getLeft() + region3.getLeft();
+                    int right = tmp.getRight() - region2.getLeft() + region3.getLeft();
                     IGridRegion r = new GridRegion(top, left, bottom, right);
                     return r;
                 }
@@ -85,6 +92,13 @@ public class ShowExplainTableBean {
             IGridRegion r = findInCompositeGrid(compositeGrid, p1, region);
             if (r != null){
                 region = r;
+            }
+        }else{
+            if (region.getBottom() - region.getTop() == 0 && region.getRight() - region.getLeft() == 0){ //is one cell find merged region
+                IGridRegion margedRegion = table.getGridTable().getGrid().getRegionContaining(region.getLeft(), region.getTop());
+                if (margedRegion != null){
+                    region = margedRegion;
+                }
             }
         }
 
