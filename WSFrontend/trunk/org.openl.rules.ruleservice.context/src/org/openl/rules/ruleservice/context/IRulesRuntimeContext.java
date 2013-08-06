@@ -1,6 +1,16 @@
 package org.openl.rules.ruleservice.context;
 
 /*
+ * #%L
+ * OpenL - RuleService - RuleService - Context
+ * %%
+ * Copyright (C) 2013 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+/*
  * Important notice:
  * If you add any methods, verify org.openl.rules.validation.properties.dimentional.DispatcherTableBuilder class works properly.
  * Refer to static initialization section were context attributes are gathered.

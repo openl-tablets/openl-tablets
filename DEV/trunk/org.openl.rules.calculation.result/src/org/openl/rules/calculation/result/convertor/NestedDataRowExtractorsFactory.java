@@ -1,5 +1,16 @@
 package org.openl.rules.calculation.result.convertor;
 
+/*
+ * #%L
+ * OpenL - DEV - Rules - Calculation Result
+ * %%
+ * Copyright (C) 2013 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 /**
  * Factory for Spreadsheet row extractors. There are 2 type of rows:<br>
  * 1) simple row, it means no SpreadsheetResult or SpreadsheetResult[] values in

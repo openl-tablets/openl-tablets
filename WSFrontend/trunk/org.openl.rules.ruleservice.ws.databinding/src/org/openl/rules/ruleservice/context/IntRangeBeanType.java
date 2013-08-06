@@ -1,5 +1,16 @@
 package org.openl.rules.ruleservice.context;
 
+/*
+ * #%L
+ * OpenL - RuleService - RuleService - Web Services Databinding
+ * %%
+ * Copyright (C) 2013 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;

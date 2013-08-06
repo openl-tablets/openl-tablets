@@ -1,5 +1,16 @@
 package org.openl.rules.variation;
 
+/*
+ * #%L
+ * OpenL - Variation
+ * %%
+ * Copyright (C) 2013 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
