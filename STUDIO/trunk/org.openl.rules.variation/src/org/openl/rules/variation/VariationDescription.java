@@ -1,5 +1,16 @@
 package org.openl.rules.variation;
 
+/*
+ * #%L
+ * OpenL - Variation
+ * %%
+ * Copyright (C) 2013 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 /**
  * Simple bean that defines single variation. Used in case when variation are
  * defined in rules(See {@link VariationsFromRules}).

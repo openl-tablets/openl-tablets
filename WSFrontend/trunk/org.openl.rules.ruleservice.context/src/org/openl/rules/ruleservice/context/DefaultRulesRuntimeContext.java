@@ -1,5 +1,15 @@
 package org.openl.rules.ruleservice.context;
 
+/*
+ * #%L
+ * OpenL - RuleService - RuleService - Context
+ * %%
+ * Copyright (C) 2013 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
 import java.util.HashMap;
 import java.util.Map;
 
