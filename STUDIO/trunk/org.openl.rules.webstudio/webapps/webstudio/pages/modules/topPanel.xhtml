@@ -111,13 +111,13 @@
                     <h:panelGroup style="margin-left: 17px;" rendered="#{studio.model.canCreateTable or studio.model.canEditProject}">
                         <h:outputLink rendered="#{studio.model.canCreateTable}" value="#create/index.xhtml"
                             title="Create new table" styleClass="button-primary">Create Table</h:outputLink>
-                        <h:outputLink rendered="#{studio.model.canEditProject}"
+                        <h:outputLink id="topRevertLink" rendered="#{studio.model.canEditProject}"
                             value="#revert.xhtml" title="Compare and/or roll back module changes against a specific date" styleClass="button" >Revert</h:outputLink>
                     </h:panelGroup>
 
                     <span style="margin-left: 13px;" />
 
-                    <h:panelGroup class="dropdown">
+                    <h:panelGroup id="topMorePanel" class="dropdown">
                         <h:form>
                         <a class="button dropdown-toggle" data-toggle="dropdown" href="#">
                             More<b class="caret"></b>
