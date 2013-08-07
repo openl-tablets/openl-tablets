@@ -239,24 +239,24 @@ public class CellModel implements ICellModel {
 
         String fontName = font.getName();
         if (!fontName.equals(DEFAULT_CELL_STYLES.get("font-family"))) {
-            buf.append("font-family:").append(fontName);
+            buf.append("font-family:").append(fontName).append(";");
         }
         int fontSize = font.getSize() + 2;
         if (fontSize != (Integer) DEFAULT_CELL_STYLES.get("font-size")) {
-            buf.append(";font-size:").append(fontSize);
+            buf.append("font-size:").append(fontSize).append(";");
         }
         if (font.isItalic()) {
-            buf.append(";font-style:italic");
+            buf.append("font-style:italic").append(";");
         }
         if (font.isBold()) {
-            buf.append(";font-weight:bold");
+            buf.append("font-weight:bold").append(";");
         }
 
         short[] color = font.getFontColor();
         if (color != null) {
             String colorStr = HTMLHelper.toHexColor(color);
             if (!colorStr.equals(DEFAULT_CELL_STYLES.get("color"))) {
-                buf.append(";color:" + colorStr + ";");
+                buf.append("color:" + colorStr + ";");
             }
         }
 
