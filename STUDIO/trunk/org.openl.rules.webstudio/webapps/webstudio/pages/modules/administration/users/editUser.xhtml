@@ -67,6 +67,7 @@
             $j("#editUserForm\\:firstName").val(firstName);
             $j("#editUserForm\\:lastName").val(lastName);
 
+            $j("input[id^='editUserForm\\:editUserGroups']").attr("checked", false);
             for (var i = 0; i < groups.length; i++) {
                 $j("input[id^='editUserForm\\:editUserGroups'][value='" + groups[i] + "']").attr("checked", true);
             }

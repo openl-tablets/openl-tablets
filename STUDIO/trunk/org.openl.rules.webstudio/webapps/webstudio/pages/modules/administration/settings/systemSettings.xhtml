@@ -394,10 +394,10 @@
     <div style="padding-left: 125px; margin-bottom: 15px">
         <a4j:commandButton value="Restore Defaults" action="#{systemSettingsBean.restoreDefaults}"
             execute="@this" render="commonProps repositoryProps javaProps restartMessage"
-            onclick="if(!confirm('All users are working now with WebStudio will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
+            onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
         <h:outputText value=" " />
         <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
-            onclick="if(!confirm('All users are working now with WebStudio will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
+            onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
             styleClass="button-primary" title = "Apply changes"/>
     </div>
 

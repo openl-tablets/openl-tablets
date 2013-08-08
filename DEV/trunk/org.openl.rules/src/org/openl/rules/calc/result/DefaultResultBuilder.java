@@ -110,26 +110,52 @@ public class DefaultResultBuilder implements IResultBuilder {
         }
         return null;
     }
-    
+
     public static Map<String, Point> getAbsoluteSpreadsheetFieldCoordinates(SpreadsheetResult spreadsheetResult) {
         Map<String, Point> absoluteCoordinates = new HashMap<String, Point>();
 
         IGridTable sourceTable = spreadsheetResult.getLogicalTable().getSource();
-        // The row 0 contains column headers
-        int rowOffset = sourceTable.getRow(0).getHeight();
-        // The column 0 contains row headers
-        int columnOffset = sourceTable.getColumn(0).getWidth();
 
         Map<String, Point> relativeCoordinates = spreadsheetResult.getFieldsCoordinates();
         for (Entry<String, Point> fieldEntry : relativeCoordinates.entrySet()) {
             Point relative = fieldEntry.getValue();
 
-            ICell cell = sourceTable.getCell(relative.getColumn() + columnOffset, relative.getRow() + rowOffset);
+            int column = getColumn(sourceTable, relative.getColumn());
+            int row = getRow(sourceTable, relative.getRow());
+            ICell cell = sourceTable.getCell(column, row);
             Point absolute = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
             absoluteCoordinates.put(fieldEntry.getKey(), absolute);
         }
 
         return absoluteCoordinates;
+    }
+
+    /**
+     * Get the column of a field in Spreadsheet.
+     * 
+     * @return column number
+     */
+    private static int getColumn(IGridTable spreadsheet, int columnFieldNumber) {
+        int column = 0;
+        // The column 0 contains row headers that's why "<=" instead of "<"
+        for (int i = 0; i <= columnFieldNumber; i++) {
+            column += spreadsheet.getCell(i, 0).getWidth();
+        }
+        return column;
+    }
+
+    /**
+     * Get the row of a field in Spreadsheet.
+     * 
+     * @return row number
+     */
+    private static int getRow(IGridTable spreadsheet, int rowFieldNumber) {
+        int row = 0;
+        // The row 0 contains column headers that's why "<=" instead of "<"
+        for (int i = 0; i <= rowFieldNumber; i++) {
+            row += spreadsheet.getCell(0, i).getHeight();
+        }
+        return row;
     }
 
     private Object[][] getResultArray(SpreadsheetResultCalculator result) {
