@@ -111,4 +111,9 @@ public class CommonVersionImpl implements CommonVersion {
     public int hashCode() {
         return (major << 22) ^ (minor << 11) ^ revision;
     }
+
+    @Override
+    public String toString() {
+        return "versionName = " + getVersionName();
+    }
 }
