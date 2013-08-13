@@ -325,7 +325,9 @@ var TableEditor = Class.create({
 
         var cellPos;
         if (cellToEdit) {
-            cellPos = cellToEdit.id.split(this.cellIdPrefix)[1];
+            // cellToEdit can be either a string id or an DOM element
+            var cellId = (typeof cellToEdit == "string" ? cellToEdit : cellToEdit.id);
+            cellPos = cellId.split(this.cellIdPrefix)[1];
         }
 
         this.mode = this.Modes.EDIT;
