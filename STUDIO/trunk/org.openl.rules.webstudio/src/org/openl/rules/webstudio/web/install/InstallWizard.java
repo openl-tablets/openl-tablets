@@ -89,6 +89,10 @@ public class InstallWizard {
         dbUtils = new DBUtils();
     }
 
+    public String getPreviousPage() {
+        return PAGE_PREFIX + (step - 1) + PAGE_POSTFIX;
+    }
+
     public String start() {
         step = 1;
         return PAGE_PREFIX + step + PAGE_POSTFIX;
@@ -429,6 +433,10 @@ public class InstallWizard {
 
     public int getStep() {
         return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
     }
 
     public String getWorkingDir() {
