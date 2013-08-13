@@ -2,10 +2,10 @@
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j"
     template="/pages/layout/simpleLayout.xhtml">
 
     <ui:define name="content">
-
         <div class="wizard-page">
             <div class="wizard-page-container">
                 <h:form>
@@ -32,6 +32,17 @@
                 </h:form>
             </div>
         </div>
+
+        <a4j:jsFunction name="setStep">
+            <a4j:param name="currentStep" assignTo="#{installWizard.step}" />
+        </a4j:jsFunction>
+        <script>
+          //<![CDATA[
+            (function() {
+                setStep(1);
+            })();
+          //]]>
+        </script>
 
     </ui:define>
 </ui:composition>
