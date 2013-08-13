@@ -100,8 +100,10 @@ public class ModulePageBean {
         List<String> dependencyFilesList = new ArrayList<String>();
         
         for (String dependency : lists) {
-            dependencyFiles = dependency.split("/");
-            dependencyFilesList.add(dependencyFiles[dependencyFiles.length - 1].split(".xls")[0]);
+            if (dependency != null){
+                dependencyFiles = dependency.split("/");
+                dependencyFilesList.add(dependencyFiles[dependencyFiles.length - 1].split(".xls")[0]);
+            }
         }
         
         return dependencyFilesList;

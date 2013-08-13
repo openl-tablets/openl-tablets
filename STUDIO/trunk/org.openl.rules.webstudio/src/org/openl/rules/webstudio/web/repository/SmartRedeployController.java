@@ -159,6 +159,12 @@ public class SmartRedeployController {
                     } else if (deploymentManager.hasDeploymentProject(deploymentProject, repositoryConfigName)) {
                         item.setDisabled(true);
                         item.setMessages("Up to date");
+                    } else if (deploymentProject.isOpenedForEditing()) {
+                        // prevent loosing of user's changes
+                        item.setDisabled(true);
+                        item.setMessages("Opened for Editing");
+                        item.setStyleForMessages(UiConst.STYLE_WARNING);
+                        item.setStyleForName(UiConst.STYLE_WARNING);
                     } else {
                         item.setMessages("Can be deployed");
                     }
