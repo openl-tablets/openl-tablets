@@ -85,11 +85,9 @@
               tabActiveClass: "selected-tab",
               panelActiveClass: "displayed"
           });
-          $j("#avaliableProjectsInHistory").hide();
           if (#{emptyHistoryDir}) {
               $j("#cleanHistoryHref").hide();
           }
-          hideMaxCountInHistory();
       });
 
       function showMaxCountInHistory() {
@@ -204,7 +202,7 @@
                                     disabled="#{jsffn:isSystemProp('project.history.home')}" 
                                    validator="#{systemSettingsBean.historyDirValidator}"/>
                             </h:panelGrid>
-                            <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn">
+                            <h:panelGrid id="maxCountInHistory" columns="2" columnClasses="titleColumn" style="#{systemSettingsBean.unlimitHistory ? 'display:none' : ''}">
                                 <h:outputText value="The maximum count of saved changes for each project:" />
                                 <h:inputText id="history-count" value="#{systemSettingsBean.projectHistoryCount}"
                                     disabled="#{jsffn:isSystemProp('project.history.count')}" 
@@ -219,7 +217,7 @@
                                 <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvaliableProjectsInHistory(true)">Clean history</a>
                             </h:panelGrid>
                         </div>
-                        <div id="avaliableProjectsInHistory" class="history">
+                        <div id="avaliableProjectsInHistory" class="history" style="display:none">
                             <h:panelGroup id="projectsInHistoryPanel" layout="block">
                                 <div class="historyHeader">
                                     <b>Clean projects history</b>
