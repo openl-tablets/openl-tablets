@@ -64,8 +64,14 @@ class TablePartProcessor {
                         + " parts with the same name";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
-
+            
             IGridTable table = tablePart.getTable().getRows(1);
+            if (table == null){
+                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart()
+                        + " has wrong content.";
+                throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+               
+            }
             boolean myVert = tablePart.isVertical();
             int myDim = myVert ? table.getWidth() : table.getHeight();
 
