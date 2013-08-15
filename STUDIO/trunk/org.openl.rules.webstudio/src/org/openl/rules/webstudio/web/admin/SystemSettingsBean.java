@@ -145,7 +145,7 @@ public class SystemSettingsBean {
 
     public String getProjectHistoryCount() {
         if (isUnlimitHistory()) {
-            return null;
+            return "0";
         } else {
             return Integer.toString(configManager.getIntegerProperty(PROJECT_HISTORY_COUNT));
         }
