@@ -13,6 +13,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.openl.GridTableSourceCodeModule;
@@ -65,7 +66,9 @@ class TablePartProcessor {
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
             
-            IGridTable table = tablePart.getTable().getRows(1);
+            ICell cell00 = tablePart.getTable().getCell(0, 0);
+            
+            IGridTable table = tablePart.getTable().getRows(cell00.getHeight());
             if (table == null){
                 String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart()
                         + " has wrong content.";
