@@ -96,7 +96,8 @@
           if (!$j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
               $j("#systemSettingsForm\\:maxCountInHistory").show();
               maxNumberHistory.focus();
-              maxNumberHistory.val("");
+              maxNumberHistory.val("30");
+              maxNumberHistory.select();
           }
       };
       
