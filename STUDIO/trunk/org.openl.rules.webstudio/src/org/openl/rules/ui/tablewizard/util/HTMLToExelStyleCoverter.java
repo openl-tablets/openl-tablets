@@ -1,7 +1,5 @@
 package org.openl.rules.ui.tablewizard.util;
 
-import java.awt.Color;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
@@ -10,7 +8,6 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -310,7 +307,10 @@ public class HTMLToExelStyleCoverter {
 
     public static Font getXSSFFont(JSONObject style, XSSFWorkbook workbook) {
         short boldWeight = Font.BOLDWEIGHT_NORMAL;
-        XSSFColor color = new XSSFColor(Color.BLACK);
+        // Use indexed color instead of Color.BLACK because of the bug https://issues.apache.org/bugzilla/show_bug.cgi?id=52079
+        XSSFColor color = null;
+        short indexedColor = Font.COLOR_NORMAL;
+
         short fontHeight = 10*20;
         String name = "Arial";
         boolean italic = false;
@@ -340,6 +340,7 @@ public class HTMLToExelStyleCoverter {
 
                 if(!StringUtils.isEmpty(rgbColor)) {
                     color = getXSSFColor(stringRGBToShort(rgbColor), workbook);
+                    indexedColor = color.getIndexed();
                 }
             }
 
@@ -370,13 +371,18 @@ public class HTMLToExelStyleCoverter {
         } catch (JSONException e) {
 
         }
-        //FIXME equels fronts never find
-        XSSFFont font = workbook.findFont(boldWeight, color.getIndexed(), fontHeight, name, italic, strikeout, typeOffset, underline);
+        //FIXME equals fronts never find
+        XSSFFont font = workbook.findFont(boldWeight, indexedColor, fontHeight, name, italic, strikeout, typeOffset, underline);
 
-        if (font == null || !font.getXSSFColor().equals(color)) {
+        if (font == null || color != null && !font.getXSSFColor().equals(color) ||
+                color == null && font.getXSSFColor().getIndexed() != indexedColor) {
             font = workbook.createFont();
 
-            font.setColor(color);
+            if (color != null) {
+                font.setColor(color);
+            } else {
+                font.setColor(indexedColor);
+            }
             font.setBoldweight(boldWeight);
             font.setFontHeight(fontHeight);
             font.setFontName(name);
