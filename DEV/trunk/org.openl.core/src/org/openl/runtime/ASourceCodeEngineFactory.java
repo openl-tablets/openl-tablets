@@ -2,6 +2,8 @@ package org.openl.runtime;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -76,18 +78,27 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         this.dependencyManager = dependencyManager;
     }
 
+    
+    private static Map<ClassLoader, ClassLoader> cache = new WeakHashMap<ClassLoader, ClassLoader>();
+
     protected CompiledOpenClass initializeOpenClass() {
         // Change class loader to OpenLBundleClassLoader
         //
         //
         ClassLoader oldClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
-
-        // if current bundle is dependency of parent bundle it must be visible for parent bundle
+        // if current bundle is dependency of parent bundle it must be visible
+        // for parent bundle
         //
         if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
-            ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
-            Thread.currentThread().setContextClassLoader(newClassLoader);
-        } 
+            if (cache.containsKey(oldClassLoader)){
+                ClassLoader newClassLoader = cache.get(oldClassLoader);
+                Thread.currentThread().setContextClassLoader(newClassLoader);
+            }else{
+                ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
+                Thread.currentThread().setContextClassLoader(newClassLoader);
+                cache.put(oldClassLoader, newClassLoader);
+            }
+        }
 
         try {
             return OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
@@ -95,5 +106,4 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
-    
 }
