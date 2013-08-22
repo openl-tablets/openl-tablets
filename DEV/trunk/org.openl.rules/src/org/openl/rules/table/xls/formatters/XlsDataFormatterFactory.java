@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -87,7 +88,8 @@ public class XlsDataFormatterFactory {
     private IFormatter getNumberFormatter(ICell cell) {
         IFormatter formatter = null;
 
-        CellStyle xlsStyle = ((XlsCell) cell).getXlsCell().getCellStyle();
+        Cell xlsCell = ((XlsCell) cell).getXlsCell();
+        CellStyle xlsStyle = xlsCell != null ? xlsCell.getCellStyle() : null;
 
         if (xlsStyle != null) {
             short formatIndex = xlsStyle.getDataFormat();
