@@ -2,6 +2,8 @@ package org.openl.runtime;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
@@ -20,12 +22,12 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     private IOpenSourceCodeModule sourceCode;
     private boolean executionMode;
     private IDependencyManager dependencyManager;
-    
+
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext) {
         super(openlName, userContext);
         initSource(sourceCode);
     }
-    
+
     public ASourceCodeEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, String userHome) {
         super(openlName, userHome);
         initSource(sourceCode);
@@ -53,21 +55,21 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     }
 
     private void initSource(IOpenSourceCodeModule sourceCode) {
-        this.sourceCode = sourceCode;        
+        this.sourceCode = sourceCode;
     }
-    
+
     public boolean isExecutionMode() {
         return executionMode;
     }
 
     public void setExecutionMode(boolean executionMode) {
         this.executionMode = executionMode;
-    }    
+    }
 
     public IOpenSourceCodeModule getSourceCode() {
         return sourceCode;
     }
-    
+
     public IDependencyManager getDependencyManager() {
         return dependencyManager;
     }
@@ -76,18 +78,27 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         this.dependencyManager = dependencyManager;
     }
 
+    private static Map<ClassLoader, ClassLoader> classLoadersCache = new WeakHashMap<ClassLoader, ClassLoader>();
+
     protected CompiledOpenClass initializeOpenClass() {
         // Change class loader to OpenLBundleClassLoader
         //
         //
         ClassLoader oldClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
 
-        // if current bundle is dependency of parent bundle it must be visible for parent bundle
+        // if current bundle is dependency of parent bundle it must be visible
+        // for parent bundle
         //
         if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
-            ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
-            Thread.currentThread().setContextClassLoader(newClassLoader);
-        } 
+            if (classLoadersCache.containsKey(oldClassLoader)) {
+                ClassLoader newClassLoader = classLoadersCache.get(oldClassLoader);
+                Thread.currentThread().setContextClassLoader(newClassLoader);
+            } else {
+                ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
+                Thread.currentThread().setContextClassLoader(newClassLoader);
+                classLoadersCache.put(oldClassLoader, newClassLoader);
+            }
+        }
 
         try {
             return OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
@@ -95,5 +106,5 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
-    
+
 }

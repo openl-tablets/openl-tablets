@@ -28,12 +28,12 @@
 
                         <h:commandLink onclick="openUpdateModuleDialog();return false;"
                             title="Update module"
-                            rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
+                            rendered="#{!empty rProject and studio.model.editable}"
                             styleClass="imageButton"
                             style="background:url('webresource/images/repository/update.png')"/>
                         <h:commandLink onclick="openExportModuleDialog();return false;"
                             title="Export module"
-                            rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}"
+                            rendered="#{!empty rProject and studio.model.editable}"
                             styleClass="imageButton"
                             style="background:url('webresource/images/repository/export.png')"/>
                         <h:commandLink action="#{mainBean.saveProject}"
