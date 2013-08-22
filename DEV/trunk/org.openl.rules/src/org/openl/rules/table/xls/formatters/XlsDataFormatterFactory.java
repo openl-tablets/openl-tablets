@@ -106,7 +106,8 @@ public class XlsDataFormatterFactory {
     private IFormatter getDateFormatter(ICell cell) {
         IFormatter formatter = null;
 
-        CellStyle xlsStyle = ((XlsCell) cell).getXlsCell().getCellStyle();
+        Cell xlsCell = ((XlsCell) cell).getXlsCell();
+        CellStyle xlsStyle = xlsCell != null ? xlsCell.getCellStyle() : null;
 
         if (xlsStyle != null) {
             String format = xlsStyle.getDataFormatString();
