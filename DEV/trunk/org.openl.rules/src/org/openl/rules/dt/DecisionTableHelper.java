@@ -390,7 +390,7 @@ public class DecisionTableHelper {
     }
 
     private static boolean maybeIsRange(String cellValue) {
-        Pattern p = Pattern.compile(".*(more|less|[;<>\\[\\(+\\.-]).*");
+        Pattern p = Pattern.compile(".*(more|less|[;<>\\[\\(+\\.]).*|.*\\d+.*-.*");
         Matcher m = p.matcher(cellValue);
         
         return m.matches();
