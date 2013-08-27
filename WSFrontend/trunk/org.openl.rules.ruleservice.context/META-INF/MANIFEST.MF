@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenL Ruleservice WS Databinding Plug-in
 Bundle-SymbolicName: org.openl.rules.ruleservice.context;singleton:=true
-Bundle-Version: 5.11.0
+Bundle-Version: 5.12.0-SNAPSHOT
 Bundle-Vendor: OpenL Tablets
 Bundle-Localization: plugin
 Export-Package: org.openl.rules.ruleservice.context,
