@@ -375,6 +375,8 @@ public class DataTableBindHelper {
 
                     if (CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
                         constructorField = true;
+                    } else if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN)) {
+                        descriptorField = getWritableArrayElement(fieldNameNode, table, type);
                     } else {
                         descriptorField = getWritableField(fieldNameNode, table, type);
                     }
@@ -517,7 +519,7 @@ public class DataTableBindHelper {
 
             if (arrayAccess) {
                 hasAccessByArrayId = arrayAccess;
-                fieldInChain = getWritableArrayElement(getArrayName(fieldNameNode), table, loadedFieldType, getArrayIndex(fieldNameNode), fieldNameNode);
+                fieldInChain = getWritableArrayElement(fieldNameNode, table, loadedFieldType);
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
             }
@@ -631,21 +633,21 @@ public class DataTableBindHelper {
         return field;
     }
 
-    private static IOpenField getWritableArrayElement(String arrayName, ITable table, IOpenClass loadedFieldType,
-            int arrayIndex, IdentifierNode currentFieldNameNode) {
+    private static IOpenField getWritableArrayElement(IdentifierNode currentFieldNameNode, ITable table, IOpenClass loadedFieldType) {
+        String arrayName = getArrayName(currentFieldNameNode);
+        int arrayIndex = getArrayIndex(currentFieldNameNode);
         IOpenField field = DataTableBindHelper.findField(arrayName, table, loadedFieldType);
         IOpenField arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
-
+        
         if (!arrayAccessField.isWritable()) {
             String message = String.format("Field '%s' is not writable in %s", arrayName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;
         }
-
+        
         return arrayAccessField;
     }
-
     private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
         for (IdentifierNode[] existIdentifier : identifiers) {
             if (isEqualsIdentifier(existIdentifier, identifier)) {
