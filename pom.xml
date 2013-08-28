@@ -27,7 +27,7 @@
 	<module>TUT/trunk/org.openl.rules.tutorials-pom</module>	
 	<module>Eclipse/trunk/org.openl.rules.eclipse-pom</module>
 	<module>Util/trunk/openl-simple-project-archetype</module>
-	<module>DEMO\trunk\openl-tablets-demo\org.openl.rules.demo-pom</module>
+	<module>DEMO/trunk/openl-tablets-demo/org.openl.rules.demo-pom</module>
   </modules>
 
   <distributionManagement>
