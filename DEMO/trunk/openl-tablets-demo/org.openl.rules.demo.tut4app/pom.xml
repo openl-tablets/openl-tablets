@@ -21,6 +21,7 @@
 	</properties>
 	
 	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
 		<finalName>demo</finalName>
 		<resources>
 			<resource>
