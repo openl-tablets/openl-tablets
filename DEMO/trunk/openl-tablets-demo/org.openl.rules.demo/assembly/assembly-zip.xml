@@ -10,7 +10,7 @@
   <fileSets>
     <fileSet>
       <directory>target/openl-demo</directory>
-      <outputDirectory>openl-demo</outputDirectory>
+      <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

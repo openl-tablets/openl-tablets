@@ -10,10 +10,10 @@
 		<relativePath>../org.openl.rules.demo-pom</relativePath>
 	</parent>
 
-	<artifactId>org.openl.demo.tut4app</artifactId>
+	<artifactId>org.openl.rules.demo.webservice.client</artifactId>
 	<packaging>war</packaging>
-	<name>OpenL - DEMO - TUT4APP</name>
-	<description>Tut 4 Demo for OpenL demo application</description>
+	<name>OpenL Tablets - DEMO - Web Services Client</name>
+	<description>Web Services Client for OpenL Tablets demo application</description>
 	<url>http://openl-tablets.sf.net/</url>
 
 	<properties>

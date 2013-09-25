@@ -12,8 +12,8 @@
 	<groupId>org.openl.rules.demo</groupId>
 	<artifactId>org.openl.rules.demo.demo</artifactId>
 	<packaging>jar</packaging>
-	<name>OpenL - Demo - Demo</name>
-	<description>Common OpenL Rules demo</description>
+	<name>OpenL Tablets - DEMO - Demo</name>
+	<description>Common OpenL Tablets demo</description>
 	<url>http://openl-tablets.sf.net/</url>
 
 	<build> 		

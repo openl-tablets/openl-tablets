@@ -6,8 +6,8 @@
 	<groupId>org.openl.rules.demo</groupId>
 	<artifactId>org.openl.rules.demo-pom</artifactId>
 	<packaging>pom</packaging>
-	<name>OpenL - Tutorial 4 - Demo - POM</name>
-	<description>OpenL Rules Demo(zip) Base POM</description>
+	<name>OpenL Tablets - DEMO - POM</name>
+	<description>OpenL Tablets Demo (zip) Base POM</description>
 	<url>http://openl-tablets.sf.net/</url>
 
 	<parent>
@@ -19,8 +19,8 @@
 	</parent>
 
 	<modules>
-		<module>../org.openl.rules.demo.tut4app</module>
 		<module>../org.openl.rules.demo.webservice</module>
+		<module>../org.openl.rules.demo.webservice.client</module>
 		<module>../org.openl.rules.demo.webstudio</module>
 		<module>../org.openl.rules.demo</module>
 	</modules>
@@ -29,7 +29,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.openl.rules.demo</groupId>
-				<artifactId>org.openl.rules.demo.tut4app</artifactId>
+				<artifactId>org.openl.rules.demo.webservice.client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
