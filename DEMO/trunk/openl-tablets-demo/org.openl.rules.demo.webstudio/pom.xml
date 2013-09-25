@@ -10,10 +10,10 @@
 		<relativePath>../org.openl.rules.demo-pom</relativePath>
 	</parent>
 
-	<artifactId>org.openl.demo.webstudio</artifactId>
+	<artifactId>org.openl.rules.demo.webstudio</artifactId>
 	<packaging>war</packaging>
-	<name>OpenL - DEMO - WEB STUDIO</name>
-	<description>WebStudio for OpenL demo application</description>
+	<name>OpenL Tablets - DEMO - WebStudio</name>
+	<description>WebStudio for OpenL Tablets demo application</description>
 	<url>http://openl-tablets.sf.net/</url>
 	<properties>
 		<war.name>webstudio-demo</war.name>

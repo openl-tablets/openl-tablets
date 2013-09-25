@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>org.openl.demo.tut4app</name>
-  <comment>Tut 4 Demo for OpenL demo application. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <name>org.openl.demo.webservice.client</name>
+  <comment>Web Services Client for OpenL demo application. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
     <project>org.openl.commons</project>
   </projects>
