@@ -34,7 +34,7 @@ public class WebServiceTemplate {
 		return clientInterface;
 	}
 
-	private String getAddress() throws IOException {
+	public String getAddress() throws IOException {
 		Properties properties = new Properties();
 		InputStream stream = getClass().getResourceAsStream("/ws.properties");
 		try {

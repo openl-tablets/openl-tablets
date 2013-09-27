@@ -1,13 +1,19 @@
 package org.openl.tablets.tutorial4.client.jsf;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.generated.beans.Driver;
 import org.openl.tablets.tutorial4.Tutorial_4WrapperInterface;
+import org.openl.tablets.tutorial4.client.WebServiceTemplate;
 
+@ManagedBean
+@RequestScoped
 public class WSBean {
 	private String[] result;
 	private String methodName;
-	private int param1;
-	private String param2;
+	private int param1 = 20;
+	private String param2 = "Male";
 
 	public String[] getResult() {
 		return result;
@@ -31,6 +37,10 @@ public class WSBean {
 
 	public void setParam2(String param2) {
 		this.param2 = param2;
+	}
+
+	public String getAddress() throws Exception {
+	    return WebServiceTemplate.getInstance().getAddress();
 	}
 
 	public void getCoverage() {

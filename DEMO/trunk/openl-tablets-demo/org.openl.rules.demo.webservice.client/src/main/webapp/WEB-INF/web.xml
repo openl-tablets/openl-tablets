@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    version="3.0" metadata-complete="true">
+    <!-- metadata-complete="true" parameter is used for decrease startup time.
+    All servlet 3.0 annotation will be skipped -->
 
-  <context-param>
-    <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
-    <param-value>.jsp</param-value>
-  </context-param>
+    <servlet>
+        <servlet-name>FacesServlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>FacesServlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
 
-  <servlet>
-    <servlet-name>FacesServlet</servlet-name>
-    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>*.jsf</url-pattern>
-  </servlet-mapping>
+    <welcome-file-list>
+        <welcome-file>index.jsf</welcome-file>
+    </welcome-file-list>
 
 </web-app>
