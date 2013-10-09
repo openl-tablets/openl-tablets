@@ -13,14 +13,14 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 
-public class FileExportHelper {
+public final class FileExportHelper {
     private static FileFilter FILE_FILTER = new FileFilter() {
         public boolean accept(File pathname) {
             return !FolderHelper.PROPERTIES_FOLDER.equalsIgnoreCase(pathname.getName());
         }
     };
 
-    public File export(WorkspaceUser user, AProject oldRP, String fileName) throws ProjectException {
+    public static File export(WorkspaceUser user, AProject oldRP, String fileName) throws ProjectException {
         File file = null;
         try {
             file = File.createTempFile("export-", "-file");
@@ -51,7 +51,7 @@ public class FileExportHelper {
         return file;
     }
 
-    protected void copyFile(File file, File rootDir, String fileName) throws IOException {
+    protected static void copyFile(File file, File rootDir, String fileName) throws IOException {
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(file);
