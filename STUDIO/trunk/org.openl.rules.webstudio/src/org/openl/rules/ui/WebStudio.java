@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,8 +52,7 @@ import org.richfaces.model.UploadedFile;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * TODO Remove JSF dependency
- * TODO Separate user session from app session
+ * TODO Remove JSF dependency TODO Separate user session from app session
  * 
  * @author snshor
  */
@@ -72,8 +72,8 @@ public class WebStudio {
     private final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
     private final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
 
-    private final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW,
-        CATEGORY_DETAILED_VIEW, CATEGORY_INVERSED_VIEW };
+    private final RulesTreeView[] treeViews = { TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW, CATEGORY_DETAILED_VIEW,
+            CATEGORY_INVERSED_VIEW };
 
     private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
 
@@ -113,7 +113,8 @@ public class WebStudio {
 
         initWorkspace(session);
         initUserSettings(session);
-        updateSystemProperties = systemConfigManager.getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
+        updateSystemProperties = systemConfigManager
+                .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
         initDependencyManager();
     }
 
@@ -136,8 +137,8 @@ public class WebStudio {
     private void initUserSettings(HttpSession session) {
         String userMode = systemConfigManager.getStringProperty("user.mode");
         String settingsLocation = systemConfigManager.getStringProperty("user.settings.home")
-                + (!userMode.equals("single") ? (File.separator + WebStudioUtils.getRulesUserSession(session).getUserName()) : "")
-                + File.separator + USER_SETTINGS_FILENAME;
+                + (!userMode.equals("single") ? (File.separator + WebStudioUtils.getRulesUserSession(session)
+                        .getUserName()) : "") + File.separator + USER_SETTINGS_FILENAME;
         String defaultSettingsLocation = session.getServletContext().getRealPath(
                 "/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
 
@@ -160,7 +161,7 @@ public class WebStudio {
         IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader(projectResolver);
         IDependencyLoader loader2 = new RulesFileDependencyLoader();
 
-        dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));    
+        dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
     }
 
     public ConfigurationManager getSystemConfigManager() {
@@ -235,32 +236,20 @@ public class WebStudio {
     }
 
     public String exportModule() {
-        File file = null;
-        String fileType = null;
-        String moduleName = null;
         try {
-            AProject selectedProject = getCurrentProject();
-            moduleName = currentModule.getName();
-            if (selectedProject.hasArtefact(moduleName + ".xlsx")) {
-                fileType = "xlsx";
-            } else if (selectedProject.hasArtefact(moduleName + ".xls")) {
-                fileType = "xls";
+            File file = new File(currentModule.getRulesRootPath().getPath());
+            if (file.isDirectory() || !file.exists()) {
+                throw new ProjectException("Exporting module was failed");
             }
-            if (fileType == null) {
-                throw new ProjectException("Exporting module is not excel file");
+
+            if (file != null) {
+                final FacesContext facesContext = FacesUtils.getFacesContext();
+                HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+                ExportModule.writeOutContent(response, file, file.getName(), FilenameUtils.getExtension(file.getName()));
+                facesContext.responseComplete();
             }
-            file = new FileExportHelper().export(WebStudioUtils.getUserWorkspace(FacesUtils.getSession()).getUser(), selectedProject, moduleName + "." + fileType);
         } catch (ProjectException e) {
             log.error("Failed to export module", e);
-            // TODO Display message - e.getMessage()
-        }
-
-        if (file != null) {
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportModule.writeOutContent(response, file, moduleName + "." + fileType, fileType);
-            facesContext.responseComplete();
-            file.delete();
         }
         return null;
     }
@@ -294,7 +283,7 @@ public class WebStudio {
         this.tableView = tableView;
         userSettingsManager.setProperty("table.view", tableView);
     }
-    
+
     public boolean isShowHeader() {
         return tableView.equals("developer");
     }
@@ -322,7 +311,7 @@ public class WebStudio {
         return workspacePath;
     }
 
-    public synchronized void invalidateProjects(){
+    public synchronized void invalidateProjects() {
         projects = null;
     }
 
@@ -343,7 +332,7 @@ public class WebStudio {
 
     public void reset(ReloadType reloadType) {
         try {
-            if (reloadType == ReloadType.FORCED){
+            if (reloadType == ReloadType.FORCED) {
                 invalidateProjects();
                 initDependencyManager();
             }
@@ -387,7 +376,7 @@ public class WebStudio {
             setCurrentModule(getAllProjects().get(0).getModules().get(0));
         }
     }
-    
+
     public String updateModule() {
         if (getLastUploadedFile() == null) {
             // TODO Display message - e.getMessage()
@@ -396,7 +385,8 @@ public class WebStudio {
 
         try {
 
-            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(model.getHistoryManager());
+            XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
+                    model.getHistoryManager());
             historyListener.beforeSave(model.getCurrentModuleWorkbook());
 
             Module module = getCurrentModule();
@@ -424,7 +414,7 @@ public class WebStudio {
         }
         return null;
     }
-    
+
     public ProjectDescriptor getProject(final String id) {
         return (ProjectDescriptor) CollectionUtils.find(getAllProjects(), new Predicate() {
             public boolean evaluate(Object project) {
@@ -449,8 +439,7 @@ public class WebStudio {
      * @throws Exception
      */
     public void setCurrentModule(Module module) throws Exception {
-        if (currentModule == null
-                || !getModuleId(currentModule).equals(getModuleId(module))) {
+        if (currentModule == null || !getModuleId(currentModule).equals(getModuleId(module))) {
             model.setModuleInfo(module);
             model.getRecentlyVisitedTables().clear();
         }
@@ -572,7 +561,7 @@ public class WebStudio {
         UploadedFile file = event.getUploadedFile();
         uploadedFiles.add(file);
     }
-    
+
     public void destroy() {
         if (model != null) {
             model.destroy();
