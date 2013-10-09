@@ -616,6 +616,12 @@ public class RepositoryTreeController {
             file = File.createTempFile("export-", "-file");
             os = new FileOutputStream(file);
             IOUtils.copy(is, os);
+
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            String fileType = fileName.endsWith("xls") ? "xls" : "xlsx";
+            ExportModule.writeOutContent(response, file, fileName, fileType);
+            facesContext.responseComplete();
         } catch (Exception e) {
             String msg = "Failed to export file version.";
             log.error(msg, e);
@@ -623,22 +629,9 @@ public class RepositoryTreeController {
         } finally {
             IOUtils.closeQuietly(os);
             IOUtils.closeQuietly(is);
+            FileUtils.deleteQuietly(file);
         }
 
-        if (file != null) {
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            String fileType;
-            if (fileName.endsWith("xls")) {
-                fileType = "xls";
-            } else {
-                fileType = "xlsx";
-            }
-            ExportModule.writeOutContent(response, file, fileName, fileType);
-            facesContext.responseComplete();
-        }
-
-        FileUtils.deleteQuietly(file);
         return null;
     }
 
