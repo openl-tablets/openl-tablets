@@ -3,10 +3,13 @@ package org.openl.rules.webstudio.web.repository;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,10 +28,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
@@ -55,7 +60,6 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.impl.FileExportHelper;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
@@ -598,17 +602,27 @@ public class RepositoryTreeController {
     public String exportFileVersion() {
         File file = null;
         String fileName = null;
+        InputStream is = null;
+        OutputStream os = null;
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject forExport = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
                 new CommonVersionImpl(version));
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
-            file = new FileExportHelper().export(userWorkspace.getUser(), forExport, fileName);
-        } catch (ProjectException e) {
+            ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
+
+            is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
+            file = File.createTempFile("export-", "-file");
+            os = new FileOutputStream(file);
+            IOUtils.copy(is, os);
+        } catch (Exception e) {
             String msg = "Failed to export file version.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(os);
+            IOUtils.closeQuietly(is);
         }
 
         if (file != null) {
@@ -622,9 +636,9 @@ public class RepositoryTreeController {
             }
             ExportModule.writeOutContent(response, file, fileName, fileType);
             facesContext.responseComplete();
-
-            file.delete();
         }
+
+        FileUtils.deleteQuietly(file);
         return null;
     }
 
