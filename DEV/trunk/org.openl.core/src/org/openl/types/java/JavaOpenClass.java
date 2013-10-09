@@ -31,7 +31,6 @@ import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.openl.base.INamedThing;
@@ -173,16 +172,32 @@ public class JavaOpenClass extends AOpenClass {
         if (res == null) {
             if (c.isInterface()) {
                 res = new JavaOpenInterface(c, null);
-            } else if (c.isEnum())
+            } else if (c.isEnum()) {
                 res = new JavaOpenEnum(c, null);
-            else {
-                res = new JavaOpenClass(c, null);
+            } else {
+                CustomJavaOpenClass annotation = c.getAnnotation(CustomJavaOpenClass.class);
+                if (annotation != null) {
+                    res = createOpenClass(c, annotation);
+                } else {
+                    res = new JavaOpenClass(c, null);
+                }
             }
 
             getClassCache().put(c, res);
         }
 
         return res;
+    }
+
+    private static JavaOpenClass createOpenClass(Class<?> c, CustomJavaOpenClass annotation) {
+        Class<? extends JavaOpenClass> type = annotation.type();
+        try {
+            return type.getConstructor(Class.class).newInstance(c);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(String.format("Cannot find constructor with signature 'public MyCustomJavaOpenClass(Class<?> c)' in type %s", type.getCanonicalName()), e);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(String.format("Error while creating a custom JavaOpenClass of type '%s'", type.getCanonicalName()), e);
+        }
     }
 
     public static IOpenClass[] getOpenClasses(Class<?>[] cc) {

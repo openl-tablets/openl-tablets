@@ -8,11 +8,13 @@ import org.openl.rules.helpers.ITableAdaptor;
 import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
+import org.openl.types.java.CustomJavaOpenClass;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
  *
  */
+@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class)
 public class SpreadsheetResult implements Serializable {
     
     private static final long serialVersionUID = 8704762477153429384L;
@@ -157,15 +159,18 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object getFieldValue(String name) {
-        Point fieldCoordinates = fieldsCoordinates.get(name);        
+        Point fieldCoordinates = fieldsCoordinates.get(name);
         
         if (fieldCoordinates != null) {
             return getValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn());
         }
-        return null;        
+        return null;
     }
-    
-    
+
+    public boolean hasField(String name) {
+        return fieldsCoordinates.get(name) != null;
+    }
+
     public ITableAdaptor makeTableAdaptor()
     {
         ITableAdaptor asTableAdaptor = new ITableAdaptor() {
@@ -208,7 +213,4 @@ public class SpreadsheetResult implements Serializable {
     public String toString() {
         return printAsTable();
     }
-    
-    
-    
 }
