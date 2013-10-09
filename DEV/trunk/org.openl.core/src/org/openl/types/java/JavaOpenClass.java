@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -30,7 +31,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
@@ -173,16 +173,36 @@ public class JavaOpenClass extends AOpenClass {
         if (res == null) {
             if (c.isInterface()) {
                 res = new JavaOpenInterface(c, null);
-            } else if (c.isEnum())
+            } else if (c.isEnum()) {
                 res = new JavaOpenEnum(c, null);
-            else {
-                res = new JavaOpenClass(c, null);
+            } else {
+                CustomJavaOpenClass annotation = c.getAnnotation(CustomJavaOpenClass.class);
+                if (annotation != null) {
+                    res = createOpenClass(c, annotation);
+                } else {
+                    res = new JavaOpenClass(c, null);
+                }
             }
 
             getClassCache().put(c, res);
         }
 
         return res;
+    }
+
+    private static JavaOpenClass createOpenClass(Class<?> c, CustomJavaOpenClass annotation) {
+        Class<? extends JavaOpenClass> type = annotation.type();
+        try {
+            return type.getConstructor(Class.class).newInstance(c);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException(String.format("Cannot find constructor with signature 'public MyCustomJavaOpenClass(Class<?> c)' in type %s", type.getCanonicalName()), e);
+        } catch (InstantiationException e) {
+            throw new IllegalStateException(String.format("Error while creating a custom JavaOpenClass of type '%s'", type.getCanonicalName()), e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(String.format("Constructor of a custom JavaOpenClass of type '%s' is inaccessible", type.getCanonicalName()), e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException(String.format("Costructor of a class '%s' throwed and exception", type.getCanonicalName()), e);
+        }
     }
 
     public static IOpenClass[] getOpenClasses(Class<?>[] cc) {
