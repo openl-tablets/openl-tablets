@@ -17,12 +17,12 @@
 	<url>http://openl-tablets.sf.net/</url>
 
 	<properties>
-		<webservice.url>http://localhost:8080/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>
+		<webservice.url>http://localhost:8080/webservice/Example%203%20-%20Auto%20Policy%20Calculation/Example%203%20-%20Auto%20Policy%20Calculation</webservice.url>
 	</properties>
 	
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
-		<finalName>demo</finalName>
+		<finalName>webservice-client</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -35,7 +35,7 @@
 		<profile>
 			<id>deploy-to-demo-server</id>
 			<properties>
-				<webservice.url>http://openl.internal.corp:8082/webservice/org.openl.tablets.tutorial4/org.openl.tablets.tutorial4</webservice.url>
+				<webservice.url>http://openl.internal.corp:8082/webservice/Example%203%20-%20Auto%20Policy%20Calculation/Example%203%20-%20Auto%20Policy%20Calculation</webservice.url>
 			</properties>
 			<build>
 				<plugins>
@@ -45,8 +45,8 @@
 						<configuration>
 							<url>http://openl.internal.corp:8082/manager/text</url>
 							<server>demo-server</server>
-							<path>/demo</path>
-							<warFile>target/demo.war</warFile>
+							<path>/webservice-client</path>
+							<warFile>target/webservice-client.war</warFile>
 							<update>true</update>
 						</configuration>
 					</plugin>
