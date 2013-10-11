@@ -2,6 +2,6 @@
 <project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="webservice-client">
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-        <wb-resource deploy-path="/WEB-INF/lib" source-path="/target/demo/WEB-INF/lib"/>
+        <wb-resource deploy-path="/WEB-INF/lib" source-path="/target/webservice-client/WEB-INF/lib"/>
     </wb-module>
 </project-modules>

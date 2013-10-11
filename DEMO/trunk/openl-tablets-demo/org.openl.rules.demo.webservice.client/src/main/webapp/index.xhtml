@@ -64,7 +64,7 @@
                 margin: 29px 0 16px;
             }
             .methods > tbody > tr > td {
-                padding: 8px 5px;
+                padding: 11px 5px;
             }
             .method-desc {
                 color: #9a9a9a;
@@ -74,7 +74,7 @@
                 border: 0;
                 border-left: 1px solid #ff8111;
                 padding: 6px 10px;
-                margin: 1px 75px;
+                margin: 1px 81px;
                 color: #ff8111;
                 background: #fff;
             }
@@ -87,6 +87,7 @@
             }
             .method-params td {
                 padding: 0 5px;
+                width: 110px;
             }
             .method-params input[type="text"] {
                 padding: 2px 3px;
@@ -119,40 +120,54 @@
         <div id="main">
             <div>
                 <div class="description">
-                    This demo allows you to call methods from Tutorial 4 that are deployed as <a href="#{wSBean.address}?wsdl" target="_blank">web services</a> on the remote server.
-                    Keep in mind that the demo shows only the methods listed below. Any new deployed methods will not be displayed.
+                    This demo allows you to call methods from "Example 3 - Auto Policy Calculation" that are deployed as <a href="#{wSBean.address}?wsdl" target="_blank">web services</a> on the remote server.
+                    Keep in mind that the demo shows only the methods listed below. Any new added methods will not be displayed.
                 </div>
                 <h:form>
                     <div>
                         <h2>Methods to call</h2>
                         <table class="methods">
                             <tr>
-                                <td>getCoverage
-                                    <div class="method-desc">Returns list of Coverages</div>
-                                </td>
-                                <td><h:commandButton value="Execute" action="#{wSBean.getCoverage}" immediate="true" /></td>
-                            </tr>
-                            <tr>
-                                <td>getTheft_rating
-                                    <div class="method-desc">Returns list of Theft Ratings</div>
-                                </td>
-                                <td><h:commandButton value="Execute" action="#{wSBean.getTheftRating}" immediate="true" /></td>
-                            </tr>
-                            <tr>
-                                <td>driverAgeType 
-                                    <div class="method-desc">Returns Type of Driver by Age and Gender</div>
+                                <td>DriverAgeType 
+                                    <div class="method-desc">Returns a type of driver by age and gender</div>
                                     <table class="method-params">
                                         <tr>
                                             <td>Age</td>
-                                            <td><h:inputText size="4" value="#{wSBean.param1}" /></td>
+                                            <td><h:inputText size="4" value="#{wSBean.age}" /></td>
                                         </tr>
                                         <tr>
                                             <td>Gender</td>
-                                            <td><h:inputText size="6" value="#{wSBean.param2}" /></td>
+                                            <td><h:inputText size="6" value="#{wSBean.gender}" /></td>
                                         </tr>
                                     </table>
                                 </td>
                                 <td><h:commandButton value="Execute" action="#{wSBean.driverAgeType}" /></td>
+                            </tr>
+                            <tr>
+                                <td>AccidentPremium
+                                    <div class="method-desc">Returns auto accident premium</div>
+                                </td>
+                                <td><h:commandButton value="Execute" action="#{wSBean.accidentPremium}" immediate="true" /></td>
+                            </tr>
+                            <tr>
+                                <td>DriverRisk
+                                    <div class="method-desc">Returns a type of driver risk by number of incidents</div>
+                                    <table class="method-params">
+                                        <tr>
+                                            <td>DUI</td>
+                                            <td><h:inputText size="4" value="#{wSBean.numDUI}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Accidents</td>
+                                            <td><h:inputText size="4" value="#{wSBean.numAccidents}" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Moving Violations</td>
+                                            <td><h:inputText size="4" value="#{wSBean.numMovingViolations}" /></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td><h:commandButton value="Execute" action="#{wSBean.driverRisk}" immediate="true" /></td>
                             </tr>
                         </table>
                     </div>
