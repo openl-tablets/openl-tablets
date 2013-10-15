@@ -75,19 +75,20 @@ public class WSBean {
 
     public void driverRisk() {
         methodName = "DriverRisk"; 
-        String ret = (String) invoke(methodName, new Object[] { numDUI, numAccidents, numMovingViolations });
+        String ret = (String) invoke(methodName,
+                new Object[] {null, new Integer(numDUI), new Integer(numAccidents), new Integer(numMovingViolations) });
         result = new String[] { ret };
     }
 
     public void accidentPremium() {
         methodName = "AccidentPremium";
-        Double ret = (Double) invoke(methodName, new Object[0]);
+        Double ret = (Double) invoke(methodName, new Object[] { null });
         result = new String[] { ret != null ? String.valueOf(ret) : null };
     }
 
     public void driverAgeType() {
         methodName = "DriverAgeType";
-        String ret = (String) invoke(methodName, new Object[] { gender, age });
+        String ret = (String) invoke(methodName, new Object[] { null, gender, age });
         result = new String[] { ret };
     }
 
