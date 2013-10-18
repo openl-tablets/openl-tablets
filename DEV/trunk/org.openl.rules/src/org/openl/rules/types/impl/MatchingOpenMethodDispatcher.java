@@ -211,7 +211,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             List<IOpenMethod> notPriorMethods = new ArrayList<IOpenMethod>();
 
             List<String> notNullPropertyNames = getNotNullPropertyNames(context);
-            boolean hasMaxMinProperties = hasMaxMinProperties(context);
             //Find the most high priority method
             IOpenMethod mostPriority = null;
             ITableProperties mostPriorityProperties = null;
@@ -226,20 +225,18 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     boolean contains = false;
                     
                     ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                    if (hasMaxMinProperties) {
-                        int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
-                        if (cmp < 0) {
-                            nested = true;
-                            contains = false;
-                        } else if (cmp > 0) {
-                            nested = false;
-                            contains = true;
-                        }
+                    int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
+                    if (cmp < 0) {
+                        nested = true;
+                        contains = false;
+                    } else if (cmp > 0) {
+                        nested = false;
+                        contains = true;
                     }
 
                     if (!nested && !contains) {
                         propsLoop: for (String propName : notNullPropertyNames) {
-    
+
                             switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
                                 case NESTED:
                                     nested = true;
@@ -328,11 +325,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             candidatesSorted = prioritySorter.sort(super.getCandidates());
         }
         return candidatesSorted;
-    }
-
-    // TODO generate this method
-    private boolean hasMaxMinProperties(IRulesRuntimeContext context) {
-        return context.getRequestDate() != null;
     }
 
 // <<< INSERT MatchingProperties >>>

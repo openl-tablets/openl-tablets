@@ -239,7 +239,7 @@ public class GenRulesCode {
         Map<String, Object> variables = new HashMap<String, Object>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalProperties();
+                .getGapOverlapDimensionalProperties();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
