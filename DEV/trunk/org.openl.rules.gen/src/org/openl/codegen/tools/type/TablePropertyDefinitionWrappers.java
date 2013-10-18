@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.expressions.match.ContainsMatchingExpression;
+import org.openl.rules.table.properties.expressions.match.EQMatchingExpression;
 
 public class TablePropertyDefinitionWrappers {
 
@@ -33,6 +35,24 @@ public class TablePropertyDefinitionWrappers {
 
             if (wrapper.getDefinition().isDimensional()) {
                 dimensionalTablePropertyDefinitions.add(wrapper);
+            }
+        }
+
+        return dimensionalTablePropertyDefinitions;
+    }
+
+    public List<TablePropertyDefinitionWrapper> getGapOverlapDimensionalProperties() {
+
+        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();
+
+        for (TablePropertyDefinitionWrapper wrapper : wrappers) {
+
+            if (wrapper.getDefinition().isDimensional()) {
+                String operation = wrapper.getOperation();
+                if (ContainsMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operation)
+                        || EQMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operation)) {
+                    dimensionalTablePropertyDefinitions.add(wrapper);
+                }
             }
         }
 
