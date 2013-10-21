@@ -142,7 +142,7 @@ public class TestUnit {
     }
 
     /**
-     * Return the result of running current test unit.
+     * Return the result of running current test case.
      * 
      * @return exception that occurred during running, if it was. If no, returns
      *         the calculated result.

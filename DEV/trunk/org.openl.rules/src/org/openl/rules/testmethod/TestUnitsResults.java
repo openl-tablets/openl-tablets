@@ -195,6 +195,18 @@ public class TestUnitsResults implements INamedThing {
         return columnDisplayNames;
     }
 
+    public String[] getTestResultColumnDisplayNames() {
+        List<String> displayNames = new ArrayList<String>();
+        TestSuiteMethod test = testSuite.getTestSuiteMethod();
+        for (int i = 0; i < test.getColumnsCount(); i++) {
+            String columnName = test.getColumnName(i);
+            if (columnName.startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                displayNames.add(test.getColumnDisplayName(columnName));
+            }
+        }
+        return displayNames.toArray(new String[displayNames.size()]);
+    }
+
     public String[] getTestDataColumnHeaders() {
         IMethodSignature testMethodSignature = testSuite.getTestedMethod().getSignature();
 
