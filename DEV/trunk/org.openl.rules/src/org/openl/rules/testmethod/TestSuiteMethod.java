@@ -96,11 +96,27 @@ public class TestSuiteMethod extends ExecutableRulesMethod implements IBenchmark
 
     public String getColumnDisplayName(String columnTechnicalName) {
         int columnIndex = getBoundNode().getTable().getColumnIndex(columnTechnicalName);
-        if (columnIndex >= 0) {
-            return getBoundNode().getTable().getColumnDisplay(columnIndex);
+        return getColumnDisplayName(columnIndex);
+    }
+
+    public String getColumnName(int index) {
+        if (index >= 0) {
+            return getBoundNode().getTable().getColumnName(index);
         } else {
             return null;
         }
+    }
+
+    public String getColumnDisplayName(int index) {
+        if (index >= 0) {
+            return getBoundNode().getTable().getColumnDisplay(index);
+        } else {
+            return null;
+        }
+    }
+
+    public int getColumnsCount() {
+        return getBoundNode().getTable().getNumberOfColumns();
     }
 
     public synchronized IOpenClass getMethodBasedClass() {

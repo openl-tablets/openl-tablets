@@ -70,7 +70,7 @@
                             </li>
                             <li class="divider"></li>
                             <li onclick="event.stopPropagation()">
-                                <span tabindex="-1">
+                                <span tabindex="-1" title="Show only failed test cases">
                                     <span>Failures Only</span>
                                     <input name="failuresOnly" type="checkbox"
                                         onclick="$j('#failuresSetting').toggle(this.checked)"
@@ -88,6 +88,15 @@
                                         <f:selectItem itemLabel="20" itemValue="20" />
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
+                                </span>
+                            </li>
+                            <li class="divider"></li>
+                            <li onclick="event.stopPropagation()">
+                                <span tabindex="-1" title="Show the result of running test case if it's complex">
+                                    <span>Complex Result</span>
+                                    <input name="complexResult" type="checkbox"
+                                        value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                        style="vertical-align:-2px;margin:-4px" />
                                 </span>
                             </li>
                             <li class="divider"></li>

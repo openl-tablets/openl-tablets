@@ -188,7 +188,7 @@
                                 </ui:repeat>
                             </table>
                             <div id="runCasesSettings">
-                                <div>
+                                <div title="Show only failed test cases">
                                     <span>Failures Only</span>
                                     <input name="failuresOnly" type="checkbox"
                                         onclick="$j('#caseFailuresSetting').toggle(this.checked)"
@@ -203,6 +203,12 @@
                                         <f:selectItem itemLabel="20" itemValue="20" />
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
+                                </div>
+                                <div title="Show the result of running test case if it's complex">
+                                    <span>Complex Result</span>
+                                    <input name="complexResult" type="checkbox"
+                                        value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                        style="vertical-align:-2px;margin:-4px" />
                                 </div>
                             </div>
                             <div style="padding: 6px 5px">
