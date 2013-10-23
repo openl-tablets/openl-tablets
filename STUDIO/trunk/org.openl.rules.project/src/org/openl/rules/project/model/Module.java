@@ -11,20 +11,16 @@ public class Module {
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;
-    private MethodFilter methodFilter = new MethodFilter();
+    private MethodFilter methodFilter;
 
     public MethodFilter getMethodFilter() {
         return methodFilter;
     }
-    
+
     public void setMethodFilter(MethodFilter methodFilter) {
-        if (methodFilter == null){
-            this.methodFilter = new MethodFilter();
-        }else{
-            this.methodFilter = methodFilter;
-        }
+        this.methodFilter = methodFilter;
     }
-    
+
     public ProjectDescriptor getProject() {
         return project;
     }

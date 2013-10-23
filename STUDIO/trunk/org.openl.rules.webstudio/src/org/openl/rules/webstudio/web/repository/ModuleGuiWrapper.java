@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.openl.rules.project.model.MethodFilter;
@@ -40,7 +41,9 @@ public class ModuleGuiWrapper {
     }
 
     public void setIncludedMethods(String methods) {
-        module.getMethodFilter().setIncludes(new HashSet<String>(Arrays.asList(methods.split(SEPARATOR_PATTERN))));
+        Set<String> includes = StringUtils.isNotBlank(methods) ?
+                new HashSet<String>(Arrays.asList(methods.split(SEPARATOR_PATTERN))) : null;
+        module.getMethodFilter().setIncludes(includes);
     }
 
     public String getExcludedMethods() {
@@ -48,7 +51,9 @@ public class ModuleGuiWrapper {
     }
 
     public void setExcludedMethods(String methods) {
-        module.getMethodFilter().setExcludes(new HashSet<String>(Arrays.asList(methods.split(SEPARATOR_PATTERN))));
+        Set<String> excludes = StringUtils.isNotBlank(methods) ?
+                new HashSet<String>(Arrays.asList(methods.split(SEPARATOR_PATTERN))) : null;
+        module.getMethodFilter().setExcludes(excludes);
     }
 
     public PathEntry getRulesRootPath() {
