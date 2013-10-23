@@ -2,6 +2,7 @@ package org.openl.rules.project.instantiation;
 
 import java.io.File;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
@@ -104,7 +105,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             Module m = getModule();
             MethodFilter methodFilter = m.getMethodFilter();
             if (methodFilter != null
-                    && (!methodFilter.getExcludes().isEmpty() || !methodFilter.getIncludes().isEmpty())) {
+                    && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils.isNotEmpty(methodFilter.getIncludes()))) {
                 String[] includes = new String[] {};
                 String[] excludes = new String[] {};
                 includes = methodFilter.getIncludes().toArray(includes);
