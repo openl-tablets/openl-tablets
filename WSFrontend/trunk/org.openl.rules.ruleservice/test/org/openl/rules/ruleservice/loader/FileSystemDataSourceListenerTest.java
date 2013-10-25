@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -30,7 +31,7 @@ public class FileSystemDataSourceListenerTest {
     }
 
     @Test
-    public void fileSystemDataSourceListenerTest() {
+    public void fileSystemDataSourceListenerTest() throws IOException {
         Assert.assertNotNull(dataSource);
         Assert.assertFalse(flag);
         DataSourceListener dataSourceListener = new DataSourceListener() {
@@ -42,11 +43,45 @@ public class FileSystemDataSourceListenerTest {
         String path = ((FileSystemDataSource) dataSource).getLoadDeploymentsFromDirectory();
         File loadDeploymentsFromFolder = new File(path);
         for (File file : loadDeploymentsFromFolder.listFiles()) {
-            file.setLastModified(new Date().getTime());
+            if (file.isDirectory() && file.getName().equals("non-openl-project")) {
+                for (File f : file.listFiles()) {
+                    f.setLastModified(new Date().getTime());
+                }
+            }
         }
         try {
             Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException e) {
+        }
+        Assert.assertTrue(flag);
+        File createdFile = null;
+        try {
+            flag = false;
+            for (File file : loadDeploymentsFromFolder.listFiles()) {
+                if (file.isDirectory() && file.getName().equals("non-openl-project")) {
+                    createdFile = new File(file, "test.test");
+                    createdFile.createNewFile();
+                }
+            }
+            try {
+                Thread.sleep(SLEEP_TIME);
+            } catch (InterruptedException e) {
+            }
+            Assert.assertTrue(flag);
+            flag = false;
+            if (createdFile != null) {
+                createdFile.delete();
+                createdFile = null;
+            }
+            try {
+                Thread.sleep(SLEEP_TIME);
+            } catch (InterruptedException e) {
+            }
+            Assert.assertTrue(flag);
+        } finally {
+            if (createdFile != null) {
+                createdFile.delete();
+            }
         }
         Assert.assertTrue(flag);
     }
