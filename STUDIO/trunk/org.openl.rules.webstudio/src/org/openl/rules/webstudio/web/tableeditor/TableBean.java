@@ -30,9 +30,11 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
@@ -54,6 +56,8 @@ import org.openl.util.StringTool;
 public class TableBean {
 
 //    private static final String INFO_MESSAGE = "Can`t find requested table in current module";
+
+    private IOpenMethod method;
 
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; //test units
@@ -103,6 +107,8 @@ public class TableBean {
                 LOG.error("Can`t redirect to info message page", e);
             }
         } else {*/
+            method = model.getMethod(uri);
+
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table.isCanContainProperties()
@@ -149,22 +155,22 @@ public class TableBean {
     }
 
     private void initTests(final ProjectModel model) {
-        initRunnableTestMethods(model);
+        initRunnableTestMethods();
 
         allTests = model.getTestAndRunMethods(uri);
         tests = model.getTestMethods(uri);
     }
 
-    private void initRunnableTestMethods(final ProjectModel model) {
-        if (model.getMethod(uri) instanceof TestSuiteMethod) {
-            runnableTestMethods = ((TestSuiteMethod) model.getMethod(uri)).getTests();
+    private void initRunnableTestMethods() {
+        if (method instanceof TestSuiteMethod) {
+            runnableTestMethods = ((TestSuiteMethod) method).getTests();
             selectedTests = new HashMap<TestDescription, Boolean>();
             for (TestDescription test : runnableTestMethods) {
                 selectedTests.put(test, true);
             }
         }
     }
-    
+
     private void initProblems() {
         initErrors();
         initWarnings();
@@ -260,9 +266,8 @@ public class TableBean {
 
     public List<OpenLMessage> getProblems() {
         return problems;
-    }    
-    
-    
+    }
+
     /**
      * Return test cases for current table.
      * 
@@ -272,6 +277,27 @@ public class TableBean {
         return runnableTestMethods;
     }
 
+    public ParameterWithValueDeclaration[] getTestCaseParams(TestDescription testCase) {
+        ParameterWithValueDeclaration[] params;
+        if (testCase != null) {
+            ParameterWithValueDeclaration[] contextParams = TestUtils.getContextParams(
+                    new TestSuite((TestSuiteMethod) method), testCase);
+            ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
+
+            params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
+            int n = 0;
+            for (int i = 0; i < contextParams.length; i++) {
+                params[n++] = contextParams[i];
+            }
+            for (int i = 0; i < inputParams.length; i++) {
+                params[n++] = inputParams[i];
+            }
+        } else {
+            params = new ParameterWithValueDeclaration[0];
+        }
+        return params;
+    }
+
     public Map<TestDescription, Boolean> getSelectedTests() {
         return selectedTests;
     }
@@ -279,12 +305,11 @@ public class TableBean {
     @Deprecated
     public String makeTestSuite() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        IOpenMethod method = studio.getModel().getMethod(uri);
         TestSuite testSuite;
         if (method instanceof TestSuiteMethod) {
             TestSuiteMethod testSuiteMethodSelected = (TestSuiteMethod) method;
             testSuite = new TestSuite(testSuiteMethodSelected, getSelectedIndices());
-        } else {//method without parameters
+        } else { // method without parameters
             testSuite = new TestSuite(new TestDescription(method, new Object[] {}));
         }
         studio.getModel().addTestSuiteToRun(testSuite);

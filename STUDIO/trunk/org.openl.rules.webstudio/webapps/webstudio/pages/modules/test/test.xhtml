@@ -147,14 +147,19 @@
                 <h:panelGroup rendered="#{testFailed or !failuresOnly}">
                 <table class="table">
                     <tr>
+                        <h:panelGroup rendered="#{testUnitsResults.hasDescription()}">
+                            <th>Description</th>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{testUnitsResults.hasContext()}">
+                            <ui:repeat value="#{testUnitsResults.contextColumnDisplayNames}" var="contextHeader">
+                                <th>#{contextHeader}</th>
+                            </ui:repeat>
+                        </h:panelGroup>
                         <ui:repeat value="#{testUnitsResults.testDataColumnDisplayNames}" var="parameterHeader">
                             <th>#{parameterHeader}</th>
                         </ui:repeat>
-                        <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
-                            <th>Description</th>
-                        </h:panelGroup>
-                        <ui:repeat value="#{testUnitsResults.testResultColumnDisplayNames}" var="parameterHeader">
-                            <th colspan="2">#{parameterHeader}</th>
+                        <ui:repeat value="#{testUnitsResults.testResultColumnDisplayNames}" var="resultHeader">
+                            <th colspan="2">#{resultHeader}</th>
                         </ui:repeat>
                         <h:panelGroup rendered="#{complexResult and testBean.hasComplexResults(testUnitsResults)}">
                             <th>Complex Result</th>
@@ -165,15 +170,23 @@
                     <ui:param name="compareResult" value="#{testUnit.compareResult()}" />
                     <h:panelGroup>
                         <tr>
+                            <h:panelGroup rendered="#{testUnitsResults.hasDescription()}">
+                                <td><h:outputText value="#{testUnit.getDescription()}" /></td>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{testUnit.test.runtimeContextDefined}">
+                                <ui:repeat value="#{testBean.getContextParams(testUnitsResults,testUnit)}" var="context">
+                                <td>
+                                    <ui:include src="/pages/modules/test/parameter.xhtml">
+                                        <ui:param name="parameter" value="#{context}" />
+                                    </ui:include></td>
+                                </ui:repeat>
+                            </h:panelGroup>
                             <ui:repeat value="#{testBean.getParamDescriptions(testUnit)}" var="parameter">
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
                                 </ui:include></td>
                             </ui:repeat>
-                            <h:panelGroup rendered="#{testUnitsResults.anyUnitHasDescription}">
-                                <td><h:outputText value="#{testUnit.getDescription()}" /></td>
-                            </h:panelGroup>
                             <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
                                 <h:panelGroup>
                                     <ui:repeat value="#{testBean.getResultParams(testUnit)}" var="resultParam">
