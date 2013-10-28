@@ -27,6 +27,7 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -145,8 +146,8 @@ public class TestBean {
             // Concrete test with cases
             List<TestUnitsResults> results = new ArrayList<TestUnitsResults>();
             while (model.hasTestSuitesToRun()){
-                TestSuite testSuite = model.popLastTest();
-                results.add(model.runTest(testSuite));
+                TestSuite test = model.popLastTest();
+                results.add(model.runTest(test));
             }
             ranResults = new TestUnitsResults[results.size()];
             ranResults = results.toArray(ranResults);
@@ -242,10 +243,10 @@ public class TestBean {
         return TestResultsHelper.getUserMessagesAndErrors(result);
     }
 
-    public List<ComparedResult> getResultParams(Object objTestUnit) {
+    public List<ComparedResult> getResultParams(Object objTestCase) {
         List<ComparedResult> params = new ArrayList<ComparedResult>();
 
-        TestUnit testCase = ((TestUnit) objTestUnit);
+        TestUnit testCase = ((TestUnit) objTestCase);
 
         Object actual = testCase.getActualResult();
         Object expected = testCase.getExpectedResult();
@@ -299,10 +300,16 @@ public class TestBean {
         return testUnit.getActualResult();
     }
 
-    public ParameterWithValueDeclaration[] getParamDescriptions(Object objTestUnit) {
-        TestUnit testUnit = (TestUnit) objTestUnit;
-        TestDescription testDescription = testUnit.getTest();
-        return testDescription.getExecutionParams();
+    public ParameterWithValueDeclaration[] getContextParams(Object objTestResult, Object objTestCase) {
+        return TestUtils.getContextParams(
+                ((TestUnitsResults) objTestResult).getTestSuite(),
+                ((TestUnit) objTestCase).getTest());
+    }
+
+    public ParameterWithValueDeclaration[] getParamDescriptions(Object objTestCase) {
+        TestUnit testCase = (TestUnit) objTestCase;
+        TestDescription testCaseDescription = testCase.getTest();
+        return testCaseDescription.getExecutionParams();
     }
 
     public boolean isResultThrowable(Object testUnit) {

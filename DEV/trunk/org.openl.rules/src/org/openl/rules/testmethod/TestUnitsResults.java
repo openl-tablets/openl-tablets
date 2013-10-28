@@ -26,11 +26,10 @@ import org.openl.types.IOpenField;
 /**
  * Test units results for the test table.
  * Consist of the test suit method itself. And a number of test units that were represented in test table.
- * 
  *
  */
 public class TestUnitsResults implements INamedThing {
-    
+
     private TestSuite testSuite;
     private ArrayList<TestUnit> testUnits = new ArrayList<TestUnit>();
 
@@ -159,9 +158,18 @@ public class TestUnitsResults implements INamedThing {
         return testUnits.size();
     }
 
-    public boolean isAnyUnitHasDescription() {
+    public boolean hasDescription() {
         for (TestUnit testUnit: testUnits) {
-            if (!testUnit.getDescription().equals(TestUnit.DEFAULT_DESCRIPTION)) {
+            if (testUnit.getTest().getDescription() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasContext() {
+        for (TestUnit testUnit: testUnits) {
+            if (testUnit.getTest().isRuntimeContextDefined()) {
                 return true;
             }
         }
@@ -195,16 +203,24 @@ public class TestUnitsResults implements INamedThing {
         return columnDisplayNames;
     }
 
-    public String[] getTestResultColumnDisplayNames() {
+    private String[] getColumnDisplayNames(String type) {
         List<String> displayNames = new ArrayList<String>();
         TestSuiteMethod test = testSuite.getTestSuiteMethod();
         for (int i = 0; i < test.getColumnsCount(); i++) {
             String columnName = test.getColumnName(i);
-            if (columnName.startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+            if (columnName.startsWith(type)) {
                 displayNames.add(test.getColumnDisplayName(columnName));
             }
         }
         return displayNames.toArray(new String[displayNames.size()]);
+    }
+
+    public String[] getContextColumnDisplayNames() {
+        return getColumnDisplayNames(TestMethodHelper.CONTEXT_NAME);
+    }
+
+    public String[] getTestResultColumnDisplayNames() {
+        return getColumnDisplayNames(TestMethodHelper.EXPECTED_RESULT_NAME);
     }
 
     public String[] getTestDataColumnHeaders() {
