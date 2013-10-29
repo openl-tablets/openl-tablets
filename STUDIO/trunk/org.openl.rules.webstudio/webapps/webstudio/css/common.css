@@ -765,7 +765,8 @@ form.standard table.buttonPanel {
     background: none !important;
     border-left: none !important;
     border-top: none !important;
-    border-right-color: #eee !important;
+    border-right: none !important;
+    padding: 0px 11px 3px 5px !important;
 }
 
 .rf-tab-hdr-act {

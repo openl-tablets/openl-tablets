@@ -23,7 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 @ManagedBean
 @RequestScoped
-public class UserDetailsBean extends UsersBean {
+public class UserProfileBean extends UsersBean {
     public static final String VALIDATION_MAX = "Must be less than 25";
 
     private User user;
@@ -41,7 +41,7 @@ public class UserDetailsBean extends UsersBean {
     @Size(max=25, message=VALIDATION_MAX)
     private String userLastName;
 
-    public UserDetailsBean() {
+    public UserProfileBean() {
         super();
     }
 
