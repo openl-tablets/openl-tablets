@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:authz="http://rules.openl.org/taglibs/acegi"
-    xmlns:c="http://java.sun.com/jsp/jstl/core" >
+    xmlns:rich="http://richfaces.org/rich">
 
     <style>
+        .fields {
+            margin-top: 13px;
+            max-height: 450px;
+            overflow: auto;
+        }    
         .fields section {
             margin-bottom: 27px;
         }
@@ -19,86 +21,103 @@
         }
     </style>
 
-    <rich:popupPanel id="modalUserDetails" width="425" autosized="true">
-        <f:facet name="header">
-            <h:outputText value="User Details" />
-        </f:facet>
+    <rich:popupPanel id="modalUserProfile" width="425" autosized="true">
+        <f:facet name="header">User Profile</f:facet>
 
         <f:facet name="controls">
             <h:graphicImage value="/images/close.gif" class="close"
-                onclick="hideEditUserDetails()" alt="Close" />
+                onclick="hideUserProfile()" alt="Close" />
         </f:facet>
 
-        <h:form id="userDetailsForm">
-            <div style="max-height: 450px; overflow: auto;" class="fields">
-                <section>
-                    <h3>Account</h3>
-                    <div>
-                        <h:panelGrid columns="3" columnClasses="titleColumn">
-                            <label>Username</label>
-                            <h:outputText id="username" style="font-weight: bold" value="#{userDetailsBean.user.username}"/>
-                            <h:inputHidden id="usernameHidden" value="#{userDetailsBean.user.username}" />
-                        </h:panelGrid>
-                    </div>
-                </section>
-                <section>
-                    <h3>Profile</h3>
-                    <div>
-                        <h:panelGrid columns="3" columnClasses="titleColumn">
-                            <label>First Name </label>
-                            <h:inputText id="firstName" value="#{userDetailsBean.firstName}" valueChangeListener="#{userDetailsBean.firstNameListener}" />
-                            <a4j:outputPanel ajaxRendered="false" id="firstNameError">
-                                <h:message for="firstName" styleClass="error" />
-                            </a4j:outputPanel>
-            
-                            <label>Last Name</label>
-                            <h:inputText id="lastName" value="#{userDetailsBean.lastName}" valueChangeListener="#{userDetailsBean.lastNameListener}"/>
-                            <a4j:outputPanel ajaxRendered="true" id="lastNameError">
-                                <h:message for="lastName" styleClass="error" />
-                            </a4j:outputPanel>
-                        </h:panelGrid>
-                    </div>
-                </section>
-                <section>
-                    <h3>Change Password</h3>
-                    <div>
+        <h:form id="userProfileForm">
+            <rich:tabPanel switchType="client" id="userProfileTab">
+                <rich:tab header="Details" id="userProfileDetails">
+                    <div class="fields">
+                        <section>
+                            <h3>Account</h3>
+                            <div>
+                                <h:panelGrid columns="3" columnClasses="titleColumn">
+                                    <label>Username</label>
+                                    <h:outputText id="username" style="font-weight: bold" value="#{userProfileBean.user.username}"/>
+                                    <h:inputHidden id="usernameHidden" value="#{userProfileBean.user.username}" />
+                                </h:panelGrid>
+                            </div>
+                        </section>
+                        <section>
+                            <h3>Name</h3>
+                            <div>
+                                <h:panelGrid columns="3" columnClasses="titleColumn">
+                                    <label>First Name</label>
+                                    <h:inputText id="firstName" value="#{userProfileBean.firstName}" valueChangeListener="#{userProfileBean.firstNameListener}" />
+                                    <a4j:outputPanel ajaxRendered="false" id="firstNameError">
+                                        <h:message for="firstName" styleClass="error" />
+                                    </a4j:outputPanel>
                     
-                    <div style="text-align: center; margin: 2px;">
-                      <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
-                        <h:message for="newPassword" styleClass="error" ajaxRendered="true" />          
-                       </a4j:outputPanel>
+                                    <label>Last Name</label>
+                                    <h:inputText id="lastName" value="#{userProfileBean.lastName}" valueChangeListener="#{userProfileBean.lastNameListener}"/>
+                                    <a4j:outputPanel ajaxRendered="true" id="lastNameError">
+                                        <h:message for="lastName" styleClass="error" />
+                                    </a4j:outputPanel>
+                                </h:panelGrid>
+                            </div>
+                        </section>
+                        <section>
+                            <h3>Change Password</h3>
+                            <div>
+                            
+                            <div style="text-align: center; margin: 2px;">
+                              <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
+                                <h:message for="newPassword" styleClass="error" ajaxRendered="true" />          
+                               </a4j:outputPanel>
+                            </div>
+        
+                                <h:panelGrid columns="3" columnClasses="titleColumn">
+                                    <label>Current password</label>
+                                    <h:inputSecret  id="currentPassword" value="#{userProfileBean.currentPassword}" binding="#{currentPassword}" />
+                                    <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
+                                        <h:message for="currentPassword" styleClass="error" />
+                                    </a4j:outputPanel>
+                    
+                                    <label>New password</label>
+                                    <h:inputSecret  id="newPassword" value="#{userProfileBean.newPassword}" validator="#{userProfileBean.passwordsValidator}" >
+                                        <f:attribute name="confirmPassword" value="#{confirmPassword}" />
+                                        <f:attribute name="currentPassword" value="#{currentPassword}" />
+                                    </h:inputSecret>
+                                   <h:outputText value="" />
+                    
+                                    <label>Confirm password</label>
+                                    <h:inputSecret  id="confirmPassword" value="#{userProfileBean.confirmPassword}" binding="#{confirmPassword}" />
+                                    <a4j:outputPanel ajaxRendered="true" id="confirmPasswordError">
+                                        <h:message for="confirmPassword" styleClass="error" />
+                                    </a4j:outputPanel>
+                                </h:panelGrid>
+                            </div>
+                        </section>
                     </div>
-
-                        <h:panelGrid columns="3" columnClasses="titleColumn">
-                            <label>Current password</label>
-                            <h:inputSecret  id="currentPassword" value="#{userDetailsBean.currentPassword}" binding="#{currentPassword}" />
-                            <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
-                                <h:message for="currentPassword" styleClass="error" />
-                            </a4j:outputPanel>
-            
-                            <label>New password</label>
-                            <h:inputSecret  id="newPassword" value="#{userDetailsBean.newPassword}" validator="#{userDetailsBean.passwordsValidator}" >
-                                <f:attribute name="confirmPassword" value="#{confirmPassword}" />
-                                <f:attribute name="currentPassword" value="#{currentPassword}" />
-                            </h:inputSecret>
-                           <h:outputText value="" />
-            
-                            <label>Confirm password</label>
-                            <h:inputSecret  id="confirmPassword" value="#{userDetailsBean.confirmPassword}" binding="#{confirmPassword}" />
-                            <a4j:outputPanel ajaxRendered="true" id="confirmPasswordError">
-                                <h:message for="confirmPassword" styleClass="error" />
-                            </a4j:outputPanel>
-                        </h:panelGrid>
+                </rich:tab>
+                <rich:tab header="Settings" id="userProfileSettings">
+                    <div class="fields">
+                        <section>
+                            <h3>Table Settings</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <label>Show Header</label>
+                                    <h:selectBooleanCheckbox id="showHeader" value="#{studio.showHeader}" />
+                                    <label>Show Formulas</label>
+                                    <h:selectBooleanCheckbox id="showFormulas" value="#{studio.showFormulas}" />
+                                </h:panelGrid>
+                            </div>
+                        </section>
                     </div>
-                </section>
-            </div>
+                </rich:tab>
+            </rich:tabPanel>
 
             <hr />
 
             <div style="margin: 14px 0 4px">
-            <a4j:commandButton value="Save" action="#{userDetailsBean.editUser}" data="#{facesContext.maximumSeverity}"
-                oncomplete="if(!event.data) hideEditUserDetails()" render=":userDetailsForm" styleClass="button-primary" />
-            <input type="button" value="Cancel" onclick="hideEditUserDetails()" />
+                <a4j:commandButton value="Save" action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
+                    oncomplete="if(!event.data) hideUserProfile()" render=":userProfileForm" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="hideUserProfile()" />
             </div>
         </h:form>
 
@@ -107,15 +126,17 @@
 <script>
     //<![CDATA[
 
-    function  editUserDetails() {
-        RichFaces.$("modalUserDetails").show();
+    function editUserProfile(tab) {
+        RichFaces.$("modalUserProfile").show();
+        #{rich:component("userProfileTab")}.switchToItem(
+                tab === "settings" ? "userProfileSettings" : "userProfileDetails");
     }
 
-    function hideEditUserDetails() {
-        RichFaces.$("modalUserDetails").hide();
+    function hideUserProfile() {
+        RichFaces.$("modalUserProfile").hide();
 
-        $j("#userDetailsForm\\:firstNameError,#userDetailsForm\\:lastNameError,#userDetailsForm\\:currentPasswordError, #userDetailsForm\\:newPasswordError, #userDetailsForm\\:confirmPasswordError").text("");
-        $j("#userDetailsForm")[0].reset();
+        $j("#userProfileForm\\:firstNameError,#userProfileForm\\:lastNameError,#userProfileForm\\:currentPasswordError, #userProfileForm\\:newPasswordError, #userProfileForm\\:confirmPasswordError").text("");
+        $j("#userProfileForm")[0].reset();
     }
 
     //]]>

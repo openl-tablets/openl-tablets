@@ -50,7 +50,8 @@
                     <authz:authentication operation="username" /><b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" role="menu">
-                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserDetails();">#{msg['ws.header.user_details']}</a></li>
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
                     <li class="divider"></li>
                     <li><a tabindex="-1" href="#{contextPath}/security_logout" title="#{msg['ws.header.signout.title']}"
                             onclick="return confirm('#{msg['ws.header.signout.confirm']}')">#{msg['ws.header.signout']}</a></li>
