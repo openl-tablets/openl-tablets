@@ -57,9 +57,6 @@
 		<antcall target="commitModule">
 			<param name="moduleFolder" value="${rootFolder}/WSFrontend/branches/iteration2_merge"/>
 		</antcall>
-		<antcall target="commitModule">
-			<param name="moduleFolder" value="${rootFolder}/Eclipse/branches/iteration2_merge"/>
-		</antcall>
 	</target>
 	
 	<target name="changeVersions">
@@ -74,9 +71,6 @@
 		</antcall>
 		<antcall target="change">
 			<param name="projects_root" value="${rootFolder}/WSFrontend/branches/iteration2_merge"/>
-		</antcall>
-		<antcall target="change">
-			<param name="projects_root" value="${rootFolder}/Eclipse/branches/iteration2_merge"/>
 		</antcall>
 	</target>
 
@@ -118,9 +112,6 @@
 		</antcall>
 		<antcall target="releaseModule">
 			<param name="moduleFolder" value="${rootFolder}/WSFrontend/branches/iteration2_merge"/>
-		</antcall>
-		<antcall target="releaseModule">
-			<param name="moduleFolder" value="${rootFolder}/Eclipse/branches/iteration2_merge"/>
 		</antcall>
 	</target>
 	

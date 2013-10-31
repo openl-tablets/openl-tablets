@@ -42,28 +42,6 @@
 			<timezone>+2</timezone>
 		</developer>
 		<developer>
-			<id>Alexey Gamanovich</id>
-			<name>Alexey Gamanovich</name>
-			<email>agamanovich@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
-			<id>DzianisLiauchuk</id>
-			<name>Dzianis Liauchuk</name>
-			<email>Dzianis.Liauchuk@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
 			<id>MaratKamalov</id>
 			<name>Marat Kamalov</name>
 			<email>Marat.Kamalov@exigenservices.com</email>
@@ -75,26 +53,15 @@
 			<timezone>+3</timezone>
 		</developer>
 		<developer>
-			<id>PetrUdalau</id>
-			<name>Petr Udalau</name>
-			<email>Petr.Udalau@exigenservices.com</email>
+			<id>NailSamatov</id>
+			<name>Nail Samatov</name>
+			<email>Nail.Samatov@exigenservices.com</email>
 			<organization>Exigen Services</organization>
 			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
 			<roles>
 				<role>developer</role>
 			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
-			<id>SergeyZyrianov</id>
-			<name>Sergey Zyrianov</name>
-			<email>Sergey.Zyrianov@exigenservices.com</email>
-			<organization>Exigen Services</organization>
-			<organizationUrl>http://www.exigenservices.com/</organizationUrl>
-			<roles>
-				<role>Project Manager</role>
-			</roles>
-			<timezone>+2</timezone>
+			<timezone>+3</timezone>
 		</developer>
 	</developers>
 
@@ -784,13 +751,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>tomcat</groupId>
-				<artifactId>bootstrap</artifactId>
-				<version>5.5.23</version>
-				<scope>provided</scope>
-			</dependency>
-
-			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.13</version>
@@ -980,181 +940,6 @@
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-databinding-aegis</artifactId>
 				<version>${org.apache.cxf.version}</version>
-			</dependency>
-
-			<!-- Eclipse dependencies -->
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui.ide</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.osgi</groupId>
-				<artifactId>org.eclipse.osgi</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.osgi</groupId>
-				<artifactId>org.eclipse.osgi.services</artifactId>
-				<version>3.1.200</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.equinox</groupId>
-				<artifactId>org.eclipse.equinox.app</artifactId>
-				<version>1.0.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.equinox</groupId>
-				<artifactId>org.eclipse.equinox.registry</artifactId>
-				<version>3.3.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.runtime.compatibility</artifactId>
-				<version>3.1.200</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui.workbench.compatibility</artifactId>
-				<version>3.2.0</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.commands</artifactId>
-				<version>3.3.0</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.debug</groupId>
-				<artifactId>org.eclipse.debug.core</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.jdt</groupId>
-				<artifactId>org.eclipse.jdt.launching</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.debug</groupId>
-				<artifactId>org.eclipse.debug.ui</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.jdt</groupId>
-				<artifactId>org.eclipse.jdt.core</artifactId>
-				<version>3.3.3</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ant</groupId>
-				<artifactId>org.eclipse.ant.core</artifactId>
-				<version>3.1.200</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.resources</artifactId>
-				<version>3.3.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.equinox</groupId>
-				<artifactId>org.eclipse.equinox.common</artifactId>
-				<version>3.3.0</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui.console</artifactId>
-				<version>3.2.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui</artifactId>
-				<version>3.3.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui.workbench.texteditor</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.jobs</artifactId>
-				<version>3.3.1</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui.editors</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.text</groupId>
-				<artifactId>org.eclipse.text</artifactId>
-				<version>3.3.0</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.jface</groupId>
-				<artifactId>org.eclipse.jface.text</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.jface</groupId>
-				<artifactId>org.eclipse.jface</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.ui</groupId>
-				<artifactId>org.eclipse.ui.workbench</artifactId>
-				<version>3.3.2</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.expressions</artifactId>
-				<version>3.3.0</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
-				<version>3.3.3</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.core</groupId>
-				<artifactId>org.eclipse.core.runtime</artifactId>
-				<version>3.3.100</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.pde</groupId>
-				<artifactId>org.eclipse.pde.core</artifactId>
-				<version>3.3.2</version>
 			</dependency>
 
 			<dependency>

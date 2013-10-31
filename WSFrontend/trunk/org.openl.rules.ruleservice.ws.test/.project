@@ -1,13 +1,19 @@
 <projectDescription>
-  <name>org.openl.rules.ruleservice.ws.test</name>
-  <comment>OpenL Rules Webservice Test. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
-  <projects/>
-  <buildSpec>
+    <name>org.openl.rules.ruleservice.ws.test</name>
+    <comment>OpenL Tablets Webservice Test</comment>
+    <projects />
+    <buildSpec>
+        <buildCommand>
+            <name>org.eclipse.jdt.core.javabuilder</name>
+        </buildCommand>
+    </buildSpec>
     <buildCommand>
-      <name>org.eclipse.jdt.core.javabuilder</name>
+        <name>org.eclipse.m2e.core.maven2Builder</name>
+        <arguments>
+        </arguments>
     </buildCommand>
-  </buildSpec>
-  <natures>
-    <nature>org.eclipse.jdt.core.javanature</nature>
-  </natures>
+    <natures>
+        <nature>org.eclipse.jdt.core.javanature</nature>
+        <nature>org.eclipse.m2e.core.maven2Nature</nature>
+    </natures>
 </projectDescription>
