@@ -2,6 +2,7 @@ syntax: glob
 **/target
 **/.studioProps
 *.log
+**/bin/**
 **/gen/**
 **/WEB-INF/classes/**
 DEV/trunk/org.openl.rules/unit_tests/*.xls
@@ -14,7 +15,6 @@ TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/_ReSharper.OpenLSm
 TESTS/trunk/org.openl.rules.integration.tests/OpenLSmokeTests/obj
 TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/_ReSharper.WebDriverFrameWork
 TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/WebDriverFrameWork/obj
-TESTS/trunk/org.openl.rules.integration.tests/WebDriverFrameWork/WebDriverFrameWork/bin
 TESTS/trunk/org.openl.rules.integration.tests/WebAiiFrameWork/_ReSharper.WebDriverFrameWork
 TESTS/trunk/org.openl.rules.integration.tests/WebAiiFrameWork/obj
 TESTS/trunk/org.openl.rules.integration.tests/**/*.suo
