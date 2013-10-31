@@ -19,8 +19,6 @@
     	<include name="DEV/trunk/**/MANIFEST.MF"/>
     	<include name="STUDIO/trunk/**/MANIFEST.MF"/>
     	<include name="WSFrontend/trunk/**/MANIFEST.MF"/>
-    	<include name="TUT/trunk/**/MANIFEST.MF"/>
-    	<include name="Eclipse/trunk/**/MANIFEST.MF"/>
 	</fileset>
 
     <fileset

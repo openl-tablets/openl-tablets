@@ -22,9 +22,6 @@
                                 <groupId>org.apache.maven.plugins</groupId>
                                 <artifactId>maven-jar-plugin</artifactId>
                                 <configuration>
-                                <archive>
-                                    <manifestFile>META-INF/buildManifest/MANIFEST.MF</manifestFile>
-                                </archive>
                                 <excludes>
                                     <exclude>**/POIDataSamples.java</exclude>
                                 </excludes>

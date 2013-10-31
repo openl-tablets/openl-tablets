@@ -76,15 +76,6 @@
 		</maven>		
 	</target>	
 
-	<target name="eclipse-pom">
-		<maven dir="../../../ECLIPSE/trunk/org.openl.rules.eclipse-pom">
-			<arg line="-e" />
-			<arg line="clean" />
-			<arg line="install" />
-		</maven>		
-	</target>	
-
-	
 	<target name="project-codegen-pom">
 		<maven dir="../org.openl.rules.gen">
 			<arg line="clean" />
@@ -93,7 +84,7 @@
 	</target>	
 	
 	
-	<target name="singleWorkspace" depends="base-pom, dev-pom, studio-pom,ruleservice-pom,eclipse-pom">
+	<target name="singleWorkspace" depends="base-pom, dev-pom, studio-pom,ruleservice-pom">
 	</target>
 
 
@@ -115,9 +106,5 @@
 			<arg line="clean" />
 			<arg line="install" />
 		</maven>		
-		<maven dir="${rootFolder}/Eclipse/branches/iteration2_merge/org.openl.rules.eclipse-pom">
-			<arg line="clean" />
-			<arg line="install" />
-		</maven>
 	</target>
 </project>
