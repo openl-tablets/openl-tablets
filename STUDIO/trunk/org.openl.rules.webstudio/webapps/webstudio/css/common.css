@@ -165,6 +165,7 @@ hr {
 
 h1 {
     font-size: 150%;
+    font-weight: normal;
 }
 
 h2 {
@@ -668,7 +669,7 @@ form.standard table.buttonPanel {
 }
 
 .test {
-    margin-bottom: 33px;
+    margin-bottom: 37px;
 }
 
 .test .table > tbody > tr > th {
@@ -678,7 +679,8 @@ form.standard table.buttonPanel {
 .testSuccess,
 .testError {
     text-decoration: none;
-    border-bottom: 1px dashed #ccc;
+    vertical-align: middle;
+    margin-right: 7px;
 }
 
 .testSuccess {
@@ -706,8 +708,27 @@ form.standard table.buttonPanel {
     display: inline-block;
 }
 
+.test-tree .rf-trn-ico-lf {
+    display: none;
+}
+
+.test-tree .rf-trn-sel {
+    font-weight: normal;
+}
+
 .spreadsheet .rf-trn-ico-lf {
     display: none;
+}
+
+#rulesTree .rf-trn:hover {
+    background: #f7f7f7 !important;
+}
+
+#rulesTree .rf-trn-lbl {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: -webkit-calc(100% - 35px);
+    width: calc(100% - 35px);
 }
 
 .hidden {
@@ -729,10 +750,6 @@ form.standard table.buttonPanel {
     cursor: pointer !important;
 }
 
-.rf-trn:hover {
-    background: #f7f7f7 !important;
-}
-
 .rf-trn-sel {
     font-weight: bold;
     background: none !important;
@@ -742,20 +759,14 @@ form.standard table.buttonPanel {
     width: 100%;
 }
 
-.rf-trn-lbl {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: -webkit-calc(100% - 35px);
-    width: calc(100% - 35px);
-}
-
 .rf-tab-hdr {
     vertical-align: middle !important;
     color: #333333 !important;
     background: none !important;
     border-left: none !important;
     border-top: none !important;
-    border-right-color: #eee !important;
+    border-right: none !important;
+    padding: 0px 11px 3px 5px !important;
 }
 
 .rf-tab-hdr-act {
@@ -915,24 +926,8 @@ form.standard table.buttonPanel {
 }
 
 .pagination > ul {
-    border-radius: 0;
+    border: 0;
     box-shadow: none;
-}
-
-.pagination ul > li:first-child > a,
-.pagination ul > li:first-child > span,
-.pagination-mini ul > li:first-child > a,
-.pagination-mini ul > li:first-child > span {
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-}
-
-.pagination ul > li:last-child > a,
-.pagination ul > li:last-child > span
-.pagination-mini ul > li:last-child > a,
-.pagination-mini ul > li:last-child > span {
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 0;
 }
 
 .pagination ul > .active > a,
@@ -940,6 +935,10 @@ form.standard table.buttonPanel {
     font-weight: bold;
 }
 
+.pagination ul > li > a,
+.pagination ul > li > span {
+	border: 0;
+}
 
 /* OpenL Tablets Bootstrap styles */
 

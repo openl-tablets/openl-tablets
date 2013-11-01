@@ -27,7 +27,7 @@ public class BeanResultComparator implements TestResultComparator {
         return fieldsToCompare;
     }
 
-    public List<ComparedResult> getComparisonResults(){
+    public List<ComparedResult> getComparisonResults() {
         return comparisonResults;
     }
 
@@ -35,6 +35,7 @@ public class BeanResultComparator implements TestResultComparator {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;
         } else {
+            comparisonResults = new ArrayList<ComparedResult>();
             boolean success = true;
             for (String fieldToCompare : fieldsToCompare) {
                 Double columnDelta = delta;

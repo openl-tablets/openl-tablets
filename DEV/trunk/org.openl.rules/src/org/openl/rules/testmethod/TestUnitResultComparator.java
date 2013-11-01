@@ -25,7 +25,7 @@ public class TestUnitResultComparator {
            return status;
        }
 
-       public TestStatus getConstant(int status) {
+        public TestStatus getConstant(int status) {
             switch (status) {
                 case 0:
                     return TR_OK;
@@ -37,7 +37,7 @@ public class TestUnitResultComparator {
                     throw new OpenlNotCheckedException(String.format("Cant get the constant for compare result for status %d",
                         status));
             }
-       }
+        }
     }
 
     private TestResultComparator resultComparator;

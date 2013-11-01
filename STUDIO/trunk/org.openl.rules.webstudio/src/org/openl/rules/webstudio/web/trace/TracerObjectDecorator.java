@@ -176,12 +176,12 @@ public class TracerObjectDecorator implements ITableTracerObject {
     public static String format(Object value) {
     	String str = "NOW I CANNOT FIND RESULT";
     	if (value != null) {
-            if (SpreadsheetResultHelper.isSpreadsheetResult(value.getClass())) {
-                str = ObjectViewer.displaySpreadheetResultNoFilters((SpreadsheetResult)value);
-            } else {
+            //if (SpreadsheetResultHelper.isSpreadsheetResult(value.getClass())) {
+            //    str = ObjectViewer.displaySpreadheetResultNoFilters((SpreadsheetResult)value);
+            //} else {
                 IFormatter f = FormattersManager.getFormatter(value);
                 str = f.format(value);
-            }
+            //}
         }
     	return str;
     }

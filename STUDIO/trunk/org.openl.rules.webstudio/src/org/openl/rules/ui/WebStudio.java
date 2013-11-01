@@ -50,7 +50,8 @@ import org.richfaces.model.UploadedFile;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * TODO Remove JSF dependency TODO Separate user session from app session
+ * TODO Remove JSF dependency
+ * TODO Separate user session from app session
  * 
  * @author snshor
  */
@@ -91,6 +92,7 @@ public class WebStudio {
     private int testsPerPage;
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
+    private boolean showComplexResult;
 
     private Module currentModule;
 
@@ -148,6 +150,7 @@ public class WebStudio {
         testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
+        showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
     }
 
     private void initDependencyManager() {
@@ -522,6 +525,15 @@ public class WebStudio {
 
     public void setCollapseProperties(boolean collapseProperties) {
         this.collapseProperties = collapseProperties;
+    }
+
+    public boolean isShowComplexResult() {
+        return showComplexResult;
+    }
+
+    public void setShowComplexResult(boolean showComplexResult) {
+        this.showComplexResult = showComplexResult;
+        userSettingsManager.setProperty("test.result.complex.show", showComplexResult);
     }
 
     public String getModuleId(Module module) {
