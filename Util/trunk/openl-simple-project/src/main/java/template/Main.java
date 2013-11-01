@@ -11,7 +11,7 @@ import java.io.File;
 public class Main {
 
     public static void main(String[] args) {
-        File xlsFile = new File("src/main/resources/rules/TemplateRules.xls");
+        File xlsFile = new File("rules/TemplateRules.xls");
 
         RulesEngineFactory<Wrapper> engineFactory = new RulesEngineFactory<Wrapper>(xlsFile, Wrapper.class);
 
