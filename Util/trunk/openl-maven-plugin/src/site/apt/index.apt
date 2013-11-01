@@ -15,7 +15,7 @@ OpenL Maven Plugin
 
 * Goals Overview
 
-  General information about the goals.
+  General information about the goals:
 
   * {{{./generate-mojo.html}openl:generate}} Generate OpenL interface, domain classes and project descriptor.
 
