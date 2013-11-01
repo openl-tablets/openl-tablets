@@ -18,14 +18,20 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     private static final String DEFAULT_CLASSPATH = "./bin";
 
     private boolean ignoreTestMethods = false;
+    private String defaultProjectId;
+    private String defaultProjectName;
+    private String defaultClasspaths[] = {DEFAULT_CLASSPATH};
+    private boolean createProjectDescriptor = true;
 
     protected ProjectDescriptor createNewProject() {
         ProjectDescriptor project = new ProjectDescriptor();      
-        project.setId(getDisplayName());
-        project.setName(getDisplayName());
+        project.setId(defaultProjectId != null ? defaultProjectId : getDisplayName());
+        project.setName(defaultProjectName != null ? defaultProjectName : getDisplayName());
         
         List<PathEntry> classpath = new ArrayList<PathEntry>();
-        classpath.add(new PathEntry(DEFAULT_CLASSPATH));        
+        for (String path : defaultClasspaths) {
+            classpath.add(new PathEntry(path));
+        }
         project.setClasspath(classpath);
         
         return project;
@@ -50,11 +56,14 @@ public class JavaInterfaceAntTask extends JavaAntTask {
 
     @Override
     protected void writeSpecific() {
-        writeRulesXML();
+        if (createProjectDescriptor) {
+            writeRulesXML();
+        }
     }
 
+    // TODO extract the code that writes rules.xml, to another class
     protected void writeRulesXML() {
-        File rulesDescriptor = new File(RULES_XML);
+        File rulesDescriptor = new File(getResourcesPath() + RULES_XML);
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
 
         ProjectDescriptor projectToWrite = null;
@@ -72,13 +81,19 @@ public class JavaInterfaceAntTask extends JavaAntTask {
             // Add current module to existed project.
             ProjectDescriptor existedDescriptor = null;
             try {
-                existedDescriptor = manager.readDescriptor(rulesDescriptor);
+                existedDescriptor = manager.readOriginalDescriptor(rulesDescriptor);
                 Module newModule = createNewModule();
+                boolean exist = false;
                 for (Module existedModule : existedDescriptor.getModules()) {                    
-                    if (!existedModule.getClassname().equals(newModule.getClassname())) {
+                    if (existedModule.getClassname().equals(newModule.getClassname())) {
                         modulesToWrite.add(newModule);
+                        exist = true;
+                    } else {
+                        modulesToWrite.add(copyOf(existedModule));
                     }
-                    modulesToWrite.add(copyOf(existedModule));
+                }
+                if (!exist) {
+                    modulesToWrite.add(newModule);
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
@@ -122,4 +137,37 @@ public class JavaInterfaceAntTask extends JavaAntTask {
     public void setIgnoreTestMethods(boolean ignoreTestMethods) {
         this.ignoreTestMethods = ignoreTestMethods;
     }
+
+    public String getDefaultProjectId() {
+        return defaultProjectId;
+    }
+
+    public void setDefaultProjectId(String defaultProjectId) {
+        this.defaultProjectId = defaultProjectId;
+    }
+
+    public String getDefaultProjectName() {
+        return defaultProjectName;
+    }
+
+    public void setDefaultProjectName(String defaultProjectName) {
+        this.defaultProjectName = defaultProjectName;
+    }
+
+    public String[] getDefaultClasspaths() {
+        return defaultClasspaths;
+    }
+
+    public void setDefaultClasspaths(String[] defaultClasspaths) {
+        this.defaultClasspaths = defaultClasspaths;
+    }
+
+    public boolean isCreateProjectDescriptor() {
+        return createProjectDescriptor;
+    }
+
+    public void setCreateProjectDescriptor(boolean createProjectDescriptor) {
+        this.createProjectDescriptor = createProjectDescriptor;
+    }
+
 }

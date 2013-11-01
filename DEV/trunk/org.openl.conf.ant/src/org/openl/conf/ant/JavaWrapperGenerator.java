@@ -618,6 +618,10 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
             return false;
         }
 
+        if ("this".equals(field.getName()) || "top".equals(field.getName())) {
+            return false;
+        }
+
         return true;
     }
 
@@ -671,6 +675,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
         if (ignoreTestMethods && method instanceof TestSuiteMethod) {
             return false;
         }
+        
         return shouldBeGenerated(method, methodsToGenerate, nameOfTheModule, ignoreNonJavaTypes);
     }
 
