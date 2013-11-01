@@ -1,0 +1,133 @@
+ ------
+ Usage
+ ------
+ YYYY-MM-DD
+ ------
+
+Usage
+
+* Directory structure
+
+  Take into account that OpenL Maven Plugin expects the following directory structure:
+
++--------------------------------------
+        |-- your-project/                               Project root folder
+        |  |-- pom.xml                                  Maven project file
+        |  |
+        |  |-- src/
+        |  |  
+        |  |  |-- main/
+        |  |  |  
+        |  |  |  |-- java/                              Contains java sources
+        |  |  |  |  
+        |  |  |  |-- resources/                         Contains java resources
+        |  |  |  |  
+        |  |  |  |-- openl/                             Contains all OpenL-related resources (rules, xml etc.)
+        |  |  |  |  
+        |  |  |  |  |-- rules.xml                       OpenL project descriptor (for OpenL only)
+        |  |  |  |  |-- rules/
+        |  |  |  |  |  |-- TemplateRules.xls            File with rules
++--------------------------------------
+
+  Note that all OpenL-related resources are located in <<<src/main/openl directory>>>.
+  But you can change it to fit your needs.
+
+* Configure interface, domain classes and project descriptor generation
+
+  The simplest way to generate interface for rules defined in the file TemplateRules.xls:
+
++--------------------------------------
+      <build>
+        [...]
+        <plugins>
+            [...]
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${openl.rules.version}</version>
+                <configuration>
+                    <generateInterfaces>
+                        <generateInterface>
+                            <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
+                            <targetClass>org.company.gen.TemplateRulesInterface</targetClass>
+                        </generateInterface>
+                    </generateInterfaces>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+        [...]
+    </build>
++--------------------------------------
+
+  In this case classes and rules.xml will be generated on each maven run on generate-sources phase.
+
+  If you want to invoke class generation manually, you should remove "executions" node and then run
+  in console when you need:
+
+---
+  mvn openl:generate
+--- 
+
+  More configuration options you can find on {{{./generate-mojo.html}openl:generate}} goal page.
+
+* Configure OpenL project compilation and validation
+
++--------------------------------------
+      <build>
+        [...]
+        <plugins>
+            [...]
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${openl.rules.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+        [...]
+    </build>
++--------------------------------------
+
+  More configuration options you can find on {{{./compile-mojo.html}openl:compile}} goal page.
+
+* Configure OpenL project compilation and validation
+
++--------------------------------------
+      <build>
+        [...]
+        <plugins>
+            [...]
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${openl.rules.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+        [...]
+    </build>
++--------------------------------------
+
+  More configuration options you can find on {{{./test-mojo.html}openl:test}} goal page.
