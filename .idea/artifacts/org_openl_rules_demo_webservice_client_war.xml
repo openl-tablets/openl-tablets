@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="org.openl.rules.demo.webservice.client:war">
+    <output-path>$PROJECT_DIR$/DEMO/trunk/openl-tablets-demo/org.openl.rules.demo.webservice.client/target</output-path>
+    <root id="archive" name="webservice-client.war">
+      <element id="artifact" artifact-name="org.openl.rules.demo.webservice.client:war exploded" />
+    </root>
+  </artifact>
+</component>

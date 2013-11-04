@@ -43,14 +43,6 @@
                                                                         <include>org.openl.rules:org.openl.lib.poi.dev</include>
                                                                 </includes>
                                                         </artifactSet>									
-                                                        <filters>
-                                                        	<filter>
-                                                        	<artifact>org.openl.rules:org.openl.lib.poi.dev</artifact>
-                                                        	<excludes>
-                                                        		<exclude>lib/**</exclude>
-                                                        	</excludes>
-                                                        	</filter>
-                                                        </filters>
 														<!-- This is a workaround for http://jira.codehaus.org/browse/MSHADE-103
 															Shade plugin tryies to download all dependencies from Central Maven Repo,
 															Skipping user-defined repositories. But when releasing POI BasePom is not yet deployed

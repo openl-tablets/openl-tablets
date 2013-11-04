@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.jackrabbit:jackrabbit-jcr2spi:2.4.4">
+    <CLASSES>
+      <root url="jar://D:/dev/.m2/repository/org/apache/jackrabbit/jackrabbit-jcr2spi/2.4.4/jackrabbit-jcr2spi-2.4.4.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/dev/.m2/repository/org/apache/jackrabbit/jackrabbit-jcr2spi/2.4.4/jackrabbit-jcr2spi-2.4.4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/dev/.m2/repository/org/apache/jackrabbit/jackrabbit-jcr2spi/2.4.4/jackrabbit-jcr2spi-2.4.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
