@@ -16,7 +16,7 @@
 	<properties>
 		<war.name>${project.artifactId}-${project.version}</war.name>
 		<sonar.language>web</sonar.language>
-		<sonar.web.sourceDirectory>webapps/webstudio</sonar.web.sourceDirectory>
+		<sonar.web.sourceDirectory>webapp</sonar.web.sourceDirectory>
 		<sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
 	</properties>
 	<build>
@@ -26,7 +26,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<warSourceDirectory>webapps/webstudio</warSourceDirectory>
+					<warSourceDirectory>webapp</warSourceDirectory>
 					<warSourceExcludes>WEB-INF/classes/**</warSourceExcludes>
 					<warName>${war.name}</warName>
 				</configuration>
