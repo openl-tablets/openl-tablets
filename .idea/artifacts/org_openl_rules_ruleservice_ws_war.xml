@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="org.openl.rules.ruleservice.ws:war">
-    <output-path>$PROJECT_DIR$/WSFrontend/trunk/org.openl.rules.ruleservice.ws/target</output-path>
-    <root id="archive" name="openl-ws-5.12.0-SNAPSHOT.war">
-      <element id="artifact" artifact-name="org.openl.rules.ruleservice.ws:war exploded" />
-    </root>
-  </artifact>
-</component>

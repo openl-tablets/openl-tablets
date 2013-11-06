@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="org.openl.rules.demo.webstudio:war">
-    <output-path>$PROJECT_DIR$/DEMO/trunk/openl-tablets-demo/org.openl.rules.demo.webstudio/target</output-path>
-    <root id="archive" name="webstudio.war">
-      <element id="artifact" artifact-name="org.openl.rules.demo.webstudio:war exploded" />
-    </root>
-  </artifact>
-</component>
