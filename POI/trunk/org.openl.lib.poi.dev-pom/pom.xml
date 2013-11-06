@@ -23,7 +23,6 @@
    	</scm>
 
 	<modules>
-		<module>../org.openl.lib.poi.dev</module>
 		<module>../org.openl.lib.poi.dev.modified</module>
 	</modules>
 
@@ -48,19 +47,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.openl.rules</groupId>
-				<artifactId>org.openl.lib.poi.dev</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.openl.rules</groupId>
 				<artifactId>org.openl.lib.poi.dev.modified</artifactId>
 				<version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.openl.rules</groupId>
-                        <artifactId>org.openl.lib.poi.dev</artifactId>
-                    </exclusion>
-                </exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

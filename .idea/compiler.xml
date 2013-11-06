@@ -33,7 +33,6 @@
         <module name="org.openl.grammars" />
         <module name="org.openl.j" />
         <module name="org.openl.j.science" />
-        <module name="org.openl.lib.poi.dev" />
         <module name="org.openl.lib.poi.dev.modified" />
         <module name="org.openl.rules" />
         <module name="org.openl.rules.calculation.result" />
@@ -74,7 +73,7 @@
       <module name="org.openl.j.science" target="1.6" />
       <module name="org.openl.lib.poi.dev" target="1.5" />
       <module name="org.openl.lib.poi.dev-pom" target="1.6" />
-      <module name="org.openl.lib.poi.dev.modified" target="1.6" />
+      <module name="org.openl.lib.poi.dev.modified" target="1.5" />
       <module name="org.openl.rules" target="1.6" />
       <module name="org.openl.rules.base-pom" target="1.6" />
       <module name="org.openl.rules.calculation.result" target="1.6" />
