@@ -1,5 +1,6 @@
 syntax: glob
 .idea/workspace.xml
+.settings
 **/target
 **/.studioProps
 *.log

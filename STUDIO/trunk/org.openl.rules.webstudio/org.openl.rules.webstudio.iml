@@ -45,6 +45,8 @@
     <orderEntry type="module" module-name="org.openl.j" />
     <orderEntry type="module" module-name="org.openl.grammars" />
     <orderEntry type="module" module-name="org.openl.lib.poi.dev.modified" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml-schemas:3.8" level="project" />
     <orderEntry type="library" name="Maven: org.apache.xmlbeans:xmlbeans:2.3.0" level="project" />
     <orderEntry type="library" name="Maven: dom4j:dom4j:1.6.1" level="project" />
@@ -85,8 +87,6 @@
     <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:1.3" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.3" level="project" />
     <orderEntry type="library" name="Maven: org.dbunit:dbunit:2.4.7" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.2.8" level="project" />
     <orderEntry type="module" module-name="org.openl.rules.repository" />
     <orderEntry type="library" name="Maven: com.thoughtworks.xstream:xstream:1.3.1" level="project" />
