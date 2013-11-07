@@ -4,6 +4,8 @@ syntax: glob
 *.ipr
 *.iml
 .settings
+*.project
+*.classpath
 **/target
 **/.studioProps
 *.log
