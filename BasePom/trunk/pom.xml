@@ -6,7 +6,7 @@
   <artifactId>openl-base-svn-pom</artifactId>
   <packaging>pom</packaging>
   <version>5.12.0-SNAPSHOT</version>
-  <name>OpenL BasePom SVN root pom</name>
+  <name>OpenL BasePom root pom</name>
   <url>http://openl-tablets.sourceforge.net</url>
 
   <scm>
