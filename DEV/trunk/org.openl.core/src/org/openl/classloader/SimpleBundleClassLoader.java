@@ -45,6 +45,9 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
                 Class<?> clazz = null;
                 if (bundleClassLoader instanceof SimpleBundleClassLoader && bundleClassLoader.getParent() == this) {
                     clazz = ((SimpleBundleClassLoader) bundleClassLoader).findLoadedClassInBundle(name);
+                    if (clazz == null){
+                        clazz = ((SimpleBundleClassLoader) bundleClassLoader).findClassInBundles(name);
+                    }
                 } else {
                     clazz = bundleClassLoader.loadClass(name);
                 }
