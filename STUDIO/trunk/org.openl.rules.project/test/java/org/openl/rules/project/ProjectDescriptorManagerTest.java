@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
@@ -109,6 +110,7 @@ public class ProjectDescriptorManagerTest {
         module1.setRulesRootPath(new PathEntry("path1"));
         module1.setType(ModuleType.STATIC);
         module1.setClassname("MyWrapper1");
+        module1.setMethodFilter(new MethodFilter());
 
         List<PathEntry> classpath = new ArrayList<PathEntry>();
         PathEntry entry1 = new PathEntry("path1");
@@ -145,7 +147,6 @@ public class ProjectDescriptorManagerTest {
                         "        <includes>"+ "\n" +
                         "          <value>*</value>"+ "\n" +
                         "        </includes>"+ "\n" +
-                        "        <excludes/>"+ "\n" +
                         "      </method-filter>"+ "\n" +
                         "    </module>" + "\n" + 
                         "  </modules>" + "\n" + 

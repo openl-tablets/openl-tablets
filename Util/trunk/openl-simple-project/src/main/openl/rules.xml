@@ -1,0 +1,20 @@
+<project>
+  <id>openl-simple-project</id>
+  <name>OpenL Rules Simple Project</name>
+  <modules>
+    <module>
+      <name>Template Rules</name>
+      <type>dynamic</type>
+      <classname>template.Wrapper</classname>
+      <rules-root path="rules/TemplateRules.xls"/>
+      <method-filter>
+        <includes/>
+        <excludes/>
+      </method-filter>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="."/>
+    <entry path="lib/openl-simple-project-1.0.0.jar"/>
+  </classpath>
+</project>

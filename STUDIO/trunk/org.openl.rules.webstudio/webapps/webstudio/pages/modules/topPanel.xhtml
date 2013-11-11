@@ -70,7 +70,7 @@
                             </li>
                             <li class="divider"></li>
                             <li onclick="event.stopPropagation()">
-                                <span tabindex="-1">
+                                <span tabindex="-1" title="Show only failed test cases">
                                     <span>Failures Only</span>
                                     <input name="failuresOnly" type="checkbox"
                                         onclick="$j('#failuresSetting').toggle(this.checked)"
@@ -88,6 +88,15 @@
                                         <f:selectItem itemLabel="20" itemValue="20" />
                                         <f:selectItem itemLabel="All" itemValue="-1" />
                                     </h:selectOneMenu>
+                                </span>
+                            </li>
+                            <li class="divider"></li>
+                            <li onclick="event.stopPropagation()">
+                                <span tabindex="-1" title="Show the result of running test case if it's complex">
+                                    <span>Complex Result</span>
+                                    <input name="complexResult" type="checkbox"
+                                        value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                        style="vertical-align:-2px;margin:-4px" />
                                 </span>
                             </li>
                             <li class="divider"></li>
@@ -127,16 +136,6 @@
                             <li><a tabindex="-1" href="#rulesDependencies.xhtml">Table Dependency Graph</a></li>
                             <li class="divider"></li>
                             </h:panelGroup>
-                            <li class="nav-header">Table View Settings</li>
-                            <a4j:ajax oncomplete="reloadCurrent()">
-                            <li>
-                                <a href="javascript:void(0)"><h:selectBooleanCheckbox value="#{studio.showHeader}" />Show Header</a>
-                            </li>
-                            <li>
-                                <a href="javascript:void(0)"><h:selectBooleanCheckbox value="#{studio.showFormulas}" />Show Formulas</a>
-                            </li>
-                            </a4j:ajax>
-                            <li class="divider"></li>
                             <li><a tabindex="-1" target="_blank"
                                 onclick="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1000,height=800,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');return false;"
                                 href="#">Compare Excel files</a></li>
