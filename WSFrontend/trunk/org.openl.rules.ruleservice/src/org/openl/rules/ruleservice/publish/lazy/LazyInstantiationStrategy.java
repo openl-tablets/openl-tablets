@@ -109,8 +109,10 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             Collection<String> allExcludes = new HashSet<String>();
             for (Module m : getModules()) {
                 MethodFilter methodFilter = m.getMethodFilter();
-                allIncludes.addAll(methodFilter.getIncludes());
-                allExcludes.addAll(methodFilter.getExcludes());
+                if (methodFilter != null){
+                    allIncludes.addAll(methodFilter.getIncludes());
+                    allExcludes.addAll(methodFilter.getExcludes());
+                }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
                 String[] includes = new String[] {};
