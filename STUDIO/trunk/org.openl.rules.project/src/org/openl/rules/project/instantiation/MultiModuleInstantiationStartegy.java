@@ -10,11 +10,15 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -36,15 +40,14 @@ import org.openl.syntax.impl.IdentifierNode;
  */
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
     private final Log log = LogFactory.getLog(MultiModuleInstantiationStartegy.class);
-    
+
     private Collection<Module> modules;
 
     public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager) {
         this(modules, dependencyManager, null);
     }
 
-    public MultiModuleInstantiationStartegy(Collection<Module> modules,
-            IDependencyManager dependencyManager,
+    public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager,
             ClassLoader classLoader) {
         // multimodule is only available for execution(execution mode == true)
         super(true, dependencyManager != null ? dependencyManager : createDependencyManager(modules), classLoader);
@@ -65,19 +68,23 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         return modules;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected ClassLoader initClassLoader() {
         SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(Thread.currentThread()
-            .getContextClassLoader());
+                .getContextClassLoader());
         for (Module module : modules) {
-            URL[] urls = module.getProject().getClassPathUrls();
-            classLoader.addClassLoader(module.getProject().getClassLoader(false));
-            OpenLClassLoaderHelper.extendClasspath((SimpleBundleClassLoader) classLoader, urls);
+            try{
+                CompiledDependency compiledDependency = getDependencyManager().loadDependency(
+                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+                CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
+                classLoader.addClassLoader(compiledOpenClass.getClassLoader());
+            }catch(OpenLCompilationException e){
+                throw new OpenlNotCheckedException(e);
+            }
         }
         return classLoader;
     }
-    
+
     @Override
     public void setExternalParameters(Map<String, Object> parameters) {
         super.setExternalParameters(parameters);
@@ -85,7 +92,7 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         if (dm instanceof DependencyManager) {
             ((DependencyManager) dm).setExternalParameters(parameters);
         } else {
-            if (log.isWarnEnabled()){
+            if (log.isWarnEnabled()) {
                 log.warn("Can't set external parameters to dependency manager " + String.valueOf(dm));
             }
         }
@@ -106,6 +113,11 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         Map<String, Object> params = new HashMap<String, Object>();
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
+        }
+        if (params.get("external-dependencies") != null){
+            @SuppressWarnings("unchecked")
+            List<IDependency> externalDependencies = (List<IDependency>) params.get("external-dependencies");
+            dependencies.addAll(externalDependencies);
         }
         params.put("external-dependencies", dependencies);
         IOpenSourceCodeModule source = new VirtualSourceCodeModule();

@@ -68,6 +68,17 @@ public class ProjectDescriptorManager {
         return readDescriptor(source);
     }
 
+    public ProjectDescriptor readOriginalDescriptor(File filename) throws FileNotFoundException, ValidationException {
+        FileInputStream inputStream = new FileInputStream(filename);
+
+        ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
+        IOUtils.closeQuietly(inputStream);
+        
+        validator.validate(descriptor);
+
+        return descriptor;
+    }
+
     public void writeDescriptor(ProjectDescriptor descriptor, OutputStream dest) throws IOException,
                                                                                 ValidationException {
         validator.validate(descriptor);

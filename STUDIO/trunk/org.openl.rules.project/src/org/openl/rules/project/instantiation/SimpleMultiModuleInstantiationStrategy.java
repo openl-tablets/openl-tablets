@@ -2,7 +2,6 @@ package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,11 +26,17 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
 
     private RulesEngineFactory<?> engineFactory;
 
+    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader) {
+        super(modules, dependencyManager, classLoader);
+    }
+
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         super(modules, dependencyManager);
     }
 
-    public SimpleMultiModuleInstantiationStrategy(List<Module> modules) {
+    public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules) {
         this(modules, null);
     }
 
@@ -49,7 +54,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            throw new RulesInstantiationException("Cannot resolve interface", e);
+            throw new RulesInstantiationException("Can't resolve interface", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -68,9 +73,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
 
     @Override
     public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
-
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(rulesClass.getClassLoader());
+        Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
             return getEngineFactory().newEngineInstance();
         } finally {
@@ -91,7 +95,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
             engineFactory = new RulesEngineFactory<Object>(createVirtualSourceCodeModule(),
-                    AOpenLEngineFactory.DEFAULT_USER_HOME, (Class<Object>) serviceClass);// FIXME
+                AOpenLEngineFactory.DEFAULT_USER_HOME,
+                (Class<Object>) serviceClass);// FIXME
 
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<String>();

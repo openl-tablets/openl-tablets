@@ -60,7 +60,7 @@ public class InstantiationStrategiesReloadingTest {
     private SimpleEngineFactoryInstantiationStrategy dynamicStrategy;
     private WrapperAdjustingInstantiationStrategy wrapperStrategy;
 
-    private static SingleModuleInstantiationStrategy resolve(File folder) {
+    private static SingleModuleInstantiationStrategy resolve(File folder) throws Exception{
         ResolvingStrategy resolvingStrategy = resolver.isRulesProject(folder);
         if (resolvingStrategy != null) {
             ProjectDescriptor project = resolvingStrategy.resolveProject(folder);
@@ -76,7 +76,7 @@ public class InstantiationStrategiesReloadingTest {
     }
 
     @Before
-    public void init() {
+    public void init() throws Exception{
         apiStrategy = (ApiBasedInstantiationStrategy) resolve(new File("./test/resources/reloading-test/SimpleProject"));
         dynamicStrategy = (SimpleEngineFactoryInstantiationStrategy) resolve(new File("./test/resources/reloading-test/EngineProject"));
         wrapperStrategy = (WrapperAdjustingInstantiationStrategy) resolve(new File("./test/resources/reloading-test/WrapperProject"));

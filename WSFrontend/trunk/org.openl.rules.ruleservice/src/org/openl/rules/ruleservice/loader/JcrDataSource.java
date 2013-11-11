@@ -60,9 +60,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
             }
             return ret;
         } catch (RRepositoryException e) {
-            if (log.isWarnEnabled()) {
-                log.warn("Exception has been occured on deployments retriving from repository", e);
-            }
             throw new DataSourceException(e);
         }
     }
@@ -90,13 +87,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
             FolderAPI deploymentProject = getRProductionRepository().getDeploymentProject(sb.toString());
             return new Deployment(deploymentProject, deploymentName, deploymentVersion);
         } catch (RRepositoryException e) {
-            if (log.isWarnEnabled()) {
-                log.warn(
-                        String.format("Exception has been occured on deployment retriving from repository. "
-                                + "Deployment name is \"%s\". Deployment version is \"%s\". "
-                                + "Deployment with this name may be doesn't exists.", deploymentName,
-                                deploymentVersion.getVersionName()), e);
-            }
             throw new DataSourceException(e);
         }
     }
@@ -118,9 +108,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
                     getRepositoryPropertiesFile());
             return rProductionRepository;
         } catch (RRepositoryException e) {
-            if (log.isErrorEnabled()) {
-                log.error("Exception has been occured on getting instance of RProductionRepository.", e);
-            }
             throw new DataSourceException(e);
         }
     }
@@ -142,9 +129,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
                                 + " listener is registered in jcr data source");
                     }
                 } catch (RRepositoryException e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("Exception has been occured on adding listener to jcr data source.", e);
-                    }
                     throw new DataSourceException(e);
                 }
             }
@@ -167,9 +151,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
                                 + " listener is unregistered from jcr data source");
                     }
                 } catch (RRepositoryException e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("Exception has been occured on removing listener from jcr data source.", e);
-                    }
                     throw new DataSourceException(e);
                 }
             }
@@ -191,9 +172,6 @@ public class JcrDataSource implements DataSource, DisposableBean {
                                     + " class listener is removed from jcr data source");
                         }
                     } catch (RRepositoryException e) {
-                        if (log.isWarnEnabled()) {
-                            log.warn("Exception has been occured on removing listener from jcr data source.", e);
-                        }
                         throw new DataSourceException(e);
                     }
                 }

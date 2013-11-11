@@ -24,6 +24,7 @@
 	<module>DEV/trunk/org.openl.rules.dev-pom</module>
 	<module>STUDIO/trunk/org.openl.rules.studio-pom</module>
 	<module>WSFrontend/trunk/org.openl.rules.ruleservice-pom</module>
+	<module>Util/trunk/openl-maven-plugin</module>
 	<module>Util/trunk/openl-simple-project-archetype</module>
 	<module>DEMO\trunk\openl-tablets-demo\org.openl.rules.demo-pom</module>
   </modules>

@@ -14,12 +14,10 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
  * @author PUdalau, Marat Kamalov
  */
 public class LastVersionProjectsServiceConfigurer extends AbstractRulesDeployServiceConfigurer {
-    //private final Log log = LogFactory.getLog(LastVersionProjectsServiceConfigurer.class);
-
     @Override
-    protected Collection<Deployment> getDeploymentsFromRuleServiceLoader(RuleServiceLoader loader) {
+    protected Collection<Deployment> getDeploymentsFromRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
-        for (Deployment deployment : loader.getDeployments()) {
+        for (Deployment deployment : ruleServiceLoader.getDeployments()) {
             String deploymentName = deployment.getDeploymentName();
             if (latestDeployments.containsKey(deploymentName)) {
                 if (latestDeployments.get(deploymentName).getCommonVersion().compareTo(deployment.getCommonVersion()) < 0) {

@@ -41,7 +41,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod {
     }
 
     @Override
-    public final Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         if (env instanceof SimpleRulesRuntimeEnv) {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
             Object result = null;

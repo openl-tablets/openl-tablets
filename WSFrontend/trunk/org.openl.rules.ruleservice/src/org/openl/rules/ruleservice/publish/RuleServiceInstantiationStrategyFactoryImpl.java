@@ -7,7 +7,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.publish.cache.LazyMultiModuleInstantiationStrategy;
+import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 
 /**
  * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates
@@ -37,11 +37,16 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
             case 0:
                 throw new IllegalStateException("There are no modules to instantiate.");
             case 1:
-                return RulesInstantiationStrategyFactory
-                        .getStrategy(modules.iterator().next(), true, dependencyManager);
+                if (isLazy()) {
+                    return new LazyInstantiationStrategy(modules, dependencyManager);
+                } else {
+                    return RulesInstantiationStrategyFactory.getStrategy(modules.iterator().next(),
+                        true,
+                        dependencyManager);
+                }
             default:
                 if (isLazy()) {
-                    return new LazyMultiModuleInstantiationStrategy(modules, dependencyManager);
+                    return new LazyInstantiationStrategy(modules, dependencyManager);
                 } else {
                     return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager);
                 }

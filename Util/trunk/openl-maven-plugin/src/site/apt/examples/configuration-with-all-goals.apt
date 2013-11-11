@@ -1,0 +1,55 @@
+ ------
+ Configuration with all OpenL Maven Plugin goals
+ ------
+ YYYY-MM-DD
+ ------
+
+Configuration with all OpenL Maven Plugin goals
+
+  You can fully configure rules.xml generation: set it's project id, project name, add classpaths. For example:
+
++--------------------------------------
+      <build>
+        [...]
+        <plugins>
+            [...]
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${openl.rules.version}</version>
+                <configuration>
+                    <!-- Project identifier. String value which defines project uniquely. -->
+                    <projectId>openl-simple-project</projectId>
+                    <!-- Project name. -->
+                    <projectName>OpenL Rules Simple Project</projectName>
+                    <!-- Project's classpath. -->
+                    <classpaths>
+                      <param>.</param>
+                    </classpaths>
+                    <!-- OpenL project includes one or more modules. -->
+                    <generateInterfaces>
+                        <generateInterface>
+                            <displayName>Template Rules</displayName>
+                            <targetClass>template.Wrapper</targetClass>
+                            <!-- Rules root document. Usually excel file on file system. -->
+                            <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
+                        </generateInterface>
+                    </generateInterfaces>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                            <goal>compile</goal>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+        [...]
+    </build>
++--------------------------------------
+
+  More configuration options you can find on {{{../generate-mojo.html}openl:generate}} goal page.

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Class designed for storing service info.
@@ -25,7 +24,6 @@ public final class ServiceDescription {
     private boolean provideVariations;
     private Map<String, Object> configuration;
     private Collection<ModuleDescription> modules;
-    private Set<ModuleDescription> modulesInService;
     private DeploymentDescription deployment;
 
     /**
@@ -40,8 +38,7 @@ public final class ServiceDescription {
      */
     ServiceDescription(String name, String url, String serviceClassName, String interceptingTemplateClassName,
             boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext, boolean provideVariations,
-            Collection<ModuleDescription> modules, Set<ModuleDescription> modulesInService,
-            Map<String, Object> configuration) {
+            Collection<ModuleDescription> modules, DeploymentDescription deployment, Map<String, Object> configuration) {
         this.name = name;
         this.url = url;
         this.serviceClassName = serviceClassName;
@@ -59,23 +56,13 @@ public final class ServiceDescription {
         } else {
             this.modules = Collections.emptySet();
         }
-
-        if (modulesInService != null) {
-            this.modulesInService = Collections.unmodifiableSet(modulesInService);
-        } else {
-            this.modulesInService = Collections.emptySet();
-        }
-
-        if (!modules.isEmpty()) {
-            ModuleDescription m = modules.iterator().next();
-            this.deployment = new DeploymentDescription(m.getDeploymentName(), m.getDeploymentVersion());
-        }
+        this.deployment = deployment;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
         this(builder.name, builder.url, builder.serviceClassName, builder.interceptingTemplateClassName,
                 builder.provideRuntimeContext, builder.useRuleServiceRuntimeContext, builder.provideVariations,
-                builder.modules, builder.modulesInService, builder.configuration);
+                builder.modules, builder.deployment, builder.configuration);
     }
 
     /**
@@ -153,15 +140,6 @@ public final class ServiceDescription {
     }
 
     /**
-     * Get module names in service
-     * 
-     * @return module names in service
-     */
-    public Set<ModuleDescription> getModulesInService() {
-        return modulesInService;
-    }
-
-    /**
      * Retuns configuration
      * 
      * @return configuration
@@ -220,7 +198,7 @@ public final class ServiceDescription {
         private boolean useRuleServiceRuntimeContext = false;
         private Map<String, Object> configuration;
         private Collection<ModuleDescription> modules;
-        private Set<ModuleDescription> modulesInService;
+        private DeploymentDescription deployment;
 
         /**
          * Sets intercepting template class name
@@ -314,52 +292,6 @@ public final class ServiceDescription {
         }
 
         /**
-         * Set a new set of modules in deployment to the builder.
-         * 
-         * @param modulesInDeployment
-         * @return
-         */
-        public ServiceDescriptionBuilder setModulesInService(Collection<ModuleDescription> moduleNamesInService) {
-            if (moduleNamesInService == null) {
-                this.modulesInService = new HashSet<ModuleDescription>(0);
-            } else {
-                this.modulesInService = new HashSet<ModuleDescription>(moduleNamesInService);
-            }
-            return this;
-        }
-
-        /**
-         * Adds modules in deployment to the builder.
-         * 
-         * @param modulesInDeployment
-         * @return
-         */
-        public ServiceDescriptionBuilder addModulesInService(Collection<ModuleDescription> moduleNamesInService) {
-            if (this.modulesInService == null) {
-                this.modulesInService = new HashSet<ModuleDescription>(moduleNamesInService);
-            } else {
-                this.modulesInService.addAll(moduleNamesInService);
-            }
-            return this;
-        }
-
-        /**
-         * Add module in deployment to the builder.
-         * 
-         * @param moduleInDeployment
-         * @return
-         */
-        public ServiceDescriptionBuilder addModuleInService(ModuleDescription moduleInDeployment) {
-            if (this.modulesInService == null) {
-                this.modulesInService = new HashSet<ModuleDescription>(0);
-            }
-            if (moduleInDeployment != null) {
-                this.modulesInService.add(moduleInDeployment);
-            }
-            return this;
-        }
-
-        /**
          * Sets provideRuntimeContext to the builder.
          * 
          * @param provideRuntimeContext
@@ -392,6 +324,11 @@ public final class ServiceDescription {
             return this;
         }
 
+        public ServiceDescriptionBuilder setDeployment(DeploymentDescription deployment) {
+            this.deployment = deployment;
+            return this;
+        }
+        
         public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
             if (this.configuration == null) {
                 this.configuration = new HashMap<String, Object>();
@@ -417,12 +354,11 @@ public final class ServiceDescription {
             if (this.modules == null) {
                 throw new IllegalStateException("modules is required field for building ServiceDescription");
             }
-            if (this.modulesInService == null) {
-                throw new IllegalStateException("modulesInService is required field for building ServiceDescription");
+            if (this.deployment == null) {
+                throw new IllegalStateException("deployment is required field for building ServiceDescription");
             }
-            if (modules.size() < modulesInService.size()) {
-                throw new IllegalStateException(
-                        "moduleNamesInService size cannot be greater than modules in deployment size");
+            if (this.modules == null) {
+                throw new IllegalStateException("modulesInService is required field for building ServiceDescription");
             }
             return new ServiceDescription(this);
         }

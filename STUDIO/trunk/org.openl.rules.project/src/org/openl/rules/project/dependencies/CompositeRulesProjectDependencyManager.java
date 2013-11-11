@@ -18,6 +18,24 @@ import org.openl.syntax.code.IDependency;
 public class CompositeRulesProjectDependencyManager extends RulesProjectDependencyManager {
     private List<IDependencyManager> delegates = new ArrayList<IDependencyManager>();
 
+    public List<IDependencyManager> getDelegates() {
+        return delegates;
+    }
+    
+    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+
+        String dependencyName = dependency.getNode().getIdentifier();
+
+        CompiledDependency compiledDependency = handleLoadDependency(dependency);
+
+        if (compiledDependency == null) {
+            throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found", dependencyName), 
+                null, dependency.getNode().getSourceLocation());
+        }   
+        
+        return compiledDependency;
+    }
+    
     @Override
     protected CompiledDependency handleLoadDependency(IDependency dependency) throws OpenLCompilationException {
         for (IDependencyManager delegate : delegates) {

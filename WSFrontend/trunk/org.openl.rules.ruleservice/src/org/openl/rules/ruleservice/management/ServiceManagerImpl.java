@@ -8,7 +8,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
-import org.openl.rules.ruleservice.core.DeploymentRelatedInfoCache;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -29,6 +28,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     private RuleService ruleService;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
+    private Map<String, ServiceDescription> serviceDescriptions = new HashMap<String, ServiceDescription>();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         this.ruleServiceLoader = ruleServiceLoader;
@@ -97,25 +97,24 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     private void processServices() {
-        try {
-            DeploymentRelatedInfoCache.setInstance(new DeploymentRelatedInfoCache());
-            Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
-            undeployUnnecessary(newServices);
-            redeployExisitng(newServices);
-            deployNewServices(newServices);
-        } finally {
-            DeploymentRelatedInfoCache.removeInstance();
-        }
+        Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
+        undeployUnnecessary(newServices);
+        deployServices(newServices);
     }
 
     @SuppressWarnings("unchecked")
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
-            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer
-                    .getServicesToBeDeployed(getRuleServiceLoader());
+            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(getRuleServiceLoader());
             Map<String, ServiceDescription> newServices = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-                newServices.put(serviceDescription.getName(), serviceDescription);
+                if (newServices.containsKey(serviceDescription.getName())) {
+                    if (log.isWarnEnabled()) {
+                        log.warn("Service with name \"" + serviceDescription.getName() + "\" is dublicated! Only one service with this name will be deployed! Please, check your configuration!");
+                    }
+                } else {
+                    newServices.put(serviceDescription.getName(), serviceDescription);
+                }
             }
             return newServices;
         } catch (Exception e) {
@@ -131,11 +130,16 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             String serviceName = runningService.getName();
             if (!newServices.containsKey(serviceName)) {
                 try {
+                    ServiceDescription serviceDescription = serviceDescriptions.get(serviceName);
+                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
                     ruleService.undeploy(serviceName);
+                    serviceDescriptions.remove(serviceName);
                 } catch (RuleServiceUndeployException e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format("Failed to undeploy \"%s\" service", serviceName), e);
                     }
+                } finally {
+                    ServiceDescriptionHolder.getInstance().remove();
                 }
             }
         }
@@ -145,37 +149,28 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         return ruleService.getServiceByName(serviceName) != null;
     }
 
-    protected void redeployExisitng(Map<String, ServiceDescription> newServices) {
+    protected void deployServices(Map<String, ServiceDescription> newServices) {
         for (ServiceDescription serviceDescription : newServices.values()) {
-            if (isServiceExists(serviceDescription.getName())) {
-                try {
-                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-                    ruleService.redeploy(serviceDescription);
-                } catch (RuleServiceRedeployException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
-                    }
-                } finally {
-                    ServiceDescriptionHolder.getInstance().remove();
-                }
-            }
-        }
-    }
-
-    protected void deployNewServices(Map<String, ServiceDescription> newServices) {
-        for (ServiceDescription serviceDescription : newServices.values()) {
-            if (!isServiceExists(serviceDescription.getName())) {
-                try {
-                    ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+            try {
+                ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
+                if (!isServiceExists(serviceDescription.getName())) {
                     ruleService.deploy(serviceDescription);
-                } catch (RuleServiceDeployException e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
-                    }
-                } finally {
-                    ServiceDescriptionHolder.getInstance().remove();
+                } else {
+                    ruleService.redeploy(serviceDescription);
                 }
+                serviceDescriptions.put(serviceDescription.getName(), serviceDescription);
+            } catch (RuleServiceDeployException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format("Failed to deploy \"%s\" service", serviceDescription.getName()), e);
+                }
+            } catch (RuleServiceRedeployException e) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format("Failed to redeploy \"%s\" service", serviceDescription.getName()), e);
+                }
+            } finally {
+                ServiceDescriptionHolder.getInstance().remove();
             }
+
         }
     }
 

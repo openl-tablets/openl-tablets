@@ -12,6 +12,7 @@
 		
 	<bean id="fileSystemDataSourceTimeTask" class="org.openl.rules.ruleservice.loader.FileSystemDataSource.CheckFileSystemChangesFactoryBean">
 		<property name="fileSystemDataSource" ref="datasource"/>
+		<property name="storage" ref="localTemporaryDeploymentsStorage"/>
 	</bean>
 
 	<!-- <bean id="fileSystemDataSourceScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">

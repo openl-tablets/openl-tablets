@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.core;
 
-import org.openl.rules.common.CommonVersion;
 
 /**
  * Class designed for storing module info. ModuleDescriptionBuilder can be used
@@ -12,26 +11,16 @@ import org.openl.rules.common.CommonVersion;
  * 
  */
 public final class ModuleDescription {
-    private String deploymentName;
-    private CommonVersion deploymentVersion;
     private String projectName;
     private String moduleName;
 
     /**
      * Main constructor.
      * 
-     * @param deploymentName deployment name
-     * @param deploymentVersion deployment version
      * @param projectName project name
      * @param moduleName module name
      */
-    ModuleDescription(String deploymentName, CommonVersion deploymentVersion, String projectName, String moduleName) {
-        if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName can't be null");
-        }
-        if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion can't be null");
-        }
+    ModuleDescription(String projectName, String moduleName) {
         if (projectName == null) {
             throw new IllegalArgumentException("projectName can't be null");
         }
@@ -39,8 +28,6 @@ public final class ModuleDescription {
             throw new IllegalArgumentException("moduleName can't be null");
         }
 
-        this.deploymentName = deploymentName;
-        this.deploymentVersion = deploymentVersion;
         this.projectName = projectName;
         this.moduleName = moduleName;
     }
@@ -48,31 +35,11 @@ public final class ModuleDescription {
     /**
      * Constructor for builder.
      * 
-     * @param deploymentName deployment name
-     * @param deploymentVersion deployment version
      * @param projectName project name
      * @param moduleName module name
      */
     private ModuleDescription(ModuleDescriptionBuilder builder) {
-        this(builder.deploymentName, builder.deploymentVersion, builder.projectName, builder.moduleName);
-    }
-
-    /**
-     * Returns a deployment name.
-     * 
-     * @return deployment name
-     */
-    public String getDeploymentName() {
-        return deploymentName;
-    }
-
-    /**
-     * Returns the deployment version.
-     * 
-     * @return deployment version
-     */
-    public CommonVersion getDeploymentVersion() {
-        return deploymentVersion;
+        this(builder.projectName, builder.moduleName);
     }
 
     /**
@@ -97,8 +64,6 @@ public final class ModuleDescription {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((deploymentName == null) ? 0 : deploymentName.hashCode());
-        result = prime * result + ((deploymentVersion == null) ? 0 : deploymentVersion.hashCode());
         result = prime * result + ((moduleName == null) ? 0 : moduleName.hashCode());
         result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
         return result;
@@ -116,19 +81,6 @@ public final class ModuleDescription {
             return false;
         }
         ModuleDescription other = (ModuleDescription) obj;
-        if (deploymentName == null) {
-            if (other.deploymentName != null) {
-                return false;
-            }
-        } else if (!deploymentName.equals(other.deploymentName))
-            return false;
-        if (deploymentVersion == null) {
-            if (other.deploymentVersion != null) {
-                return false;
-            }
-        } else if (!deploymentVersion.equals(other.deploymentVersion)) {
-            return false;
-        }
         if (moduleName == null) {
             if (other.moduleName != null) {
                 return false;
@@ -153,40 +105,8 @@ public final class ModuleDescription {
      * 
      */
     public static final class ModuleDescriptionBuilder {
-        private String deploymentName;
-        private CommonVersion deploymentVersion;
         private String projectName;
         private String moduleName;
-
-        /**
-         * Sets deploymentName to the builder.
-         * 
-         * @param deploymentName deployment name
-         * @return
-         */
-        public ModuleDescriptionBuilder setDeploymentName(String deploymentName) {
-            if (deploymentName == null) {
-                throw new IllegalArgumentException("deploymentName can't be null");
-            }
-
-            this.deploymentName = deploymentName;
-            return this;
-        }
-
-        /**
-         * Sets deployment version to the builder.
-         * 
-         * @param deploymentVersion deployment version
-         * @return
-         */
-        public ModuleDescriptionBuilder setDeploymentVersion(CommonVersion deploymentVersion) {
-            if (deploymentVersion == null) {
-                throw new IllegalArgumentException("deploymentVersion can't be null");
-            }
-
-            this.deploymentVersion = deploymentVersion;
-            return this;
-        }
 
         /**
          * Sets project name to the builder.
@@ -224,17 +144,11 @@ public final class ModuleDescription {
          * @return
          */
         public ModuleDescription build() {
-            if (deploymentName == null) {
-                throw new IllegalStateException("deploymentName is required field for building ServiceDescription");
-            }
-            if (deploymentVersion == null) {
-                throw new IllegalStateException("deploymentVersion is required field for building ServiceDescription");
-            }
             if (projectName == null) {
-                throw new IllegalStateException("projectName is required field for building ServiceDescription");
+                throw new IllegalStateException("projectName is required field for building ModuleDescription");
             }
             if (moduleName == null) {
-                throw new IllegalStateException("moduleName is required field for building ServiceDescription");
+                throw new IllegalStateException("moduleName is required field for building ModuleDescription");
             }
 
             return new ModuleDescription(this);

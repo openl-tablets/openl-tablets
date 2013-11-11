@@ -6,24 +6,47 @@
 
 package org.openl.rules.lang.xls.binding;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetBoundNode;
+import org.openl.rules.cmatch.ColumnMatch;
+import org.openl.rules.cmatch.ColumnMatchBoundNode;
 import org.openl.rules.data.IDataBase;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.table.MethodTableBoundNode;
+import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
+import org.openl.rules.tbasic.Algorithm;
+import org.openl.rules.tbasic.AlgorithmBoundNode;
+import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IOpenSchema;
-import org.openl.types.impl.AOpenField;
+import org.openl.types.impl.AOpenClass;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodKey;
+import org.openl.types.java.JavaOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -46,35 +69,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         this(schema, name, metaInfo, openl, dbase, null, useDescisionTableDispatcher);
     }
 
-    private static ThreadLocal<IOpenClass> topOpenClass = new ThreadLocal<IOpenClass>();
-
-    public static void setTopOpenClass(IOpenClass top) {
-        topOpenClass.set(top);
-    }
-
-    public IOpenClass getTopOpenClassOrThis() {
-
-        IOpenClass top = topOpenClass.get();
-
-        return top == null ? this : top;
-    }
-
-    public class TopField extends AOpenField {
-
-        protected TopField() {
-            super("top", getTopOpenClassOrThis());
-        }
-
-        public Object get(Object target, IRuntimeEnv env) {
-            return target;
-        }
-
-        public void set(Object target, Object value, IRuntimeEnv env) {
-            throw new RuntimeException("Can not assign to 'top'");
-        }
-
-    }
-
     /**
      * Constructor for module with dependent modules
      * 
@@ -85,7 +79,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
         this.useDescisionTableDispatcher = useDescisionTableDispatcher;
-        addField(new TopField());
     }
 
     // TODO: should be placed to ModuleOpenClass
@@ -95,6 +88,128 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
 
     public XlsMetaInfo getXlsMetaInfo() {
         return (XlsMetaInfo) metaInfo;
+    }
+
+    private static ThreadLocal<AOpenClass> topModuleRef = new ThreadLocal<AOpenClass>();
+
+    private IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { //Dispatching fix for multi-module
+        if (Enhancer.isEnhanced(openMethod.getClass())) {
+            return openMethod;
+        }
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(openMethod.getClass());
+        enhancer.setInterfaces(openMethod.getClass().getInterfaces());
+        enhancer.setCallback(new MethodInterceptor() {
+            private ThreadLocal<Boolean> invockedFromTop = new ThreadLocal<Boolean>() {
+                @Override
+                protected Boolean initialValue() {
+                    return Boolean.FALSE;
+                }
+            };
+
+            @Override
+            public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy)
+                    throws Throwable {
+                if (method.getName().equals("invoke")) {
+                    AOpenClass topModule = topModuleRef.get();
+                    if (topModule == null) {
+                        boolean access = method.isAccessible();
+                        try {
+                            topModuleRef.set(XlsModuleOpenClass.this);
+                            method.setAccessible(true);
+                            return method.invoke(openMethod, args);
+                        } catch (InvocationTargetException e) {
+                            throw e.getTargetException();
+                        } finally {
+                            method.setAccessible(access);
+                            topModuleRef.remove();
+                        }
+                    } else {
+                        Boolean isInvockedFromTop = invockedFromTop.get();
+                        if (Boolean.FALSE.equals(isInvockedFromTop)) {
+                            try {
+                                invockedFromTop.set(Boolean.TRUE);
+                                IOpenMethod matchedMethod = topModule.getMatchingMethod(openMethod.getName(),
+                                        openMethod.getSignature().getParameterTypes());
+                                if (matchedMethod != null) {
+                                    Object target = args[0];
+                                    Object[] params = (Object[]) args[1];
+                                    IRuntimeEnv env = (IRuntimeEnv) args[2];
+                                    return matchedMethod.invoke(target, params, env);
+                                }
+                            } finally {
+                                invockedFromTop.remove();
+                            }
+                        }
+                    }
+                }
+                boolean access = method.isAccessible();
+                try {
+                    method.setAccessible(true);
+                    return method.invoke(openMethod, args);
+                } catch (InvocationTargetException e) {
+                    throw e.getTargetException();
+                } finally {
+                    method.setAccessible(access);
+                }
+            }
+        });
+        if (openMethod instanceof DeferredMethod) {
+            DeferredMethod m = (DeferredMethod) openMethod;
+            return (IOpenMethod) enhancer.create(
+                    new Class[] { String.class, IOpenClass.class, IMethodSignature.class, IOpenClass.class,
+                            ISyntaxNode.class },
+                    new Object[] { m.getName(), m.getType(), m.getSignature(), m.getDeclaringClass(),
+                            m.getMethodBodyNode() });
+        }
+        if (openMethod instanceof CompositeMethod) {
+            CompositeMethod m = (CompositeMethod) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, IBoundMethodNode.class },
+                    new Object[] { m.getHeader(), m.getMethodBodyBoundNode() });
+        }
+        if (openMethod instanceof Algorithm) {
+            Algorithm m = (Algorithm) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, AlgorithmBoundNode.class },
+                    new Object[] { m.getHeader(), m.getBoundNode() });
+        }
+        if (openMethod instanceof AlgorithmSubroutineMethod) {
+            AlgorithmSubroutineMethod m = (AlgorithmSubroutineMethod) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class },
+                    new Object[] { m.getHeader() });
+        }
+        if (openMethod instanceof DecisionTable) {
+            DecisionTable m = (DecisionTable) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, AMethodBasedNode.class },
+                    new Object[] { m.getHeader(), m.getBoundNode() });
+        }
+        if (openMethod instanceof ColumnMatch) {
+            ColumnMatch m = (ColumnMatch) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, ColumnMatchBoundNode.class },
+                    new Object[] { m.getHeader(), m.getBoundNode() });
+        }
+        if (openMethod instanceof Spreadsheet) {
+            Spreadsheet m = (Spreadsheet) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, SpreadsheetBoundNode.class,
+                    boolean.class }, new Object[] { m.getHeader(), m.getBoundNode(), m.isCustomSpreadsheetType() });
+        }
+        if (openMethod instanceof TableMethod) {
+            TableMethod m = (TableMethod) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { IOpenMethodHeader.class, IBoundMethodNode.class,
+                    MethodTableBoundNode.class }, new Object[] { m.getHeader(),
+                    m.getCompositeMethod().getMethodBodyBoundNode(), m.getBoundNode() });
+        }
+
+        if (openMethod instanceof JavaOpenMethod) {
+            JavaOpenMethod m = (JavaOpenMethod) openMethod;
+            return (IOpenMethod) enhancer.create(new Class[] { Method.class }, new Object[] { m.getMethod() });
+        }
+
+        /*
+         * if (log.isWarnEnabled()) {
+         * log.warn("Method wasn't wrapped. Dispatching will not work properly!"
+         * ); }
+         */
+        return openMethod;
     }
 
     /**
@@ -140,7 +255,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
             //
             if (existedMethod instanceof OpenMethodDispatcher) {
                 OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                decorator.addMethod(method);
+                IOpenMethod m = decorateForMultimoduleDispatching(method);
+                decorator.addMethod(m);
             } else {
                 boolean differentVersionsOfTheTable = false;
                 if (existedMethod instanceof ExecutableRulesMethod && method instanceof ExecutableRulesMethod) {
@@ -153,14 +269,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
                 if (differentVersionsOfTheTable) {
                     useActiveOrNewerVersion((ExecutableRulesMethod) existedMethod, (ExecutableRulesMethod) method, key);
                 } else {
-                    createMethodDispatcher(method, key, existedMethod);
+                    IOpenMethod m = decorateForMultimoduleDispatching(method);
+                    createMethodDispatcher(m, key, existedMethod);
                 }
             }
         } else {
-
             // Just add original method.
             //
-            methodMap().put(key, method);
+            IOpenMethod m = decorateForMultimoduleDispatching(method);
+            methodMap().put(key, m);
         }
     }
 
@@ -193,10 +310,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
      */
     public void useActiveOrNewerVersion(ExecutableRulesMethod existedMethod, ExecutableRulesMethod newMethod,
             MethodKey key) {
-        if (new TableVersionComparator().compare(existedMethod, newMethod) < 0) {
-            methodMap().put(key, existedMethod);
-        } else {
-            methodMap().put(key, newMethod);
+        if (new TableVersionComparator().compare(existedMethod, newMethod) >= 0) {
+            IOpenMethod m = decorateForMultimoduleDispatching(newMethod);
+            methodMap().put(key, m);
         }
     }
 
@@ -232,4 +348,5 @@ public class XlsModuleOpenClass extends ModuleOpenClass {
         super.clearOddDataForExecutionMode();
         dataBase = null;
     }
+
 }

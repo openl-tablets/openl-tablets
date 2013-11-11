@@ -103,11 +103,13 @@ public class FileSystemDataSource implements DataSource {
                     if (!loadDeploymentsFromFolder.exists()) {
                         if (!loadDeploymentsFromFolder.mkdirs()) {
                             if (log.isWarnEnabled()) {
-                                log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory() +"\" creation was fail!");
+                                log.warn("File system data source folder \"" + getLoadDeploymentsFromDirectory()
+                                        + "\" creation was fail!");
                             }
-                        }else{
-                            if (log.isInfoEnabled()){
-                                log.info("File system data source \"" + getLoadDeploymentsFromDirectory() +"\" was successfully created!");
+                        } else {
+                            if (log.isInfoEnabled()) {
+                                log.info("File system data source \"" + getLoadDeploymentsFromDirectory()
+                                        + "\" was successfully created!");
                             }
                         }
                     }
@@ -119,7 +121,8 @@ public class FileSystemDataSource implements DataSource {
 
     private void validateFileSystemDataSourceFolder(File fileSystemDataSourceFolder) {
         if (!fileSystemDataSourceFolder.exists() || !fileSystemDataSourceFolder.isDirectory()) {
-            throw new DataSourceException("File system data source folder \"" + getLoadDeploymentsFromDirectory() +"\"  doesn't exist");
+            throw new DataSourceException("File system data source folder \"" + getLoadDeploymentsFromDirectory()
+                    + "\"  doesn't exist");
         }
     }
 
@@ -233,7 +236,6 @@ public class FileSystemDataSource implements DataSource {
 
     public static abstract class DirWatcher extends TimerTask {
         private String path;
-        private File filesArray[];
         private HashMap<File, Long> dir = new HashMap<File, Long>();
         private DirFilterWatcher dfw;
 
@@ -251,20 +253,39 @@ public class FileSystemDataSource implements DataSource {
 
             this.path = path;
             dfw = new DirFilterWatcher(filter);
-            filesArray = new File(path).listFiles(dfw);
+            File filesArray[] = new File(path).listFiles(dfw);
 
             // transfer to the hashmap be used a reference and keep the
             // lastModfied value
             for (int i = 0; i < filesArray.length; i++) {
-                dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
+                add(filesArray[i], false);
             }
         }
 
-        @SuppressWarnings("unchecked")
-        public final void run() {
-            boolean f = false;
-            Set<File> checkedFiles = new HashSet<File>();
-            filesArray = new File(path).listFiles(dfw);
+        private void add(File file, boolean fireEvent) {
+            dir.put(file, new Long(file.lastModified()));
+            if (fireEvent) {
+                onChange(file, "add");
+            }
+            if (file.isDirectory()) {
+                File filesArray[] = file.listFiles(dfw);
+                for (int i = 0; i < filesArray.length; i++) {
+                    if (fireEvent) {
+                        onChange(filesArray[i], "add");
+                    }
+                    add(filesArray[i], fireEvent);
+                }
+            }
+        }
+
+        private boolean checkModifiedAndNew(File file, Set<File> checkedFiles, boolean onChangeFired) {
+            if (file == null) {
+                throw new IllegalArgumentException("file arg can't be null");
+            }
+            if (!file.isDirectory()) {
+                throw new IllegalArgumentException("file arg should be a directory");
+            }
+            File filesArray[] = file.listFiles(dfw);
 
             // scan the files and check for modification/addition
             for (int i = 0; i < filesArray.length; i++) {
@@ -272,23 +293,30 @@ public class FileSystemDataSource implements DataSource {
                 checkedFiles.add(filesArray[i]);
                 if (current == null) {
                     // new file
-                    dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
-                    if (!f) {
+                    if (!onChangeFired) {
                         onChange();
-                        f = true;
+                        onChangeFired = true;
                     }
-                    onChange(filesArray[i], "add");
-                } else if (current.longValue() != filesArray[i].lastModified()) {
-                    // modified file
-                    dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
-                    if (!f) {
-                        onChange();
-                        f = true;
+                    add(filesArray[i], true);
+                } else {
+                    if (current.longValue() != filesArray[i].lastModified()) {
+                        // modified file
+                        dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
+                        if (!onChangeFired) {
+                            onChange();
+                            onChangeFired = true;
+                        }
+                        onChange(filesArray[i], "modify");
                     }
-                    onChange(filesArray[i], "modify");
+                    if (filesArray[i].isDirectory()) {
+                        onChangeFired = checkModifiedAndNew(filesArray[i], checkedFiles, onChangeFired);
+                    }
                 }
             }
+            return onChangeFired;
+        }
 
+        private void checkDeleted(File file, Set<File> checkedFiles, boolean onChangeFired) {
             // now check for deleted files
             Set<File> ref = ((HashMap<File, Long>) dir.clone()).keySet();
             ref.removeAll(checkedFiles);
@@ -296,12 +324,19 @@ public class FileSystemDataSource implements DataSource {
             while (it.hasNext()) {
                 File deletedFile = (File) it.next();
                 dir.remove(deletedFile);
-                if (!f) {
+                if (!onChangeFired) {
                     onChange();
-                    f = true;
+                    onChangeFired = true;
                 }
                 onChange(deletedFile, "delete");
             }
+        }
+
+        public final void run() {
+            Set<File> checkedFiles = new HashSet<File>();
+            boolean onChangedFired = false;
+            onChangedFired = checkModifiedAndNew(new File(path), checkedFiles, onChangedFired);
+            checkDeleted(new File(path), checkedFiles, onChangedFired);
         }
 
         /**
@@ -320,18 +355,21 @@ public class FileSystemDataSource implements DataSource {
      */
     public final static class CheckFileSystemChanges extends DirWatcher {
         private FileSystemDataSource fileSystemDataSource;
+        private LocalTemporaryDeploymentsStorage storage;
 
-        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource) {
+        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource, LocalTemporaryDeploymentsStorage storage) {
             super(fileSystemDataSource.getLoadDeploymentsFromDirectory());
             this.fileSystemDataSource = fileSystemDataSource;
+            this.storage = storage;
         }
 
         @Override
-        protected void onChange() {
+        protected synchronized void onChange() {
             List<DataSourceListener> listeners = fileSystemDataSource.getListeners();
             for (DataSourceListener listener : listeners) {
                 listener.onDeploymentAdded();
             }
+            storage.clear();
         }
 
         @Override
@@ -343,6 +381,7 @@ public class FileSystemDataSource implements DataSource {
     public static class CheckFileSystemChangesFactoryBean implements FactoryBean<CheckFileSystemChanges> {
 
         private FileSystemDataSource fileSystemDataSource;
+        private LocalTemporaryDeploymentsStorage storage;
 
         public Class<?> getObjectType() {
             return CheckFileSystemChanges.class;
@@ -352,7 +391,7 @@ public class FileSystemDataSource implements DataSource {
             if (getFileSystemDataSource() == null) {
                 throw new IllegalStateException("File system data source can't be null");
             }
-            return new CheckFileSystemChanges(getFileSystemDataSource());
+            return new CheckFileSystemChanges(getFileSystemDataSource(), getStorage());
         }
 
         public boolean isSingleton() {
@@ -366,8 +405,19 @@ public class FileSystemDataSource implements DataSource {
             this.fileSystemDataSource = fileSystemDataSource;
         }
 
+        public void setStorage(LocalTemporaryDeploymentsStorage storage) {
+            if (storage == null) {
+                throw new IllegalArgumentException("storage can't be null");
+            }
+            this.storage = storage;
+        }
+
         public FileSystemDataSource getFileSystemDataSource() {
             return fileSystemDataSource;
+        }
+        
+        public LocalTemporaryDeploymentsStorage getStorage() {
+            return storage;
         }
 
     }

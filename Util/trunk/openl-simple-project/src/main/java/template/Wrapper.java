@@ -1,8 +1,13 @@
+/*
+ * This class has been generated. 
+*/
+
 package template;
 
-/**
- * An interface class which holds rules method definitions. 
- */
+
 public interface Wrapper {
-    void hello1(int hour);
+  public static java.lang.String __src = "rules/TemplateRules.xls";
+
+  void hello1(int hour);
+
 }

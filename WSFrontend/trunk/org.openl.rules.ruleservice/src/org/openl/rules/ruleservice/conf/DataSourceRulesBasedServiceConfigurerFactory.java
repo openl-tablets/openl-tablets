@@ -6,7 +6,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-
+//*TODO
 public class DataSourceRulesBasedServiceConfigurerFactory extends AbstractRulesBasedServiceConfigurerFactoryBean {
     private RuleServiceLoader ruleServiceLoader;
     private String deploymentName;

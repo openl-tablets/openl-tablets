@@ -26,7 +26,7 @@ public abstract class DependencyManager implements IDependencyManager {
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
 
         if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' is not found", dependencyName), 
+            throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found", dependencyName), 
                 null, dependency.getNode().getSourceLocation());
         }   
         

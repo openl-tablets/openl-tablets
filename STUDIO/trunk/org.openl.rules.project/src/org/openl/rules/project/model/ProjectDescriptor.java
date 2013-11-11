@@ -19,8 +19,18 @@ public class ProjectDescriptor {
     private File projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
+    private List<ProjectDependencyDescriptor> dependencies;
     private ClassLoader classLoader;
-
+    
+    
+    public List<ProjectDependencyDescriptor> getDependencies() {
+        return dependencies;
+    }
+    
+    public void setDependencies(List<ProjectDependencyDescriptor> dependencies) {
+        this.dependencies = dependencies;
+    }
+    
     public File getProjectFolder() {
         return projectFolder;
     }

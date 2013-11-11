@@ -5,21 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.ruleservice.conf.ServiceConfigurer;
-import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -34,13 +28,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
-    private static final String TUTORIAL4_SERVICE_URL = "org.openl.tablets.tutorial4";
-
-    private static final String MULTIMODULE_SERVICE_URL = "multimodule";
-
-    // private static final String TEST_REPOSITORY_PATH =
-    // "./target/production-repository/";
-
     private ApplicationContext applicationContext;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -61,6 +48,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
     }
 
     @Test
+    @Ignore
     public void testRedeployAfterChanges() throws Exception {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
@@ -68,11 +56,8 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         RuleServiceLoader rulesLoader = serviceManager.getRuleServiceLoader();
         serviceManager.start();
         OpenLService multimoduleService = serviceManager.getRuleService().getServiceByName("multimodule");
-        // OpenLService tutorial4Service =
-        // serviceManager.getRuleService().findServiceByName("tutorial4");
-        Deployment domainDeployment = rulesLoader.getDeployment("domain",
-                TestConfigurer.getLastVersion(rulesLoader, "domain"));
-
+        Deployment domainDeployment = rulesLoader.getDeployment("multimodule",
+                new CommonVersionImpl(1));
         ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
         ProductionRepositoryFactoryProxy proxy = applicationContext.getBean("productionRepositoryFactoryProxy", ProductionRepositoryFactoryProxy.class);
         new JcrProductionDeployer(proxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE).deploy(testDeploymentProject,
@@ -87,9 +72,6 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         assertEquals(2, applicationContext.getBean(WebServicesRuleServicePublisher.class).getServices()
                 .size());
         assertNotSame(multimoduleService, serviceManager.getRuleService().getServiceByName("multimodule"));
-        // uncomment after the smart redeployment will be implemented
-        // assertSame(tutorial4Service,
-        // serviceManager.getRuleService().findServiceByName("tutorial4"));
     }
 
     public static void main(String[] args) throws Exception {
@@ -102,84 +84,4 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         System.out.println("Server is stoped");
         System.exit(0);
     }
-
-    public static class TestConfigurer implements ServiceConfigurer {
-        private static CommonVersion getLastVersion(RuleServiceLoader loader, String deploymentName) {
-            CommonVersion lastVersion = new CommonVersionImpl(0);
-            for (Deployment deployment : loader.getDeployments()) {
-                if (deployment.getDeploymentName().equals(deploymentName)) {
-                    if (lastVersion.compareTo(deployment.getCommonVersion()) < 0) {
-                        lastVersion = deployment.getCommonVersion();
-                    }
-                }
-            }
-            return lastVersion;
-        }
-
-        private ServiceDescription resolveTutorial4Service(RuleServiceLoader loader) {
-            final String deploymentName = "org.openl.tablets.tutorial4";
-            ServiceDescription.ServiceDescriptionBuilder builder = new ServiceDescription.ServiceDescriptionBuilder();
-            builder.setName("tutorial4").setProvideRuntimeContext(false).setUrl(TUTORIAL4_SERVICE_URL)
-                    .setServiceClassName("org.openl.rules.tutorial4.Tutorial4Interface");
-
-            ModuleDescription.ModuleDescriptionBuilder moduleBuilder = new ModuleDescription.ModuleDescriptionBuilder();
-            moduleBuilder.setDeploymentName(deploymentName);
-            moduleBuilder.setDeploymentVersion(getLastVersion(loader, deploymentName));
-            moduleBuilder.setModuleName("Tutorial 4 - UServ Product Derby");
-            moduleBuilder.setProjectName(deploymentName);
-
-            ModuleDescription module = moduleBuilder.build();
-            builder.addModule(module);
-            builder.addModuleInService(module);
-
-            return builder.build();
-        }
-
-        private ServiceDescription resolveMultimoduleService(RuleServiceLoader loader) {
-            final String multiModuleDeploymentName = "multi-module";
-            final String domainDeploymentName = "domain";
-            ServiceDescription.ServiceDescriptionBuilder builder = new ServiceDescription.ServiceDescriptionBuilder();
-            builder.setUrl(MULTIMODULE_SERVICE_URL).setName("multimodule").setProvideRuntimeContext(false)
-                    .setServiceClassName(null);
-
-            ModuleDescription module;
-
-            ModuleDescription.ModuleDescriptionBuilder moduleBuilder = new ModuleDescription.ModuleDescriptionBuilder()
-                    .setDeploymentName(domainDeploymentName)
-                    .setDeploymentVersion(getLastVersion(loader, domainDeploymentName))
-                    .setProjectName(domainDeploymentName).setModuleName("Domain");
-
-            module = moduleBuilder.build();
-            builder.addModule(module);
-            builder.addModuleInService(module);
-
-            moduleBuilder.setDeploymentName(multiModuleDeploymentName).setDeploymentVersion(
-                    getLastVersion(loader, multiModuleDeploymentName));
-
-            moduleBuilder.setProjectName("project1").setModuleName("Module1_1");
-            module = moduleBuilder.build();
-            builder.addModule(module);
-            builder.addModuleInService(module);
-            
-            moduleBuilder.setProjectName("project2").setModuleName("Module2_1");
-            module = moduleBuilder.build();
-            builder.addModule(module);
-            builder.addModuleInService(module);
-            
-            moduleBuilder.setProjectName("project3").setModuleName("Module3_1");
-            module = moduleBuilder.build();
-            builder.addModule(module);
-            builder.addModuleInService(module);
-
-            return builder.build();
-        }
-
-        public List<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
-            List<ServiceDescription> services = new ArrayList<ServiceDescription>();
-            services.add(resolveTutorial4Service(loader));
-            services.add(resolveMultimoduleService(loader));
-            return services;
-        }
-    }
-
 }

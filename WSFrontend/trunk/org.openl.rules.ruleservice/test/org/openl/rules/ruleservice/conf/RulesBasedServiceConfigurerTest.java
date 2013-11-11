@@ -13,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:rules-based-configurer/rules-based-configurer-file.xml" })
+@ContextConfiguration(locations = { "classpath:RulesBasedServiceConfigurerTest/openl-ruleservice-beans.xml" })
 public class RulesBasedServiceConfigurerTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
@@ -24,8 +24,10 @@ public class RulesBasedServiceConfigurerTest implements ApplicationContextAware 
     @Test
     public void testRulesBasedConfigurerFromFile() {
         RulesBasedServiceConfigurer configurer = applicationContext.getBean(RulesBasedServiceConfigurer.class);
+        assertNotNull(configurer);
         RuleServiceLoader loader = applicationContext.getBean(RuleServiceLoader.class);
-        assertEquals(configurer.getServicesToBeDeployed(loader).size(), 1);
-        assertEquals(configurer.getServicesToBeDeployed(loader).iterator().next().getModules().size(), 4);
+        assertNotNull(loader);
+        assertEquals(1, configurer.getServicesToBeDeployed(loader).size());
+        assertEquals(4, configurer.getServicesToBeDeployed(loader).iterator().next().getModules().size());
     }
 }
