@@ -15,6 +15,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -46,10 +47,18 @@ public class TestMojo extends BaseOpenLMojo {
             getLog().info(String.format("Testing the project in %s", openlOutputDirectory));
         }
 
-        ProjectDescriptor projectDescriptor = ProjectHelpers.resolveProject(openlOutputDirectory);
-        if (projectDescriptor == null) {
-            throw new MojoFailureException(String.format("Cannot find OpenL project in directory %s",
-                openlOutputDirectory));
+        ProjectDescriptor projectDescriptor;
+        try {
+            projectDescriptor = ProjectHelpers.resolveProject(openlOutputDirectory);
+            if (projectDescriptor == null) {
+                throw new MojoFailureException(String.format("Cannot find OpenL project in directory %s",
+                    openlOutputDirectory));
+            }
+        } catch (ProjectResolvingException e) {
+            if (getLog().isErrorEnabled()) {
+                getLog().error(e.getMessage(), e);
+            }
+            throw new MojoFailureException(String.format("Cannot resolve OpenL project in directory %s", openlOutputDirectory), e);
         }
 
         int runTests = 0;
