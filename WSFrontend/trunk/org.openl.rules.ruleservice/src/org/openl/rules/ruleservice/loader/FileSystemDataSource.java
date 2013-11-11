@@ -355,18 +355,21 @@ public class FileSystemDataSource implements DataSource {
      */
     public final static class CheckFileSystemChanges extends DirWatcher {
         private FileSystemDataSource fileSystemDataSource;
+        private LocalTemporaryDeploymentsStorage storage;
 
-        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource) {
+        private CheckFileSystemChanges(FileSystemDataSource fileSystemDataSource, LocalTemporaryDeploymentsStorage storage) {
             super(fileSystemDataSource.getLoadDeploymentsFromDirectory());
             this.fileSystemDataSource = fileSystemDataSource;
+            this.storage = storage;
         }
 
         @Override
-        protected void onChange() {
+        protected synchronized void onChange() {
             List<DataSourceListener> listeners = fileSystemDataSource.getListeners();
             for (DataSourceListener listener : listeners) {
                 listener.onDeploymentAdded();
             }
+            storage.clear();
         }
 
         @Override
@@ -378,6 +381,7 @@ public class FileSystemDataSource implements DataSource {
     public static class CheckFileSystemChangesFactoryBean implements FactoryBean<CheckFileSystemChanges> {
 
         private FileSystemDataSource fileSystemDataSource;
+        private LocalTemporaryDeploymentsStorage storage;
 
         public Class<?> getObjectType() {
             return CheckFileSystemChanges.class;
@@ -387,7 +391,7 @@ public class FileSystemDataSource implements DataSource {
             if (getFileSystemDataSource() == null) {
                 throw new IllegalStateException("File system data source can't be null");
             }
-            return new CheckFileSystemChanges(getFileSystemDataSource());
+            return new CheckFileSystemChanges(getFileSystemDataSource(), getStorage());
         }
 
         public boolean isSingleton() {
@@ -401,8 +405,19 @@ public class FileSystemDataSource implements DataSource {
             this.fileSystemDataSource = fileSystemDataSource;
         }
 
+        public void setStorage(LocalTemporaryDeploymentsStorage storage) {
+            if (storage == null) {
+                throw new IllegalArgumentException("storage can't be null");
+            }
+            this.storage = storage;
+        }
+
         public FileSystemDataSource getFileSystemDataSource() {
             return fileSystemDataSource;
+        }
+        
+        public LocalTemporaryDeploymentsStorage getStorage() {
+            return storage;
         }
 
     }

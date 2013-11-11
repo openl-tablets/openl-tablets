@@ -73,7 +73,7 @@ public class DependencyMethodDispatchingTest {
 	 * the overloaded table in main module.
 	 */
 	@Test
-	public void testMethodDispatching() {
+	public void testMethodDispatching() throws Exception{
 		final String MODULES_FOLDER = "test/resources/dependencies/testMethodDispatching1";
 
 		ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();

@@ -387,7 +387,7 @@ public class XlsLoader {
         } catch (Exception e) {
             log.error("Error while preprocessing workbook", e);
             
-            String message = "Cannot open source file or file is corrupted";
+            String message = "Can't open source file or file is corrupted";
             OpenLRuntimeException error = new OpenLRuntimeException(message);
             OpenLMessagesUtils.addError(error);
 

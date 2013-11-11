@@ -12,9 +12,11 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.ModuleDescription;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 
 /**
@@ -51,7 +53,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * 
      * @see #setDataSource, #setProjectResolver
      */
-    public RuleServiceLoaderImpl(DataSource dataSource, LocalTemporaryDeploymentsStorage storage,
+    public RuleServiceLoaderImpl(DataSource dataSource,
+            LocalTemporaryDeploymentsStorage storage,
             RulesProjectResolver projectResolver) {
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
@@ -137,30 +140,32 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"", deploymentName,
-                    deploymentVersion.getVersionName()));
+            log.debug(String.format("Getting deployement with name=\"%s\" and version=\"%s\"",
+                deploymentName,
+                deploymentVersion.getVersionName()));
         }
 
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
         if (localDeployment == null) {
             Deployment deployment = getDataSource().getDeployment(deploymentName, deploymentVersion);
             if (log.isDebugEnabled()) {
-                log.debug(String.format(
-                        "Deployement with name=\"%s\" and version=\"%s\" has been returned from data source",
-                        deploymentName, deploymentVersion.getVersionName()));
+                log.debug(String.format("Deployement with name=\"%s\" and version=\"%s\" has been returned from data source",
+                    deploymentName,
+                    deploymentVersion.getVersionName()));
             }
             return deployment;
         }
         if (log.isDebugEnabled()) {
-            log.debug(String.format(
-                    "Deployement with name=\"%s\" and version=\"%s\" has been returned from local repository",
-                    deploymentName, deploymentVersion.getVersionName()));
+            log.debug(String.format("Deployement with name=\"%s\" and version=\"%s\" has been returned from local repository",
+                deploymentName,
+                deploymentVersion.getVersionName()));
         }
         return localDeployment;
     }
 
     /** {@inheritDoc} */
-    public Collection<Module> resolveModulesForProject(String deploymentName, CommonVersion deploymentVersion,
+    public Collection<Module> resolveModulesForProject(String deploymentName,
+            CommonVersion deploymentVersion,
             String projectName) {
         if (deploymentName == null) {
             throw new IllegalArgumentException("deploymentName argument can't be null");
@@ -173,8 +178,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Resoliving modules for deployment with name=" + deploymentName + " and version="
-                    + deploymentVersion.getVersionName() + " and projectName=" + projectName);
+            log.debug("Resoliving modules for deployment with name=" + deploymentName + " and version=" + deploymentVersion.getVersionName() + " and projectName=" + projectName);
         }
 
         Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
@@ -188,7 +192,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         File projectFolder = new File(artefactPath);
         ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
         if (resolvingStrategy != null) {
-            ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            ProjectDescriptor projectDescriptor = null;
+            try{
+                projectDescriptor= resolvingStrategy.resolveProject(projectFolder);
+            }catch(ProjectResolvingException e){
+                throw new RuleServiceRuntimeException("Project resolving failed!", e);
+            }
             return Collections.unmodifiableList(projectDescriptor.getModules());
         } else {
             return Collections.emptyList();
@@ -208,20 +217,28 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Collection<Module> ret = new ArrayList<Module>();
         Collection<ModuleDescription> modulesToLoad = serviceDescription.getModules();
         for (ModuleDescription moduleDescription : modulesToLoad) {
-            String deploymentName = moduleDescription.getDeploymentName();
-            CommonVersion commonVersion = moduleDescription.getDeploymentVersion();
+            String deploymentName = serviceDescription.getDeployment().getName();
+            CommonVersion commonVersion = serviceDescription.getDeployment().getVersion();
             Deployment deployment = getDataSource().getDeployment(deploymentName, commonVersion);
             Deployment localDeployment = storage.getDeployment(deploymentName, commonVersion);
             if (localDeployment == null) {
                 localDeployment = storage.loadDeployment(deployment);
             }
             AProject project = localDeployment.getProject(moduleDescription.getProjectName());
-            String artefactPath = storage.getDirectoryToLoadDeploymentsIn()
-                    + project.getArtefactPath().getStringValue();
+            if (project == null) {
+                throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + moduleDescription.getProjectName() + "\"!");
+            }
+            String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath()
+                .getStringValue();
             File projectFolder = new File(artefactPath);
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
             if (resolvingStrategy != null) {
-                ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                ProjectDescriptor projectDescriptor = null;
+                try{
+                    projectDescriptor= resolvingStrategy.resolveProject(projectFolder);
+                }catch(ProjectResolvingException e){
+                    throw new RuleServiceRuntimeException("Project resolving failed!", e);
+                }
                 Collection<Module> modules = projectDescriptor.getModules();
                 for (Module module : modules) {
                     if (moduleDescription.getModuleName().equals(module.getName())) {

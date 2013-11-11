@@ -9,7 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:multiple-projects-in-deployment/openl-ruleservice-beans.xml" })
+@ContextConfiguration(locations = { "classpath:MultipleProjectsInDeploymentTest/openl-ruleservice-beans.xml" })
 public class MultipleProjectsInDeploymentTest extends AbstractJavaClassRuleServiceTest {
 
     @Test

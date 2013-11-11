@@ -28,12 +28,12 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
     public void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners) {
         this.initializingModuleListeners = initializingModuleListeners;
     }
-    
+
     /** {@inheritDoc} */
     public void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners) {
         this.initializingProjectListeners = initializingProjectListeners;
     }
-    
+
     /** {@inheritDoc} */
     @Override
     public List<InitializingModuleListener> getInitializingModuleListeners() {
@@ -72,8 +72,7 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
             }
         } else {
             if (log.isWarnEnabled()) {
-                log.warn(initializingModuleListener.getClass().toString()
-                        + " listener wasn't unregistered!!! The listener wasn't registered");
+                log.warn(initializingModuleListener.getClass().toString() + " listener wasn't unregistered!!! The listener wasn't registered");
             }
         }
         return result;
@@ -117,17 +116,16 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
             }
         } else {
             if (log.isWarnEnabled()) {
-                log.warn(initializingProjectListener.getClass().toString()
-                        + " listener wasn't unregistered!!! The listener wasn't registered");
+                log.warn(initializingProjectListener.getClass().toString() + " listener wasn't unregistered!!! The listener wasn't registered");
             }
         }
         return result;
     }
 
-    protected abstract ProjectDescriptor internalResolveProject(File folder);
+    protected abstract ProjectDescriptor internalResolveProject(File folder) throws ProjectResolvingException;
 
     @Override
-    public final ProjectDescriptor resolveProject(File folder) {
+    public final ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
         ProjectDescriptor projectDescriptor = internalResolveProject(folder);
         // Invoke project loader listeners
         for (InitializingProjectListener listener : getInitializingProjectListeners()) {
@@ -146,8 +144,8 @@ public abstract class BaseResolvingStrategy implements ResolvingStrategy {
                 try {
                     listener.afterModuleLoad(module);
                 } catch (Exception e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("Listener invocation error!", e);
+                    if (log.isErrorEnabled()) {
+                        log.error("Listener invocation failed!", e);
                     }
                 }
             }

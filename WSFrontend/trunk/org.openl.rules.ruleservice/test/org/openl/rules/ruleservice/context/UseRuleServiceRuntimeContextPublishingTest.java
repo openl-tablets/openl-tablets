@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:use-ruleservice-runtimecontext/openl-ruleservice-beans.xml" })
+@ContextConfiguration(locations = { "classpath:UseRuleServiceRuntimeContextPublishingTest/openl-ruleservice-beans.xml" })
 public class UseRuleServiceRuntimeContextPublishingTest implements ApplicationContextAware {
 
     private static final String MULTI_MODULE_OVERLOADED_DYNAMIC = "multi-module-overloaded-dynamic";
@@ -26,7 +26,7 @@ public class UseRuleServiceRuntimeContextPublishingTest implements ApplicationCo
     public void setApplicationContext(ApplicationContext arg0) throws BeansException {
         this.applicationContext = arg0;
     }
-
+    
     @Test
     public void testDynamicInterface() throws Exception {
         assertNotNull(applicationContext);

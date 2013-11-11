@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.Property;
 
@@ -22,6 +22,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private static final String PATH_TAG = "entry";
     private static final String PROPERTY_TAG = "property";
     private static final String METHOD_FILTER_TAG = "method-filter";
+    private static final String DEPENDENCY_TAG = "dependency";
 
     private XStream xstream;
 
@@ -34,6 +35,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
         xstream.aliasType(PROJECT_DESCRIPTOR_TAG, ProjectDescriptor.class);
         xstream.aliasType(MODULE_TAG, Module.class);
+        xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
         xstream.aliasType(PROPERTY_TAG, Property.class);
         xstream.addDefaultImplementation(HashSet.class, Collection.class);

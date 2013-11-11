@@ -1,0 +1,24 @@
+<project>
+	<id>project2</id>
+	<name>project2</name>
+
+	<modules>
+		<module>
+			<name>Module2_1</name>
+			<type>api</type>
+			<rules-root path="Module2_1.xlsx"/>
+		</module>	
+	</modules>
+
+	<classpath>
+		<entry path="bin"/>
+	</classpath>
+
+	<dependencies>
+		<dependency>
+			<name>domain</name>
+			<autoIncluded>false</autoIncluded>
+		</dependency>
+	</dependencies>
+	
+</project>

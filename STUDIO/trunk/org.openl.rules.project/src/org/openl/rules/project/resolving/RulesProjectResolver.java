@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.logging.LogFactory;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.ASelector;
@@ -86,6 +87,9 @@ public class RulesProjectResolver {
      *         {@link ResolvingStrategy} for this project otherwise.
      */
     public ResolvingStrategy isRulesProject(File folder) {
+        if (resolvingStrategies == null){
+            throw new OpenlNotCheckedException("Resolving strategies weren't set.");
+        }
         for (ResolvingStrategy strategy : resolvingStrategies) {
             if (strategy.isRulesProject(folder)) {
                 return strategy;

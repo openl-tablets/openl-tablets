@@ -17,7 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-unpackclasspathjartodirectorybean-test.xml" })
+@ContextConfiguration(locations = { "classpath:UnpackClasspathJarToDirectoryBeanTest/openl-ruleservice-unpackclasspathjartodirectorybean-test.xml" })
 @DependsOn(value = { "unpackClasspathJarToDirectoryBean" })
 public class UnpackClasspathJarToDirectoryBeanTest implements ApplicationContextAware {
 

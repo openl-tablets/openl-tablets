@@ -1,7 +1,9 @@
 package org.openl.rules.project.resolving;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -9,14 +11,11 @@ import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
 
 public class ResolvingStrategiesTest {
-    
+
     @Test
-    public void testEclipseBased(){
+    public void testEclipseBased() throws Exception {
         ResolvingStrategy resolvingStrategy = new EclipseBasedResolvingStrategy();
         File projectFolder = new File("test/resources/eclipse-based");
         assertTrue(resolvingStrategy.isRulesProject(projectFolder));
@@ -31,25 +30,25 @@ public class ResolvingStrategiesTest {
         assertEquals(null, module.getRulesRootPath());
         assertEquals("org.openl.tablets.tutorial1.Tutorial_1Wrapper", module.getClassname());
     }
-    
+
     @Test
-    public void testDescriptor(){
+    public void testDescriptor() throws Exception{
         ProjectDescriptorBasedResolvingStrategy strategy = new ProjectDescriptorBasedResolvingStrategy();
         File projectFolder = new File("test/resources/descriptor");
         assertTrue(strategy.isRulesProject(projectFolder));
-        
+
         ProjectDescriptor descriptor = strategy.resolveProject(projectFolder);
         assertNotNull(descriptor);
-        
+
         assertEquals(1, descriptor.getModules().size());
         assertEquals(1, descriptor.getClasspath().size());
 
         File nonProjectFolder = new File("test/resources");
         assertFalse(strategy.isRulesProject(nonProjectFolder));
     }
-    
+
     @Test
-    public void testSimple(){
+    public void testSimple() throws Exception{
         ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
         File projectFolder = new File("test/resources/excel/");
         assertTrue(resolvingStrategy.isRulesProject(projectFolder));

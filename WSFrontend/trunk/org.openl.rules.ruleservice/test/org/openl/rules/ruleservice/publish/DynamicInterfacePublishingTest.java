@@ -23,7 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:dynamic-interface/openl-ruleservice-beans.xml" })
+@ContextConfiguration(locations = { "classpath:DynamicInterfacePublishingTest/openl-ruleservice-beans.xml" })
 public class DynamicInterfacePublishingTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;

@@ -24,7 +24,7 @@ public class DeferredMethod extends AMethod {
     private ISyntaxNode methodBodyNode;
 
     private IBoundMethodNode methodBodyBoundNode = null;
-
+    
     /**
      * @param name
      * @param typeClass

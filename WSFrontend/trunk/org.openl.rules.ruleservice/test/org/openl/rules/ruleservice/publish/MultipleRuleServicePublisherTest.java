@@ -12,13 +12,13 @@ public class MultipleRuleServicePublisherTest {
     @Test(expected = BeanCreationException.class)
     public void testBeanValidation() throws Exception {
         new ClassPathXmlApplicationContext(
-                "classpath:multipleruleservicepublisher/openl-ruleservice-multipleruleservice-validation-fail-beans.xml");
+                "classpath:MultipleRuleServicePublisherTest/openl-ruleservice-multipleruleservice-validation-fail-beans.xml");
     }
 
     @Test
     public void test() throws Exception {
         ConfigurableApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-                "classpath:multipleruleservicepublisher/openl-ruleservice-multipleruleservice-beans.xml");
+                "classpath:MultipleRuleServicePublisherTest/openl-ruleservice-multipleruleservice-beans.xml");
         Assert.assertNotNull(applicationContext);
         applicationContext.close();
     }

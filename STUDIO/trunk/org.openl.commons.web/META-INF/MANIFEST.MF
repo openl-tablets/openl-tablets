@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.openl.commons.web
 Bundle-Version: 5.12.0
 Bundle-Localization: plugin
 Require-Bundle: org.openl.rules.webstudio.lib;visibility:=reexport,
- org.junit4,
  org.openl.commons,
- org.openl.rules.tomcat.lib
+ org.openl.rules.tomcat.lib,
+ org.junit
 Export-Package: org.openl.commons.web,
  org.openl.commons.web.jsf,
  org.openl.commons.web.jsf.facelets.acegi,

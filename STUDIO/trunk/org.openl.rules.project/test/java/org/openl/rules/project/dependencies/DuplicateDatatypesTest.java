@@ -25,7 +25,7 @@ public class DuplicateDatatypesTest {
 	
 	private static final String MODULES_FOLDER = "test/resources/dependencies/testDuplicateDatatypes";
 	@Test
-	public void test() {
+	public void test() throws Exception{
 		ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
         ProjectDescriptor descr = strategy.resolveProject(new File(MODULES_FOLDER));
 
