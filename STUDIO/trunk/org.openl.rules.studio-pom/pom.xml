@@ -36,7 +36,6 @@
     <module>../org.openl.rules.security</module>
     <module>../org.openl.rules.security.standalone</module>
     <module>../org.openl.rules.diff</module>
-    <module>../org.openl.rules.tomcat.lib</module>
   </modules>
 
   <build>

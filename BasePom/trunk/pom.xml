@@ -6,8 +6,8 @@
   <artifactId>openl-base-svn-pom</artifactId>
   <packaging>pom</packaging>
   <version>5.12.0-SNAPSHOT</version>
-  <name>OpenL BasePom SVN root pom</name>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <name>OpenL BasePom root pom</name>
+  <url>http://openl-tablets.sourceforge.net</url>
 
   <scm>
        <connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>

@@ -11,6 +11,11 @@
         <name>OpenL - POI 3.8 - Modified</name>
         <description />
         <build>
+            <resources>
+                <resource>
+                    <directory>resources</directory>
+                </resource>
+            </resources>
                 <testSourceDirectory>test</testSourceDirectory>
                 <testResources>
                         <testResource>
@@ -18,66 +23,43 @@
                         </testResource>
                 </testResources>
                 <plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>1.5</source>
+							<target>1.5</target>
+						</configuration>
+					</plugin>
                         <plugin>
                                 <groupId>org.apache.maven.plugins</groupId>
                                 <artifactId>maven-jar-plugin</artifactId>
                                 <configuration>
-                                <archive>
-                                    <manifestFile>META-INF/buildManifest/MANIFEST.MF</manifestFile>
-                                </archive>
                                 <excludes>
                                     <exclude>**/POIDataSamples.java</exclude>
                                 </excludes>
                                 </configuration>
                         </plugin>
-                        <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-shade-plugin</artifactId>
-                                <version>1.7</version>
-                                <executions>
-                                        <execution>
-                                                <phase>package</phase>
-                                                <goals>
-                                                        <goal>shade</goal>
-                                                </goals>
-                                                <configuration>
-                                                        <artifactSet>
-                                                                <includes>
-                                                                        <include>org.openl.rules:org.openl.lib.poi.dev</include>
-                                                                </includes>
-                                                        </artifactSet>									
-                                                        <filters>
-                                                        	<filter>
-                                                        	<artifact>org.openl.rules:org.openl.lib.poi.dev</artifact>
-                                                        	<excludes>
-                                                        		<exclude>lib/**</exclude>
-                                                        	</excludes>
-                                                        	</filter>
-                                                        </filters>
-														<!-- This is a workaround for http://jira.codehaus.org/browse/MSHADE-103
-															Shade plugin tryies to download all dependencies from Central Maven Repo,
-															Skipping user-defined repositories. But when releasing POI BasePom is not yet deployed
-															to Maven Central-->
-														<createDependencyReducedPom>false</createDependencyReducedPom>
-                                                </configuration>
-                                        </execution>
-                                </executions>
-                        </plugin>
                 </plugins>
         </build>
         <dependencies>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.lib.poi.dev</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>                        
-                <scope>test</scope>
-            </dependency>
+                <dependency>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                    <scope>compile</scope>
+                </dependency>
                 <dependency>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                </dependency>
+				<dependency>
+					<groupId>commons-codec</groupId>
+					<artifactId>commons-codec</artifactId>
+				</dependency>
+                <dependency>
+                    <groupId>org.apache.poi</groupId>
+                    <artifactId>ooxml-schemas</artifactId>
+                    <scope>provided</scope>
                 </dependency>
                 <dependency>
                         <groupId>org.apache.poi</groupId>

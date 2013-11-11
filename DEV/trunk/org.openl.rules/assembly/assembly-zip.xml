@@ -17,7 +17,6 @@
     </dependencySet>
 
     <dependencySet>
-      <outputFileNameMapping>${artifact.artifactId}-${openl.version.eclipse}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <outputDirectory></outputDirectory>
       <includes>

@@ -42,11 +42,7 @@
 					<packagingExcludes>
 						WEB-INF/lib/commons-logging*.jar,
 						WEB-INF/lib/geronimo-servlet*.jar,
-						WEB-INF/lib/poi-2.5.1-*.jar,
-						WEB-INF/lib/org.openl.lib-*.jar,
-						WEB-INF/lib/org.openl.poi.lib-*.jar,
-						WEB-INF/lib/org.openl.rules.webstudio.lib-*.jar,
-						WEB-INF/lib/org.openl.rules.ruleservice.ws.lib-*.jar
+						WEB-INF/lib/poi-2.5.1-*.jar
 					</packagingExcludes>
 					<webResources>
 						<resource>
@@ -70,9 +66,6 @@
 							<goal>attached</goal>
 						</goals>
 						<configuration>
-							<archive>
-								<manifestFile>META-INF/MANIFEST.MF</manifestFile>
-							</archive>
 							<ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
 							<descriptors>
 								<descriptor>assembly/assembly-jar.xml</descriptor>

@@ -3,11 +3,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openl.rules</groupId>
-  <artifactId>general-pom</artifactId>
+  <artifactId>openl-tablets</artifactId>
   <packaging>pom</packaging>
   <version>5.12.0-SNAPSHOT</version>
-  <name>General pom</name>
-  <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
+  <name>OpenL Tablets - General POM</name>
+  <url>http://openl-tablets.sourceforge.net</url>
 
   <scm>
        <connection>scm:hg:${staging.hg.repo.url}</connection>
@@ -24,8 +24,6 @@
 	<module>DEV/trunk/org.openl.rules.dev-pom</module>
 	<module>STUDIO/trunk/org.openl.rules.studio-pom</module>
 	<module>WSFrontend/trunk/org.openl.rules.ruleservice-pom</module>
-	<module>TUT/trunk/org.openl.rules.tutorials-pom</module>	
-	<module>Eclipse/trunk/org.openl.rules.eclipse-pom</module>
 	<module>Util/trunk/openl-maven-plugin</module>
 	<module>Util/trunk/openl-simple-project-archetype</module>
 	<module>DEMO\trunk\openl-tablets-demo\org.openl.rules.demo-pom</module>
