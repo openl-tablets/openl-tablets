@@ -13,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-filesystemdatasource-beans.xml",
+@ContextConfiguration(locations = { "classpath:FileSystemDataSourceListenerTest/openl-ruleservice-filesystemdatasource-beans.xml",
         "classpath:openl-ruleservice-filesystemdatasource-scheduler-beans.xml" })
 public class FileSystemDataSourceListenerTest {
     private static final long SLEEP_TIME = 15000;

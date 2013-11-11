@@ -41,5 +41,10 @@
 		<entry path="path1" />
 		<entry path="path2" />
 	</classpath>
-
+	<dependencies>
+		<dependency>
+			<name>someProjectName</name>
+			<autoIncluded>false</autoIncluded>
+		</dependency>
+	</dependencies>
 </project>

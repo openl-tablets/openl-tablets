@@ -46,7 +46,8 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
     
     protected OpenLBundleClassLoader initClassLoader() {
         ClassLoader originalClassLoader = getOriginalInstantiationStrategy().getClassLoader();
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(originalClassLoader);
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader();
+        classLoader.addClassLoader(originalClassLoader);
         try {
             Class<?> serviceClass = instantiationStrategy.getServiceClass();
             if (serviceClass != null) {

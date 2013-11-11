@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 
@@ -66,6 +67,12 @@ public class ProjectDescriptorManagerTest {
         Iterator<String> itr = module.getMethodFilter().getIncludes().iterator();
         String value = itr.next();
         assertEquals("*", value);
+        
+        assertNotNull(descriptor.getDependencies());
+        assertEquals(1, descriptor.getDependencies().size());
+        ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().iterator().next();
+        assertEquals("someProjectName", projectDependencyDescriptor.getName());
+        assertEquals(false, projectDependencyDescriptor.isAutoIncluded());
     }
 
     @Test(expected = ValidationException.class)
@@ -89,6 +96,13 @@ public class ProjectDescriptorManagerTest {
         descriptor.setId("id1");
         descriptor.setName("name1");
         descriptor.setComment("comment1");
+        
+        List<ProjectDependencyDescriptor> dependencies = new ArrayList<ProjectDependencyDescriptor>();
+        ProjectDependencyDescriptor dependencyDescriptor = new ProjectDependencyDescriptor();
+        dependencyDescriptor.setName("someProjectName");
+        dependencyDescriptor.setAutoIncluded(false);
+        dependencies.add(dependencyDescriptor);
+        descriptor.setDependencies(dependencies);
 
         Module module1 = new Module();
         module1.setName("name1");
@@ -139,6 +153,12 @@ public class ProjectDescriptorManagerTest {
                         "    <entry path=\"path1\"/>" + "\n" + 
                         "    <entry path=\"path2\"/>" + "\n" + 
                         "  </classpath>" + "\n" + 
+                        "  <dependencies>" + "\n" +
+                        "    <dependency>" + "\n" +
+                        "      <name>someProjectName</name>" + "\n" +
+                        "      <autoIncluded>false</autoIncluded>" + "\n" +
+                        "    </dependency>" + "\n" +
+                        "  </dependencies>" + "\n" +
                         "</project>";
         assertEquals(expected, dest.toString());
     }

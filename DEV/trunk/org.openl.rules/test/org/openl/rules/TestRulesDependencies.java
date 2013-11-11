@@ -138,8 +138,19 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         Set<ExecutableMethod> expectedRuledDependencies = new HashSet<ExecutableMethod>();
         expectedRuledDependencies.add((ExecutableMethod) findTable("Rules DoubleValue riskScore(String driverRisk)")
                 .getMember());
+        boolean allContains = true;
+        for (ExecutableMethod method : expectedRuledDependencies){
+            boolean f = false;
+            for (ExecutableMethod executableMethod : rulesMethods){
+                if (method.getSignature().equals(executableMethod.getSignature())){
+                    f = true;
+                    break;
+                }
+            }
+            allContains = allContains && f;
+        }
 
-        assertTrue("Method contains expected dependency", rulesMethods.containsAll(expectedRuledDependencies));
+        assertTrue("Method contains expected dependency", allContains);
     }
 
 }

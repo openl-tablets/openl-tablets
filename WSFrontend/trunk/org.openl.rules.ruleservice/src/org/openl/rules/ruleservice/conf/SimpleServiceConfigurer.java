@@ -2,22 +2,22 @@ package org.openl.rules.ruleservice.conf;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ModuleDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 /**
  * Simple ServiceConfigurer bean is designed for using with data sources with
- * one deployment. Exposes only one project from this deployment. All service
- * properties defined in this configurer.
+ * one deployment and one project in this deployment. All service properties
+ * defined in this configurer by field properties.
  * 
  * @author Marat Kamalov
  * 
@@ -29,8 +29,11 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
     private String projectName;
     private String serviceUrl;
     private String serviceClassName;
+    private String interceptingTemplateClassName;
     private boolean provideRuntimeContext;
     private boolean supportVariations;
+    private boolean useRuleServiceRuntimeContext;
+    private Map<String, Object> configuration;
 
     /** {@inheritDoc} */
     public Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader loader) {
@@ -41,31 +44,14 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
             }
         }
         for (Deployment deployment : loader.getDeployments()) {
-            Set<ModuleDescription> modulesInDeployment = new HashSet<ModuleDescription>();
-            for (AProject project : deployment.getProjects()) {
-                Collection<Module> modulesOfProject = loader.resolveModulesForProject(deployment.getDeploymentName(),
-                        deployment.getCommonVersion(), project.getName());
-
-                for (Module module : modulesOfProject) {
-                    ModuleDescription.ModuleDescriptionBuilder moduleDescriptionBuilder = new ModuleDescription.ModuleDescriptionBuilder();
-                    moduleDescriptionBuilder.setDeploymentName(deployment.getDeploymentName());
-                    moduleDescriptionBuilder.setDeploymentVersion(deployment.getCommonVersion());
-                    moduleDescriptionBuilder.setProjectName(project.getName());
-                    moduleDescriptionBuilder.setModuleName(module.getName());
-                    ModuleDescription moduleDescription = moduleDescriptionBuilder.build();
-                    modulesInDeployment.add(moduleDescription);
-                }
-            }
-
             for (AProject project : deployment.getProjects()) {
                 Collection<ModuleDescription> modulesForService = new ArrayList<ModuleDescription>();
                 for (Module module : loader.resolveModulesForProject(deployment.getDeploymentName(),
-                        deployment.getCommonVersion(), project.getName())) {
+                    deployment.getCommonVersion(),
+                    project.getName())) {
 
                     if (module.getProject().getId().equals(projectName)) {
                         ModuleDescription.ModuleDescriptionBuilder moduleDescriptionBuilder = new ModuleDescription.ModuleDescriptionBuilder();
-                        moduleDescriptionBuilder.setDeploymentName(deployment.getDeploymentName());
-                        moduleDescriptionBuilder.setDeploymentVersion(deployment.getCommonVersion());
                         moduleDescriptionBuilder.setProjectName(project.getName());
                         moduleDescriptionBuilder.setModuleName(module.getName());
                         ModuleDescription moduleDescription = moduleDescriptionBuilder.build();
@@ -73,14 +59,19 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
                     }
                 }
                 if (!modulesForService.isEmpty()) {
+                    DeploymentDescription deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(),
+                        deployment.getCommonVersion());
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder();
-                    serviceDescriptionBuilder.setModules(modulesInDeployment);
-                    serviceDescriptionBuilder.setModulesInService(modulesForService);
-                    serviceDescriptionBuilder.setName(serviceName);
-                    serviceDescriptionBuilder.setUrl(serviceUrl);
-                    serviceDescriptionBuilder.setServiceClassName(serviceClassName);
-                    serviceDescriptionBuilder.setProvideRuntimeContext(provideRuntimeContext);
-                    serviceDescriptionBuilder.setProvideVariations(supportVariations);
+                    serviceDescriptionBuilder.setModules(modulesForService)
+                        .setName(serviceName)
+                        .setUrl(serviceUrl)
+                        .setServiceClassName(serviceClassName)
+                        .setProvideRuntimeContext(provideRuntimeContext)
+                        .setProvideVariations(supportVariations)
+                        .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext)
+                        .setInterceptingTemplateClassName(interceptingTemplateClassName)
+                        .setDeployment(deploymentDescription)
+                        .setConfiguration(configuration);
                     serviceDescriptions.add(serviceDescriptionBuilder.build());
                 }
             }
@@ -140,5 +131,29 @@ public class SimpleServiceConfigurer implements ServiceConfigurer {
 
     public void setSupportVariations(boolean supportVariations) {
         this.supportVariations = supportVariations;
+    }
+
+    public boolean isUseRuleServiceRuntimeContext() {
+        return useRuleServiceRuntimeContext;
+    }
+
+    public void setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
+        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
+    }
+
+    public String getInterceptingTemplateClassName() {
+        return interceptingTemplateClassName;
+    }
+
+    public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
+        this.interceptingTemplateClassName = interceptingTemplateClassName;
+    }
+
+    public Map<String, Object> getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Map<String, Object> configuration) {
+        this.configuration = configuration;
     }
 }

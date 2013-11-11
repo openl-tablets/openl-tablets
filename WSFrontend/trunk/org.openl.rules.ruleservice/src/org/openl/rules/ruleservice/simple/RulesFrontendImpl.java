@@ -136,14 +136,14 @@ public class RulesFrontendImpl implements RulesFrontend {
                         StringTool.getGetterName(fieldName), new Class<?>[] {});
                 result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
             } catch (Exception e) {
-                if (log.isWarnEnabled()) {
-                    log.warn(
-                            String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName),
-                            e);
-                }
-
                 if (e.getCause() instanceof RuleServiceWrapperException) {
                     throw new MethodInvocationException(e.getCause());
+                }else{
+                    if (log.isWarnEnabled()) {
+                        log.warn(
+                                String.format("Error reading field \"%s\" from the service \"%s\"", fieldName, serviceName),
+                                e);
+                    }                    
                 }
             }
         }

@@ -26,7 +26,7 @@ public class MessagesDelegatingTest {
     private RulesProjectDependencyManager dependencyManager;
 
     @Before
-    public void init() {
+    public void init() throws Exception{
         rulesFolder = new File("test/resources/modules_with_errors/");
         ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath()
             .isRulesProject(rulesFolder);

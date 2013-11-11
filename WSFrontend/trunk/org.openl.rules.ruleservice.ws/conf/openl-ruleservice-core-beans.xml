@@ -11,15 +11,14 @@
 		<property name="ruleServicePublisher" ref="ruleServicePublisher"/>
 	</bean>
 
-	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/> -->
-
 	<bean id="instantiationStrategyFactory"
-		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl" />
+		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
+		<property name="lazy" value="${ruleservice.instantiation.strategy.lazy}"/>
+	</bean>
 
 	<bean id="ruleServiceInstantiationFactory"
 		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl">
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
-		<!-- <property name="dependencyManager" ref="dependencyManager"></property> -->
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
 		<property name="externalParameters">
 			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">

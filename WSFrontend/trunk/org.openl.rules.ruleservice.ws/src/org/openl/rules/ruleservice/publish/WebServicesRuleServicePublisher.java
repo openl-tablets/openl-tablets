@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -23,7 +21,7 @@ import org.springframework.beans.factory.ObjectFactory;
  */
 public class WebServicesRuleServicePublisher implements RuleServicePublisher {
 
-    private final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
+    //private final Log log = LogFactory.getLog(WebServicesRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
@@ -65,10 +63,6 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
             Server wsServer = svrFactory.create();
             ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
             runningServices.put(service, serviceServer);
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Service \"%s\" with URL \"%s\" succesfully deployed.", service.getName(),
-                        serviceAddress));
-            }
         } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {
@@ -105,10 +99,6 @@ public class WebServicesRuleServicePublisher implements RuleServicePublisher {
         }
         try {
             runningServices.get(service).getServer().stop();
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Service \"%s\" with URL \"%s\" succesfully undeployed.", serviceName,
-                        baseAddress + service.getUrl()));
-            }
             runningServices.remove(service);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);

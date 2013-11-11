@@ -115,7 +115,9 @@ public class OpenLSourceManager extends OpenLHolder {
                             validateDependency(loadedDependency);
                             OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread()
                                 .getContextClassLoader();
-                            currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
+                            if (loadedDependency.getClassLoader() != currentClassLoader){
+                                currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
+                            }
                             compiledDependencies.add(loadedDependency.getCompiledOpenClass());
                             OpenLMessages.getCurrentInstance().clear();//clear all messages from dependency
                         } catch (Exception e) {

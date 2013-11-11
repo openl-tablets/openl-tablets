@@ -29,7 +29,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * {@link IDependencyManager} for projects that have dependent modules.
      */
     private IDependencyManager dependencyManager;
-    
+
     private Map<String, Object> externalParameters;
 
     /**
@@ -64,7 +64,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
         return instantiate(getInstanceClass());
     }
 
-
     @Override
     public ClassLoader getClassLoader() {
         if (classLoader == null) {
@@ -87,10 +86,16 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
 
     @Override
     public Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException {
-        if (isServiceClassDefined()) {
-            return getServiceClass();
-        } else {
-            return getGeneratedRulesClass();
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try{
+            Thread.currentThread().setContextClassLoader(getClassLoader());
+            if (isServiceClassDefined()) {
+                return getServiceClass();
+            } else {
+                return getGeneratedRulesClass();
+            }
+        }finally{
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
@@ -144,12 +149,12 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * @throws IllegalAccessException
      */
     protected abstract Object instantiate(Class<?> rulesClass) throws RulesInstantiationException;
-    
+
     @Override
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
-    
+
     @Override
     public void setExternalParameters(Map<String, Object> parameters) {
         this.externalParameters = parameters;

@@ -21,7 +21,7 @@ public interface ResolvingStrategy {
      * @param folder Project root.
      * @return {@link ProjectDescriptor} that describes project
      */
-    ProjectDescriptor resolveProject(File folder);
+    ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException;
 
     List<InitializingModuleListener> getInitializingModuleListeners();
 
