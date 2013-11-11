@@ -16,7 +16,7 @@
 	<description>WebStudio for OpenL Tablets demo application</description>
 	<url>http://openl-tablets.sf.net/</url>
 	<properties>
-		<war.name>webstudio-demo</war.name>
+		<war.name>webstudio</war.name>
 	</properties>
 
 	<build>

@@ -103,11 +103,13 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
             Collection<String> allExcludes = new HashSet<String>();
             for (Module m : getModules()) {
                 MethodFilter methodFilter = m.getMethodFilter();
-                if (methodFilter.getIncludes() != null) {
-                    allIncludes.addAll(methodFilter.getIncludes());
-                }
-                if (methodFilter.getExcludes() != null) {
-                    allExcludes.addAll(methodFilter.getExcludes());
+                if (methodFilter != null) {
+                    if (methodFilter.getIncludes() != null) {
+                        allIncludes.addAll(methodFilter.getIncludes());
+                    }
+                    if (methodFilter.getExcludes() != null) {
+                        allExcludes.addAll(methodFilter.getExcludes());
+                    }
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {

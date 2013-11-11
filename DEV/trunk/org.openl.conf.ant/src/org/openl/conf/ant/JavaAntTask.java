@@ -63,6 +63,11 @@ public abstract class JavaAntTask extends Task {
     private String userHome = ".";
     private String deplUserHome;
 
+    /**
+     * The root path where resources (such as rules.xml and rules) are located
+     * For example in maven: "src/main/openl. Default is "".
+     */
+    private String resourcesPath = "";
     private String srcFile;
     private String deplSrcFile;
 
@@ -230,6 +235,10 @@ public abstract class JavaAntTask extends Task {
         return s_package;
     }
 
+    public String getResourcesPath() {
+        return resourcesPath;
+    }
+
     public String getSrcFile() {
         return srcFile;
     }
@@ -302,10 +311,10 @@ public abstract class JavaAntTask extends Task {
         OpenClassJavaWrapper jwrapper = null;
         try {
             IDependencyManager dependencyManager = instantiateDependencyManager();
-            jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, srcFile, false, dependencyManager);
+            jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, resourcesPath + srcFile, false, dependencyManager);
         } finally {
             long end = System.currentTimeMillis();
-            log("Loaded " + srcFile + " in " + (end - start) + " ms");
+            log("Loaded " + resourcesPath + srcFile + " in " + (end - start) + " ms");
         }
         List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(
                 ((CompiledOpenClass) jwrapper.getCompiledClass()).getMessages(), Severity.ERROR);
@@ -550,6 +559,11 @@ public abstract class JavaAntTask extends Task {
 
     public void setS_package(String s_package) {
         this.s_package = s_package;
+    }
+
+    public void setResourcesPath(String resourcesPath) {
+        this.resourcesPath = resourcesPath.isEmpty() || resourcesPath.endsWith(File.separator) ? resourcesPath
+                                                                                              : resourcesPath + File.separator;
     }
 
     public void setSrcFile(String srcFile) {

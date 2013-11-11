@@ -20,15 +20,20 @@ public class ExpectedResultFilter extends AGridFilter {
 
     public FormattedCell filterFormat(FormattedCell cell) {
         Point cellCoordinates = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
-        
+
         if (spreadsheetCellsForTest.containsKey(cellCoordinates)) {
             ComparedResult result = spreadsheetCellsForTest.get(cellCoordinates);
-            Object expectedValue = result.getExpectedValue();
-            IFormatter formatter = FormattersManager.getFormatter(expectedValue);
-            
+            String formattedExpectedValue = null;
+            boolean equals = (result.getStatus() == TestStatus.TR_OK);
+            if (!equals) {
+                Object expectedValue = result.getExpectedValue();
+                IFormatter formatter = FormattersManager.getFormatter(expectedValue);
+                formattedExpectedValue = formatter.format(expectedValue);
+            }
             String image = getImage(result);
-            cell.setFormattedValue(String.format("%s %s; %s", image, 
-                cell.getFormattedValue(), formatter.format(expectedValue)));
+            String formattedResult = String.format(equals ? "%s %s" : "%s %s %s", image,
+                    cell.getFormattedValue(), formattedExpectedValue);
+            cell.setFormattedValue(formattedResult);
         }
         
         return cell;       

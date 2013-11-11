@@ -6,7 +6,11 @@ Project structure uses default Maven project structure and contains the followin
 
         |-- openl-simple-project                        Project root folder
         |  |-- pom.xml                                  Maven project file
-        |  |-- rules.xml                                OpenL project descriptor (for OpenL only)
+        |  |  
+        |  |-- assembly                                 Maven assembly plugin configurations
+        |  |
+        |  |  |-- runnable-zip.xml                      Assembly configuration for runnable console application
+        |  |  |-- deployable-zip.xml                    Assembly configuration for deployable to WebStudio zip
         |  
         |  |-- src
         |  |  
@@ -18,10 +22,16 @@ Project structure uses default Maven project structure and contains the followin
         |  |  |  |  |  |-- Main.java                    Sample class which uses wrapper class
         |  |  |  |  |  |-- Wrapper.java                 An interface class which holds rules method definitions
         |  |  |  
-        |  |  |  |-- resources
+        |  |  |  |-- openl                              This folder contains all OpenL-related resources (rules, xml etc.)
         |  |  |  |  
+        |  |  |  |  |-- rules.xml                       OpenL project descriptor (for OpenL only)
         |  |  |  |  |-- rules
         |  |  |  |  |  |-- TemplateRules.xls            File with rules
+        |  |  |  
+        |  |  |  |-- scripts
+        |  |  |  |  
+        |  |  |  |  |-- start.cmd                       Script that runs the Main class for Windows
+        |  |  |  |  |-- start.sh                        Script that runs the Main class for Linux
 
 
 WRAPPER CLASS

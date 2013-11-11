@@ -16,62 +16,15 @@ public class DefaultPropertiesIntersectionFinder {
     public IntersectionType match(String propName, ITableProperties props1, ITableProperties props2) {
         IntersectionConstraint<?> mc = constraints.get(propName);
 
-        if (mc == null)
-            throw new RuntimeException("Unexpectedly could not find a constarint for the property: " + propName);
+        if (mc == null) {
+            return IntersectionType.EQUALS;
+        }
 
         return mc.match(props1, props2);
     }
 
     protected void initilaize() {
 // <<< INSERT >>>
-        constraints.put("effectiveDate", new IntersectionConstraint<java.util.Date>() { 
-
-            @Override
-            protected java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getEffectiveDate();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(java.util.Date firstValue, java.util.Date secondValue) {
-                return intersectionForLE(firstValue, secondValue);
-            }
-        });
-        constraints.put("expirationDate", new IntersectionConstraint<java.util.Date>() { 
-
-            @Override
-            protected java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getExpirationDate();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(java.util.Date firstValue, java.util.Date secondValue) {
-                return intersectionForGE(firstValue, secondValue);
-            }
-        });
-        constraints.put("startRequestDate", new IntersectionConstraint<java.util.Date>() { 
-
-            @Override
-            protected java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getStartRequestDate();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(java.util.Date firstValue, java.util.Date secondValue) {
-                return intersectionForLE(firstValue, secondValue);
-            }
-        });
-        constraints.put("endRequestDate", new IntersectionConstraint<java.util.Date>() { 
-
-            @Override
-            protected java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getEndRequestDate();
-            }
-
-            @Override
-            protected IntersectionType matchNotNulls(java.util.Date firstValue, java.util.Date secondValue) {
-                return intersectionForGE(firstValue, secondValue);
-            }
-        });
         constraints.put("lob", new IntersectionConstraint<java.lang.String>() { 
 
             @Override

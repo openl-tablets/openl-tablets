@@ -19,7 +19,7 @@
     </h:panelGroup>
     <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="node" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
         rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client"
-        nodeType="#{node.nodeType}">
+        nodeType="#{node.nodeType}" styleClass="test-tree">
         <!-- rowKeyConverter is a temporary solution.
          After migrating to the newer version of RichFaces it can be removed.
          See: https://issues.jboss.org/browse/RF-11102 for details -->
