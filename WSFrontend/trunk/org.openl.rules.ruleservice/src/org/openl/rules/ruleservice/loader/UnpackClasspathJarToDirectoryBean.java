@@ -116,11 +116,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 bufferedInputStream.close();
             }
         } finally {
-            if (jar != null){
-                try{
+            if (jar != null) {
+                try {
                     jar.close();
-                }catch(IOException e){
-                   
+                } catch (IOException e) {
+
                 }
             }
         }
@@ -147,8 +147,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
 
             if (!desFile.isDirectory()) {
-                throw new IOException("Destination path isn't a directory on file system. Path: "
-                        + getDestinationDirectory());
+                throw new IOException("Destination path isn't a directory on file system. Path: " + getDestinationDirectory());
             }
         } else {
             if (checkOrCreateFolder(desFile)) {
@@ -163,8 +162,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
-                + RULES_FILE_NAME);
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + RULES_FILE_NAME);
         if (!FolderHelper.clearFolder(new File(getDestinationDirectory()))) {
             if (log.isWarnEnabled()) {
                 log.warn(String.format("Failed on a folder clear. Path: \"%s\"", getDestinationDirectory()));
@@ -182,7 +180,8 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 unpack(file, getDestinationDirectory());
 
                 if (log.isInfoEnabled()) {
-                    log.info(String.format("Unpacking jars into \"%s\" was completed", getDestinationDirectory()));
+                    log.info(String.format("Unpacking \"" + file.getAbsolutePath() + "\" into \"%s\" was completed",
+                        getDestinationDirectory()));
                 }
             }
         }
