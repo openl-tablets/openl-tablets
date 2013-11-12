@@ -4,7 +4,7 @@
     <fileset
             id="openl_version_file"
             dir="${projects_root}"
-            includes="DEV/trunk/org.openl.core/**/openl.version.properties"
+            includes="DEV/org.openl.core/**/openl.version.properties"
             />
 
     <target name="change" description="Change Version">
