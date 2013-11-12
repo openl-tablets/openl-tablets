@@ -31,11 +31,11 @@ public class VersionTest extends TestCase {
     public void testIsVersion() {
         String t1 = "1.2.3";
 
-        Assert.assertTrue(Version.isVersion(t1, 0, "test"));
+        Assert.assertTrue(Version.isVersion(t1, 0, ".."));
 
         String t2 = "x_12312.212.322.zx";
 
-        Assert.assertTrue(Version.isVersion(t2, 2, "test"));
+        Assert.assertTrue(Version.isVersion(t2, 2, ".."));
 
         String t3 = "x_2.2.2_04.zx";
 
@@ -51,7 +51,7 @@ public class VersionTest extends TestCase {
     }
 
     public void testParseVersion() throws Exception {
-        Version v9_1_44 = Version.parseVersion("x_9.1.44", 2, "test");
+        Version v9_1_44 = Version.parseVersion("x_9.1.44", 2, "..");
 
         Assert.assertEquals("9.1.44", v9_1_44.toString());
 
@@ -63,7 +63,7 @@ public class VersionTest extends TestCase {
 
         String vx = "c:/exlipse/plugins/org.openl.eclipse.j_1.3.4/lib/apache/xyz_7.3.5.jar";
 
-        Assert.assertEquals(new Version(7, 3, 5, -1, "test"), Version.extractVersion(vx, "test"));
+        Assert.assertEquals(new Version(7, 3, 5, -1, ".."), Version.extractVersion(vx, ".."));
 
     }
 
