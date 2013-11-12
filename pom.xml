@@ -19,14 +19,14 @@
     </properties>
 
   <modules>    
-	<module>BasePom/trunk/org.openl.rules.base-pom</module>
-	<module>POI/trunk/org.openl.lib.poi.dev-pom</module>
-	<module>DEV/trunk/org.openl.rules.dev-pom</module>
-	<module>STUDIO/trunk/org.openl.rules.studio-pom</module>
-	<module>WSFrontend/trunk/org.openl.rules.ruleservice-pom</module>
-	<module>Util/trunk/openl-maven-plugin</module>
-	<module>Util/trunk/openl-simple-project-archetype</module>
-	<module>DEMO\trunk\openl-tablets-demo\org.openl.rules.demo-pom</module>
+	<module>BasePom/org.openl.rules.base-pom</module>
+	<module>POI/org.openl.lib.poi.dev-pom</module>
+	<module>DEV/org.openl.rules.dev-pom</module>
+	<module>STUDIO/org.openl.rules.studio-pom</module>
+	<module>WSFrontend/org.openl.rules.ruleservice-pom</module>
+	<module>Util/openl-maven-plugin</module>
+	<module>Util/openl-simple-project-archetype</module>
+	<module>DEMO/org.openl.rules.demo-pom</module>
   </modules>
 
   <distributionManagement>
