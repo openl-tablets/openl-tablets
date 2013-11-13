@@ -10,7 +10,6 @@
 		<relativePath>../org.openl.rules.dev-pom</relativePath>
 	</parent>
 
-	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules</artifactId>
 	<packaging>jar</packaging>
 	<name>OpenL - DEV - Rules</name>
@@ -66,7 +65,7 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.constrainer</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.openl</groupId>
 			<artifactId>org.openl.j</artifactId>

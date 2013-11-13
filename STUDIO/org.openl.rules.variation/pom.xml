@@ -10,7 +10,6 @@
 		<relativePath>../org.openl.rules.studio-pom</relativePath>
 	</parent>
 
-	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.variation</artifactId>
 	<packaging>jar</packaging>
 	<name>OpenL - Variation</name>
@@ -76,7 +75,7 @@
 		<dependency>
 			<groupId>com.caucho</groupId>
 			<artifactId>hessian</artifactId>
-		</dependency>		
+		</dependency>
 	</dependencies>
 
 </project>
