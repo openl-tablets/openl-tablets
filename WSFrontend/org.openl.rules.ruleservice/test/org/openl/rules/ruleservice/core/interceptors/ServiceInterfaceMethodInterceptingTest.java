@@ -32,6 +32,7 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFact
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 
 public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConvertor extends AbstractServiceMethodAfterReturningAdvice<Double> {
@@ -73,6 +74,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             .setDeployment(deploymentDescription)
             .setModules(moduleDescriptions)
             .build();
+        ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
 
         ruleServiceLoader = mock(RuleServiceLoader.class);
 

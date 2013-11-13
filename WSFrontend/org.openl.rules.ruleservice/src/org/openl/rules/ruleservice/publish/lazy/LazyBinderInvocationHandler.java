@@ -23,8 +23,6 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
     private final IOpenBinder originalBinder;
     private final IUserContext ucxt;
 
-    private IOpenBinder binder;
-
     /**
      * Set a prebind handler for current thread
      * 
@@ -56,12 +54,11 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
     public LazyBinderInvocationHandler(IOpenBinder originalBinder, IUserContext ucxt) {
         this.originalBinder = originalBinder;
         this.ucxt = ucxt;
-
-        this.binder = originalBinder;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        IOpenBinder binder = originalBinder;
         IPrebindHandler prebindHandler = prebindHandlerHolder.get();
         if (prebindHandler != null) {
             if (binder == originalBinder) {
