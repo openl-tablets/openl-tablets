@@ -9,15 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
@@ -37,8 +33,6 @@ import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.repository.RLock;
 import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.RVersion;
-
-import static org.openl.rules.repository.jcr.NodeUtil.isSame;
 
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -362,30 +356,62 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         try {
             List<RVersion> verHist = getVersionHistory();
 
-            for (RVersion rv : verHist) {
-                RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
-                        .getUserName(),verHist.get(verHist.size()-1).getCreated(), verHist.get(verHist.size()-1).getCreatedBy().getUserName());
-                String versionComment = "";
-                Map<String, Object> versionProperties = new HashMap<String, Object>();
+            RVersion lastVersion = verHist.get(verHist.size() - 1);
+            Date modifiedAt = lastVersion.getCreated();
+            String modifiedBy = lastVersion.getCreatedBy().getUserName();
 
-                try {
-                    JcrEntityAPI entity = this.getVersion(rv);
-                    versionProperties = getVersionProps(rv);
-                    
-                    if(entity.hasProperty(ArtefactProperties.VERSION_COMMENT)) {
-                        versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                
-                vers.add(new RepositoryProjectVersionImpl(rv, rvii, versionComment, versionProperties));
+            for (RVersion rv : verHist) {
+                vers.add(createRepositoryProjectVersion(rv, modifiedAt, modifiedBy));
             }
 
         } catch (RRepositoryException e) {
             log.error("Failed to get version history!", e);
+            // TODO exception should be rethrown
         }
         return vers;
+    }
+
+    private RepositoryProjectVersionImpl createRepositoryProjectVersion(RVersion rv, Date modifiedAt, String modifiedBy) {
+        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
+                .getUserName(), modifiedAt, modifiedBy);
+        String versionComment = "";
+        Map<String, Object> versionProperties = new HashMap<String, Object>();
+
+        try {
+            JcrEntityAPI entity = getVersion(rv);
+            versionProperties = getVersionProps(rv);
+
+            if(entity.hasProperty(ArtefactProperties.VERSION_COMMENT)) {
+                versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
+            }
+        } catch (Exception e) {
+            log.error("Failed to get version properties!", e);
+            // TODO exception should be rethrown
+        }
+
+        return new RepositoryProjectVersionImpl(rv, rvii, versionComment, versionProperties);
+    }
+
+    @Override
+    public int getVersionsCount() {
+        try {
+            return getVersionHistory().size();
+        } catch (RRepositoryException e) {
+            log.error("Failed to get version history!", e);
+            // TODO exception should be rethrown
+            return 0;
+        }
+    }
+
+    @Override
+    public ProjectVersion getVersion(int index) throws RRepositoryException {
+        List<RVersion> verHist = getVersionHistory();
+
+        RVersion lastVersion = verHist.get(verHist.size() - 1);
+        Date modifiedAt = lastVersion.getCreated();
+        String modifiedBy = lastVersion.getCreatedBy().getUserName();
+
+        return createRepositoryProjectVersion(verHist.get(index), modifiedAt, modifiedBy);
     }
 
     public LockInfo getLockInfo() {
