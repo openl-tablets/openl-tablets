@@ -163,7 +163,6 @@ public class ProductionRepositoriesTreeState {
      */
     public void invalidateTree() {
         root = null;
-        initTree();
     }
 
     public DeploymentManager getDeploymentManager() {

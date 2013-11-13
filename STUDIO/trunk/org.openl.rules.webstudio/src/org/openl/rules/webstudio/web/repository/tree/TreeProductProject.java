@@ -64,7 +64,7 @@ public class TreeProductProject extends TreeProductFolder {
 
     public Date getModifiedAt() {
         ProjectVersion projectVersion = this.getData().getVersion();
-        if (projectVersion == null || this.getData().getVersions().size() <= 2) {
+        if (projectVersion == null || this.getData().getVersionsCount() <= 2) {
             return null;
         }
 
@@ -75,7 +75,7 @@ public class TreeProductProject extends TreeProductFolder {
     public String getModifiedBy() {
         ProjectVersion projectVersion = this.getData().getVersion();
         /* zero*/
-        if (projectVersion == null || this.getData().getVersions().size() <= 2) {
+        if (projectVersion == null || this.getData().getVersionsCount() <= 2) {
             return null;
         }
 
