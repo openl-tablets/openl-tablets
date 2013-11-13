@@ -7,16 +7,18 @@ import java.util.HashSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 
 /**
- * Prebinds openclass and creates LazyMethod and LazyField that will
- * compile neccessary modules on demand.
+ * Prebinds openclass and creates LazyMethod and LazyField that will compile
+ * neccessary modules on demand.
  * 
  * @author pudalau, Marat Kamalov
  */
@@ -25,30 +27,71 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
     private final Log log = LogFactory.getLog(LazyInstantiationStrategy.class);
 
     private LazyEngineFactory<?> engineFactory;
+    private DeploymentDescription deployment;
 
-    public LazyInstantiationStrategy(final Module module, IDependencyManager dependencyManager) {
+    public DeploymentDescription getDeployment() {
+        return deployment;
+    }
+
+    public LazyInstantiationStrategy(DeploymentDescription deployment,
+            final Module module,
+            IDependencyManager dependencyManager) {
         super(new ArrayList<Module>() {
             private static final long serialVersionUID = 1L;
             {
                 add(module);
             }
         }, dependencyManager);
+        if (deployment == null) {
+            throw new IllegalArgumentException("deployment can't be null");
+        }
+        this.deployment = deployment;
     }
 
-    public LazyInstantiationStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
+    public LazyInstantiationStrategy(DeploymentDescription deployment,
+            Collection<Module> modules,
+            IDependencyManager dependencyManager) {
         super(modules, dependencyManager);
+        if (deployment == null) {
+            throw new IllegalArgumentException("deployment can't be null");
+        }
+        this.deployment = deployment;
     }
 
-    public LazyInstantiationStrategy(Collection<Module> modules,
+    public LazyInstantiationStrategy(DeploymentDescription deployment,
+            Collection<Module> modules,
             IDependencyManager dependencyManager,
             ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader);
+        if (deployment == null) {
+            throw new IllegalArgumentException("deployment can't be null");
+        }
+        this.deployment = deployment;
     }
 
     @Override
     public void reset() {
         super.reset();
         engineFactory = null;
+    }
+
+    private ClassLoader classLoader = null;
+
+    protected ClassLoader initClassLoader() {// Required for lazy
+        if (classLoader == null) {
+            SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(Thread.currentThread()
+                .getContextClassLoader());
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
+                classLoader = getEngineFactory().getCompiledOpenClass().getClassLoader();
+                //simpleBundleClassLoader.addClassLoader(newClassLoader);
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
+            }
+            //classLoader = simpleBundleClassLoader;
+        }
+        return classLoader;
     }
 
     @Override
@@ -99,7 +142,8 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             serviceClass = null;
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
-            engineFactory = new LazyEngineFactory(getModules(),
+            engineFactory = new LazyEngineFactory(getDeployment(),
+                getModules(),
                 getDependencyManager(),
                 serviceClass,
                 getExternalParameters());
@@ -109,7 +153,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             Collection<String> allExcludes = new HashSet<String>();
             for (Module m : getModules()) {
                 MethodFilter methodFilter = m.getMethodFilter();
-                if (methodFilter != null){
+                if (methodFilter != null) {
                     allIncludes.addAll(methodFilter.getIncludes());
                     allExcludes.addAll(methodFilter.getExcludes());
                 }

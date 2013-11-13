@@ -25,7 +25,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
-import org.openl.types.IOpenClass;
 
 public class RuleServiceDeploymentRelatedDependencyManager extends DependencyManager {
 
@@ -45,19 +44,6 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
 
     public RuleServiceLoader getRuleServiceLoader() {
         return ruleServiceLoader;
-    }
-
-    private static ThreadLocal<IOpenClass> currentClass = new ThreadLocal<IOpenClass>();
-
-    public static void setCurrentClassCompilation(IOpenClass openClass) { // Required
-                                                                          // for
-                                                                          // lazy
-                                                                          // strategy
-        currentClass.set(openClass);
-    }
-
-    public static IOpenClass getCurrentClassCompilation() {
-        return currentClass.get();
     }
 
     // Disable cache of compiled dependencies. Use ehcache in loaders.
@@ -99,7 +85,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends DependencyMan
         return stack;
     }
 
-    ClassLoader getClassLoader(Collection<Module> modules) {
+    public ClassLoader getClassLoader(Collection<Module> modules) {
         Set<String> projectNames = new HashSet<String>();
         for (Module module : modules) {
             projectNames.add(module.getProject().getName());
