@@ -1,32 +1,21 @@
-<!-- This file is for releasing OpenL version wIth maven-release-plugin -->
+<!-- This file is for releasing OpenL version with maven-release-plugin -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openl.rules</groupId>
-  <artifactId>openl-tablets</artifactId>
+  <artifactId>openl-base-svn-pom</artifactId>
   <packaging>pom</packaging>
   <version>5.12.0-SNAPSHOT</version>
-  <name>OpenL Tablets - General POM</name>
+  <name>OpenL BasePom root pom</name>
   <url>http://openl-tablets.sourceforge.net</url>
 
   <scm>
-       <connection>scm:hg:${staging.hg.repo.url}</connection>
-       <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
+       <connection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</connection>
+       <developerConnection>scm:hg:https://rix-mercurial01.exigenservices.com/hg/openl/</developerConnection>
    </scm>
-   
-   <properties> 
-		<staging.hg.repo.url>https://rix-mercurial01.exigenservices.com/hg/openl/</staging.hg.repo.url>
-    </properties>
 
-  <modules>    
-	<module>BasePom/org.openl.rules.base-pom</module>
-	<module>POI/org.openl.lib.poi.dev-pom</module>
-	<module>DEV/org.openl.rules.dev-pom</module>
-	<module>STUDIO/org.openl.rules.studio-pom</module>
-	<module>WSFrontend/org.openl.rules.ruleservice-pom</module>
-	<module>Util/openl-maven-plugin</module>
-	<module>Util/openl-simple-project-archetype</module>
-	<module>DEMO/org.openl.rules.demo-pom</module>
+  <modules>
+    <module>org.openl.rules.base-pom</module>
   </modules>
 
   <distributionManagement>
@@ -48,10 +37,7 @@
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
           <configuration>
-			<arguments>
-				-Dstaging.hg.repo.url=${staging.hg.repo.url}
-			</arguments>			
-            <skip>true</skip>			
+            <skip>true</skip>
           </configuration>
         </plugin>
       </plugins>
