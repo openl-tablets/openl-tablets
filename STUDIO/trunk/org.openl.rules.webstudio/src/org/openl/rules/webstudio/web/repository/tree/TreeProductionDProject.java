@@ -89,7 +89,7 @@ public class TreeProductionDProject extends TreeProductFolder {
     
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
-        if (projectVersion == null || getProject().getVersions().size() <= 2) {
+        if (projectVersion == null || getProject().getVersionsCount() <= 2) {
             return null;
         }
 
@@ -100,7 +100,7 @@ public class TreeProductionDProject extends TreeProductFolder {
     public String getModifiedBy() {
         ProjectVersion projectVersion = (getProject()).getVersion();
         /* zero*/
-        if (projectVersion == null || getProject().getVersions().size() <= 2) {
+        if (projectVersion == null || getProject().getVersionsCount() <= 2) {
             return null;
         }
 

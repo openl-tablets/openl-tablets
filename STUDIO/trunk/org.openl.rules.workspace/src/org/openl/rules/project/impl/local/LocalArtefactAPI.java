@@ -164,6 +164,16 @@ public class LocalArtefactAPI implements ArtefactAPI {
         return versions;
     }
 
+    @Override
+    public int getVersionsCount() {
+        return versions == null ? 0 : versions.size();
+    }
+
+    @Override
+    public ProjectVersion getVersion(int index) {
+        return versions.get(index);
+    }
+
     public void setVersions(List<ProjectVersion> versions) {
         this.versions = versions;
         notifyModified();
