@@ -10,13 +10,12 @@
 		<relativePath>../org.openl.rules.dev-pom</relativePath>
 	</parent>
 
-	<groupId>org.openl.rules</groupId>
 	<artifactId>org.openl.rules.calculation.result</artifactId>
 	<packaging>jar</packaging>
 	<name>OpenL - DEV - Rules - Calculation Result</name>
 	<description>The heart of OpenL</description>
 	<url>http://openl-tablets.sf.net/</url>
-	
+
 	<properties>
 		<license.licenseName>openl_tablets_mit</license.licenseName>
 		<license.licenseResolver>${project.baseUri}/license</license.licenseResolver>
