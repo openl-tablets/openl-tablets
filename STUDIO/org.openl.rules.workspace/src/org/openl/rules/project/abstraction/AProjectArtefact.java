@@ -17,6 +17,7 @@ import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
     private ArtefactAPI impl;
@@ -99,31 +100,45 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public ProjectVersion getLastVersion() {
-        List<ProjectVersion> versions = getVersions();
-        if (versions.size() == 0) {
-            return new RepositoryProjectVersionImpl(0, null);
-        }
-        ProjectVersion max = versions.get(versions.size() - 1);
-        return max;
-    }
-
-    public ProjectVersion getFirstVersion() {
-        List<ProjectVersion> versions = getVersions();
-        if (versions.size() == 0) {
+        int versionsCount = getVersionsCount();
+        if (versionsCount == 0) {
             return new RepositoryProjectVersionImpl(0, null);
         }
 
         try {
-            ProjectVersion min = versions.get(1);
-            return min;
+            return getVersion(versionsCount - 1);
+        } catch (RRepositoryException e) {
+            return new RepositoryProjectVersionImpl(0, null);
+        }
+    }
+
+    public ProjectVersion getFirstVersion() {
+        if (getVersionsCount() == 0) {
+            return new RepositoryProjectVersionImpl(0, null);
+        }
+
+        try {
+            return getVersion(1);
         } catch (Exception e) {
-            return versions.get(0);
+            try {
+                return getVersion(0);
+            } catch (RRepositoryException e1) {
+                return new RepositoryProjectVersionImpl(0, null);
+            }
         }
 
     }
 
     public List<ProjectVersion> getVersions() {
         return getAPI().getVersions();
+    }
+
+    public int getVersionsCount() {
+        return getAPI().getVersionsCount();
+    }
+
+    protected ProjectVersion getVersion(int index) throws RRepositoryException {
+        return getAPI().getVersion(index);
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {

@@ -9,7 +9,7 @@
  </parent>
  <artifactId>openl-maven-plugin</artifactId>
  <packaging>maven-plugin</packaging>
- <name>openl-maven-plugin Maven Mojo</name>
+ <name>OpenL - Util - OpenL Maven Plugin</name>
 
  <properties>
   <openlResourcesDirectory>${project.basedir}/src/main/openl</openlResourcesDirectory>
