@@ -70,7 +70,13 @@ public interface ArtefactAPI{
     // current version
     ProjectVersion getVersion();
 
+    // TODO exception should be thrown if error occurs
     List<ProjectVersion> getVersions();
+
+    // TODO exception should be thrown if error occurs
+    int getVersionsCount();
+
+    ProjectVersion getVersion(int index) throws RRepositoryException;
 
     LockInfo getLockInfo();
     
