@@ -290,11 +290,16 @@
             />
 
 	<cache 
-		maxEntriesLocalHeap="1"
+		maxEntriesLocalHeap="10"
 		name="modulesCache" 
 		eternal="true" 
 		overflowToDisk="false"
 		diskPersistent="false"
+		memoryStoreEvictionPolicy="LRU">
+	</cache>
+
+	<cache maxEntriesLocalHeap="10" name="lazyModulesCache" eternal="true"
+		overflowToDisk="false" diskPersistent="false"
 		memoryStoreEvictionPolicy="LRU">
 	</cache>
 	

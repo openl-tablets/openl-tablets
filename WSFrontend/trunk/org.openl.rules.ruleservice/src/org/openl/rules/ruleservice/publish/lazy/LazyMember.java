@@ -1,9 +1,22 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.prebind.IPrebindHandler;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.ProjectExternalDependenciesHelper;
+import org.openl.syntax.code.Dependency;
+import org.openl.syntax.code.DependencyType;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -14,9 +27,11 @@ import org.openl.vm.IRuntimeEnv;
  * we try to do some operations with lazy member it will compile module and wrap
  * the compiled member.
  * 
- * @author PUdalau
+ * @author Marat Kamalov
  */
 public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
+    private final Log log = LogFactory.getLog(LazyMember.class);
+
     private IDependencyManager dependencyManager;
     private boolean executionMode;
     private T original;
@@ -29,23 +44,83 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      * datatypes have been loaded by different ClassLoaders).
      */
     private ClassLoader classLoader;
-    private IOpenClass lazyOpenClass;
 
-    public LazyMember(IOpenClass lazyOpenClass, IDependencyManager dependencyManager, boolean executionMode, ClassLoader classLoader, T original,
+    public LazyMember(IDependencyManager dependencyManager,
+            boolean executionMode,
+            ClassLoader classLoader,
+            T original,
             Map<String, Object> externalParameters) {
         this.dependencyManager = dependencyManager;
         this.executionMode = executionMode;
         this.classLoader = classLoader;
         this.original = original;
         this.externalParameters = externalParameters;
-        this.lazyOpenClass = lazyOpenClass;
-    }
-    
-    public IOpenClass getLazyOpenClass() {
-        return lazyOpenClass;
     }
 
-    protected abstract T getMemberForModule(Module module);
+    protected abstract T getMemberForModule(DeploymentDescription deployment, Module module);
+
+    protected CompiledOpenClass getCompiledOpenClass(final DeploymentDescription deployment, final Module module) throws Exception {
+        Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null,
+            null,
+            module.getName(),
+            null));
+        String dependencyName = dependency.getNode().getIdentifier();
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+        if (compiledOpenClass != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("CompiledOpenClass for deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion().getVersionName() + "\", dependencyName=\"" + dependencyName + "\" was returned from cache.");
+            }
+            return compiledOpenClass;
+        }
+        synchronized (CompiledOpenClassCache.getInstance()) {
+            compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+            if (compiledOpenClass != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("CompiledOpenClass for deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion().getVersionName() + "\", dependencyName=\"" + dependencyName + "\" was returned from cache.");
+                }
+                return compiledOpenClass;
+            }
+            IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+            try {
+                LazyBinderInvocationHandler.removePrebindHandler();
+                RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
+                    true,
+                    getDependencyManager(),
+                    getClassLoader());
+                rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
+                                                                                 // generation
+                                                                                 // interface
+                                                                                 // and
+                                                                                 // Virtual
+                                                                                 // module
+                                                                                 // double
+                                                                                 // (instantiate
+                                                                                 // method).
+                                                                                 // Improve
+                                                                                 // performance.
+                Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
+                    new ArrayList<Module>() {
+                        private static final long serialVersionUID = 1L;
+
+                        {
+                            add(module);
+                        }
+                    });
+                rulesInstantiationStrategy.setExternalParameters(parameters);
+                compiledOpenClass = rulesInstantiationStrategy.compile();
+                CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
+                if (log.isDebugEnabled()) {
+                    log.debug("CompiledOpenClass for deploymentName=\"" + deployment.getName() + "\", deploymentVersion=\"" + deployment.getVersion().getVersionName() + "\", dependencyName=\"" + dependencyName + "\" was stored to cache.");
+                }
+                return compiledOpenClass;
+            } catch (Exception ex) {
+                OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
+                return compiledOpenClass;
+            } finally {
+                LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+            }
+        }
+    }
 
     /**
      * Compiles method declaring the member and returns it.
@@ -54,13 +129,19 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      */
     protected final T getMember(IRuntimeEnv env) {
         final Module module = getModule(env);
-        return getMemberForModule(module);
+        final DeploymentDescription deployment = getDeployment(env);
+        return getMemberForModule(deployment, module);
     }
 
     /**
      * @return Module containing current member.
      */
     public abstract Module getModule(IRuntimeEnv env);
+
+    /**
+     * @return Deployment containing current module.
+     */
+    public abstract DeploymentDescription getDeployment(IRuntimeEnv env);
 
     /**
      * @return DependencyManager used for lazy compiling.
@@ -110,5 +191,8 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
+    }
+
+    public static interface EmptyInterface {
     }
 }

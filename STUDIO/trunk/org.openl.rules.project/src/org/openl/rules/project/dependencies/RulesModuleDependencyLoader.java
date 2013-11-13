@@ -12,6 +12,7 @@ import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
@@ -25,7 +26,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
         init(modules);
     }
     
-    public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) {
+    public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) throws OpenLCompilationException{
 
         Module dependencyModule = findDependencyModule(dependencyName);
         
