@@ -9,6 +9,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -35,7 +36,7 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
     }
 
     @Override
-    public CompiledDependency load(String dependencyName, IDependencyManager dm) {
+    public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException{
         RuleServiceDeploymentRelatedDependencyManager dependencyManager = null;
         if (dm instanceof RuleServiceDeploymentRelatedDependencyManager) {
             dependencyManager = (RuleServiceDeploymentRelatedDependencyManager) dm;

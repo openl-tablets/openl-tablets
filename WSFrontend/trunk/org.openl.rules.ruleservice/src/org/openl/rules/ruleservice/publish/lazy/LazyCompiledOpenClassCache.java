@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.core;
+package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.List;
 
@@ -6,37 +6,38 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import org.openl.dependency.CompiledDependency;
+import org.openl.CompiledOpenClass;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
 
 /**
- * Caches compiled modules. Uses EhCache. This is singleton and thread safe
+ * Caches lazy compiled modules. Uses EhCache. This is singleton and thread safe
  * implementation.
  * 
  * @author Marat Kamalov
  */
-final class CompiledDependencyCache {
+public final class LazyCompiledOpenClassCache {
 
-    private static final String CACHE_NAME = "modulesCache";
+    private static final String CACHE_NAME = "lazyModulesCache";
 
-    private static class CompiledOpenClassHolder {
-        public static final CompiledDependencyCache instance = new CompiledDependencyCache();
+    private static class LazyCompiledOpenClassCacheHolder {
+        public static final LazyCompiledOpenClassCache instance = new LazyCompiledOpenClassCache();
     }
 
-    private CompiledDependencyCache() {
+    private LazyCompiledOpenClassCache() {
     }
 
     /**
-     * Returns singleton CompiledOpenClassCache
+     * Returns singleton LazyCompiledOpenClassCache
      * 
      * @return
      */
-    public static CompiledDependencyCache getInstance() {
-        return CompiledOpenClassHolder.instance;
+    public static LazyCompiledOpenClassCache getInstance() {
+        return LazyCompiledOpenClassCacheHolder.instance;
     }
 
     private Cache cache = CacheManager.create().getCache(CACHE_NAME);
 
-    public CompiledDependency get(DeploymentDescription deploymentDescription, String dependencyName) {
+    public CompiledOpenClass get(DeploymentDescription deploymentDescription, String dependencyName) {
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription can't be null!");
         }
@@ -48,12 +49,12 @@ final class CompiledDependencyCache {
         if (element == null){
             return null;
         }
-        return (CompiledDependency) element.getObjectValue();
+        return (CompiledOpenClass) element.getObjectValue();
     }
 
     public void putToCache(DeploymentDescription deploymentDescription,
             String dependencyName,
-            CompiledDependency compiledDependency) {
+            CompiledOpenClass compiledOpenClass) {
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription can't be null!");
         }
@@ -61,7 +62,7 @@ final class CompiledDependencyCache {
             throw new IllegalArgumentException("dependencyName can't be null");
         }
         Key key = new Key(deploymentDescription, dependencyName);
-        Element newElement = new Element(key, compiledDependency);
+        Element newElement = new Element(key, compiledOpenClass);
         cache.put(newElement);
     }
 

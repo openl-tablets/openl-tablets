@@ -16,15 +16,15 @@ import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 
-final class ProjectExternalDependenciesHelper {
+public final class ProjectExternalDependenciesHelper {
     private ProjectExternalDependenciesHelper() {
     }
 
-    static String buildDependencyNameForProjectName(String projectName) {
+    public static String buildDependencyNameForProjectName(String projectName) {
         return "VIRTUAL_MODULE(" + projectName + ")";
     }
 
-    static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
+    public static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
             Collection<Module> modules) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         if (externalParams != null) {

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
@@ -25,7 +26,7 @@ public class ResolvingRulesProjectDependencyLoader implements IDependencyLoader 
         init();
     }
 
-    public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) {
+    public CompiledDependency load(String dependencyName, IDependencyManager dependencyManager) throws OpenLCompilationException{
         return delegate.load(dependencyName, dependencyManager);
     }
 
