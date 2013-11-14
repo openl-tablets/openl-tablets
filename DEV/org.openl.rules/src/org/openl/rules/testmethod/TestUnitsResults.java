@@ -64,10 +64,7 @@ public class TestUnitsResults implements INamedThing {
     /**
      * Creates the list of test unit results. 
      * 
-     * @param testedMethod method that is tested by test
-     * @param testObj instance of the object that was used as input test data
-     * @param runningResult result of running the test
-     * @param ex exception during test running
+     * @param testUnit test unit
      * @return list of test unit results
      * 
      * FIXME it should be moved to compile phase and all info about bean comparator should be located in {@link TestDescription}
@@ -208,7 +205,7 @@ public class TestUnitsResults implements INamedThing {
         TestSuiteMethod test = testSuite.getTestSuiteMethod();
         for (int i = 0; i < test.getColumnsCount(); i++) {
             String columnName = test.getColumnName(i);
-            if (columnName.startsWith(type)) {
+            if (columnName != null && columnName.startsWith(type)) {
                 displayNames.add(test.getColumnDisplayName(columnName));
             }
         }
