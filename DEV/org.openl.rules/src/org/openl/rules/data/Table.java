@@ -70,7 +70,8 @@ public class Table implements ITable {
     }
 
     public String getColumnName(int n) {
-        return dataModel.getDescriptor()[n].getName();
+        ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[n];
+        return columnDescriptor != null ? columnDescriptor.getName() : null;
     }
 
     public IOpenClass getColumnType(int n) {
@@ -346,7 +347,6 @@ public class Table implements ITable {
     /**
      * @return Start row for data rows from Data_With_Titles rows. It depends on
      *         if table has or no column title row.
-     * @see {@link DataNodeBinder#getDataWithTitleRows}
      */
     protected int getStartRowForData() {
 
