@@ -16,7 +16,7 @@ Create a project with working example of OpenL Maven Plugin usage
   Maven runs archetype console wizard. Select <<<openl-simple-project-archetype>>> menu item.
   Follow the instructions on the screen to complete all steps of the project creation wizard.
   After all steps are done you should have new maven-based project on the file system. 
-  It’s an OpenL Rules project which has one module with simple rules. 
+  It's an OpenL Rules project which has one module with simple rules.
   Execute in command line the following command from the root of the project folder to compile the project:
 
 -------------
