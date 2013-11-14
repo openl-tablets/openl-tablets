@@ -13,6 +13,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class RulesProject extends UserWorkspaceProject {
@@ -106,6 +107,20 @@ public class RulesProject extends UserWorkspaceProject {
             return repository.getVersions();
         } else {
             return local.getVersions();
+        }
+    }
+
+    @Override
+    public int getVersionsCount() {
+        return repository != null ? repository.getVersionsCount() : local.getVersionsCount();
+    }
+
+    @Override
+    protected ProjectVersion getVersion(int index) throws RRepositoryException {
+        if (repository != null) {
+            return repository.getVersion(index);
+        } else {
+            return local.getVersion(index);
         }
     }
 

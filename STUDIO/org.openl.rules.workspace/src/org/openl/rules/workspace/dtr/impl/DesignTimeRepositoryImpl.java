@@ -143,7 +143,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
         try {
             FolderAPI ralDeploymentProject = getRepo().getDeploymentProject(name);
-            if(ralDeploymentProject.getVersions().get(ralDeploymentProject.getVersions().size()-1).compareTo(version) == 0){
+            if (ralDeploymentProject.getVersion(ralDeploymentProject.getVersionsCount() - 1).compareTo(version) == 0) {
                 return wrapDDProject(ralDeploymentProject);
             }
             return wrapDDProject(ralDeploymentProject.getVersion(version));
@@ -189,7 +189,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     public AProject getProject(String name, CommonVersion version) throws RepositoryException {
         try {
             FolderAPI ralProject = getRepo().getRulesProject(name);
-            if (ralProject.getVersions().get(ralProject.getVersions().size() - 1).compareTo(version) == 0) {
+            if (ralProject.getVersion(ralProject.getVersionsCount() - 1).compareTo(version) == 0) {
                 return wrapProject(ralProject, true);
             }
             // do not cache old version of project

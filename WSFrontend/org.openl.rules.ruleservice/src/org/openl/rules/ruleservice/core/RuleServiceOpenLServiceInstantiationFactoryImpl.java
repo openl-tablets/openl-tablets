@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.CompositeRulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -22,6 +21,7 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
+import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.runtime.IEngineWrapper;
 import org.springframework.aop.framework.ProxyFactory;
 
@@ -49,9 +49,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             throw new IllegalArgumentException("service argument can't be null");
         }
 
-        RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(),
-            dependencyManager);
-
+        RulesInstantiationStrategy instantiationStrategy = null;
+        instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(), dependencyManager);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(externalParameters,
             service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
@@ -236,7 +235,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public void clear(DeploymentDescription deploymentDescription) {
         dependencyManagerMap.remove(deploymentDescription);
-        CompiledDependencyCache.getInstance().removeAll(deploymentDescription);
+        CompiledOpenClassCache.getInstance().removeAll(deploymentDescription);
     }
 
     private RuleServiceDeploymentRelatedDependencyManager getRuleServiceDependencyManager(ServiceDescription serviceDescription) {

@@ -9,6 +9,7 @@
 	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer">
 		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
 		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
+		<property name="useRuleServiceRuntimeContext" value="${ruleservice.useRuleServiceRuntimeContext}"/>
 	</bean>
 
 </beans>

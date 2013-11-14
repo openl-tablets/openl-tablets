@@ -89,6 +89,16 @@ public class MockArtefact implements ArtefactAPI {
         return null;
     }
 
+    @Override
+    public int getVersionsCount() {
+        return 0;
+    }
+
+    @Override
+    public ProjectVersion getVersion(int index) {
+        return null;
+    }
+
     public LockInfo getLockInfo() {
         return LockInfoImpl.NO_LOCK;
     }

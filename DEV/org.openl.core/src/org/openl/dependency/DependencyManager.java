@@ -78,7 +78,7 @@ public abstract class DependencyManager implements IDependencyManager {
         return loadDependency(dependency.getNode().getIdentifier(), dependencyLoaders);
     }
     
-    private CompiledDependency loadDependency(String dependencyName, List<IDependencyLoader> loaders) {
+    private CompiledDependency loadDependency(String dependencyName, List<IDependencyLoader> loaders) throws OpenLCompilationException{
         
         for (IDependencyLoader loader : loaders) {
             CompiledDependency dependency = loader.load(dependencyName, this);
