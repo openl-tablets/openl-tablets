@@ -18,7 +18,7 @@
         <h:outputText value="#{parameterTreeBuilder.tableToHtml(parameter)}" escape="false" />
     </h:panelGroup>
     <rich:tree value="#{parameterTreeBuilder.getRoot(parameter)}" var="node" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
-        rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="client" selectionType="client"
+        rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and not empty parameter and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}" toggleType="#{!empty lazy and lazy == 'true' ? 'ajax' : 'client'}" selectionType="client"
         nodeType="#{node.nodeType}">
         <!-- rowKeyConverter is a temporary solution.
          After migrating to the newer version of RichFaces it can be removed.
