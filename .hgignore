@@ -24,3 +24,8 @@ TESTS/org.openl.rules.integration.tests/WebAiiFrameWork/_ReSharper.WebDriverFram
 TESTS/org.openl.rules.integration.tests/WebAiiFrameWork/obj
 TESTS/org.openl.rules.integration.tests/**/*.suo
 TESTS/org.openl.rules.integration.tests/TestReports
+TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/.project
+TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/.classpath
+TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/target/*
+TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/test-output/*
+TESTS/org.openl.rules.integration.tests/OpenLSmokeTests2/bin/*
