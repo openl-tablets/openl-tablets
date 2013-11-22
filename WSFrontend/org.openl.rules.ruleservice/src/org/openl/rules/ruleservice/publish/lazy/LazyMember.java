@@ -13,7 +13,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;

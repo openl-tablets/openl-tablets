@@ -16,6 +16,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.WrapperAdjustingInstantiationStrategy;

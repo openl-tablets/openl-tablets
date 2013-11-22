@@ -40,6 +40,7 @@ public class ModulesCache {
     /**
      * Cache of dependent modules usages.
      * Key is dependent module name, value is a set of modules that depend on that module.
+     * References to the modules are weak reference objects.
      */
     private Map<String, Set<Module>> dependencyUsages = new HashMap<String, Set<Module>>();
 
@@ -61,7 +62,7 @@ public class ModulesCache {
         }
         return strategy;
     }
-    
+
     public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, IDependencyManager dependencyManager) {
         SingleModuleInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
@@ -70,7 +71,7 @@ public class ModulesCache {
         }
         return strategy;
     }
-   
+
     public SingleModuleInstantiationStrategy getInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
         SingleModuleInstantiationStrategy strategy = moduleInstantiators.get(module);
         if (strategy == null) {
@@ -121,6 +122,11 @@ public class ModulesCache {
                 new Class[] { IDependencyManager.class }, new DependenciesCollectingHandler(original, mainModule));
     }
 
+    /**
+     * Remove instantiation strategies, depending on specified module, from the cache
+     *
+     * @param module depending module
+     */
     private void removeModuleDependencies(Module module) {
         Collection<Module> modulesUsingTheModule = dependencyUsages.get(module.getName());
         if (modulesUsingTheModule != null) {
