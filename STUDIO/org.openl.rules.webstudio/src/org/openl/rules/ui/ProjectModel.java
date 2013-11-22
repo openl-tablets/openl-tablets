@@ -194,7 +194,7 @@ public class ProjectModel {
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
-                return new BenchmarkInfo(t, bu, bu.getName());
+                return new BenchmarkInfo(t, bu, testSuite.getName());
             }
         } finally {
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
@@ -203,7 +203,7 @@ public class ProjectModel {
 
     public BenchmarkInfo benchmarkSingleTest(final TestSuite testSuite, final int testIndex, int ms) throws Exception {
 
-        BenchmarkUnit bu = null;
+        BenchmarkUnit bu;
 
         final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
@@ -308,7 +308,7 @@ public class ProjectModel {
 
             } catch (Throwable t) {
                 Log.error("Run Error:", t);
-                return new BenchmarkInfo(t, bu, bu.getName());
+                return new BenchmarkInfo(t, bu, bu != null ? bu.getName() : null);
             }
         } finally {
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
@@ -956,8 +956,7 @@ public class ProjectModel {
         for (Iterator<?> iterator = treeNode.getChildren(); iterator.hasNext();) {
             ProjectTreeNode child = (ProjectTreeNode) iterator.next();
             if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
-                ProjectTreeNode ptr = (ProjectTreeNode) child;
-                uriTableCache.put(ptr.getUri(), ptr.getTableSyntaxNode());
+                uriTableCache.put(child.getUri(), child.getTableSyntaxNode());
             }
             cacheTree(child);
         }
