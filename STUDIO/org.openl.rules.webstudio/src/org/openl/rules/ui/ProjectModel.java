@@ -6,14 +6,7 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS
 import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,6 +32,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.ModulesCache;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
@@ -70,6 +64,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.webstudio.dependencies.WebStudioDependencyManagerFactory;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -126,6 +121,8 @@ public class ProjectModel {
     // TODO move this object to the correct place
     private Stack<TestSuite> testSuitesToRun = new Stack<TestSuite>();
 
+    private WebStudioDependencyManagerFactory dependencyManagerFactory;
+
     public boolean hasTestSuitesToRun() {
         return testSuitesToRun.size() > 0;
     }
@@ -144,6 +141,7 @@ public class ProjectModel {
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
+        this.dependencyManagerFactory = new WebStudioDependencyManagerFactory(studio);
     }
 
     public RulesProject getProject() {
@@ -1176,7 +1174,11 @@ public class ProjectModel {
 
         RulesInstantiationStrategy instantiationStrategy = modulesCache.getInstantiationStrategy(this.moduleInfo,
                 getDependencyManager());
-        instantiationStrategy.setExternalParameters(studio.getSystemConfigManager().getProperties());
+        Map<String, Object> externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
+                studio.getSystemConfigManager().getProperties(),
+                Arrays.asList(this.moduleInfo)
+        );
+        instantiationStrategy.setExternalParameters(externalParameters);
 
         try {
             if (reloadType == ReloadType.FORCED) {
@@ -1438,7 +1440,8 @@ public class ProjectModel {
     }
 
     private IDependencyManager getDependencyManager() {
-        return modulesCache.wrapToCollectDependencies(studio.getDependencyManager(), moduleInfo);
+        IDependencyManager dependencyManager = dependencyManagerFactory.getDependencyManager(moduleInfo, true);
+        return modulesCache.wrapToCollectDependencies(dependencyManager, moduleInfo);
     }
 
     public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {

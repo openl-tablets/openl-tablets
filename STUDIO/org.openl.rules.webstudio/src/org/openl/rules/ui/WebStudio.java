@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
@@ -22,18 +21,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
-import org.openl.dependency.IDependencyManager;
-import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.dependencies.ResolvingRulesProjectDependencyLoader;
-import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.RulesProjectResolver;
-import org.openl.rules.runtime.RulesFileDependencyLoader;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -98,8 +92,6 @@ public class WebStudio {
 
     private boolean collapseProperties = true;
 
-    private RulesProjectDependencyManager dependencyManager;
-
     private ConfigurationManager systemConfigManager;
     private ConfigurationManager userSettingsManager;
 
@@ -115,7 +107,6 @@ public class WebStudio {
         initUserSettings(session);
         updateSystemProperties = systemConfigManager
                 .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
-        initDependencyManager();
     }
 
     public WebStudio() {
@@ -151,18 +142,6 @@ public class WebStudio {
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
-    }
-
-    private void initDependencyManager() {
-        dependencyManager = new RulesProjectDependencyManager();
-        dependencyManager.setExternalParameters(systemConfigManager.getProperties());
-
-        dependencyManager.setExecutionMode(false);
-
-        IDependencyLoader loader1 = new ResolvingRulesProjectDependencyLoader(projectResolver);
-        IDependencyLoader loader2 = new RulesFileDependencyLoader();
-
-        dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
     }
 
     public ConfigurationManager getSystemConfigManager() {
@@ -335,7 +314,6 @@ public class WebStudio {
         try {
             if (reloadType == ReloadType.FORCED) {
                 invalidateProjects();
-                initDependencyManager();
             }
             model.reset(reloadType);
             for (StudioListener listener : listeners) {
@@ -553,10 +531,6 @@ public class WebStudio {
         }
 
         return traceHelper;
-    }
-
-    public IDependencyManager getDependencyManager() {
-        return dependencyManager;
     }
 
     public void setNeedRestart(boolean needRestart) {

@@ -1,7 +1,4 @@
-package org.openl.rules.ruleservice.core;
-
-import java.util.Collection;
-import java.util.Map;
+package org.openl.rules.webstudio.dependencies;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,35 +14,38 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 
-final class RuleServiceDependencyLoader implements IDependencyLoader {
+import java.util.Collection;
+import java.util.Map;
 
-    private final Log log = LogFactory.getLog(RuleServiceDependencyLoader.class);
+final class WebStudioDependencyLoader implements IDependencyLoader {
 
-    private final String name;
+    private final Log log = LogFactory.getLog(WebStudioDependencyLoader.class);
+
+    private final String dependencyName;
     private final Collection<Module> modules;
     private volatile CompiledDependency compiledDependency = null;
 
-    RuleServiceDependencyLoader(String dependencyName, Collection<Module> modules) {
+    WebStudioDependencyLoader(String dependencyName, Collection<Module> modules) {
         if (dependencyName == null) {
             throw new IllegalArgumentException("dependencyName arg can't be null!");
         }
         if (modules == null || modules.isEmpty()) {
             throw new IllegalArgumentException("modules arg can't be null or empty!");
         }
-        this.name = dependencyName;
+        this.dependencyName = dependencyName;
         this.modules = modules;
     }
 
     @Override
     public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException{
-        RuleServiceDeploymentRelatedDependencyManager dependencyManager = null;
-        if (dm instanceof RuleServiceDeploymentRelatedDependencyManager) {
-            dependencyManager = (RuleServiceDeploymentRelatedDependencyManager) dm;
+        WebStudioWorkspaceRelatedDependencyManager dependencyManager;
+        if (dm instanceof WebStudioWorkspaceRelatedDependencyManager) {
+            dependencyManager = (WebStudioWorkspaceRelatedDependencyManager) dm;
         } else {
-            throw new IllegalStateException("This loader works only with RuleServiceDeploymentRelatedDependencyManager!");
+            throw new IllegalStateException("This loader works only with WebStudioWorkspaceRelatedDependencyManager!");
         }
 
-        if (name.equals(dependencyName)) {
+        if (this.dependencyName.equals(dependencyName)) {
             if (compiledDependency != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Dependency for dependencyName = " + dependencyName + " from cache was returned.");
@@ -58,7 +58,7 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
                         OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
                         return null;
                     }
-                    RulesInstantiationStrategy rulesInstantiationStrategy = null;
+                    RulesInstantiationStrategy rulesInstantiationStrategy;
                     ClassLoader classLoader = dependencyManager.getClassLoader(modules);
                     if (modules.size() == 1) {
                         dependencyManager.getStack().add(dependencyName);
@@ -73,13 +73,13 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
                                 dependencyManager,
                                 classLoader);
                         } else {
-                            throw new IllegalStateException("Illegal State!");
+                            throw new IllegalStateException("Modules collection can't be empty");
                         }
                     }
                     Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                        modules);
+                            modules);
                     rulesInstantiationStrategy.setExternalParameters(parameters);
-                    rulesInstantiationStrategy.setServiceClass(RuleServiceDependencyLoaderInterface.class);//Prevent generation interface
+                    rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent interface generation
                     try {
                         CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
                         CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
@@ -98,6 +98,15 @@ final class RuleServiceDependencyLoader implements IDependencyLoader {
         }
         return null;
     }
-    public static interface RuleServiceDependencyLoaderInterface{
+
+    public String getDependencyName() {
+        return dependencyName;
+    }
+
+    public void reset() {
+        compiledDependency = null;
+    }
+
+    public static interface EmptyInterface {
     }
 }
