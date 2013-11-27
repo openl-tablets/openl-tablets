@@ -14,8 +14,6 @@ import org.openl.config.ConfigLocator;
 import org.openl.config.ConfigManager;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.SysConfigManager;
-import org.openl.rules.repository.RulesRepositoryFactory;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
  * Startup listener.
@@ -83,11 +81,6 @@ public class StartupListener implements ServletContextListener {
     }
 
     public void contextDestroyed(ServletContextEvent event) {
-        try {
-            RulesRepositoryFactory.release();
-        } catch (RRepositoryException e) {
-            log.error("Failed to release rules repository", e);
-        }
         String name = event.getServletContext().getServletContextName();
         log.info(name + " is down.");
     }

@@ -1,5 +1,7 @@
 package org.openl.rules.repository;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openl.config.ConfigPropertyString;
@@ -16,6 +18,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  *
  */
 public class RulesRepositoryFactory {
+    private final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
 
     public static final String DEFAULT_PROP_FILE = "system.properties";//"rules-repository.properties";
 
@@ -25,26 +28,30 @@ public class RulesRepositoryFactory {
     private static final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
             "design-repository.factory", null);
 
-    private static RRepositoryFactory repFactory;
+    private RRepositoryFactory repFactory;
 
-    private static boolean isFailed;
+    private boolean isFailed;
 
-    private static ConfigSet config;
+    private ConfigSet config;
 
-    public static synchronized RRepository getRepositoryInstance() throws RRepositoryException {
+    /**
+     * For backward compatibility. Used in deprecated methods only.
+     */
+    private static RulesRepositoryFactory instance = null;
+
+    public synchronized RRepository getRulesRepositoryInstance() throws RRepositoryException {
         if (repFactory == null) {
-            initFactory();
+            initRepositoryFactory();
         }
 
         return repFactory.getRepositoryInstance();
     }
 
-    public static RRepositoryFactory getRepFactory() {
+    public RRepositoryFactory getRepositoryFactory() {
         return repFactory;
     }
 
-    private static void initFactory() throws RRepositoryException {
-    	final Log log = LogFactory.getLog(RulesRepositoryFactory.class);
+    private void initRepositoryFactory() throws RRepositoryException {
         if (config == null) {
             config = SysConfigManager.getConfigManager().locate(DEFAULT_PROP_FILE);
         }
@@ -61,6 +68,9 @@ public class RulesRepositoryFactory {
             repFactory = (RRepositoryFactory) obj;
             // initialize
             repFactory.initialize(config);
+            if (repFactory instanceof RulesRepositoryFactoryAware) {
+                ((RulesRepositoryFactoryAware) repFactory).setRulesRepositoryFactory(this);
+            }
         } catch (Exception e) {
             isFailed = true;
             log.error(MSG_FAILED, e);
@@ -70,11 +80,11 @@ public class RulesRepositoryFactory {
         isFailed = false;
     }
 
-    public static boolean isFailed() {
-        if (isFailed == false && repFactory == null) {
+    public boolean isBroken() {
+        if (!isFailed && repFactory == null) {
             // first time, lets check
             try {
-                initFactory();
+                initRepositoryFactory();
             } catch (RRepositoryException e) {
                 // ignore
                 // isFailed = true;
@@ -84,19 +94,85 @@ public class RulesRepositoryFactory {
         return isFailed;
     }
 
-    public static synchronized void release() throws RRepositoryException {
+    public synchronized void destroy() throws RRepositoryException {
         if (repFactory != null) {
             repFactory.release();
             repFactory = null;
         }
     }
 
+    public void setRulesConfig(ConfigSet config) {
+        this.config = config;
+    }
+
+    public void setRulesConfig(Map<String, Object> config) {
+        ConfigSet rulesConfig = new ConfigSet();
+        rulesConfig.addProperties(config);
+        setRulesConfig(rulesConfig);
+    }
+
+    ///////////////////// Deprecated stuff /////////////////////
+
+    /**
+     * @throws RRepositoryException
+     * @deprecated use instance methods instead. For example, obtain class instance using spring
+     */
+    @Deprecated
+    public static synchronized RRepository getRepositoryInstance() throws RRepositoryException {
+        return getInstance().getRulesRepositoryInstance();
+    }
+
+    /**
+     * @deprecated use instance methods instead. For example, obtain class instance using spring
+     */
+    @Deprecated
+    public static RRepositoryFactory getRepFactory() {
+        return getInstance().getRepositoryFactory();
+    }
+
+    /**
+     * @deprecated use instance methods instead. For example, obtain class instance using spring
+     */
+    @Deprecated
+    public static boolean isFailed() {
+        return getInstance().isBroken();
+    }
+
+    /**
+     * @throws RRepositoryException
+     * @deprecated use instance methods instead. For example, obtain class instance using spring
+     */
+    @Deprecated
+    public static synchronized void release() throws RRepositoryException {
+        getInstance().destroy();
+    }
+
+    /**
+     * @deprecated use instance methods instead. For example, obtain class instance using spring
+     */
+    @Deprecated
     public static ConfigSet getConfig() {
-        return config;
+        return getInstance().config;
     }
 
+    /**
+     * @deprecated use instance methods instead. For example, obtain class instance using spring
+     */
+    @Deprecated
     public static void setConfig(ConfigSet config) {
-        RulesRepositoryFactory.config = config;
+        getInstance().setRulesConfig(config);
     }
 
+    /**
+     * Deprecated stuff, used internally. Only for backward compatibility.
+     *
+     * @return RulesRepositoryFactory instance
+     */
+    private static RulesRepositoryFactory getInstance() {
+        if (instance == null) {
+            instance = new RulesRepositoryFactory();
+        }
+
+        return instance;
+    }
 }

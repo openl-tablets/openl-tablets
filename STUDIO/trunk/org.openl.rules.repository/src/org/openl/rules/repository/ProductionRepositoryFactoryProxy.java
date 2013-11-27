@@ -18,7 +18,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * file.
  *
  */
-public class ProductionRepositoryFactoryProxy {
+public class ProductionRepositoryFactoryProxy implements RulesRepositoryFactoryAware {
     private final Log log = LogFactory.getLog(ProductionRepositoryFactoryProxy.class);
     
     public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
@@ -31,7 +31,9 @@ public class ProductionRepositoryFactoryProxy {
             "production-repository.factory", null);
     
     private Map<String, RRepositoryFactory> factories = new HashMap<String, RRepositoryFactory>();
-    
+
+    private RulesRepositoryFactory rulesRepositoryFactory;
+
     public RProductionRepository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
         if (!factories.containsKey(propertiesFileName)) {
             synchronized (this) {
@@ -67,6 +69,11 @@ public class ProductionRepositoryFactoryProxy {
         this.configManagerFactory = configManagerFactory;
     }
 
+    @Override
+    public void setRulesRepositoryFactory(RulesRepositoryFactory rulesRepositoryFactory) {
+        this.rulesRepositoryFactory = rulesRepositoryFactory;
+    }
+
     private RRepositoryFactory initRepositoryFactory(ConfigSet config) throws RRepositoryException {
         String className = confRepositoryFactoryClass.getValue();
         // TODO: check that className is not null otherwise throw meaningful
@@ -78,6 +85,9 @@ public class ProductionRepositoryFactoryProxy {
             repFactory = (RRepositoryFactory) obj;
             // initialize
             repFactory.initialize(config);
+            if (rulesRepositoryFactory != null && repFactory instanceof RulesRepositoryFactoryAware) {
+                ((RulesRepositoryFactoryAware) repFactory).setRulesRepositoryFactory(rulesRepositoryFactory);
+            }
             return repFactory;
         } catch (Exception e) {
             String msg = "Failed to initialize ProductionRepositoryFactory!";
