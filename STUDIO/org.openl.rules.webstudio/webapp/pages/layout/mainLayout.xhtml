@@ -188,7 +188,25 @@
                 }
             }
 
+            var ws = {
+                nav: {
+                  reload: function(params) {
+                      if (!params) {
+                          loadContent();
+                      } else {
+                          var currentPage = getCurrentPage();
+                          var newPage = $location.utils.setParams(currentPage, params);
+                          goTo(newPage);
+                      }
+                  },
+                  home: function() {
+                      loadContent(urlRewrite.prefix + HOME_PAGE);
+                  }
+                }
+            }
+
             // Deprecated
+            // TODO Move to ws.nav namespace
             function search(params) {
                 var query;
 
@@ -207,6 +225,7 @@
             }
 
             // Deprecated
+            // TODO Move to ws.nas namespace
             function goTo(page, reload) {
                 if (page) {
                     page = page.replace(urlRewrite.prefix, "");
@@ -225,26 +244,8 @@
                 }
             }
 
-            var ws = {
-                nav: {
-                    reload: function(params) {
-                        if (!params) {
-                            loadContent();
-                        } else {
-                            var currentPage = getCurrentPage();
-                            var newPage = $location.utils.setParams(currentPage, params);
-                            goTo(newPage);
-                        }
-                    }
-                }
-            }
-
             // Deprecated
-            function goHome() {
-                loadContent(urlRewrite.prefix + HOME_PAGE);
-            }
-
-            // Deprecated
+            // TODO Move to ws.nas namespace
             function reloadCurrent() {
                 reloadTop();
                 reloadLeft();
@@ -266,7 +267,8 @@
                 $j("#bottomContent").load(urlRewrite.prefix + "bottomPanel.xhtml");
             }
 
-            // Deprecated
+             // Deprecated
+             // TODO Move to ws namespace
              function getCurrentPage() {
                 if (location.hash) {
                     var page = lastSavedHash;
@@ -275,15 +277,15 @@
                     }
                     return page;
                 }
-            }
+             }
 
-              function loadContent(page) {
+             function loadContent(page) {
                 var page = page || getCurrentPage();
 
                 if (page) {
                     $j("#content").load(page);
 
-                    if (page.indexOf(HOME_PAGE) > -1) {
+                    if (page.indexOf(HOME_PAGE) > -1 || page.indexOf("project.xhtml") > -1) {
                         toProjectsPanel();
                         reloadTop();
                         $j("#rulesTree, #problemsTree").hide();
@@ -309,7 +311,7 @@
                         mainLayout.hide("east");
                     }
                 } else {
-                    goHome();
+                    ws.nav.home();
                 }
             }
 
@@ -403,6 +405,8 @@
                 }
             }
 
+            // Deprecated
+            // TODO Move to ws.ui namespace
             function showPopupMenu(event, popupId, elem, params) {
                 var elem = $j(elem);
                 var elemPos = elem.position();
@@ -425,6 +429,8 @@
                 $j("#" + popupId).popup(popupParams);
             }
 
+            // Deprecated
+            // TODO Move to ws.ui namespace
             function message(content, life, closable) {
                 var messages = $j(".message");
 
