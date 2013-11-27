@@ -107,14 +107,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     /**
      * Creates JCR Session.
      *
-     * @param user user id
-     * @param pass password of user
      * @return new JCR session
      * @throws RepositoryException if fails or user credentials are not correct
      */
     protected Session createSession() throws RepositoryException {
-        Session session = repository.login(credencials);
-        return session;
+        return repository.login(credencials);
     }
 
     // ------ protected methods ------
@@ -146,7 +143,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         String schemaVersion = null;
 
         // check special node
-        NodeType nodeType = null;
+        NodeType nodeType;
         try {
             nodeType = ntm.getNodeType(JcrNT.NT_REPOSITORY);
         } catch (NoSuchNodeTypeException e) {
@@ -190,9 +187,8 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             Session session = createSession();
 
             RTransactionManager transactionManager = getTrasactionManager(session);
-            JcrRepository jri = new JcrRepository(repositoryName, session, transactionManager,
+            return new JcrRepository(repositoryName, session, transactionManager,
                     confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
-            return jri;
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get Repository Instance", e);
         }
@@ -226,7 +222,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected abstract void initNodeTypes(NodeTypeManager ntm) throws RepositoryException;
 
     public void release() throws RRepositoryException {
-        getRepositoryInstance().release();
+        // If rulesRepository is not created, we don't need to create it and then release it
+        if (rulesRepository != null) {
+            rulesRepository.release();
+            rulesRepository = null;
+        }
     }
 
     /**

@@ -8,17 +8,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.openl.config.ConfigPropertyString;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.RTransactionManager;
-import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory {
+public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitRepositoryFactory implements RulesRepositoryFactoryAware {
 
     private final Log log = LogFactory.getLog(LocalJackrabbitProductionRepositoryFactory.class);
 
@@ -34,6 +31,8 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
             "production-repository.pass", "pass");
     private final ConfigPropertyString repoConfigFile = new ConfigPropertyString(
             "production-repository.config", "/jackrabbit-repository.xml");
+
+    private RulesRepositoryFactory rulesRepositoryFactory;
 
     public LocalJackrabbitProductionRepositoryFactory() {
         setConfRepositoryHome(confRepositoryHome);
@@ -71,7 +70,11 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
      *         repository from current process.
      */
     private boolean isUsedByMyLocalDesignRepository() {
-        RRepositoryFactory repFactory = RulesRepositoryFactory.getRepFactory();
+        if (rulesRepositoryFactory == null) {
+            return false;
+        }
+
+        RRepositoryFactory repFactory = rulesRepositoryFactory.getRepositoryFactory();
         if (repFactory instanceof LocalJackrabbitDesignRepositoryFactory) {
             return this.repHome.equals(((LocalJackrabbitDesignRepositoryFactory) repFactory).repHome);
         }
@@ -82,7 +85,7 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
     protected void createTransientRepo(String fullPath) throws RepositoryException {
         if (isRepositoryLocked(repHome)) {
             if (isUsedByMyLocalDesignRepository()) {
-                repository = ((LocalJackrabbitDesignRepositoryFactory)RulesRepositoryFactory.getRepFactory()).repository;
+                repository = ((LocalJackrabbitDesignRepositoryFactory) rulesRepositoryFactory.getRepositoryFactory()).repository;
             } else {
                 throw new RepositoryException("Repository is already locked.");
             }
@@ -121,7 +124,10 @@ public class LocalJackrabbitProductionRepositoryFactory extends LocalJackrabbitR
         } finally {
             FileUtils.deleteQuietly(tmpRepoHome);
         }
-        return;
-        
+    }
+
+    @Override
+    public void setRulesRepositoryFactory(RulesRepositoryFactory factory) {
+        this.rulesRepositoryFactory = factory;
     }
 }
