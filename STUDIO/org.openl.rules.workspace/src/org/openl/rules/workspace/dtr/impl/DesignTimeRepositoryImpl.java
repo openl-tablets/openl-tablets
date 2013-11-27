@@ -5,21 +5,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openl.config.ConfigSet;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.NullRepository;
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RRepositoryListener;
-import org.openl.rules.repository.RulesRepositoryFactory;
+import org.openl.rules.repository.*;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -28,23 +23,23 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEvent;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.MsgHelper;
+import org.springframework.beans.factory.DisposableBean;
 
 /**
  *
  * @author Aleh Bykhavets
  *
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener{
+public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener, DisposableBean, RulesRepositoryFactoryAware {
     private final Log log = LogFactory.getLog(DesignTimeRepositoryImpl.class);
 
+    private RulesRepositoryFactory rulesRepositoryFactory;
     /** Rules Repository */
     private RRepository rulesRepository;
     /** Project Cache */
     private HashMap<String, AProject> projects;
 
     private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
-
-    private Map<String, Object> config;
 
     public DesignTimeRepositoryImpl() {
     }
@@ -60,16 +55,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         if (rulesRepository == null) {
             init();
         }
-        return RulesRepositoryFactory.isFailed();
+        return rulesRepositoryFactory.isBroken();
     }
 
     private void init() {
         try {
-            ConfigSet configSet = new ConfigSet();
-            configSet.addProperties(config);
-            RulesRepositoryFactory.setConfig(configSet);
-
-            rulesRepository = RulesRepositoryFactory.getRepositoryInstance();
+            rulesRepository = rulesRepositoryFactory.getRulesRepositoryInstance();
         } catch (RRepositoryException e) {
             if (log.isErrorEnabled()) {
                 log.error("Cannot init DTR! " + e.getMessage(), e);
@@ -327,12 +318,17 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
     }
 
-    public Map<String, Object> getConfig() {
-        return config;
+    @Override
+    public void setRulesRepositoryFactory(RulesRepositoryFactory rulesRepositoryFactory) {
+        this.rulesRepositoryFactory = rulesRepositoryFactory;
     }
 
-    public void setConfig(Map<String, Object> config) {
-        this.config = config;
+    @Override
+    public void destroy() throws Exception {
+        if (rulesRepository != null) {
+            rulesRepository.removeRepositoryListener(this);
+            rulesRepository.release();
+            rulesRepository = null;
+        }
     }
-
 }

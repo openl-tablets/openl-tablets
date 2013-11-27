@@ -21,6 +21,7 @@ import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;

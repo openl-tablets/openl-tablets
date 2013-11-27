@@ -12,7 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -25,12 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.config.ConfigurationManager;
-import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
-import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ResolvingStrategy;
@@ -56,14 +52,9 @@ public class DatatypeChangeTest {
         ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath().isRulesProject(
                 rulesFolder);
         List<Module> modules = resolvingStrategy.resolveProject(rulesFolder).getModules();
-        RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
-        List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>(1);
-        dependencyLoaders.add(new RulesModuleDependencyLoader(modules));
-        dependencyManager.setDependencyLoaders(dependencyLoaders);
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
-        when(ws.getDependencyManager()).thenReturn(dependencyManager);
 
         pm = new ProjectModel(ws);
         for (Module module : modules) {
@@ -124,8 +115,8 @@ public class DatatypeChangeTest {
     }
 
     private boolean contains(Method methods[], String name) {
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getName().equals(name))
+        for (Method method : methods) {
+            if (method.getName().equals(name))
                 return true;
         }
         return false;
@@ -135,7 +126,7 @@ public class DatatypeChangeTest {
         return pm.getCompiledOpenClass().getTypes().get("org.openl.this::Expense").getInstanceClass();
     }
 
-    private void setFieldName(String fieldName) throws FileNotFoundException, IOException {
+    private void setFieldName(String fieldName) throws IOException {
         Workbook wb = getWorkbook();
         Sheet testedSheet = wb.getSheet(SHEET_NAME);
         Row row = testedSheet.getRow(testedSheet.getFirstRowNum() + 1);
@@ -143,7 +134,7 @@ public class DatatypeChangeTest {
         writeBook(wb, EXPENSE_MODULE_FILE_NAME);
     }
 
-    private Workbook getWorkbook() throws IOException {
+    private Workbook getWorkbook() {
         XlsModuleSyntaxNode xlsModuleNode = ((XlsMetaInfo) pm.getCompiledOpenClass().getOpenClassWithErrors()
                 .getMetaInfo()).getXlsModuleNode();
         WorkbookSyntaxNode[] workbookNodes = xlsModuleNode.getWorkbookSyntaxNodes();

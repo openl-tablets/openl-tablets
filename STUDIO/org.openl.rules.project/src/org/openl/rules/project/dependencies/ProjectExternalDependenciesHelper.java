@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.core;
+package org.openl.rules.project.dependencies;
 
 import java.util.ArrayList;
 import java.util.Collection;
