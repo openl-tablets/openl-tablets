@@ -5,7 +5,7 @@
   <groupId>org.openl.rules</groupId>
   <artifactId>openl-studio-svn-pom</artifactId>
   <packaging>pom</packaging>
-  <version>5.11.1-SNAPSHOT</version>
+  <version>5.11.1</version>
   <name>OpenL STUDIO SVN root pom</name>
   <url>http://openl-tablets.sourceforge.net/ws-toc401.shtml</url>
 
