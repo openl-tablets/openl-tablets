@@ -2,100 +2,125 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <style>
-        .configBlock {
-            margin: 7px 3px;
-            padding: 8px;
-            border: 1px solid #eeeeee;
-            background: #f5f5f5;
-            text-align: left;
+        .block-column {
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 65px;
         }
 
-        .blockHeader {
-            color: #1199EE;
-            font-size: 12px;
+        .block {
+            margin-top: 25px;
         }
 
-        .removeButton {
-            vertical-align: top
+        .block > h3 {
+            color: #8c3;
+            font-weight: normal;
+            font-size: 14px;
         }
 
-        .itemsList {
-            border-collapse: collapse;
+        .block-list {
+            margin: 7px 0;
+            padding: 10px 5px 15px;
+            border-bottom: 1px dashed #ddd;
+            width: 100%;
         }
 
-        .itemsList .removeButton{
-            padding-left: 8px;
+        .block-list > div {
+            margin-bottom: 5px;
         }
 
-        .itemsList td {
-            padding: 0px;
+        .block-list > div:last-child {
+            margin-bottom: 0;
+        }
+
+        .block-list .path {
+            color: #999;
+        }
+
+        .block-list img {
+            vertical-align: -3px;
+            opacity: 0.7;
+        }
+
+        .block-list:last-child {
+            border-bottom: none;
         }
     </style>
 
     <f:event type="preRenderView" listener="#{projectBean.init()}" />
 
-    <div class="content" style="margin: 11px 14px">
-
-        <ui:param name="editable" value="#{studio.model.editable}" />
+    <div class="content" style="margin: 1px 5px 11px 14px;">
+        <ui:param name="editable" value="false" />
         <ui:param name="project" value="#{studio.currentProjectDescriptor}" />
 
-        <h:panelGrid columns="2" cellspacing="6">
-            <h:outputText value="#{msg['ws.project.name']}: " style="font-weight: bold" />
-            <h:panelGroup>
-                <h:inputText maxlength="100" size="40" value="#{project.name}" rendered="#{editable}"/>
-                <h:outputText value="#{project.name}" rendered="#{!editable}"/>
-            </h:panelGroup>
+        <h1 style="margin-bottom: 6px;">
+            <span>#{project.name}</span>
+            <h:inputText maxlength="100" size="40" value="#{project.name}" rendered="#{editable}"/>
+        </h1>
 
-            <h:outputText value="Description"/>
-            <h:panelGroup>
-                <h:inputText maxlength="100" size="40" value="#{project.comment}" rendered="#{editable}"/>
-                <h:outputText value="#{project.comment}" rendered="#{!editable}"/>
-            </h:panelGroup>
-        </h:panelGrid>
+        <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:12px 0 10px; color:#555">
+            <span>#{project.comment}</span>
+            <h:inputText maxlength="100" size="40" value="#{project.comment}" rendered="#{editable}"/>
+        </h:panelGroup>
 
-        <h:panelGrid columns="2" columnClasses="label," styleClass="configBlock">
-            <h:outputText value="Project id" styleClass="#{editable ? 'required' : ''}"/>
-            <h:panelGroup>
-                <h:inputText maxlength="100" size="40" value="#{project.id}" rendered="#{editable}"/>
-                <h:outputText value="#{project.id}" rendered="#{!editable}"/>
-            </h:panelGroup>
+        <div class="block-column">
+            <div class="block">
+                <h3>Properties</h3>
+                <h:panelGrid columns="2">
+                    <h:outputText value="Version" />
+                    <h:outputText value="42" />
+                </h:panelGrid>
+            </div>
 
-            <h:outputText value="Classpath"/>
-            <h:panelGroup>
-                <ui:repeat var="path" value="#{project.classpath}">
-                    <h:panelGrid columns="2" columnClasses=",removeButton" styleClass="itemsList">
-                        <h:inputText maxlength="100" size="40" value="#{path.path}" rendered="#{editable}"/>
-                        <h:outputText value="#{path.path}" rendered="#{!editable}"/>
+            <div class="block">
+                <h3>Modules</h3>
+                <ui:repeat var="module" value="#{project.modules}" varStatus="i">
+                    <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
 
-                        <a4j:commandLink title="Remove" action="#{repositoryProjectRulesConfig.deleteClasspath(path)}"
-                                         rendered="#{editable}">
-                            <img style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
-                        </a4j:commandLink>
-                    </h:panelGrid>
-                </ui:repeat>
-            </h:panelGroup>
-            <a4j:commandLink action="#{repositoryProjectRulesConfig.addClasspath}" rendered="#{editable}"
-                value="Add new classpath" title="Add new classpath"/>
+                    <div id="#{i.index}currentModule" class="block-list">
+                        <div>
+                            <h:form style="display: inline">
+                                <a4j:commandLink action="#{mainBean.selectModule}" rendered="#{!editable}"
+                                    oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
+                                    #{module.name}
+                                    <f:param name="project" value="#{project.name}" />
+                                    <f:param name="module" value="#{module.name}" />
+                                </a4j:commandLink>
+                            </h:form>
+                            <span class="path">#{projectBean.getModulePath(module)}</span>
+                        </div>
+                        <h:panelGroup rendered="#{needJavaClassName}">
+                        <div>
+                            <span>#{module.type} </span>
+                            <span>#{module.classname}</span>
+                        </div>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{!empty module.methodFilter and (!empty module.methodFilter.includes or !empty module.methodFilter.excludes)}">
+                        <div>
+                            <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
+                                <img src="webresource/images/include.png" />
+                                <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
+                                    #{include}
+                                </a4j:repeat>
+                            </h:panelGroup>
 
-        </h:panelGrid>
+                            <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
+                                <img src="webresource/images/exclude.png" />
+                                <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
+                                    #{exclude}
+                                </a4j:repeat>
+                            </h:panelGroup>
+                        </div>
+                        </h:panelGroup>
+                    </div>
 
-        <br/>
-
-        <h:panelGroup>
-            <h:outputText value="Modules:" styleClass="blockHeader #{editable ? 'required' : ''}"/>
-            <br/>
-            <ui:repeat var="module" value="#{project.modules}" varStatus="i">
-                <h:panelGrid columns="2" columnClasses=",removeButton" styleClass="configBlock">
-                    <h:panelGrid id="#{i.index}currentModule" columns="2" columnClasses="label,">
-                        <h:outputText value="Name" styleClass="#{editable ? 'required' : ''}"/>
-                        <h:inputText  maxlength="100" size="40" value="#{module.name}" rendered="#{editable}"/>
-                        <h:outputText value="#{module.name}" rendered="#{!editable}"/>
-
-                        <h:outputText value="Type" styleClass="#{editable ? 'required' : ''}"/>
-                        <h:selectOneMenu  value="#{module.type}" disabled="#{!editable}">
+                    <h:panelGroup rendered="#{editable}">
+                        <h:inputText  maxlength="100" size="40" value="#{module.name}" />
+                        <h:selectOneMenu  value="#{module.type}">
                             <ui:remove>
                                 <f:ajax event="change" execute="#{i.index}currentModule" render="#{i.index}currentModule" />
                             </ui:remove>
@@ -103,41 +128,57 @@
                             <f:selectItem itemValue="DYNAMIC" itemLabel="Dynamic" />
                             <f:selectItem itemValue="API" itemLabel="API" />
                         </h:selectOneMenu>
+                        <h:inputText maxlength="100" size="40" value="#{module.classname}" rendered="#{needJavaClassName}"/>
+                        <h:inputText maxlength="100" size="40" value="#{module.rulesRootPath.path}" />
+                        <h:inputText maxlength="100" size="40" value="#{module.methodFilter.includes}" />
+                        <h:inputText maxlength="100" size="40" value="#{module.methodFilter.excludes}" />
 
-                        <ui:param name="needJavaClassName" value="#{module.type != 'API'}" />
-                        <h:outputText value="Class" rendered="#{needJavaClassName}" styleClass="#{editable ? 'required' : ''}"/>
-                        <h:inputText maxlength="100" size="40" value="#{module.classname}" rendered="#{editable and needJavaClassName}"/>
-                        <h:outputText value="#{module.classname}" rendered="#{!editable and needJavaClassName}"/>
+                        <a4j:commandLink title="Remove" action="#{repositoryProjectRulesConfig.deleteModule(module)}">
+                            <img style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
+                        </a4j:commandLink>
+                    </h:panelGroup>
+                </ui:repeat>
+                <a4j:commandLink action="#{repositoryProjectRulesConfig.addModule}" rendered="#{editable}"
+                    value="Add new module" title="Add new module"/>
+            </div>
+        </div>
 
-                        <h:outputText value="Rules root path" styleClass="#{editable ? 'required' : ''}"/>
-                        <h:inputText maxlength="100" size="40" value="#{module.rulesRootPath.path}" rendered="#{editable}"/>
-                        <h:outputText value="#{module.rulesRootPath.path}" rendered="#{!editable}"/>
+        <div class="block-column">
+            <div class="block">
+                <h3>Source Dependencies</h3>
+                <ui:repeat var="path" value="#{project.classpath}">
+                    <div>
+                        <h:outputText value="#{path.path}" />
+                        <h:inputText maxlength="100" size="40" value="#{path.path}" rendered="#{editable}" />
+                        <a4j:commandLink title="Remove" action="#{repositoryProjectRulesConfig.deleteClasspath(path)}"
+                            rendered="#{editable}">
+                            <img style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
+                        </a4j:commandLink>
+                    </div>
+                </ui:repeat>
+                <a4j:commandLink action="#{repositoryProjectRulesConfig.addClasspath}" rendered="#{editable}"
+                    value="Add new classpath" title="Add new classpath"/>
+            </div>
 
-                        <h:outputText value="Included methods (comma separated)"/>
-                        <h:inputText maxlength="100" size="40" value="#{module.methodFilter.includedMethods}" rendered="#{editable}"/>
-                        <h:outputText value="#{module.methodFilter.includedMethods}" rendered="#{!editable}"/>
-
-                        <h:outputText value="Excluded methods (comma separated)"/>
-                        <h:inputText maxlength="100" size="40" value="#{module.methodFilter.excludedMethods}" rendered="#{editable}"/>
-                        <h:outputText value="#{module.methodFilter.excludedMethods}" rendered="#{!editable}"/>
-                    </h:panelGrid>
-
-                    <a4j:commandLink title="Remove" action="#{repositoryProjectRulesConfig.deleteModule(module)}"
-                                     rendered="#{editable}">
-                        <img style="margin-left: 3px; opacity: 0.5" src="webresource/images/close.gif" />
-                    </a4j:commandLink>
-                </h:panelGrid>
-            </ui:repeat>
-            <a4j:commandLink action="#{repositoryProjectRulesConfig.addModule}" rendered="#{editable}"
-                             value="Add new module" title="Add new module"/>
-        </h:panelGroup>
+            <div class="block">
+                <h3>Project Dependencies</h3>
+                <ui:repeat var="dependency" value="#{project.dependencies}">
+                    <div class="block-list">
+                        <a href="#project.xhtml?name=#{jsffn:encodeURL(dependency.name)}">#{dependency.name}</a>
+                        <h:panelGroup rendered="#{dependency.autoIncluded}">
+                            <img src="webresource/images/ok.png" style="margin-left: 11px" />
+                        </h:panelGroup>
+                    </div>
+                </ui:repeat>
+            </div>
+        </div>
 
         <br />
         <br />
 
         <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesConfig.saveConfiguration}" rendered="#{editable}" render="projectTree nodeView" />
         <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesConfig.deleteConfiguration}" rendered="#{editable}" render="projectTree nodeView"
-                           onclick="if(!window.confirm('Are you sure you want to delete the rules configuration?')) {return false;}"/>
+            onclick="if(!window.confirm('Are you sure you want to delete the rules configuration?')) {return false;}"/>
 
     </div>
 

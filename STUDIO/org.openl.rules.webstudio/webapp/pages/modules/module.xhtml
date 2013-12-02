@@ -2,10 +2,9 @@
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
-     xmlns:a4j="http://richfaces.org/a4j">
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <style>
         .module-imports {
@@ -29,13 +28,12 @@
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
 
-    <div class="content" style="margin: 11px 14px">
-        <h:panelGrid columns="2" cellspacing="6" columnClasses="">
-            <h:outputText value="#{msg['ws.module.project.name']}: " style="font-weight: bold" />
-            <h:outputText value="#{studio.currentModule.project.name}"  />
-            <h:outputText value="#{msg['ws.module.name']}: " style="font-weight: bold" />
-            <h:outputText value="#{studio.currentModule.name}"  />
+    <div class="content" style="margin: 1px 14px 11px">
 
+        <h1>#{studio.currentModule.name}<span style="margin:0 8px 0 20px;color:#1199ee">&#8249;&#8211;</span><a
+                href="#project.xhtml?name=#{jsffn:encodeURL(studio.currentProject.name)}">#{studio.currentProject.name}</a></h1>
+
+        <h:panelGrid columns="2" style="margin-top: 20px">
             <h:outputText value="#{msg['ws.module.tables']}: " style="font-weight: bold" />
             <h:panelGroup>
                 <h:outputText value="#{fn:length(studio.model.tableSyntaxNodes)}" />

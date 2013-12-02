@@ -87,11 +87,11 @@
                             <a4j:repeat value="#{project.modules}" var="module" id="iterate-modules">
                             <li>
                                 <a4j:commandLink action="#{mainBean.selectModule}" onclick="selectModule(this)" id="module"
-                                    oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
-                                    #{module.name}
-                                    <f:param name="project" value="#{module.project.id}" />
-                                    <f:param name="module" value="#{module.name}" />
-                                </a4j:commandLink>
+                                                                   oncomplete="goTo('module.xhtml?#{jsffn:encodeURL(project.name)}/#{jsffn:encodeURL(module.name)}', true)">
+                                #{module.name}
+                                <f:param name="project" value="#{project.name}" />
+                                <f:param name="module" value="#{module.name}" />
+                            </a4j:commandLink>
                             </li>
                             </a4j:repeat>
                         </ul>
