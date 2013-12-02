@@ -46,6 +46,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
  * TODO Remove JSF dependency
  * TODO Separate user session from app session
+ * TODO Move settings to separate UserSettings class
  * 
  * @author snshor
  */
@@ -79,7 +80,6 @@ public class WebStudio {
     private List<ProjectDescriptor> projects = null;
     private boolean updateSystemProperties;
 
-    // TODO Move settings to separate UserSettings class
     private RulesTreeView treeView;
     private String tableView;
     private boolean showFormulas;
@@ -88,6 +88,7 @@ public class WebStudio {
     private int testsFailuresPerTest;
     private boolean showComplexResult;
 
+    private ProjectDescriptor currentProject;
     private Module currentModule;
 
     private boolean collapseProperties = true;
@@ -198,13 +199,10 @@ public class WebStudio {
         return benchmarks.toArray(new BenchmarkInfoView[benchmarks.size()]);
     }
 
-    /**
-     * TODO Hold current project in session
-     * */
     public RulesProject getCurrentProject(HttpSession session) {
-        if (currentModule != null) {
+        if (currentProject != null) {
             try {
-                String projectFolder = currentModule.getProject().getProjectFolder().getName();
+                String projectFolder = currentProject.getProjectFolder().getName();
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(session);
                 RulesProject project = rulesUserSession.getUserWorkspace().getProject(projectFolder);
                 return project;
@@ -236,6 +234,10 @@ public class WebStudio {
 
     public RulesProject getCurrentProject() {
         return getCurrentProject(FacesUtils.getSession());
+    }
+
+    public ProjectDescriptor getCurrentProjectDescriptor() {
+        return currentProject;
     }
 
     public Module getCurrentModule() {
@@ -329,8 +331,28 @@ public class WebStudio {
         model.buildProjectTree();
     }
 
-    public void selectModule(String projectId, String moduleName) throws Exception {
-        if (StringUtils.isBlank(projectId) || StringUtils.isBlank(moduleName)) {
+    public void selectProject(String name) throws Exception {
+        if (StringUtils.isBlank(name)) {
+            if (currentProject != null) {
+                return;
+            }
+
+            if (getAllProjects().size() > 0) {
+                currentProject = getAllProjects().get(0);
+            }
+            return;
+        }
+
+        currentProject = getProjectByName(name);
+
+        if (currentProject == null && getAllProjects().size() > 0) {
+            currentProject = getAllProjects().get(0);
+        }
+    }
+
+    public void
+    selectModule(String projectName, String moduleName) throws Exception {
+        if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
             if (currentModule != null) {
                 return;
             }
@@ -341,7 +363,12 @@ public class WebStudio {
             return;
         }
 
-        ProjectDescriptor project = getProject(projectId);
+        ProjectDescriptor project;
+        if (currentProject != null && projectName.equals(currentProject.getName())) {
+            project = currentProject;
+        } else {
+            project = getProjectByName(projectName);
+        }
         if (project != null) {
             for (Module module : project.getModules()) {
                 if (module.getName().equals(moduleName)) {
@@ -422,7 +449,10 @@ public class WebStudio {
             model.setModuleInfo(module);
             model.getRecentlyVisitedTables().clear();
         }
+
         currentModule = module;
+        currentProject = currentModule != null ? currentModule.getProject() : null;
+
         for (StudioListener listener : listeners) {
             listener.studioReset();
         }

@@ -61,9 +61,9 @@ public class MainBean {
         OpenLConfiguration.reset();
         
         WebStudio studio = WebStudioUtils.getWebStudio();
-        String projectId = FacesUtils.getRequestParameter("project");
+        String projectName = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
-        studio.selectModule(projectId, moduleName);
+        studio.selectModule(projectName, moduleName);
     }
 
     public void clearModule() throws Exception {
