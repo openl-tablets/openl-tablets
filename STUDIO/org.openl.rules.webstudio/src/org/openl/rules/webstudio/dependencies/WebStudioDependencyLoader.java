@@ -66,7 +66,7 @@ final class WebStudioDependencyLoader implements IDependencyLoader {
                             log.debug("Creating dependency for dependencyName = " + dependencyName);
                         }
                         rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                            .next(), true, dependencyManager, classLoader);
+                            .next(), false, dependencyManager, classLoader);
                     } else {
                         if (modules.size() > 1) {
                             rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,

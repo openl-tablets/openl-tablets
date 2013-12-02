@@ -213,7 +213,7 @@ public final class Constrainer implements Serializable {
 
     /**
      * Sets the precision of the constrained floating-point variable
-     * calculationsþ The default value is 1E-06.
+     * calculations. The default value is 1E-06.
      *
      * @param prc The new precision to be set.
      */

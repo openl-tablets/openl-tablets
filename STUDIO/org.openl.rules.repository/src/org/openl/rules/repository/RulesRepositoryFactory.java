@@ -101,14 +101,14 @@ public class RulesRepositoryFactory {
         }
     }
 
-    public void setRulesConfig(ConfigSet config) {
+    public void setConfigSet(ConfigSet config) {
         this.config = config;
     }
 
-    public void setRulesConfig(Map<String, Object> config) {
+    public void setConfig(Map<String, Object> config) {
         ConfigSet rulesConfig = new ConfigSet();
         rulesConfig.addProperties(config);
-        setRulesConfig(rulesConfig);
+        setConfigSet(rulesConfig);
     }
 
     ///////////////////// Deprecated stuff /////////////////////
@@ -160,7 +160,7 @@ public class RulesRepositoryFactory {
      */
     @Deprecated
     public static void setConfig(ConfigSet config) {
-        getInstance().setRulesConfig(config);
+        getInstance().setConfigSet(config);
     }
 
     /**

@@ -129,7 +129,7 @@ public class TableBean {
             WebStudioUtils.getProjectModel().getRecentlyVisitedTables().setLastVisitedTable(table);
             //Check the save table parameter
             boolean saveTable = FacesUtils.getRequestParameterMap().get("saveTable") == null ? true :
-                new Boolean(FacesUtils.getRequestParameterMap().get("saveTable"));
+                    Boolean.valueOf(FacesUtils.getRequestParameterMap().get("saveTable"));
             if (saveTable) {
                 storeTable();
             }
