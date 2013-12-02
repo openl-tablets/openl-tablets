@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -19,5 +20,11 @@ public class ProjectBean {
         studio.selectProject(projectName);
     }
 
+    public String getModulePath(Module module) {
+        String moduleFullPath = module.getRulesRootPath().getPath();
+        String projectFullPath = module.getProject().getProjectFolder().getAbsolutePath();
+
+        return moduleFullPath.replace(projectFullPath, "");
+    }
 
 }
