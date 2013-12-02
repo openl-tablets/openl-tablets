@@ -858,6 +858,10 @@ form.standard table.buttonPanel {
     background: #f7f7f7 !important;
 }
 
+.rf-pp-hdr-cntrls .close {
+    margin: 4px;
+}
+
 /* Twitter Bootstrap styles */
 
 .caret {
