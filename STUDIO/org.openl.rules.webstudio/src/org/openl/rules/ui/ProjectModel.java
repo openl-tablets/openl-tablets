@@ -1017,8 +1017,10 @@ public class ProjectModel {
                 OpenL.reset();
                 OpenLConfiguration.reset();
                 ClassLoaderFactory.reset();
+                /* falls through */
             case RELOAD:
                 modulesCache.reset();
+                /* falls through */
             case SINGLE:
                 if (moduleInfo != null) {
                     // Clear the cache of dependency manager, as the project has
