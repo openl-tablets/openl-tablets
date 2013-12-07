@@ -320,6 +320,10 @@ fieldset {
     background: #FFD200;
 }
 
+.badge-success {
+    background: #5cb85c;
+}
+
 .badge-info {
     background: #59c;
 }
@@ -391,6 +395,11 @@ fieldset {
     padding: 15px 25px 15px 125px;
 }
 
+.page {
+    padding: 7px 21px 15px;
+}
+
+/* TODO Merge with .block */
 .fields section {
     margin-bottom: 31px;
 }
@@ -405,6 +414,77 @@ fieldset {
 .fields section > div {
     margin-left: 11px;
     color: rgb(71,71,71);
+}
+
+.block-column {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 95px;
+}
+
+.block {
+    margin-top: 25px;
+    margin-bottom: 37px;
+}
+
+.block:last-child {
+    margin-bottom: 0;
+}
+
+.block > h3 {
+    color: #578;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.block > .block-content {
+    padding-left: 7px;
+    padding-top: 2px;
+}
+
+.block > .block-content > .list {
+    margin-top: -5px;
+}
+
+.block > .block-content > .properties {
+    margin-top: -2px;
+}
+
+.list > .list-item {
+    display: block;
+    width: 100%;
+    padding: 8px 3px 10px;
+    border-bottom: 1px dashed #ddd;
+}
+
+.list > .list-item:last-child {
+    border-bottom: none;
+}
+
+table.properties td {
+    border-collapse: collapse;
+}
+
+table.properties td {
+    padding: 4px 2px 4px 0;
+    vertical-align: top;
+}
+
+table.properties td:first-child {
+    width: 110px;
+    color: #777;
+    padding-right: 5px;
+}
+
+ul.enum {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+ul.enum li {
+    padding-top: 3px;
+    padding-bottom: 4px;
 }
 
 .code {
@@ -831,8 +911,8 @@ form.standard table.buttonPanel {
 }
 
 .rf-pp-shade {
-    background-color: #f3f3f3 !important;
-    opacity: 0.8 !important;
+    background-color: #f5f5f5 !important;
+    opacity: 0.7 !important;
 }
 
 .rf-pp-shdw {

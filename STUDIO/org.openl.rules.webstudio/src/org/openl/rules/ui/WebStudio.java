@@ -437,6 +437,10 @@ public class WebStudio {
         });
     }
 
+    public boolean isProjectExists(final String name) {
+        return getProjectByName(name) != null;
+    }
+
     /**
      * DOCUMENT ME!
      * 
