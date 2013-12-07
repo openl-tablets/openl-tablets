@@ -5,10 +5,7 @@ import org.openl.rules.common.ProjectDependency;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.webstudio.web.repository.DependencyBean;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.filter.IFilter;
@@ -71,35 +68,13 @@ public class TreeProject extends TreeFolder {
     // ------ UI methods ------
 
     protected static String generateStatus(UserWorkspaceProject userProject) {
-        if (userProject.isLocalOnly()) {
-            return "Local";
+        ProjectStatus status = userProject.getStatus();
+
+        if (status != ProjectStatus.EDITING && userProject.isLocked()) {
+            return status.getDisplayValue() + " - Locked";
         }
 
-        if (userProject.isDeleted()) {
-            return "Deleted";
-        }
-
-        if (userProject.isOpenedForEditing()) {
-            return "Editing";
-        }
-
-        StringBuilder status = new StringBuilder();
-
-        if (userProject.isOpened()) {
-            if (userProject.isOpenedOtherVersion()) {
-                status.append("Opened Old Revision");
-            } else {
-                status.append("Opened");
-            }
-        }else{
-            status.append("Closed");
-        }
-        
-        if(userProject.isLocked()){
-            status.append(" - Locked");
-        }
-
-        return status.toString();
+        return status.getDisplayValue();
     }
 
     public TreeProject(String id, String name, IFilter<AProjectArtefact> filter) {
@@ -142,7 +117,7 @@ public class TreeProject extends TreeFolder {
         VersionInfo vi = projectVersion.getVersionInfo();
         return (vi != null) ? vi.getCreatedBy() : null;
     }
-    
+
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null || getProject().getVersionsCount() <= 2) {
@@ -252,7 +227,7 @@ public class TreeProject extends TreeFolder {
             getProject().setDependencies(newDeps);
         }
     }
-    
+
     @Override
     public void refresh() {
         super.refresh();

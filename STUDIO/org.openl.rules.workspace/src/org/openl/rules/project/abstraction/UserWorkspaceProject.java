@@ -71,4 +71,26 @@ public abstract class UserWorkspaceProject extends AProject {
         erase(user);
     }
 
+    // TODO Cache status in the field
+    public ProjectStatus getStatus() {
+        if (isLocalOnly()) {
+            return ProjectStatus.LOCAL;
+        }
+        else if (isDeleted()) {
+            return ProjectStatus.ARCHIVED;
+        }
+        else if (isOpenedForEditing()) {
+            return ProjectStatus.EDITING;
+        }
+        else if (isOpenedOtherVersion()) {
+            return ProjectStatus.VIEWING_VERSION;
+        }
+        else if (isOpened()) {
+            return ProjectStatus.VIEWING;
+        }
+        else {
+            return ProjectStatus.CLOSED;
+        }
+    }
+
 }

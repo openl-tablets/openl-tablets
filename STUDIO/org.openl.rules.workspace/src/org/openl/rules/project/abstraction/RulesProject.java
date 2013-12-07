@@ -181,4 +181,5 @@ public class RulesProject extends UserWorkspaceProject {
         }
         return isLockedByMe() && local != null;
     }
+
 }
