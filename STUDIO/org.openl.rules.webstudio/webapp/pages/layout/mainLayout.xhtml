@@ -190,18 +190,33 @@
 
             var ws = {
                 nav: {
-                  reload: function(params) {
-                      if (!params) {
-                          loadContent();
-                      } else {
-                          var currentPage = getCurrentPage();
-                          var newPage = $location.utils.setParams(currentPage, params);
-                          goTo(newPage);
-                      }
-                  },
-                  home: function() {
-                      loadContent(urlRewrite.prefix + HOME_PAGE);
-                  }
+                    reload: function(params) {
+                        if (!params) {
+                            loadContent();
+                        } else {
+                            var currentPage = getCurrentPage();
+                            var newPage = $location.utils.setParams(currentPage, params);
+                            goTo(newPage);
+                        }
+                    },
+                    home: function() {
+                        loadContent(urlRewrite.prefix + HOME_PAGE);
+                    }
+                },
+
+                ui: {
+                    show: function(id) {
+                        // RichFaces Popup
+                        if ($j("#" + id + "_container").length) {
+                            RichFaces.$(id).show();
+                        }
+                    },
+                    hide: function(id) {
+                        // RichFaces Popup
+                        if ($j("#" + id + "_container").length) {
+                            RichFaces.$(id).hide();
+                        }
+                    }
                 }
             }
 

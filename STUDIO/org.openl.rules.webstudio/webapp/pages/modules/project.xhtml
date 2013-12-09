@@ -7,15 +7,13 @@
     xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <style>
+        .page img {
+            vertical-align: -3px;
+        }
         .list > .list-item .path {
             color: #999;
             padding-left: 20px;
             float: right;
-        }
-
-        .list > .list-item img {
-            vertical-align: -3px;
-            opacity: 0.7;
         }
     </style>
 
@@ -26,16 +24,19 @@
     <ui:param name="projectData" value="#{studio.currentProject}" />
 
     <div class="page">
-        <h1>
-            <span>#{projectBean.name}</span>
-            <ui:remove>
-            <input type="button" value="Edit" onclick="RichFaces.$('editProjectNamePopup').show();" />
-            </ui:remove>
-        </h1>
+        <div class="editable">
+            <h1>
+                <span>#{project.name}</span>
+                <h:panelGroup rendered="#{studio.model.editable}">
+                <a href="javascript:void(0)" title="Edit" class="editable-link"
+                   onclick="showEditProjectPopup()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                </h:panelGroup>
+            </h1>
 
-        <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:10px 0 15px; color:#555">
-            <span>#{project.comment}</span>
-        </h:panelGroup>
+            <h:panelGroup layout="block" rendered="#{!empty project.comment}" style="margin:10px 0 15px; color:#555">
+                <span>#{project.comment}</span>
+            </h:panelGroup>
+        </div>
 
         <div class="block-column">
             <div class="block">
@@ -118,7 +119,7 @@
                                 <div style="margin-top:4px">
                                     <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
                                         <span title="Included Methods">
-                                            <img src="webresource/images/include.png" />
+                                            <img src="webresource/images/include.png" style="opacity:0.6" />
                                             <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
                                                 #{include}
                                             </a4j:repeat>
@@ -127,7 +128,7 @@
 
                                     <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
                                         <span title="Excluded Methods">
-                                            <img src="webresource/images/exclude.png" />
+                                            <img src="webresource/images/exclude.png" style="opacity:0.6" />
                                             <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
                                                 #{exclude}
                                             </a4j:repeat>
@@ -204,38 +205,67 @@
         </h:panelGroup>
     </div>
 
-    <rich:popupPanel id="editProjectNamePopup" width="450" autosized="true">
+    <h:panelGroup rendered="#{studio.model.editable}">
+
+    <rich:popupPanel id="editProjectPopup" width="460" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Edit Project Name" />
+            <h:outputText value="Edit Project" />
         </f:facet>
 
         <f:facet name="controls">
             <h:graphicImage value="/images/close.gif" class="close"
-                onclick="RichFaces.$('editProjectNamePopup').hide();" alt="Close" />
+                onclick="ws.ui.hide('editProjectPopup')" alt="Close" />
         </f:facet>
 
-        <h:form prependId="false">
+        <h:form prependId="false" id="editProjectForm">
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                 <span class="required">Name</span>
-                <h:inputText id="projectName" value="#{projectBean.name}" style="width: 210px"
+                <h:inputText id="projectName" value="#{project.name}" style="width: 250px"
                     validator="#{projectBean.validateProjectName}" />
                 <h:outputText />
                 <a4j:outputPanel ajaxRendered="true">
                         <h:message for="projectName" styleClass="error" />
                 </a4j:outputPanel>
                 <span>Description</span>
-                <h:inputTextarea value="#{project.comment}" style="width:330px;height:150px" />
+                <h:inputTextarea id="projectDescription" value="#{project.comment}" style="width:340px;height:150px" />
             </h:panelGrid>
 
             <hr />
 
             <h:panelGrid columns="2" styleClass="buttonPanel" cellpadding="0" cellspacing="0">
-                <a4j:commandButton value="Update" action="#{projectBean.editName}"
-                    data="#{facesContext.maximumSeverity}" styleClass="button-primary"
-                    oncomplete="if(!event.data) RichFaces.$('editProjectNamePopup').hide();" />
-                <input type="button" value="Cancel" onclick="RichFaces.$('editProjectNamePopup').hide();" />
+                <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
+                    styleClass="button-primary"
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');goTo('project.xhtml?name=' + encodeURIComponent('#{project.name}'), true)}" />
+                <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
             </h:panelGrid>
         </h:form>
     </rich:popupPanel>
+
+    <script>
+      //<![CDATA[
+        var initProjectName = $j("#projectName").val();               // Плохо, очень плохо!!!
+        var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
+
+        function showEditProjectPopup() {
+            $j("#editProjectBtn").prop("disabled", true);
+            $j("#projectName").val(initProjectName);
+            $j("#projectDescription").val(initProjectDescription);
+            $j("#editProjectForm span.error").remove();
+
+            ws.ui.show("editProjectPopup");
+
+            var btn = $j("#editProjectBtn");
+
+            $j("#projectName, #projectDescription").on("keyup", function() {
+                var name = $j("#projectName").val();
+                var description = $j("#projectDescription").val();
+                btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription));
+            })
+        }
+
+      //]]>
+    </script>
+
+    </h:panelGroup>
 
 </ui:composition>
